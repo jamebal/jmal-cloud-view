@@ -1,0 +1,489 @@
+<template>
+  <div id="global-uploader">
+
+    <!-- 上传 -->
+    <uploader
+      ref="uploader"
+      :options="options"
+      :auto-start="false"
+      class="uploader-app"
+      @files-added="onFilesAdded"
+      @file-success="onFileSuccess"
+      @file-progress="onFileProgress"
+      @file-error="onFileError"
+    >
+      <uploader-unsupport></uploader-unsupport>
+
+      <uploader-btn id="global-uploader-btn" ref="uploadBtn" :attrs="attrs">选择文件</uploader-btn>
+
+      <uploader-btn id="folder-uploader-btn" ref="folderBtn" :directory="true">选择文件夹</uploader-btn>
+
+      <uploader-list v-show="panelShow">
+        <div slot-scope="props" class="file-panel" :class="{'collapse': collapse}">
+          <div class="file-title">
+            <h2 class="files-title">文件列表</h2>
+            <div class="operate">
+              <el-button type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">
+                <i class="iconfont" :class="collapse ? 'el-icon-circle-plus-outline': 'el-icon-remove-outline'"></i>
+              </el-button>
+              <el-button type="text" class="button-collapse" title="关闭" @click="close">
+                <i class="iconfont el-icon-circle-close"></i>
+              </el-button>
+            </div>
+          </div>
+
+          <ul class="file-list">
+            <li v-for="file in props.fileList" :key="file.id">
+              <uploader-file ref="files" :class="'file_' + file.id" :file="file" :list="true"></uploader-file>
+            </li>
+            <div v-if="!props.fileList.length" class="no-file"><i class="iconfont icon-empty-file"></i> 暂无待上传文件</div>
+          </ul>
+        </div>
+      </uploader-list>
+
+    </uploader>
+
+  </div>
+</template>
+
+<script>
+/**
+     *   全局上传插件
+     *   调用方法：Bus.$emit('openUploader', {}) 打开文件选择框，参数为需要传递的额外参数
+     *   监听函数：Bus.$on('fileAdded', fn); 文件选择后的回调
+     *            Bus.$on('fileSuccess', fn); 文件上传成功的回调
+     */
+
+// import { ACCEPT_CONFIG } from '@/assets/js/config'
+import Bus from '@/assets/js/bus'
+import $ from 'jquery'
+import SparkMD5 from 'spark-md5'
+import api from '@/api/upload-api'
+
+export default {
+  components: {},
+  data($this) {
+    return {
+      username: this.$store.state.user.name,
+      options: {
+        target: api.simpleUploadURL,
+        chunkSize: 5 * 1024 * 1024,
+        maxChunkRetries: 1, // 最大重试次数
+        simultaneousUploads: 6, // 并发上传数
+        testChunks: true, // 是否开启服务器分片校验
+        // 服务器分片校验函数，秒传及断点续传基础
+        checkChunkUploadedByResponse: function(chunk, message) {
+          const objMessage = JSON.parse(message)
+          const res = objMessage.data
+          if (res.pass) {
+            // 秒传
+            return true
+          }
+          // 断点续传
+          return (res.resume || []).indexOf(chunk.offset + 1) >= 0
+        },
+        headers: {
+          'jmal-token': $this.$store.state.user.token
+        },
+        query() {}
+      },
+      attrs: {
+        // accept: ACCEPT_CONFIG.getAll()
+        accept: '*'
+      },
+      panelShow: false, // 选择文件后，展示上传panel
+      collapse: false
+    }
+  },
+  computed: {
+    // Uploader实例
+    uploader() {
+      return this.$refs.uploader.uploader
+    }
+  },
+  watch: {},
+  mounted() {
+    Bus.$on('openUploader', query => {
+      this.params = query || {}
+      if (this.$refs.uploadBtn) {
+        $('#global-uploader-btn').click()
+      }
+    })
+    Bus.$on('uploadFolder', query => {
+      this.params = query || {}
+      if (this.$refs.folderBtn) {
+        $('#folder-uploader-btn').click()
+      }
+    })
+  },
+  destroyed() {
+    Bus.$off('openUploader')
+    Bus.$off('uploadFolder')
+  },
+  methods: {
+    // onFileAdded(file) {
+    //   console.log('file', file)
+    //   console.log(this.uploader.filePaths)
+    //   this.panelShow = true
+    //   this.computeMD5(file)
+    //   Bus.$emit('fileAdded')
+    // },
+    onFilesAdded(files) {
+      console.log('files', files)
+      const filePaths = this.uploader.filePaths
+      const paths = Object.keys(filePaths)
+      if (paths.length > 0) {
+        paths.forEach(path => {
+          const folder = filePaths[path]
+          // 上传文件夹
+          api.uploadFolder({
+            isFolder: true,
+            folderPath: folder.parent.path,
+            filename: folder.name,
+            currentDirectory: this.params.currentDirectory,
+            username: this.params.username,
+            userId: this.params.userId
+          }).then(() => {
+            console.log('上传文件' + folder.name + '夹成功！', folder)
+            this.getFileList()
+          }).catch(e => {})
+        })
+      }
+      files.forEach(file => {
+        // 上传文件
+        console.log('上传->', file.name)
+        this.panelShow = true
+        this.computeMD5(file)
+        Bus.$emit('fileAdded')
+      })
+    },
+    onFileProgress(rootFile, file, chunk) {
+      // console.log(`上传中 ${file.name}，chunk：${chunk.startByte / 1024 / 1024} ~ ${chunk.endByte / 1024 / 1024}`)
+    },
+    onFileSuccess(rootFile, file, response) {
+      const res = JSON.parse(response)
+      const data = res.data
+      // 服务器自定义的错误（即虽返回200，但是是错误的情况），这种错误是Uploader无法拦截的
+      if (!data.upload) {
+        // this.$message({ message: res.message, type: 'error' })
+        // 文件状态设为“失败”
+        this.statusSet(file.id, 'failed')
+        return
+      } else {
+        this.statusSet(file.id, 'success')
+      }
+      // 如果服务端返回需要合并
+      if (data.merge) {
+        // 文件状态设为“合并中”
+        this.statusSet(file.id, 'merging')
+        api.mergeSimpleUpload({
+          filename: file.name,
+          relativePath: file.relativePath,
+          identifier: file.uniqueIdentifier,
+          currentDirectory: this.params.currentDirectory,
+          username: this.params.username,
+          userId: this.params.userId,
+          totalSize: file.size,
+          isFolder: file.isFolder
+        }).then(() => {
+          // console.log('文件合并成功', res)
+          // 文件合并成功
+          Bus.$emit('fileSuccess')
+          this.statusRemove(file.id)
+          this.statusSet(file.id, 'success')
+          // file.removeFile(file)
+        }).catch(e => {})
+
+        // 不需要合并
+      } else {
+        Bus.$emit('fileSuccess')
+        // 完成后从文件列表移除
+        // file.removeFile(file)
+        // console.log('上传成功')
+      }
+      if (file.parent == null) {
+        this.close()
+      }
+    },
+    onFileError(rootFile, file, response) {
+      this.$message({
+        message: response,
+        type: 'error'
+      })
+    },
+    /**
+     * 计算md5，实现断点续传及秒传
+     * @param file
+     */
+    computeMD5(file) {
+      const fileReader = new FileReader()
+      // const time = new Date().getTime()
+      const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
+      let currentChunk = 0
+      const chunkSize = 10 * 1024 * 1024
+      const chunks = Math.ceil(file.size / chunkSize)
+      const spark = new SparkMD5.ArrayBuffer()
+
+      // 文件状态设为"计算MD5"
+      this.statusSet(file.id, 'md5')
+      file.pause()
+
+      loadNext()
+
+      fileReader.onload = e => {
+        spark.append(e.target.result)
+
+        if (currentChunk < chunks) {
+          currentChunk++
+          loadNext()
+
+          // 实时展示MD5的计算进度
+          this.$nextTick(() => {
+            $(`.myStatus_${file.id}`).text('校验MD5 ' + ((currentChunk / chunks) * 100).toFixed(0) + '%')
+          })
+        } else {
+          const md5 = spark.end()
+          this.computeMD5Success(md5, file)
+          // console.log(`MD5计算完毕：${file.name} \nMD5：${md5} \n分片：${chunks} 大小:${file.size} 用时：${new Date().getTime() - time} ms`)
+        }
+      }
+
+      fileReader.onerror = function() {
+        this.error(`文件${file.name}读取出错，请检查该文件`)
+        file.cancel()
+      }
+
+      function loadNext() {
+        const start = currentChunk * chunkSize
+        const end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize
+
+        fileReader.readAsArrayBuffer(blobSlice.call(file.file, start, end))
+      }
+    },
+
+    computeMD5Success(md5, file) {
+      // 将自定义参数直接加载uploader实例的opts上
+      // const fileName = file.name
+      // const suffix = fileName.substring(fileName.lastIndexOf('.'), fileName.length)// 后缀名
+      Object.assign(this.uploader.opts, {
+        query: {
+          isFolder: false,
+          ...this.params
+        }
+      })
+      file.uniqueIdentifier = md5
+      file.resume()
+      this.statusRemove(file.id)
+    },
+
+    fileListShow() {
+      const $list = $('#global-uploader .file-list')
+
+      if ($list.is(':visible')) {
+        $list.slideUp()
+        this.collapse = true
+      } else {
+        $list.slideDown()
+        this.collapse = false
+      }
+    },
+    close() {
+      this.uploader.cancel()
+      this.panelShow = false
+    },
+
+    /**
+     * 新增的自定义的状态: 'md5'、'transcoding'、'failed'
+     * @param id
+     * @param status
+     */
+    statusSet(id, status) {
+      const statusMap = {
+        md5: {
+          text: '校验MD5',
+          bgc: '#fff'
+        },
+        merging: {
+          text: '合并中',
+          bgc: '#e2eeff'
+        },
+        transcoding: {
+          text: '转码中',
+          bgc: '#e2eeff'
+        },
+        failed: {
+          text: '上传失败',
+          bgc: '#e2eeff'
+        },
+        success: {
+          text: '上传成功',
+          bgc: '#e2eeff'
+        }
+      }
+
+      this.$nextTick(() => {
+        $(`<p class="myStatus_${id}"></p>`).appendTo(`.file_${id} .uploader-file-status`).css({
+          'position': 'absolute',
+          'top': '-14px',
+          'font-size': '13px',
+          'left': '0',
+          'right': '0',
+          'bottom': '0',
+          'zIndex': '1',
+          'backgroundColor': statusMap[status].bgc
+        }).text(statusMap[status].text)
+      })
+    },
+    statusRemove(id) {
+      this.$nextTick(() => {
+        $(`.myStatus_${id}`).remove()
+      })
+    },
+
+    error(msg) {
+      this.$notify({
+        title: '错误',
+        message: msg,
+        type: 'error',
+        duration: 2000
+      })
+    }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+    #global-uploader {
+        position: fixed;
+        z-index: 20;
+        right: 15px;
+        bottom: 15px;
+
+        .uploader-app {
+            width: 720px;
+        }
+
+        .file-panel {
+            background-color: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 7px 7px 0 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+
+            ul{
+              white-space: nowrap;
+              -webkit-overflow-scrolling: touch;
+              overflow-x: auto;
+              overflow-y: hidden;
+              padding: 0 0.1rem;
+              margin-bottom: -.2rem;
+              overflow: -moz-scrollbars-none;
+              overflow: -moz-scrollbars-none;
+            }
+            ul::-webkit-scrollbar{
+              display: none;
+            }
+
+            .file-title {
+                display: flex;
+                /*line-height: 8px;*/
+                padding: 0 10px;
+                border-bottom: 1px solid #ddd;
+                .files-title {
+                  margin-left: 3%;
+                  height: 20px;
+                  line-height: 20px;
+                }
+                .operate {
+                    flex: 1;
+                    text-align: right;
+                  .button-collapse {
+                    padding: 16px 5px;
+                    font-size: 25px;
+                    margin-left: 0;
+                  }
+                }
+            }
+
+            .file-list {
+                position: relative;
+                max-height: 300px;
+                /*height: 49px;*/
+                overflow-x: hidden;
+                list-style-type: none;
+                overflow-y: auto;
+                background-color: #fff;
+                padding: 0;
+                margin: 0;
+                > li {
+                    background-color: #fff;
+                }
+            }
+            &.collapse {
+                .file-title {
+                    background-color: #E7ECF2;
+                }
+            }
+        }
+
+        .no-file {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+        }
+
+        /deep/.uploader-file-icon {
+            &:before {
+                content: '' !important;
+            }
+            background: url(./images/file.svg);
+            &[icon=image] {
+                background: url(./images/image.svg);
+            }
+            &[icon=video] {
+                background: url(./images/video.svg);
+            }
+            &[icon=document] {
+                background: url(./images/docment.svg);
+            }
+            &[icon=audio] {
+              background: url(./images/audio.svg);
+            }
+        }
+
+        /deep/.uploader-file-actions > span {
+            margin-right: 6px;
+        }
+    }
+
+    /deep/.uploader-file-status {
+      width: 32%;
+      text-indent: 20px;
+    }
+    /deep/.uploader-file-meta {
+      width: 0%;
+    }
+    /deep/.uploader-file-icon {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
+      vertical-align: top;
+      margin-top: 8px;
+      margin-right: 8px;
+    }
+    /deep/.uploader-file-actions>span {
+      margin-right: 6px;
+      margin-left: 8px;
+    }
+
+    /* 隐藏上传按钮 */
+    #global-uploader-btn {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+    }
+    #folder-uploader-btn {
+      position: absolute;
+      clip: rect(0, 0, 0, 0);
+    }
+</style>
