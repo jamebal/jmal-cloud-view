@@ -5,6 +5,13 @@
 
 
 ```bash
+# clone the jmal-cloud-sever
+git clone https://github.com/jamebal/jmal-cloud-server.git
+cd jmal-cloud-server
+
+# run server
+run java-server
+
 # clone the project
 git clone https://github.com/jamebal/jmal-cloud-view.git
 
