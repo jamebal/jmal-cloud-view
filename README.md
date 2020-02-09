@@ -32,4 +32,4 @@ Modern browsers and Internet Explorer 10+.
 
 [MIT](https://github.com/jamebal/jmal-cloud-view/blob/master/LICENSE) license.
 
-Copyright (c) 2017-present PanJiaChen
+Copyright (c) 2020-present jmal
