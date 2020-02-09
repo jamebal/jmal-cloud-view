@@ -1,8 +1,15 @@
 # jmal-cloud-view
-网盘web端
+netdisk server 
 
-基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+based on [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
+## Setup
+
+### 1.run nginx server and need to be install nginx plugin of [mod_zip](https://github.com/evanmiller/mod_zip) 
+
+view [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)
+
+### 2.run web server (view[jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server))
 
 ```bash
 # clone the jmal-cloud-sever
@@ -11,7 +18,11 @@ cd jmal-cloud-server
 
 # run server
 run java-server
+```
 
+### 3.setup the proejct
+
+```bash
 # clone the project
 git clone https://github.com/jamebal/jmal-cloud-view.git
 
@@ -24,7 +35,6 @@ npm install
 # develop
 npm run dev
 ```
-
 This will automatically open http://localhost:9528
 
 ## Browsers support
