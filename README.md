@@ -1,7 +1,7 @@
 # jmal-cloud-view
 网盘web端
 
-基于 [vue-element-admin](https://github.com/PanJiaChen/vue-admin-template)
+基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
 
 ```bash
@@ -9,7 +9,7 @@
 git clone https://github.com/jamebal/jmal-cloud-view.git
 
 # enter the project directory
-cd vue-admin-template
+cd jmal-cloud-view
 
 # install dependency
 npm install
