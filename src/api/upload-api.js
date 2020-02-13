@@ -57,6 +57,14 @@ export default {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
     })
+  },
+  // 重名名
+  rename: function(params) {
+    return request({
+      url: 'rename',
+      method: 'get',
+      params
+    })
   }
 
 }

@@ -14,5 +14,5 @@ module.exports = {
    */
   sidebarLogo: false,
 
-  FILE_SERVER_URL: 'http://192.168.1.118:10010/' // nginx文件服务器地址
+  FILE_SERVER_URL: 'http://192.168.1.108:10010/' // nginx文件服务器地址
 }

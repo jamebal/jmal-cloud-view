@@ -67,9 +67,9 @@ export default {
       username: this.$store.state.user.name,
       options: {
         target: api.simpleUploadURL,
-        chunkSize: 5 * 1024 * 1024,
+        chunkSize: 2 * 1024 * 1024,
         maxChunkRetries: 1, // 最大重试次数
-        simultaneousUploads: 6, // 并发上传数
+        simultaneousUploads: 3, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
         // 服务器分片校验函数，秒传及断点续传基础
         checkChunkUploadedByResponse: function(chunk, message) {
@@ -129,10 +129,10 @@ export default {
     //   Bus.$emit('fileAdded')
     // },
     onFilesAdded(files) {
-      console.log('files', files)
       const filePaths = this.uploader.filePaths
       const paths = Object.keys(filePaths)
-      if (paths.length > 0) {
+      const pathsLength = paths.length
+      if (pathsLength > 0) {
         paths.forEach(path => {
           const folder = filePaths[path]
           // 上传文件夹
@@ -144,16 +144,28 @@ export default {
             username: this.params.username,
             userId: this.params.userId
           }).then(() => {
-            console.log('上传文件' + folder.name + '夹成功！', folder)
             this.getFileList()
           }).catch(e => {})
         })
       }
       files.forEach(file => {
         // 上传文件
-        console.log('上传->', file.name)
+        console.log('上传->', file)
         this.panelShow = true
-        this.computeMD5(file)
+        console.log(pathsLength)
+        // this.computeMD5(file)
+        if (pathsLength < 1) {
+          this.computeMD5(file)
+        } else {
+          console.log(pathsLength)
+          Object.assign(this.uploader.opts, {
+            query: {
+              isFolder: false,
+              ...this.params
+            }
+          })
+          file.resume()
+        }
         Bus.$emit('fileAdded')
       })
     },
@@ -324,7 +336,7 @@ export default {
       this.$nextTick(() => {
         $(`<p class="myStatus_${id}"></p>`).appendTo(`.file_${id} .uploader-file-status`).css({
           'position': 'absolute',
-          'top': '-14px',
+          // 'top': '-14px',
           'font-size': '13px',
           'left': '0',
           'right': '0',
@@ -385,13 +397,12 @@ export default {
 
             .file-title {
                 display: flex;
-                /*line-height: 8px;*/
+                height: 3.5rem;
+                line-height: 3.5rem;
                 padding: 0 10px;
                 border-bottom: 1px solid #ddd;
                 .files-title {
                   margin-left: 3%;
-                  height: 20px;
-                  line-height: 20px;
                 }
                 .operate {
                     flex: 1;
@@ -450,6 +461,9 @@ export default {
             &[icon=audio] {
               background: url(./images/audio.svg);
             }
+            &[icon=folder] {
+              background: url(./images/folder.svg);
+            }
         }
 
         /deep/.uploader-file-actions > span {
@@ -462,7 +476,7 @@ export default {
       text-indent: 20px;
     }
     /deep/.uploader-file-meta {
-      width: 0%;
+      width: 0;
     }
     /deep/.uploader-file-icon {
       width: 32px;

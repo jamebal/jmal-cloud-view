@@ -18,16 +18,16 @@
               <ul>
                 <li @click="upload">
                   <label class="menuitem">
-                    <span class="el-icon-upload"></span><span class="menuitem text">上传文件</span>
+                    <svg-icon icon-class="file-upload" /><span class="menuitem text">上传文件</span>
                   </label>
                 </li>
                 <li @click="uploadFolder">
                   <label class="menuitem">
-                    <span class="el-icon-upload"></span><span class="menuitem text">上传文件夹</span>
+                    <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
                   </label>
                 </li>
                 <li>
-                  <a href="#" class="menuitem" @click.prevent="newFolder"><span class="el-icon-folder-add"></span><span class="menuitem text">新建文件夹</span>
+                  <a href="#" class="menuitem" @click.prevent="newFolder"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
                     <form v-show="showNewFolder" class="folder-name-form">
                       <el-input v-model="newFolderName" placeholder="请输入内容">
                         <el-button
@@ -117,18 +117,26 @@
           width="50"
         >
           <template slot-scope="scope">
+            <svg-icon v-if="scope.row.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
             <svg-icon v-if="scope.row.isFolder" icon-class="folder" />
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('video')!== -1" icon-class="video" />
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('audio')!== -1" icon-class="audio" />
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('text')!== -1" icon-class="txt" />
-            <el-avatar v-if="!scope.row.isFolder && scope.row.contentType.indexOf('image')!== -1" shape="square" :src="imageUrl+scope.row.id"></el-avatar>
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('application')!== -1 || scope.row.contentType === ''" icon-class="file" />
+            <svg-icon v-else-if="scope.row.contentType.indexOf('video') > -1" icon-class="video" />
+            <svg-icon v-else-if="scope.row.contentType.indexOf('audio') > -1" icon-class="audio" />
+            <svg-icon v-else-if="scope.row.contentType.indexOf('text') > -1" icon-class="file-txt" />
+            <el-avatar v-else-if="scope.row.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+scope.row.id"></el-avatar>
+            <svg-icon v-else-if="scope.row.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
+            <svg-icon v-else-if="scope.row.contentType.indexOf('word') > -1" icon-class="file-word" />
+            <svg-icon v-else-if="scope.row.contentType.indexOf('excel') > -1" icon-class="file-excel" />
+            <svg-icon v-else-if="scope.row.contentType.indexOf('zip') > -1" icon-class="zip" />
+            <svg-icon v-else icon-class="file" />
           </template>
         </el-table-column>
 
         <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" min-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
           <template slot-scope="scope">
-            <span>{{ scope.row.name }}</span>
+            <el-col v-if="scope.row.index === editingIndex" :span="10">
+              <el-input v-model="scope.row.name" placeholder="" size="small" @change="rowRename(scope.row)"></el-input>
+            </el-col>
+            <span v-else>{{ scope.row.name }}</span>
           </template>
         </el-table-column>
 
@@ -181,7 +189,7 @@
           header-align="left"
         >
           <template slot-scope="scope">
-            <span v-if="scope.row.agoTime < 1000*10">刚刚</span>
+            <span v-if="scope.row.agoTime < 1000*10">&nbsp;&nbsp;&nbsp;刚刚</span>
             <span v-if="scope.row.agoTime >= 1000*10 && scope.row.agoTime < 1000*60">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/1000).toFixed(0) }} 秒钟前</span>
             <span v-if="scope.row.agoTime >= 1000*60 && scope.row.agoTime < 1000*60*60">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60)).toFixed(0) }} 分钟前</span>
             <span v-if="scope.row.agoTime >= 1000*60*60 && scope.row.agoTime < 1000*60*60*24">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60*60)).toFixed(0) }} 小时前</span>
@@ -275,7 +283,8 @@ export default {
       tableLoading: false,
       newFolderLoading: false,
       menuTriangle: '',
-      cellMouseIndex: -1
+      cellMouseIndex: -1,
+      editingIndex: -1
     }
   },
   computed: {
@@ -284,11 +293,9 @@ export default {
     ])
   },
   created() {
-    console.log('created')
     this.getFileList()
   },
   mounted() {
-    console.log('mounted')
     this.rowDrop()
     Bus.$on('fileSuccess', () => {
       this.getFileList()
@@ -548,7 +555,10 @@ export default {
       }
       if (columnIndex === 2) {
         if (this.indexList.length < 1) {
-          this.fileClick(row)
+          if (row.index !== this.editingIndex) {
+            this.fileClick(row)
+            this.editingIndex = -1
+          }
         }
       }
       if (columnIndex === 4) {
@@ -556,6 +566,30 @@ export default {
       }
       if (this.indexList.length > 0) {
         this.$refs.fileListTable.toggleRowSelection(row)
+      }
+    },
+    // 重命名
+    rowRename(row) {
+      let newFileName = row.name
+      if (newFileName) {
+        if (!row.isFolder) {
+          const ext = '.' + row.suffix
+          if (!newFileName.endsWith(ext)) {
+            newFileName += ext
+          }
+        }
+        console.log('newFileName', this.$store.state.user)
+        api.rename({
+          newFileName: newFileName,
+          username: this.$store.state.user.name,
+          id: row.id
+        }).then(res => {
+          if (res.data) {
+            row.name = newFileName
+            this.fileList[row.index] = row
+            this.editingIndex = -1
+          }
+        })
       }
     },
     // 更多操作(多选)
@@ -676,10 +710,23 @@ export default {
           this.favoriteOperating(false)
           break
         case 'details':
-          console.log('详情', this.selectRowData[0])
+          this.$notify.info({
+            title: this.rowContextData.name,
+            duration: 2000
+          })
+          console.log('详情', this.rowContextData)
           break
         case 'rename':
           console.log('重命名')
+          if (!this.rowContextData.isFolder) {
+            this.editingIndex = this.rowContextData.index
+          } else {
+            this.$notify({
+              title: '暂不支持文件夹重命名',
+              type: 'warning',
+              duration: 2000
+            })
+          }
           break
         case 'copy':
           console.log('移动或复制')
