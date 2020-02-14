@@ -26,10 +26,10 @@
                     <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
                   </label>
                 </li>
-                <li>
-                  <a href="#" class="menuitem" @click.prevent="newFolder"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
-                    <form v-show="showNewFolder" class="folder-name-form">
-                      <el-input v-model="newFolderName" placeholder="请输入内容">
+                <li @click.prevent="newFolder">
+                  <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
+                    <div v-show="showNewFolder" class="folder-name-form">
+                      <el-input v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @change="newFolderNameClick">
                         <el-button
                           slot="append"
                           v-loading="newFolderLoading"
@@ -40,7 +40,7 @@
                         >
                         </el-button>
                       </el-input>
-                    </form>
+                    </div>
                   </a>
                 </li>
               </ul>
@@ -200,6 +200,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 // import MenuPopover from '@/components/popover/MenuPopover'
 import { mapGetters } from 'vuex'
 // import defaultSettings from '@/settings'
@@ -378,6 +379,7 @@ export default {
     },
     // 新建文件夹
     newFolderNameClick() {
+      console.log(68790)
       this.newFolderLoading = true
       api.uploadFolder({
         isFolder: true,
@@ -396,7 +398,7 @@ export default {
           type: 'success',
           duration: 1000
         })
-      }).catch(e => {})
+      })
     },
     getFileList() {
       this.tableLoading = true
@@ -507,11 +509,13 @@ export default {
       // this.$set(this.tableHead, 2, item_name)
       // this.$set(this.tableHead, 2, item_more)
       // this.$set(this.tableHead, 5, item_size)
+      console.log('selectRowData', this.selectRowData)
+      console.log('rowContextData', this.rowContextData)
     },
     // cell-style通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowRed({ row, column, rowIndex, columnIndex }) {
       if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
-        return { cursor: 'pointer', color: '#19acff' }
+        return { cursor: 'pointer', color: "#19ACF9" }
       }
       for (let i = 0; i < this.indexList.length; i++) {
         if (rowIndex === this.indexList[i]) {
@@ -694,7 +698,7 @@ export default {
           break
         case 'open':
           console.log('open', '打开')
-          this.fileClick(this.selectRowData[0])
+          this.fileClick(this.rowContextData)
           break
         case 'deselect':
           console.log('deselect', '取消选定')
@@ -713,15 +717,16 @@ export default {
           break
         case 'rename':
           console.log('重命名')
-          if (!this.rowContextData.isFolder) {
-            this.editingIndex = this.rowContextData.index
-          } else {
-            this.$notify({
-              title: '暂不支持文件夹重命名',
-              type: 'warning',
-              duration: 2000
-            })
-          }
+          this.editingIndex = this.rowContextData.index
+          // if (!this.rowContextData.isFolder) {
+          //   this.editingIndex = this.rowContextData.index
+          // } else {
+          //   this.$notify({
+          //     title: '暂不支持文件夹重命名',
+          //     type: 'warning',
+          //     duration: 2000
+          //   })
+          // }
           break
         case 'copy':
           console.log('移动或复制')
@@ -734,7 +739,7 @@ export default {
               fileIds.push(value.id)
             })
           } else {
-            fileIds.push(this.selectRowData[0].id)
+            fileIds.push(this.rowContextData.id)
           }
           window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
           break
@@ -801,10 +806,10 @@ export default {
       console.log(row)
       if (row.isFolder) {
         // 打开文件
-        this.path += '/' + row.name
+        this.path += '/' + row.pathname
 
         const item1 = {}
-        item1['folder'] = row.name
+        item1['folder'] = row.pathname
         item1['index'] = this.pathList.length - 1
 
         const item2 = {}
@@ -827,6 +832,7 @@ export default {
 <style lang="scss" scoped>
   .dashboard {
     &-container {
+      min-width:500px;
       margin: 10px 10px 10px 15px;
     }
     &-text {
@@ -878,15 +884,17 @@ export default {
     margin: 0;
     padding: 0;
     font-size: 16px;
+    min-width: 136px;
   }
   .newFileMenu li:hover {
     cursor: pointer;
     border-radius: 5px;
-    background-color: #409eff14;
+    /*background-color: #409eff14;*/
+    background-color: #409eff30;
   }
   .newFileMenu li > .menuitem {
     cursor: pointer;
-    line-height: 44px;
+    line-height: 38px;
     margin-left: 10%;
   }
   .newFileMenu li > .menuitem > .text {
@@ -899,7 +907,7 @@ export default {
   }
   .menuitem /deep/ .el-loading-spinner {
     top: 0;
-    margin-top: 0;
+    margin-top: 0.75rem;
     width: 100%;
     text-align: center;
     position: absolute;
@@ -948,9 +956,6 @@ export default {
     width: 35px;
     height: 35px;
     line-height: 35px;
-  }
-  >>>.el-popover {
-    padding: 5px;
   }
 
   /deep/ .ctx-menu-container {
