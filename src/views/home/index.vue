@@ -728,7 +728,7 @@ export default {
           break
         case 'download':
           console.log('下载')
-          var fileIds = []
+          var fileIds = [];
           if (this.menusIsMultiple) {
             this.selectRowData.forEach(value => {
               fileIds.push(value.id)
