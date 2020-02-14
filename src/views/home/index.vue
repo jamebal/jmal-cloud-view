@@ -39,11 +39,6 @@
                           @click="newFolderNameClick"
                         >
                         </el-button>
-                        <!--<el-button-->
-                        <!--slot="append"-->
-                        <!--class="el-icon-bottom-left"-->
-                        <!--&gt;-->
-                        <!--</el-button>-->
                       </el-input>
                     </form>
                   </a>
@@ -207,7 +202,7 @@
 <script>
 // import MenuPopover from '@/components/popover/MenuPopover'
 import { mapGetters } from 'vuex'
-import defaultSettings from '@/settings'
+// import defaultSettings from '@/settings'
 import { getPath, getPathList, setPath, removePath } from '@/utils/path'
 import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
@@ -741,7 +736,7 @@ export default {
           } else {
             fileIds.push(this.selectRowData[0].id)
           }
-          window.open(defaultSettings.FILE_SERVER_URL + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+          window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
           break
         case 'remove':
           console.log('operation', '删除')
@@ -821,7 +816,7 @@ export default {
         this.getFileList()
       } else {
         const fileIds = [row.id]
-        const url = defaultSettings.FILE_SERVER_URL + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+        const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
         window.open(url, '_blank')
       }
     }
