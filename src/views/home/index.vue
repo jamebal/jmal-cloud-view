@@ -10,7 +10,6 @@
             v-if="index===pathList.length-1"
             v-model="isShowNewFolder"
             placement="bottom"
-            trigger="click"
             @click="showNewFolderClick"
             @after-leave="hideNewFolderName"
           >
@@ -28,21 +27,21 @@
                 </li>
                 <li @click.prevent="newFolder">
                   <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
-                    <div v-show="showNewFolder" class="folder-name-form">
-                      <el-input v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @change="newFolderNameClick">
-                        <el-button
-                          slot="append"
-                          v-loading="newFolderLoading"
-                          element-loading-spinner="el-icon-loading"
-                          element-loading-background="#f6f7fa88"
-                          class="el-icon-right"
-                          @click="newFolderNameClick"
-                        >
-                        </el-button>
-                      </el-input>
-                    </div>
                   </a>
                 </li>
+                <div v-show="showNewFolder" class="folder-name-form">
+                  <el-input v-focus v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
+                    <el-button
+                      slot="append"
+                      v-loading="newFolderLoading"
+                      element-loading-spinner="el-icon-loading"
+                      element-loading-background="#f6f7fa88"
+                      class="el-icon-right"
+                      @click="newFolderNameClick"
+                    >
+                    </el-button>
+                  </el-input>
+                </div>
               </ul>
             </div>
             <el-button slot="reference" icon="el-icon-plus add-file-button" circle />
@@ -70,6 +69,7 @@
           <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
           </label>
         </li>
+
       </ul>
     </e-vue-contextmenu>
 
@@ -129,7 +129,23 @@
         <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" min-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
           <template slot-scope="scope">
             <el-col v-if="scope.row.index === editingIndex" :span="10">
-              <el-input v-model="scope.row.name" placeholder="" size="small" @change="rowRename(scope.row)"></el-input>
+              <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
+              </el-input>
+              <el-button
+                v-loading="renameLoading"
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="#f6f7fa88"
+                class="el-icon-check"
+                @click="rowRename(renameFileName, scope.row)"
+              >
+              </el-button>
+              <el-button
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="#f6f7fa88"
+                class="el-icon-close"
+                @click="editingIndex = -1"
+              >
+              </el-button>
             </el-col>
             <span v-else>{{ scope.row.name }}</span>
           </template>
@@ -220,6 +236,7 @@ export default {
       showNewFolder: false,
       isShowNewFolder: false,
       newFolderName: '新建文件夹',
+      renameFileName: '',
       pathList: [
         { 'folder': '', index: 0 },
         { 'folder': '+', index: 1 }
@@ -278,6 +295,7 @@ export default {
       selectRowData: [],
       tableLoading: false,
       newFolderLoading: false,
+      renameLoading: false,
       menuTriangle: '',
       cellMouseIndex: -1,
       editingIndex: -1
@@ -322,6 +340,16 @@ export default {
   destroyed() {
     removePath()
   },
+  directives: {
+    // 注册一个局部的自定义指令 v-focus
+    focus: {
+      // 指令的定义
+      inserted: function (el) {
+        // 聚焦元素
+        el.querySelector('input').focus()
+      }
+    }
+  },
   methods: {
     // 行拖拽
     rowDrop() {
@@ -359,7 +387,6 @@ export default {
         if (number === 0) {
           this.path = ''
         } else if (number === this.pathList.length - 1) {
-          // console.log('this.path' + this.path)
         } else {
           this.path += '/' + this.pathList[number].folder
         }
@@ -368,6 +395,17 @@ export default {
       this.getFileList()
     },
     newFolder() {
+      console.log(879)
+      this.newFolderName = '新建文件夹'
+      let append = 0
+      let filenameList = []
+      this.fileList.forEach(file => {
+        filenameList.push(file.name)
+      })
+      while(filenameList.includes(this.newFolderName)){
+        append += 1
+        this.newFolderName = '新建文件夹' + append
+      }
       this.showNewFolder = true
     },
     hideNewFolderName() {
@@ -377,28 +415,45 @@ export default {
     showNewFolderClick() {
       this.isShowNewFolder = true
     },
+    newFolderNameClickEnter() {
+      this.newFolderNameClick()
+    },
     // 新建文件夹
     newFolderNameClick() {
-      console.log(68790)
-      this.newFolderLoading = true
-      api.uploadFolder({
-        isFolder: true,
-        filename: this.newFolderName,
-        currentDirectory: this.path,
-        username: this.$store.state.user.username,
-        userId: this.$store.state.user.userId
-      }).then(() => {
-        console.log('新建文件夹' + this.newFolderName + '成功！')
-        this.getFileList()
-        this.newFolderLoading = false
-        this.showNewFolder = false
-        this.isShowNewFolder = false
-        this.$notify({
-          title: '新建文件夹成功',
-          type: 'success',
-          duration: 1000
+        this.newFolderLoading = true
+      if(this.newFolderName){
+        api.uploadFolder({
+          isFolder: true,
+          filename: this.newFolderName,
+          currentDirectory: this.path,
+          username: this.$store.state.user.name,
+          userId: this.$store.state.user.userId
+        }).then((res) => {
+          if(res.data === 1){
+            this.newFolderLoading = false
+            this.$message({
+              message: '该文件夹已存在',
+              type: 'warning'
+            });
+          } else {
+            this.newFolderLoading = false
+            this.showNewFolder = false
+            this.isShowNewFolder = false
+            this.$notify({
+              title: '新建文件夹成功',
+              type: 'success',
+              duration: 1000
+            })
+            this.getFileList()
+          }
         })
-      })
+      }else{
+        this.newFolderLoading = false
+        this.$message({
+          message: '请输入文件夹名称',
+          type: 'warning'
+        });
+      }
     },
     getFileList() {
       this.tableLoading = true
@@ -514,14 +569,14 @@ export default {
     },
     // cell-style通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowRed({ row, column, rowIndex, columnIndex }) {
-      if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
-        return { cursor: 'pointer', color: "#19ACF9" }
-      }
-      for (let i = 0; i < this.indexList.length; i++) {
-        if (rowIndex === this.indexList[i]) {
-          return { backgroundColor: '#EBEEF5', color: '#b7b5b6', cursor: 'default' }
+        if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
+          return { cursor: 'pointer', color: "#19ACF9" }
         }
-      }
+        for (let i = 0; i < this.indexList.length; i++) {
+          if (rowIndex === this.indexList[i]) {
+            return { backgroundColor: '#EBEEF5', color: '#b7b5b6', cursor: 'default' }
+          }
+        }
     },
     // 动态添加index到row里面去
     tableRowClassName({ row, rowIndex }) {
@@ -537,8 +592,10 @@ export default {
     },
     // 单元格hover进入时时间
     cellMouseEnter(row) {
-      if (this.indexList.length < 1) {
-        this.cellMouseIndex = row.index
+      if(this.editingIndex === -1){
+        if (this.indexList.length < 1) {
+          this.cellMouseIndex = row.index
+        }
       }
     },
     // 单元格hover退出时时间
@@ -547,48 +604,75 @@ export default {
     },
     // 单元格点击事件
     cellClick(row, column) {
-      const columnIndex = column.index
-      if (columnIndex === 0) {
-        // 点击选中
-        this.$refs.fileListTable.toggleRowSelection(row)
-      }
-      if (columnIndex === 2) {
-        if (this.indexList.length < 1) {
-          if (row.index !== this.editingIndex) {
-            this.fileClick(row)
-            this.editingIndex = -1
+      if(this.editingIndex === -1) {
+        const columnIndex = column.index
+        if (columnIndex === 0) {
+          // 点击选中
+          this.$refs.fileListTable.toggleRowSelection(row)
+        }
+        if (columnIndex === 2) {
+          if (this.indexList.length < 1) {
+            if (row.index !== this.editingIndex) {
+              this.fileClick(row)
+              this.editingIndex = -1
+            }
           }
         }
-      }
-      if (columnIndex === 4) {
-        // // 单个操作
-      }
-      if (this.indexList.length > 0) {
-        this.$refs.fileListTable.toggleRowSelection(row)
+        if (columnIndex === 4) {
+          // // 单个操作
+        }
+        if (this.indexList.length > 0) {
+          this.$refs.fileListTable.toggleRowSelection(row)
+        }
       }
     },
     // 重命名
-    rowRename(row) {
-      let newFileName = row.name
+    rowRename(newFileName, row) {
       if (newFileName) {
+
         if (!row.isFolder) {
           const ext = '.' + row.suffix
           if (!newFileName.endsWith(ext)) {
             newFileName += ext
           }
         }
-        console.log('newFileName', this.$store.state.user)
+
+        console.log('newFileName', newFileName)
+
+        this.renameLoading = true
+        const findIndex = this.fileList.findIndex(item => {
+          if(newFileName === item.name){
+            return item;
+          }
+        })
+        console.log(findIndex)
+        if(findIndex > -1){
+          let msg = '该文件已存在'
+          if(row.isFolder){
+            msg = '该文件夹已存在'
+          }
+          this.$message({
+            message: msg,
+            type: 'warning'
+          });
+          this.renameLoading = false
+          return
+        }
+
         api.rename({
           newFileName: newFileName,
           username: this.$store.state.user.name,
           id: row.id
         }).then(res => {
           if (res.data) {
+            this.renameLoading = false
             row.name = newFileName
             this.fileList[row.index] = row
             this.editingIndex = -1
           }
         })
+      } else {
+        this.editingIndex = -1
       }
     },
     // 更多操作(多选)
@@ -717,16 +801,8 @@ export default {
           break
         case 'rename':
           console.log('重命名')
+          this.renameFileName = this.rowContextData.name
           this.editingIndex = this.rowContextData.index
-          // if (!this.rowContextData.isFolder) {
-          //   this.editingIndex = this.rowContextData.index
-          // } else {
-          //   this.$notify({
-          //     title: '暂不支持文件夹重命名',
-          //     type: 'warning',
-          //     duration: 2000
-          //   })
-          // }
           break
         case 'copy':
           console.log('移动或复制')
@@ -806,10 +882,10 @@ export default {
       console.log(row)
       if (row.isFolder) {
         // 打开文件
-        this.path += '/' + row.pathname
+        this.path += '/' + row.name
 
         const item1 = {}
-        item1['folder'] = row.pathname
+        item1['folder'] = row.name
         item1['index'] = this.pathList.length - 1
 
         const item2 = {}
@@ -905,12 +981,17 @@ export default {
     cursor: pointer;
     font-size: 20px;
   }
-  .menuitem /deep/ .el-loading-spinner {
+  /deep/ .el-input-group__append /deep/ .el-loading-spinner {
     top: 0;
     margin-top: 0.75rem;
-    width: 100%;
-    text-align: center;
-    position: absolute;
+  }
+  /deep/ .cell /deep/ .el-loading-spinner {
+    top: 0;
+    margin-top: 0.54rem;
+  }
+  /deep/ .cell /deep/ .el-button {
+    padding: 8px 16px;
+    margin-left: 10px;
   }
   /deep/ .el-checkbox {
     cursor: default;
