@@ -809,15 +809,7 @@ export default {
           break
         case 'download':
           console.log('下载')
-          var fileIds = [];
-          if (this.menusIsMultiple) {
-            this.selectRowData.forEach(value => {
-              fileIds.push(value.id)
-            })
-          } else {
-            fileIds.push(this.rowContextData.id)
-          }
-          window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+          this.downloadFile()
           break
         case 'remove':
           console.log('operation', '删除')
@@ -825,6 +817,28 @@ export default {
           break
       }
       this.$refs.contextShow.hideMenu()
+    },
+    downloadFile() {
+      let totalSize = 0
+      this.selectRowData.forEach(item => {
+        totalSize += item.size
+      })
+      if (totalSize > 0) {
+        var fileIds = [];
+        if (this.menusIsMultiple) {
+          this.selectRowData.forEach(value => {
+            fileIds.push(value.id)
+          })
+        } else {
+          fileIds.push(this.rowContextData.id)
+        }
+        window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+      } else {
+        this.$message({
+          message: '所选文件夹为空',
+          type: 'warning'
+        });
+      }
     },
     // 收藏/取消收藏
     favoriteOperating(isFavorite) {
