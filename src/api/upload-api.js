@@ -65,6 +65,22 @@ export default {
       method: 'get',
       params
     })
+  },
+  // 搜索文件🔍
+  searchFile: function(params) {
+    return request({
+      url: 'search-file',
+      method: 'get',
+      params
+    })
+  },
+  // 搜索文件🔍
+  searchFileAndOpenDir: function(params) {
+    return request({
+      url: 'search-file-open',
+      method: 'get',
+      params
+    })
   }
 
 }

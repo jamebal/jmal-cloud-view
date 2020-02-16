@@ -3,9 +3,9 @@
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
-          <a v-if="index===0" @click.prevent="handleLink(item.folder,index)"><svg-icon icon-class="home" /></a>
+          <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" /></a>
           <span v-if="index===pathList.length-2" class="no-redirect">{{ item.folder }}</span>
-          <a v-if="index!==pathList.length-2 && index!==pathList.length-1" class="redirect" @click.prevent="handleLink(item.folder,index)">{{ item.folder }}<svg-icon style="font-size: 20px;" icon-class="breadcrumb-right" /></a>
+          <a v-if="index!==pathList.length-2 && index!==pathList.length-1" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 20px;" icon-class="breadcrumb-right" /></a>
           <el-popover
             v-if="index===pathList.length-1"
             v-model="isShowNewFolder"
@@ -48,6 +48,13 @@
           </el-popover>
         </el-breadcrumb-item>
       </transition-group>
+      <div class="search-content">
+        <el-input placeholder="搜索您的文件" class="searchClass" v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
+          <el-button slot="append" @click="searchFile(searchFileName)">
+            <svg-icon icon-class="search" />
+          </el-button>
+        </el-input>
+      </div>
     </el-breadcrumb>
 
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
@@ -73,7 +80,8 @@
       </ul>
     </e-vue-contextmenu>
 
-    <!--<div class="dashboard-text">path: {{ path }}</div>-->
+    <div class="dashboard-text">path: {{ path }}</div>
+
 
     <el-table
       ref="fileListTable"
@@ -235,8 +243,10 @@ export default {
       path: getPath(),
       showNewFolder: false,
       isShowNewFolder: false,
+      listModeSearch: false,
       newFolderName: '新建文件夹',
       renameFileName: '',
+      searchFileName: '',
       pathList: [
         { 'folder': '', index: 0 },
         { 'folder': '+', index: 1 }
@@ -382,20 +392,28 @@ export default {
       })
     },
     handleLink(item, index) {
-      this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
-      this.pathList.forEach((p, number) => {
-        if (number === 0) {
-          this.path = ''
-        } else if (number === this.pathList.length - 1) {
-        } else {
-          this.path += '/' + this.pathList[number].folder
+      if(item.search){
+        if(item.searchKey){
+          this.searchFileByKeyWord(item.searchKey)
+        } else if(item.fileId){
+          this.searchFileAndOpenDir(item.fileId)
         }
-      })
-      setPath(this.path, this.pathList)
-      this.getFileList()
+        this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+      } else {
+        this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+        this.pathList.forEach((p, number) => {
+          if (number === 0) {
+            this.path = ''
+          } else if (number === this.pathList.length - 1) {
+          } else {
+            this.path += '/' + this.pathList[number].folder
+          }
+        })
+        setPath(this.path, this.pathList)
+        this.getFileList()
+      }
     },
     newFolder() {
-      console.log(879)
       this.newFolderName = '新建文件夹'
       let append = 0
       let filenameList = []
@@ -455,6 +473,56 @@ export default {
         });
       }
     },
+    searchFileByKeyWord(key) {
+      this.searchFile(key)
+    },
+    searchFile(key) {
+      if(key){
+
+        this.pathList = [{ 'folder': '', index: 0 }]
+        const item1 = {}
+        item1['folder'] = '搜索: ' + '"'+ key +'"'
+        item1['search'] = true
+        item1['searchKey'] = key
+        item1['index'] = 1
+        const item2 = {}
+        item2['folder'] = '+'
+        item2['index'] = 2
+        this.pathList.push(item1)
+        this.pathList.push(item2)
+
+        this.tableLoading = true
+        api.searchFile({
+          userId: this.$store.state.user.userId,
+          keyword: key,
+          currentDirectory: getPath(),
+          pageIndex: 1,
+          pageSize: 30
+        }).then(res => {
+          this.fileList = res.data
+          this.tableLoading = false
+          this.clientHeight = document.documentElement.clientHeight - 150
+          this.listModeSearch = true
+        }).catch(e => {})
+      }else{
+        this.handleLink('',0)
+      }
+    },
+    searchFileAndOpenDir(fileId) {
+      this.tableLoading = true
+      api.searchFileAndOpenDir({
+        userId: this.$store.state.user.userId,
+        id: fileId,
+        currentDirectory: getPath(),
+        pageIndex: 1,
+        pageSize: 30
+      }).then(res => {
+        this.fileList = res.data
+        this.tableLoading = false
+        this.clientHeight = document.documentElement.clientHeight - 150
+        this.listModeSearch = true
+      }).catch(e => {})
+    },
     getFileList() {
       this.tableLoading = true
       api.fileList({
@@ -466,6 +534,7 @@ export default {
         this.fileList = res.data
         this.tableLoading = false
         this.clientHeight = document.documentElement.clientHeight - 150
+        this.listModeSearch = false
       }).catch(e => {})
     },
     getSummaries(param) {
@@ -895,21 +964,36 @@ export default {
     fileClick(row) {
       console.log(row)
       if (row.isFolder) {
-        // 打开文件
-        this.path += '/' + row.name
+        // 打开文件夹
+        if (this.listModeSearch) {
 
-        const item1 = {}
-        item1['folder'] = row.name
-        item1['index'] = this.pathList.length - 1
+          const item1 = {}
+          item1['folder'] = row.name
+          item1['search'] = true
+          item1['fileId'] = row.id
+          item1['index'] = this.pathList.length - 1
+          const item2 = {}
+          item2['folder'] = '+'
+          item2['index'] = this.pathList.length
+          this.pathList[this.pathList.length - 1] = item1
+          this.pathList.push(item2)
 
-        const item2 = {}
-        item2['folder'] = '+'
-        item2['index'] = this.pathList.length
-        this.pathList[this.pathList.length - 1] = item1
-        this.pathList.push(item2)
-        setPath(this.path, this.pathList)
-        this.getFileList()
+          this.searchFileAndOpenDir(row.id)
+        } else {
+          this.path += '/' + row.name
+          const item1 = {}
+          item1['folder'] = row.name
+          item1['index'] = this.pathList.length - 1
+          const item2 = {}
+          item2['folder'] = '+'
+          item2['index'] = this.pathList.length
+          this.pathList[this.pathList.length - 1] = item1
+          this.pathList.push(item2)
+          setPath(this.path, this.pathList)
+          this.getFileList()
+        }
       } else {
+        // 打开文件
         const fileIds = [row.id]
         const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
         window.open(url, '_blank')
@@ -1102,6 +1186,11 @@ export default {
   /deep/
   .el-table__footer-wrapper{
     position: fixed;
+  }
+
+  .searchClass{
+    float: right;
+    width: 30%;
   }
 
 </style>
