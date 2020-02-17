@@ -29,7 +29,7 @@
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name"></van-cell>-->
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name" :label="item.updateDate"></van-cell>-->
       <van-swipe-cell v-for="(item,index) in fileList" :key="item.id" :title="item.name">
-        <van-divider v-if="index === 0" style="margin: 0 15px 0px 15px;"></van-divider>
+        <van-divider v-if="index === 0" style="margin: 0 15px 0 15px;"></van-divider>
         <van-row>
           <van-col span="4" align="center">
             <svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
