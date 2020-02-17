@@ -6,11 +6,31 @@
       finished-text="没有更多了"
       @load="getFileList"
       >
+
+      <van-row class="classification">
+        <van-col span="6" align="center">
+          <svg-icon icon-class="image" />
+          <div>图片</div>
+        </van-col>
+        <van-col span="6" align="center">
+          <svg-icon icon-class="document" />
+          <div>文档</div>
+        </van-col>
+        <van-col span="6" align="center">
+          <svg-icon icon-class="video" />
+          <div>视屏</div>
+        </van-col>
+        <van-col span="6" align="center">
+          <svg-icon icon-class="audio" />
+          <div>音乐</div>
+        </van-col>
+      </van-row>
+
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name"></van-cell>-->
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name" :label="item.updateDate"></van-cell>-->
       <van-swipe-cell v-for="(item,index) in fileList" :key="item.id" :title="item.name">
-        <van-divider v-if="index === 0" style="margin: 0 15px 10px 15px;"></van-divider>
-        <van-row type="flex" justify="center">
+        <van-divider v-if="index === 0" style="margin: 0 15px 0px 15px;"></van-divider>
+        <van-row>
           <van-col span="4" align="center">
             <svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
             <svg-icon v-if="item.isFolder" icon-class="folder" />
@@ -133,5 +153,8 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow:ellipsis;
+  }
+  .classification {
+    padding: 1rem 0 1rem 0;
   }
 </style>

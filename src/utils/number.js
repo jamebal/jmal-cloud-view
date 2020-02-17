@@ -98,7 +98,6 @@ export function formatTime(agoTime) {
 }
 
 export function formatSize(size) {
-  console.log(size)
   if (size < 1024) {
     return size + 'B'
   } else if (size < 1024 * 1024) {
