@@ -51,6 +51,11 @@ export function strlen(str){
   return len;
 }
 
+/***
+ * 截取字符串前10位
+ * @param str
+ * @returns {string}
+ */
 export function substring10(str){
   var len = 0;
   var res = '';
@@ -68,4 +73,39 @@ export function substring10(str){
     }
   }
   return res;
+}
+
+/**
+ * @param {number} agoTime
+ * @returns {string}
+ */
+export function formatTime(agoTime) {
+  const diff = agoTime / 1000
+  if (diff < 30) {
+    return '刚刚'
+  } else if (diff < 3600) {
+    // less 1 hour
+    return parseInt(diff / 60) + '分钟前'
+  } else if (diff < 3600 * 24) {
+    return parseInt(diff / 3600) + '小时前'
+  } else if (diff < 3600 * 24 * 30) {
+    return parseInt(diff / (3600 * 24)) + '天前'
+  } else if (diff <= 3600 * 24 * 30 * 12) {
+    return parseInt(diff / (3600 * 24 * 30)) + '个月前'
+  } else {
+    return parseInt(diff / (3600 * 24 * 30 * 12)) + '年月前'
+  }
+}
+
+export function formatSize(size) {
+  console.log(size)
+  if (size < 1024) {
+    return size + 'B'
+  } else if (size < 1024 * 1024) {
+    return (size/1024).toFixed(2) + 'k'
+  } else if (size < 1024 * 1024 * 1024) {
+    return (size/(1024 * 1024)).toFixed(2) + 'M'
+  } else {
+    return (size/(1024 * 1024 * 1024)).toFixed(2) + 'G'
+  }
 }

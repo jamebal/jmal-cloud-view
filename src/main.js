@@ -12,8 +12,9 @@ import EVueContextmenu from 'e-vue-contextmenu'
 import App from './App'
 import store from './store'
 import router from './router'
-import WeVue from 'we-vue'
-import 'we-vue/lib/style.css'
+// import WeVue from 'we-vue'
+// import 'we-vue/lib/style.css'
+import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider } from 'vant';
 
 import '@/icons' // icon
 import '@/permission' // permission control
@@ -35,7 +36,19 @@ import '@/permission' // permission control
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
-Vue.use(WeVue)
+// Vue.use(WeVue)
+
+// 有赞的移动UI
+Vue.use(Button);
+Vue.use(Cell);
+Vue.use(CellGroup);
+Vue.use(Image);
+Vue.use(List);
+Vue.use(PullRefresh);
+Vue.use(SwipeCell);
+Vue.use(Col);
+Vue.use(Row);
+Vue.use(Divider);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
