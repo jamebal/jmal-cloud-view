@@ -3,9 +3,17 @@
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
-          <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" /></a>
-          <span v-if="index===pathList.length-2" class="no-redirect">{{ item.folder }}</span>
-          <a v-if="index!==pathList.length-2 && index!==pathList.length-1" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 20px;" icon-class="breadcrumb-right" /></a>
+          <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
+
+          <span v-if="pathList.length >= 7 && index === pathList.length-6" class="redirect" >&nbsp;</span>
+          <a v-if="pathList.length >= 7 && index === pathList.length-6" class="redirect" @click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <a v-if="pathList.length >= 7 && index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <a v-if="pathList.length >= 7 && index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <a v-if="pathList.length < 7 && index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <a v-if="pathList.length < 7 && index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+
+          <span v-if="index===pathList.length-2 && strLength(item.folder) <= 10" class="no-redirect">{{ item.folder }}</span>
+          <span v-if="index===pathList.length-2 && strLength(item.folder) > 10" class="no-redirect">{{ substring10(item.folder) }}...</span>
           <el-popover
             v-if="index===pathList.length-1"
             v-model="isShowNewFolder"
@@ -80,8 +88,7 @@
       </ul>
     </e-vue-contextmenu>
 
-    <div class="dashboard-text">path: {{ path }}</div>
-
+    <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
     <el-table
       ref="fileListTable"
@@ -229,6 +236,7 @@
 import { mapGetters } from 'vuex'
 // import defaultSettings from '@/settings'
 import { getPath, getPathList, setPath, removePath } from '@/utils/path'
+import { strlen, substring10 } from '@/utils/number'
 import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
 // import Sortable from 'sortablejs'
@@ -373,6 +381,7 @@ export default {
       // })
     },
     upload() {
+      console.log('user', this.$store.state.user);
       // 打开文件选择框
       Bus.$emit('openUploader', {
         // 传入的参数
@@ -391,12 +400,18 @@ export default {
         userId: this.$store.state.user.userId
       })
     },
+    strLength(str) {
+      return strlen(str)
+    },
+    substring10(str) {
+      return substring10(str)
+    },
     handleLink(item, index) {
       if(item.search){
         if(item.searchKey){
           this.searchFileByKeyWord(item.searchKey)
-        } else if(item.fileId){
-          this.searchFileAndOpenDir(item.fileId)
+        } else if(item.row){
+          this.searchFileAndOpenDir(item.row)
         }
         this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
       } else {
@@ -438,7 +453,8 @@ export default {
     },
     // 新建文件夹
     newFolderNameClick() {
-        this.newFolderLoading = true
+      console.log('user', this.$store.state.user);
+      this.newFolderLoading = true
       if(this.newFolderName){
         api.uploadFolder({
           isFolder: true,
@@ -462,7 +478,11 @@ export default {
               type: 'success',
               duration: 1000
             })
-            this.getFileList()
+            if (this.listModeSearch) {
+              this.getFileListBySearchMode()
+            } else {
+              this.getFileList()
+            }
           }
         })
       }else{
@@ -478,7 +498,6 @@ export default {
     },
     searchFile(key) {
       if(key){
-
         this.pathList = [{ 'folder': '', index: 0 }]
         const item1 = {}
         item1['folder'] = '搜索: ' + '"'+ key +'"'
@@ -503,16 +522,17 @@ export default {
           this.tableLoading = false
           this.clientHeight = document.documentElement.clientHeight - 150
           this.listModeSearch = true
+          this.path = ''
         }).catch(e => {})
       }else{
         this.handleLink('',0)
       }
     },
-    searchFileAndOpenDir(fileId) {
+    searchFileAndOpenDir(row) {
       this.tableLoading = true
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
-        id: fileId,
+        id: row.id,
         currentDirectory: getPath(),
         pageIndex: 1,
         pageSize: 30
@@ -522,6 +542,7 @@ export default {
         this.clientHeight = document.documentElement.clientHeight - 150
         this.listModeSearch = true
       }).catch(e => {})
+      this.path = row.path + row.name
     },
     getFileList() {
       this.tableLoading = true
@@ -535,6 +556,20 @@ export default {
         this.tableLoading = false
         this.clientHeight = document.documentElement.clientHeight - 150
         this.listModeSearch = false
+      }).catch(e => {})
+    },
+    getFileListBySearchMode() {
+      this.tableLoading = true
+      api.fileList({
+        userId: this.$store.state.user.userId,
+        currentDirectory: this.path,
+        pageIndex: 1,
+        pageSize: 30
+      }).then(res => {
+        this.fileList = res.data
+        this.tableLoading = false
+        this.clientHeight = document.documentElement.clientHeight - 150
+        this.listModeSearch = true
       }).catch(e => {})
     },
     getSummaries(param) {
@@ -966,19 +1001,17 @@ export default {
       if (row.isFolder) {
         // 打开文件夹
         if (this.listModeSearch) {
-
           const item1 = {}
           item1['folder'] = row.name
           item1['search'] = true
-          item1['fileId'] = row.id
+          item1['row'] = row
           item1['index'] = this.pathList.length - 1
           const item2 = {}
           item2['folder'] = '+'
           item2['index'] = this.pathList.length
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
-
-          this.searchFileAndOpenDir(row.id)
+          this.searchFileAndOpenDir(row)
         } else {
           this.path += '/' + row.name
           const item1 = {}
@@ -1006,7 +1039,7 @@ export default {
 <style lang="scss" scoped>
   .dashboard {
     &-container {
-      min-width:500px;
+      min-width: 960px;
       margin: 10px 10px 10px 15px;
     }
     &-text {
@@ -1030,11 +1063,11 @@ export default {
     color: #C0C4CC;
   }
   /deep/ .breadcrumb-svg {
-    font-size: 20px;
+    /*font-size: 20px;*/
   }
 
   .el-breadcrumb {
-    font-size: 20px;
+    font-size: 1rem;
     line-height: 46px;
   }
   .newFileMenu ul {
