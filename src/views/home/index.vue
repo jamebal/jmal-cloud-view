@@ -4,16 +4,29 @@
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
           <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
+          <a v-if="pathList.length >= 7">
+            <span v-if="index === pathList.length-6" class="redirect" >&nbsp;</span>
+            <a v-if="index === pathList.length-6" class="redirect" @click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+            <a v-if="index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+            <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
+              <a v-if="index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+            </el-tooltip>
+          </a>
+          <a v-if="pathList.length < 7">
+            <a v-if="index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+              <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
+                <a v-if="index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+              </el-tooltip>
+          </a>
+          <a v-if="index===pathList.length-2">
+            <span v-if="strLength(item.folder) <= 10" class="no-redirect">{{ item.folder }}</span>
+            <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
+              <span :title="item.folder" v-if="strLength(item.folder) > 10 && strLength(item.folder) <= 50 && item.searchKey" class="no-redirect">{{ item.folder }}</span>
+              <span :title="item.folder" v-if="strLength(item.folder) > 50 && item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
+              <span :title="item.folder" v-if="strLength(item.folder) > 10 && !item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
+            </el-tooltip>
+          </a>
 
-          <span v-if="pathList.length >= 7 && index === pathList.length-6" class="redirect" >&nbsp;</span>
-          <a v-if="pathList.length >= 7 && index === pathList.length-6" class="redirect" @click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <a v-if="pathList.length >= 7 && index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <a v-if="pathList.length >= 7 && index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <a v-if="pathList.length < 7 && index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <a v-if="pathList.length < 7 && index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-
-          <span v-if="index===pathList.length-2 && strLength(item.folder) <= 10" class="no-redirect">{{ item.folder }}</span>
-          <span v-if="index===pathList.length-2 && strLength(item.folder) > 10" class="no-redirect">{{ substring10(item.folder) }}...</span>
           <el-popover
             v-if="index===pathList.length-1"
             v-model="isShowNewFolder"
@@ -224,9 +237,18 @@
             <span v-if="scope.row.agoTime >= 1000*60*60*24*30*12">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60*60*24*30*12)).toFixed(0) }} 年前</span>
           </template>
         </el-table-column>
-
       </template>
     </el-table>
+    <el-pagination
+      background
+      layout="prev, pager, next"
+      :hide-on-single-page="true"
+      :current-page.sync="pagination.pageIndex"
+      :page-sizes="pagination.pageSizes"
+      :page-size="pagination.pageSize"
+      :total="pagination.total"
+      @current-change="currentChange">
+    </el-pagination>
   </div>
 </template>
 
@@ -260,6 +282,12 @@ export default {
         { 'folder': '+', index: 1 }
       ],
       fileList: [],
+      pagination: {
+        pageIndex: 1,
+        pageSize: 25,
+        total: 0,
+        pageSizes: [10,20,30,40,50]
+      },
       indexList: [],
       clientHeight: 500,
       // 表头数据
@@ -352,7 +380,7 @@ export default {
     }
     const that = this
     window.onresize = function temp() {
-      that.clientHeight = document.documentElement.clientHeight - 150
+      that.clientHeight = document.documentElement.clientHeight - 165
     }
   },
   destroyed() {
@@ -427,6 +455,7 @@ export default {
         setPath(this.path, this.pathList)
         this.getFileList()
       }
+      console.log("this.pathList:", this.pathList)
     },
     newFolder() {
       this.newFolderName = '新建文件夹'
@@ -515,14 +544,15 @@ export default {
           userId: this.$store.state.user.userId,
           keyword: key,
           currentDirectory: getPath(),
-          pageIndex: 1,
-          pageSize: 30
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
         }).then(res => {
           this.fileList = res.data
           this.tableLoading = false
-          this.clientHeight = document.documentElement.clientHeight - 150
+          this.clientHeight = document.documentElement.clientHeight - 165
           this.listModeSearch = true
           this.path = ''
+          this.pagination['total'] = res.count
         }).catch(e => {})
       }else{
         this.handleLink('',0)
@@ -534,13 +564,14 @@ export default {
         userId: this.$store.state.user.userId,
         id: row.id,
         currentDirectory: getPath(),
-        pageIndex: 1,
-        pageSize: 30
+        pageIndex: this.pagination.pageIndex,
+        pageSize: this.pagination.pageSize
       }).then(res => {
         this.fileList = res.data
         this.tableLoading = false
-        this.clientHeight = document.documentElement.clientHeight - 150
+        this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = true
+        this.pagination['total'] = res.count
       }).catch(e => {})
       this.path = row.path + row.name
     },
@@ -549,13 +580,14 @@ export default {
       api.fileList({
         userId: this.$store.state.user.userId,
         currentDirectory: getPath(),
-        pageIndex: 1,
-        pageSize: 30
+        pageIndex: this.pagination.pageIndex,
+        pageSize: this.pagination.pageSize
       }).then(res => {
         this.fileList = res.data
         this.tableLoading = false
-        this.clientHeight = document.documentElement.clientHeight - 150
+        this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = false
+        this.pagination['total'] = res.count
       }).catch(e => {})
     },
     getFileListBySearchMode() {
@@ -563,14 +595,23 @@ export default {
       api.fileList({
         userId: this.$store.state.user.userId,
         currentDirectory: this.path,
-        pageIndex: 1,
+        pageIndex: this.pagination.pageIndex,
         pageSize: 30
       }).then(res => {
         this.fileList = res.data
         this.tableLoading = false
-        this.clientHeight = document.documentElement.clientHeight - 150
+        this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = true
+        this.pagination['total'] = res.count
       }).catch(e => {})
+    },
+    currentChange(pageIndex) {
+      this.pagination.pageIndex = pageIndex
+      if (this.listModeSearch) {
+        this.searchFile(this.searchFileName)
+      } else {
+        this.getFileList()
+      }
     },
     getSummaries(param) {
       // 合计
@@ -1224,6 +1265,11 @@ export default {
   .searchClass{
     float: right;
     width: 30%;
+  }
+
+  .el-pagination {
+    float: right;
+    margin-top: 50px;
   }
 
 </style>
