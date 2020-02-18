@@ -4,11 +4,10 @@
     <van-list
       v-model="loading"
       :finished="finished"
-      finished-text="没有更多了"
-      @load="getFileList"
+      :finished-text="statistics()"
+      @load="getFileList(true)"
     >
-      <van-sticky :offset-top="0">
-        <!--<van-button type="info">吸顶距离</van-button>-->
+      <!-- <van-sticky :offset-top="0">
         <van-row class="classification">
           <van-col span="6" align="center">
             <svg-icon icon-class="image" />
@@ -27,7 +26,7 @@
             <div>音乐</div>
           </van-col>
         </van-row>
-      </van-sticky>
+      </van-sticky> -->
 
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name"></van-cell>-->
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name" :label="item.updateDate"></van-cell>-->
@@ -57,12 +56,12 @@
               {{item.name}}
             </van-col>
             <van-col span="16" class="file-description" justify="space-between">
-              <van-col span="8">
-                {{formatTime(item.agoTime)}}
+              <van-col span="12">
+                {{formatTime(item.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(item.size)}}
               </van-col>
-              <van-col span="8">
+              <!-- <van-col span="8">
                 {{formatSize(item.size)}}
-              </van-col>
+              </van-col> -->
             </van-col>
           </van-col>
           <van-col span="4"></van-col>
@@ -101,6 +100,7 @@
       return {
         path: this.$route.query.path,
         fileList: [],
+        totalSize: 0,
         pathList: [
           { 'folder': '', index: 0 },
           { 'folder': '+', index: 1 }
@@ -153,23 +153,72 @@
         this.loading = true;
         this.getFileList();
       },
-      getFileList() {
-        this.loading = true
+      getFileList(onLoad) {
+        console.log('onLoad', onLoad)
         api.fileList({
           userId: this.$store.state.user.userId,
           currentDirectory: this.$route.query.path,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
         }).then(res => {
-          this.fileList = res.data
+          if(onLoad){
+            res.data.forEach(file => {
+              this.totalSize += file.size
+              this.fileList.push(file)
+            });
+          }else{
+            this.fileList = res.data
+          }
           // 加载状态结束
-          this.loading = true;
+          this.loading = false;
           this.refreshing = false;
           // 数据全部加载完成
           if (this.fileList.length >= res.count) {
             this.finished = true;
           }
         }).catch(e => {})
+      },
+      // 统计
+      statistics() {
+        return this.getShowSumFileAndFolder() + ' ' + this.getShowSumSize(this.totalSize)
+      },
+      // 统计文件和文件夹
+      getShowSumFileAndFolder() {
+        let folderSize = 0
+        let fileSize = 0
+        this.fileList.forEach((fileInfo) => {
+          if (fileInfo.isFolder) {
+            folderSize += 1
+          } else {
+            fileSize += 1
+          }
+        })
+        let folderSum = ''
+        if (folderSize > 0) {
+          folderSum = folderSize + '个文件夹'
+        }
+        let fileSum = ''
+        if (fileSize > 0) {
+          fileSum = fileSize + '个文件'
+        }
+        return folderSum + ' ' + fileSum
+      },
+      // 计算总大小
+      getShowSumSize(totalSize) {
+        let sizeSum = ''
+        if (totalSize > 0) {
+          sizeSum = '  共'
+        }
+        if (totalSize < 1024) {
+          sizeSum += totalSize + 'B'
+        } else if (totalSize >= 1024 && totalSize < 1024 * 1024) {
+          sizeSum += (totalSize / 1024).toFixed(2) + 'K'
+        } else if (totalSize >= 1024 * 1024 && totalSize < 1024 * 1024 * 1024) {
+          sizeSum += (totalSize / (1024 * 1024)).toFixed(2) + 'M'
+        } else {
+          sizeSum += (totalSize / (1024 * 1024 * 1024)).toFixed(2) + 'G'
+        }
+        return sizeSum
       },
       // 点击文件或文件夹
       fileClick(row) {

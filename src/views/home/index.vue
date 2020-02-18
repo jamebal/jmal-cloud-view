@@ -1103,9 +1103,6 @@ export default {
     font-weight: 700;
     color: #C0C4CC;
   }
-  /deep/ .breadcrumb-svg {
-    /*font-size: 20px;*/
-  }
 
   .el-breadcrumb {
     font-size: 1rem;
