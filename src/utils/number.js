@@ -97,6 +97,10 @@ export function formatTime(agoTime) {
   }
 }
 
+/**
+ * formatSize
+ * @param {*} size 
+ */
 export function formatSize(size) {
   if (size < 1024) {
     return size + 'B'
