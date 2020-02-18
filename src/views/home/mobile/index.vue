@@ -1,866 +1,242 @@
 <template>
-  <div class="dashboard-container">
-    <el-breadcrumb class="app-breadcrumb" separator="">
-      <transition-group name="breadcrumb">
-        <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
-          <a v-if="index===0" @click.prevent="handleLink(item.folder,index)"><svg-icon icon-class="home" /></a>
-          <span v-if="index===pathList.length-2" class="no-redirect">{{ item.folder }}</span>
-          <a v-if="index!==pathList.length-2 && index!==pathList.length-1" class="redirect" @click.prevent="handleLink(item.folder,index)">{{ item.folder }}<svg-icon style="font-size: 20px;" icon-class="breadcrumb-right" /></a>
-          <el-popover
-            v-if="index===pathList.length-1"
-            v-model="isShowNewFolder"
-            placement="bottom"
-            trigger="click"
-            @click="showNewFolderClick"
-            @after-leave="hideNewFolderName"
-          >
-            <div class="newFileMenu" style="display: block;">
-              <ul>
-                <li @click="upload">
-                  <label class="menuitem">
-                    <span class="el-icon-upload"></span><span class="menuitem text">上传文件</span>
-                  </label>
-                </li>
-                <li @click="uploadFolder">
-                  <label class="menuitem">
-                    <span class="el-icon-upload"></span><span class="menuitem text">上传文件夹</span>
-                  </label>
-                </li>
-                <li>
-                  <a href="#" class="menuitem" @click.prevent="newFolder"><span class="el-icon-folder-add"></span><span class="menuitem text">新建文件夹</span>
-                    <form v-show="showNewFolder" class="folder-name-form">
-                      <el-input v-model="newFolderName" placeholder="请输入内容">
-                        <el-button
-                          slot="append"
-                          v-loading="newFolderLoading"
-                          element-loading-spinner="el-icon-loading"
-                          element-loading-background="#f6f7fa88"
-                          class="el-icon-right"
-                          @click="newFolderNameClick"
-                        >
-                        </el-button>
-                        <!--<el-button-->
-                        <!--slot="append"-->
-                        <!--class="el-icon-bottom-left"-->
-                        <!--&gt;-->
-                        <!--</el-button>-->
-                      </el-input>
-                    </form>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <el-button slot="reference" icon="el-icon-plus add-file-button" circle />
-          </el-popover>
-        </el-breadcrumb-item>
-      </transition-group>
-    </el-breadcrumb>
-
-    <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
-      <div class="popper-arrow"></div>
-      <ul v-for="(item,index) in menus" :key="item.label">
-        <li
-          @click="menusOperations(item.operation)"
-          @mouseover.prevent="menuFavoriteOver(index,selectRowData[0].isFavorite)"
-          @mouseleave.prevent="menuFavoriteLeave(index,selectRowData[0].isFavorite)"
-        >
-          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-          </label>
-        </li>
-      </ul>
-    </e-vue-contextmenu>
-
-    <!--<div class="dashboard-text">path: {{ path }}</div>-->
-
-    <el-table
-      ref="fileListTable"
-      v-loading="tableLoading"
-      :max-height="clientHeight"
-      style="width: 100%;margin: 20px 0 0 0;"
-      empty-text="无文件"
-      :data="fileList"
-      row-key="id"
-      :summary-method="getSummaries"
-      :cell-style="rowRed"
-      :cell-class-name="tableRowClassName"
-      element-loading-text="文件加载中"
-      element-loading-spinner="el-icon-loading"
-      element-loading-background="#f6f7fa88"
-      @selection-change="handleSelectionChange"
-      @row-contextmenu="rowContextmenu"
-      @cell-click="cellClick"
-      @cell-mouse-enter="cellMouseEnter"
-      @cell-mouse-leave="cellMouseLeave"
+  <div class="container">
+  <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="没有更多了"
+      @load="getFileList"
     >
-      <template v-for="(item,index) in tableHead">
-        <el-table-column
-          v-if="index === 1"
-          :key="index"
-          :index="index"
-          width="50"
-        >
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.isFolder" icon-class="folder" />
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('video')!== -1" icon-class="video" />
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('audio')!== -1" icon-class="audio" />
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('text')!== -1" icon-class="txt" />
-            <el-avatar v-if="!scope.row.isFolder && scope.row.contentType.indexOf('image')!== -1" shape="square" :src="imageUrl+scope.row.id"></el-avatar>
-            <svg-icon v-if="!scope.row.isFolder && scope.row.contentType.indexOf('application')!== -1 || scope.row.contentType === ''" icon-class="file" />
-          </template>
-        </el-table-column>
+      <van-sticky :offset-top="0">
+        <!--<van-button type="info">吸顶距离</van-button>-->
+        <van-row class="classification">
+          <van-col span="6" align="center">
+            <svg-icon icon-class="image" />
+            <div>图片</div>
+          </van-col>
+          <van-col span="6" align="center">
+            <svg-icon icon-class="document" />
+            <div>文档</div>
+          </van-col>
+          <van-col span="6" align="center">
+            <svg-icon icon-class="video" />
+            <div>视屏</div>
+          </van-col>
+          <van-col span="6" align="center">
+            <svg-icon icon-class="audio" />
+            <div>音乐</div>
+          </van-col>
+        </van-row>
+      </van-sticky>
 
-        <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" min-width="200" :index="index" :prop="item.name" :label="item.label" @click.stop="fileClick(scope.row)">
-          <template slot-scope="scope">
-            <span>{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
+      <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name"></van-cell>-->
+      <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name" :label="item.updateDate"></van-cell>-->
+      <van-cell class="list-item" v-for="(item,index) in fileList" :key="item.id">
 
-      </template>
-    </el-table>
+        <template slot="left">
+          <van-button square type="primary" text="选择"></van-button>
+        </template>
+
+        <!--<van-divider v-if="index === 0" style="margin: 0 15px 0 15px;"></van-divider>-->
+        <van-row>
+          <van-col span="4" align="center" class="list-cell-icon">
+              <svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
+              <svg-icon v-if="item.isFolder" icon-class="folder" />
+              <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />
+              <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />
+              <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt" />
+              <el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>
+              <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
+              <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />
+              <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />
+              <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />
+              <svg-icon v-else icon-class="file" />
+          </van-col>
+          <van-col span="16" @click="fileClick(item)">
+            <van-col span="16">
+              {{item.name}}
+            </van-col>
+            <van-col span="16" class="file-description" justify="space-between">
+              <van-col span="8">
+                {{formatTime(item.agoTime)}}
+              </van-col>
+              <van-col span="8">
+                {{formatSize(item.size)}}
+              </van-col>
+            </van-col>
+          </van-col>
+          <van-col span="4"></van-col>
+        </van-row>
+
+        <template slot="right">
+          <van-button square type="primary" text="收藏"></van-button>
+          <van-button square type="danger" text="删除"></van-button>
+        </template>
+
+        <!--<van-divider></van-divider>-->
+      </van-cell>
+    </van-list>
+  </van-pull-refresh>
   </div>
 </template>
-
 <script>
-// import MenuPopover from '@/components/popover/MenuPopover'
-import { mapGetters } from 'vuex'
-import defaultSettings from '@/settings'
-import { getPath, getPathList, setPath, removePath } from '@/utils/path'
-import Bus from '@/assets/js/bus'
-import api from '@/api/upload-api'
-// import Sortable from 'sortablejs'
+  import 'vant/lib/button/style';
+  import 'vant/lib/cell/style';
+  import 'vant/lib/cell-group/style'
+  import 'vant/lib/image/style';
+  import 'vant/lib/list/style';
+  import 'vant/lib/pull-refresh/style';
+  import 'vant/lib/swipe-cell/style';
+  import 'vant/lib/col/style';
+  import 'vant/lib/row/style';
+  import 'vant/lib/divider/style';
+  import 'vant/lib/sticky/style';
 
-export default {
-  components: { },
-  data() {
-    return {
-      imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-      // imageUrl: 'http://localhost:8088/view?username=' + this.$store.state.user.name + '&id=',
-      fileMenuActive: '',
-      path: getPath(),
-      showNewFolder: false,
-      isShowNewFolder: false,
-      newFolderName: '新建文件夹',
-      pathList: [
-        { 'folder': '', index: 0 },
-        { 'folder': '+', index: 1 }
-      ],
-      fileList: [],
-      indexList: [],
-      clientHeight: 500,
-      // 表头数据
-      tableHead: [
-        {
-          name: '', label: '', index: 0
-        },
-        {
-          name: '', label: '', index: 1
-        },
-        {
-          name: 'name', label: '名称', sortable: true, index: 2
-        },
-        {
-          name: '', label: '', index: 3
-        },
-        {
-          name: '', label: '', more: true, index: 4
-        },
-        {
-          name: 'size', label: '大小', sortable: true, index: 5
-        },
-        {
-          name: 'updateDate', label: '修改日期', sortable: true, index: 6
-        }
-      ],
-      isJustHideMenus: false,
-      menusIsMultiple: false,
-      menus: [],
-      singleMenus: [
-        { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-        { iconClass: 'menu-open', label: '打开', operation: 'open' },
-        { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
-        { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-        { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-        { iconClass: 'menu-download', label: '下载', operation: 'download' },
-        { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-      ],
-      multipleMenus: [
-        { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-        { iconClass: 'menu-download', label: '下载', operation: 'download' },
-        { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-      ],
-      selectRowData: [],
-      tableLoading: false,
-      newFolderLoading: false,
-      menuTriangle: '',
-      cellMouseIndex: -1
-    }
-  },
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
-  },
-  created() {
-    console.log(defaultSettings.FILE_SERVER_URL)
-    this.getFileList()
-  },
-  mounted() {
-    this.rowDrop()
-    Bus.$on('fileSuccess', () => {
-      this.getFileList()
-    })
-    Bus.$on('clickMore', (selectRowData) => {
-      this.selectRowData = selectRowData
-      this.preliminaryRowData()
-    })
+  import { getPath, getPathList, setPath, removePath } from '@/utils/path'
+  import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
+  import api from '@/api/upload-api'
 
-    // 加载路径
-    const pathList = getPathList()
-    if (pathList && pathList !== 'undefined') {
-      const res = JSON.parse(pathList)
-      const list = []
-      res.forEach(function(element) {
-        const item0 = {}
-        item0['folder'] = element.folder + ''
-        item0['index'] = element.index
-        list.push(item0)
-      })
-      this.pathList = list
-    }
-    const that = this
-    window.onresize = function temp() {
-      that.clientHeight = document.documentElement.clientHeight - 150
-    }
-  },
-  destroyed() {
-    removePath()
-  },
-  methods: {
-    // 行拖拽
-    rowDrop() {
-      // const tbody = document.querySelector('.el-table__body-wrapper tbody')
-      // const _this = this
-      // Sortable.create(tbody, {
-      // onMoveCallback({ newIndex, oldIndex }) {
-      //   const currRow = _this.fileList.splice(oldIndex, 1)[0]
-      //   _this.fileList.splice(newIndex, 0, currRow)
-      // }
-      // })
+  export default {
+    data() {
+      return {
+        path: this.$route.query.path,
+        fileList: [],
+        pathList: [
+          { 'folder': '', index: 0 },
+          { 'folder': '+', index: 1 }
+        ],
+        pagination: {
+          pageIndex: 1,
+          pageSize: 25,
+          total: 0,
+        },
+        loading: false,
+        finished: false,
+        refreshing: false
+      };
     },
-    upload() {
-      // 打开文件选择框
-      Bus.$emit('openUploader', {
-        // 传入的参数
-        currentDirectory: this.path,
-        username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId
-      })
+    mounted(){
+      if (window.history && window.history.pushState) {
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', this.goBack, false);
+      }
     },
-    uploadFolder() {
-      // 打开文件夹选择框
-      console.log('selectFolder')
-      Bus.$emit('uploadFolder', {
-        // 传入的参数
-        currentDirectory: this.path,
-        username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId
-      })
+    destroyed(){
+      window.removeEventListener('popstate', this.goBack, false);
     },
-    handleLink(item, index) {
-      this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
-      this.pathList.forEach((p, number) => {
-        if (number === 0) {
+    methods: {
+      // 浏览器的返回事件
+      goBack(){
+        if (this.$route.query.path){
+          this.path = this.$route.query.path
+          console.log('goBack path', this.path)
+        } else {
           this.path = ''
-        } else if (number === this.pathList.length - 1) {
-          // console.log('this.path' + this.path)
-        } else {
-          this.path += '/' + this.pathList[number].folder
+          this.$router.push(`/_m`)
         }
-      })
-      setPath(this.path, this.pathList)
-      this.getFileList()
-    },
-    newFolder() {
-      this.showNewFolder = true
-    },
-    hideNewFolderName() {
-      this.showNewFolder = false
-      this.isShowNewFolder = false
-    },
-    showNewFolderClick() {
-      this.isShowNewFolder = true
-    },
-    // 新建文件夹
-    newFolderNameClick() {
-      this.newFolderLoading = true
-      api.uploadFolder({
-        isFolder: true,
-        filename: this.newFolderName,
-        currentDirectory: this.path,
-        username: this.$store.state.user.username,
-        userId: this.$store.state.user.userId
-      }).then(() => {
-        console.log('新建文件夹' + this.newFolderName + '成功！')
         this.getFileList()
-        this.newFolderLoading = false
-        this.showNewFolder = false
-        this.isShowNewFolder = false
-        this.$notify({
-          title: '新建文件夹成功',
-          type: 'success',
-          duration: 1000
-        })
-      }).catch(e => {})
-    },
-    getFileList() {
-      this.tableLoading = true
-      api.fileList({
-        userId: this.$store.state.user.userId,
-        currentDirectory: getPath(),
-        pageIndex: 1,
-        pageSize: 1000
-      }).then(res => {
-        this.fileList = res.data
-        this.tableLoading = false
-        this.clientHeight = document.documentElement.clientHeight - 150
-      }).catch(e => {})
-    },
-    getSummaries(param) {
-      // 合计
-      const { columns, data } = param
-      const sums = []
-      columns.forEach((column, index) => {
-        const values = data.map(item => Number(item[column.property]))
-        if (index === 5) {
-          sums[2] = values.reduce((prev, curr) => {
-            const value = Number(curr)
-            if (!isNaN(value)) {
-              return prev + curr
-            } else {
-              return prev
-            }
-          }, 0)
-        }
-      })
-      const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
-      const sizeSum = this.getShowSumSize(sums[2])
-      sums[2] = sumFileAndFolder + sizeSum
-      return sums
-    },
-    // 统计文件和文件夹
-    getShowSumFileAndFolder(fileList) {
-      let folderSize = 0
-      let fileSize = 0
-      fileList.forEach((fileInfo) => {
-        if (fileInfo.isFolder) {
-          folderSize += 1
+      },
+      // 格式化最近时间
+      formatTime(time) {
+        return formatTime(time)
+      },
+      // 格式化文件大小
+      formatSize(size) {
+        return formatSize(size)
+      },
+      // 下拉刷新
+      onRefresh() {
+        // 清空列表数据
+        this.finished = false;
+        // 重新加载数据
+        // 将 loading 设置为 true，表示处于加载状态
+        this.loading = true;
+        this.getFileList();
+      },
+      getFileList() {
+        this.loading = true
+        api.fileList({
+          userId: this.$store.state.user.userId,
+          currentDirectory: this.$route.query.path,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize,
+        }).then(res => {
+          this.fileList = res.data
+          // 加载状态结束
+          this.loading = true;
+          this.refreshing = false;
+          // 数据全部加载完成
+          if (this.fileList.length >= res.count) {
+            this.finished = true;
+          }
+        }).catch(e => {})
+      },
+      // 点击文件或文件夹
+      fileClick(row) {
+        console.log('fileClick', row)
+        if (row.isFolder) {
+          // 打开文件夹
+          if(this.path){
+            this.path += '/' + row.name
+          } else {
+            this.path = '/' + row.name
+          }
+          const item1 = {}
+          item1['folder'] = row.name
+          item1['index'] = this.pathList.length - 1
+          const item2 = {}
+          item2['folder'] = '+'
+          item2['index'] = this.pathList.length
+          this.pathList[this.pathList.length - 1] = item1
+          this.pathList.push(item2)
+          console.log('push path',this.path)
+          this.$router.push(`/_m?path=${this.path}`)
+          // window.open(process.env.VUE_APP_BASE_API + '/m?path=' + this.path, '_self')
+          this.getFileList()
         } else {
-          fileSize += 1
+          // 打开文件
+          const fileIds = [row.id]
+          const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+          window.open(url, '_blank')
         }
-      })
-      let folderSum = ''
-      if (folderSize > 0) {
-        folderSum = folderSize + '个文件夹'
-      }
-      let fileSum = ''
-      if (fileSize > 0) {
-        fileSum = fileSize + '个文件'
-      }
-      return folderSum + ' ' + fileSum
-    },
-    // 计算总大小
-    getShowSumSize(totalSize) {
-      let sizeSum = ''
-      if (totalSize > 0) {
-        sizeSum = '  共'
-      }
-      if (totalSize < 1024) {
-        sizeSum += totalSize + 'B'
-      } else if (totalSize >= 1024 && totalSize < 1024 * 1024) {
-        sizeSum += (totalSize / 1024).toFixed(2) + 'K'
-      } else if (totalSize >= 1024 * 1024 && totalSize < 1024 * 1024 * 1024) {
-        sizeSum += (totalSize / (1024 * 1024)).toFixed(2) + 'M'
-      } else {
-        sizeSum += (totalSize / (1024 * 1024 * 1024)).toFixed(2) + 'G'
-      }
-      return sizeSum
-    },
-    // 收集选中的index值作为数组 传递给rowRed判断变换样式
-    handleSelectionChange(row) {
-      // 选中的值
-      this.selectRowData = row
-      let selectTotalSize = 0
-      this.indexList = []
-      for (const item of row) {
-        selectTotalSize += item.size
-        this.indexList.push(item.index)
-      }
-      const item_name = this.tableHead[2]
-      const item_more = this.tableHead[4]
-      const item_size = this.tableHead[5]
-      const item_date = this.tableHead[6]
-      if (this.selectRowData.length > 0) {
-        const sumFileAndFolder = this.getShowSumFileAndFolder(row)
-        const sizeSum = this.getShowSumSize(selectTotalSize)
-        item_name.label = sumFileAndFolder
-        item_name.sortable = false
-        item_more.name = 'more'
-        item_size.label = sizeSum
-        item_size.sortable = false
-        item_date.label = ''
-        item_date.sortable = false
-      } else {
-        item_name.label = '名称'
-        item_name.sortable = true
-        item_more.name = ''
-        item_size.label = '大小'
-        item_size.sortable = true
-        item_date.label = '修改日期'
-        item_date.sortable = true
-      }
-      // this.$set(this.tableHead, 2, item_name)
-      // this.$set(this.tableHead, 2, item_more)
-      // this.$set(this.tableHead, 5, item_size)
-    },
-    // cell-style通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
-    rowRed({ row, rowIndex }) {
-      for (let i = 0; i < this.indexList.length; i++) {
-        if (rowIndex === this.indexList[i]) {
-          return { backgroundColor: '#EBEEF5', color: '#b7b5b6' }
-        }
-      }
-    },
-    // 动态添加index到row里面去
-    tableRowClassName({ row, rowIndex }) {
-      row.index = rowIndex
-    },
-    // 选择某行预备数据
-    preliminaryRowData(row) {
-      if (row) {
-        this.selectRowData[0] = row
-      }
-      const isFavorite = this.selectRowData[0].isFavorite
-      this.highlightFavorite(0, isFavorite, false)
-    },
-    // 单元格hover进入时时间
-    cellMouseEnter(row, column, cell, event) {
-      this.cellMouseIndex = row.index
-    },
-    // 单元格hover退出时时间
-    cellMouseLeave(row, column, cell, event) {
-      this.cellMouseIndex = -1
-    },
-    // 单元格点击事件
-    cellClick(row, column, cell, event) {
-      const index = column.index
-      if (index === 0) {
-        // 点击选中
-        this.$refs.fileListTable.toggleRowSelection(row)
-      }
-
-      if (index === 2) {
-        this.fileClick(row)
-      }
-
-      if (column.index === 4) {
-        // // 单个操作
-        // this.menusIsMultiple = false
-        // this.menus = this.singleMenus
-        // this.preliminaryRowData(row)
-        // this.showOperationMenus(event)
-      }
-    },
-    // 更多操作(多选)
-    moreOperation(event) {
-      this.menusIsMultiple = true
-      this.menus = this.multipleMenus
-      this.showOperationMenus(event)
-    },
-    // 更多操作(单选)
-    moreClick(row, event) {
-      this.menusIsMultiple = false
-      this.menus = this.singleMenus
-      this.showOperationMenus(event)
-      this.preliminaryRowData(row)
-      this.showOperationMenus(event)
-    },
-    // 鼠标右击
-    rowContextmenu(row, column, event) {
-      this.menusIsMultiple = false
-      this.menus = this.singleMenus
-
-      this.preliminaryRowData(row)
-      event.preventDefault()
-      this.menuTriangle = ''
-      const e = {}
-      console.log('pageX:' + event.pageX, 'clientX:' + event.clientX)
-      console.log('pageY:' + event.pageY, 'clientY:' + event.clientY)
-      e.pageX = event.pageX + 5
-      e.pageY = event.pageY + 2
-      e.clientX = event.clientX + 5
-      e.clientY = event.clientY + 2
-      this.$refs.contextShow.showMenu(e)
-    },
-    // 显示操作菜单
-    showOperationMenus(event) {
-      const e = {}
-      if (document.body.scrollHeight - event.pageY > 400) {
-        this.menuTriangle = 'menu-triangle-top'
-        e.pageX = event.pageX - 78
-        e.pageY = event.pageY + 30
-        e.clientX = event.clientX + 78
-        e.clientY = event.clientY + 30
-      } else {
-        this.menuTriangle = 'menu-triangle-bottom'
-        e.pageX = event.pageX - 78
-        e.pageY = event.pageY - 300
-        e.clientX = event.clientX + 78
-        e.clientY = event.clientY - 300
-      }
-      if (!this.isJustHideMenus) {
-        this.$refs.contextShow.showMenu(e)
-      }
-    },
-    menuFavoriteOver(index, isFavorite) {
-      console.log('menuFavoriteOver', isFavorite)
-      this.highlightFavorite(index, isFavorite, true)
-    },
-    menuFavoriteLeave(index, isFavorite) {
-      console.log('menuFavoriteLeave', isFavorite)
-      this.highlightFavorite(index, isFavorite, false)
-    },
-    // 是否高亮收图标
-    highlightFavorite(index, isFavorite, isHover) {
-      if (index === 0) {
-        const item_menu = this.menus[0]
-        if (isFavorite) {
-          item_menu.label = '取消收藏'
-          item_menu.iconClass = 'menu-favorite-hover'
-          item_menu.operation = 'unFavorite'
-        } else {
-          if (isHover) {
-            item_menu.iconClass = 'menu-favorite-hover'
-          } else {
-            item_menu.iconClass = 'menu-favorite'
-          }
-          item_menu.label = '收藏'
-          item_menu.operation = 'favorite'
-        }
-        this.$set(this.menus, 0, item_menu)
-      }
-    },
-    show() {
-      console.log('菜单显示了')
-    },
-    hide() {
-      const that = this
-      this.isJustHideMenus = true
-      setTimeout(function() {
-        that.isJustHideMenus = false
-      }, 100)
-      console.log('菜单隐藏了')
-    },
-    // 菜单操作
-    menusOperations(operation) {
-      switch (operation) {
-        case 'favorite':
-          console.log('operation', '收藏')
-          this.favoriteOperating(true)
-          break
-        case 'open':
-          console.log('open', '打开')
-          this.fileClick(this.selectRowData[0])
-          break
-        case 'unFavorite':
-          console.log('operation', '取消收藏')
-          this.favoriteOperating(false)
-          break
-        case 'details':
-          console.log('详情', this.selectRowData[0])
-          break
-        case 'rename':
-          console.log('重命名')
-          break
-        case 'copy':
-          console.log('移动或复制')
-          break
-        case 'download':
-          console.log('下载')
-          var fileIds = []
-          if (this.menusIsMultiple) {
-            this.selectRowData.forEach(value => {
-              fileIds.push(value.id)
-            })
-          } else {
-            fileIds.push(this.selectRowData[0].id)
-          }
-          window.open(defaultSettings.FILE_SERVER_URL + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
-          break
-        case 'remove':
-          console.log('operation', '删除')
-          this.deleteFile()
-          break
-      }
-      this.$refs.contextShow.hideMenu()
-    },
-    // 收藏/取消收藏
-    favoriteOperating(isFavorite) {
-      this.selectRowData[0].isFavorite = isFavorite
-      this.highlightFavorite(0, isFavorite, true)
-      api.favoriteUrl({
-        token: this.$store.state.user.token,
-        id: this.selectRowData[0].id,
-        isFavorite: isFavorite
-      }).then(res => {
-      })
-    },
-    // 删除
-    deleteFile() {
-      let fileList = []
-      const fileIds = []
-      if (this.menusIsMultiple) {
-        fileList = this.selectRowData
-        this.selectRowData.forEach(value => {
-          fileIds.push(value.id)
-        })
-      } else {
-        fileIds.push(this.selectRowData[0].id)
-      }
-      const str = this.getShowSumFileAndFolder(fileList)
-
-      this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        api.delete({
-          username: this.$store.state.user.name,
-          fileIds: fileIds
-        }).then(() => {
-          // 移除列表
-          if (this.selectRowData.length === 1) {
-            this.fileList.splice(this.selectRowData[0].index, 1)
-          } else {
-            this.getFileList()
-          }
-          this.$notify({
-            title: '删除成功',
-            type: 'success',
-            duration: 1000
-          })
-          this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-          this.selectRowData = []
-        })
-      })
-    },
-    // 点击文件或文件夹
-    fileClick(row) {
-      console.log(row)
-      if (row.isFolder) {
-        // 打开文件
-        this.path += '/' + row.name
-
-        const item1 = {}
-        item1['folder'] = row.name
-        item1['index'] = this.pathList.length - 1
-
-        const item2 = {}
-        item2['folder'] = '+'
-        item2['index'] = this.pathList.length
-        this.pathList[this.pathList.length - 1] = item1
-        this.pathList.push(item2)
-        setPath(this.path, this.pathList)
-        this.getFileList()
-      } else {
-        const fileIds = [row.id]
-        const url = defaultSettings.FILE_SERVER_URL + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-        window.open(url, '_blank')
       }
     }
   }
-}
 </script>
-
 <style lang="scss" scoped>
-  .dashboard {
-    &-container {
-      margin: 10px 10px 10px 15px;
+  .container {
+    font-size: 14px;
+
+    .classification {
+      padding: 1rem 0 1rem 0;
+      background: wheat;
     }
-    &-text {
-      font-size: 30px;
-      line-height: 46px;
+
+  }
+  .svg-icon {
+    width: 2.5em;
+    height: 2.5em;
+  }
+  /*.van-divider {*/
+    /*margin: 5px 15px 0px 15px;*/
+  /*}*/
+  .file-description {
+    color: #646566;
+    font-size: 12px;
+  }
+  .van-col {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow:ellipsis;
+  }
+  .list-item {
+    padding: 5px 0;
+    height: 3.5rem;
+
+    .list-cell-icon {
+      margin-top: 7px;
+      height: 3.5rem;
+      line-height: 3.5rem;
     }
   }
-
-  .redirect {
-    color: #97a8be;
-  }
-  .no-redirect {
-    color: #000000;
-    cursor: text;
-    margin-right: 10px;
-  }
-
-  /deep/ .el-breadcrumb__separator {
-    margin: 0 0;
-    font-weight: 700;
-    color: #C0C4CC;
-  }
-  /deep/ .breadcrumb-svg {
-    font-size: 20px;
-  }
-
-  .el-breadcrumb {
-    font-size: 20px;
-    line-height: 46px;
-  }
-  .newFileMenu ul {
-    list-style: none;
-    padding-inline-start: 0px;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  .button-class {
-    cursor: pointer;
-  }
-
-  .button-class:hover {
-    border-radius: 5px;
-    background-color: #409eff14;
-  }
-
-  .newFileMenu li {
-    cursor: pointer;
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-  }
-  .newFileMenu li:hover {
-    cursor: pointer;
-    border-radius: 5px;
-    background-color: #409eff14;
-  }
-  .newFileMenu li > .menuitem {
-    cursor: pointer;
-    line-height: 44px;
-    margin-left: 10%;
-  }
-  .newFileMenu li > .menuitem > .text {
-    cursor: pointer;
-    margin-left: 8%;font-weight: normal;
-  }
-  .newFileMenu li > .menuitem > .svg-icon {
-    cursor: pointer;
-    font-size: 20px;
-  }
-  .menuitem /deep/ .el-loading-spinner {
-    top: 0;
-    margin-top: 0;
-    width: 100%;
-    text-align: center;
-    position: absolute;
-  }
-  /deep/ .el-checkbox {
-    cursor: default;
-  }
-  /deep/ .el-checkbox__input {
-    cursor: default;
-  }
-  .el-button.is-circle {
-    border-radius: 50%;
-    padding: 9px;
-  }
-  /deep/ tbody .el-table_1_column_3:hover {
-    cursor: pointer;
-    color: #19acff;
-  }
-  /deep/.svg-icon {
-    font-size: 28px;
-  }
-  /deep/.el-table thead {
-    color: #4f4f50;
-  }
-  /deep/ .el-table thead .el-table-column--selection .cell {
-    padding-left: 15px;
-  }
-  /deep/.el-table .cell {
-    padding-right: 5px;
-  }
-  /deep/.el-table th {
-    padding: 0 0;
-  }
-  /deep/.el-table td{
-    padding: 1px 0;
-    height: 50px;
-  }
-  /deep/.el-avatar>img {
-    display: inherit;
-    vertical-align: inherit;
-  }
-  /deep/.el-avatar {
-    background: #ffffff;
-    margin: 7px 0 0 0;
-  }
-  /deep/.el-avatar {
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-  }
-  >>>.el-popover {
-    padding: 5px;
-  }
-
-  /deep/ .ctx-menu-container {
-    border: 0 solid rgba(0, 0, 0, 0);
-  }
-
-  .menu-triangle-bottom {
-    border: 0 solid rgba(0, 0, 0, 0);
-  }
-
-  .menu-triangle-bottom::after {
-    position: absolute;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    content: '';
-    bottom: -6px;
-    left: 74px;
-    border-style: solid;
-    border-width: 6px;
-    border-color: #fff #fff transparent transparent;
-    -webkit-transform: rotate(135deg);
-    transform: rotate(135deg);
-    -webkit-box-shadow: 1px -1px 1px #cccccc73;
-    box-shadow: 1px -1px 1px #cccccc73;
-  }
-
-  .menu-triangle-top {
-    border: 0 solid rgba(0, 0, 0, 0);
-  }
-
-  .menu-triangle-top::after {
-    position: absolute;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    content: '';
-    top: -6px;
-    left: 74px;
-    border-style: solid;
-    border-width: 6px;
-    border-color: #fff #fff #e0000000 white;
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg);
-    -webkit-box-shadow: 1px -1px 1px #cccccc73;
-    box-shadow: -1px -1px 1px #cccccc73;
-  }
-  /*解决合计不显示的问题*/
-  /deep/
-  .el-table__footer-wrapper{
-    position: fixed;
-  }
-
 </style>
-

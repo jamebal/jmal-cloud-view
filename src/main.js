@@ -14,7 +14,7 @@ import store from './store'
 import router from './router'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
-import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider } from 'vant';
+import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky } from 'vant';
 
 import '@/icons' // icon
 import '@/permission' // permission control
@@ -49,6 +49,7 @@ Vue.use(SwipeCell);
 Vue.use(Col);
 Vue.use(Row);
 Vue.use(Divider);
+Vue.use(Sticky);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
