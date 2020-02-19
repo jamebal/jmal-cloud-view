@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar">
+  <div v-if="isShow" class="navbar">
     <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
     <breadcrumb class="breadcrumb-container" />
@@ -37,6 +37,18 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
+  data() {
+    return {
+      isShow: true
+    }
+  },
+  mounted() {
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
+      this.isShow = false
+    } else {
+      this.isShow = true
+    }
+  },
   components: {
     Breadcrumb,
     Hamburger

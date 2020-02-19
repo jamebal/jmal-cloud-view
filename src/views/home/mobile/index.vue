@@ -6,6 +6,7 @@
       :finished="finished"
       :finished-text="statistics()"
       @load="getFileList(true)"
+      @scroll="swipeUp"
     >
       <!-- <van-sticky :offset-top="0">
         <van-row class="classification">
@@ -28,17 +29,52 @@
         </van-row>
       </van-sticky> -->
 
+      <!--<van-nav-bar-->
+        <!--v-if="pathList.length < 3"-->
+        <!--:title="pathList[pathList.length-2].folder"-->
+        <!--:left-text=""-->
+        <!--right-text="选择"-->
+        <!--left-arrow>-->
+      <!--</van-nav-bar>-->
+
+      <van-sticky :offset-top="0">
+        <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div>
+        <van-nav-bar
+          v-if="pathList.length < 3"
+          title="浏览"
+          right-arrow
+          @click-right="titleRightClick">
+          <!--<van-icon name="wap-nav" slot="right">-->
+          <!--</van-icon>-->
+          <svg-icon class="title-right-icon" icon-class="add-file" slot="right"/>
+        </van-nav-bar>
+
+        <van-nav-bar
+          v-if="pathList.length === 3"
+          :title="pathList[pathList.length-2].folder"
+          left-text="所有文件"
+          right-text="选择"
+          left-arrow
+          @click-left="clickBack">
+        </van-nav-bar>
+
+        <van-nav-bar
+          v-if="pathList.length > 3"
+          :title="pathList[pathList.length-2].folder"
+          :left-text="pathList[pathList.length-3].folder"
+          right-text="选择"
+          left-arrow
+          @click-left="clickBack">
+        </van-nav-bar>
+
+      </van-sticky>
+
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name"></van-cell>-->
       <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name" :label="item.updateDate"></van-cell>-->
-      <van-cell class="list-item" v-for="(item,index) in fileList" :key="item.id">
-
-        <template slot="left">
-          <van-button square type="primary" text="选择"></van-button>
-        </template>
-
-        <!--<van-divider v-if="index === 0" style="margin: 0 15px 0 15px;"></van-divider>-->
-        <van-row>
-          <van-col span="4" align="center" class="list-cell-icon">
+      <van-cell class="list-item" center v-for="(item,index) in fileList" :key="item.id" @click="fileClick(item)" :is-link="item.isFolder">
+          <!--<van-divider v-if="index === 0" style="margin: 0 15px 0 15px;"></van-divider>-->
+          <van-row>
+            <van-col span="4" align="center" class="list-cell-icon">
               <svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
               <svg-icon v-if="item.isFolder" icon-class="folder" />
               <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />
@@ -50,32 +86,68 @@
               <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />
               <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />
               <svg-icon v-else icon-class="file" />
-          </van-col>
-          <van-col span="16" @click="fileClick(item)">
-            <van-col span="16">
-              {{item.name}}
             </van-col>
-            <van-col span="16" class="file-description" justify="space-between">
-              <van-col span="12">
-                {{formatTime(item.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(item.size)}}
+            <van-col span="16" class="list-item-content">
+              <van-col span="24">
+                {{item.name}}
               </van-col>
-              <!-- <van-col span="8">
-                {{formatSize(item.size)}}
-              </van-col> -->
+              <van-col span="24" class="file-description" justify="space-between">
+                <van-col span="24">
+                  {{formatTime(item.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(item.size)}}
+                </van-col>
+                <!-- <van-col span="8">
+                  {{formatSize(item.size)}}
+                </van-col> -->
+              </van-col>
             </van-col>
-          </van-col>
-          <van-col span="4"></van-col>
-        </van-row>
-
-        <template slot="right">
-          <van-button square type="primary" text="收藏"></van-button>
-          <van-button square type="danger" text="删除"></van-button>
-        </template>
-
-        <!--<van-divider></van-divider>-->
+            <van-col span="4"></van-col>
+          </van-row>
+          <!--<van-divider></van-divider>-->
       </van-cell>
     </van-list>
   </van-pull-refresh>
+    <!--<van-tabbar v-model="tabActive" :class="tabBottom">-->
+    <div v-if="diffTabbarTop === 0 || diffTabbarTop > 0">
+      <van-tabbar
+        id="tabbar"
+        active-color="#07c160"
+        inactive-color="#000"
+        v-model="tabActive"
+        class="tab-bottom">
+        <van-tabbar-item><svg-icon icon-class="tab-folder" /><div class="tab-text">浏览</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-recently" /><div class="tab-text">最近</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-favorite" /><div class="tab-text">收藏</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-setting" /><div class="tab-text">设置</div></van-tabbar-item>
+      </van-tabbar>
+    </div>
+    <div v-if="diffTabbarTop < 0">
+      <van-tabbar
+        id="tabbar"
+        v-if="isiPhoneX === 30"
+        active-color="#07c160"
+        inactive-color="#000"
+        v-model="tabActive"
+        class="tab-bottom-iphoneX">
+        <van-tabbar-item><svg-icon icon-class="tab-folder" /><div class="tab-text">浏览</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-recently" /><div class="tab-text">最近</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-favorite" /><div class="tab-text">收藏</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-setting" /><div class="tab-text">设置</div></van-tabbar-item>
+      </van-tabbar>
+
+      <van-tabbar
+        id="tabbar"
+        v-if="isiPhoneX === 35"
+        active-color="#07c160"
+        inactive-color="#000"
+        v-model="tabActive"
+        class="tab-bottom-iphoneXS">
+        <van-tabbar-item><svg-icon icon-class="tab-folder" /><div class="tab-text">浏览</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-recently" /><div class="tab-text">最近</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-favorite" /><div class="tab-text">收藏</div></van-tabbar-item>
+        <van-tabbar-item><svg-icon icon-class="tab-setting" /><div class="tab-text">设置</div></van-tabbar-item>
+      </van-tabbar>
+    </div>
+
   </div>
 </template>
 <script>
@@ -90,6 +162,10 @@
   import 'vant/lib/row/style';
   import 'vant/lib/divider/style';
   import 'vant/lib/sticky/style';
+  import 'vant/lib/nav-bar/style';
+  import 'vant/lib/icon/style';
+  import 'vant/lib/tabbar/style';
+  import 'vant/lib/tabbar-item/style';
 
   import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
@@ -98,15 +174,19 @@
   export default {
     data() {
       return {
+        test: 0,
+        lastTabbarOffsetTop: 0,// 底部tabbar与上边框 上次的距离
+        diffTabbarTop: 0,// 底部tabbar与上边框的变化距离
+        isiPhoneX: 0,
+        tabActive: 0,
         path: this.$route.query.path,
         fileList: [],
-        totalSize: 0,
         pathList: [
           { 'folder': '', index: 0 },
           { 'folder': '+', index: 1 }
         ],
         pagination: {
-          pageIndex: 1,
+          pageIndex: 0,
           pageSize: 25,
           total: 0,
         },
@@ -116,10 +196,64 @@
       };
     },
     mounted(){
+
+      var isIOS = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+      if (isIOS) {
+        if(screen.height === 812 && screen.width === 375){
+          // iPhone X iPhone XS
+          this.isiPhoneX = 30
+        }else if (screen.height === 896 && screen.width === 414){
+          // iPhone XS Max   iPhone XR
+          this.isiPhoneX = 35
+        }
+      }
+
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.goBack, false);
       }
+
+      // 加载路径
+      const pathList = getPathList()
+      if (pathList && pathList !== 'undefined') {
+        const res = JSON.parse(pathList)
+        const list = []
+        res.forEach(function(element) {
+          const item0 = {}
+          item0['folder'] = element.folder + ''
+          item0['index'] = element.index
+          list.push(item0)
+        })
+        this.pathList = list
+      }
+
+      const that = this
+      // 判断底部tabbar与上边框的距离,用来适配iPhoneX机型下面多出来的部分
+      window.addEventListener('scroll', () => {
+        that.test = 14
+        var tabbar= document.getElementById("tabbar");
+        if(tabbar.offsetTop){
+
+        }
+        const top = tabbar.offsetTop
+        that.test = tabbar.offsetTop
+        if(that.lastTabbarOffsetTop === 0){
+          if(top > 0){
+            that.lastTabbarOffsetTop = top
+          }
+        }else{
+          const diff = that.lastTabbarOffsetTop - top
+          if(diff > 0){
+            console.log("显示")
+            that.diffTabbarTop = diff
+          } else if(diff < 0){
+            console.log("隐藏")
+            that.diffTabbarTop = diff
+          }
+          that.lastTabbarOffsetTop = top
+        }
+      }, true);
+
     },
     destroyed(){
       window.removeEventListener('popstate', this.goBack, false);
@@ -127,14 +261,61 @@
     methods: {
       // 浏览器的返回事件
       goBack(){
-        if (this.$route.query.path){
-          this.path = this.$route.query.path
-          console.log('goBack path', this.path)
-        } else {
-          this.path = ''
+        // let linkIndex = 0
+        // if (this.$route.query.path){
+        //   this.path = this.$route.query.path
+        //   linkIndex = this.pathList.length - 3;
+        // } else {
+        //   this.path = ''
+        //   this.$router.push(`/_m`)
+        // }
+        // this.pathList.splice(this.pathList.findIndex(v => v.index === linkIndex + 2), this.pathList.length - (linkIndex + 2))
+        // setPath(this.path, this.pathList)
+        // this.getFileList()
+        const linkIndex = this.pathList.length-3
+        this.handleLink(this.pathList[linkIndex],linkIndex)
+      },
+      // 点击返回按钮(标题)
+      clickBack() {
+        const linkIndex = this.pathList.length-3
+        this.handleLink(this.pathList[linkIndex], linkIndex, true)
+      },
+      // 点击右边按钮(标题)
+      titleRightClick() {
+        console.log('titleRightClick')
+      },
+      handleLink(item, index, isPushLink) {
+
+        console.log("handleLink", item)
+        console.log("handleLink - index", index)
+
+        if (!this.$route.query.path){
           this.$router.push(`/_m`)
         }
-        this.getFileList()
+
+        if(item.search){
+          if(item.searchKey){
+            this.searchFileByKeyWord(item.searchKey)
+          } else if(item.row){
+            this.searchFileAndOpenDir(item.row)
+          }
+          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+        } else {
+          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+          this.pathList.forEach((p, number) => {
+            if (number === 0) {
+              this.path = ''
+            } else if (number === this.pathList.length - 1) {
+            } else {
+              this.path += '/' + this.pathList[number].folder
+            }
+          })
+          setPath(this.path, this.pathList)
+          if(isPushLink){
+            this.$router.push(`/_m?path=${this.path}`)
+          }
+          this.getFileList()
+        }
       },
       // 格式化最近时间
       formatTime(time) {
@@ -154,7 +335,12 @@
         this.getFileList();
       },
       getFileList(onLoad) {
-        console.log('onLoad', onLoad)
+        if (onLoad) {
+          this.pagination.pageIndex++
+        } else {
+          this.pagination.pageIndex = 1
+        }
+        this.finished = false;
         api.fileList({
           userId: this.$store.state.user.userId,
           currentDirectory: this.$route.query.path,
@@ -163,7 +349,6 @@
         }).then(res => {
           if(onLoad){
             res.data.forEach(file => {
-              this.totalSize += file.size
               this.fileList.push(file)
             });
           }else{
@@ -180,7 +365,11 @@
       },
       // 统计
       statistics() {
-        return this.getShowSumFileAndFolder() + ' ' + this.getShowSumSize(this.totalSize)
+        let totalSize = 0
+        this.fileList.forEach(file => {
+          totalSize += file.size;
+        })
+        return this.getShowSumFileAndFolder() + ' ' + this.getShowSumSize(totalSize)
       },
       // 统计文件和文件夹
       getShowSumFileAndFolder() {
@@ -209,7 +398,9 @@
         if (totalSize > 0) {
           sizeSum = '  共'
         }
-        if (totalSize < 1024) {
+        if (totalSize === 0) {
+          return sizeSum
+        } else if (totalSize < 1024) {
           sizeSum += totalSize + 'B'
         } else if (totalSize >= 1024 && totalSize < 1024 * 1024) {
           sizeSum += (totalSize / 1024).toFixed(2) + 'K'
@@ -238,9 +429,10 @@
           item2['index'] = this.pathList.length
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
-          console.log('push path',this.path)
+          console.log('path',this.path)
+          console.log('pathList',this.pathList)
           this.$router.push(`/_m?path=${this.path}`)
-          // window.open(process.env.VUE_APP_BASE_API + '/m?path=' + this.path, '_self')
+          setPath(this.path, this.pathList)
           this.getFileList()
         } else {
           // 打开文件
@@ -248,11 +440,47 @@
           const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
           window.open(url, '_blank')
         }
+      },
+      swipeUp() {
+        this.test = 10
+        console.log(67)
+      },
+      tabBottom() {
+        return { padding: '0 0 20px 0' }
       }
     }
   }
 </script>
 <style lang="scss" scoped>
+
+  .tab-bottom {
+    padding: 0 0 25px 0;
+  }
+
+  .tab-bottom-iphoneX {
+    padding: 0 0 25px 0;
+    .van-tabbar-item {
+      margin-top: -5px;
+    }
+  }
+
+  .tab-bottom-iphoneXS {
+    padding: 0 0 25px 0;
+    .van-tabbar-item {
+      margin-top: -5px;
+    }
+  }
+
+  .van-tabbar-item {
+    color: #646566;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 10px;
+    .tab-text {
+      margin-top: 2px;
+    }
+  }
+
   .container {
     font-size: 14px;
 
@@ -278,14 +506,57 @@
     white-space: nowrap;
     text-overflow:ellipsis;
   }
+
   .list-item {
-    padding: 5px 0;
-    height: 3.5rem;
+    padding: 5px 10px;
 
     .list-cell-icon {
-      margin-top: 7px;
-      height: 3.5rem;
-      line-height: 3.5rem;
+      font-size: 18px;
     }
+
+    .list-item-content {
+      margin-left: 5px;
+    }
+  }
+
+  .list-item:active {
+    background-color: #bfcbd930;
+  }
+
+  .van-nav-bar__title {
+    max-width: 30%;
+  }
+
+  .van-nav-bar__left {
+     max-width: 30%;
+   }
+  /*.van-nav-bar__left {*/
+     /*left: 0;*/
+  /*}*/
+
+  .van-icon.van-icon-arrow-left.van-nav-bar__arrow {
+    left: 5px;
+  }
+
+  .van-nav-bar__left {
+    left: 0;
+    .van-nav-bar__text {
+      padding: 0 0 0 25px;
+    }
+  }
+
+  .van-nav-bar__arrow+.van-nav-bar__text {
+    max-width: 7.5rem;
+    min-width: 5.5rem;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow:ellipsis;
+  }
+
+  .title-right-icon {
+    width: 2rem;
+    height: 2rem;
+    vertical-align: middle;
   }
 </style>

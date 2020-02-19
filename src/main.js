@@ -14,10 +14,14 @@ import store from './store'
 import router from './router'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
-import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky } from 'vant';
+import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem} from 'vant';
 
 import '@/icons' // icon
 import '@/permission' // permission control
+
+import VueTouch from"vue-touch";
+
+Vue.use(VueTouch, {name:'v-touch'})
 
 /**
  * If you don't want to use mock-server
@@ -50,6 +54,10 @@ Vue.use(Col);
 Vue.use(Row);
 Vue.use(Divider);
 Vue.use(Sticky);
+Vue.use(NavBar);
+Vue.use(Icon);
+Vue.use(Tabbar);
+Vue.use(TabbarItem);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
@@ -66,7 +74,7 @@ new Vue({
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
   Vue.prototype.$pc = false
 } else {
-  Vue.prototype.$pc = true
+  Vue.prototype.$pc = false
   let winWidth = document.documentElement.offsetWidth ||
     document.body.offsetWidth
   winWidth = winWidth < 1366 ? 1366 : winWidth
