@@ -38,7 +38,7 @@
       <!--</van-nav-bar>-->
 
       <van-sticky :offset-top="0">
-        <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div>
+        <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
         <van-nav-bar
           v-if="pathList.length < 3"
           title="浏览"
@@ -148,6 +148,13 @@
       </van-tabbar>
     </div>
 
+    <van-action-sheet
+      v-model="actionSheetShow"
+      :actions="actions"
+      cancel-text="取消"
+      @cancel="onCancel"
+    />
+
   </div>
 </template>
 <script>
@@ -178,6 +185,7 @@
         lastTabbarOffsetTop: 0,// 底部tabbar与上边框 上次的距离
         diffTabbarTop: 0,// 底部tabbar与上边框的变化距离
         isiPhoneX: 0,
+        imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
         tabActive: 0,
         path: this.$route.query.path,
         fileList: [],
@@ -192,7 +200,13 @@
         },
         loading: false,
         finished: false,
-        refreshing: false
+        refreshing: false,
+        actionSheetShow: false, // 下拉菜单
+        actions: [
+          { name: '上传文件' },
+          { name: '上传文件夹' },
+          { name: '新建文件夹' }
+        ],
       };
     },
     mounted(){
@@ -282,6 +296,7 @@
       },
       // 点击右边按钮(标题)
       titleRightClick() {
+        this.actionSheetShow = true
         console.log('titleRightClick')
       },
       handleLink(item, index, isPushLink) {
@@ -441,6 +456,9 @@
           window.open(url, '_blank')
         }
       },
+      onCancel() {
+        this.actionSheetShow = false;
+      },
       swipeUp() {
         this.test = 10
         console.log(67)
@@ -507,6 +525,10 @@
     text-overflow:ellipsis;
   }
 
+  .van-list {
+    margin-bottom: 75px
+  }
+
   .list-item {
     padding: 5px 10px;
 
@@ -523,13 +545,34 @@
     background-color: #bfcbd930;
   }
 
+  .van-nav-bar {
+    background: #ffffffcc;
+    position: relative;
+    box-shadow: 4px 0px 2px rgba(0,0,0,0.5);
+  }
+  .van-nav-bar::after{
+    background: inherit;
+    -webkit-filter: blur(15px);
+    filter: blur(20px);
+}
+
   .van-nav-bar__title {
-    max-width: 30%;
+    width: 30%;
+    position: absolute;
+    margin-left: 35%;
+    z-index: 11;
   }
 
   .van-nav-bar__left {
-     max-width: 30%;
+    //  max-width: 30%;
+     z-index: 11;
    }
+   .van-nav-bar__left:active {
+    background-color: hsl(0, 94%, 47%);
+  }
+   .van-nav-bar__right {
+    z-index: 11;
+  }
   /*.van-nav-bar__left {*/
      /*left: 0;*/
   /*}*/

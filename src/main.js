@@ -14,7 +14,7 @@ import store from './store'
 import router from './router'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
-import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem} from 'vant';
+import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet} from 'vant';
 
 import '@/icons' // icon
 import '@/permission' // permission control
@@ -58,6 +58,7 @@ Vue.use(NavBar);
 Vue.use(Icon);
 Vue.use(Tabbar);
 Vue.use(TabbarItem);
+Vue.use(ActionSheet);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
@@ -74,7 +75,7 @@ new Vue({
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
   Vue.prototype.$pc = false
 } else {
-  Vue.prototype.$pc = false
+  Vue.prototype.$pc = true
   let winWidth = document.documentElement.offsetWidth ||
     document.body.offsetWidth
   winWidth = winWidth < 1366 ? 1366 : winWidth
