@@ -1,45 +1,58 @@
-<!-- 一个上传事例文件 -->
 <template>
-  <div>
-    <el-button @click="upload">上传</el-button>
-  </div>
+  <uploader :options="options" :file-status-text="statusText" class="uploader-example" ref="uploader" @file-complete="fileComplete" @complete="complete"></uploader>
 </template>
 
 <script>
-import Bus from '@/assets/js/bus'
-
-export default {
-  components: {},
-  data() {
-    return {}
-  },
-  computed: {},
-  mounted() {
-    // 文件选择后的回调
-    Bus.$on('fileAdded', () => {
-      console.log('文件已选择')
-    })
-
-    // 文件上传成功的回调
-    Bus.$on('fileSuccess', () => {
-      console.log('文件上传成功')
-    })
-  },
-  destroyed() {
-    Bus.$off('fileAdded')
-    Bus.$off('fileSuccess')
-  },
-  methods: {
-    upload() {
-      // 打开文件选择框
-      Bus.$emit('openUploader', {
-        id: '1111' // 传入的参数
+  export default {
+    data () {
+      return {
+        options: {
+          target: '//localhost:3000/upload', // '//jsonplaceholder.typicode.com/posts/',
+          testChunks: false
+        },
+        attrs: {
+          accept: 'image/*'
+        },
+        statusText: {
+          success: '成功了',
+          error: '出错了',
+          uploading: '上传中',
+          paused: '暂停中',
+          waiting: '等待中'
+        }
+      }
+    },
+    methods: {
+      complete () {
+        console.log('complete', arguments)
+      },
+      fileComplete () {
+        console.log('file complete', arguments)
+      }
+    },
+    mounted () {
+      this.$nextTick(() => {
+        window.uploader = this.$refs.uploader.uploader
       })
     }
   }
-}
 </script>
 
-<style scoped lang="scss">
-
+<style>
+  .uploader-example {
+    width: 880px;
+    padding: 15px;
+    margin: 40px auto 0;
+    font-size: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .4);
+  }
+  .uploader-example .uploader-btn {
+    margin-right: 4px;
+  }
+  .uploader-example .uploader-list {
+    max-height: 440px;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 </style>

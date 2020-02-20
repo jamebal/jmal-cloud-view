@@ -5,7 +5,8 @@
     <uploader
       ref="uploader"
       :options="options"
-      :auto-start="false"
+      :file-status-text="statusText"
+      :auto-start="true"
       class="uploader-app"
       @files-added="onFilesAdded"
       @file-success="onFileSuccess"
@@ -67,9 +68,9 @@ export default {
       username: this.$store.state.user.name,
       options: {
         target: api.simpleUploadURL,
-        chunkSize: 2 * 1024 * 1024,
+        chunkSize: 1024 * 1024,
         maxChunkRetries: 1, // 最大重试次数
-        simultaneousUploads: 3, // 并发上传数
+        simultaneousUploads: 1, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
         // 服务器分片校验函数，秒传及断点续传基础
         checkChunkUploadedByResponse: function(chunk, message) {
@@ -82,6 +83,14 @@ export default {
           // 断点续传
           return (res.resume || []).indexOf(chunk.offset + 1) >= 0
         },
+        parseTimeRemaining: function (timeRemaining, parsedTimeRemaining) {
+          return parsedTimeRemaining
+            .replace(/\syears?/, '年')
+            .replace(/\days?/, '天')
+            .replace(/\shours?/, '小时')
+            .replace(/\sminutes?/, '分钟')
+            .replace(/\sseconds?/, '秒')
+        },
         headers: {
           'jmal-token': $this.$store.state.user.token
         },
@@ -90,6 +99,13 @@ export default {
       attrs: {
         // accept: ACCEPT_CONFIG.getAll()
         accept: '*'
+      },
+      statusText: {
+        success: '成功了',
+        error: '出错了',
+        uploading: '上传中',
+        paused: '暂停中',
+        waiting: '等待中'
       },
       panelShow: false, // 选择文件后，展示上传panel
       collapse: false
@@ -114,6 +130,10 @@ export default {
       if (this.$refs.folderBtn) {
         $('#folder-uploader-btn').click()
       }
+    })
+
+    this.$nextTick(() => {
+      window.uploader = this.$refs.uploader.uploader
     })
   },
   destroyed() {
@@ -154,23 +174,29 @@ export default {
         this.panelShow = true
         console.log(pathsLength)
         // this.computeMD5(file)
-        if (pathsLength < 1) {
-          this.computeMD5(file)
-        } else {
-          console.log(pathsLength)
-          Object.assign(this.uploader.opts, {
-            query: {
-              isFolder: false,
-              ...this.params
-            }
-          })
-          file.resume()
-        }
+        // if (pathsLength < 1) {
+        //   // this.computeMD5(file)
+        // } else {
+        //   console.log(pathsLength)
+        //   Object.assign(this.uploader.opts, {
+        //     query: {
+        //       isFolder: false,
+        //       ...this.params
+        //     }
+        //   })
+        //   this.uploader.resume()
+        // }
+        Object.assign(this.uploader.opts, {
+          query: {
+            isFolder: false,
+            ...this.params
+          }
+        })
         Bus.$emit('fileAdded')
       })
     },
     onFileProgress(rootFile, file, chunk) {
-      // console.log(`上传中 ${file.name}，chunk：${chunk.startByte / 1024 / 1024} ~ ${chunk.endByte / 1024 / 1024}`)
+      console.log(`上传中 ${file.name}，chunk：${chunk.startByte / 1024 / 1024} ~ ${chunk.endByte / 1024 / 1024}`)
     },
     onFileSuccess(rootFile, file, response) {
       const res = JSON.parse(response)
@@ -182,6 +208,7 @@ export default {
         this.statusSet(file.id, 'failed')
         return
       } else {
+        console.log(`上传成功 ${file.name}`)
         this.statusSet(file.id, 'success')
       }
       // 如果服务端返回需要合并
