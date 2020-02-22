@@ -4,29 +4,7 @@
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
           <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
-          <a v-if="pathList.length >= 7">
-            <span v-if="index === pathList.length-6" class="redirect" >&nbsp;</span>
-            <a v-if="index === pathList.length-6" class="redirect" @click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-            <a v-if="index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-            <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
-              <a v-if="index >= pathList.length-6 && index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-            </el-tooltip>
-          </a>
-          <a v-if="pathList.length < 7">
-            <a v-if="index < pathList.length-2 && strLength(item.folder) <= 10" class="redirect" @click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-              <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
-                <a v-if="index < pathList.length-2 && strLength(item.folder) > 10" class="redirect" @click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-              </el-tooltip>
-          </a>
-          <a v-if="index===pathList.length-2">
-            <span v-if="strLength(item.folder) <= 10" class="no-redirect">{{ item.folder }}</span>
-            <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
-              <span :title="item.folder" v-if="strLength(item.folder) > 10 && strLength(item.folder) <= 50 && item.searchKey" class="no-redirect">{{ item.folder }}</span>
-              <span :title="item.folder" v-if="strLength(item.folder) > 50 && item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
-              <span :title="item.folder" v-if="strLength(item.folder) > 10 && !item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
-            </el-tooltip>
-          </a>
-
+          <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
           <el-popover
             v-if="index===pathList.length-1"
             v-model="isShowNewFolder"
@@ -140,17 +118,7 @@
           width="50"
         >
           <template slot-scope="scope">
-            <svg-icon v-if="scope.row.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
-            <svg-icon v-if="scope.row.isFolder" icon-class="folder" />
-            <svg-icon v-else-if="scope.row.contentType.indexOf('video') > -1" icon-class="video" />
-            <svg-icon v-else-if="scope.row.contentType.indexOf('audio') > -1" icon-class="audio" />
-            <svg-icon v-else-if="scope.row.contentType.indexOf('text') > -1" icon-class="file-txt" />
-            <el-avatar v-else-if="scope.row.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+scope.row.id"></el-avatar>
-            <svg-icon v-else-if="scope.row.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
-            <svg-icon v-else-if="scope.row.contentType.indexOf('word') > -1" icon-class="file-word" />
-            <svg-icon v-else-if="scope.row.contentType.indexOf('excel') > -1" icon-class="file-excel" />
-            <svg-icon v-else-if="scope.row.contentType.indexOf('zip') > -1" icon-class="zip" />
-            <svg-icon v-else icon-class="file" />
+            <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
           </template>
         </el-table-column>
 
@@ -254,17 +222,18 @@
 
 <script>
 /* eslint-disable */
-// import MenuPopover from '@/components/popover/MenuPopover'
 import { mapGetters } from 'vuex'
 // import defaultSettings from '@/settings'
 import { getPath, getPathList, setPath, removePath } from '@/utils/path'
 import { strlen, substring10 } from '@/utils/number'
 import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
+import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
+import IconFile from "../../components/Icon/IconFile";
 // import Sortable from 'sortablejs'
 
 export default {
-  components: { },
+  components: {IconFile, BreadcrumbFilePath},
   data() {
     return {
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
@@ -428,12 +397,6 @@ export default {
         userId: this.$store.state.user.userId
       })
     },
-    strLength(str) {
-      return strlen(str)
-    },
-    substring10(str) {
-      return substring10(str)
-    },
     handleLink(item, index) {
       if(item.search){
         if(item.searchKey){
@@ -453,6 +416,7 @@ export default {
           }
         })
         setPath(this.path, this.pathList)
+        this.pagination.pageIndex = 1
         this.getFileList()
       }
       console.log("this.pathList:", this.pathList)
@@ -1052,6 +1016,7 @@ export default {
           item2['index'] = this.pathList.length
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
+          this.pagination.pageIndex = 1
           this.searchFileAndOpenDir(row)
         } else {
           this.path += '/' + row.name
@@ -1064,6 +1029,7 @@ export default {
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
           setPath(this.path, this.pathList)
+          this.pagination.pageIndex = 1
           this.getFileList()
         }
       } else {
@@ -1080,7 +1046,7 @@ export default {
 <style lang="scss" scoped>
   .dashboard {
     &-container {
-      min-width: 960px;
+      min-width: 500px;
       margin: 10px 10px 10px 15px;
     }
     &-text {

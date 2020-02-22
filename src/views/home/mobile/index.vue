@@ -8,35 +8,6 @@
       @load="getFileList(true)"
       @scroll="swipeUp"
     >
-      <!-- <van-sticky :offset-top="0">
-        <van-row class="classification">
-          <van-col span="6" align="center">
-            <svg-icon icon-class="image" />
-            <div>图片</div>
-          </van-col>
-          <van-col span="6" align="center">
-            <svg-icon icon-class="document" />
-            <div>文档</div>
-          </van-col>
-          <van-col span="6" align="center">
-            <svg-icon icon-class="video" />
-            <div>视屏</div>
-          </van-col>
-          <van-col span="6" align="center">
-            <svg-icon icon-class="audio" />
-            <div>音乐</div>
-          </van-col>
-        </van-row>
-      </van-sticky> -->
-
-      <!--<van-nav-bar-->
-        <!--v-if="pathList.length < 3"-->
-        <!--:title="pathList[pathList.length-2].folder"-->
-        <!--:left-text=""-->
-        <!--right-text="选择"-->
-        <!--left-arrow>-->
-      <!--</van-nav-bar>-->
-
       <van-sticky :offset-top="0">
         <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
         <van-nav-bar
@@ -75,17 +46,18 @@
           <!--<van-divider v-if="index === 0" style="margin: 0 15px 0 15px;"></van-divider>-->
           <van-row>
             <van-col span="4" align="center" class="list-cell-icon">
-              <svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
-              <svg-icon v-if="item.isFolder" icon-class="folder" />
-              <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />
-              <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />
-              <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt" />
-              <el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>
-              <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
-              <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />
-              <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />
-              <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />
-              <svg-icon v-else icon-class="file" />
+              <!--<svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />-->
+              <!--<svg-icon v-if="item.isFolder" icon-class="folder" />-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt" />-->
+              <!--<el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />-->
+              <!--<svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />-->
+              <!--<svg-icon v-else icon-class="file" />-->
+              <icon-file :item="item" :image-url="imageUrl"></icon-file>
             </van-col>
             <van-col span="16" class="list-item-content">
               <van-col span="24">
@@ -152,8 +124,8 @@
       v-model="actionSheetShow"
       :actions="actions"
       cancel-text="取消"
-      @cancel="onCancel"
-    />
+      @cancel="onCancel">
+    </van-action-sheet>
 
   </div>
 </template>
@@ -177,8 +149,10 @@
   import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import api from '@/api/upload-api'
+  import IconFile from "../../../components/Icon/IconFile";
 
   export default {
+    components: {IconFile},
     data() {
       return {
         test: 0,
@@ -508,7 +482,7 @@
     }
 
   }
-  .svg-icon {
+  /deep/ .svg-icon {
     width: 2.5em;
     height: 2.5em;
   }
