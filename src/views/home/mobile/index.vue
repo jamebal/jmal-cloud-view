@@ -40,23 +40,9 @@
 
       </van-sticky>
 
-      <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name"></van-cell>-->
-      <!--<van-cell v-for="item in fileList" :key="item.id" :title="item.name" :label="item.updateDate"></van-cell>-->
-      <van-cell class="list-item" center v-for="(item,index) in fileList" :key="item.id" @click="fileClick(item)" :is-link="item.isFolder">
-          <!--<van-divider v-if="index === 0" style="margin: 0 15px 0 15px;"></van-divider>-->
+      <van-cell class="list-item" center v-for="item in fileList" :key="item.id" @click="fileClick(item)" :is-link="item.isFolder">
           <van-row>
             <van-col span="4" align="center" class="list-cell-icon">
-              <!--<svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />-->
-              <!--<svg-icon v-if="item.isFolder" icon-class="folder" />-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt" />-->
-              <!--<el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />-->
-              <!--<svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />-->
-              <!--<svg-icon v-else icon-class="file" />-->
               <icon-file :item="item" :image-url="imageUrl"></icon-file>
             </van-col>
             <van-col span="16" class="list-item-content">
@@ -447,19 +433,44 @@
 
   .tab-bottom {
     padding: 0 0 25px 0;
+    .van-tabbar-item {
+      margin-top:25px;
+      animation:ordinary .4s forwards;
+      -moz-animation:ordinary .4s forwards; /* Firefox */
+      -webkit-animation:ordinary .4s forwards; /* Safari and Chrome */
+      -o-animation:ordinary .4s forwards; /* Opera */
+    }
+  }
+
+  @keyframes iphoneX
+  {
+    from {margin-top:25px;}
+    to {margin-top:-5px;}
+  }
+
+  @keyframes ordinary
+  {
+    from {margin-top:-5px;}
+    to {margin-top:25px;}
   }
 
   .tab-bottom-iphoneX {
     padding: 0 0 25px 0;
     .van-tabbar-item {
-      margin-top: -5px;
+      animation:iphoneX .4s forwards;
+      -moz-animation:iphoneX .4s forwards; /* Firefox */
+      -webkit-animation:iphoneX .4s forwards; /* Safari and Chrome */
+      -o-animation:iphoneX .5s forwards; /* Opera */
     }
   }
 
   .tab-bottom-iphoneXS {
     padding: 0 0 25px 0;
     .van-tabbar-item {
-      margin-top: -5px;
+      animation:iphoneX .4s forwards;
+      -moz-animation:iphoneX .4s forwards; /* Firefox */
+      -webkit-animation:iphoneX .4s forwards; /* Safari and Chrome */
+      -o-animation:iphoneX .4s forwards; /* Opera */
     }
   }
 
@@ -522,7 +533,7 @@
   .van-nav-bar {
     background: #ffffffcc;
     position: relative;
-    box-shadow: 4px 0px 2px rgba(0,0,0,0.5);
+    box-shadow: 4px 0 2px rgba(0,0,0,0.5);
   }
   .van-nav-bar::after{
     background: inherit;

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>悬浮小球不旋转</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    /*#drag-ball {*/
+      /*width: 100px;*/
+      /*height: 100px;*/
+      /*position: fixed;*/
+      /*cursor: pointer;*/
+      /*box-sizing: border-box;*/
+      /*border-radius: 50%;*/
+      /*background-size: 100% 100%;*/
+      /*overflow: hidden;*/
+    /*}*/
+
+    .process-area {
+      width: 100px;
+      height: 100px;
+      cursor: pointer;
+      background: #eee;
+      margin: auto;
+      overflow: hidden;
+      background-size: 100% 100%;
+      border-radius: 50%;
+      position: fixed;
+      transition: .5s;
+    }
+    .process-anime {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 4px solid #fff;
+      transform: translate(-50%,-50%);
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(45deg,#fde47c,#fdeca6);
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .process-anime .cube-a {
+      position: absolute;
+      left: 50%;
+      background: rgba(53,53,53,.3);
+      width: 130px;
+      height: 130px;
+      border-radius: 50px;
+      animation: fx-rotate 15s infinite linear;
+      transform-origin: 50% 50%;
+      transition: .5s;
+    }
+    .process-anime .cube-b {
+      position: absolute;
+      left: 50%;
+      background: #fff;
+      width: 130px;
+      height: 130px;
+      border-radius: 50px;
+      animation: fx-rotate 10s infinite reverse linear;
+      transform-origin: 50% 50%;
+      transition: .5s;
+    }
+
+    @keyframes fx-rotate {
+      0% {
+        transform: translate(-50%) rotate(0);
+      }
+      100% {
+        transform: translate(-50%,2px) rotate(365deg);
+      }
+    }
+  </style>
+
+</head>
+<body>
+
+<!--<div id="drag-ball"></div>-->
+
+<div class="process-area" id="drag-ball">
+  <div class="process-anime">
+    <div class="cube-a" style="top: -70%;"></div>
+    <div class="cube-b" style="top: -70%;"></div><!----></div>
+
+  <!--<div data-v-93100324="" class="done">-->
+  <!--<svg xmlns="http://www.w3.org/2000/svg" class="done-icon checkmark">-->
+  <!--<path d="M14.1 27.2l7.1 7.2 16.7-16.8" class="checkmark__check" style="fill: transparent;"></path>-->
+  <!--</svg>-->
+  <!--</div>-->
+</div>
+
+<script>
+
+  // 自动吸附距离
+  var marginOffset = 100;
+
+  var ball = document.querySelector('#drag-ball');
+  var ballWidth = ball.offsetWidth;
+  var ballHeight = ball.offsetHeight;
+  var cuntWidth = 0;
+  var cuntHeight = 0;
+  // ball.style.left = parseInt(Math.random() * (document.body.offsetWidth - ballWidth)) + 'px';
+  // ball.style.top = parseInt(Math.random() * (document.body.offsetHeight - ballHeight)) + 'px';
+
+  function move(obj, w, h) {
+    if (obj.direction === 'left') {
+      obj.style.left = 0 - w + 'px';
+    } else if (obj.direction === 'right') {
+      obj.style.left = document.body.offsetWidth - ballWidth + w + 'px';
+    }
+    if (obj.direction === 'top') {
+      obj.style.top = 0 - h + 'px';
+    } else if (obj.direction === 'bottom') {
+      obj.style.top = document.body.offsetHeight - ballHeight + h + 'px';
+    }
+  }
+
+  function rate(obj, a) {
+    obj.style.transform = ' rotate(' + a + ')'
+  }
+
+  function action(obj) {
+
+    var dir = obj.direction;
+
+    switch (dir) {
+      case 'left':
+        rate(obj, '90deg');
+        break;
+      case 'right':
+        rate(obj, '-90deg');
+        break;
+      case 'top':
+        rate(obj, '-180deg');
+        break;
+      default:
+        rate(obj, '-0');
+        break;
+    }
+
+  }
+
+  function ballMove(ballDynamicLeft,ballDynamicTop) {
+    cuntWidth = 0;
+    cuntHeight = 0;
+    ball.direction = '';
+    ball.style.transition = '';
+    ball.style.left = ballDynamicLeft + 'px';
+    ball.style.top = ballDynamicTop + 'px';
+    if (ballDynamicLeft < marginOffset) {
+      ball.direction = 'left';
+      if (ballDynamicLeft < 1) {
+        move(ball, 0, 0);
+      }
+    }
+    if (ballDynamicTop < marginOffset) {
+      ball.direction = 'top';
+      if (ballDynamicTop < 1) {
+        move(ball, 0, 0);
+      }
+    }
+    if (ballDynamicLeft > document.body.offsetWidth - ballWidth - marginOffset) {
+      ball.direction = 'right';
+      if (ballDynamicLeft > document.body.offsetWidth - ballWidth - 1) {
+        move(ball, 0, 0);
+      }
+    }
+    if (ballDynamicTop > document.body.offsetHeight - ballHeight - marginOffset) {
+      ball.direction = 'bottom';
+      if (ballDynamicTop > document.body.offsetHeight - ballHeight - 1) {
+        move(ball, 0, 0);
+      }
+    }
+  }
+
+  /***
+   * 移动端
+   */
+  ball.addEventListener('touchstart', function (e) {
+    var ballLeft = e.touches[0].clientX - ball.offsetLeft;
+    var ballTop = e.touches[0].clientY - ball.offsetTop;
+    move(this, 0, 0);
+    rate(this, 0)
+    document.addEventListener('touchmove', function (e) {
+      var ballDynamicLeft = e.touches[0].clientX - ballLeft
+      var ballDynamicTop = e.touches[0].clientY - ballTop
+      ballMove(ballDynamicLeft,ballDynamicTop)
+    })
+  })
+
+  ball.addEventListener('touchend', function () {
+    this.style.transition = '.5s';
+    move(this, ballWidth / 2, ballHeight / 2);
+    action(this);
+  })
+
+
+  /***
+   * pc端
+   */
+  ball.onmousedown = function (e) {
+    console.log('onmousedown')
+    var ballLeft = e.clientX - ball.offsetLeft;
+    var ballTop = e.clientY - ball.offsetTop;
+    document.onmousemove = function (e) {
+      console.log('onmousemove')
+      cuntWidth = 0;
+      cuntHeight = 0;
+      var ballDynamicLeft = e.clientX - ballLeft
+      var ballDynamicTop = e.clientY - ballTop
+      ballMove(ballDynamicLeft,ballDynamicTop)
+    }
+  }
+
+  ball.onclick = function() {
+    console.log('click')
+  }
+
+  ball.onmouseover = function () {
+    console.log('onmouseover')
+    move(this, 0, 0);
+    rate(this, 0)
+  }
+
+  ball.onmouseout = function () {
+    console.log('onmouseout')
+    move(this, ballWidth / 2, ballHeight / 2);
+    // action(this);
+  }
+
+  ball.onmouseup = function () {
+    console.log('onmouseup')
+    document.onmousemove = null;
+    this.style.transition = '.5s';
+    move(this, ballWidth / 2, ballHeight / 2);
+    // action(this);
+  }
+
+  window.onresize = function () {
+    var bodyH = document.body.offsetHeight;
+    var ballTop = ball.offsetTop;
+    var bodyW = document.body.offsetWidth;
+    var ballLeft = ball.offsetLeft;
+
+    if (ballTop + ballHeight > bodyH) {
+      ball.style.top = bodyH - ballHeight + 'px';
+      cuntHeight++;
+    }
+    if (bodyH > ballTop && cuntHeight > 0) {
+      ball.style.top = bodyH - ballHeight + 'px';
+    }
+    if (ballLeft + ballWidth > bodyW) {
+      ball.style.left = bodyW - ballWidth + 'px';
+      cuntWidth++;
+    }
+    if (bodyW > ballLeft && cuntWidth > 0) {
+      ball.style.left = bodyW - ballWidth + 'px';
+    }
+    move(ball, ballWidth / 2, ballHeight / 2);
+  }
+
+
+
+</script>
+</body>
+</html>

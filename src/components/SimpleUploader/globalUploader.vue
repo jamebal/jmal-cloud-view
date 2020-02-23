@@ -20,13 +20,16 @@
       <uploader-btn id="folder-uploader-btn" ref="folderBtn" :directory="true">选择文件夹</uploader-btn>
 
       <uploader-list v-show="panelShow">
-        <div slot-scope="props" class="file-panel" :class="{'collapse': collapse}">
+        <div slot-scope="props" class="file-panel" :class="{'collapse': collapse}" :style="filePanel">
           <div class="file-title">
             <h2 class="files-title">文件列表</h2>
             <div class="operate">
-              <el-button type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">
-                <i class="iconfont" :class="collapse ? 'el-icon-circle-plus-outline': 'el-icon-remove-outline'"></i>
+              <el-button type="text" class="button-collapse" @click="shrink">
+                <i class="iconfont el-icon-position"></i>
               </el-button>
+              <!--<el-button type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">-->
+                <!--<i class="iconfont" :class="collapse ? 'el-icon-circle-plus-outline': 'el-icon-remove-outline'"></i>-->
+              <!--</el-button>-->
               <el-button type="text" class="button-collapse" title="关闭" @click="close">
                 <i class="iconfont el-icon-circle-close"></i>
               </el-button>
@@ -43,6 +46,20 @@
       </uploader-list>
 
     </uploader>
+
+    <div v-if="isShrink" class="process-area" id="drag-ball" @click="expand">
+      <div class="process-anime">
+        <div class="cube-a" :style="{'top': -process-65+'%'}"></div>
+        <div class="cube-b" :style="{'top': -process-65+'%'}"></div>
+
+        <div v-if="process >= 100" class="done">
+          <svg xmlns="http://www.w3.org/2000/svg" class="done-icon checkmark">
+            <!--"M 14.1 27.2 l 7.1 7.2 l 16.7 -16.8"-->
+            <path d="M 13.1 21.2 l 5.1 5.2 l 12.7 -12.8" class="checkmark__check" style="fill: transparent;"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -108,7 +125,10 @@ export default {
         waiting: '等待中'
       },
       panelShow: false, // 选择文件后，展示上传panel
-      collapse: false
+      collapse: false,
+      isShrink: false,
+      process: 50,
+      filePanel: {}
     }
   },
   computed: {
@@ -326,6 +346,41 @@ export default {
         this.collapse = false
       }
     },
+    // 展开球
+    expand() {
+      this.isShrink = false
+      this.filePanel = {
+        'width': '720px',
+        'height': '300px',
+      }
+    },
+    // 收缩成球
+    shrink(){
+      const that = this
+      setTimeout(function () {
+        that.isShrink = true
+        that.filePanel = {
+          'color': 'white',
+          'z-index': '-1',
+          'right': '66px',
+          'bottom': '66px',
+          'width': '0px',
+          'height': '0px',
+          cursor: 'pointer',
+          'border-radius': '50%',
+        }
+      },500)
+      this.filePanel = {
+        'color': 'white',
+        'z-index': '-1',
+        'right': '20px',
+        'bottom': '20px',
+        'width': '92px',
+        'height': '92px',
+        cursor: 'pointer',
+        'border-radius': '50%',
+      }
+    },
     close() {
       this.uploader.cancel()
       this.panelShow = false
@@ -405,8 +460,20 @@ export default {
         .file-panel {
             background-color: #fff;
             border: 1px solid #e2e2e2;
-            border-radius: 7px 7px 0 0;
             box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+
+            right: 2%;
+            bottom: 2%;
+            width: 720px;
+            height: 300px;
+            color: black;
+            margin: auto;
+            overflow: hidden;
+            background-size: 100% 100%;
+            border-radius: 7px 7px 0 0;
+            position: fixed;
+            -webkit-transition: all .5s cubic-bezier(0.4, 0, 1, 1) 0s;
+            transition: all .5s cubic-bezier(0.4, 0, 1, 1) 0s;
 
             ul{
               white-space: nowrap;
@@ -527,5 +594,130 @@ export default {
     #folder-uploader-btn {
       position: absolute;
       clip: rect(0, 0, 0, 0);
+    }
+
+
+
+    .process-area {
+      z-index: -1;
+      /*right: 20px;*/
+      /*bottom: 20px;*/
+      /*width: 92px;*/
+      /*height: 92px;*/
+      cursor: pointer;
+      background: #eee;
+      margin: auto;
+      overflow: hidden;
+      background-size: 100% 100%;
+      border-radius: 50%;
+      position: fixed;
+      animation: load-process-area .5s 1 linear forwards;
+      transition: .5s;
+    }
+    .process-anime {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 4px solid #fff;
+      transform: translate(-50%,-50%);
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(45deg,#fde47c,#fdeca6);
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .process-anime .cube-a {
+      position: absolute;
+      left: 50%;
+      background: rgba(53,53,53,.3);
+      width: 130px;
+      height: 130px;
+      border-radius: 50px;
+      animation: fx-rotate 15s infinite linear;
+      transform-origin: 50% 50%;
+      transition: .5s;
+    }
+    .process-anime .cube-b {
+      position: absolute;
+      left: 50%;
+      background: #fff;
+      width: 130px;
+      height: 130px;
+      border-radius: 50px;
+      animation: fx-rotate 10s infinite reverse linear;
+      transform-origin: 50% 50%;
+      transition: .5s;
+    }
+
+    /**成功**/
+    .process-anime .done {
+      position: absolute;
+      width: 45px;
+      height: 45px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%) scale(2.25);
+    }
+    .process-anime .done .checkmark {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: block;
+      stroke-width: 2;
+      stroke: #fff;
+      stroke-miterlimit: 10;
+      box-shadow: inset 0 0 0 #fdda65;
+      animation: fill-data .4s ease-in-out .4s forwards,scale-data .3s ease-in-out .9s both;
+    }
+    .process-anime .done .checkmark__check {
+      transform: translate(2px,2px);
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke-data .3s cubic-bezier(.65,0,.45,1) .8s forwards;
+    }
+
+    @keyframes fx-rotate {
+      0% {
+        transform: translate(-50%) rotate(0);
+      }
+      100% {
+        transform: translate(-50%,2px) rotate(365deg);
+      }
+    }
+
+    @keyframes scale-data {
+      0%, 100% {
+        transform: none;
+      }
+      50% {
+        transform: scale3d(1.1,1.1,1);
+      }
+    }
+    @keyframes fill-data {
+      100% {
+        box-shadow: inset 0 0 0 30px #fdda65;
+      }
+    }
+
+    @keyframes stroke-data {
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes load-process-area {
+      0% {
+        right: 66px;
+        bottom: 66px;
+         width: 0;
+         height: 0;
+       }
+      100% {
+        right: 20px;
+        bottom: 20px;
+        width: 92px;
+        height: 92px;
+      }
     }
 </style>
