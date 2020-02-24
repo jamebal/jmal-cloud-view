@@ -12,6 +12,7 @@ import EVueContextmenu from 'e-vue-contextmenu'
 import App from './App'
 import store from './store'
 import router from './router'
+import VueWechatTitle from 'vue-wechat-title'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
 import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet} from 'vant';
@@ -41,6 +42,8 @@ Vue.use(VueTouch, {name:'v-touch'})
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
 // Vue.use(WeVue)
+
+Vue.use(VueWechatTitle)
 
 // 有赞的移动UI
 Vue.use(Button);

@@ -99,7 +99,7 @@ export function formatTime(agoTime) {
 
 /**
  * formatSize
- * @param {*} size 
+ * @param {*} size
  */
 export function formatSize(size) {
   if (size === 0) {
@@ -112,5 +112,23 @@ export function formatSize(size) {
     return (size/(1024 * 1024)).toFixed(2) + 'M'
   } else {
     return (size/(1024 * 1024 * 1024)).toFixed(2) + 'G'
+  }
+}
+
+/**
+ * formatNetSpeed
+ * @param {*} size
+ */
+export function formatNetSpeed(size) {
+  if (size === 0) {
+    return '0 B/s'
+  } else if (size < 1024) {
+    return size + ' B/s'
+  } else if (size < 1024 * 1024) {
+    return (size/1024).toFixed(2) + ' KB/s'
+  } else if (size < 1024 * 1024 * 1024) {
+    return (size/(1024 * 1024)).toFixed(2) + ' MB/s'
+  } else {
+    return (size/(1024 * 1024 * 1024)).toFixed(2) + ' GB/s'
   }
 }

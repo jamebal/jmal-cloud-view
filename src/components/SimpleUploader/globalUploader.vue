@@ -1,5 +1,5 @@
 <template>
-  <div id="global-uploader">
+  <div id="global-uploader" v-wechat-title="process === -10 || process===100 ? $route.meta.title : process+'%'+' | '+$route.meta.title" >
 
     <!-- 上传 -->
     <uploader
@@ -47,10 +47,15 @@
 
     </uploader>
 
-    <div v-if="isShrink" class="process-area" id="drag-ball" @click="expand">
+    <div class="process-area" id="drag-ball" @click="expand" :style="processAreaClass">
       <div class="process-anime">
         <div class="cube-a" :style="{'top': -process-65+'%'}"></div>
         <div class="cube-b" :style="{'top': -process-65+'%'}"></div>
+
+        <div v-if="process < 100" class="process-info">
+          <div class="process">{{process}}%</div>
+          <div v-if="isUploading" class="net-speed">{{netSpeed}}</div>
+        </div>
 
         <div v-if="process >= 100" class="done">
           <svg xmlns="http://www.w3.org/2000/svg" class="done-icon checkmark">
@@ -77,6 +82,7 @@ import Bus from '@/assets/js/bus'
 import $ from 'jquery'
 import SparkMD5 from 'spark-md5'
 import api from '@/api/upload-api'
+import { formatNetSpeed } from '@/utils/number'
 
 export default {
   components: {},
@@ -86,6 +92,8 @@ export default {
       options: {
         target: api.simpleUploadURL,
         chunkSize: 1024 * 1024,
+        // speedSmoothingFactor: 0.1,
+        // progressCallbacksInterval: 500,
         maxChunkRetries: 1, // 最大重试次数
         simultaneousUploads: 1, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
@@ -126,9 +134,13 @@ export default {
       },
       panelShow: false, // 选择文件后，展示上传panel
       collapse: false,
-      isShrink: false,
-      process: 50,
-      filePanel: {}
+      isShrink: true,
+      process: -10,
+      pageTitle: this.$route.meta.title,
+      netSpeed: 0,
+      isUploading: false,
+      filePanel: {},
+      processAreaClass: {}
     }
   },
   computed: {
@@ -155,6 +167,7 @@ export default {
     this.$nextTick(() => {
       window.uploader = this.$refs.uploader.uploader
     })
+
   },
   destroyed() {
     Bus.$off('openUploader')
@@ -216,6 +229,20 @@ export default {
       })
     },
     onFileProgress(rootFile, file, chunk) {
+      // const fileList = window.uploader.fileList
+      // fileList.forEach(file => {
+      //   file.currentSpeed
+      // })
+      this.netSpeed = formatNetSpeed(file.currentSpeed)
+      this.process = Math.trunc(window.uploader.progress() * 100)
+      if(this.process > 0 && this.process < 100){
+        window.onbeforeunload = function() {
+          return "还有文件正在上传, 确定退出吗?";
+        }
+      }else{
+        window.onbeforeunload = null
+      }
+      this.isUploading = window.uploader.isUploading()
       console.log(`上传中 ${file.name}，chunk：${chunk.startByte / 1024 / 1024} ~ ${chunk.endByte / 1024 / 1024}`)
     },
     onFileSuccess(rootFile, file, response) {
@@ -348,17 +375,39 @@ export default {
     },
     // 展开球
     expand() {
-      this.isShrink = false
       this.filePanel = {
         'width': '720px',
         'height': '300px',
       }
+      this.processAreaClass = {
+        'right': '66px',
+        'bottom': '66px',
+        'width': '0',
+        'height': '0',
+      }
+      this.isShrink = false
     },
     // 收缩成球
     shrink(){
       const that = this
+      this.filePanel = {
+        'color': 'white',
+        'z-index': '-1',
+        'right': '20px',
+        'bottom': '20px',
+        'width': '92px',
+        'height': '92px',
+        cursor: 'pointer',
+        'border-radius': '50%',
+      }
       setTimeout(function () {
         that.isShrink = true
+        that.processAreaClass = {
+          'right': '20px',
+          'bottom': '20px',
+          'width': '92px',
+          'height': '92px',
+        }
         that.filePanel = {
           'color': 'white',
           'z-index': '-1',
@@ -370,20 +419,21 @@ export default {
           'border-radius': '50%',
         }
       },500)
-      this.filePanel = {
-        'color': 'white',
-        'z-index': '-1',
-        'right': '20px',
-        'bottom': '20px',
-        'width': '92px',
-        'height': '92px',
-        cursor: 'pointer',
-        'border-radius': '50%',
-      }
     },
     close() {
-      this.uploader.cancel()
-      this.panelShow = false
+      if(this.process === -10 || this.process === 100){
+        this.uploader.cancel()
+        this.panelShow = false
+      } else {
+        this.$confirm('还有文件正在上传, 确定要关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.uploader.cancel()
+          this.panelShow = false
+        })
+      }
     },
 
     /**
@@ -472,8 +522,8 @@ export default {
             background-size: 100% 100%;
             border-radius: 7px 7px 0 0;
             position: fixed;
-            -webkit-transition: all .5s cubic-bezier(0.4, 0, 1, 1) 0s;
-            transition: all .5s cubic-bezier(0.4, 0, 1, 1) 0s;
+            -webkit-transition: all .5s ease-in-out 0s;
+            transition: all .5s ease-in-out 0s;
 
             ul{
               white-space: nowrap;
@@ -599,11 +649,12 @@ export default {
 
 
     .process-area {
-      z-index: -1;
-      /*right: 20px;*/
-      /*bottom: 20px;*/
-      /*width: 92px;*/
-      /*height: 92px;*/
+      right: 66px;
+      bottom: 66px;
+      width: 0;
+      height: 0;
+      -webkit-box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+      box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
       cursor: pointer;
       background: #eee;
       margin: auto;
@@ -611,9 +662,27 @@ export default {
       background-size: 100% 100%;
       border-radius: 50%;
       position: fixed;
-      animation: load-process-area .5s 1 linear forwards;
-      transition: .5s;
+      /*animation: load-process-area .5s 1 linear forwards;*/
+      /*transition: all .5s;*/
+      -webkit-transition: all .5s ease-in-out 0s;
+      transition: all .5s ease-in-out 0s;
     }
+
+    .process-area .process-info {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      text-align: center;
+    }
+    .process-area .process-info .process {
+      font-size: 1.5rem;
+    }
+    .process-area .process-info .net-speed {
+      font-size: .7rem;
+      white-space: nowrap;
+    }
+
     .process-anime {
       position: absolute;
       top: 50%;
