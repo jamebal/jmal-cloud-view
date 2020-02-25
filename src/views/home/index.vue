@@ -176,10 +176,7 @@
           header-align="center"
         >
           <template slot-scope="scope">
-            <span v-if="scope.row.size < 1024">{{ scope.row.size }}B</span>
-            <span v-if="scope.row.size >= 1024 && scope.row.size < 1024*1024">{{ (scope.row.size/1024).toFixed(2) }}K</span>
-            <span v-if="scope.row.size >= 1024*1024 && scope.row.size < 1024*1024*1024">{{ (scope.row.size/(1024*1024)).toFixed(2) }}M</span>
-            <span v-if="scope.row.size >= 1024*1024*1024 && scope.row.size < 1024*1024*1024*1024">{{ (scope.row.size/(1024*1024*1024)).toFixed(2) }}G</span>
+            <span>{{formatSize(scope.row.size)}}</span>
           </template>
         </el-table-column>
 
@@ -196,13 +193,7 @@
           header-align="left"
         >
           <template slot-scope="scope">
-            <span v-if="scope.row.agoTime < 1000*10">&nbsp;&nbsp;&nbsp;刚刚</span>
-            <span v-if="scope.row.agoTime >= 1000*10 && scope.row.agoTime < 1000*60">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/1000).toFixed(0) }} 秒钟前</span>
-            <span v-if="scope.row.agoTime >= 1000*60 && scope.row.agoTime < 1000*60*60">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60)).toFixed(0) }} 分钟前</span>
-            <span v-if="scope.row.agoTime >= 1000*60*60 && scope.row.agoTime < 1000*60*60*24">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60*60)).toFixed(0) }} 小时前</span>
-            <span v-if="scope.row.agoTime >= 1000*60*60*24 && scope.row.agoTime < 1000*60*60*24*30">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60*60*24)).toFixed(0) }} 天前</span>
-            <span v-if="scope.row.agoTime >= 1000*60*60*24*30 && scope.row.agoTime < 1000*60*60*24*30*12">{{ (scope.row.agoTime/(1000*60*60*24)).toFixed(0) }} 个月前</span>
-            <span v-if="scope.row.agoTime >= 1000*60*60*24*30*12">&nbsp;&nbsp;&nbsp;{{ (scope.row.agoTime/(1000*60*60*24*30*12)).toFixed(0) }} 年前</span>
+            <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
           </template>
         </el-table-column>
       </template>
@@ -224,8 +215,8 @@
 /* eslint-disable */
 import { mapGetters } from 'vuex'
 // import defaultSettings from '@/settings'
-import { getPath, getPathList, setPath, removePath } from '@/utils/path'
-import { strlen, substring10 } from '@/utils/number'
+// import { getPath, getPathList, setPath, removePath } from '@/utils/path'
+import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
 import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
 import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
@@ -239,7 +230,7 @@ export default {
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
       // imageUrl: 'http://localhost:8088/view?username=' + this.$store.state.user.name + '&id=',
       fileMenuActive: '',
-      path: getPath(),
+      path: this.$route.query.path,
       showNewFolder: false,
       isShowNewFolder: false,
       listModeSearch: false,
@@ -334,18 +325,9 @@ export default {
       this.preliminaryRowData()
     })
 
-    // 加载路径
-    const pathList = getPathList()
-    if (pathList && pathList !== 'undefined') {
-      const res = JSON.parse(pathList)
-      const list = []
-      res.forEach(function(element) {
-        const item0 = {}
-        item0['folder'] = element.folder + ''
-        item0['index'] = element.index
-        list.push(item0)
-      })
-      this.pathList = list
+    if (window.history && window.history.pushState) {
+      history.pushState(null, null, document.URL);
+      window.addEventListener('popstate', this.goBack, false);
     }
     const that = this
     window.onresize = function temp() {
@@ -353,7 +335,8 @@ export default {
     }
   },
   destroyed() {
-    removePath()
+    // removePath()
+    window.removeEventListener('popstate', this.goBack, false);
   },
   directives: {
     // 注册一个局部的自定义指令 v-focus
@@ -377,6 +360,14 @@ export default {
       // }
       // })
     },
+    // 格式化最近时间
+    formatTime(time) {
+      return formatTime(time)
+    },
+    // 格式化文件大小
+    formatSize(size) {
+      return formatSize(size)
+    },
     upload() {
       console.log('user', this.$store.state.user);
       // 打开文件选择框
@@ -388,17 +379,29 @@ export default {
       })
     },
     uploadFolder() {
-      // 打开文件夹选择框
-      console.log('selectFolder')
-      Bus.$emit('uploadFolder', {
-        // 传入的参数
-        currentDirectory: this.path,
-        username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId
-      })
+      if(window.uploader.supportDirectory){
+        // 打开文件夹选择框
+        console.log('selectFolder')
+        Bus.$emit('uploadFolder', {
+          // 传入的参数
+          currentDirectory: this.path,
+          username: this.$store.state.user.name,
+          userId: this.$store.state.user.userId
+        })
+      }else{
+        this.$message({
+          message: '该浏览器不支持上传文件夹',
+          type: 'warning'
+        });
+      }
     },
-    handleLink(item, index) {
-      if(item.search){
+    // 浏览器的返回事件
+    goBack(){
+      const linkIndex = this.pathList.length-3
+      this.handleLink(this.pathList[linkIndex],linkIndex)
+    },
+    handleLink(item, index, unPushLink) {
+      if(item && item.search){
         if(item.searchKey){
           this.searchFileByKeyWord(item.searchKey)
         } else if(item.row){
@@ -415,7 +418,14 @@ export default {
             this.path += '/' + this.pathList[number].folder
           }
         })
-        setPath(this.path, this.pathList)
+        if(!unPushLink){
+          if (!this.$route.query.path){
+            this.$router.push(`/_m`)
+          } else {
+            this.$router.push(`?path=${this.path}`)
+          }
+        }
+        // setPath(this.path, this.pathList)
         this.pagination.pageIndex = 1
         this.getFileList()
       }
@@ -502,12 +512,12 @@ export default {
         item2['index'] = 2
         this.pathList.push(item1)
         this.pathList.push(item2)
-
+        this.$router.push(`?search-file=${key}`)
         this.tableLoading = true
         api.searchFile({
           userId: this.$store.state.user.userId,
           keyword: key,
-          currentDirectory: getPath(),
+          currentDirectory: this.$route.query.path,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
@@ -527,7 +537,7 @@ export default {
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
         id: row.id,
-        currentDirectory: getPath(),
+        currentDirectory: this.$route.query.path,
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -543,7 +553,7 @@ export default {
       this.tableLoading = true
       api.fileList({
         userId: this.$store.state.user.userId,
-        currentDirectory: getPath(),
+        currentDirectory: this.$route.query.path,
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -1017,9 +1027,14 @@ export default {
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
           this.pagination.pageIndex = 1
+          this.$router.push(`?search-file=${row.id}`)
           this.searchFileAndOpenDir(row)
         } else {
-          this.path += '/' + row.name
+          if(this.path){
+            this.path += '/' + row.name
+          } else {
+            this.path = '/' + row.name
+          }
           const item1 = {}
           item1['folder'] = row.name
           item1['index'] = this.pathList.length - 1
@@ -1028,8 +1043,10 @@ export default {
           item2['index'] = this.pathList.length
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
-          setPath(this.path, this.pathList)
+          // setPath(this.path, this.pathList)
           this.pagination.pageIndex = 1
+          console.log(this.path)
+          this.$router.push(`?path=${this.path}`)
           this.getFileList()
         }
       } else {
