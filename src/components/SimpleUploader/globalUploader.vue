@@ -1,5 +1,5 @@
 <template>
-  <div id="global-uploader" v-wechat-title="process === -10 || process===100 ? $route.meta.title : process+'%'+' | '+$route.meta.title" >
+  <div id="global-uploader" v-wechat-title="process === -10 || process===100 || this.fileListLength === 0 ? $route.meta.title : process+'%'+' | '+$route.meta.title" >
 
     <!-- 上传 -->
     <uploader
@@ -12,6 +12,7 @@
       @file-success="onFileSuccess"
       @file-progress="onFileProgress"
       @file-error="onFileError"
+      @file-removed="onFileRemoved"
     >
       <uploader-unsupport></uploader-unsupport>
 
@@ -24,7 +25,7 @@
           <div class="file-title">
             <h2 class="files-title">文件列表</h2>
             <div class="operate">
-              <el-button type="text" class="button-collapse" @click="shrink">
+              <el-button v-if="fileListLength > 0" type="text" class="button-collapse" @click="shrink">
                 <i class="iconfont el-icon-position"></i>
               </el-button>
               <!--<el-button type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">-->
@@ -132,6 +133,7 @@ export default {
         paused: '暂停中',
         waiting: '等待中'
       },
+      fileListLength: 0,
       panelShow: false, // 选择文件后，展示上传panel
       collapse: false,
       isShrink: true,
@@ -182,6 +184,7 @@ export default {
     //   Bus.$emit('fileAdded')
     // },
     onFilesAdded(files) {
+      this.fileListLength = this.uploader.fileList.length
       const filePaths = this.uploader.filePaths
       const paths = Object.keys(filePaths)
       const pathsLength = paths.length
@@ -233,9 +236,10 @@ export default {
       // fileList.forEach(file => {
       //   file.currentSpeed
       // })
+      console.log('window.uploader',window.uploader)
       this.netSpeed = formatNetSpeed(file.currentSpeed)
       this.process = Math.trunc(window.uploader.progress() * 100)
-      if(this.process > 0 && this.process < 100){
+      if(this.process > 0 && this.process < 100 && window.uploader.fileList.length > 0){
         window.onbeforeunload = function() {
           return "还有文件正在上传, 确定退出吗?";
         }
@@ -296,6 +300,9 @@ export default {
         message: response,
         type: 'error'
       })
+    },
+    onFileRemoved() {
+      this.fileListLength = this.uploader.fileList.length
     },
     /**
      * 计算md5，实现断点续传及秒传
@@ -421,7 +428,7 @@ export default {
       },500)
     },
     close() {
-      if(this.process === -10 || this.process === 100){
+      if(this.process === -10 || this.process === 100 || this.fileListLength === 0){
         this.uploader.cancel()
         this.panelShow = false
       } else {
