@@ -49,7 +49,7 @@
     </uploader>
 
     <div class="process-area" id="drag-ball" @click="expand" :style="processAreaClass">
-      <div class="process-anime">
+      <div class="process-anime" >
         <div class="cube-a" :style="{'top': -process-65+'%'}"></div>
         <div class="cube-b" :style="{'top': -process-65+'%'}"></div>
 
@@ -62,6 +62,8 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="done-icon checkmark">
             <!--"M 14.1 27.2 l 7.1 7.2 l 16.7 -16.8"-->
             <path d="M 13.1 21.2 l 5.1 5.2 l 12.7 -12.8" class="checkmark__check" style="fill: transparent;"></path>
+            <!--<path v-if="pc" d="M 13.1 21.2 l 5.1 5.2 l 12.7 -12.8" class="checkmark__check" style="fill: transparent;"></path>-->
+            <!--<path v-if="!pc" d="M 15.5 20.2 l 3.5 3.6 l 7.7 -7.8" class="checkmark__check" style="fill: transparent;"></path>-->
           </svg>
         </div>
       </div>
@@ -127,8 +129,8 @@ export default {
         accept: '*'
       },
       statusText: {
-        success: '成功了',
-        error: '出错了',
+        success: '上传成功',
+        error: '上传失败',
         uploading: '上传中',
         paused: '暂停中',
         waiting: '等待中'
@@ -142,7 +144,8 @@ export default {
       netSpeed: 0,
       isUploading: false,
       filePanel: {},
-      processAreaClass: {}
+      processAreaClass: {},
+      pc: true
     }
   },
   computed: {
@@ -166,6 +169,13 @@ export default {
       }
     })
 
+    Bus.$on('uploadFileListBack',() => {
+      console.log(this.process)
+      if(this.process !== -10 && this.process !== 100 && this.fileListLength !== 0){
+        this.shrink()
+      }
+    })
+
     this.$nextTick(() => {
       window.uploader = this.$refs.uploader.uploader
     })
@@ -174,6 +184,7 @@ export default {
   destroyed() {
     Bus.$off('openUploader')
     Bus.$off('uploadFolder')
+    Bus.$off('uploadFileListBack')
   },
   methods: {
     // onFileAdded(file) {
@@ -204,10 +215,16 @@ export default {
           }).catch(e => {})
         })
       }
+      if(window.pc){
+        this.pc = true
+        this.panelShow = true
+      }else{
+        this.pc = false
+        this.shrink()
+      }
       files.forEach(file => {
         // 上传文件
         console.log('上传->', file)
-        this.panelShow = true
         console.log(pathsLength)
         // this.computeMD5(file)
         // if (pathsLength < 1) {
@@ -382,6 +399,9 @@ export default {
     },
     // 展开球
     expand() {
+      if(!pc){
+        this.$router.push(`/upload/index_m`)
+      }
       this.filePanel = {
         'width': '720px',
         'height': '300px',
@@ -396,6 +416,16 @@ export default {
     },
     // 收缩成球
     shrink(){
+      let width = '92px';
+      let height = '92px';
+      let right = '20px';
+      let bottom = '20px';
+      if(!pc){
+        width = '92px';
+        height = '92px';
+        right = '10px';
+        bottom = '70px';
+      }
       const that = this
       this.filePanel = {
         'color': 'white',
@@ -410,10 +440,10 @@ export default {
       setTimeout(function () {
         that.isShrink = true
         that.processAreaClass = {
-          'right': '20px',
-          'bottom': '20px',
-          'width': '92px',
-          'height': '92px',
+          'right': right,
+          'bottom': bottom,
+          'width': width,
+          'height': height,
         }
         that.filePanel = {
           'color': 'white',

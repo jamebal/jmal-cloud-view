@@ -45,8 +45,10 @@ export default {
   mounted() {
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
       this.isShow = false
+      window.pc = false
     } else {
       this.isShow = true
+      window.pc = true
     }
   },
   components: {

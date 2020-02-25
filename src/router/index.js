@@ -229,7 +229,7 @@ export const dynamicRouters = [
       path: '',
       name: 'Home_m',
       component: () => import('@/views/home/mobile/index'),
-      meta: { title: '所有文件', icon: 'ziyuan' }
+      meta: { title: '所有文件' }
     }]
   },
   {
@@ -243,6 +243,16 @@ export const dynamicRouters = [
         meta: { title: 'demo', icon: 'example' }
       }
     ]
+  },
+  {
+    path: '/upload',
+    component: Layout,
+    children: [{
+      path: 'index_m',
+      name: 'upload_m',
+      component: () => import('@/views/upload/mobile/index'),
+      meta: { title: '上传文件列表' }
+    }]
   }
 ]
 
