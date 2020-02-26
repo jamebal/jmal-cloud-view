@@ -6,17 +6,14 @@
       :finished="finished"
       :finished-text="statistics()"
       @load="getFileList(true)"
-      @scroll="swipeUp"
     >
       <van-sticky :offset-top="0">
-         <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div>
+         <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
         <van-nav-bar
           v-if="pathList.length < 3"
           title="浏览"
           right-arrow
           @click-right="titleRightClick">
-          <!--<van-icon name="wap-nav" slot="right">-->
-          <!--</van-icon>-->
           <svg-icon class="title-right-icon" icon-class="add-file" slot="right"/>
         </van-nav-bar>
 
@@ -41,7 +38,7 @@
       </van-sticky>
 
       <van-cell class="list-item" center v-for="item in fileList" :key="item.id" @click="fileClick(item)" :is-link="item.isFolder">
-        <div @touchstart="touchStart" @touchend="touchEnd">
+        <div class="list-item-div" @touchstart="touchStart(item)" @touchend="touchEnd"> 
           <van-row class="row-file">
             <van-col span="4" align="center" class="list-cell-icon">
               <icon-file :item="item" :image-url="imageUrl"></icon-file>
@@ -54,59 +51,14 @@
                 <van-col span="24">
                   {{formatTime(item.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(item.size)}}
                 </van-col>
-                <!-- <van-col span="8">
-                  {{formatSize(item.size)}}
-                </van-col> -->
               </van-col>
             </van-col>
             <van-col span="4"></van-col>
           </van-row>
-          <!--<van-divider></van-divider>-->
         </div>
       </van-cell>
     </van-list>
   </van-pull-refresh>
-    <!--<van-tabbar v-model="tabActive" :class="tabBottom">-->
-    <!--<div v-if="diffTabbarTop === 0 || diffTabbarTop > 0">-->
-      <!--<van-tabbar-->
-        <!--id="tabbar"-->
-        <!--active-color="#07c160"-->
-        <!--inactive-color="#000"-->
-        <!--v-model="tabActive"-->
-        <!--class="tab-bottom">-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-folder" /><div class="tab-text">浏览</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-recently" /><div class="tab-text">最近</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-favorite" /><div class="tab-text">收藏</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-setting" /><div class="tab-text">设置</div></van-tabbar-item>-->
-      <!--</van-tabbar>-->
-    <!--</div>-->
-    <!--<div v-if="diffTabbarTop < 0">-->
-      <!--<van-tabbar-->
-        <!--id="tabbar"-->
-        <!--v-if="isiPhoneX === 30"-->
-        <!--active-color="#07c160"-->
-        <!--inactive-color="#000"-->
-        <!--v-model="tabActive"-->
-        <!--class="tab-bottom-iphoneX">-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-folder" /><div class="tab-text">浏览</div></van-tabbar-item>-->
-        <!--<van-tabbar-item> <a href="http://www.baidu.com"><svg-icon icon-class="tab-recently" /><div class="tab-text">最近</div></a></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-favorite" /><div class="tab-text">收藏</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-setting" /><div class="tab-text">设置</div></van-tabbar-item>-->
-      <!--</van-tabbar>-->
-
-      <!--<van-tabbar-->
-        <!--id="tabbar"-->
-        <!--v-if="isiPhoneX === 35"-->
-        <!--active-color="#07c160"-->
-        <!--inactive-color="#000"-->
-        <!--v-model="tabActive"-->
-        <!--class="tab-bottom-iphoneXS">-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-folder" /><div class="tab-text">浏览</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-recently" /><div class="tab-text">最近</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-favorite" /><div class="tab-text">收藏</div></van-tabbar-item>-->
-        <!--<van-tabbar-item><svg-icon icon-class="tab-setting" /><div class="tab-text">设置</div></van-tabbar-item>-->
-      <!--</van-tabbar>-->
-    <!--</div>-->
 
     <van-action-sheet
       v-model="actionSheetShow"
@@ -120,6 +72,27 @@
         <van-field class="new-folder-input" v-model="newFolderName" placeholder="请输入文件夹名称" :border="true" :clearable="true" ref="newFolderInput" :autofocus="true">
         </van-field>
     </van-dialog>
+
+    <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
+      <div class="popper-arrow"></div>
+      <ul v-for="(item,index) in menus" :key="item.label">
+        <li
+          v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
+          @click="menusOperations(item.operation)"
+        >
+          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
+          </label>
+        </li>
+        <li
+          v-else
+          @click="menusOperations(item.operation)"
+        >
+          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
+          </label>
+        </li>
+
+      </ul>
+    </e-vue-contextmenu>
 
   </div>
 </template>
@@ -148,6 +121,7 @@
   import IconFile from "../../../components/Icon/IconFile";
   import Bus from '@/assets/js/bus'
   import { Toast } from 'vant';
+  import { getPath, getPathList, setPath, removePath } from '@/utils/path'
 
   export default {
     components: {IconFile},
@@ -179,70 +153,256 @@
         ],
         showNewFolder: false,
         newFolderName: '新建文件夹',
-        Loop: null
+        Loop: null,
+        isJustHideMenus: false,
+        menusIsMultiple: false,
+        menus: [],
+        singleMenus: [
+          { iconClass: 'menu-open', label: '打开', operation: 'open' },
+          { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
+          { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
+          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
+        multipleMenus: [
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
+        multipleRightMenus: [
+          { iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect' },
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
+        rowContextData: {},
+        selectRowData: [],
+        tableLoading: false,
+        newFolderLoading: false,
+        renameLoading: false,
+        menuTriangle: '', // 三角菜单
+        cellMouseIndex: -1,
+        editingIndex: -1,
+        indexList: [],
       };
     },
     mounted(){
 
-      var isIOS = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
-      if (isIOS) {
-        if(screen.height === 812 && screen.width === 375){
-          // iPhone X iPhone XS
-          this.isiPhoneX = 30
-        }else if (screen.height === 896 && screen.width === 414){
-          // iPhone XS Max   iPhone XR
-          this.isiPhoneX = 35
-        }
-      }
+      // 加载路径
+    const pathList = getPathList()
+    if (pathList && pathList !== 'undefined') {
+      const res = JSON.parse(pathList)
+      const list = []
+      res.forEach(function(element) {
+        const item0 = {}
+        item0['folder'] = element.folder + ''
+        item0['index'] = element.index
+        list.push(item0)
+      })
+      this.pathList = list
+    }
 
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.goBack, false);
       }
-
-      const that = this
-      // 判断底部tabbar与上边框的距离,用来适配iPhoneX机型下面多出来的部分
-      window.addEventListener('scroll', () => {
-        that.test = 14
-        var tabbar= document.getElementById("tabbar");
-        if(tabbar.offsetTop){
-
-        }
-        const top = tabbar.offsetTop
-        that.test = tabbar.offsetTop
-        if(that.lastTabbarOffsetTop === 0){
-          if(top > 0){
-            that.lastTabbarOffsetTop = top
-          }
-        }else{
-          const diff = that.lastTabbarOffsetTop - top
-          if(diff > 0){
-            console.log("显示")
-            that.diffTabbarTop = diff
-          } else if(diff < 0){
-            console.log("隐藏")
-            that.diffTabbarTop = diff
-          }
-          that.lastTabbarOffsetTop = top
-        }
-      }, true);
-
     },
     destroyed(){
       window.removeEventListener('popstate', this.goBack, false);
     },
     methods: {
-      touchStart(e){
-        e.preventDefault();
-        Toast("手指触摸").setDefaultOptions({ duration: 200 });
+      // 显示操作菜单
+      show() {
+        console.log('菜单显示了')
+      },
+      hide() {
+        const that = this
+        this.isJustHideMenus = true
+        setTimeout(function() {
+          that.isJustHideMenus = false
+        }, 100)
+        console.log('菜单隐藏了')
+      },
+      // 长按事件
+      rowContextmenu(row, event) {
+        console.log(event)
+        if (this.indexList.includes(row.index)) {
+          this.menusIsMultiple = true
+          this.menus = this.multipleRightMenus
+        } else {
+          this.menusIsMultiple = false
+          this.menus = this.singleMenus
+          this.preliminaryRowData(row)
+        }
+        // 长按选择的数据
+        this.rowContextData = row
+        this.menuTriangle = ''
+        const e = {}
+        console.log('pageX:' + event.pageX, 'clientX:' + event.clientX)
+        console.log('pageY:' + event.pageY, 'clientY:' + event.clientY)
+        e.pageX = event.pageX + 5
+        e.pageY = event.pageY + 2
+        e.clientX = event.clientX + 5
+        e.clientY = event.clientY + 2
+        this.$refs.contextShow.showMenu(e)
+      },
+      // 选择某行预备数据
+      preliminaryRowData(row) {
+        if (row) {
+          this.selectRowData[0] = row
+        }
+      },
+      // 菜单操作
+      menusOperations(operation) {
+        switch (operation) {
+          case 'favorite':
+            console.log('operation', '收藏')
+            this.favoriteOperating(true)
+            break
+          case 'open':
+            console.log('open', '打开')
+            this.fileClick(this.rowContextData)
+            break
+          case 'deselect':
+            console.log('deselect', '取消选定')
+            this.$refs.fileListTable.toggleRowSelection(this.rowContextData)
+            break
+          case 'unFavorite':
+            console.log('unFavorite', '取消收藏')
+            this.favoriteOperating(false)
+            break
+          case 'details':
+            this.$notify.info({
+              title: this.rowContextData.name,
+              duration: 2000
+            })
+            console.log('详情', this.rowContextData)
+            break
+          case 'rename':
+            console.log('重命名')
+            this.renameFileName = this.rowContextData.name
+            this.editingIndex = this.rowContextData.index
+            break
+          case 'copy':
+            console.log('移动或复制')
+            break
+          case 'download':
+            console.log('下载')
+            this.downloadFile()
+            break
+          case 'remove':
+            console.log('operation', '删除')
+            this.deleteFile()
+            break
+        }
+        this.$refs.contextShow.hideMenu()
+      },
+      downloadFile() {
+        let totalSize = 0
+        this.selectRowData.forEach(item => {
+          totalSize += item.size
+        })
+        if (totalSize > 0) {
+          var fileIds = [];
+          if (this.menusIsMultiple) {
+            this.selectRowData.forEach(value => {
+              fileIds.push(value.id)
+            })
+          } else {
+            fileIds.push(this.rowContextData.id)
+          }
+          window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+        } else {
+          this.$message({
+            message: '所选文件夹为空',
+            type: 'warning'
+          });
+        }
+      },
+      // 收藏/取消收藏
+      favoriteOperating(isFavorite) {
+        this.selectRowData[0].isFavorite = isFavorite
+
+        this.highlightFavorite(isFavorite, true)
+        api.favoriteUrl({
+          token: this.$store.state.user.token,
+          id: this.selectRowData[0].id,
+          isFavorite: isFavorite
+        }).then(res => {
+        })
+      },
+      // 删除
+      deleteFile() {
+        let fileList = []
+        const fileIds = []
+        if (this.menusIsMultiple) {
+          fileList = this.selectRowData
+          this.selectRowData.forEach(value => {
+            fileIds.push(value.id)
+          })
+        } else {
+          fileIds.push(this.selectRowData[0].id)
+        }
+        const str = this.getShowSumFileAndFolder(fileList)
+
+        this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          api.delete({
+            username: this.$store.state.user.name,
+            fileIds: fileIds
+          }).then(() => {
+            // 移除列表
+            if (this.selectRowData.length === 1) {
+              this.fileList.splice(this.selectRowData[0].index, 1)
+            } else {
+              this.getFileList()
+            }
+            this.$notify({
+              title: '删除成功',
+              type: 'success',
+              duration: 1000
+            })
+            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
+            this.selectRowData = []
+          })
+        })
+      },
+      touchStart(item){
+        // e.preventDefault();
+        Toast.setDefaultOptions({ duration: 300 });
+        // Toast("手指触摸");
         //手指触摸
         clearTimeout(this.Loop); //再次清空定时器，防止重复注册定时器
+        const that = this
+        const e = window.event
         this.Loop = setTimeout(function() {
-          Toast("哈哈").setDefaultOptions({ duration: 200 });
+          Toast("长按了");
+          console.log(e)
+          console.log(e.targetTouches[0].target.className)
+          const h = that.findListItem(e.targetTouches[0].target)
+          // that.rowContextmenu(item,e.targetTouches[0])
         },700);
       },
+      findListItem(target){
+        console.log(target.offsetParent.className,target.offsetParent.className.indexOf('list-item'))
+        if(target.offsetParent.className.indexOf('list-item') > -1){
+            console.log(target.offsetParent)
+            console.log('offsetTop',target.offsetParent.offsetTop)
+            console.log('offsetLeft',target.offsetParent.offsetLeft)
+            console.log('offsetWidth',target.offsetParent.offsetWidth)
+            console.log('offsetHeight',target.offsetParent.offsetHeight)
+            return target.offsetParent
+        } else {
+          this.findListItem(target.offsetParent)
+        }
+      },
       touchEnd(){
-        Toast("手指离开").setDefaultOptions({ duration: 200 });
+        // Toast("手指离开");
         //手指离开
         clearTimeout(this.Loop);
       },
@@ -258,21 +418,21 @@
       },
       // 点击右边按钮(标题)
       titleRightClick() {
-        Toast("提示").setDefaultOptions({ duration: 200 });
-        // this.actionSheetShow = true
-        // this.actionsMenus = [
-        //   { name: '新建文件夹' },
-        // ]
-        // if(window.uploader.support){
-        //   const menuItem = {}
-        //   menuItem['name'] = '上传文件'
-        //   this.actionsMenus.push(menuItem)
-        // }
-        // if(window.uploader.supportDirectory){
-        //   const menuItem = {}
-        //   menuItem['name'] = '上传文件夹'
-        //   this.actionsMenus.push(menuItem)
-        // }
+        // Toast("提示").setDefaultOptions({ duration: 200 });
+        this.actionSheetShow = true
+        this.actionsMenus = [
+          { name: '新建文件夹' },
+        ]
+        if(window.uploader.support){
+          const menuItem = {}
+          menuItem['name'] = '上传文件'
+          this.actionsMenus.push(menuItem)
+        }
+        if(window.uploader.supportDirectory){
+          const menuItem = {}
+          menuItem['name'] = '上传文件夹'
+          this.actionsMenus.push(menuItem)
+        }
       },
       handleLink(item, index, isPushLink) {
 
@@ -303,6 +463,7 @@
           if(isPushLink){
             this.$router.push(`/_m?path=${this.path}`)
           }
+          setPath(this.path, this.pathList)
           this.getFileList()
         }
       },
@@ -340,7 +501,6 @@
             res.data.forEach(file => {
               this.fileList.push(file)
             });
-            this.addEventListener()
           }else{
             this.fileList = res.data
           }
@@ -359,13 +519,13 @@
         this.fileList.forEach(file => {
           totalSize += file.size;
         })
-        return this.getShowSumFileAndFolder() + ' ' + this.getShowSumSize(totalSize)
+        return this.getShowSumFileAndFolder(this.fileList) + ' ' + this.getShowSumSize(totalSize)
       },
       // 统计文件和文件夹
-      getShowSumFileAndFolder() {
+      getShowSumFileAndFolder(fileList) {
         let folderSize = 0
         let fileSize = 0
-        this.fileList.forEach((fileInfo) => {
+        fileList.forEach((fileInfo) => {
           if (fileInfo.isFolder) {
             folderSize += 1
           } else {
@@ -403,7 +563,6 @@
       },
       // 点击文件或文件夹
       fileClick(row) {
-        console.log('fileClick', row)
         if (row.isFolder) {
           // 打开文件夹
           if(this.path){
@@ -420,6 +579,7 @@
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
           this.$router.push(`/_m?path=${this.path}`)
+          setPath(this.path, this.pathList)
           this.getFileList()
         } else {
           // 打开文件
@@ -612,10 +772,6 @@
     text-overflow:ellipsis;
   }
 
-  .van-list {
-    margin-bottom: 75px
-  }
-
   .list-item {
     padding: 5px 10px;
 
@@ -691,5 +847,38 @@
   }
   .new-folder-input /deep/ .van-field__body{
     height: 40px;
+  }
+
+  .newFileMenu ul {
+    list-style: none;
+    padding-inline-start: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .newFileMenu li {
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    min-width: 136px;
+  }
+  .newFileMenu li:active {
+    cursor: pointer;
+    border-radius: 5px;
+    /*background-color: #409eff14;*/
+    background-color: #409eff30;
+  }
+  .newFileMenu li > .menuitem {
+    cursor: pointer;
+    line-height: 38px;
+    margin-left: 10%;
+  }
+  .newFileMenu li > .menuitem > .text {
+    cursor: pointer;
+    margin-left: 8%;font-weight: normal;
+  }
+  .newFileMenu li > .menuitem > .svg-icon {
+    width: 1.2rem;
+    height: 1.2rem;
   }
 </style>

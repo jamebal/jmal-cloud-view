@@ -215,7 +215,7 @@
 /* eslint-disable */
 import { mapGetters } from 'vuex'
 // import defaultSettings from '@/settings'
-// import { getPath, getPathList, setPath, removePath } from '@/utils/path'
+import { getPath, getPathList, setPath, removePath } from '@/utils/path'
 import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
 import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
@@ -302,7 +302,7 @@ export default {
       tableLoading: false,
       newFolderLoading: false,
       renameLoading: false,
-      menuTriangle: '',
+      menuTriangle: '', // 三角菜单
       cellMouseIndex: -1,
       editingIndex: -1
     }
@@ -325,6 +325,20 @@ export default {
       this.preliminaryRowData()
     })
 
+    // 加载路径
+    const pathList = getPathList()
+    if (pathList && pathList !== 'undefined') {
+      const res = JSON.parse(pathList)
+      const list = []
+      res.forEach(function(element) {
+        const item0 = {}
+        item0['folder'] = element.folder + ''
+        item0['index'] = element.index
+        list.push(item0)
+      })
+      this.pathList = list
+    }
+
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL);
       window.addEventListener('popstate', this.goBack, false);
@@ -335,7 +349,7 @@ export default {
     }
   },
   destroyed() {
-    // removePath()
+    removePath()
     window.removeEventListener('popstate', this.goBack, false);
   },
   directives: {
@@ -425,7 +439,7 @@ export default {
             this.$router.push(`?path=${this.path}`)
           }
         }
-        // setPath(this.path, this.pathList)
+        setPath(this.path, this.pathList)
         this.pagination.pageIndex = 1
         this.getFileList()
       }
@@ -1043,7 +1057,7 @@ export default {
           item2['index'] = this.pathList.length
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
-          // setPath(this.path, this.pathList)
+          setPath(this.path, this.pathList)
           this.pagination.pageIndex = 1
           console.log(this.path)
           this.$router.push(`?path=${this.path}`)
@@ -1091,12 +1105,6 @@ export default {
     font-size: 1rem;
     line-height: 46px;
   }
-  .newFileMenu ul {
-    list-style: none;
-    padding-inline-start: 0px;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
 
   .button-class {
     cursor: pointer;
@@ -1107,6 +1115,12 @@ export default {
     background-color: #409eff14;
   }
 
+  .newFileMenu ul {
+    list-style: none;
+    padding-inline-start: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
   .newFileMenu li {
     cursor: pointer;
     margin: 0;
