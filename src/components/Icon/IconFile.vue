@@ -1,6 +1,7 @@
 <template>
   <span>
-    <svg-icon v-if="item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
+            <svg-icon v-if="pc && item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-bottom: -1rem;position: relative;" />
+            <svg-icon v-if="!pc && item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 0.5rem;float: right;margin-bottom: -1rem;position: relative;" />
             <svg-icon v-if="item.isFolder" icon-class="folder" />
             <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />
             <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />
@@ -30,7 +31,10 @@
     },
     data() {
       return {
+        pc: window.pc
       }
+    },
+    mounted() {
     },
     methods: {
     }

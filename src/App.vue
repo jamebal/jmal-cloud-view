@@ -17,7 +17,6 @@ export default {
   },
   watch: {
     $route: function(to, from) {
-      console.log('from:',from,'to:',to)
       const path = to.path
       if (path.indexOf('/login') < 0) {
         if (path.indexOf('_m') > 0 && this.$pc) {

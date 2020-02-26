@@ -34,11 +34,10 @@
           left-arrow
           @click-left="clickBack">
         </van-nav-bar>
-
       </van-sticky>
 
       <van-cell class="list-item" center v-for="item in fileList" :key="item.id" @click="fileClick(item)" :is-link="item.isFolder">
-        <div class="list-item-div" @touchstart="touchStart(item)" @touchend="touchEnd"> 
+        <div class="list-item-div" @touchstart="touchStart(item)" @touchend="touchEnd" @touchmove="touchMove">
           <van-row class="row-file">
             <van-col span="4" align="center" class="list-cell-icon">
               <icon-file :item="item" :image-url="imageUrl"></icon-file>
@@ -75,7 +74,7 @@
 
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
-      <ul v-for="(item,index) in menus" :key="item.label">
+      <ul v-for="item in menus" :key="item.label">
         <li
           v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
           @click="menusOperations(item.operation)"
@@ -90,9 +89,32 @@
           <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
           </label>
         </li>
-
       </ul>
     </e-vue-contextmenu>
+
+    <van-overlay ref="overlayShow" :show="overlayShow" duration="0.3" @click="overlayClick">
+      <van-cell v-if="rowContextData.name!=null" :style="overlayContentClass" class="list-item overlay-content-class" center @click="fileClick(rowContextData)" :is-link="rowContextData.isFolder">
+        <!--<div :style="overlayContentClass">-->
+        <div >
+          <van-row class="row-file">
+            <van-col span="4" align="center" class="list-cell-icon">
+              <icon-file :item="rowContextData" :image-url="imageUrl"></icon-file>
+            </van-col>
+            <van-col span="16" class="list-item-content">
+              <van-col span="24">
+                {{rowContextData.name}}
+              </van-col>
+              <van-col span="24" class="file-description" justify="space-between">
+                <van-col span="24">
+                  {{formatTime(rowContextData.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(rowContextData.size)}}
+                </van-col>
+              </van-col>
+            </van-col>
+            <van-col span="4"></van-col>
+          </van-row>
+        </div>
+      </van-cell>
+    </van-overlay>
 
   </div>
 </template>
@@ -115,6 +137,7 @@
   import 'vant/lib/dialog/style';
   import 'vant/lib/field/style';
   import 'vant/lib/toast/style';
+  import 'vant/lib/overlay/style';
 
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import api from '@/api/upload-api'
@@ -186,6 +209,8 @@
         cellMouseIndex: -1,
         editingIndex: -1,
         indexList: [],
+        overlayShow: false,
+        overlayContentClass: {}
       };
     },
     mounted(){
@@ -213,9 +238,32 @@
       window.removeEventListener('popstate', this.goBack, false);
     },
     methods: {
+      // 是否高亮收藏图标
+      highlightFavorite(isFavorite, isHover) {
+        const item_menu = this.menus.find(item => {
+          if (item.operation === 'favorite' || item.operation === 'unFavorite') {
+            return item
+          }
+        })
+        if (item_menu) {
+          if (isFavorite) {
+            item_menu.label = '取消收藏'
+            item_menu.iconClass = 'menu-favorite-hover'
+            item_menu.operation = 'unFavorite'
+          } else {
+            if (isHover) {
+              item_menu.iconClass = 'menu-favorite-hover'
+            } else {
+              item_menu.iconClass = 'menu-favorite'
+            }
+            item_menu.label = '收藏'
+            item_menu.operation = 'favorite'
+          }
+          // this.$set(this.menus, 0, item_menu)
+        }
+      },
       // 显示操作菜单
       show() {
-        console.log('菜单显示了')
       },
       hide() {
         const that = this
@@ -223,11 +271,9 @@
         setTimeout(function() {
           that.isJustHideMenus = false
         }, 100)
-        console.log('菜单隐藏了')
       },
       // 长按事件
-      rowContextmenu(row, event) {
-        console.log(event)
+      rowContextmenu(row, target) {
         if (this.indexList.includes(row.index)) {
           this.menusIsMultiple = true
           this.menus = this.multipleRightMenus
@@ -239,13 +285,15 @@
         // 长按选择的数据
         this.rowContextData = row
         this.menuTriangle = ''
+        const offsetTop = target.offsetTop - row.scrollY
         const e = {}
-        console.log('pageX:' + event.pageX, 'clientX:' + event.clientX)
-        console.log('pageY:' + event.pageY, 'clientY:' + event.clientY)
-        e.pageX = event.pageX + 5
-        e.pageY = event.pageY + 2
-        e.clientX = event.clientX + 5
-        e.clientY = event.clientY + 2
+        if ((offsetTop+(target.offsetHeight/2)) > document.body.offsetHeight/2) {
+          e.pageX = 50
+          e.pageY = target.offsetTop - 288
+        } else {
+          e.pageX = 50
+          e.pageY = target.offsetTop + target.offsetHeight + 5
+        }
         this.$refs.contextShow.showMenu(e)
       },
       // 选择某行预备数据
@@ -253,6 +301,8 @@
         if (row) {
           this.selectRowData[0] = row
         }
+        const isFavorite = this.selectRowData[0].isFavorite
+        this.highlightFavorite(isFavorite, false)
       },
       // 菜单操作
       menusOperations(operation) {
@@ -297,6 +347,8 @@
             this.deleteFile()
             break
         }
+        this.overlayShow = false
+        document.documentElement.style.overflow = null;
         this.$refs.contextShow.hideMenu()
       },
       downloadFile() {
@@ -372,39 +424,64 @@
           })
         })
       },
+      touchMove(e) {
+        // 避免和长按事件冲突
+        clearTimeout(this.Loop);
+        e.preventDefault();
+      },
       touchStart(item){
         // e.preventDefault();
-        Toast.setDefaultOptions({ duration: 300 });
+        Toast.setDefaultOptions({ duration: 500 });
         // Toast("手指触摸");
         //手指触摸
         clearTimeout(this.Loop); //再次清空定时器，防止重复注册定时器
         const that = this
         const e = window.event
         this.Loop = setTimeout(function() {
-          Toast("长按了");
-          console.log(e)
-          console.log(e.targetTouches[0].target.className)
-          const h = that.findListItem(e.targetTouches[0].target)
-          // that.rowContextmenu(item,e.targetTouches[0])
-        },700);
-      },
-      findListItem(target){
-        console.log(target.offsetParent.className,target.offsetParent.className.indexOf('list-item'))
-        if(target.offsetParent.className.indexOf('list-item') > -1){
-            console.log(target.offsetParent)
-            console.log('offsetTop',target.offsetParent.offsetTop)
-            console.log('offsetLeft',target.offsetParent.offsetLeft)
-            console.log('offsetWidth',target.offsetParent.offsetWidth)
-            console.log('offsetHeight',target.offsetParent.offsetHeight)
-            return target.offsetParent
-        } else {
-          this.findListItem(target.offsetParent)
-        }
+          console.log(e.targetTouches[0].pageY-e.targetTouches[0].clientY)
+          item.scrollY = e.targetTouches[0].pageY-e.targetTouches[0].clientY
+          console.log(item)
+          that.findListItem(item,e.targetTouches[0].target)
+          that.overlayShow = true
+          Toast("长按"+document.documentElement.style.overflow);
+          document.documentElement.style.overflow='hidden';
+        },500);
       },
       touchEnd(){
         // Toast("手指离开");
         //手指离开
         clearTimeout(this.Loop);
+      },
+      // 点击遮罩层
+      overlayClick() {
+        this.overlayShow = false
+        document.documentElement.style.overflow = null;
+      },
+      findListItem(item,target){
+        const offsetParent = target.offsetParent
+        if(offsetParent.className.indexOf('list-item') > -1){
+            this.overlayContentClass = {
+              'top': (offsetParent.offsetTop-item.scrollY)+'px',
+              'height': offsetParent.offsetHeight+'px',
+              'width': offsetParent.offsetWidth+'px',
+              'left': offsetParent.offsetLeft+'px',
+              'border-radius': '0px'
+            }
+            const that = this
+            setTimeout(function () {
+              that.overlayContentClass = {
+                'top': (offsetParent.offsetTop-item.scrollY)+'px',
+                'height': offsetParent.offsetHeight+'px',
+                'width': (offsetParent.offsetWidth-20)+'px',
+                'left': (offsetParent.offsetLeft+10)+'px',
+                'border-radius': (offsetParent.offsetHeight/4)+'px',
+              }
+            },0)
+            this.rowContextmenu(item,offsetParent)
+            return offsetParent
+        } else {
+          this.findListItem(item,target.offsetParent)
+        }
       },
       // 浏览器的返回事件
       goBack(){
@@ -693,6 +770,18 @@
 </script>
 <style lang="scss" scoped>
 
+  * {
+    -webkit-touch-callout:none;  /*系统默认菜单被禁用*/
+    -webkit-user-select:none; /*webkit浏览器*/
+    -moz-user-select:none;/*火狐*/
+    -ms-user-select:none; /*IE10*/
+    user-select:none;
+  }
+
+  input {
+    -webkit-user-select:auto; /*webkit浏览器*/
+  }
+
   .tab-bottom {
     padding: 0 0 25px 0;
     .van-tabbar-item {
@@ -782,6 +871,12 @@
     .list-item-content {
       margin-left: 5px;
     }
+  }
+  .overlay-content-class {
+    -webkit-transition: all .1s ease-in-out 0s;
+    transition: all .1s ease-in-out 0s;
+    box-shadow: 2px 3px 3px #888888;
+
   }
 
   .list-item:active {
@@ -880,5 +975,8 @@
   .newFileMenu li > .menuitem > .svg-icon {
     width: 1.2rem;
     height: 1.2rem;
+  }
+  /deep/ .ctx-menu-container {
+    top: unset;
   }
 </style>

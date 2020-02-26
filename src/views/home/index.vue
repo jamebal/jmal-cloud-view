@@ -976,7 +976,6 @@ export default {
     // 收藏/取消收藏
     favoriteOperating(isFavorite) {
       this.selectRowData[0].isFavorite = isFavorite
-
       this.highlightFavorite(isFavorite, true)
       api.favoriteUrl({
         token: this.$store.state.user.token,

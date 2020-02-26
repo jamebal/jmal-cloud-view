@@ -15,7 +15,7 @@ import router from './router'
 import VueWechatTitle from 'vue-wechat-title'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
-import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Dialog, Field} from 'vant';
+import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Dialog, Field, Overlay} from 'vant';
 
 import '@/icons' // icon
 import '@/permission' // permission control
@@ -64,6 +64,7 @@ Vue.use(TabbarItem);
 Vue.use(ActionSheet);
 Vue.use(Dialog);
 Vue.use(Field);
+Vue.use(Overlay);
 
 
 Vue.use(uploader)
