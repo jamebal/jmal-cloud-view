@@ -7,7 +7,7 @@
       :finished-text="statistics()"
       @load="getFileList(true)"
     >
-      <van-sticky :offset-top="0">
+      <van-sticky :offset-top="-1">
          <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
         <van-nav-bar
           v-if="pathList.length < 3"
@@ -72,25 +72,15 @@
         </van-field>
     </van-dialog>
 
-    <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
-      <div class="popper-arrow"></div>
-      <ul v-for="item in menus" :key="item.label">
-        <li
-          v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
-          @click="menusOperations(item.operation)"
-        >
-          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-          </label>
-        </li>
-        <li
-          v-else
-          @click="menusOperations(item.operation)"
-        >
-          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-          </label>
-        </li>
-      </ul>
-    </e-vue-contextmenu>
+      <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
+          <ul v-for="(item,index) in menus" :key="item.label" :class="{'menu-list-first':index===0,'menu-list-last':index===menus.length-1,'menu-list':index<menus.length-1&&index>0}">
+            <div v-if="index !== 0" style="border-bottom:1px solid #cccccc85"></div>
+            <li :class="{'remove':item.operation==='remove'}" @click="menusOperations(item.operation)">
+              <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
+              </label>
+            </li>
+          </ul>
+      </e-vue-contextmenu>
 
     <van-overlay ref="overlayShow" :show="overlayShow" duration="0.3" @click="overlayClick">
       <van-cell v-if="rowContextData.name!=null" :style="overlayContentClass" class="list-item overlay-content-class" center @click="fileClick(rowContextData)" :is-link="rowContextData.isFolder">
@@ -425,9 +415,9 @@
         })
       },
       touchMove(e) {
-        // 避免和长按事件冲突
+        // // 避免和长按事件冲突
         clearTimeout(this.Loop);
-        e.preventDefault();
+        // e.preventDefault();
       },
       touchStart(item){
         // e.preventDefault();
@@ -477,6 +467,7 @@
                 'border-radius': (offsetParent.offsetHeight/4)+'px',
               }
             },0)
+            document.addEventListener('touchstart', function() {}, false);
             this.rowContextmenu(item,offsetParent)
             return offsetParent
         } else {
@@ -883,16 +874,32 @@
     background-color: #bfcbd930;
   }
 
+  /deep/ .van-sticky--fixed {
+    z-index: 1;
+  }
+
   .van-nav-bar {
-    background: #ffffffcc;
+    height: 59px;
+    line-height: 59px;
+    /*background: #ffffffcc;*/
+    background-color: unset;
     position: relative;
     box-shadow: 4px 0 2px rgba(0,0,0,0.5);
   }
   .van-nav-bar::after{
     background: inherit;
-    -webkit-filter: blur(15px);
-    filter: blur(20px);
-}
+    /*-webkit-filter: blur(15px);*/
+    /*filter: blur(20px);*/
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    background-color: rgba(255,255,255,0.72);
+  }
+
+  .van-overlay {
+    -webkit-backdrop-filter: saturate(180%) blur(1.5px);
+    backdrop-filter: saturate(180%) blur(1.5px);
+    background-color: rgba(0,0,0,.7);
+  }
 
   .van-nav-bar__title {
     width: 30%;
@@ -950,6 +957,17 @@
     margin-top: 0;
     margin-bottom: 0;
   }
+  .newFileMenu {
+    color: #000000db;
+    background-color: #efefef;
+    padding: 1px 0;
+  }
+  /deep/.menu-background::after{
+    background: inherit;
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    background-color: rgba(255,255,255,0.72);
+  }
   .newFileMenu li {
     cursor: pointer;
     margin: 0;
@@ -957,26 +975,50 @@
     font-size: 16px;
     min-width: 136px;
   }
-  .newFileMenu li:active {
-    cursor: pointer;
-    border-radius: 5px;
-    /*background-color: #409eff14;*/
-    background-color: #409eff30;
+
+  .newFileMenu .remove {
+    color: rgba(255, 0, 0, 0.8);
   }
-  .newFileMenu li > .menuitem {
+
+  .newFileMenu .menu-list-first li:active {
+    border-top-left-radius:1rem;
+    border-top-right-radius:1rem;
+    background-color: #E1E1E1;
+  }
+  .newFileMenu .menu-list li:active {
+    background-color: #E1E1E1;
+  }
+  .newFileMenu .menu-list-last li:active {
+    border-bottom-right-radius:1rem;
+    border-bottom-left-radius:1rem;
+    background-color: #E1E1E1;
+  }
+
+  /*.newFileMenu li:active {*/
+    /*cursor: pointer;*/
+    /*border-radius: 1rem;*/
+    /*background-color: #cccccc;*/
+  /*}*/
+
+  .newFileMenu li .menuitem {
     cursor: pointer;
     line-height: 38px;
     margin-left: 10%;
   }
-  .newFileMenu li > .menuitem > .text {
+  .newFileMenu li .menuitem .text {
     cursor: pointer;
-    margin-left: 8%;font-weight: normal;
+    margin-left: 10%;
+    font-weight: normal;
   }
-  .newFileMenu li > .menuitem > .svg-icon {
+  .newFileMenu li .menuitem .svg-icon {
     width: 1.2rem;
     height: 1.2rem;
   }
   /deep/ .ctx-menu-container {
     top: unset;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 1rem;
+     -webkit-box-shadow: 0 0 0 #ccc;
+     box-shadow: 0 0 0 #ccc;
   }
 </style>
