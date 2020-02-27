@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-  <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+  <!-- <van-pull-refresh v-model="refreshing" @refresh="onRefresh"> -->
     <van-list
       v-model="loading"
       :finished="finished"
@@ -57,7 +57,7 @@
         </div>
       </van-cell>
     </van-list>
-  </van-pull-refresh>
+  <!-- </van-pull-refresh> -->
 
     <van-action-sheet
       v-model="actionSheetShow"
@@ -72,12 +72,18 @@
         </van-field>
     </van-dialog>
 
-      <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
+    <van-dialog v-model="showRename" show-cancel-button @confirm="rowRename()">
+        <van-field class="rename-input" v-model="renameFileName" placeholder="请输入文件名称" :border="true" :clearable="true" ref="renameInput" :autofocus="true">
+        </van-field>
+    </van-dialog>
+
+      <e-vue-contextmenu ref="contextShow" class="newFileMenu" @ctx-show="show" @ctx-hide="hide">
           <ul v-for="(item,index) in menus" :key="item.label" :class="{'menu-list-first':index===0,'menu-list-last':index===menus.length-1,'menu-list':index<menus.length-1&&index>0}">
             <div v-if="index !== 0" style="border-bottom:1px solid #cccccc85"></div>
             <li :class="{'remove':item.operation==='remove'}" @click="menusOperations(item.operation)">
-              <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-              </label>
+              <div class="menuitem"><svg-icon :icon-class="item.iconClass" />
+                <span class="menuitem text">{{ item.label }}</span>
+              </div>
             </li>
           </ul>
       </e-vue-contextmenu>
@@ -128,16 +134,17 @@
   import 'vant/lib/field/style';
   import 'vant/lib/toast/style';
   import 'vant/lib/overlay/style';
+  import 'vant/lib/notify/style';
 
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import api from '@/api/upload-api'
   import IconFile from "../../../components/Icon/IconFile";
   import Bus from '@/assets/js/bus'
-  import { Toast } from 'vant';
+  import { Toast,Dialog,Notify } from 'vant';
   import { getPath, getPathList, setPath, removePath } from '@/utils/path'
 
   export default {
-    components: {IconFile},
+    components: {IconFile,[Dialog.Component.name]: Dialog.Component},
     data() {
       return {
         test: 0,
@@ -165,6 +172,7 @@
           { name: '新建文件夹' },
         ],
         showNewFolder: false,
+        showRename: false,
         newFolderName: '新建文件夹',
         Loop: null,
         isJustHideMenus: false,
@@ -195,9 +203,7 @@
         tableLoading: false,
         newFolderLoading: false,
         renameLoading: false,
-        menuTriangle: '', // 三角菜单
-        cellMouseIndex: -1,
-        editingIndex: -1,
+        renameFileName: '',
         indexList: [],
         overlayShow: false,
         overlayContentClass: {}
@@ -274,12 +280,11 @@
         }
         // 长按选择的数据
         this.rowContextData = row
-        this.menuTriangle = ''
         const offsetTop = target.offsetTop - row.scrollY
         const e = {}
         if ((offsetTop+(target.offsetHeight/2)) > document.body.offsetHeight/2) {
           e.pageX = 50
-          e.pageY = target.offsetTop - 288
+          e.pageY = target.offsetTop - 320
         } else {
           e.pageX = 50
           e.pageY = target.offsetTop + target.offsetHeight + 5
@@ -314,16 +319,22 @@
             this.favoriteOperating(false)
             break
           case 'details':
-            this.$notify.info({
-              title: this.rowContextData.name,
-              duration: 2000
-            })
+            Notify({
+              message: this.rowContextData.name,
+              color: '#ad0000',
+              background: '#ffe1e1',
+              duration: 1000
+            });
             console.log('详情', this.rowContextData)
             break
           case 'rename':
             console.log('重命名')
             this.renameFileName = this.rowContextData.name
-            this.editingIndex = this.rowContextData.index
+            this.showRename = true
+            const that = this
+            setTimeout(function () {
+              that.$refs.renameInput.focus()
+            },0)
             break
           case 'copy':
             console.log('移动或复制')
@@ -341,6 +352,57 @@
         document.documentElement.style.overflow = null;
         this.$refs.contextShow.hideMenu()
       },
+      // 重命名
+      rowRename() {
+        const row = this.rowContextData
+        const newFileName = this.renameFileName
+        if (newFileName) {
+          if (!row.isFolder) {
+            const ext = '.' + row.suffix
+            if (!newFileName.endsWith(ext)) {
+              newFileName += ext
+            }
+          }
+
+          console.log('newFileName', newFileName)
+
+          this.renameLoading = true
+          const findIndex = this.fileList.findIndex(item => {
+            if(newFileName === item.name){
+              return item;
+            }
+          })
+          console.log(findIndex)
+          if(findIndex > -1){
+            let msg = '该文件已存在'
+            if(row.isFolder){
+              msg = '该文件夹已存在'
+            }
+            this.$message({
+              message: msg,
+              type: 'warning'
+            });
+            this.renameLoading = false
+            return
+          }
+
+          api.rename({
+            newFileName: newFileName,
+            username: this.$store.state.user.name,
+            id: row.id
+          }).then(res => {
+            if (res.data) {
+              this.renameLoading = false
+              row.name = newFileName
+              this.fileList[row.index] = row
+              this.editingIndex = -1
+            }
+          })
+        } else {
+          this.editingIndex = -1
+        }
+      },
+      // 下载
       downloadFile() {
         let totalSize = 0
         this.selectRowData.forEach(item => {
@@ -385,14 +447,15 @@
             fileIds.push(value.id)
           })
         } else {
+          fileList = this.selectRowData
           fileIds.push(this.selectRowData[0].id)
         }
+        console.log(this.selectRowData[0])
         const str = this.getShowSumFileAndFolder(fileList)
 
-        this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+        Dialog.confirm({
+          title: '提示',
+          message: '此操作将永久删除' + str + ', 是否继续?'
         }).then(() => {
           api.delete({
             username: this.$store.state.user.name,
@@ -404,11 +467,8 @@
             } else {
               this.getFileList()
             }
-            this.$notify({
-              title: '删除成功',
-              type: 'success',
-              duration: 1000
-            })
+            Toast.setDefaultOptions({ duration: 500 });
+            Toast.success('删除成功');
             this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
             this.selectRowData = []
           })
@@ -421,8 +481,7 @@
       },
       touchStart(item){
         // e.preventDefault();
-        Toast.setDefaultOptions({ duration: 500 });
-        // Toast("手指触摸");
+        // Toast.setDefaultOptions({ duration: 500 });
         //手指触摸
         clearTimeout(this.Loop); //再次清空定时器，防止重复注册定时器
         const that = this
@@ -433,12 +492,10 @@
           console.log(item)
           that.findListItem(item,e.targetTouches[0].target)
           that.overlayShow = true
-          Toast("长按"+document.documentElement.style.overflow);
           document.documentElement.style.overflow='hidden';
         },500);
       },
       touchEnd(){
-        // Toast("手指离开");
         //手指离开
         clearTimeout(this.Loop);
       },
@@ -566,7 +623,9 @@
           pageSize: this.pagination.pageSize,
         }).then(res => {
           if(onLoad){
-            res.data.forEach(file => {
+            res.data.forEach((file,number) => {
+              const index = (this.pagination.pageIndex-1) * this.pagination.pageSize + number
+              file['index'] = index
               this.fileList.push(file)
             });
           }else{
@@ -729,11 +788,7 @@
               this.newFolderLoading = false
               this.showNewFolder = false
               this.isShowNewFolder = false
-              this.$notify({
-                title: '新建文件夹成功',
-                type: 'success',
-                duration: 1000
-              })
+              Notify({ type: 'success', message: '新建文件夹成功', duration: 1000 });
               if (this.listModeSearch) {
                 this.getFileListBySearchMode()
               } else {
@@ -972,8 +1027,9 @@
     cursor: pointer;
     margin: 0;
     padding: 0;
-    font-size: 16px;
+    font-size: 1em;
     min-width: 136px;
+    height: 3em;
   }
 
   .newFileMenu .remove {
@@ -1002,7 +1058,7 @@
 
   .newFileMenu li .menuitem {
     cursor: pointer;
-    line-height: 38px;
+    line-height: 3em;;
     margin-left: 10%;
   }
   .newFileMenu li .menuitem .text {
@@ -1011,8 +1067,8 @@
     font-weight: normal;
   }
   .newFileMenu li .menuitem .svg-icon {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1rem;
+    height: 1rem;
   }
   /deep/ .ctx-menu-container {
     top: unset;
