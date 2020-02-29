@@ -1,64 +1,90 @@
 <template>
   <div class="container">
-  <!-- <van-pull-refresh v-model="refreshing" @refresh="onRefresh"> -->
+    <!-- <van-pull-refresh v-model="refreshing" @refresh="onRefresh"> -->
     <van-list
       v-model="loading"
       :finished="finished"
       :finished-text="statistics()"
       @load="getFileList(true)"
     >
-      <van-sticky :offset-top="-1">
-         <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
-        <van-nav-bar
-          v-if="pathList.length < 3"
-          title="浏览"
-          right-arrow
-          @click-right="titleRightClick">
-          <svg-icon class="title-right-icon" icon-class="add-file" slot="right"/>
-        </van-nav-bar>
+      <van-checkbox-group v-model="selectRowData" @change="checkboxChange" ref="checkboxGroup">
+        <van-cell-group>
 
-        <van-nav-bar
-          v-if="pathList.length === 3"
-          :title="pathList[pathList.length-2].folder"
-          left-text="所有文件"
-          right-text="选择"
-          left-arrow
-          @click-left="clickBack">
-        </van-nav-bar>
+          <van-sticky :offset-top="-1">
+            <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
+            <van-nav-bar
+              v-if="pathList.length < 3 && !selectStatus"
+              title="浏览"
+              right-arrow
+              @click-right="titleRightClick">
+              <svg-icon class="title-right-icon" icon-class="add-file" slot="right"/>
+            </van-nav-bar>
+            <van-nav-bar
+              v-if="pathList.length < 3 && selectStatus"
+              :title="selectRowData.length === 0 ? '选择项目' : selectRowData.length+'项'"
+              right-arrow
+              :right-text="this.selectRowData.length !== this.fileList.length ? '全选' : '取消全选'"
+              @click-right="checkboxAll">
+            </van-nav-bar>
 
-        <van-nav-bar
-          v-if="pathList.length > 3"
-          :title="pathList[pathList.length-2].folder"
-          :left-text="pathList[pathList.length-3].folder"
-          right-text="选择"
-          left-arrow
-          @click-left="clickBack">
-        </van-nav-bar>
-      </van-sticky>
+            <van-nav-bar
+              v-if="pathList.length === 3"
+              :title="pathList[pathList.length-2].folder"
+              left-text="所有文件"
+              right-text="选择"
+              left-arrow
+              @click-left="clickBack">
+            </van-nav-bar>
 
-      <van-cell class="list-item" center v-for="item in fileList" :key="item.id" @click="fileClick(item)" :is-link="item.isFolder">
-        <div class="list-item-div" @touchstart="touchStart(item)" @touchend="touchEnd" @touchmove="touchMove">
-          <van-row class="row-file">
-            <van-col span="4" align="center" class="list-cell-icon">
-              <icon-file :item="item" :image-url="imageUrl"></icon-file>
-            </van-col>
-            <van-col span="16" class="list-item-content">
-              <van-col span="24">
-                {{item.name}}
-              </van-col>
-              <van-col span="24" class="file-description" justify="space-between">
-                <van-col span="24">
-                  {{formatTime(item.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(item.size)}}
+            <van-nav-bar
+              v-if="pathList.length > 3"
+              :title="pathList[pathList.length-2].folder"
+              :left-text="pathList[pathList.length-3].folder"
+              right-text="选择"
+              left-arrow
+              @click-left="clickBack">
+            </van-nav-bar>
+          </van-sticky>
+
+          <van-cell class="list-item" :style="{'background': selectIndexList.includes(index) ? '#90c2fcb5' : ''}" center v-for="(item,index) in fileList" :key="item.id" @click="fileClick(item,index)" :is-link="item.isFolder">
+            <div class="list-item-div" @touchstart="touchStart(item)" @touchend="touchEnd" @touchmove="touchMove">
+              <van-row class="row-file">
+                <van-col span="4" align="center" class="list-cell-icon">
+                  <icon-file :item="item" :image-url="imageUrl"></icon-file>
                 </van-col>
-              </van-col>
-            </van-col>
-            <van-col span="4"></van-col>
-          </van-row>
-        </div>
-      </van-cell>
-    </van-list>
-  <!-- </van-pull-refresh> -->
+                <van-col span="16" class="list-item-content">
+                  <van-col span="24">
+                    {{item.name}}
+                  </van-col>
+                  <van-col span="24" class="file-description" justify="space-between">
+                    <van-col span="24">
+                      {{formatTime(item.agoTime)}}&nbsp;&nbsp;&nbsp;{{formatSize(item.size)}}
+                    </van-col>
+                  </van-col>
+                </van-col>
+                <van-col span="4">
 
+                </van-col>
+              </van-row>
+            </div>
+            <van-checkbox v-if="selectStatus" slot="right-icon" :name="item" ref="checkboxes"></van-checkbox>
+          </van-cell>
+        </van-cell-group>
+      </van-checkbox-group>
+
+    </van-list>
+    <!-- </van-pull-refresh> -->
+
+    <!--选择上传文件菜单-->
+    <van-action-sheet
+      v-model="actionSheetShow"
+      :actions="actionsMenus"
+      cancel-text="取消"
+      @cancel="onCancel"
+      @select="selectActionsMenus">
+    </van-action-sheet>
+
+    <!--选择文件操作菜单-->
     <van-action-sheet
       v-model="actionSheetShow"
       :actions="actionsMenus"
@@ -68,30 +94,30 @@
     </van-action-sheet>
 
     <van-dialog v-model="showNewFolder" show-cancel-button @confirm="newFolderNameClick">
-        <van-field class="new-folder-input" v-model="newFolderName" placeholder="请输入文件夹名称" :border="true" :clearable="true" ref="newFolderInput" :autofocus="true">
-        </van-field>
+      <van-field class="new-folder-input" v-model="newFolderName" placeholder="请输入文件夹名称" :border="true" :clearable="true" ref="newFolderInput" :autofocus="true">
+      </van-field>
     </van-dialog>
 
     <van-dialog v-model="showRename" show-cancel-button @confirm="rowRename()">
-        <van-field class="rename-input" v-model="renameFileName" placeholder="请输入文件名称" :border="true" :clearable="true" ref="renameInput" :autofocus="true">
-        </van-field>
+      <van-field class="rename-input" v-model="renameFileName" placeholder="请输入文件名称" :border="true" :clearable="true" ref="renameInput" :autofocus="true">
+      </van-field>
     </van-dialog>
 
-      <e-vue-contextmenu ref="contextShow" class="newFileMenu" @ctx-show="show" @ctx-hide="hide">
-          <ul v-for="(item,index) in menus" :key="item.label" :class="{'menu-list-first':index===0,'menu-list-last':index===menus.length-1,'menu-list':index<menus.length-1&&index>0}">
-            <div v-if="index !== 0" style="border-bottom:1px solid #cccccc85"></div>
-            <li :class="{'remove':item.operation==='remove'}" @click="menusOperations(item.operation)">
-              <div class="menuitem"><svg-icon :icon-class="item.iconClass" />
-                <span class="menuitem text">{{ item.label }}</span>
-              </div>
-            </li>
-          </ul>
-      </e-vue-contextmenu>
+    <e-vue-contextmenu ref="contextShow" class="newFileMenu" @ctx-show="show" @ctx-hide="hide">
+      <ul v-for="(item,index) in menus" :key="item.label" :class="{'menu-list-first':index===0,'menu-list-last':index===menus.length-1,'menu-list':index<menus.length-1&&index>0}">
+        <div v-if="index !== 0" style="border-bottom:1px solid #cccccc85"></div>
+        <li :class="{'remove':item.operation==='remove'}" @click="menusOperations(item.operation)">
+          <div class="menuitem"><svg-icon :icon-class="item.iconClass" />
+            <span class="menuitem text">{{ item.label }}</span>
+          </div>
+        </li>
+      </ul>
+    </e-vue-contextmenu>
 
     <van-overlay ref="overlayShow" :show="overlayShow" duration="0.3" @click="overlayClick">
       <van-cell v-if="rowContextData.name!=null" :style="overlayContentClass" class="list-item overlay-content-class" center @click="fileClick(rowContextData)" :is-link="rowContextData.isFolder">
         <!--<div :style="overlayContentClass">-->
-        <div >
+        <div>
           <van-row class="row-file">
             <van-col span="4" align="center" class="list-cell-icon">
               <icon-file :item="rowContextData" :image-url="imageUrl"></icon-file>
@@ -109,6 +135,7 @@
             <van-col span="4"></van-col>
           </van-row>
         </div>
+        <van-checkbox v-if="selectStatus" v-model="isShowCheckContext" slot="right-icon" :name="rowContextData"></van-checkbox>
       </van-cell>
     </van-overlay>
 
@@ -135,13 +162,15 @@
   import 'vant/lib/toast/style';
   import 'vant/lib/overlay/style';
   import 'vant/lib/notify/style';
+  import 'vant/lib/checkbox/style';
+  import 'vant/lib/checkbox-group/style';
 
-  import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
+  import {formatSize, formatTime, strlen, substring10} from '@/utils/number'
   import api from '@/api/upload-api'
   import IconFile from "../../../components/Icon/IconFile";
   import Bus from '@/assets/js/bus'
-  import { Toast,Dialog,Notify } from 'vant';
-  import { getPath, getPathList, setPath, removePath } from '@/utils/path'
+  import {Dialog, Notify, Toast} from 'vant';
+  import {getPath, getPathList, removePath, setPath} from '@/utils/path'
 
   export default {
     components: {IconFile,[Dialog.Component.name]: Dialog.Component},
@@ -176,54 +205,42 @@
         newFolderName: '新建文件夹',
         Loop: null,
         isJustHideMenus: false,
-        menusIsMultiple: false,
-        menus: [],
-        singleMenus: [
-          { iconClass: 'menu-open', label: '打开', operation: 'open' },
+        menus: [
+          // { iconClass: 'menu-open', label: '打开', operation: 'open' },
+          { iconClass: 'menu-select', label: '选择', operation: 'select' },
           { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-          { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
           { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-        ],
-        multipleMenus: [
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-        ],
-        multipleRightMenus: [
-          { iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect' },
           { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
           { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
         rowContextData: {},
         selectRowData: [],
-        tableLoading: false,
+        checkboxGroup: [],
         newFolderLoading: false,
         renameLoading: false,
         renameFileName: '',
-        indexList: [],
+        selectIndexList: [],
+        selectStatus: false,
+        isShowCheckContext: false,
         overlayShow: false,
         overlayContentClass: {}
       };
     },
     mounted(){
-
       // 加载路径
-    const pathList = getPathList()
-    if (pathList && pathList !== 'undefined') {
-      const res = JSON.parse(pathList)
-      const list = []
-      res.forEach(function(element) {
-        const item0 = {}
-        item0['folder'] = element.folder + ''
-        item0['index'] = element.index
-        list.push(item0)
-      })
-      this.pathList = list
-    }
+      const pathList = getPathList()
+      if (pathList && pathList !== 'undefined') {
+        const res = JSON.parse(pathList)
+        const list = []
+        res.forEach(function(element) {
+          const item0 = {}
+          item0['folder'] = element.folder + ''
+          item0['index'] = element.index
+          list.push(item0)
+        })
+        this.pathList = list
+      }
 
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
@@ -268,39 +285,46 @@
           that.isJustHideMenus = false
         }, 100)
       },
+      showCheckContext(){
+        return this.selectIndexList.includes(this.rowContextData.index)
+      },
       // 长按事件
-      rowContextmenu(row, target) {
-        if (this.indexList.includes(row.index)) {
-          this.menusIsMultiple = true
-          this.menus = this.multipleRightMenus
-        } else {
-          this.menusIsMultiple = false
-          this.menus = this.singleMenus
-          this.preliminaryRowData(row)
+      rowContextmenu(row, target, touchClientX) {
+
+        // 改变菜单
+        if(this.selectStatus && this.selectIndexList.includes(row.index)){
+          if(this.selectIndexList.includes(row.index)){
+            const item = { iconClass: 'menu-unselect', label: '取消选择', operation: 'unselect' }
+            this.menus.splice(0,1,item)
+          }
+        }else{
+          const item = { iconClass: 'menu-select', label: '选择', operation: 'select' }
+          this.menus.splice(0,1,item)
         }
+
+        this.preliminaryRowData(row)
         // 长按选择的数据
-        this.rowContextData = row
         const offsetTop = target.offsetTop - row.scrollY
         const e = {}
         if ((offsetTop+(target.offsetHeight/2)) > document.body.offsetHeight/2) {
-          e.pageX = 50
-          e.pageY = target.offsetTop - 320
+          e.pageX = touchClientX
+          e.pageY = target.offsetTop - this.menus.length*47 + 5
         } else {
-          e.pageX = 50
+          e.pageX = touchClientX
           e.pageY = target.offsetTop + target.offsetHeight + 5
         }
         this.$refs.contextShow.showMenu(e)
       },
       // 选择某行预备数据
       preliminaryRowData(row) {
-        if (row) {
-          this.selectRowData[0] = row
-        }
-        const isFavorite = this.selectRowData[0].isFavorite
+        this.rowContextData = row
+        this.isShowCheckContext = this.selectIndexList.includes(row.index)
+        const isFavorite = this.rowContextData.isFavorite
         this.highlightFavorite(isFavorite, false)
       },
       // 菜单操作
       menusOperations(operation) {
+        const that = this
         switch (operation) {
           case 'favorite':
             console.log('operation', '收藏')
@@ -310,28 +334,37 @@
             console.log('open', '打开')
             this.fileClick(this.rowContextData)
             break
-          case 'deselect':
-            console.log('deselect', '取消选定')
-            this.$refs.fileListTable.toggleRowSelection(this.rowContextData)
+          case 'unselect':
+            console.log('unselect', '取消选择')
+            const index = this.rowContextData.index
+            // this.selectIndexList.splice(this.selectIndexList.indexOf(index),1)
+
+            console.log(this.selectIndexList)
+            this.$refs.checkboxes[index].toggle();
             break
           case 'unFavorite':
             console.log('unFavorite', '取消收藏')
             this.favoriteOperating(false)
             break
-          case 'details':
-            Notify({
-              message: this.rowContextData.name,
-              color: '#ad0000',
-              background: '#ffe1e1',
-              duration: 1000
-            });
-            console.log('详情', this.rowContextData)
+          case 'select':
+            // Notify({
+            //   message: this.rowContextData.name,
+            //   color: '#ad0000',
+            //   background: '#ffe1e1',
+            //   duration: 1000
+            // });
+            console.log('select', this.rowContextData)
+            this.selectStatus = true
+            this.selectIndexList.push(this.rowContextData.index)
+            console.log(this.selectIndexList)
+            setTimeout(function () {
+              that.$refs.checkboxes[that.rowContextData.index].toggle();
+            },0)
             break
           case 'rename':
             console.log('重命名')
             this.renameFileName = this.rowContextData.name
             this.showRename = true
-            const that = this
             setTimeout(function () {
               that.$refs.renameInput.focus()
             },0)
@@ -355,7 +388,7 @@
       // 重命名
       rowRename() {
         const row = this.rowContextData
-        const newFileName = this.renameFileName
+        let newFileName = this.renameFileName
         if (newFileName) {
           if (!row.isFolder) {
             const ext = '.' + row.suffix
@@ -363,16 +396,13 @@
               newFileName += ext
             }
           }
-
           console.log('newFileName', newFileName)
-
           this.renameLoading = true
           const findIndex = this.fileList.findIndex(item => {
             if(newFileName === item.name){
               return item;
             }
           })
-          console.log(findIndex)
           if(findIndex > -1){
             let msg = '该文件已存在'
             if(row.isFolder){
@@ -410,7 +440,7 @@
         })
         if (totalSize > 0) {
           var fileIds = [];
-          if (this.menusIsMultiple) {
+          if (this.selectRowData.length > 0) {
             this.selectRowData.forEach(value => {
               fileIds.push(value.id)
             })
@@ -427,12 +457,12 @@
       },
       // 收藏/取消收藏
       favoriteOperating(isFavorite) {
-        this.selectRowData[0].isFavorite = isFavorite
+        this.rowContextData.isFavorite = isFavorite
 
         this.highlightFavorite(isFavorite, true)
         api.favoriteUrl({
           token: this.$store.state.user.token,
-          id: this.selectRowData[0].id,
+          id: this.rowContextData.id,
           isFavorite: isFavorite
         }).then(res => {
         })
@@ -441,16 +471,16 @@
       deleteFile() {
         let fileList = []
         const fileIds = []
-        if (this.menusIsMultiple) {
+        if (this.selectRowData.length > 0) {
           fileList = this.selectRowData
           this.selectRowData.forEach(value => {
             fileIds.push(value.id)
           })
         } else {
           fileList = this.selectRowData
-          fileIds.push(this.selectRowData[0].id)
+          fileIds.push(this.rowContextData.id)
         }
-        console.log(this.selectRowData[0])
+        console.log(this.rowContextData)
         const str = this.getShowSumFileAndFolder(fileList)
 
         Dialog.confirm({
@@ -463,7 +493,7 @@
           }).then(() => {
             // 移除列表
             if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.selectRowData[0].index, 1)
+              this.fileList.splice(this.rowContextData.index, 1)
             } else {
               this.getFileList()
             }
@@ -474,7 +504,7 @@
           })
         })
       },
-      touchMove(e) {
+      touchMove() {
         // // 避免和长按事件冲突
         clearTimeout(this.Loop);
         // e.preventDefault();
@@ -487,10 +517,10 @@
         const that = this
         const e = window.event
         this.Loop = setTimeout(function() {
-          console.log(e.targetTouches[0].pageY-e.targetTouches[0].clientY)
           item.scrollY = e.targetTouches[0].pageY-e.targetTouches[0].clientY
-          console.log(item)
-          that.findListItem(item,e.targetTouches[0].target)
+          const touchClientX = e.targetTouches[0].clientX;
+          console.log(e.targetTouches[0])
+          that.findListItem(item,e.targetTouches[0].target,touchClientX)
           that.overlayShow = true
           document.documentElement.style.overflow='hidden';
         },500);
@@ -504,15 +534,21 @@
         this.overlayShow = false
         document.documentElement.style.overflow = null;
       },
-      findListItem(item,target){
+      findListItem(item,target,touchClientX){
+        let background = this.selectIndexList.includes(this.rowContextData.index) ? '#90c2fcb5' : ''
         const offsetParent = target.offsetParent
-        if(offsetParent.className.indexOf('list-item') > -1){
+        const parentElement = target.parentElement
+        if(!offsetParent && parentElement){
+          this.findListItem(item,target.parentElement,touchClientX)
+        }else{
+          if(offsetParent.className.indexOf('list-item') > -1){
             this.overlayContentClass = {
               'top': (offsetParent.offsetTop-item.scrollY)+'px',
               'height': offsetParent.offsetHeight+'px',
               'width': offsetParent.offsetWidth+'px',
               'left': offsetParent.offsetLeft+'px',
-              'border-radius': '0px'
+              'border-radius': '0px',
+              'background': background
             }
             const that = this
             setTimeout(function () {
@@ -522,13 +558,15 @@
                 'width': (offsetParent.offsetWidth-20)+'px',
                 'left': (offsetParent.offsetLeft+10)+'px',
                 'border-radius': (offsetParent.offsetHeight/4)+'px',
+                'background': background
               }
             },0)
             document.addEventListener('touchstart', function() {}, false);
-            this.rowContextmenu(item,offsetParent)
+            this.rowContextmenu(item,offsetParent,touchClientX)
             return offsetParent
-        } else {
-          this.findListItem(item,target.offsetParent)
+          } else {
+            this.findListItem(item,target.offsetParent,touchClientX)
+          }
         }
       },
       // 浏览器的返回事件
@@ -624,8 +662,7 @@
         }).then(res => {
           if(onLoad){
             res.data.forEach((file,number) => {
-              const index = (this.pagination.pageIndex-1) * this.pagination.pageSize + number
-              file['index'] = index
+              file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
               this.fileList.push(file)
             });
           }else{
@@ -688,31 +725,52 @@
         }
         return sizeSum
       },
+      // 全选或反选
+      checkboxAll() {
+        if(this.selectRowData.length !== this.fileList.length){
+          this.$refs.checkboxGroup.toggleAll(true);
+        }else{
+          this.$refs.checkboxGroup.toggleAll();
+        }
+      },
+      // 选择状态改变时触发
+      checkboxChange(any) {
+        this.selectRowData = any
+        this.selectIndexList = []
+        for (const item of any) {
+          this.selectIndexList.push(item.index)
+        }
+        this.selectStatus = true
+      },
       // 点击文件或文件夹
-      fileClick(row) {
-        if (row.isFolder) {
-          // 打开文件夹
-          if(this.path){
-            this.path += '/' + row.name
+      fileClick(row,index) {
+        if(this.selectStatus){
+          this.$refs.checkboxes[index].toggle();
+        }else{
+          if (row.isFolder) {
+            // 打开文件夹
+            if(this.path){
+              this.path += '/' + row.name
+            } else {
+              this.path = '/' + row.name
+            }
+            const item1 = {}
+            item1['folder'] = row.name
+            item1['index'] = this.pathList.length - 1
+            const item2 = {}
+            item2['folder'] = '+'
+            item2['index'] = this.pathList.length
+            this.pathList[this.pathList.length - 1] = item1
+            this.pathList.push(item2)
+            this.$router.push(`/_m?path=${this.path}`)
+            setPath(this.path, this.pathList)
+            this.getFileList()
           } else {
-            this.path = '/' + row.name
+            // 打开文件
+            const fileIds = [row.id]
+            const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+            window.open(url, '_blank')
           }
-          const item1 = {}
-          item1['folder'] = row.name
-          item1['index'] = this.pathList.length - 1
-          const item2 = {}
-          item2['folder'] = '+'
-          item2['index'] = this.pathList.length
-          this.pathList[this.pathList.length - 1] = item1
-          this.pathList.push(item2)
-          this.$router.push(`/_m?path=${this.path}`)
-          setPath(this.path, this.pathList)
-          this.getFileList()
-        } else {
-          // 打开文件
-          const fileIds = [row.id]
-          const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          window.open(url, '_blank')
         }
       },
       onCancel() {
@@ -895,7 +953,7 @@
     height: 2.5em;
   }
   /*.van-divider {*/
-    /*margin: 5px 15px 0px 15px;*/
+  /*margin: 5px 15px 0px 15px;*/
   /*}*/
   .file-description {
     color: #646566;
@@ -965,16 +1023,16 @@
 
   .van-nav-bar__left {
     //  max-width: 30%;
-     z-index: 11;
-   }
-   .van-nav-bar__left:active {
+    z-index: 11;
+  }
+  .van-nav-bar__left:active {
     background-color: hsl(0, 94%, 47%);
   }
-   .van-nav-bar__right {
+  .van-nav-bar__right {
     z-index: 11;
   }
   /*.van-nav-bar__left {*/
-     /*left: 0;*/
+  /*left: 0;*/
   /*}*/
 
   .van-icon.van-icon-arrow-left.van-nav-bar__arrow {
@@ -1051,9 +1109,9 @@
   }
 
   /*.newFileMenu li:active {*/
-    /*cursor: pointer;*/
-    /*border-radius: 1rem;*/
-    /*background-color: #cccccc;*/
+  /*cursor: pointer;*/
+  /*border-radius: 1rem;*/
+  /*background-color: #cccccc;*/
   /*}*/
 
   .newFileMenu li .menuitem {
@@ -1074,7 +1132,7 @@
     top: unset;
     border: 1px solid rgba(0,0,0,.15);
     border-radius: 1rem;
-     -webkit-box-shadow: 0 0 0 #ccc;
-     box-shadow: 0 0 0 #ccc;
+    -webkit-box-shadow: 0 0 0 #ccc;
+    box-shadow: 0 0 0 #ccc;
   }
 </style>

@@ -9,8 +9,8 @@
             <el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>
             <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
             <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />
-            <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />
             <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />
+            <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />
             <svg-icon v-else icon-class="file" />
   </span>
 </template>
