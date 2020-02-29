@@ -1,10 +1,10 @@
 <template>
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar class="sidebar-container" />
-    <div class="main-container">
+    <sidebar class="sidebar-container" v-if="isShow" />
+    <div class="main-container" :style="{'margin-left': isShow ? '': '0'}">
       <div :class="{'fixed-header':fixedHeader}">
-        <navbar />
+        <navbar v-if="isShow"/>
       </div>
       <app-main />
     </div>
@@ -21,6 +21,11 @@ export default {
     Navbar,
     Sidebar,
     AppMain
+  },
+  data() {
+    return {
+      isShow: true
+    }
   },
   mixins: [ResizeMixin],
   computed: {
@@ -40,6 +45,13 @@ export default {
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
+    }
+  },
+  mounted() {
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
+      this.isShow = false
+    } else {
+      this.isShow = true
     }
   },
   methods: {
