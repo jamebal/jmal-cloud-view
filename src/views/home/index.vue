@@ -131,101 +131,101 @@
       @cell-mouse-enter="cellMouseEnter"
       @cell-mouse-leave="cellMouseLeave"
     >
-      <template v-for="(item,index) in tableHead">
-        <el-table-column
-          v-if="index === 0"
-          :key="index"
-          :index="index"
-          type="selection"
-          min-width="50"
-        >
-        </el-table-column>
-        <el-table-column
-          v-if="index === 1"
-          :key="index"
-          :index="index"
-          width="50"
-        >
-          <template slot-scope="scope">
-            <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
-          </template>
-        </el-table-column>
+          <template v-for="(item,index) in tableHead">
+            <el-table-column
+              v-if="index === 0"
+              :key="index"
+              :index="index"
+              type="selection"
+              min-width="50"
+            >
+            </el-table-column>
+            <el-table-column
+              v-if="index === 1"
+              :key="index"
+              :index="index"
+              width="50"
+            >
+              <template slot-scope="scope">
+                <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
+              </template>
+            </el-table-column>
 
-        <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" min-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
-          <template slot-scope="scope">
-            <el-col v-if="scope.row.index === editingIndex" :span="10">
-              <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
-              </el-input>
-              <el-button
-                v-loading="renameLoading"
-                element-loading-spinner="el-icon-loading"
-                element-loading-background="#f6f7fa88"
-                class="el-icon-check"
-                @click="rowRename(renameFileName, scope.row)"
-              >
-              </el-button>
-              <el-button
-                element-loading-spinner="el-icon-loading"
-                element-loading-background="#f6f7fa88"
-                class="el-icon-close"
-                @click="editingIndex = -1"
-              >
-              </el-button>
-            </el-col>
-            <span v-else>{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
+            <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" min-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
+              <template slot-scope="scope">
+                <el-col v-if="scope.row.index === editingIndex" :span="10">
+                  <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
+                  </el-input>
+                  <el-button
+                    v-loading="renameLoading"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="#f6f7fa88"
+                    class="el-icon-check"
+                    @click="rowRename(renameFileName, scope.row)"
+                  >
+                  </el-button>
+                  <el-button
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="#f6f7fa88"
+                    class="el-icon-close"
+                    @click="editingIndex = -1"
+                  >
+                  </el-button>
+                </el-col>
+                <span v-else>{{ scope.row.name }}</span>
+              </template>
+            </el-table-column>
 
-        <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />
-          </template>
-        </el-table-column>
+            <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
+              <template slot-scope="scope">
+                <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />
+              </template>
+            </el-table-column>
 
-        <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
-          <!-- 使用组件, 并传值到组件中 -->
-          <template slot="header">
-            <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)" />
-          </template>
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click="moreClick(scope.row,$event)" />
-          </template>
-        </el-table-column>
+            <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
+              <!-- 使用组件, 并传值到组件中 -->
+              <template slot="header">
+                <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)" />
+              </template>
+              <template slot-scope="scope">
+                <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click="moreClick(scope.row,$event)" />
+              </template>
+            </el-table-column>
 
-        <el-table-column
-          v-if="index === 5"
-          :key="index"
-          width="90"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sortable="item.sortable"
-          :show-overflow-tooltip="true"
-          align="center"
-          header-align="center"
-        >
-          <template slot-scope="scope">
-            <span>{{formatSize(scope.row.size)}}</span>
-          </template>
-        </el-table-column>
+            <el-table-column
+              v-if="index === 5"
+              :key="index"
+              width="90"
+              :prop="item.name"
+              :index="index"
+              :label="item.label"
+              :sortable="item.sortable"
+              :show-overflow-tooltip="true"
+              align="center"
+              header-align="center"
+            >
+              <template slot-scope="scope">
+                <span>{{formatSize(scope.row.size)}}</span>
+              </template>
+            </el-table-column>
 
-        <el-table-column
-          v-if="index === 6"
-          :key="index"
-          width="150"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sortable="item.sortable"
-          :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
-        >
-          <template slot-scope="scope">
-            <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
+            <el-table-column
+              v-if="index === 6"
+              :key="index"
+              width="150"
+              :prop="item.name"
+              :index="index"
+              :label="item.label"
+              :sortable="item.sortable"
+              :show-overflow-tooltip="true"
+              align="left"
+              header-align="left"
+            >
+              <template slot-scope="scope">
+                <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
+              </template>
+            </el-table-column>
           </template>
-        </el-table-column>
-      </template>
     </el-table>
     <el-pagination
       background
@@ -250,10 +250,11 @@ import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
 import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "../../components/Icon/IconFile";
-// import Sortable from 'sortablejs'
+import vuedraggable from 'vuedraggable';
+import Sortable from 'sortablejs'
 
 export default {
-  components: {IconFile, BreadcrumbFilePath},
+  components: { IconFile, BreadcrumbFilePath, vuedraggable},
   data() {
     return {
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
@@ -400,16 +401,23 @@ export default {
     }
   },
   methods: {
+    draggableChange(){
+      console.log(678)
+    },
     // 行拖拽
     rowDrop() {
-      // const tbody = document.querySelector('.el-table__body-wrapper tbody')
-      // const _this = this
-      // Sortable.create(tbody, {
+      const tbody = document.querySelector('.el-table__body-wrapper tbody')
+      const _this = this
+      Sortable.create(tbody, {
+        swap: true,
+        chosenClass: 'sortable-highlight',
+        animation: 150,
+        sort: false
       // onMoveCallback({ newIndex, oldIndex }) {
       //   const currRow = _this.fileList.splice(oldIndex, 1)[0]
       //   _this.fileList.splice(newIndex, 0, currRow)
       // }
-      // })
+      })
     },
     // 格式化最近时间
     formatTime(time) {
@@ -1467,6 +1475,10 @@ export default {
   /deep/ .el-tree-node.is-expanded>.el-tree-node__children {
     max-height: 500px;
     overflow: auto;
+  }
+
+  /deep/ .sortable-highlight {
+    background-color: #66cc66;
   }
 
 </style>
