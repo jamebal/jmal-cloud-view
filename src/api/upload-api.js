@@ -95,7 +95,10 @@ export default {
     return request({
       url: 'move',
       method: 'get',
-      params
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
     })
   },
   // 复制文件/文件夹
@@ -103,7 +106,10 @@ export default {
     return request({
       url: 'copy',
       method: 'get',
-      params
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
     })
   }
 }

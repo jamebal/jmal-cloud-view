@@ -341,7 +341,7 @@ export default {
         label: 'name',
         children: 'children',
         isLeaf: 'isLeaf'
-      }
+      },
     }
   },
   computed: {
@@ -776,6 +776,7 @@ export default {
     },
     // 单元格点击事件
     cellClick(row, column) {
+      console.log(column.index)
       if(this.editingIndex === -1) {
         const columnIndex = column.index
         if (columnIndex === 0) {
@@ -793,7 +794,7 @@ export default {
         if (columnIndex === 4) {
           // // 单个操作
         }
-        if (this.indexList.length > 0) {
+        if (this.indexList.length > 0 && columnIndex > 0) {
           this.$refs.fileListTable.toggleRowSelection(row)
         }
       }
@@ -1030,21 +1031,78 @@ export default {
     },
     // 移动文件
     moveFileTree() {
-      this.$refs.directoryTree.append(this.rowContextData,this.selectTreeNode.id)
-      // this.dialogMoveOrCopyVisible = false
+      this.copyOrMove('move');
     },
     // 复制文件
     copyFileTree() {
-      // this.dialogMoveOrCopyVisible = false
-      console.log(this.selectTreeNode)
-      this.$refs.directoryTree.append(this.rowContextData,this.selectTreeNode.id)
-      api.copy({
+      this.copyOrMove('copy');
+    },
+    copyOrMove(operating){
+      let operation = '复制'
+      if(operating === 'move'){
+        operation = '移动'
+      }
+      let selectNodePath = '/'
+      if(this.selectTreeNode.path){
+        selectNodePath = this.selectTreeNode.path + this.selectTreeNode.name + "/"
+      }
+
+      let fileIds = [];
+      if (this.menusIsMultiple) {
+        const exits = this.selectRowData.some(value => {
+          fileIds.push(value.id)
+          const thisParentPath = value.path
+          if(thisParentPath === selectNodePath){
+            this.$message({
+              message: '不能将文件'+operation+'到自身或其子目录下',
+              type: 'warning'
+            });
+            return true;
+          }
+        })
+        if(exits){
+          return
+        }
+      } else {
+        fileIds.push(this.rowContextData.id)
+      }
+      let copying = this.$message({
+        iconClass: 'el-icon-loading',
+        type: 'info',
+        duration: 0,
+        dangerouslyUseHTMLString: true,
+        message: '<span>&nbsp;&nbsp;正在{operation}</span>'
+      });
+      this.dialogMoveOrCopyVisible = false
+      api[operating]({
         userId: this.$store.state.user.userId,
-        username: this.$store.state.user.username,
-        from: this.rowContextData.id,
+        username: this.$store.state.user.name,
+        froms: fileIds,
         to: this.selectTreeNode.id
-      }).then(res => {
-        console.log(res)
+      }).then(() => {
+        copying.iconClass = null
+        copying.type = 'success'
+        copying.message = operation+'成功'
+        if(this.rowContextData.isFolder){
+          this.$refs.directoryTree.append(this.rowContextData,this.selectTreeNode.id)
+        }
+
+        if(operating === 'move'){
+          // 移除列表
+          if (this.selectRowData.length === 1) {
+            this.fileList.splice(this.selectRowData[0].index, 1)
+          } else {
+            this.getFileList()
+          }
+          this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
+          this.selectRowData = []
+        }
+
+        setTimeout(function () {
+          copying.close()
+        },1000)
+      }).catch(() => {
+        copying.close()
       })
     },
     renderContent(h, { node, data, store }) {
@@ -1073,12 +1131,12 @@ export default {
       })
       if (totalSize > 0) {
         var fileIds = [];
-      if (this.menusIsMultiple) {
-        this.selectRowData.forEach(value => {
-            fileIds.push(value.id)
-        })
-      } else {
-          fileIds.push(this.rowContextData.id)
+        if (this.menusIsMultiple) {
+          this.selectRowData.forEach(value => {
+              fileIds.push(value.id)
+          })
+        } else {
+            fileIds.push(this.rowContextData.id)
         }
         window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
       } else {
@@ -1122,17 +1180,17 @@ export default {
           username: this.$store.state.user.name,
           fileIds: fileIds
         }).then(() => {
+          this.$notify({
+            title: '删除成功',
+            type: 'success',
+            duration: 1000
+          })
           // 移除列表
           if (this.selectRowData.length === 1) {
             this.fileList.splice(this.selectRowData[0].index, 1)
           } else {
             this.getFileList()
           }
-          this.$notify({
-            title: '删除成功',
-            type: 'success',
-            duration: 1000
-          })
           this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
           this.selectRowData = []
         })
