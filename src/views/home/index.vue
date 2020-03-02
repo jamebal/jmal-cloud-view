@@ -56,6 +56,7 @@
       </div>
     </el-breadcrumb>
 
+    <!--右键菜单-->
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
       <ul v-for="(item,index) in menus" :key="item.label">
@@ -78,6 +79,34 @@
 
       </ul>
     </e-vue-contextmenu>
+
+    <!--移动或复制弹出框-->
+    <el-dialog
+      :title="'移动或复制到'+selectTreeNode.showName"
+      :visible.sync="dialogMoveOrCopyVisible"
+    >
+        <el-tree
+          ref="directoryTree"
+          :data="directoryTreeData"
+          node-key="id"
+          :props="directoryTreeProps"
+          :load="directoryTreeLoadNode"
+          :highlight-current="true"
+          :default-expanded-keys="['0']"
+          :render-content="renderContent"
+          hight="100"
+          lazy
+          @node-click="treeNodeClick"
+          @node-expand="treeNodeExpand"
+        >
+      </el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogMoveOrCopyVisible = false"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button type="primary" @click="moveFileTree">移 动</el-button>
+        <el-button type="primary" @click="copyFileTree">复制</el-button>
+        <el-button @click="dialogMoveOrCopyVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
 
     <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
@@ -304,7 +333,15 @@ export default {
       renameLoading: false,
       menuTriangle: '', // 三角菜单
       cellMouseIndex: -1,
-      editingIndex: -1
+      editingIndex: -1,
+      dialogMoveOrCopyVisible: false,
+      directoryTreeData: [],
+      selectTreeNode: {},
+      directoryTreeProps: {
+        label: 'name',
+        children: 'children',
+        isLeaf: 'isLeaf'
+      }
     }
   },
   computed: {
@@ -530,6 +567,7 @@ export default {
         this.tableLoading = true
         api.searchFile({
           userId: this.$store.state.user.userId,
+          username: this.$store.state.user.name,
           keyword: key,
           currentDirectory: this.$route.query.path,
           pageIndex: this.pagination.pageIndex,
@@ -567,6 +605,7 @@ export default {
       this.tableLoading = true
       api.fileList({
         userId: this.$store.state.user.userId,
+        username: this.$store.state.user.name,
         currentDirectory: this.$route.query.path,
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
@@ -939,6 +978,12 @@ export default {
           break
         case 'copy':
           console.log('移动或复制')
+          this.dialogMoveOrCopyVisible = true
+          const that = this
+          setTimeout(function () {
+            that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
+            that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
+          },100)
           break
         case 'download':
           console.log('下载')
@@ -951,6 +996,76 @@ export default {
       }
       this.$refs.contextShow.hideMenu()
     },
+    // 加载下一级文件树
+    directoryTreeLoadNode(node, resolve) {
+      console.log(node)
+      let fileId = null
+      if (node.level === 0) {
+        const that = this
+        setTimeout(function () {
+          that.$refs.directoryTree.setCurrentKey('0')
+        },0)
+        return resolve([{'id':"0",'name':'全部文件'}])
+      }
+      if (node.level > 1){
+        fileId = node.data.id
+      }
+
+      api.queryFileTree({
+        userId: this.$store.state.user.userId,
+        username: this.$store.state.user.name,
+        fileId: fileId,
+      }).then(res => {
+        const nextNodes = res.data
+        return resolve(nextNodes)
+      })
+    },
+    // 点击文件树
+    treeNodeClick(row,node,event) {
+      this.selectTreeNode = row
+      this.selectTreeNode.showName = ' "' + row.name + '"'
+    },
+    // 节点被展开时触发
+    treeNodeExpand(row,node,event) {
+    },
+    // 移动文件
+    moveFileTree() {
+      this.$refs.directoryTree.append(this.rowContextData,this.selectTreeNode.id)
+      // this.dialogMoveOrCopyVisible = false
+    },
+    // 复制文件
+    copyFileTree() {
+      // this.dialogMoveOrCopyVisible = false
+      console.log(this.selectTreeNode)
+      this.$refs.directoryTree.append(this.rowContextData,this.selectTreeNode.id)
+      api.copy({
+        userId: this.$store.state.user.userId,
+        username: this.$store.state.user.username,
+        from: this.rowContextData.id,
+        to: this.selectTreeNode.id
+      }).then(res => {
+        console.log(res)
+      })
+    },
+    renderContent(h, { node, data, store }) {
+      if(node.expanded){
+        return (
+          <span class="custom-tree-node">
+          <svg-icon icon-class="open-folder" />
+          <span style="margin-left: 5px;">{node.label}</span>
+          <span>
+          </span>
+          </span>);
+      }else{
+        return (
+          <span class="custom-tree-node">
+          <svg-icon icon-class="folder" />
+          <span style="margin-left: 5px;">{node.label}</span>
+          <span>
+          </span>
+          </span>);
+      }
+    },
     downloadFile() {
       let totalSize = 0
       this.selectRowData.forEach(item => {
@@ -958,11 +1073,11 @@ export default {
       })
       if (totalSize > 0) {
         var fileIds = [];
-        if (this.menusIsMultiple) {
-          this.selectRowData.forEach(value => {
+      if (this.menusIsMultiple) {
+        this.selectRowData.forEach(value => {
             fileIds.push(value.id)
-          })
-        } else {
+        })
+      } else {
           fileIds.push(this.rowContextData.id)
         }
         window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
@@ -1263,6 +1378,37 @@ export default {
   .el-pagination {
     float: right;
     margin-top: 50px;
+  }
+
+  /deep/ .el-dialog__header {
+    padding: 20px 20px 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /deep/ .el-dialog__title {
+    font-size: 16px;
+  }
+  /deep/ .el-dialog__body {
+    padding: 0 20px 0 20px;
+  }
+  /deep/ .el-tree-node__content {
+    height: 35px;
+    /*border-bottom: 1px solid #ccc;*/
+    position: relative;
+  }
+
+  /deep/ .custom-tree-node {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    padding-right: 8px;
+  }
+
+  /deep/ .el-tree-node.is-expanded>.el-tree-node__children {
+    max-height: 500px;
+    overflow: auto;
   }
 
 </style>

@@ -74,13 +74,36 @@ export default {
       params
     })
   },
-  // 搜索文件🔍
+  // 搜索文件🔍-打开目录
   searchFileAndOpenDir: function(params) {
     return request({
       url: 'search-file-open',
       method: 'get',
       params
     })
+  },
+  // 查找下级目录
+  queryFileTree: function(params) {
+    return request({
+      url: 'query-file-tree',
+      method: 'get',
+      params
+    })
+  },
+  // 移动文件/文件夹
+  move: function(params) {
+    return request({
+      url: 'move',
+      method: 'get',
+      params
+    })
+  },
+  // 复制文件/文件夹
+  copy: function(params) {
+    return request({
+      url: 'copy',
+      method: 'get',
+      params
+    })
   }
-
 }
