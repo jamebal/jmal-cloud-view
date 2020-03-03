@@ -511,56 +511,99 @@ export default {
       // }
 
 
-      //可拖拽的表格
-      const dragTable = document.querySelector('#drag-table');
+      // //可拖拽的表格
+      // const dragTable = document.querySelector('#drag-table');
+      //
+      // dragTable.ondragstart = function(){
+      //   console.log('开始拖拽');
+      // }
+      // dragTable.ondragend = function(){
+      //   console.log('拖拽结束');
+      // }
 
-      dragTable.ondragstart = function(){
-        console.log('开始拖拽');
-      }
-      dragTable.ondragend = function(){
-        console.log('拖拽结束');
-      }
+      const _this = this
+      // 被拖动的元素的索引
+      let draggedIndex = -1;
+      let dragged = null;
 
-      var target = document.querySelector('.el-table__body-wrapper tbody');
+      let target = document.querySelector('.el-table__body-wrapper tbody');
       let rows = 0;//行数
       setTimeout(function () {
         rows = target.childElementCount
-        console.log(target.childElementCount);
         for (let i = 0; i < target.childElementCount; i++) {
           const child = target.children[i]
           child.draggable = true
-          child.ondragstart = function(){
+          // child.style.cursor = 'copy'
+          child.ondragstart = function(e){
+            dragged = e.path[0]
+            draggedIndex = e.path[0].rowIndex
             console.log('child'+i+'开始拖拽');
+            _this.cellMouseIndex = -1
+            dragged.style.cursor = 'grabbing'
           }
           child.ondragend = function(){
             console.log('child'+i+'拖拽结束');
-          }
+            // 清除上次进入的容器的状态
+            const last = target.children[dragIndex];
+            clearClass(last)
+            dragged.style.cursor = 'default'
 
+            if(last){
+              // 移动文件/文件夹
+              const form = _this.fileList[draggedIndex]
+              const to = _this.fileList[dragIndex]
+              let fileType = '文件'
+              if(form.isFolder){
+                fileType = '文件夹'
+              }
+              _this.$confirm('是将'+fileType+'否移动到 "' + to.name + '"?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
+              }).then(() => {
+                _this.copyOrMoveApi('move', form.id, to.id)
+              })
+            }
+          }
         }
       },0)
 
       // 被拖动的元素正在那个容器里
-      let drageIndex = -1
+      let dragIndex = -1
 
       target.ondragenter = function(e){
+        clearTimeout(loop)
         if(e.path[0].tagName === 'TD'){
           const selectRow = e.path.find(path => {
             if(path.className === 'el-table__row'){
               return path
             }
           })
-          if(drageIndex !== selectRow.rowIndex){
-            console.log('拖动进入目标元素'+selectRow.rowIndex);
-            // selectRow.style.height = 100+'px'
-            drageIndex = selectRow.rowIndex
+          if(dragIndex !== selectRow.rowIndex){
+            if(dragIndex > -1){
+              // 清除上次进入的容器的状态
+              const last = target.children[dragIndex];
+              clearClass(last)
+            }
+            // console.log('拖动进入目标元素'+selectRow.rowIndex);
+            // 不是自己或未文件夹时才改变状态
+            if(draggedIndex !== selectRow.rowIndex && _this.fileList[selectRow.rowIndex].isFolder){
+              // 改变本次进入的容器的状态
+              dragged.style.cursor = 'copy'
+              selectRow.style.height = 60+'px'
+              selectRow.style.backgroundColor = '#e9fdcf'
+            }
+            dragIndex = selectRow.rowIndex
           }
-          leaveIndex = -1
         }
+        leaveIndex = -1
       }
 
-      // target.ondragover = function(){
-      //   console.log('目标元素中拖拽');
-      // }
+      target.ondragover = function(){
+        // console.log('目标元素中拖拽...');
+        leaveIndex = -1
+      }
+
       let loop = null
       let leaveIndex = -1 // 是否拖出了整个table, -1表示还在table内
 
@@ -572,10 +615,11 @@ export default {
               return path
             }
           })
-          if(drageIndex !== selectRow.rowIndex){
-            console.log('拖动离开目标元素'+selectRow.rowIndex);
+          if(dragIndex !== selectRow.rowIndex){
+            // console.log('拖动离开目标元素'+selectRow.rowIndex);
             // selectRow.style.height = 'unset'
-            // drageIndex = selectRow.rowIndex
+            // selectRow.style.backgroundColor = '#fff'
+            // dragIndex = selectRow.rowIndex
           }
           if(selectRow.rowIndex === 0 || selectRow.rowIndex === rows-1){
             // 离开第一行或最后一行
@@ -583,6 +627,9 @@ export default {
             loop = setTimeout(function () {
               if(leaveIndex > -1){
                 console.log("离开了",leaveIndex)
+                const leave = target.children[leaveIndex];
+                clearClass(leave)
+                dragIndex = -1
               }
             },100)
           }
@@ -592,6 +639,13 @@ export default {
         console.log('拖放');
       }
 
+      let clearClass = function (node) {
+        if(node){
+          node.style.height = 'unset'
+          node.style.backgroundColor = '#fff'
+        }
+        dragged.style.cursor = 'grabbing'
+      }
 
     },
     // 格式化最近时间
@@ -1252,25 +1306,32 @@ export default {
       } else {
         fileIds.push(this.rowContextData.id)
       }
+      this.copyOrMoveApi(operating,fileIds,this.selectTreeNode.id)
+    },
+    copyOrMoveApi(operating,froms,to) {
+      let operation = '复制'
+      if(operating === 'move'){
+        operation = '移动'
+      }
       let copying = this.$message({
         iconClass: 'el-icon-loading',
         type: 'info',
         duration: 0,
         dangerouslyUseHTMLString: true,
-        message: '<span>&nbsp;&nbsp;正在{operation}</span>'
+        message: '<span>&nbsp;&nbsp;正在'+operation+'</span>'
       });
       this.dialogMoveOrCopyVisible = false
       api[operating]({
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
-        froms: fileIds,
-        to: this.selectTreeNode.id
+        froms: froms,
+        to: to
       }).then(() => {
         copying.iconClass = null
         copying.type = 'success'
         copying.message = operation+'成功'
         if(this.rowContextData.isFolder){
-          this.$refs.directoryTree.append(this.rowContextData,this.selectTreeNode.id)
+          this.$refs.directoryTree.append(this.rowContextData,to)
         }
 
         if(operating === 'move'){
