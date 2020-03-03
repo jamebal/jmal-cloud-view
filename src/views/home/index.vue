@@ -237,7 +237,23 @@
       :total="pagination.total"
       @current-change="currentChange">
     </el-pagination>
+
+    <div class="drag-parent-class">
+      <table id="drag-table" class="el-table" draggable="true">
+        <tr class="el-table__row">
+          <td rowspan="1" colspan="1" class="el-table_1_column_1  el-table-column--selection"><div class="cell"><label class="el-checkbox"><span class="el-checkbox__input"><span class="el-checkbox__inner"></span><input type="checkbox" aria-hidden="false" class="el-checkbox__original" value=""></span><!----></label></div></td>
+          <td rowspan="1" colspan="1" class="el-table_1_column_2  "><div class="cell"><span data-v-038dedea="" data-v-5954443c=""><!----> <!----> <svg data-v-c8a70580="" data-v-038dedea="" aria-hidden="true" class="svg-icon"><use data-v-c8a70580="" href="#icon-folder"></use></svg></span></div></td>
+          <td rowspan="1" colspan="1" class="el-table_1_column_3  " style=""><div class="cell el-tooltip" style="width: 397px;"><span data-v-5954443c="">超长名称7yuhqjadsyvguhqb3jfjivdycgzuhbjknldsafsbghyejhntcszvfhncszxzxcvsbfd</span></div></td>
+          <td rowspan="1" colspan="1" class="el-table_1_column_4 is-center "><div class="cell"></div></td>
+          <td rowspan="1" colspan="1" class="el-table_1_column_5 is-center "><div class="cell"></div></td>
+          <td rowspan="1" colspan="1" class="el-table_1_column_6 is-center "><div class="cell el-tooltip"><span data-v-5954443c="">306.54M</span></div></td>
+          <td rowspan="1" colspan="1" class="el-table_1_column_7 is-left "><div class="cell el-tooltip"><span data-v-5954443c="">&nbsp;&nbsp;&nbsp;15天前</span></div></td>
+        </tr>
+      </table>
+    </div>
+
   </div>
+
 </template>
 
 <script>
@@ -343,6 +359,10 @@ export default {
         children: 'children',
         isLeaf: 'isLeaf'
       },
+
+      dragLoop: null,
+      positionX:0,
+      positionY:0,
     }
   },
   computed: {
@@ -354,7 +374,6 @@ export default {
     this.getFileList()
   },
   mounted() {
-    this.rowDrop()
     Bus.$on('fileSuccess', () => {
       this.getFileList()
     })
@@ -406,18 +425,174 @@ export default {
     },
     // 行拖拽
     rowDrop() {
-      const tbody = document.querySelector('.el-table__body-wrapper tbody')
-      const _this = this
-      Sortable.create(tbody, {
-        swap: true,
-        chosenClass: 'sortable-highlight',
-        animation: 150,
-        sort: false
-      // onMoveCallback({ newIndex, oldIndex }) {
-      //   const currRow = _this.fileList.splice(oldIndex, 1)[0]
-      //   _this.fileList.splice(newIndex, 0, currRow)
+      // const tbody = document.querySelector('.el-table__body-wrapper tbody')
+      // const _this = this
+      // Sortable.create(tbody, {
+      //   swap: true,
+      //   swapThreshold: 1, // Threshold of the swap zone
+      //   invertSwap: true, // Will always use inverted swap zone if set to true
+      //   invertedSwapThreshold: 1, // Threshold of the inverted swap zone (will be set to swapThreshold value by default)
+      //   ghostClass: "sortable-ghost",  // drop placeholder的css类名
+      //   chosenClass: "sortable-chosen",  // 被选中项的css 类名
+      //   dragClass: "sortable-drag",
+      //   animation: 150,
+      //   sort: false,
+      //   onMove: function (evt) {
+      //     console.log('onChoose', evt)
+      //   },
+      // })
+
+      // 可拖拽的表格
+      // const dragTable = document.querySelector('#drag-table');
+      //
+      // const row = document.querySelector('.el-table__body-wrapper tbody');
+      // document.onmousedown = function (e) {
+      //   const _this = this
+      //   //再次清空定时器，防止重复注册定时器
+      //   clearTimeout(this.dragLoop);
+      //   this.dragLoop = setTimeout(function () {
+      //     console.log('onmousedown',e)
+      //     // 所选行到浏览器的总高度
+      //     let totalHeight = 0
+      //     // 获取目标元素(点击的哪一行)
+      //     let pathIndex = 0
+      //     const selectRow = e.path.find((path,index) => {
+      //       if(path.className === 'el-table__row'){
+      //         pathIndex = index
+      //         return path
+      //       }
+      //     })
+      //     e.path.forEach((path,index) => {
+      //       if(path.offsetTop && index > pathIndex){
+      //         totalHeight += path.offsetTop
+      //       }
+      //     })
+      //     console.log(totalHeight)
+      //     // 拷贝目标元素到dragTable
+      //     let c = selectRow.cloneNode(true)
+      //     dragTable.appendChild(c)
+      //     console.log(dragTable)
+      //     //算出鼠标相对元素的位置
+      //     let disX = e.clientX - selectRow.offsetLeft;
+      //     let disY = e.clientY - selectRow.offsetTop;
+      //     dragTable.style.opacity = 0.8
+      //     dragTable.style.cursor = 'move'
+      //     dragTable.style.left = e.clientX - disX + 'px';
+      //     dragTable.style.top = e.clientY - disY + totalHeight + 'px';
+      //     dragTable.parentElement.style.display = 'block'
+      //
+      //     //鼠标按下并移动的事件
+      //     document.onmousemove = function(e){
+      //       console.log('onmousemove')
+      //       // 用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
+      //       let left = e.clientX - disX;
+      //       let top = e.clientY - disY;
+      //       // // 绑定元素位置到positionX和positionY上面
+      //       // this.positionX = top;
+      //       // this.positionY = left;
+      //       //移动当前元素
+      //       dragTable.style.left = left + 'px';
+      //       dragTable.style.top = top + totalHeight + 'px';
+      //     }
+      //
+      //     // 松开鼠标
+      //     document.onmouseup = function () {
+      //       console.log('onmouseup')
+      //       document.onmousemove = null;
+      //       dragTable.parentElement.style.display = 'none'
+      //       // 移除dragTable内的行
+      //       dragTable.childNodes.forEach(node => {
+      //         dragTable.removeChild(node)
+      //       })
+      //       clearTimeout(_this.dragLoop);
+      //     }
+      //
+      //   },150)
       // }
-      })
+
+
+      //可拖拽的表格
+      const dragTable = document.querySelector('#drag-table');
+
+      dragTable.ondragstart = function(){
+        console.log('开始拖拽');
+      }
+      dragTable.ondragend = function(){
+        console.log('拖拽结束');
+      }
+
+      var target = document.querySelector('.el-table__body-wrapper tbody');
+      let rows = 0;//行数
+      setTimeout(function () {
+        rows = target.childElementCount
+        console.log(target.childElementCount);
+        for (let i = 0; i < target.childElementCount; i++) {
+          const child = target.children[i]
+          child.draggable = true
+          child.ondragstart = function(){
+            console.log('child'+i+'开始拖拽');
+          }
+          child.ondragend = function(){
+            console.log('child'+i+'拖拽结束');
+          }
+
+        }
+      },0)
+
+      // 被拖动的元素正在那个容器里
+      let drageIndex = -1
+
+      target.ondragenter = function(e){
+        if(e.path[0].tagName === 'TD'){
+          const selectRow = e.path.find(path => {
+            if(path.className === 'el-table__row'){
+              return path
+            }
+          })
+          if(drageIndex !== selectRow.rowIndex){
+            console.log('拖动进入目标元素'+selectRow.rowIndex);
+            // selectRow.style.height = 100+'px'
+            drageIndex = selectRow.rowIndex
+          }
+          leaveIndex = -1
+        }
+      }
+
+      // target.ondragover = function(){
+      //   console.log('目标元素中拖拽');
+      // }
+      let loop = null
+      let leaveIndex = -1 // 是否拖出了整个table, -1表示还在table内
+
+      target.ondragleave = function(e){
+        clearTimeout(loop)
+        if(e.path[0].tagName === 'TD'){
+          const selectRow = e.path.find(path => {
+            if(path.className === 'el-table__row'){
+              return path
+            }
+          })
+          if(drageIndex !== selectRow.rowIndex){
+            console.log('拖动离开目标元素'+selectRow.rowIndex);
+            // selectRow.style.height = 'unset'
+            // drageIndex = selectRow.rowIndex
+          }
+          if(selectRow.rowIndex === 0 || selectRow.rowIndex === rows-1){
+            // 离开第一行或最后一行
+            leaveIndex = selectRow.rowIndex
+            loop = setTimeout(function () {
+              if(leaveIndex > -1){
+                console.log("离开了",leaveIndex)
+              }
+            },100)
+          }
+        }
+      }
+      target.ondrop = function(){
+        console.log('拖放');
+      }
+
+
     },
     // 格式化最近时间
     formatTime(time) {
@@ -623,6 +798,8 @@ export default {
         this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = false
         this.pagination['total'] = res.count
+        // 是列表可拖拽
+        this.rowDrop()
       }).catch(e => {})
     },
     getFileListBySearchMode() {
@@ -784,6 +961,7 @@ export default {
     },
     // 单元格点击事件
     cellClick(row, column) {
+      clearTimeout(this.Loop);
       console.log(column.index)
       if(this.editingIndex === -1) {
         const columnIndex = column.index
@@ -1477,7 +1655,23 @@ export default {
     overflow: auto;
   }
 
-  /deep/ .sortable-highlight {
+  /deep/ .drag-parent-class {
+    z-index: 999;
+    position: fixed;
+    right: 0;
+    left: 0;
+    overflow: auto;
+    margin: 0;
+    display: none;
+    /*-webkit-transition: all .1s ease-in-out 0s;*/
+    /*transition: all .1s ease-in-out 0s;*/
+  }
+
+  /deep/ .drag-parent-class .el-table {
+    background-color: #66cc66;
+  }
+
+  /deep/ .drag-parent-class .el-table tr {
     background-color: #66cc66;
   }
 
