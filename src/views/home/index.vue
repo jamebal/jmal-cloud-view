@@ -267,7 +267,6 @@ import api from '@/api/upload-api'
 import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "../../components/Icon/IconFile";
 import vuedraggable from 'vuedraggable';
-import Sortable from 'sortablejs'
 
 export default {
   components: { IconFile, BreadcrumbFilePath, vuedraggable},
@@ -420,112 +419,15 @@ export default {
     }
   },
   methods: {
-    draggableChange(){
-      console.log(678)
-    },
     // 行拖拽
     rowDrop() {
-      // const tbody = document.querySelector('.el-table__body-wrapper tbody')
-      // const _this = this
-      // Sortable.create(tbody, {
-      //   swap: true,
-      //   swapThreshold: 1, // Threshold of the swap zone
-      //   invertSwap: true, // Will always use inverted swap zone if set to true
-      //   invertedSwapThreshold: 1, // Threshold of the inverted swap zone (will be set to swapThreshold value by default)
-      //   ghostClass: "sortable-ghost",  // drop placeholder的css类名
-      //   chosenClass: "sortable-chosen",  // 被选中项的css 类名
-      //   dragClass: "sortable-drag",
-      //   animation: 150,
-      //   sort: false,
-      //   onMove: function (evt) {
-      //     console.log('onChoose', evt)
-      //   },
-      // })
-
-      // 可拖拽的表格
-      // const dragTable = document.querySelector('#drag-table');
-      //
-      // const row = document.querySelector('.el-table__body-wrapper tbody');
-      // document.onmousedown = function (e) {
-      //   const _this = this
-      //   //再次清空定时器，防止重复注册定时器
-      //   clearTimeout(this.dragLoop);
-      //   this.dragLoop = setTimeout(function () {
-      //     console.log('onmousedown',e)
-      //     // 所选行到浏览器的总高度
-      //     let totalHeight = 0
-      //     // 获取目标元素(点击的哪一行)
-      //     let pathIndex = 0
-      //     const selectRow = e.path.find((path,index) => {
-      //       if(path.className === 'el-table__row'){
-      //         pathIndex = index
-      //         return path
-      //       }
-      //     })
-      //     e.path.forEach((path,index) => {
-      //       if(path.offsetTop && index > pathIndex){
-      //         totalHeight += path.offsetTop
-      //       }
-      //     })
-      //     console.log(totalHeight)
-      //     // 拷贝目标元素到dragTable
-      //     let c = selectRow.cloneNode(true)
-      //     dragTable.appendChild(c)
-      //     console.log(dragTable)
-      //     //算出鼠标相对元素的位置
-      //     let disX = e.clientX - selectRow.offsetLeft;
-      //     let disY = e.clientY - selectRow.offsetTop;
-      //     dragTable.style.opacity = 0.8
-      //     dragTable.style.cursor = 'move'
-      //     dragTable.style.left = e.clientX - disX + 'px';
-      //     dragTable.style.top = e.clientY - disY + totalHeight + 'px';
-      //     dragTable.parentElement.style.display = 'block'
-      //
-      //     //鼠标按下并移动的事件
-      //     document.onmousemove = function(e){
-      //       console.log('onmousemove')
-      //       // 用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
-      //       let left = e.clientX - disX;
-      //       let top = e.clientY - disY;
-      //       // // 绑定元素位置到positionX和positionY上面
-      //       // this.positionX = top;
-      //       // this.positionY = left;
-      //       //移动当前元素
-      //       dragTable.style.left = left + 'px';
-      //       dragTable.style.top = top + totalHeight + 'px';
-      //     }
-      //
-      //     // 松开鼠标
-      //     document.onmouseup = function () {
-      //       console.log('onmouseup')
-      //       document.onmousemove = null;
-      //       dragTable.parentElement.style.display = 'none'
-      //       // 移除dragTable内的行
-      //       dragTable.childNodes.forEach(node => {
-      //         dragTable.removeChild(node)
-      //       })
-      //       clearTimeout(_this.dragLoop);
-      //     }
-      //
-      //   },150)
-      // }
-
-
-      // //可拖拽的表格
-      // const dragTable = document.querySelector('#drag-table');
-      //
-      // dragTable.ondragstart = function(){
-      //   console.log('开始拖拽');
-      // }
-      // dragTable.ondragend = function(){
-      //   console.log('拖拽结束');
-      // }
-
       const _this = this
       // 被拖动的元素的索引
-      let draggedIndex = -1;
       let dragged = null;
+      // 被拖动的元素的索引
+      let draggedIndex = -1;
 
+      // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody');
       let rows = 0;//行数
       setTimeout(function () {
@@ -543,27 +445,6 @@ export default {
           }
           child.ondragend = function(){
             console.log('child'+i+'拖拽结束');
-            // 清除上次进入的容器的状态
-            const last = target.children[dragIndex];
-            clearClass(last)
-            dragged.style.cursor = 'default'
-
-            if(last){
-              // 移动文件/文件夹
-              const form = _this.fileList[draggedIndex]
-              const to = _this.fileList[dragIndex]
-              let fileType = '文件'
-              if(form.isFolder){
-                fileType = '文件夹'
-              }
-              _this.$confirm('是将'+fileType+'否移动到 "' + to.name + '"?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'info'
-              }).then(() => {
-                _this.copyOrMoveApi('move', form.id, to.id)
-              })
-            }
           }
         }
       },0)
@@ -573,13 +454,16 @@ export default {
 
       target.ondragenter = function(e){
         clearTimeout(loop)
+
+        // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
         if(e.path[0].tagName === 'TD'){
-          const selectRow = e.path.find(path => {
+          // throughRow 表示被拖动的元素正在哪一行上
+          const throughRow = e.path.find(path => {
             if(path.className === 'el-table__row'){
               return path
             }
           })
-          if(dragIndex !== selectRow.rowIndex){
+          if(dragIndex !== throughRow.rowIndex){
             if(dragIndex > -1){
               // 清除上次进入的容器的状态
               const last = target.children[dragIndex];
@@ -587,20 +471,21 @@ export default {
             }
             // console.log('拖动进入目标元素'+selectRow.rowIndex);
             // 不是自己或未文件夹时才改变状态
-            if(draggedIndex !== selectRow.rowIndex && _this.fileList[selectRow.rowIndex].isFolder){
+            if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder){
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
-              selectRow.style.height = 60+'px'
-              selectRow.style.backgroundColor = '#e9fdcf'
+              throughRow.style.height = 60+'px'
+              throughRow.style.backgroundColor = '#e9fdcf'
             }
-            dragIndex = selectRow.rowIndex
+            dragIndex = throughRow.rowIndex
           }
         }
         leaveIndex = -1
       }
 
-      target.ondragover = function(){
+      target.ondragover = function(e){
         // console.log('目标元素中拖拽...');
+        e.preventDefault();
         leaveIndex = -1
       }
 
@@ -610,20 +495,20 @@ export default {
       target.ondragleave = function(e){
         clearTimeout(loop)
         if(e.path[0].tagName === 'TD'){
-          const selectRow = e.path.find(path => {
+          const throughRow = e.path.find(path => {
             if(path.className === 'el-table__row'){
               return path
             }
           })
-          if(dragIndex !== selectRow.rowIndex){
+          if(dragIndex !== throughRow.rowIndex){
             // console.log('拖动离开目标元素'+selectRow.rowIndex);
             // selectRow.style.height = 'unset'
             // selectRow.style.backgroundColor = '#fff'
             // dragIndex = selectRow.rowIndex
           }
-          if(selectRow.rowIndex === 0 || selectRow.rowIndex === rows-1){
+          if(throughRow.rowIndex === 0 || throughRow.rowIndex === rows-1){
             // 离开第一行或最后一行
-            leaveIndex = selectRow.rowIndex
+            leaveIndex = throughRow.rowIndex
             loop = setTimeout(function () {
               if(leaveIndex > -1){
                 console.log("离开了",leaveIndex)
@@ -632,11 +517,33 @@ export default {
                 dragIndex = -1
               }
             },100)
-          }
+          }``
         }
       }
       target.ondrop = function(){
-        console.log('拖放');
+        console.log('放下了'+draggedIndex);
+        // 清除上次进入的容器的状态
+        const last = target.children[dragIndex];
+        clearClass(last)
+        dragged.style.cursor = 'default'
+
+        const form = _this.fileList[draggedIndex]
+        const to = _this.fileList[dragIndex]
+        if(last && form.id !== to.id && to.isFolder){
+          // 移动文件/文件夹
+          // _this.copyOrMoveApi('move', form.id, to.id)
+          let fileType = '文件'
+          if(form.isFolder){
+            fileType = '文件夹'
+          }
+          _this.$confirm('是否将'+fileType+'否移动到 "' + to.name + '"?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'info'
+          }).then(() => {
+            _this.copyOrMoveApi('move', form.id, to.id)
+          }).catch()
+        }
       }
 
       let clearClass = function (node) {
