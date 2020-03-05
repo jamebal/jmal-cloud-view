@@ -120,7 +120,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'markdown',
         component: () => import('@/views/markdown/index'),
-        meta: { title: '创建文档', icon: 'folder' }
+        meta: { title: '创建文档', icon: 'md' }
       }
     ]
   },
@@ -133,6 +133,7 @@ export const constantRoutes = [
         path: '',
         name: 'p',
         component: () => import('@/views/public/p/index'),
+        meta: { title: '文档列表', icon: 'md-list' }
       }
     ]
   },

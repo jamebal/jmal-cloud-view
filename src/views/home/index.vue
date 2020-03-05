@@ -1398,7 +1398,7 @@ export default {
           this.getFileList()
         }
       } else {
-        if(row.contentType === 'text/markdown'){
+        if(row.contentType.includes('text')){
           this.$router.push(`/public/p?mark=${row.id}`)
         }else{
           // 打开文件
