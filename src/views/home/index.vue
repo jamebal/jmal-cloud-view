@@ -24,6 +24,10 @@
                     <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
                   </label>
                 </li>
+                <li @click.prevent="newDocument">
+                  <a href="#" class="menuitem"><svg-icon icon-class="folder" /><span class="menuitem text">新建文档</span>
+                  </a>
+                </li>
                 <li @click.prevent="newFolder">
                   <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
                   </a>
@@ -625,6 +629,10 @@ export default {
         this.getFileList()
       }
       console.log("this.pathList:", this.pathList)
+    },
+    // 新建文档
+    newDocument() {
+
     },
     newFolder() {
       this.newFolderName = '新建文件夹'
@@ -1390,10 +1398,14 @@ export default {
           this.getFileList()
         }
       } else {
-        // 打开文件
-        const fileIds = [row.id]
-        const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-        window.open(url, '_blank')
+        if(row.contentType === 'text/markdown'){
+          this.$router.push(`/public/p?mark=${row.id}`)
+        }else{
+          // 打开文件
+          const fileIds = [row.id]
+          const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+          window.open(url, '_blank')
+        }
       }
     }
   }

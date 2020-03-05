@@ -76,7 +76,6 @@ export default {
       Bus.$emit('clickMore', selects)
     },
     test() {
-      console.log(8769)
     }
   }
 }

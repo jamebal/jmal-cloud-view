@@ -112,6 +112,31 @@ export const constantRoutes = [
     ]
   },
 
+  {
+    path: '/markdown',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'markdown',
+        component: () => import('@/views/markdown/index'),
+        meta: { title: '创建文档', icon: 'folder' }
+      }
+    ]
+  },
+
+  {
+    path: '/public/p',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'p',
+        component: () => import('@/views/public/p/index'),
+      }
+    ]
+  },
+
   // {
   //   path: '/example',
   //   component: Layout,
@@ -253,7 +278,7 @@ export const dynamicRouters = [
       component: () => import('@/views/upload/mobile/index'),
       meta: { title: '上传文件列表' }
     }]
-  }
+  },
 ]
 
 const createRouter = () => new Router({

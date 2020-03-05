@@ -4,7 +4,7 @@
       v-model="content"
       ref="md"
       @change="change"
-      style="min-height: 600px"
+      style="min-height: 600px;max-height: 600px"
     />
 
     <button @click="submit">提交</button>
@@ -14,13 +14,7 @@
 
 
 <script>
-  import { mavonEditor } from 'mavon-editor'
-  import 'mavon-editor/dist/css/index.css'
   export default {
-    // 注册
-    components: {
-      mavonEditor,
-    },
     data() {
       return {
         content:'', // 输入的markdown

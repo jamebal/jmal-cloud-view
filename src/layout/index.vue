@@ -14,6 +14,7 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import { getToken } from '@/utils/auth'
 
 export default {
   name: 'Layout',
@@ -54,6 +55,15 @@ export default {
     } else {
       this.isShow = true
       window.pc = true
+    }
+
+    console.log(getToken())
+    if(getToken()){
+      this.isShow = true
+      window.pc = true
+    }else{
+      this.isShow = false
+      window.pc = false
     }
   },
   methods: {

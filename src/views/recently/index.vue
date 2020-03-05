@@ -1,58 +1,81 @@
 <template>
-  <uploader :options="options" :file-status-text="statusText" class="uploader-example" ref="uploader" @file-complete="fileComplete" @complete="complete"></uploader>
+    <mavon-editor
+      v-model="content"
+      :subfield="false"
+      :boxShadow="false"
+      defaultOpen="preview"
+      :navigation="true"
+      :toolbarsFlag="toolbarsFlag"
+      :toolbars="toolbars"
+      @navigationToggle="navigationToggle"
+    />
 </template>
 
 <script>
+  import { mavonEditor } from 'mavon-editor'
+  import 'mavon-editor/dist/css/index.css'
   export default {
-    data () {
+    // 注册
+    components: {
+      mavonEditor,
+    },
+    data() {
       return {
-        options: {
-          target: '//localhost:3000/upload', // '//jsonplaceholder.typicode.com/posts/',
-          testChunks: false
+        toolbars:{
+          navigation: true,
         },
-        attrs: {
-          accept: 'image/*'
-        },
-        statusText: {
-          success: '成功了',
-          error: '出错了',
-          uploading: '上传中',
-          paused: '暂停中',
-          waiting: '等待中'
-        }
+        toolbarsFlag: true,
+        content:'# 标题\n' +
+          '```java\n' +
+          '/***\n' +
+          '     * 重命名\n' +
+          '     * @param username\n' +
+          '     * @param id\n' +
+          '     * @return\n' +
+          '     */\n' +
+          '    @Override\n' +
+          '    public ResponseResult<Object> rename(String newFileName, String username, String id) {\n' +
+          '        FileDocument fileDocument = mongoTemplate.findById(id, FileDocument.class, COLLECTION_NAME);\n' +
+          '        if (fileDocument != null) {\n' +
+          '            String currentDirectory = getUserDirectory(fileDocument.getPath());\n' +
+          '            String filePath = rootPath + File.separator + username + currentDirectory;\n' +
+          '            File file = new File(filePath + fileDocument.getName());\n' +
+          '            if(fileDocument.getIsFolder()){\n' +
+          '                Query query = new Query();\n' +
+          '                String searchPath = currentDirectory + fileDocument.getName();\n' +
+          '                String newPath = currentDirectory + newFileName;\n' +
+          '                query.addCriteria(Criteria.where("path").regex("^"+searchPath));\n' +
+          '                List<FileDocument> documentList = mongoTemplate.find(query, FileDocument.class, COLLECTION_NAME);\n' +
+          '                // 修改该文件夹下的所有文件的path\n' +
+          '                documentList.parallelStream().forEach(rep -> {\n' +
+          '                    String path = rep.getPath();\n' +
+          '                    String newFilePath = replaceStart(path, searchPath, newPath);\n' +
+          '                    Update update = new Update();\n' +
+          '                    update.set("path",newFilePath);\n' +
+          '                    Query query1 = new Query();\n' +
+          '                    query1.addCriteria(Criteria.where("_id").is(rep.getId()));\n' +
+          '                    mongoTemplate.upsert(query1, update, COLLECTION_NAME);\n' +
+          '                });\n' +
+          '            }\n' +
+          '            if (renameFile(newFileName, id, filePath, file)) {\n' +
+          '                return ResultUtil.error("重命名失败");\n' +
+          '            }\n' +
+          '            return ResultUtil.success(true);\n' +
+          '        } else {\n' +
+          '            return ResultUtil.error("数据库查询失败");\n' +
+          '        }\n' +
+          '    }\n' +
+          '```\n',
+        html:'',
       }
     },
     methods: {
-      complete () {
-        console.log('complete', arguments)
-      },
-      fileComplete () {
-        console.log('file complete', arguments)
+      navigationToggle(d){
+        console.log(d)
       }
     },
-    mounted () {
-      this.$nextTick(() => {
-        window.uploader = this.$refs.uploader.uploader
-      })
+    mounted() {
+
     }
   }
 </script>
-
-<style>
-  .uploader-example {
-    width: 880px;
-    padding: 15px;
-    margin: 40px auto 0;
-    font-size: 12px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .4);
-  }
-  .uploader-example .uploader-btn {
-    margin-right: 4px;
-  }
-  .uploader-example .uploader-list {
-    max-height: 440px;
-    overflow: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-</style>

@@ -17,6 +17,10 @@ import VueWechatTitle from 'vue-wechat-title'
 // import 'we-vue/lib/style.css'
 import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup} from 'vant';
 
+// mavonEditor
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+
 import '@/icons' // icon
 import '@/permission' // permission control
 
@@ -67,6 +71,7 @@ Vue.use(Overlay);
 Vue.use(Checkbox);
 Vue.use(CheckboxGroup);
 
+Vue.use(mavonEditor);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
