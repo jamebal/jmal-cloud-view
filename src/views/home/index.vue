@@ -25,7 +25,7 @@
                   </label>
                 </li>
                 <li @click.prevent="newDocument">
-                  <a href="#" class="menuitem"><svg-icon icon-class="folder" /><span class="menuitem text">新建文档</span>
+                  <a href="#" class="menuitem"><svg-icon icon-class="md" /><span class="menuitem text">新建文档</span>
                   </a>
                 </li>
                 <li @click.prevent="newFolder">
@@ -335,6 +335,16 @@ export default {
         { iconClass: 'menu-download', label: '下载', operation: 'download' },
         { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
       ],
+      singleMenusEdit: [
+        { iconClass: 'menu-open', label: '打开', operation: 'open' },
+        { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
+        { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
+        { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
+        { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
+        { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+        { iconClass: 'menu-download', label: '下载', operation: 'download' },
+        { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+      ],
       multipleMenus: [
         { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
         { iconClass: 'menu-download', label: '下载', operation: 'download' },
@@ -632,7 +642,7 @@ export default {
     },
     // 新建文档
     newDocument() {
-
+      this.$router.push(`/markdown/editor`)
     },
     newFolder() {
       this.newFolderName = '新建文件夹'
@@ -1012,7 +1022,11 @@ export default {
     // 更多操作(单选)
     moreClick(row, event) {
       this.menusIsMultiple = false
-      this.menus = this.singleMenus
+      if(row.contentType && row.contentType.includes("text")){
+        this.menus = this.singleMenusEdit
+      }else{
+        this.menus = this.singleMenus
+      }
       this.showOperationMenus(event)
       this.preliminaryRowData(row)
       this.showOperationMenus(event)
@@ -1024,7 +1038,11 @@ export default {
         this.menus = this.multipleRightMenus
       } else {
         this.menusIsMultiple = false
-        this.menus = this.singleMenus
+        if(row.contentType && row.contentType.includes("text")){
+          this.menus = this.singleMenusEdit
+        }else{
+          this.menus = this.singleMenus
+        }
         this.preliminaryRowData(row)
       }
       // 右击选择的数据
@@ -1107,6 +1125,10 @@ export default {
         case 'favorite':
           console.log('operation', '收藏')
           this.favoriteOperating(true)
+          break
+        case 'edit':
+          console.log('edit', '编辑')
+          this.$router.push(`/markdown/editor?id=${this.rowContextData.id}`)
           break
         case 'open':
           console.log('open', '打开')

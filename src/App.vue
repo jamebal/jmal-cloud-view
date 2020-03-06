@@ -19,10 +19,10 @@ export default {
     $route: function(to, from) {
       const path = to.path
       if (path.indexOf('/login') < 0) {
-        if (path.indexOf('_m') > 0 && this.$pc) {
+        if (path === '/_m' && this.$pc) {
           this.$router.push(path.split('_m')[0])
-        } else if (path.indexOf('_m') < 0 && !this.$pc) {
-          this.$router.push(path + '_m')
+        } else if (path === '/' && !this.$pc) {
+          this.$router.push('/_m')
         }
       }
     }

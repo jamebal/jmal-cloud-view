@@ -624,7 +624,7 @@
             }
           })
           if(isPushLink){
-            this.$router.push(`/_m?path=${this.path}`)
+            this.$router.push(`/_m?path=${encodeURIComponent(this.path)}`)
           }
           setPath(this.path, this.pathList)
           this.getFileList()
@@ -762,14 +762,20 @@
             item2['index'] = this.pathList.length
             this.pathList[this.pathList.length - 1] = item1
             this.pathList.push(item2)
-            this.$router.push(`/_m?path=${this.path}`)
+            this.$router.push(`/_m?path=${encodeURIComponent(this.path)}`)
             setPath(this.path, this.pathList)
             this.getFileList()
           } else {
-            // 打开文件
-            const fileIds = [row.id]
-            const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-            window.open(url, '_blank')
+            if(row.contentType.includes('text')){
+              // let routeData = this.$router.resolve({path: '/public/p',query: {mark: row.id}})
+              // window.open(routeData.href, '_blank');
+              this.$router.push(`/public/p?mark=${row.id}`)
+            }else{
+              // 打开文件
+              const fileIds = [row.id]
+              const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+              window.open(url, '_blank')
+            }
           }
         }
       },

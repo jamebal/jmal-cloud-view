@@ -117,10 +117,10 @@ export const constantRoutes = [
     component: Layout,
     children: [
       {
-        path: 'index',
+        path: 'editor',
         name: 'markdown',
         component: () => import('@/views/markdown/index'),
-        meta: { title: '创建文档', icon: 'md' }
+        // meta: { title: '创建文档', icon: 'md' }
       }
     ]
   },
