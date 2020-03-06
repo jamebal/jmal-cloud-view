@@ -55,7 +55,7 @@ service.interceptors.response.use(
         })
       }else{
         Message({
-          message: '服务器开小差了...',
+          message: res.message || '服务器开小差了...',
           type: 'error',
           duration: 3 * 1000
         })

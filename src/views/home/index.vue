@@ -621,7 +621,7 @@ export default {
           if (!this.$route.query.path){
             this.$router.push(`/_m`)
           } else {
-            this.$router.push(`?path=${this.path}`)
+            this.$router.push(`?path=${encodeURIComponent(this.path)}`)
           }
         }
         setPath(this.path, this.pathList)
@@ -1393,18 +1393,20 @@ export default {
           this.pathList.push(item2)
           setPath(this.path, this.pathList)
           this.pagination.pageIndex = 1
-          console.log(this.path)
-          this.$router.push(`?path=${this.path}`)
+          const path = encodeURIComponent(this.path);
+          this.$router.push(`?path=${path}`)
           this.getFileList()
         }
       } else {
         if(row.contentType.includes('text')){
+          // let routeData = this.$router.resolve({path: '/public/p',query: {mark: row.id}})
+          // window.open(routeData.href, '_blank');
           this.$router.push(`/public/p?mark=${row.id}`)
         }else{
           // 打开文件
           const fileIds = [row.id]
           const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          window.open(url, '_blank')
+          window.open(url, '_self')
         }
       }
     }

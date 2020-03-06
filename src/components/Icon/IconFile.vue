@@ -6,7 +6,7 @@
             <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />
             <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />
             <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt" />
-            <el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.path+'/'+item.name"></el-avatar>
+            <el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>
             <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
             <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />
             <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />
