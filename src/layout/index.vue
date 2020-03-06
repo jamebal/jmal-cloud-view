@@ -50,20 +50,15 @@ export default {
   },
   mounted() {
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
-      this.isShow = false
       window.pc = false
     } else {
-      this.isShow = true
       window.pc = true
     }
 
-    console.log(getToken())
     if(getToken()){
-      this.isShow = true
-      window.pc = true
+      this.isShow = window.pc;
     }else{
       this.isShow = false
-      window.pc = false
     }
   },
   methods: {
