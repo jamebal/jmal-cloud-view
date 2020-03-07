@@ -18,6 +18,8 @@
         :style="{'height': clientHeight+'px'}"
         :imageFilter="imageFilter"
         @save="save"
+        @imgAdd="$imgAdd"
+        @imgDel="$imgDel"
       />
     </el-main>
   </div>
@@ -25,6 +27,7 @@
 
 <script>
   import markdownApi from '@/api/markdown-api'
+  import uploadApi from '@/api/upload-api'
   export default {
     data() {
       return {
@@ -53,12 +56,36 @@
       }
     },
     methods: {
+      $imgAdd(pos, $file) {
+        // 第一步.将图片上传到服务器.
+        console.log('pos',pos,'$file',$file)
+        let data = new FormData();
+        data.append('filename', this.filename)
+        data.append('username', this.$store.state.user.name)
+        data.append('userId', this.$store.state.user.userId);
+        data.append('file', $file);
+        uploadApi.uploadImage(data).then((res) => {
+          // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
+          /**
+           * $vm 指为mavonEditor实例，可以通过如下两种方式获取
+           * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
+           * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
+           */
+          const url = process.env.VUE_APP_BASE_FILE_API + '/public/image/' + res.data
+          console.log(url)
+          this.$refs.md.$img2Url(pos, url);
+        })
+      },
+      $imgDel() {
+
+      },
       // 所有操作都会被解析重新渲染
       change(value, render){
+        console.log('value',value)
         // render 为 markdown 解析后的结果[html]
         this.html = render;
       },
-      save() {
+      save(){
         if(this.editStatus){
           this.update()
         }else{
@@ -71,6 +98,7 @@
       },
       // add
       add(){
+        console.log("this.content",this.content)
         this.adding = true
         if(this.filename){
           const filename = this.filename + ".md"

@@ -111,5 +111,13 @@ export default {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
     })
-  }
+  },
+  // 上传文档里的图片
+  uploadImage: function(data) {
+    return request({
+      url: 'upload-markdown-image',
+      method: 'post',
+      data: data
+    })
+  },
 }

@@ -2,39 +2,22 @@
   <div>
     <al-back-top></al-back-top>
     <div class="content">
-
       <el-row :gutter="0">
-        <el-col :xs="0" :sm="1" :md="3" :lg="5" :xl="6"><div>{{leftContent}}d</div></el-col>
+        <el-col :xs="0" :sm="1" :md="3" :lg="5" :xl="6"><div style="color: white">c</div></el-col>
         <el-col :xs="24" :sm="22" :md="18" :lg="14" :xl="12">
           <el-main>
             <mavon-editor
               v-if="!showList"
               v-model="content"
               :subfield="false"
-              :boxShadow="false"
+              :boxShadow="true"
+              :toolbarsFlag="false"
               defaultOpen="preview"
-              :navigation="toolbarsFlag"
-              :toolbarsFlag="toolbarsFlag"
-              :toolbars="toolbars"
-              :style="{'height': clientHeight+'px'}"
-              @navigationToggle="navigationToggle"
             />
           </el-main>
         </el-col>
         <el-col :xs="0" :sm="1" :md="3" :lg="5" :xl="6"></el-col>
       </el-row>
-      <!--{{content}}-->
-      <!--<mavon-editor-->
-        <!--v-if="!showList"-->
-        <!--v-model="content"-->
-        <!--:subfield="false"-->
-        <!--:boxShadow="false"-->
-        <!--defaultOpen="preview"-->
-        <!--:navigation="toolbarsFlag"-->
-        <!--:toolbarsFlag="toolbarsFlag"-->
-        <!--:toolbars="toolbars"-->
-        <!--@navigationToggle="navigationToggle"-->
-      <!--/>-->
     </div>
   </div>
 </template>
@@ -46,16 +29,11 @@
     components: { AlBackTop },
     data() {
       return {
-        leftContent: '',
-        backTopTarget: ".content",
         showList: true,
-        toolbars:{
-          navigation: true,
-        },
+        toolbars: null,
         toolbarsFlag: true,
         content:'',
         html:'',
-        clientHeight: document.documentElement.clientHeight - 155,
       }
     },
     mounted() {
@@ -63,10 +41,6 @@
         this.showList = false
       }
       this.getMarkDown()
-      const that = this
-      window.onresize = function temp() {
-        that.clientHeight = document.documentElement.clientHeight - 155
-      }
     },
     methods: {
       onScroll() {
@@ -79,11 +53,8 @@
           this.content = res.data.contentText
           const _this = this
           setTimeout(function () {
-            _this.backTopTarget = ".v-note-wrapper .markdown-body"
-
             if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
               var arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
-              console.log('arr',arr)
               document.documentElement.scrollTop = parseInt(arr[1]);
               document.body.scrollTop = parseInt(arr[1]);
             }
@@ -95,9 +66,6 @@
           doc.addEventListener("scroll", _this.onScroll);
 
         })
-      },
-      navigationToggle(d){
-        console.log(d)
       }
     }
   }
