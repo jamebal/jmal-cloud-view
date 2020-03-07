@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-wechat-title="pageTitle">
     <al-back-top></al-back-top>
     <div class="content">
       <el-row :gutter="0">
@@ -7,6 +7,7 @@
         <el-col :xs="24" :sm="22" :md="18" :lg="14" :xl="12">
           <el-main>
             <mavon-editor
+              ref="md"
               v-if="!showList"
               v-model="content"
               :subfield="false"
@@ -25,10 +26,12 @@
 <script>
   import AlBackTop from "@/components/backtop/AlBackTop";
   import markdownApi from '@/api/markdown-api'
+
   export default {
     components: { AlBackTop },
     data() {
       return {
+        pageTitle: "文章列表",
         showList: true,
         toolbars: null,
         toolbarsFlag: true,
@@ -50,6 +53,8 @@
         markdownApi.getMarkdown({
           mark: this.$route.query.mark
         }).then((res) => {
+          console.log(res)
+          this.pageTitle = res.data.name
           this.content = res.data.contentText
           const _this = this
           setTimeout(function () {
@@ -60,10 +65,12 @@
             }
           },10)
 
-          const doc = document;
+          this.$nextTick(()=>{  // DOM更新之后获取子元素
+            this.pageTitle = document.querySelector("h1").innerText
+          })
+
           // const doc = document.querySelector(".v-show-content");
-          console.log(doc)
-          doc.addEventListener("scroll", _this.onScroll);
+          document.addEventListener("scroll", _this.onScroll);
 
         })
       }

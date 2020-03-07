@@ -98,7 +98,6 @@
       },
       onScroll() {
         const scrollTop = this.getScroll(this.el);
-        console.log(scrollTop)
         this.visible = scrollTop >= this.visibilityHeight;
       },
       handleClick(e) {
