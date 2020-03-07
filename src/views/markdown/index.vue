@@ -57,8 +57,17 @@
     },
     methods: {
       $imgAdd(pos, $file) {
+        console.log('$file.length',$file.size)
+        const maxSize = 1024 * 1024 * 5
+        if($file.size > maxSize){
+          this.$message({
+            message: '请选择小于5M的图片！ 大于5M的图片将无法上传',
+            type: 'warning',
+            duration: 3000,
+          });
+          return
+        }
         // 第一步.将图片上传到服务器.
-        console.log('pos',pos,'$file',$file)
         let data = new FormData();
         data.append('filename', this.filename)
         data.append('username', this.$store.state.user.name)
@@ -72,16 +81,14 @@
            * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
            */
           const url = process.env.VUE_APP_BASE_FILE_API + '/public/image/' + res.data
-          console.log(url)
           this.$refs.md.$img2Url(pos, url);
         })
       },
-      $imgDel() {
-
+      $imgDel(pos, $file) {
+        console.log("del",pos,$file)
       },
       // 所有操作都会被解析重新渲染
       change(value, render){
-        console.log('value',value)
         // render 为 markdown 解析后的结果[html]
         this.html = render;
       },

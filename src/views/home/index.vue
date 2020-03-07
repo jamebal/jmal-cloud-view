@@ -176,7 +176,7 @@
                   >
                   </el-button>
                 </el-col>
-                <span v-else>{{ scope.row.name }}</span>
+                <span v-else class="table-file-name">{{ scope.row.name }}</span>
               </template>
             </el-table-column>
 
@@ -903,7 +903,7 @@ export default {
       console.log('selectRowData', this.selectRowData)
       console.log('rowContextData', this.rowContextData)
     },
-    // cell-style通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
+    // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowRed({ row, column, rowIndex, columnIndex }) {
         if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
           return { cursor: 'pointer', color: "#19ACF9" }
@@ -941,7 +941,6 @@ export default {
     // 单元格点击事件
     cellClick(row, column) {
       clearTimeout(this.Loop);
-      console.log(column.index)
       if(this.editingIndex === -1) {
         const columnIndex = column.index
         if (columnIndex === 0) {
@@ -1616,6 +1615,11 @@ export default {
   /deep/
   .el-table__footer-wrapper{
     position: fixed;
+  }
+
+  /deep/ .el-table__row /deep/.table-file-name:hover {
+    cursor: 'pointer';
+    color: "#19ACF9"
   }
 
   .searchClass{
