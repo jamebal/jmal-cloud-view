@@ -126,13 +126,25 @@ export const constantRoutes = [
   },
 
   {
-    path: '/public/p',
+    path: '/public/article',
     component: Layout,
     children: [
       {
         path: '',
-        name: 'p',
-        component: () => import('@/views/public/p/index'),
+        name: 'article',
+        component: () => import('@/views/public/article/index'),
+      }
+    ]
+  },
+
+  {
+    path: '/public/articles',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'articles',
+        component: () => import('@/views/public/articles/index'),
         meta: { title: '文档列表', icon: 'md-list' }
       }
     ]

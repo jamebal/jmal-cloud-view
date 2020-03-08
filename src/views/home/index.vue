@@ -1423,7 +1423,7 @@ export default {
         if(row.contentType.includes('text')){
           // let routeData = this.$router.resolve({path: '/public/p',query: {mark: row.id}})
           // window.open(routeData.href, '_blank');
-          this.$router.push(`/public/p?mark=${row.id}`)
+          this.$router.push(`/public/article?mark=${row.id}`)
         }else{
           // 打开文件
           const fileIds = [row.id]
