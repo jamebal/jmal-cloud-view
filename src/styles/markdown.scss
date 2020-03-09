@@ -1,0 +1,170 @@
+
+@media only screen and (max-width: 768px){
+  /deep/ .right-bj {
+    right: 0;
+    width: 0;
+  }
+}
+
+@media only screen and (min-width: 768px){
+  /deep/ .right-bj {
+    right: 0;
+    width: 0;
+  }
+}
+
+@media only screen and (min-width: 992px){
+  /deep/ .right-bj {
+    right: 0;
+    width: 0;
+}
+}
+
+@media only screen and (min-width: 1200px){
+  /deep/ .right-bj {
+    right: 0%;
+    width: 18%;
+  }
+}
+
+@media only screen and (min-width: 1920px){
+  /deep/ .right-bj {
+    right: 7%;
+    width: 15%;
+  }
+}
+
+/deep/ li {
+  list-style: none;
+}
+
+/deep/ .right-bj {
+  position: fixed;
+  top: 70px;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1;
+  transition: all .5s;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 12px 0px;
+}
+/deep/ .slimScrollDiv {
+  width: 100%!important;
+  border-right: 1px solid #e8e8e8;
+  //margin-top: 104px;
+}
+/deep/ .slimScrollBar {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+/deep/ .right-menu {
+  width: 100%!important;
+}
+/deep/ .right-menu .toc-header {
+  padding: calc(16px - 2px);
+  color: #2196f3;
+  font-size: 1.2rem;
+}
+/deep/ .right-menu .toc-header span{
+  margin-left: 10px;
+}
+
+/deep/ .right-menu > div {
+  display: block;
+}
+/deep/ .right-menu > div ul {
+  display: block;
+}
+/deep/ .right-menu > div .menu li {
+  line-height: 40px;
+  padding-left: 40px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding-right: 16px;
+  color: #777;
+  position: relative;
+}
+/deep/ .right-menu > div .menu li a {
+  color: #777;
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/deep/ .right-menu > div .menu li:hover a {
+  color: #13C2C2;
+}
+/deep/ .right-menu > div .menu li.current-menu-item {
+  background: #e6f7ff;
+}
+/deep/ .right-menu > div .menu li.current-menu-item a {
+  color: #13C2C2;
+}
+/deep/ .right-menu > div .menu li.current-menu-item:before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2px;
+  background: #13C2C2;
+  height: 100%;
+}
+/deep/ .right-menu > div.titleList {
+  position: relative;
+}
+/deep/ .right-menu > div.titleList li {
+  margin-bottom: 4px;
+  cursor: pointer;
+  padding-right: 16px;
+  font-weight: normal;
+  line-height: 40px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-left: 20px;
+  position: relative;
+  transition: all 0.2s;
+}
+/deep/ .right-menu > div.titleList li a {
+  display: block;
+  transition: all 0.2s;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 14px;
+  color: #333;
+}
+/deep/ .right-menu > div.titleList li.active a {
+  color: #13C2C2;
+}
+/deep/ .right-menu > div.titleList li:hover a {
+  color: #13C2C2;
+}
+/deep/ .right-menu > div.titleList .pl {
+  padding-left: 35px;
+}
+/deep/ .right-menu > div.titleList .pl a {
+  font-size: 13px;
+  color: #777;
+}
+/deep/ .right-menu > div.titleList .j-bj {
+  background: #adccf3;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 0;
+  width: 100%;
+  z-index: -1;
+  transition: all 0.2s;
+}
+/deep/ .right-menu > div.titleList .j-bj:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2.5px;
+  background: #0070fd;
+  height: 100%;
+}
+/deep/ .right-menu > div a {
+  color: #444;
+  font-size: 15px;
+}
