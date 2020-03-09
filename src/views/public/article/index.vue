@@ -1,11 +1,8 @@
 <template>
   <div v-wechat-title="pageTitle">
     <al-back-top></al-back-top>
-    <div class="content">
-      <el-row :gutter="0">
-        <el-col :xs="0" :sm="1" :md="4" :lg="5" :xl="6"><div style="color: white">c</div></el-col>
-        <el-col :xs="24" :sm="22" :md="16" :lg="14" :xl="12">
-          <el-main class="main-content">
+    <div class="body-wrapper">
+          <el-main class="l_main">
             <mavon-editor
               ref="md"
               v-if="!showList"
@@ -16,22 +13,19 @@
               defaultOpen="preview"
             />
           </el-main>
-        </el-col>
-        <el-col :xs="0" :sm="1" :md="4" :lg="5" :xl="6">
-        </el-col>
-      </el-row>
-      <div v-show="titleList.length > 0" class="right-bj">
-        <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 662px;">
-          <div class="right-menu" id="inner-content-div" style="overflow: hidden; width: auto; height: 662px;">
-            <div class="toc-content">
-              <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
-            </div>
-            <div class="j-titleList titleList">
-              <div class="j-bj" style="height: 40px; top: 0px;"></div>
+
+          <div v-show="titleList.length > 0" class="right-bj">
+            <div class="slimScrollDiv">
+              <div class="right-menu">
+                <div class="toc-content">
+                  <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
+                </div>
+                <div class="j-titleList titleList">
+                  <div class="j-bj" style="height: 40px; top: 0;"></div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -139,37 +133,35 @@
 <style lang="scss" scoped>
   @import "src/styles/markdown";
 
+  .body-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
   /deep/ .v-note-wrapper {
     position: unset;
   }
 
-  @media only screen and (max-width: 768px){
-    .el-main {
-      padding: 20px 0px 20px 0px;
+  .l_main {
+    width: calc(100% - 1 * 285px);
+    float: left;
+  }
+
+  @media screen and (max-width: 1440px){
+    .l_main {
+      width: calc(100% - 1 * 240px);
     }
   }
 
-  @media only screen and (min-width: 768px){
-    .el-main {
-      padding: 20px;
-    }
-  }
-
-  @media only screen and (min-width: 992px){
-    .el-main {
-      padding: 20px;
-    }
-  }
-
-  @media only screen and (min-width: 1200px){
-    .el-main {
-      padding: 20px;
-    }
-  }
-
-  @media only screen and (min-width: 1920px){
-    .el-main {
-      padding: 20px;
+  @media screen and (max-width: 768px){
+    .l_main {
+      width: 100%;
     }
   }
 

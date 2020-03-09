@@ -1,36 +1,88 @@
+/deep/ .right-bj {
+  //top: 70px;
+  //background: rgba(255, 255, 255, 0.8);
+  //z-index: 1;
+  transition: all .5s;
+  //border-radius: 5px;
+  //box-shadow: rgba(0, 0, 0, 0.1) 0 2px 12px 0;
+  width: 285px;
+  float: right;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/deep/ .slimScrollDiv {
+  border-right: 1px solid #e8e8e8;
+  -webkit-transition: all .5s;
+  transition: all .5s;
+  border-radius: 5px;
+  -webkit-box-shadow: rgba(0,0,0,0.1) 0 2px 12px 0;
+  box-shadow: rgba(0,0,0,0.1) 0 2px 12px 0;
+  width: 285px;
+  top: 70px;
+  //bottom: 20px;
+  overflow: auto;
+  float: right;
+  position: fixed;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
 
 @media only screen and (max-width: 768px){
   /deep/ .right-bj {
-    right: 0;
-    width: 0;
+    width: 240px;
+  }
+  /deep/ .slimScrollDiv {
+    position: fixed;
+    max-height: 1000px;
+    width: calc(100% - 2 * 16px);
+    top: 64px;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.1),0 4px 8px 0 rgba(0,0,0,.1),0 8px 16px 0 rgba(0,0,0,.1);
+    visibility: hidden;
+    transform: scale(0,0);
+    transform-origin: right top;
   }
 }
 
 @media only screen and (min-width: 768px){
   /deep/ .right-bj {
-    right: 0;
-    width: 0;
+    width: 240px;
+  }
+  /deep/ .slimScrollDiv {
+    width: 240px;
   }
 }
 
 @media only screen and (min-width: 992px){
   /deep/ .right-bj {
-    right: 0;
-    width: 0;
-}
+    width: 240px;
+  }
+  /deep/ .slimScrollDiv {
+    width: 240px;
+  }
 }
 
 @media only screen and (min-width: 1200px){
   /deep/ .right-bj {
-    right: 0%;
-    width: 18%;
+    width: 240px;
+  }
+  /deep/ .slimScrollDiv {
+    width: 240px;
   }
 }
 
 @media only screen and (min-width: 1920px){
   /deep/ .right-bj {
-    right: 7%;
-    width: 15%;
+    width: 285px;
+  }
+  /deep/ .slimScrollDiv {
+    width: 285px;
   }
 }
 
@@ -38,25 +90,13 @@
   list-style: none;
 }
 
-/deep/ .right-bj {
-  position: fixed;
-  top: 70px;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 1;
-  transition: all .5s;
-  border-radius: 5px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 12px 0px;
-}
-/deep/ .slimScrollDiv {
-  width: 100%!important;
-  border-right: 1px solid #e8e8e8;
-  //margin-top: 104px;
-}
 /deep/ .slimScrollBar {
   background: rgba(0, 0, 0, 0.3) !important;
 }
 /deep/ .right-menu {
   width: 100%!important;
+  display: flex;
+  flex-direction: column;
 }
 /deep/ .right-menu .toc-header {
   padding: calc(16px - 2px);
