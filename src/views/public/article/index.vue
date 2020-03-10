@@ -64,12 +64,22 @@
         }).then((res) => {
           this.pageTitle = res.data.name
           this.content = res.data.contentText
+          this.content.r
+          let n = this.content.replace(/(?:!\[(.*?)\]\((.*?)\))/,(matched,capture1,capture2,capture3,capture4)=>{
+            console.log("matched:"+matched,"capture1:"+capture1,"capture2:"+capture2,"capture3:"+capture3);
+                console.log(capture3)
+                if(!capture2.includes("/file/public")){
+                  return "/file/public/view?relativePath="+path + capture2 +"&userId="+userId;
+                }
+          })
+          console.log(n);
+          // console.log(this.content.match(/(?:!\[(.*?)\]\((.*?)\))/));
           let path = res.data.path
           let userId = res.data.userId
           setTimeout(function () {
             // 刷新界面 回到上次滚动条的位置
             if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
-              var arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
+              const arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
               document.documentElement.scrollTop = parseInt(arr[1]);
               document.body.scrollTop = parseInt(arr[1]);
             }
@@ -82,20 +92,17 @@
               this.pageTitle = hTag.innerText
             }
 
-            setTimeout(function () {
-              let images = document.querySelector(".el-main").getElementsByTagName("img");
-              console.log(images)
-              // let images = $('.el-main').find("img");
-              // console.log(images[0].getAttr("src"))
-              // const oldSrc = images[i].attr("src")
-              // for (let i = 0; i < images.length/2; i++) {
-                // if(!oldSrc.startsWith("/file/public")){
-                //   const newPath = "/file/public/view?relativePath="+path + oldSrc +"&userId="+userId;
-                //   console.log(newPath)
-                //   images[i].attr("src",newPath)
-                // }
-              // }
-            })
+            // setTimeout(function () {
+            //   let images = document.querySelector(".el-main").getElementsByTagName("img");
+            //   console.log(images.item(1).getAttribute('src'))
+            //   for (let i = 0; i < images.length/2; i++) {
+            //     const oldSrc = images.item(i).getAttribute('src')
+            //     if(!oldSrc.includes("/file/public")){
+            //       const newPath = "/file/public/view?relativePath="+path + oldSrc +"&userId="+userId;
+            //       images.item(i).src = newPath
+            //     }
+            //   }
+            // },0)
 
             let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>/g);
             if(a && a.length >0 ){
