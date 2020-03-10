@@ -64,8 +64,10 @@
         }).then((res) => {
           this.pageTitle = res.data.name
           this.content = res.data.contentText
-          const _this = this
+          let path = res.data.path
+          let userId = res.data.userId
           setTimeout(function () {
+            // 刷新界面 回到上次滚动条的位置
             if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
               var arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
               document.documentElement.scrollTop = parseInt(arr[1]);
@@ -79,6 +81,21 @@
             if(hTag){
               this.pageTitle = hTag.innerText
             }
+
+            setTimeout(function () {
+              let images = document.querySelector(".el-main").getElementsByTagName("img");
+              console.log(images)
+              // let images = $('.el-main').find("img");
+              // console.log(images[0].getAttr("src"))
+              // const oldSrc = images[i].attr("src")
+              // for (let i = 0; i < images.length/2; i++) {
+                // if(!oldSrc.startsWith("/file/public")){
+                //   const newPath = "/file/public/view?relativePath="+path + oldSrc +"&userId="+userId;
+                //   console.log(newPath)
+                //   images[i].attr("src",newPath)
+                // }
+              // }
+            })
 
             let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>/g);
             if(a && a.length >0 ){
