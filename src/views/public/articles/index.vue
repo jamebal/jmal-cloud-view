@@ -130,10 +130,6 @@
         })
       }
     },
-    destroyed() {
-      $(window).unbind("scroll")
-      $('.j-titleList li').unbind("click");
-    }
   }
 </script>
 <style lang="scss" scoped>

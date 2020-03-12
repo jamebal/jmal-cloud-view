@@ -16,7 +16,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie'
   import throttle from 'throttle-debounce/throttle';
 
   const cubic = value => Math.pow(value, 3);

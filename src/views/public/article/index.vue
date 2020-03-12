@@ -1,5 +1,8 @@
 <template>
   <div v-wechat-title="pageTitle">
+    <transition name="fade">
+      <al-loading v-if="isLoading"></al-loading>
+    </transition>
     <al-back-top></al-back-top>
     <div class="body-wrapper">
           <el-main class="l_main">
@@ -10,6 +13,7 @@
               :subfield="false"
               :boxShadow="true"
               :toolbarsFlag="false"
+              codeStyle="atom-one-dark"
               defaultOpen="preview"
             />
           </el-main>
@@ -31,13 +35,16 @@
 </template>
 
 <script>
+  import AlLoading from "@/components/loading/AlLoading";
   import AlBackTop from "@/components/backtop/AlBackTop";
   import markdownApi from '@/api/markdown-api'
+  import { addCodeBtn } from '@/assets/js/mavon-line'
   import $ from 'jquery'
   export default {
-    components: { AlBackTop },
+    components: { AlBackTop, AlLoading },
     data() {
       return {
+        isLoading: true,
         pageTitle: "文章列表",
         showList: true,
         toolbars: null,
@@ -48,7 +55,6 @@
       }
     },
     mounted() {
-      console.log(777)
       if(this.$route.query.mark){
         this.getMarkDown()
         this.showList = false
@@ -64,18 +70,6 @@
         }).then((res) => {
           this.pageTitle = res.data.name
           this.content = res.data.contentText
-          this.content.r
-          let n = this.content.replace(/(?:!\[(.*?)\]\((.*?)\))/,(matched,capture1,capture2,capture3,capture4)=>{
-            console.log("matched:"+matched,"capture1:"+capture1,"capture2:"+capture2,"capture3:"+capture3);
-                console.log(capture3)
-                if(!capture2.includes("/file/public")){
-                  return "/file/public/view?relativePath="+path + capture2 +"&userId="+userId;
-                }
-          })
-          console.log(n);
-          // console.log(this.content.match(/(?:!\[(.*?)\]\((.*?)\))/));
-          let path = res.data.path
-          let userId = res.data.userId
           setTimeout(function () {
             // 刷新界面 回到上次滚动条的位置
             if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
@@ -91,18 +85,6 @@
             if(hTag){
               this.pageTitle = hTag.innerText
             }
-
-            // setTimeout(function () {
-            //   let images = document.querySelector(".el-main").getElementsByTagName("img");
-            //   console.log(images.item(1).getAttribute('src'))
-            //   for (let i = 0; i < images.length/2; i++) {
-            //     const oldSrc = images.item(i).getAttribute('src')
-            //     if(!oldSrc.includes("/file/public")){
-            //       const newPath = "/file/public/view?relativePath="+path + oldSrc +"&userId="+userId;
-            //       images.item(i).src = newPath
-            //     }
-            //   }
-            // },0)
 
             let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>/g);
             if(a && a.length >0 ){
@@ -139,6 +121,12 @@
                 return false
               });
             }
+
+            const _this = this
+            setTimeout(function () {
+              addCodeBtn();
+              _this.isLoading = false
+            },100)
 
           })
 
