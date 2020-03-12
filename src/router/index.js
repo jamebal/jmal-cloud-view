@@ -126,7 +126,7 @@ export const constantRoutes = [
   },
 
   {
-    path: '/public/article',
+    path: '/public/articles/article',
     component: Layout,
     children: [
       {

@@ -91,7 +91,9 @@
               a = a.splice(a.length/2,a.length)
               for (let i = 0; i < a.length; i++) {
                 a[i] = a[i].replace(/id="/g, 'href="#')
-                if (a[i].indexOf('h2') != -1) {
+                if (a[i].indexOf('h1') === 1) {
+                  a[i] = '<li first>' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
+                }else if (a[i].indexOf('h2') !== -1) {
                   a[i] = '<li class="pl">' + a[i].replace(/<h2>|<\/h2>/g, '') + '</li>'
                 } else {
                   a[i] = '<li>' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
@@ -115,9 +117,15 @@
 
               let $root = $('html, body');
               $('.j-titleList li').on("click", function () {
+                console.log(typeof($(this).attr("first"))!=="undefined")
+                let top = 20
+                if (typeof($(this).attr("first"))!=="undefined") {
+                  // 点击第一个目录
+                  top = 50
+                }
                 $root.animate({
-                  scrollTop: $($.attr(this.querySelector("a"), 'href')).offset().top - 20
-                }, 400);
+                  scrollTop: $($.attr(this.querySelector("a"), 'href')).offset().top - top
+                }, 400)
                 return false
               });
             }
@@ -126,7 +134,7 @@
             setTimeout(function () {
               addCodeBtn();
               _this.isLoading = false
-            },100)
+            },150)
 
           })
 
