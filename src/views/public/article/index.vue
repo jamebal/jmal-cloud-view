@@ -4,6 +4,16 @@
       <al-loading v-if="isLoading"></al-loading>
     </transition>
     <al-back-top></al-back-top>
+
+    <div id="top" style="display: block;" class="animateIn">
+      <div class="bar" style="width: 0;"></div>
+      <div class="navigation animated fadeIn fast delay-1s">
+        <svg-icon id="home-icon" class="icon-home" icon-class="tab-folder" ></svg-icon>
+        <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
+        <h3 class="subtitle" style="display: block;">深入理解JVM</h3>
+      </div>
+      <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
+    </div>
     <div class="body-wrapper">
           <el-main class="l_main">
             <mavon-editor
@@ -52,7 +62,8 @@
         content:'',
         html:'',
         titleList: [],
-        tocMaxHeight: 500
+        tocMaxHeight: 500,
+        befterScrollTop: 0,
       }
     },
     mounted() {
@@ -60,10 +71,13 @@
         this.getMarkDown()
         this.showList = false
       }
+
     },
     methods: {
       onScroll() {
-        // console.log(document.documentElement.scrollTop)
+        console.log("befterScrollTop")
+        // let befterScrollTop = document.documentElement.scrollTop;
+        // console.log("befterScrollTop",befterScrollTop)
       },
       getMarkDown() {
         markdownApi.getMarkdown({
@@ -92,7 +106,7 @@
               a = a.splice(a.length/2,a.length)
               for (let i = 0; i < a.length; i++) {
                 a[i] = a[i].replace(/id="/g, 'href="#')
-                if (a[i].indexOf('h1') === 1) {
+                if (i ===0 && a[i].indexOf('h1') !== -1) {
                   a[i] = '<li first>' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
                 }else if (a[i].indexOf('h2') !== -1) {
                   a[i] = '<li class="pl">' + a[i].replace(/<h2>|<\/h2>/g, '') + '</li>'
@@ -107,12 +121,52 @@
               for (let i = 0; i < a.length; i++) {
                 a[i] = a[i].replace(/.*?#(.*)".*/g, '$1')
               }
-              $(window).on("scroll",function () {
+
+              let beforeScrollTop = document.documentElement.scrollTop;
+              let fn = fn || function (direction) {
+                console.log(direction)
+                // 判断是上滑显示,下滑隐藏
+                if(direction === 'down'){
+                  $('#top').removeClass('animateIn')
+                  $('#top').addClass('animateOut')
+                }
+                if(direction === 'up'){
+                  $('#top').removeClass('animateOut')
+                  $('#top').addClass('animateIn')
+                }
+              };
+
+              $(window).on("scroll",function (event) {
                 for (let i = 0; i < a.length; i++) {
                   if ($(window).scrollTop() > $('#' + a[i]).offset().top - 100 || $(this).scrollTop() + $(this).height() == $(document).height()) {
                     $('.j-titleList').find('li').eq(i).addClass('active').siblings('li').removeClass('active');
                     $('.j-bj').css('top', i * 44)
                   }
+                }
+
+                // 判断是上滑还是下滑
+                var afterScrollTop = document.documentElement.scrollTop;
+                let delta = afterScrollTop - beforeScrollTop;
+                beforeScrollTop = afterScrollTop;
+                var scrollTop = $(this).scrollTop();
+                var scrollHeight = $(document).height();
+                var windowHeight = $(this).height();
+
+                var progress = (afterScrollTop/scrollHeight) * 100
+                // 改变top bar 进度条
+                document.querySelector(".scrollbar").style.width = progress +'%'
+
+                if (scrollTop + windowHeight > scrollHeight - 10) {  //滚动到底部执行事件
+                  fn('bottom');
+                  return;
+                }
+                if (afterScrollTop < 10 || afterScrollTop > $(document.body).height - 10) {
+                  fn('up');
+                } else {
+                  if (Math.abs(delta) < 10) {
+                    return false;
+                  }
+                  fn(delta > 0 ? "down" : "up");
                 }
               })
 
@@ -136,11 +190,8 @@
               addCodeBtn();
               _this.isLoading = false
             },150)
-
           })
-
           // const doc = document.querySelector(".v-show-content");
-          // document.addEventListener("scroll", _this.onScroll);
 
         })
       }
