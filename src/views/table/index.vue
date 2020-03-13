@@ -3,7 +3,6 @@
 </template>
 
 <script>
-  import showdown from "showdown"
   converter.setOption('tables', true);    // 将表格显示出来
   export default {
     data() {

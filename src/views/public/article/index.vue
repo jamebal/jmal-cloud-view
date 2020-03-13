@@ -20,7 +20,7 @@
 
           <div v-show="titleList.length > 0" class="right-bj">
             <div class="slimScrollDiv">
-              <div class="right-menu">
+              <div class="right-menu" style="max-height: 700px">
                 <div class="toc-content">
                   <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
                 </div>
@@ -51,7 +51,8 @@
         toolbarsFlag: true,
         content:'',
         html:'',
-        titleList: []
+        titleList: [],
+        tocMaxHeight: 500
       }
     },
     mounted() {

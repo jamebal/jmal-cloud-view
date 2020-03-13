@@ -35,6 +35,16 @@ npm install
 # develop
 npm run dev
 ```
+
+### 4. Build
+```bush
+# build for test environment
+npm run build:stage
+
+# build for production environment
+npm run build:prod
+```
+
 This will automatically open http://localhost:9528
 
 ## Browsers support

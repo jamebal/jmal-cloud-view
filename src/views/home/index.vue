@@ -1420,14 +1420,14 @@ export default {
         }
       } else {
         if(row.contentType.includes('text')){
-          // let routeData = this.$router.resolve({path: '/public/p',query: {mark: row.id}})
+          // let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
           // window.open(routeData.href, '_blank');
           this.$router.push(`/public/articles/article?mark=${row.id}`)
         }else{
           // 打开文件
           const fileIds = [row.id]
           const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          window.open(url, '_self')
+          window.open(url, '_blank')
         }
       }
     }
