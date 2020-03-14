@@ -65,7 +65,7 @@
       this.container.addEventListener('scroll', this.throttledScrollHandler);
 
       window.onbeforeunload = function () {
-        var scrollPos;
+        let scrollPos;
         if (typeof window.pageYOffset != 'undefined') {
           scrollPos = window.pageYOffset;
         }
@@ -138,3 +138,6 @@
     }
   };
 </script>
+<style lang="scss" scoped>
+
+</style>

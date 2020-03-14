@@ -8,9 +8,9 @@
     <div id="top" style="display: block;" class="animateIn">
       <div class="bar" style="width: 0;"></div>
       <div class="navigation animated fadeIn fast delay-1s">
-        <svg-icon id="home-icon" class="icon-home" icon-class="tab-folder" ></svg-icon>
+        <a href="/public/articles"><svg-icon id="home-icon" class="icon-home" icon-class="home" ></svg-icon></a>
         <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
-        <h3 class="subtitle" style="display: block;">深入理解JVM</h3>
+        <h3 class="subtitle" style="display: block;">{{pageTitle}}</h3>
       </div>
       <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
     </div>
@@ -41,6 +41,9 @@
             </div>
           </div>
     </div>
+    <footer class="clearfix">
+      <div class="copyright"><p><a href="http://blog.jmal.top">Copyright © 2020 jmal</a></p></div>
+    </footer>
   </div>
 </template>
 
@@ -55,7 +58,7 @@
     data() {
       return {
         isLoading: true,
-        pageTitle: "文章列表",
+        pageTitle: "文章",
         showList: true,
         toolbars: null,
         toolbarsFlag: true,
@@ -83,16 +86,17 @@
         markdownApi.getMarkdown({
           mark: this.$route.query.mark
         }).then((res) => {
-          this.pageTitle = res.data.name
+          const filename = res.data.name
+          this.pageTitle = filename.substring(0,filename.length - res.data.suffix.length-1)
           this.content = res.data.contentText
-          setTimeout(function () {
-            // 刷新界面 回到上次滚动条的位置
-            if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
-              const arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
-              document.documentElement.scrollTop = parseInt(arr[1]);
-              document.body.scrollTop = parseInt(arr[1]);
-            }
-          },10)
+          // setTimeout(function () {
+          //   // 刷新界面 回到上次滚动条的位置
+          //   if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
+          //     const arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
+          //     document.documentElement.scrollTop = parseInt(arr[1]);
+          //     document.body.scrollTop = parseInt(arr[1]);
+          //   }
+          // },10)
 
           this.$nextTick(()=>{  // DOM更新之后获取子元素
 
@@ -173,10 +177,10 @@
               let $root = $('html, body');
               $('.j-titleList li').on("click", function () {
                 console.log(typeof($(this).attr("first"))!=="undefined")
-                let top = 20
+                let top = 70
                 if (typeof($(this).attr("first"))!=="undefined") {
                   // 点击第一个目录
-                  top = 50
+                  top = 100
                 }
                 $root.animate({
                   scrollTop: $($.attr(this.querySelector("a"), 'href')).offset().top - top
@@ -187,7 +191,11 @@
 
             const _this = this
             setTimeout(function () {
-              addCodeBtn();
+              // 添加行数
+              const clientWidth = document.documentElement.clientWidth;
+              if(clientWidth > 425){
+                addCodeBtn();
+              }
               _this.isLoading = false
             },150)
           })
@@ -204,37 +212,11 @@
 </script>
 <style lang="scss" scoped>
   @import "src/styles/markdown";
-
-  .body-wrapper {
-    position: relative;
-    display: flex;
-    width: 100%;
-    max-width: 1080px;
-    margin: 0 auto;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: stretch;
+  @import "src/styles/articles";
+  /deep/ .el-backtop {
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(1px);
+    background-color: rgba(255,255,255,0.5);
+    color: #272936;
   }
-
-  /deep/ .v-note-wrapper {
-    position: unset;
-  }
-
-  .l_main {
-    width: calc(100% - 1 * 285px);
-    float: left;
-  }
-
-  @media screen and (max-width: 1440px){
-    .l_main {
-      width: calc(100% - 1 * 240px);
-    }
-  }
-
-  @media screen and (max-width: 768px){
-    .l_main {
-      width: 100%;
-    }
-  }
-
 </style>
