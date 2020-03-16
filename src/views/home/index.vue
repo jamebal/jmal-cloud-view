@@ -644,9 +644,11 @@ export default {
 
       target.ondragenter = function(e){
         clearTimeout(loop)
+        console.log('ondragenter',e,e.relatedTarget,e.relatedTarget.rowIndex)
         // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
         let throughRow = judgThroughDom(e)
         if(throughRow){
+          console.log('拖动进入目标元素'+throughRow.rowIndex);
           // console.log('throughRow',throughRow)
           if(dragIndex !== throughRow.rowIndex){
             if(dragIndex > -1){
@@ -684,6 +686,7 @@ export default {
         clearTimeout(loop)
         let throughRow = judgThroughDom(e)
         if(throughRow){
+          console.log('拖动离开目标元素'+throughRow.rowIndex);
           if(dragIndex !== throughRow.rowIndex){
             console.log('拖动离开目标元素'+throughRow.rowIndex);
             // selectRow.style.height = 'unset'
