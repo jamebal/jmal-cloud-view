@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container" v-resize="containerResize">
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
@@ -52,11 +52,16 @@
         </el-breadcrumb-item>
       </transition-group>
       <div class="search-content">
-        <el-input placeholder="搜索您的文件" class="searchClass" v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
-          <el-button slot="append" @click="searchFile(searchFileName)">
-            <svg-icon icon-class="search" />
-          </el-button>
-        </el-input>
+        <div class="searchClass">
+          <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
+            <el-button slot="prepend" @click="searchFile(searchFileName)">
+              <svg-icon icon-class="search" />
+            </el-button>
+            <el-button slot="append" @click="changeVmode">
+              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
+            </el-button>
+          </el-input>
+        </div>
       </div>
     </el-breadcrumb>
 
@@ -114,7 +119,9 @@
 
     <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
+    <!--list布局-->
     <el-table
+      v-show="!grid"
       ref="fileListTable"
       v-loading="tableLoading"
       :max-height="clientHeight"
@@ -231,6 +238,36 @@
             </el-table-column>
           </template>
     </el-table>
+
+    <!--grid布局-->
+    <div v-show="grid" v-loading="tableLoading"
+         element-loading-text="文件加载中"
+         element-loading-spinner="el-icon-loading"
+         element-loading-background="#f6f7fa88">
+      <div class="checkbox-group-header">
+        <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">{{indexList.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
+        <el-divider></el-divider>
+      </div>
+
+      <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
+        <van-grid square :column-num="gridColumnNum" :gutter="20" :border="false">
+          <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
+          >
+            <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                 :style="{'background': indexList.includes(index)?'#baebff91':'','cursor':indexList.length>0?'default':'pointer'}"
+                 @mouseover="gridItemHover(item,index)"
+                 @mouseout="gridItemOut(item,index)"
+                 @click="gridItemClick(item)"
+                 @contextmenu.prevent="rowContextmenu(item)"
+            >
+              <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
+              <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
+             <span class="grid-item-text">{{item.name}}</span>
+            </div>
+          </van-grid-item>
+        </van-grid>
+      </van-checkbox-group>
+    </div>
     <el-pagination
       background
       layout="prev, pager, next"
@@ -261,6 +298,10 @@
 </template>
 
 <script>
+import 'vant/lib/grid/style';
+import 'vant/lib/grid-item/style';
+import 'vant/lib/checkbox/style';
+import 'vant/lib/checkbox-group/style';
 /* eslint-disable */
 import { mapGetters } from 'vuex'
 // import defaultSettings from '@/settings'
@@ -270,10 +311,10 @@ import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
 import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "../../components/Icon/IconFile";
-import vuedraggable from 'vuedraggable';
 
 export default {
-  components: { IconFile, BreadcrumbFilePath, vuedraggable},
+  components: { IconFile, BreadcrumbFilePath,
+  },
   data() {
     return {
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
@@ -376,6 +417,12 @@ export default {
       dragLoop: null,
       positionX:0,
       positionY:0,
+      grid: true,
+      vmode: 'list',
+      gridColumnNum: -1,
+      gridHoverItemIndex: -1,
+      gridHoverIntermediate: -1,
+      allChecked: false
     }
   },
   computed: {
@@ -396,26 +443,56 @@ export default {
     })
 
     // 加载路径
-    const pathList = getPathList()
-    if (pathList && pathList !== 'undefined') {
-      const res = JSON.parse(pathList)
-      const list = []
-      res.forEach(function(element) {
-        const item0 = {}
-        item0['folder'] = element.folder + ''
-        item0['index'] = element.index
-        list.push(item0)
-      })
-      this.pathList = list
-    }
+    // const pathList = getPathList()
+    // if (pathList && pathList !== 'undefined') {
+    //   const res = JSON.parse(pathList)
+    //   const list = []
+    //   res.forEach(function(element) {
+    //     const item0 = {}
+    //     item0['folder'] = element.folder + ''
+    //     item0['index'] = element.index
+    //     list.push(item0)
+    //   })
+    //   this.pathList = list
+    // }
 
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL);
       window.addEventListener('popstate', this.goBack, false);
     }
+
+
     const that = this
     window.onresize = function temp() {
       that.clientHeight = document.documentElement.clientHeight - 165
+    }
+
+    // 加载布局
+    if(this.$route.query.vmode){
+      this.vmode = this.$route.query.vmode
+      if(this.vmode === 'list'){
+        this.grid = false
+      }else{
+        this.grid = true
+      }
+    }
+
+    // 加载url上的path
+    if(this.$route.query.path){
+      const path = decodeURI(this.$route.query.path)
+      this.pathList.splice(1,1)
+      path.split('/').forEach((pathName,index)=>{
+        if(index > 0){
+          const item = {}
+          item['folder'] = pathName
+          item['index'] = index
+          this.pathList.push(item)
+        }
+      })
+      const item = {}
+      item['folder'] = '+'
+      item['index'] = this.pathList.length
+      this.pathList.push(item)
     }
   },
   destroyed() {
@@ -430,9 +507,71 @@ export default {
         // 聚焦元素
         el.querySelector('input').focus()
       }
+    },
+    resize: { // 指令的名称
+      bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
+        let width = '', height = '';
+        function isReize() {
+          const style = document.defaultView.getComputedStyle(el);
+          if (width !== style.width || height !== style.height) {
+            binding.value();  // 关键
+          }
+          width = style.width;
+          height = style.height;
+        }
+        el.__vueSetInterval__ = setInterval(isReize, 300);
+      },
+      unbind(el) {
+        clearInterval(el.__vueSetInterval__);
+      }
     }
   },
   methods: {
+    gridItemHover(item,index) {
+      this.gridHoverItemIndex = index;
+      this.gridHoverIntermediate = index;
+    },
+    gridItemOut(item,index) {
+      this.gridHoverIntermediate = -1
+      const _this = this
+      setTimeout(function () {
+        if(_this.gridHoverIntermediate !== _this.gridHoverItemIndex){
+          _this.gridHoverItemIndex = -1;
+        }
+      },10)
+    },
+    clickGridItemCheckBox(item,index) {
+      // 同步列表的checkbox
+      if(this.indexList.includes(index)){
+        this.$refs.fileListTable.toggleRowSelection(item,false)
+      }
+    },
+    clickGridAllCheckBox() {
+      if(this.indexList.length !== this.fileList.length){
+        this.$refs.checkboxGroup.toggleAll(true);
+      }else{
+        this.$refs.checkboxGroup.toggleAll();
+        this.$refs.fileListTable.clearSelection();
+      }
+    },
+    gridItemClick(row) {
+      if (this.indexList.length < 1) {
+        if (row.index !== this.editingIndex) {
+          this.fileClick(row)
+          this.editingIndex = -1
+        }
+      } else {
+        if(this.indexList.includes(row.index)){
+          this.$refs.fileListTable.toggleRowSelection(row,false)
+        }else{
+          this.$refs.fileListTable.toggleRowSelection(row,true)
+        }
+      }
+    },
+    containerResize(f) {
+      let clientWidth = document.querySelector(".dashboard-container").clientWidth
+      this.gridColumnNum = clientWidth/120 -2
+    },
     // 行拖拽
     rowDrop() {
       const _this = this
@@ -443,11 +582,21 @@ export default {
 
       // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody');
+
+      if(this.grid){
+        target = document.querySelector('.van-checkbox-group .van-grid')
+      }
+
       let rows = 0;//行数
       setTimeout(function () {
         rows = target.childElementCount
         for (let i = 0; i < target.childElementCount; i++) {
-          const child = target.children[i]
+          let child = target.children[i]
+          // 设置索引,表格自带rowIndex,这里我们设置grid的
+          if(_this.grid){
+            child.children[0].children[0].rowIndex = i
+            child = child.children[0].children[0]
+          }
           child.draggable = true
           // child.style.cursor = 'copy'
           child.ondragstart = function(e){
@@ -466,35 +615,60 @@ export default {
       // 被拖动的元素正在那个容器里
       let dragIndex = -1
 
+      // 判断经过了那个元素
+      let judgThroughDom = function (e) {
+        let throughRow = null
+        // van-grid-item van-grid-item--square
+        // grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square
+        if(_this.grid){
+          if(e.relatedTarget && e.relatedTarget.rowIndex) {
+            return e.relatedTarget
+          }
+        } else {
+          if(e.target.className === 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'){
+            throughRow = e.target
+          } else {
+            if(e.path[0].tagName === 'TD' || e.path[0].tagName === 'DIV'){
+              // throughRow 表示被拖动的元素正在哪一行上
+              throughRow = e.path.find(path => {
+                // console.log(path.rowIndex,path,e,'path.className',path.className)
+                if(path.className === 'el-table__row' || path.className === 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'){
+                  return path
+                }
+              })
+            }
+          }
+          return throughRow
+        }
+      }
+
       target.ondragenter = function(e){
         clearTimeout(loop)
-
         // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
-        if(e.path[0].tagName === 'TD'){
-          // throughRow 表示被拖动的元素正在哪一行上
-          const throughRow = e.path.find(path => {
-            if(path.className === 'el-table__row'){
-              return path
-            }
-          })
+        let throughRow = judgThroughDom(e)
+        if(throughRow){
+          // console.log('throughRow',throughRow)
           if(dragIndex !== throughRow.rowIndex){
             if(dragIndex > -1){
               // 清除上次进入的容器的状态
               const last = target.children[dragIndex];
               clearClass(last)
             }
-            // console.log('拖动进入目标元素'+selectRow.rowIndex);
+            console.log('拖动进入目标元素'+throughRow.rowIndex);
             // 不是自己或未文件夹时才改变状态
             if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder){
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
               throughRow.style.height = 60+'px'
               throughRow.style.backgroundColor = '#e9fdcf'
+              if(_this.grid){
+                throughRow.style.height = 120+'px'
+              }
             }
             dragIndex = throughRow.rowIndex
           }
+          leaveIndex = -1
         }
-        leaveIndex = -1
       }
 
       target.ondragover = function(e){
@@ -508,19 +682,15 @@ export default {
 
       target.ondragleave = function(e){
         clearTimeout(loop)
-        if(e.path[0].tagName === 'TD'){
-          const throughRow = e.path.find(path => {
-            if(path.className === 'el-table__row'){
-              return path
-            }
-          })
+        let throughRow = judgThroughDom(e)
+        if(throughRow){
           if(dragIndex !== throughRow.rowIndex){
-            // console.log('拖动离开目标元素'+selectRow.rowIndex);
+            console.log('拖动离开目标元素'+throughRow.rowIndex);
             // selectRow.style.height = 'unset'
             // selectRow.style.backgroundColor = '#fff'
             // dragIndex = selectRow.rowIndex
           }
-          if(throughRow.rowIndex === 0 || throughRow.rowIndex === rows-1){
+          if(_this.grid){
             // 离开第一行或最后一行
             leaveIndex = throughRow.rowIndex
             loop = setTimeout(function () {
@@ -531,7 +701,19 @@ export default {
                 dragIndex = -1
               }
             },100)
-          }``
+          }
+          // if(throughRow.rowIndex === 0 || throughRow.rowIndex === rows-1){
+          //   // 离开第一行或最后一行
+          //   leaveIndex = throughRow.rowIndex
+          //   loop = setTimeout(function () {
+          //     if(leaveIndex > -1){
+          //       console.log("离开了",leaveIndex)
+          //       const leave = target.children[leaveIndex];
+          //       clearClass(leave)
+          //       dragIndex = -1
+          //     }
+          //   },100)
+          // }
         }
       }
       target.ondrop = function(){
@@ -631,7 +813,8 @@ export default {
           if (!this.$route.query.path){
             this.$router.push(`/_m`)
           } else {
-            this.$router.push(`?path=${encodeURIComponent(this.path)}`)
+            // this.$router.push(`?path=${encodeURIComponent(this.path)}`)
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
           }
         }
         setPath(this.path, this.pathList)
@@ -670,8 +853,15 @@ export default {
     // 新建文件夹
     newFolderNameClick() {
       console.log('user', this.$store.state.user);
-      this.newFolderLoading = true
       if(this.newFolderName){
+        if(/[\/\\"<>\?\*]/gi.test(this.newFolderName)){
+          this.$message({
+            message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+            type: 'warning'
+          });
+          return;
+        }
+        this.newFolderLoading = true
         api.uploadFolder({
           isFolder: true,
           filename: this.newFolderName,
@@ -712,6 +902,18 @@ export default {
     searchFileByKeyWord(key) {
       this.searchFile(key)
     },
+    // 切换布局
+    changeVmode(){
+      this.grid = !this.grid
+      console.log(this.$route.fullPath)
+      this.vmode = 'list'
+      if(this.grid){
+        this.vmode = 'grid'
+      }
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
+      // 改变拖拽目标
+      this.rowDrop()
+    },
     searchFile(key) {
       if(key){
         this.pathList = [{ 'folder': '', index: 0 }]
@@ -725,7 +927,8 @@ export default {
         item2['index'] = 2
         this.pathList.push(item1)
         this.pathList.push(item2)
-        this.$router.push(`?search-file=${key}`)
+        // this.$router.push(`?search-file=${key}`)
+        this.$router.push(`?vmode=${this.vmode}&search-file=${key}`)
         this.tableLoading = true
         api.searchFile({
           userId: this.$store.state.user.userId,
@@ -756,10 +959,12 @@ export default {
         pageSize: this.pagination.pageSize
       }).then(res => {
         this.fileList = res.data
-        this.tableLoading = false
         this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = true
         this.pagination['total'] = res.count
+        this.$nextTick(()=>{
+          this.tableLoading = false
+        })
       }).catch(e => {})
       this.path = row.path + row.name
     },
@@ -773,11 +978,17 @@ export default {
         pageSize: this.pagination.pageSize
       }).then(res => {
         this.fileList = res.data
-        this.tableLoading = false
+        this.fileList.map((item,index) => {
+          item.index = index
+        })
         this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = false
         this.pagination['total'] = res.count
-        // 是列表可拖拽
+        this.$nextTick(()=>{
+          this.containerResize()
+          this.tableLoading = false
+        })
+        // 使列表可拖拽
         this.rowDrop()
       }).catch(e => {})
     },
@@ -790,10 +1001,12 @@ export default {
         pageSize: 30
       }).then(res => {
         this.fileList = res.data
-        this.tableLoading = false
         this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = true
         this.pagination['total'] = res.count
+        this.$nextTick(()=>{
+          this.tableLoading = false
+        })
       }).catch(e => {})
     },
     currentChange(pageIndex) {
@@ -874,6 +1087,11 @@ export default {
         selectTotalSize += item.size
         this.indexList.push(item.index)
       }
+
+      row.forEach(r => {
+        this.$refs.fileListTable.toggleRowSelection(r,true)
+      });
+
       const item_name = this.tableHead[2]
       const item_more = this.tableHead[4]
       const item_size = this.tableHead[5]
@@ -897,11 +1115,11 @@ export default {
         item_date.label = '修改日期'
         item_date.sortable = true
       }
-      // this.$set(this.tableHead, 2, item_name)
-      // this.$set(this.tableHead, 2, item_more)
-      // this.$set(this.tableHead, 5, item_size)
-      console.log('selectRowData', this.selectRowData)
-      console.log('rowContextData', this.rowContextData)
+      if(this.indexList.length == this.fileList.length){
+        this.allChecked = true
+      }else{
+        this.allChecked = false
+      }
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowRed({ row, column, rowIndex, columnIndex }) {
@@ -966,16 +1184,20 @@ export default {
     // 重命名
     rowRename(newFileName, row) {
       if (newFileName) {
-
+        console.log('newFileName', newFileName)
+        if(/[\/\\"<>\?\*]/gi.test(newFileName)){
+          this.$message({
+            message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+            type: 'warning'
+          });
+          return;
+        }
         if (!row.isFolder) {
           const ext = '.' + row.suffix
           if (!newFileName.endsWith(ext)) {
             newFileName += ext
           }
         }
-
-        console.log('newFileName', newFileName)
-
         this.renameLoading = true
         const findIndex = this.fileList.findIndex(item => {
           if(newFileName === item.name){
@@ -1031,7 +1253,7 @@ export default {
       this.showOperationMenus(event)
     },
     // 鼠标右击
-    rowContextmenu(row, column, event) {
+    rowContextmenu(row) {
       if (this.indexList.includes(row.index)) {
         this.menusIsMultiple = true
         this.menus = this.multipleRightMenus
@@ -1396,7 +1618,8 @@ export default {
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
           this.pagination.pageIndex = 1
-          this.$router.push(`?search-file=${row.id}`)
+          // this.$router.push(`?search-file=${row.id}`)
+          this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`)
           this.searchFileAndOpenDir(row)
         } else {
           if(this.path){
@@ -1415,7 +1638,8 @@ export default {
           setPath(this.path, this.pathList)
           this.pagination.pageIndex = 1
           const path = encodeURIComponent(this.path);
-          this.$router.push(`?path=${path}`)
+          console.log(this.vmode)
+          this.$router.push(`?vmode=${this.vmode}&path=${path}`)
           this.getFileList()
         }
       } else {
@@ -1436,252 +1660,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .dashboard {
-    &-container {
-      min-width: 500px;
-      margin: 10px 10px 10px 15px;
-    }
-    &-text {
-      font-size: 30px;
-      line-height: 46px;
-    }
-  }
-
-  .redirect {
-    color: #97a8be;
-  }
-  .no-redirect {
-    color: #000000;
-    cursor: text;
-    margin-right: 10px;
-  }
-
-  /deep/ .el-breadcrumb__separator {
-    margin: 0 0;
-    font-weight: 700;
-    color: #C0C4CC;
-  }
-
-  .el-breadcrumb {
-    font-size: 1rem;
-    line-height: 46px;
-  }
-
-  .button-class {
-    cursor: pointer;
-  }
-
-  .button-class:hover {
-    border-radius: 5px;
-    background-color: #409eff14;
-  }
-
-  .newFileMenu ul {
-    list-style: none;
-    padding-inline-start: 0px;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  .newFileMenu li {
-    cursor: pointer;
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    min-width: 136px;
-  }
-  .newFileMenu li:hover {
-    cursor: pointer;
-    border-radius: 5px;
-    /*background-color: #409eff14;*/
-    background-color: #409eff30;
-  }
-  .newFileMenu li > .menuitem {
-    cursor: pointer;
-    line-height: 38px;
-    margin-left: 10%;
-  }
-  .newFileMenu li > .menuitem > .text {
-    cursor: pointer;
-    margin-left: 8%;font-weight: normal;
-  }
-  .newFileMenu li > .menuitem > .svg-icon {
-    cursor: pointer;
-    font-size: 20px;
-  }
-  /deep/ .el-input-group__append /deep/ .el-loading-spinner {
-    top: 0;
-    margin-top: 0.75rem;
-  }
-  /deep/ .cell /deep/ .el-loading-spinner {
-    top: 0;
-    margin-top: 0.54rem;
-  }
-  /deep/ .cell /deep/ .el-button {
-    padding: 8px 16px;
-    margin-left: 10px;
-  }
-  /deep/ .el-checkbox {
-    cursor: default;
-  }
-  /deep/ .el-checkbox__input {
-    cursor: default;
-  }
-  .el-button.is-circle {
-    border-radius: 50%;
-    padding: 9px;
-  }
-  /deep/.svg-icon {
-    font-size: 28px;
-  }
-  /deep/.el-table thead {
-    color: #4f4f50;
-  }
-  /deep/ .el-table thead .el-table-column--selection .cell {
-    padding-left: 15px;
-  }
-  /deep/.el-table .cell {
-    padding-right: 5px;
-  }
-  /deep/.el-table th {
-    padding: 0 0;
-  }
-  /deep/.el-table td{
-    padding: 1px 0;
-    height: 50px;
-  }
-  /deep/.el-table__header tr, .el-table__header th {
-    height: 40px;
-  }
-  /deep/.el-avatar>img {
-    display: inherit;
-    vertical-align: inherit;
-  }
-  /deep/.el-avatar {
-    background: #ffffff;
-    margin: 7px 0 0 0;
-  }
-  /deep/.el-avatar {
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-  }
-
-  /deep/ .ctx-menu-container {
-    border: 0 solid rgba(0, 0, 0, 0);
-  }
-
-  .menu-triangle-bottom {
-    border: 0 solid rgba(0, 0, 0, 0);
-  }
-
-  .menu-triangle-bottom::after {
-    position: absolute;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    content: '';
-    bottom: -6px;
-    left: 74px;
-    border-style: solid;
-    border-width: 6px;
-    border-color: #fff #fff transparent transparent;
-    -webkit-transform: rotate(135deg);
-    transform: rotate(135deg);
-    -webkit-box-shadow: 1px -1px 1px #cccccc73;
-    box-shadow: 1px -1px 1px #cccccc73;
-  }
-
-  .menu-triangle-top {
-    border: 0 solid rgba(0, 0, 0, 0);
-  }
-
-  .menu-triangle-top::after {
-    position: absolute;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    content: '';
-    top: -6px;
-    left: 74px;
-    border-style: solid;
-    border-width: 6px;
-    border-color: #fff #fff #e0000000 white;
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg);
-    -webkit-box-shadow: 1px -1px 1px #cccccc73;
-    box-shadow: -1px -1px 1px #cccccc73;
-  }
-  /*解决合计不显示的问题*/
-  /deep/
-  .el-table__footer-wrapper{
-    position: fixed;
-  }
-
-  /deep/ .el-table__row /deep/.table-file-name:hover {
-    cursor: 'pointer';
-    color: "#19ACF9"
-  }
-
-  .searchClass{
-    float: right;
-    width: 30%;
-  }
-
-  .el-pagination {
-    float: right;
-    margin-top: 50px;
-  }
-
-  /deep/ .el-dialog__header {
-    padding: 20px 20px 20px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  /deep/ .el-dialog__title {
-    font-size: 16px;
-  }
-  /deep/ .el-dialog__body {
-    padding: 0 20px 0 20px;
-  }
-  /deep/ .el-tree-node__content {
-    height: 35px;
-    /*border-bottom: 1px solid #ccc;*/
-    position: relative;
-  }
-
-  /deep/ .custom-tree-node {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    padding-right: 8px;
-  }
-
-  /deep/ .el-tree-node.is-expanded>.el-tree-node__children {
-    max-height: 500px;
-    overflow: auto;
-  }
-
-  /deep/ .drag-parent-class {
-    z-index: 999;
-    position: fixed;
-    right: 0;
-    left: 0;
-    overflow: auto;
-    margin: 0;
-    display: none;
-    /*-webkit-transition: all .1s ease-in-out 0s;*/
-    /*transition: all .1s ease-in-out 0s;*/
-  }
-
-  /deep/ .drag-parent-class .el-table {
-    background-color: #66cc66;
-  }
-
-  /deep/ .drag-parent-class .el-table tr {
-    background-color: #66cc66;
-  }
+  @import "src/styles/home-index";
 
 </style>
 

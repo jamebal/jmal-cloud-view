@@ -15,7 +15,7 @@ import router from './router'
 import VueWechatTitle from 'vue-wechat-title'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
-import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup} from 'vant';
+import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup, Grid, GridItem} from 'vant';
 
 // mavonEditor
 import mavonEditor from 'mavon-editor'
@@ -70,6 +70,8 @@ Vue.use(Field);
 Vue.use(Overlay);
 Vue.use(Checkbox);
 Vue.use(CheckboxGroup);
+Vue.use(Grid);
+Vue.use(GridItem);
 
 Vue.use(mavonEditor);
 

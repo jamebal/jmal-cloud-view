@@ -1,17 +1,36 @@
 <template>
   <span>
-            <svg-icon v-if="pc && item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 1rem;float: right;margin-left: 1rem;position: absolute;" />
-            <svg-icon v-if="!pc && item.isFavorite" icon-class="menu-favorite-hover" style="font-size: 0.5rem;float: right;margin-left: 2rem;position: absolute;" />
-            <svg-icon v-if="item.isFolder" icon-class="folder" />
-            <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video" />
-            <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio" />
-            <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt" />
-            <el-avatar v-else-if="item.contentType.indexOf('image') > -1" shape="square" :src="imageUrl+item.id"></el-avatar>
-            <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf" />
-            <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word" />
-            <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip" />
-            <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel" />
-            <svg-icon v-else icon-class="file" />
+      <div v-if="item.isFavorite">
+      <div v-if="pc">
+        <svg-icon v-if="!grid" icon-class="menu-favorite-hover"
+                  style="font-size: 1rem;float: right;margin-left: 1rem;position: absolute;"/>
+        <svg-icon v-if="grid" icon-class="menu-favorite-hover"
+                  style="font-size: 1.5rem;right: 0;top: -1rem;position: absolute;z-index: 1;"/>
+      </div>
+      <div v-else>
+        <svg-icon v-if="!grid" icon-class="menu-favorite-hover"
+                  style="font-size: 0.5rem;float: right;margin-left: 2rem;position: absolute;"/>
+        <svg-icon v-if="grid" icon-class="menu-favorite-hover"
+                  style="font-size: 1rem;right: 0;top: -1rem;position: absolute;z-index: 1;"/>
+      </div>
+    </div>
+    <svg-icon v-if="item.isFolder" icon-class="folder"/>
+    <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
+    <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio"/>
+    <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>
+    <div v-else-if="item.contentType.indexOf('image') > -1">
+      <el-image v-if="grid" style="width: 80px;height: 80px;" fit="contain" :src="imageUrl+item.id">
+        <div slot="error" class="image-slot">
+          <svg-icon icon-class="loading-image-error"/>
+        </div>
+      </el-image>
+      <el-avatar v-if="!grid" shape="square" :src="imageUrl+item.id"></el-avatar>
+    </div>
+    <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>
+    <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>
+    <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip"/>
+    <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel"/>
+    <svg-icon v-else icon-class="file"/>
   </span>
 </template>
 <script>
@@ -22,9 +41,13 @@
         type: String,
         default: ''
       },
+      grid: {
+        type: Boolean,
+        default: false
+      },
       item: {
         type: Object,
-        default: function() {
+        default: function () {
           return {}
         }
       }
@@ -36,8 +59,7 @@
     },
     mounted() {
     },
-    methods: {
-    }
+    methods: {}
   }
 </script>
 <style lang="scss" scoped>
