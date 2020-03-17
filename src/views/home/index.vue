@@ -162,7 +162,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" min-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
+            <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" max-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
               <template slot-scope="scope">
                 <el-col v-if="scope.row.index === editingIndex" :span="10">
                   <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
@@ -206,14 +206,14 @@
             <el-table-column
               v-if="index === 5"
               :key="index"
-              width="90"
+              width="200"
               :prop="item.name"
               :index="index"
               :label="item.label"
               :sortable="item.sortable"
               :show-overflow-tooltip="true"
-              align="center"
-              header-align="center"
+              align="left"
+              header-align="left"
             >
               <template slot-scope="scope">
                 <span>{{formatSize(scope.row.size)}}</span>
@@ -223,7 +223,7 @@
             <el-table-column
               v-if="index === 6"
               :key="index"
-              width="150"
+              width="300"
               :prop="item.name"
               :index="index"
               :label="item.label"
@@ -279,19 +279,19 @@
       @current-change="currentChange">
     </el-pagination>
 
-    <div class="drag-parent-class">
-      <table id="drag-table" class="el-table" draggable="true">
-        <tr class="el-table__row">
-          <td rowspan="1" colspan="1" class="el-table_1_column_1  el-table-column--selection"><div class="cell"><label class="el-checkbox"><span class="el-checkbox__input"><span class="el-checkbox__inner"></span><input type="checkbox" aria-hidden="false" class="el-checkbox__original" value=""></span><!----></label></div></td>
-          <td rowspan="1" colspan="1" class="el-table_1_column_2  "><div class="cell"><span data-v-038dedea="" data-v-5954443c=""><!----> <!----> <svg data-v-c8a70580="" data-v-038dedea="" aria-hidden="true" class="svg-icon"><use data-v-c8a70580="" href="#icon-folder"></use></svg></span></div></td>
-          <td rowspan="1" colspan="1" class="el-table_1_column_3  " style=""><div class="cell el-tooltip" style="width: 397px;"><span data-v-5954443c="">超长名称7yuhqjadsyvguhqb3jfjivdycgzuhbjknldsafsbghyejhntcszvfhncszxzxcvsbfd</span></div></td>
-          <td rowspan="1" colspan="1" class="el-table_1_column_4 is-center "><div class="cell"></div></td>
-          <td rowspan="1" colspan="1" class="el-table_1_column_5 is-center "><div class="cell"></div></td>
-          <td rowspan="1" colspan="1" class="el-table_1_column_6 is-center "><div class="cell el-tooltip"><span data-v-5954443c="">306.54M</span></div></td>
-          <td rowspan="1" colspan="1" class="el-table_1_column_7 is-left "><div class="cell el-tooltip"><span data-v-5954443c="">&nbsp;&nbsp;&nbsp;15天前</span></div></td>
-        </tr>
-      </table>
-    </div>
+    <!--<div class="drag-parent-class">-->
+      <!--<table id="drag-table" class="el-table" draggable="true">-->
+        <!--<tr class="el-table__row">-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_1  el-table-column&#45;&#45;selection"><div class="cell"><label class="el-checkbox"><span class="el-checkbox__input"><span class="el-checkbox__inner"></span><input type="checkbox" aria-hidden="false" class="el-checkbox__original" value=""></span>&lt;!&ndash;&ndash;&gt;</label></div></td>-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_2  "><div class="cell"><span data-v-038dedea="" data-v-5954443c="">&lt;!&ndash;&ndash;&gt; &lt;!&ndash;&ndash;&gt; <svg data-v-c8a70580="" data-v-038dedea="" aria-hidden="true" class="svg-icon"><use data-v-c8a70580="" href="#icon-folder"></use></svg></span></div></td>-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_3  " style=""><div class="cell el-tooltip" style="width: 397px;"><span data-v-5954443c="">超长名称7yuhqjadsyvguhqb3jfjivdycgzuhbjknldsafsbghyejhntcszvfhncszxzxcvsbfd</span></div></td>-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_4 is-center "><div class="cell"></div></td>-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_5 is-center "><div class="cell"></div></td>-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_6 is-center "><div class="cell el-tooltip"><span data-v-5954443c="">306.54M</span></div></td>-->
+          <!--<td rowspan="1" colspan="1" class="el-table_1_column_7 is-left "><div class="cell el-tooltip"><span data-v-5954443c="">&nbsp;&nbsp;&nbsp;15天前</span></div></td>-->
+        <!--</tr>-->
+      <!--</table>-->
+    <!--</div>-->
 
   </div>
 
@@ -580,6 +580,10 @@ export default {
       // 被拖动的元素的索引
       let draggedIndex = -1;
 
+      let parentClassName = 'van-grid'
+      let gridItemClassName = 'van-grid-item van-grid-item--square'
+      let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+
       // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody');
 
@@ -594,6 +598,7 @@ export default {
           let child = target.children[i]
           // 设置索引,表格自带rowIndex,这里我们设置grid的
           if(_this.grid){
+            child.rowIndex = i
             child.children[0].children[0].rowIndex = i
             child = child.children[0].children[0]
           }
@@ -602,12 +607,20 @@ export default {
           child.ondragstart = function(e){
             dragged = e.path[0]
             draggedIndex = e.path[0].rowIndex
-            console.log('child'+i+'开始拖拽');
+            // console.log('child'+i+'开始拖拽');
             _this.cellMouseIndex = -1
             dragged.style.cursor = 'grabbing'
           }
           child.ondragend = function(){
-            console.log('child'+i+'拖拽结束');
+            // console.log('child'+i+'拖拽结束');
+            // 清除上次进入的容器的状态
+            const last = target.children[dragIndex];
+            clearClass(last)
+            if(_this.grid){
+              dragged.style.cursor = 'pointer'
+            }else{
+              dragged.style.cursor = 'default'
+            }
           }
         }
       },0)
@@ -616,55 +629,78 @@ export default {
       let dragIndex = -1
 
       // 判断经过了那个元素
-      let judgThroughDom = function (e) {
+      let judgThroughDom = function (e,d) {
         let throughRow = null
-        // van-grid-item van-grid-item--square
-        // grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square
         if(_this.grid){
-          if(e.relatedTarget && e.relatedTarget.rowIndex) {
-            return e.relatedTarget
+          if(e.path[0].className === gridItemChildenClassName){
+            // throughRow 表示被拖动的元素正在哪一行上
+            return throughRow
+          }else{
+            throughRow = e.path.find(path => {
+              if(path.className === gridItemChildenClassName){
+                return path
+              }
+            })
           }
-        } else {
-          if(e.target.className === 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'){
-            throughRow = e.target
-          } else {
-            if(e.path[0].tagName === 'TD' || e.path[0].tagName === 'DIV'){
-              // throughRow 表示被拖动的元素正在哪一行上
-              throughRow = e.path.find(path => {
-                // console.log(path.rowIndex,path,e,'path.className',path.className)
-                if(path.className === 'el-table__row' || path.className === 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'){
-                  return path
-                }
-              })
+          if(d === 'enter'){
+            let node = null
+            if(e.toElement.className === gridItemClassName){
+              node = e.toElement
             }
+            if(e.toElement.className === parentClassName){
+              node = e.fromElement
+            }
+            if(node){
+              // console.log(d,e,node,node.rowIndex)
+              leaveIndex =node.rowIndex
+              if(dragIndex > -1){
+                // 清除上次进入的容器的状态
+                const last = target.children[dragIndex];
+                clearClass(last)
+              }
+              // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
+              const leave = target.children[leaveIndex];
+              clearClass(leave)
+              dragIndex = -1
+            }
+          }
+          return throughRow
+        } else {
+          if(e.path[0].tagName === 'TD'){
+            // throughRow 表示被拖动的元素正在哪一行上
+            throughRow = e.path.find(path => {
+              if(path.className === 'el-table__row'){
+                return path
+              }
+            })
           }
           return throughRow
         }
       }
 
       target.ondragenter = function(e){
+        // console.log(e,e.toElement)
         clearTimeout(loop)
-        console.log('ondragenter',e,e.relatedTarget,e.relatedTarget.rowIndex)
         // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
-        let throughRow = judgThroughDom(e)
+        let throughRow = judgThroughDom(e,'enter')
         if(throughRow){
-          console.log('拖动进入目标元素'+throughRow.rowIndex);
-          // console.log('throughRow',throughRow)
           if(dragIndex !== throughRow.rowIndex){
             if(dragIndex > -1){
               // 清除上次进入的容器的状态
               const last = target.children[dragIndex];
               clearClass(last)
             }
-            console.log('拖动进入目标元素'+throughRow.rowIndex);
+            // console.log('拖动进入目标元素'+throughRow.rowIndex,'dragIndex:',dragIndex);
             // 不是自己或未文件夹时才改变状态
             if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder){
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
-              throughRow.style.height = 60+'px'
               throughRow.style.backgroundColor = '#e9fdcf'
               if(_this.grid){
-                throughRow.style.height = 120+'px'
+                throughRow.style.height = throughRow.clientWidth + 15 +'px'
+                throughRow.style.width = throughRow.clientWidth + 15 +'px'
+              }else{
+                throughRow.style.height = 60+'px'
               }
             }
             dragIndex = throughRow.rowIndex
@@ -684,51 +720,29 @@ export default {
 
       target.ondragleave = function(e){
         clearTimeout(loop)
-        let throughRow = judgThroughDom(e)
+        let throughRow = judgThroughDom(e,'leave')
         if(throughRow){
-          console.log('拖动离开目标元素'+throughRow.rowIndex);
-          if(dragIndex !== throughRow.rowIndex){
-            console.log('拖动离开目标元素'+throughRow.rowIndex);
-            // selectRow.style.height = 'unset'
-            // selectRow.style.backgroundColor = '#fff'
-            // dragIndex = selectRow.rowIndex
+          if(!_this.grid){
+            if(throughRow.rowIndex === 0 || throughRow.rowIndex === rows-1){
+              // 离开第一行或最后一行
+              leaveIndex = throughRow.rowIndex
+              loop = setTimeout(function () {
+                if(leaveIndex > -1){
+                  console.log("离开了",leaveIndex)
+                  const leave = target.children[leaveIndex];
+                  clearClass(leave)
+                  dragIndex = -1
+                }
+              },100)
+            }
           }
-          if(_this.grid){
-            // 离开第一行或最后一行
-            leaveIndex = throughRow.rowIndex
-            loop = setTimeout(function () {
-              if(leaveIndex > -1){
-                console.log("离开了",leaveIndex)
-                const leave = target.children[leaveIndex];
-                clearClass(leave)
-                dragIndex = -1
-              }
-            },100)
-          }
-          // if(throughRow.rowIndex === 0 || throughRow.rowIndex === rows-1){
-          //   // 离开第一行或最后一行
-          //   leaveIndex = throughRow.rowIndex
-          //   loop = setTimeout(function () {
-          //     if(leaveIndex > -1){
-          //       console.log("离开了",leaveIndex)
-          //       const leave = target.children[leaveIndex];
-          //       clearClass(leave)
-          //       dragIndex = -1
-          //     }
-          //   },100)
-          // }
         }
       }
       target.ondrop = function(){
-        console.log('放下了'+draggedIndex);
-        // 清除上次进入的容器的状态
-        const last = target.children[dragIndex];
-        clearClass(last)
-        dragged.style.cursor = 'default'
-
+        // console.log('放下了'+draggedIndex);
         const form = _this.fileList[draggedIndex]
         const to = _this.fileList[dragIndex]
-        if(last && form.id !== to.id && to.isFolder){
+        if(form && to && form.id !== to.id && to.isFolder){
           // 移动文件/文件夹
           // _this.copyOrMoveApi('move', form.id, to.id)
           let fileType = '文件'
@@ -747,10 +761,18 @@ export default {
 
       let clearClass = function (node) {
         if(node){
-          node.style.height = 'unset'
-          node.style.backgroundColor = '#fff'
+          if(_this.grid){
+            node = node.children[0].children[0]
+            node.style.height = null
+            node.style.width = null
+            node.style.backgroundColor = null
+            dragged.style.cursor = 'grabbing'
+          }else{
+            node.style.height = 'unset'
+            node.style.backgroundColor = '#fff'
+            dragged.style.cursor = 'grabbing'
+          }
         }
-        dragged.style.cursor = 'grabbing'
       }
 
     },
@@ -912,6 +934,9 @@ export default {
       this.vmode = 'list'
       if(this.grid){
         this.vmode = 'grid'
+      }
+      if(!this.path){
+        this.path = ''
       }
       this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
       // 改变拖拽目标
@@ -1143,6 +1168,7 @@ export default {
     preliminaryRowData(row) {
       if (row) {
         this.selectRowData[0] = row
+        this.rowContextData = row
       }
       const isFavorite = this.selectRowData[0].isFavorite
       this.highlightFavorite(isFavorite, false)
@@ -1251,7 +1277,7 @@ export default {
       }else{
         this.menus = this.singleMenus
       }
-      this.showOperationMenus(event)
+      // this.showOperationMenus(event)
       this.preliminaryRowData(row)
       this.showOperationMenus(event)
     },
@@ -1269,8 +1295,6 @@ export default {
         }
         this.preliminaryRowData(row)
       }
-      // 右击选择的数据
-      this.rowContextData = row
       event.preventDefault()
       this.menuTriangle = ''
       const e = {}
@@ -1294,9 +1318,9 @@ export default {
       } else {
         this.menuTriangle = 'menu-triangle-bottom'
         e.pageX = event.pageX - 78
-        e.pageY = event.pageY - 300
+        e.pageY = event.pageY - 350
         e.clientX = event.clientX + 78
-        e.clientY = event.clientY - 300
+        e.clientY = event.clientY - 350
       }
       if (!this.isJustHideMenus) {
         this.$refs.contextShow.showMenu(e)
@@ -1549,7 +1573,7 @@ export default {
         window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
       } else {
         this.$message({
-          message: '所选文件夹为空',
+          message: '所选文件为空',
           type: 'warning'
         });
       }
