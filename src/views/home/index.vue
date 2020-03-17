@@ -57,10 +57,13 @@
             <el-button slot="prepend" @click="searchFile(searchFileName)">
               <svg-icon icon-class="search" />
             </el-button>
-            <el-button slot="append" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
-            </el-button>
+<!--            <el-button slot="append" @click="changeVmode">-->
+<!--              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />-->
+<!--            </el-button>-->
           </el-input>
+          <el-button class="vmode" @click="changeVmode">
+            <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
+          </el-button>
         </div>
       </div>
     </el-breadcrumb>
@@ -320,8 +323,8 @@ import { getPath, getPathList, setPath, removePath } from '@/utils/path'
 import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
 import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
-import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
-import IconFile from "../../components/Icon/IconFile";
+import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
+import IconFile from "@/components/Icon/IconFile";
 import Clipboard from 'clipboard';
 
 export default {

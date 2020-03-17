@@ -129,11 +129,19 @@ export default {
     })
   },
   // 访问分享链接
-  accessShare: function(data) {
+  accessShare: function(params) {
     return request({
       url: 'public/access-share',
       method: 'get',
-      data: data
+      params
+    })
+  },
+  // 访问分享链接里的文件夹
+  accessShareOpenDir: function(params) {
+    return request({
+      url: 'public/access-share/open',
+      method: 'get',
+      params
     })
   },
 }

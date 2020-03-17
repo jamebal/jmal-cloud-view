@@ -5,62 +5,18 @@
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
           <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
           <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
-          <el-popover
-            v-if="index===pathList.length-1"
-            v-model="isShowNewFolder"
-            placement="bottom"
-            @click="showNewFolderClick"
-            @after-leave="hideNewFolderName"
-          >
-            <div class="newFileMenu" style="display: block;">
-              <ul>
-                <li @click="upload">
-                  <label class="menuitem">
-                    <svg-icon icon-class="file-upload" /><span class="menuitem text">上传文件</span>
-                  </label>
-                </li>
-                <li @click="uploadFolder">
-                  <label class="menuitem">
-                    <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
-                  </label>
-                </li>
-                <li @click.prevent="newDocument">
-                  <a href="#" class="menuitem"><svg-icon icon-class="md" /><span class="menuitem text">新建文档</span>
-                  </a>
-                </li>
-                <li @click.prevent="newFolder">
-                  <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
-                  </a>
-                </li>
-                <div v-show="showNewFolder" class="folder-name-form">
-                  <el-input v-focus v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
-                    <el-button
-                      slot="append"
-                      v-loading="newFolderLoading"
-                      element-loading-spinner="el-icon-loading"
-                      element-loading-background="#f6f7fa88"
-                      class="el-icon-right"
-                      @click="newFolderNameClick"
-                    >
-                    </el-button>
-                  </el-input>
-                </div>
-              </ul>
-            </div>
-            <el-button slot="reference" icon="el-icon-plus add-file-button" circle />
-          </el-popover>
         </el-breadcrumb-item>
       </transition-group>
       <div class="search-content">
         <div class="searchClass">
-          <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
-            <el-button slot="prepend" @click="searchFile(searchFileName)">
-              <svg-icon icon-class="search" />
-            </el-button>
-            <el-button slot="append" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
-            </el-button>
-          </el-input>
+<!--          <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">-->
+<!--            <el-button slot="prepend" @click="searchFile(searchFileName)">-->
+<!--              <svg-icon icon-class="search" />-->
+<!--            </el-button>-->
+<!--          </el-input>-->
+          <el-button class="vmode" @click="changeVmode">
+            <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
+          </el-button>
         </div>
       </div>
     </el-breadcrumb>
@@ -72,8 +28,6 @@
         <li
           v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
           @click="menusOperations(item.operation)"
-          @mouseover.prevent="menuFavoriteOver(index,selectRowData[0].isFavorite)"
-          @mouseleave.prevent="menuFavoriteLeave(index,selectRowData[0].isFavorite)"
         >
           <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
           </label>
@@ -89,43 +43,6 @@
       </ul>
     </e-vue-contextmenu>
 
-    <!--移动或复制弹出框-->
-    <el-dialog
-      :title="'移动或复制到'+selectTreeNode.showName"
-      :visible.sync="dialogMoveOrCopyVisible"
-    >
-      <el-tree
-        ref="directoryTree"
-        :data="directoryTreeData"
-        node-key="id"
-        :props="directoryTreeProps"
-        :load="directoryTreeLoadNode"
-        :highlight-current="true"
-        :default-expanded-keys="['0']"
-        :render-content="renderContent"
-        hight="100"
-        lazy
-        @node-click="treeNodeClick"
-        @node-expand="treeNodeExpand"
-      >
-      </el-tree>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogMoveOrCopyVisible = false"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
-        <el-button type="primary" @click="moveFileTree">移 动</el-button>
-        <el-button type="primary" @click="copyFileTree">复制</el-button>
-        <el-button @click="dialogMoveOrCopyVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-    <!--分享-->
-    <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
-      <div v-loading="generateShareLinkLoading">
-        <el-input v-model="shareLink"></el-input>
-        <div slot="footer" class="dialog-footer share-dialog-footer">
-          <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
-        </div>
-      </div>
-    </el-dialog>
 
     <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
@@ -290,20 +207,6 @@
       @current-change="currentChange">
     </el-pagination>
 
-    <!--<div class="drag-parent-class">-->
-    <!--<table id="drag-table" class="el-table" draggable="true">-->
-    <!--<tr class="el-table__row">-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_1  el-table-column&#45;&#45;selection"><div class="cell"><label class="el-checkbox"><span class="el-checkbox__input"><span class="el-checkbox__inner"></span><input type="checkbox" aria-hidden="false" class="el-checkbox__original" value=""></span>&lt;!&ndash;&ndash;&gt;</label></div></td>-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_2  "><div class="cell"><span data-v-038dedea="" data-v-5954443c="">&lt;!&ndash;&ndash;&gt; &lt;!&ndash;&ndash;&gt; <svg data-v-c8a70580="" data-v-038dedea="" aria-hidden="true" class="svg-icon"><use data-v-c8a70580="" href="#icon-folder"></use></svg></span></div></td>-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_3  " style=""><div class="cell el-tooltip" style="width: 397px;"><span data-v-5954443c="">超长名称7yuhqjadsyvguhqb3jfjivdycgzuhbjknldsafsbghyejhntcszvfhncszxzxcvsbfd</span></div></td>-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_4 is-center "><div class="cell"></div></td>-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_5 is-center "><div class="cell"></div></td>-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_6 is-center "><div class="cell el-tooltip"><span data-v-5954443c="">306.54M</span></div></td>-->
-    <!--<td rowspan="1" colspan="1" class="el-table_1_column_7 is-left "><div class="cell el-tooltip"><span data-v-5954443c="">&nbsp;&nbsp;&nbsp;15天前</span></div></td>-->
-    <!--</tr>-->
-    <!--</table>-->
-    <!--</div>-->
-
   </div>
 
 </template>
@@ -381,35 +284,18 @@
         menus: [],
         singleMenus: [
           { iconClass: 'menu-open', label: '打开', operation: 'open' },
-          { iconClass: 'share', label: '分享', operation: 'share' },
-          { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-          { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
-          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
         singleMenusEdit: [
           { iconClass: 'menu-open', label: '打开', operation: 'open' },
-          { iconClass: 'share', label: '分享', operation: 'share' },
-          { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-          { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
-          { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
-          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
         multipleMenus: [
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
         multipleRightMenus: [
           { iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
         rowContextData: {},
         selectRowData: [],
@@ -441,7 +327,8 @@
         shareDialog: false,
         shareLink: '',
         shareFileName: '',
-        generateShareLinkLoading: true
+        generateShareLinkLoading: true,
+        shareId: this.$route.query.s
       }
     },
     computed: {
@@ -591,210 +478,6 @@
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
         this.gridColumnNum = clientWidth/120 -2
       },
-      // 行拖拽
-      rowDrop() {
-        const _this = this
-        // 被拖动的元素的索引
-        let dragged = null;
-        // 被拖动的元素的索引
-        let draggedIndex = -1;
-
-        let parentClassName = 'van-grid'
-        let gridItemClassName = 'van-grid-item van-grid-item--square'
-        let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
-
-        // 目标元素
-        let target = document.querySelector('.el-table__body-wrapper tbody');
-
-        if(this.grid){
-          target = document.querySelector('.van-checkbox-group .van-grid')
-        }
-
-        let rows = 0;//行数
-        setTimeout(function () {
-          rows = target.childElementCount
-          for (let i = 0; i < target.childElementCount; i++) {
-            let child = target.children[i]
-            // 设置索引,表格自带rowIndex,这里我们设置grid的
-            if(_this.grid){
-              child.rowIndex = i
-              child.children[0].children[0].rowIndex = i
-              child = child.children[0].children[0]
-            }
-            child.draggable = true
-            // child.style.cursor = 'copy'
-            child.ondragstart = function(e){
-              dragged = e.path[0]
-              draggedIndex = e.path[0].rowIndex
-              // console.log('child'+i+'开始拖拽');
-              _this.cellMouseIndex = -1
-              dragged.style.cursor = 'grabbing'
-            }
-            child.ondragend = function(){
-              // console.log('child'+i+'拖拽结束');
-              // 清除上次进入的容器的状态
-              const last = target.children[dragIndex];
-              clearClass(last)
-              if(_this.grid){
-                dragged.style.cursor = 'pointer'
-              }else{
-                dragged.style.cursor = 'default'
-              }
-            }
-          }
-        },0)
-
-        // 被拖动的元素正在那个容器里
-        let dragIndex = -1
-
-        // 判断经过了那个元素
-        let judgThroughDom = function (e,d) {
-          let throughRow = null
-          if(_this.grid){
-            if(e.path[0].className === gridItemChildenClassName){
-              // throughRow 表示被拖动的元素正在哪一行上
-              return throughRow
-            }else{
-              throughRow = e.path.find(path => {
-                if(path.className === gridItemChildenClassName){
-                  return path
-                }
-              })
-            }
-            if(d === 'enter'){
-              let node = null
-              if(e.toElement.className === gridItemClassName){
-                node = e.toElement
-              }
-              if(e.toElement.className === parentClassName){
-                node = e.fromElement
-              }
-              if(node){
-                // console.log(d,e,node,node.rowIndex)
-                leaveIndex =node.rowIndex
-                if(dragIndex > -1){
-                  // 清除上次进入的容器的状态
-                  const last = target.children[dragIndex];
-                  clearClass(last)
-                }
-                // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
-                const leave = target.children[leaveIndex];
-                clearClass(leave)
-                dragIndex = -1
-              }
-            }
-            return throughRow
-          } else {
-            if(e.path[0].tagName === 'TD'){
-              // throughRow 表示被拖动的元素正在哪一行上
-              throughRow = e.path.find(path => {
-                if(path.className === 'el-table__row'){
-                  return path
-                }
-              })
-            }
-            return throughRow
-          }
-        }
-
-        target.ondragenter = function(e){
-          // console.log(e,e.toElement)
-          clearTimeout(loop)
-          // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
-          let throughRow = judgThroughDom(e,'enter')
-          if(throughRow){
-            if(dragIndex !== throughRow.rowIndex){
-              if(dragIndex > -1){
-                // 清除上次进入的容器的状态
-                const last = target.children[dragIndex];
-                clearClass(last)
-              }
-              // console.log('拖动进入目标元素'+throughRow.rowIndex,'dragIndex:',dragIndex);
-              // 不是自己或未文件夹时才改变状态
-              if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder){
-                // 改变本次进入的容器的状态
-                dragged.style.cursor = 'copy'
-                throughRow.style.backgroundColor = '#e9fdcf'
-                if(_this.grid){
-                  throughRow.style.height = throughRow.clientWidth + 15 +'px'
-                  throughRow.style.width = throughRow.clientWidth + 15 +'px'
-                }else{
-                  throughRow.style.height = 60+'px'
-                }
-              }
-              dragIndex = throughRow.rowIndex
-            }
-            leaveIndex = -1
-          }
-        }
-
-        target.ondragover = function(e){
-          // console.log('目标元素中拖拽...');
-          e.preventDefault();
-          leaveIndex = -1
-        }
-
-        let loop = null
-        let leaveIndex = -1 // 是否拖出了整个table, -1表示还在table内
-
-        target.ondragleave = function(e){
-          clearTimeout(loop)
-          let throughRow = judgThroughDom(e,'leave')
-          if(throughRow){
-            if(!_this.grid){
-              if(throughRow.rowIndex === 0 || throughRow.rowIndex === rows-1){
-                // 离开第一行或最后一行
-                leaveIndex = throughRow.rowIndex
-                loop = setTimeout(function () {
-                  if(leaveIndex > -1){
-                    console.log("离开了",leaveIndex)
-                    const leave = target.children[leaveIndex];
-                    clearClass(leave)
-                    dragIndex = -1
-                  }
-                },100)
-              }
-            }
-          }
-        }
-        target.ondrop = function(){
-          // console.log('放下了'+draggedIndex);
-          const form = _this.fileList[draggedIndex]
-          const to = _this.fileList[dragIndex]
-          if(form && to && form.id !== to.id && to.isFolder){
-            // 移动文件/文件夹
-            // _this.copyOrMoveApi('move', form.id, to.id)
-            let fileType = '文件'
-            if(form.isFolder){
-              fileType = '文件夹'
-            }
-            _this.$confirm('是否将'+fileType+'否移动到 "' + to.name + '"?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'info'
-            }).then(() => {
-              _this.copyOrMoveApi('move', form.id, to.id)
-            }).catch()
-          }
-        }
-
-        let clearClass = function (node) {
-          if(node){
-            if(_this.grid){
-              node = node.children[0].children[0]
-              node.style.height = null
-              node.style.width = null
-              node.style.backgroundColor = null
-              dragged.style.cursor = 'grabbing'
-            }else{
-              node.style.height = 'unset'
-              node.style.backgroundColor = '#fff'
-              dragged.style.cursor = 'grabbing'
-            }
-          }
-        }
-
-      },
       // 格式化最近时间
       formatTime(time) {
         return formatTime(time)
@@ -840,7 +523,7 @@
           if(item.searchKey){
             this.searchFileByKeyWord(item.searchKey)
           } else if(item.row){
-            this.searchFileAndOpenDir(item.row)
+            this.accessShareOpenDir(item.row)
           }
           this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
         } else {
@@ -858,7 +541,7 @@
               this.$router.push(`/_m`)
             } else {
               // this.$router.push(`?path=${encodeURIComponent(this.path)}`)
-              this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+              this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
             }
           }
           setPath(this.path, this.pathList)
@@ -957,7 +640,7 @@
         if(!this.path){
           this.path = ''
         }
-        this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
+        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&path=${this.path}`)
         // 改变拖拽目标
         this.rowDrop()
       },
@@ -975,7 +658,7 @@
           this.pathList.push(item1)
           this.pathList.push(item2)
           // this.$router.push(`?search-file=${key}`)
-          this.$router.push(`?vmode=${this.vmode}&search-file=${key}`)
+          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&search-file=${key}`)
           this.tableLoading = true
           api.searchFile({
             userId: this.$store.state.user.userId,
@@ -996,14 +679,11 @@
           this.handleLink('',0)
         }
       },
-      searchFileAndOpenDir(row) {
+      accessShareOpenDir(row) {
         this.tableLoading = true
-        api.searchFileAndOpenDir({
-          userId: this.$store.state.user.userId,
-          id: row.id,
-          currentDirectory: this.$route.query.path,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
+        api.accessShareOpenDir({
+          share: this.shareId,
+          fileId: row.id,
         }).then(res => {
           this.fileList = res.data
           this.clientHeight = document.documentElement.clientHeight - 165
@@ -1017,12 +697,8 @@
       },
       getFileList() {
         this.tableLoading = true
-        api.fileList({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          currentDirectory: this.$route.query.path,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
+        api.accessShare({
+          share:this.shareId
         }).then(res => {
           this.fileList = res.data
           this.fileList.map((item,index) => {
@@ -1035,8 +711,6 @@
             this.containerResize()
             this.tableLoading = false
           })
-          // 使列表可拖拽
-          this.rowDrop()
         }).catch(e => {})
       },
       getFileListBySearchMode() {
@@ -1187,11 +861,9 @@
       // 选择某行预备数据
       preliminaryRowData(row) {
         if (row) {
-          this.selectRowData[0] = row
           this.rowContextData = row
         }
-        const isFavorite = this.selectRowData[0].isFavorite
-        this.highlightFavorite(isFavorite, false)
+        const isFavorite = this.rowContextData.isFavorite
       },
       // 单元格hover进入时时间
       cellMouseEnter(row) {
@@ -1318,13 +990,11 @@
         event.preventDefault()
         this.menuTriangle = ''
         const e = {}
-        console.log('pageX:' + event.pageX, 'clientX:' + event.clientX)
-        console.log('pageY:' + event.pageY, 'clientY:' + event.clientY)
         e.pageX = event.pageX + 5
         e.pageY = event.pageY + 2
         e.clientX = event.clientX + 5
         e.clientY = event.clientY + 2
-        this.$refs.contextShow.showMenu(e)
+        this.$refs.contextShow.showMenu(event)
       },
       // 显示操作菜单
       showOperationMenus(event) {
@@ -1346,38 +1016,7 @@
           this.$refs.contextShow.showMenu(e)
         }
       },
-      menuFavoriteOver(index, isFavorite) {
-        this.highlightFavorite(isFavorite, true)
-      },
-      menuFavoriteLeave(index, isFavorite) {
-        this.highlightFavorite(isFavorite, false)
-      },
-      // 是否高亮收图标
-      highlightFavorite(isFavorite, isHover) {
-        const item_menu = this.menus.find(item => {
-          if (item.operation === 'favorite' || item.operation === 'unFavorite') {
-            return item
-          }
-        })
-        if (item_menu) {
-          if (isFavorite) {
-            item_menu.label = '取消收藏'
-            item_menu.iconClass = 'menu-favorite-hover'
-            item_menu.operation = 'unFavorite'
-          } else {
-            if (isHover) {
-              item_menu.iconClass = 'menu-favorite-hover'
-            } else {
-              item_menu.iconClass = 'menu-favorite'
-            }
-            item_menu.label = '收藏'
-            item_menu.operation = 'favorite'
-          }
-          // this.$set(this.menus, 0, item_menu)
-        }
-      },
       show() {
-        console.log('菜单显示了')
       },
       hide() {
         const that = this
@@ -1385,32 +1024,15 @@
         setTimeout(function() {
           that.isJustHideMenus = false
         }, 100)
-        console.log('菜单隐藏了')
       },
       // 菜单操作
       menusOperations(operation) {
         switch (operation) {
           case 'share':
-            this.shareDialog = true
-            this.shareFileName = this.rowContextData.name
-            api.generate({
-              userId: this.rowContextData.userId,
-              fileId: this.rowContextData.id
-            }).then(res => {
-              if (res.data) {
-                this.shareLink = 'http://'+window.location.host+'/s?s='+res.data
-                this.generateShareLinkLoading = false
-                console.log(window.location.host, this.$route)
-              }
-            })
             break
           case 'favorite':
-            console.log('operation', '收藏')
-            this.favoriteOperating(true)
             break
           case 'edit':
-            console.log('edit', '编辑')
-            this.$router.push(`/markdown/editor?id=${this.rowContextData.id}`)
             break
           case 'open':d
             console.log('open', '打开')
@@ -1421,8 +1043,6 @@
             this.$refs.fileListTable.toggleRowSelection(this.rowContextData)
             break
           case 'unFavorite':
-            console.log('unFavorite', '取消收藏')
-            this.favoriteOperating(false)
             break
           case 'details':
             this.$notify.info({
@@ -1432,193 +1052,27 @@
             console.log('详情', this.rowContextData)
             break
           case 'rename':
-            console.log('重命名')
-            this.renameFileName = this.rowContextData.name
-            this.editingIndex = this.rowContextData.index
             break
           case 'copy':
-            console.log('移动或复制')
-            this.dialogMoveOrCopyVisible = true
-            const that = this
-            setTimeout(function () {
-              that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
-              that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
-            },100)
             break
           case 'download':
             console.log('下载')
             this.downloadFile()
             break
           case 'remove':
-            console.log('operation', '删除')
-            this.deleteFile()
             break
         }
         this.$refs.contextShow.hideMenu()
       },
-      // 加载下一级文件树
-      directoryTreeLoadNode(node, resolve) {
-        console.log(node)
-        let fileId = null
-        if (node.level === 0) {
-          const that = this
-          setTimeout(function () {
-            that.$refs.directoryTree.setCurrentKey('0')
-          },0)
-          return resolve([{'id':"0",'name':'全部文件'}])
-        }
-        if (node.level > 1){
-          fileId = node.data.id
-        }
-
-        api.queryFileTree({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          fileId: fileId,
-        }).then(res => {
-          const nextNodes = res.data
-          return resolve(nextNodes)
-        })
-      },
-      // 点击文件树
-      treeNodeClick(row,node,event) {
-        this.selectTreeNode = row
-        this.selectTreeNode.showName = ' "' + row.name + '"'
-      },
-      // 节点被展开时触发
-      treeNodeExpand(row,node,event) {
-      },
-      // 移动文件
-      moveFileTree() {
-        this.copyOrMove('move');
-      },
-      // 复制文件
-      copyFileTree() {
-        this.copyOrMove('copy');
-      },
-      copyOrMove(operating){
-        let operation = '复制'
-        if(operating === 'move'){
-          operation = '移动'
-        }
-        let selectNodePath = '/'
-        if(this.selectTreeNode.path){
-          selectNodePath = this.selectTreeNode.path + this.selectTreeNode.name + "/"
-        }
-
-        let fileIds = [];
-        if (this.menusIsMultiple) {
-          const exits = this.selectRowData.some(value => {
-            fileIds.push(value.id)
-            const thisParentPath = value.path
-            if(thisParentPath === selectNodePath){
-              this.$message({
-                message: '不能将文件'+operation+'到自身或其子目录下',
-                type: 'warning'
-              });
-              return true;
-            }
-          })
-          if(exits){
-            return
-          }
-        } else {
-          fileIds.push(this.rowContextData.id)
-        }
-        this.copyOrMoveApi(operating,fileIds,this.selectTreeNode.id)
-      },
-      copyOrMoveApi(operating,froms,to) {
-        let operation = '复制'
-        if(operating === 'move'){
-          operation = '移动'
-        }
-        let copying = this.$message({
-          iconClass: 'el-icon-loading',
-          type: 'info',
-          duration: 0,
-          dangerouslyUseHTMLString: true,
-          message: '<span>&nbsp;&nbsp;正在'+operation+'</span>'
-        });
-        this.dialogMoveOrCopyVisible = false
-        api[operating]({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          froms: froms,
-          to: to
-        }).then(() => {
-          copying.iconClass = null
-          copying.type = 'success'
-          copying.message = operation+'成功'
-          if(this.rowContextData.isFolder){
-            this.$refs.directoryTree.append(this.rowContextData,to)
-          }
-
-          if(operating === 'move'){
-            // 移除列表
-            if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.selectRowData[0].index, 1)
-            } else {
-              this.getFileList()
-            }
-            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-            this.selectRowData = []
-          }
-
-          setTimeout(function () {
-            copying.close()
-          },1000)
-        }).catch(() => {
-          copying.close()
-        })
-      },
-      renderContent(h, { node, data, store }) {
-        if(node.expanded){
-          return (
-            <span class="custom-tree-node">
-            <svg-icon icon-class="open-folder" />
-            <span style="margin-left: 5px;">{node.label}</span>
-            <span>
-            </span>
-            </span>);
-        }else{
-          return (
-            <span class="custom-tree-node">
-            <svg-icon icon-class="folder" />
-            <span style="margin-left: 5px;">{node.label}</span>
-            <span>
-            </span>
-            </span>);
-        }
-      },
-      // 复制分享链接
-      copyShareLink() {
-        var clipboard = new Clipboard('.tag-share-link')
-        clipboard.on('success', e => {
-          this.$message({
-            message: '复制成功',
-            type: 'success',
-            duration: 1000
-          });
-          this.shareDialog = false
-          // 释放内存
-          clipboard.destroy()
-        })
-        clipboard.on('error', e => {
-          // 不支持复制
-          this.$message({
-            message: '该浏览器不支持自动复制',
-            type: 'warning',
-            duration: 1000
-          });
-          // 释放内存
-          clipboard.destroy()
-        })
-      },
       downloadFile() {
         let totalSize = 0
-        this.selectRowData.forEach(item => {
-          totalSize += item.size
-        })
+        if(this.indexList > 0){
+          this.selectRowData.forEach(item => {
+            totalSize += item.size
+          })
+        }else{
+          totalSize = this.rowContextData.size
+        }
         if (totalSize > 0) {
           var fileIds = [];
           if (this.menusIsMultiple) {
@@ -1628,7 +1082,7 @@
           } else {
             fileIds.push(this.rowContextData.id)
           }
-          window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+          window.open(process.env.VUE_APP_BASE_FILE_API + `/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`, '_self')
         } else {
           this.$message({
             message: '所选文件为空',
@@ -1636,97 +1090,25 @@
           });
         }
       },
-      // 收藏/取消收藏
-      favoriteOperating(isFavorite) {
-        this.selectRowData[0].isFavorite = isFavorite
-        this.highlightFavorite(isFavorite, true)
-        api.favoriteUrl({
-          token: this.$store.state.user.token,
-          id: this.selectRowData[0].id,
-          isFavorite: isFavorite
-        }).then(res => {
-        })
-      },
-      // 删除
-      deleteFile() {
-        let fileList = []
-        const fileIds = []
-        if (this.menusIsMultiple) {
-          fileList = this.selectRowData
-          this.selectRowData.forEach(value => {
-            fileIds.push(value.id)
-          })
-        } else {
-          fileIds.push(this.selectRowData[0].id)
-        }
-        const str = this.getShowSumFileAndFolder(fileList)
-
-        this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          api.delete({
-            username: this.$store.state.user.name,
-            fileIds: fileIds
-          }).then(() => {
-            this.$notify({
-              title: '删除成功',
-              type: 'success',
-              duration: 1000
-            })
-            // 移除列表
-            if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.selectRowData[0].index, 1)
-            } else {
-              this.getFileList()
-            }
-            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-            this.selectRowData = []
-          })
-        })
-      },
       // 点击文件或文件夹
       fileClick(row) {
         console.log(row)
         if (row.isFolder) {
           // 打开文件夹
-          if (this.listModeSearch) {
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['search'] = true
-            item1['row'] = row
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
-            this.pagination.pageIndex = 1
-            // this.$router.push(`?search-file=${row.id}`)
-            this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`)
-            this.searchFileAndOpenDir(row)
-          } else {
-            if(this.path){
-              this.path += '/' + row.name
-            } else {
-              this.path = '/' + row.name
-            }
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
-            setPath(this.path, this.pathList)
-            this.pagination.pageIndex = 1
-            const path = encodeURIComponent(this.path);
-            console.log(this.vmode)
-            this.$router.push(`?vmode=${this.vmode}&path=${path}`)
-            this.getFileList()
-          }
+          const item1 = {}
+          item1['folder'] = row.name
+          item1['search'] = true
+          item1['row'] = row
+          item1['index'] = this.pathList.length - 1
+          const item2 = {}
+          item2['folder'] = '+'
+          item2['index'] = this.pathList.length
+          this.pathList[this.pathList.length - 1] = item1
+          this.pathList.push(item2)
+          this.pagination.pageIndex = 1
+          // this.$router.push(`?search-file=${row.id}`)
+          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&search-file=${row.id}`)
+          this.accessShareOpenDir(row)
         } else {
           if(row.contentType.includes('text')){
             // let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
@@ -1746,6 +1128,8 @@
 
 <style lang="scss" scoped>
   @import "src/styles/home-index";
-
+  .el-breadcrumb {
+    margin: 50px;
+  }
 </style>
 
