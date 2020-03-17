@@ -5,50 +5,6 @@
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
           <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
           <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
-          <el-popover
-            v-if="index===pathList.length-1"
-            v-model="isShowNewFolder"
-            placement="bottom"
-            @click="showNewFolderClick"
-            @after-leave="hideNewFolderName"
-          >
-            <div class="newFileMenu" style="display: block;">
-              <ul>
-                <li @click="upload">
-                  <label class="menuitem">
-                    <svg-icon icon-class="file-upload" /><span class="menuitem text">上传文件</span>
-                  </label>
-                </li>
-                <li @click="uploadFolder">
-                  <label class="menuitem">
-                    <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
-                  </label>
-                </li>
-                <li @click.prevent="newDocument">
-                  <a href="#" class="menuitem"><svg-icon icon-class="md" /><span class="menuitem text">新建文档</span>
-                  </a>
-                </li>
-                <li @click.prevent="newFolder">
-                  <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
-                  </a>
-                </li>
-                <div v-show="showNewFolder" class="folder-name-form">
-                  <el-input v-focus v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
-                    <el-button
-                      slot="append"
-                      v-loading="newFolderLoading"
-                      element-loading-spinner="el-icon-loading"
-                      element-loading-background="#f6f7fa88"
-                      class="el-icon-right"
-                      @click="newFolderNameClick"
-                    >
-                    </el-button>
-                  </el-input>
-                </div>
-              </ul>
-            </div>
-            <el-button slot="reference" icon="el-icon-plus add-file-button" circle />
-          </el-popover>
         </el-breadcrumb-item>
       </transition-group>
       <div class="search-content">
@@ -341,7 +297,7 @@
         searchFileName: '',
         pathList: [
           { 'folder': '', index: 0 },
-          { 'folder': '+', index: 1 }
+          // { 'folder': '+', index: 1 }
         ],
         fileList: [],
         pagination: {

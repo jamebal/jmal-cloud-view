@@ -48,8 +48,8 @@
       pathList: {
         type: Array,
         default: () => [
-          { 'folder': '', index: 0 },
-          { 'folder': '+', index: 1 }
+          // { 'folder': '', index: 0 },
+          // { 'folder': '+', index: 1 }
         ]
       },
       index: {
