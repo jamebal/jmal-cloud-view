@@ -313,4 +313,23 @@
      margin: 0;
    }
 }
+/deep/ .grid-divider {
+  display: block;
+  height: 1px;
+  width: 500px;
+  margin: 24px auto;
+  color: #bcbcbc;
+  .el-icon-folder-opened {
+    color: #bcbcbc;
+  }
+  .el-divider__text {
+    font-weight: 100;
+    font-size: 12px;
+  }
+}
 
+.share-dialog-footer {
+  text-align: center;
+  height: 60px;
+  margin: 20px;
+}

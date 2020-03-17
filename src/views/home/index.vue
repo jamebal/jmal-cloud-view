@@ -117,6 +117,16 @@
       </div>
     </el-dialog>
 
+    <!--分享-->
+    <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
+      <div v-loading="generateShareLinkLoading">
+        <el-input v-model="shareLink"></el-input>
+        <div slot="footer" class="dialog-footer share-dialog-footer">
+          <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
     <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
     <!--list布局-->
@@ -267,6 +277,7 @@
           </van-grid-item>
         </van-grid>
       </van-checkbox-group>
+      <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
     <el-pagination
       background
@@ -311,6 +322,7 @@ import Bus from '@/assets/js/bus'
 import api from '@/api/upload-api'
 import BreadcrumbFilePath from "../../components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "../../components/Icon/IconFile";
+import Clipboard from 'clipboard';
 
 export default {
   components: { IconFile, BreadcrumbFilePath,
@@ -369,6 +381,7 @@ export default {
       menus: [],
       singleMenus: [
         { iconClass: 'menu-open', label: '打开', operation: 'open' },
+        { iconClass: 'share', label: '分享', operation: 'share' },
         { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
         { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
         { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
@@ -378,6 +391,7 @@ export default {
       ],
       singleMenusEdit: [
         { iconClass: 'menu-open', label: '打开', operation: 'open' },
+        { iconClass: 'share', label: '分享', operation: 'share' },
         { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
         { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
         { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
@@ -422,7 +436,12 @@ export default {
       gridColumnNum: -1,
       gridHoverItemIndex: -1,
       gridHoverIntermediate: -1,
-      allChecked: false
+      allChecked: false,
+      summaries: '',
+      shareDialog: false,
+      shareLink: '',
+      shareFileName: '',
+      generateShareLinkLoading: true
     }
   },
   computed: {
@@ -1065,6 +1084,7 @@ export default {
       const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
       const sizeSum = this.getShowSumSize(sums[2])
       sums[2] = sumFileAndFolder + sizeSum
+      this.summaries = sums[2]
       return sums
     },
     // 统计文件和文件夹
@@ -1370,6 +1390,20 @@ export default {
     // 菜单操作
     menusOperations(operation) {
       switch (operation) {
+        case 'share':
+          this.shareDialog = true
+          this.shareFileName = this.rowContextData.name
+          api.generate({
+            userId: this.rowContextData.userId,
+            fileId: this.rowContextData.id
+          }).then(res => {
+            if (res.data) {
+              this.shareLink = 'http://'+window.location.host+'/s?s='+res.data
+              this.generateShareLinkLoading = false
+              console.log(window.location.host, this.$route)
+            }
+          })
+          break
         case 'favorite':
           console.log('operation', '收藏')
           this.favoriteOperating(true)
@@ -1378,7 +1412,7 @@ export default {
           console.log('edit', '编辑')
           this.$router.push(`/markdown/editor?id=${this.rowContextData.id}`)
           break
-        case 'open':
+        case 'open':d
           console.log('open', '打开')
           this.fileClick(this.rowContextData)
           break
@@ -1555,6 +1589,30 @@ export default {
           </span>
           </span>);
       }
+    },
+    // 复制分享链接
+    copyShareLink() {
+      var clipboard = new Clipboard('.tag-share-link')
+      clipboard.on('success', e => {
+        this.$message({
+          message: '复制成功',
+          type: 'success',
+          duration: 1000
+        });
+        this.shareDialog = false
+        // 释放内存
+        clipboard.destroy()
+      })
+      clipboard.on('error', e => {
+        // 不支持复制
+        this.$message({
+          message: '该浏览器不支持自动复制',
+          type: 'warning',
+          duration: 1000
+        });
+        // 释放内存
+        clipboard.destroy()
+      })
     },
     downloadFile() {
       let totalSize = 0

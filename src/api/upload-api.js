@@ -120,4 +120,20 @@ export default {
       data: data
     })
   },
+  // 生成分享链接
+  generate: function(data) {
+    return request({
+      url: 'share/generate',
+      method: 'post',
+      data: data
+    })
+  },
+  // 访问分享链接
+  accessShare: function(data) {
+    return request({
+      url: 'public/access-share',
+      method: 'get',
+      data: data
+    })
+  },
 }
