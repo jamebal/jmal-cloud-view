@@ -1,31 +1,33 @@
 <template>
   <div class="dashboard-container" v-resize="containerResize">
-    <div class="share-header">
-      <a href="">
-        <div class="share-header-content">
-          <svg-icon icon-class="jmal-cloud"/><span>jmal Cloud</span>
-        </div>
-      </a>
-    </div>
-    <el-divider class="header-location"></el-divider>
-    <el-breadcrumb class="app-breadcrumb" separator="" v-if="!linkFailed">
-      <transition-group name="breadcrumb">
-        <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
-          <span v-if="index===0">当前位置:</span>
-          <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
-        </el-breadcrumb-item>
-      </transition-group>
-      <div class="search-content">
-        <div class="searchClass">
-          <el-button v-if="indexList.length > 0" type="primary" @click="downloadFile">
-            下载
-          </el-button>
-          <el-button class="vmode" @click="changeVmode">
-            <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
-          </el-button>
-        </div>
+    <div class="share-h">
+      <div class="share-header">
+        <a href="">
+          <div class="share-header-content">
+            <svg-icon icon-class="jmal-cloud"/><span>jmal Cloud</span>
+          </div>
+        </a>
       </div>
-    </el-breadcrumb>
+      <el-divider class="header-location"></el-divider>
+      <el-breadcrumb class="app-breadcrumb" separator="" v-if="!linkFailed">
+        <transition-group name="breadcrumb">
+          <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
+            <span v-if="index===0">当前位置:</span>
+            <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
+          </el-breadcrumb-item>
+        </transition-group>
+        <div class="search-content">
+          <div class="searchClass">
+            <el-button v-if="indexList.length > 0" type="primary" @click="downloadFile">
+              下载
+            </el-button>
+            <el-button class="vmode" @click="changeVmode">
+              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
+            </el-button>
+          </div>
+        </div>
+      </el-breadcrumb>
+    </div>
     <!--<el-divider class="header-location"></el-divider>-->
 
     <!--右键菜单-->
@@ -202,7 +204,7 @@
       </van-checkbox-group>
       <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
-    <div class="share-header">
+    <div v-if="linkFailed" class="share-header">
       <p>温馨提示：</p>
       <p>文件分享已被撤销</p>
     </div>
@@ -900,6 +902,9 @@
   }
   .searchClass[data-v-92fa2b3e] {
     padding: 3px;
+  }
+  .share-h {
+    padding: 0 15px;
   }
   .share-header {
     height: 50px;
