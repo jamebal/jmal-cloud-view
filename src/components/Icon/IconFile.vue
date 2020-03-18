@@ -1,6 +1,6 @@
 <template>
   <span>
-      <div v-if="item.isFavorite">
+      <div v-if="item.isFavorite && !public">
       <div v-if="pc">
         <svg-icon v-if="!grid" icon-class="menu-favorite-hover"
                   style="font-size: 1rem;float: right;margin-left: 1rem;position: absolute;"/>
@@ -42,6 +42,10 @@
         default: ''
       },
       grid: {
+        type: Boolean,
+        default: false
+      },
+      public: {
         type: Boolean,
         default: false
       },

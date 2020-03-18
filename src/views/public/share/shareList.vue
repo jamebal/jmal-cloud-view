@@ -1,25 +1,32 @@
 <template>
   <div class="dashboard-container" v-resize="containerResize">
+    <div class="share-header">
+      <a href="">
+        <div class="share-header-content">
+          <svg-icon icon-class="jmal-cloud"/><span>jmal Cloud</span>
+        </div>
+      </a>
+    </div>
+    <el-divider class="header-location"></el-divider>
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
-          <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
+          <span v-if="index===0">当前位置:</span>
           <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
         </el-breadcrumb-item>
       </transition-group>
       <div class="search-content">
         <div class="searchClass">
-<!--          <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">-->
-<!--            <el-button slot="prepend" @click="searchFile(searchFileName)">-->
-<!--              <svg-icon icon-class="search" />-->
-<!--            </el-button>-->
-<!--          </el-input>-->
+          <el-button v-if="indexList.length > 0" type="primary" @click="downloadFile">
+            下载
+          </el-button>
           <el-button class="vmode" @click="changeVmode">
             <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
           </el-button>
         </div>
       </div>
     </el-breadcrumb>
+    <!--<el-divider class="header-location"></el-divider>-->
 
     <!--右键菜单-->
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
@@ -85,7 +92,7 @@
           width="50"
         >
           <template slot-scope="scope">
-            <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
+            <icon-file :item="scope.row" :image-url="imageUrl" :public="true"></icon-file>
           </template>
         </el-table-column>
 
@@ -188,7 +195,7 @@
                  @contextmenu.prevent="rowContextmenu(item)"
             >
               <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
-              <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
+              <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true" :public="true"></icon-file></div>
               <span class="grid-item-text">{{item.name}}</span>
             </div>
           </van-grid-item>
@@ -216,24 +223,20 @@
   import 'vant/lib/grid-item/style';
   import 'vant/lib/checkbox/style';
   import 'vant/lib/checkbox-group/style';
-  /* eslint-disable */
   import { mapGetters } from 'vuex'
-  // import defaultSettings from '@/settings'
   import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import Bus from '@/assets/js/bus'
   import api from '@/api/upload-api'
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
   import IconFile from "@/components/Icon/IconFile";
-  import Clipboard from 'clipboard';
 
   export default {
     components: { IconFile, BreadcrumbFilePath,
     },
     data() {
       return {
-        imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-        // imageUrl: 'http://localhost:8088/view?username=' + this.$store.state.user.name + '&id=',
+        imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
         fileMenuActive: '',
         path: this.$route.query.path,
         showNewFolder: false,
@@ -244,7 +247,6 @@
         searchFileName: '',
         pathList: [
           { 'folder': '', index: 0 },
-          // { 'folder': '+', index: 1 }
         ],
         fileList: [],
         pagination: {
@@ -294,7 +296,6 @@
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
         ],
         multipleRightMenus: [
-          { iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
         ],
         rowContextData: {},
@@ -328,7 +329,8 @@
         shareLink: '',
         shareFileName: '',
         generateShareLinkLoading: true,
-        shareId: this.$route.query.s
+        shareId: this.$route.query.s,
+        currentDirName: ''
       }
     },
     computed: {
@@ -338,6 +340,11 @@
     },
     created() {
       this.getFileList()
+      // if(this.$route.query.f){
+      //   this.accessShareOpenDir(this.$route.query.f)
+      // }else{
+      //   this.getFileList()
+      // }
     },
     mounted() {
       Bus.$on('fileSuccess', () => {
@@ -347,20 +354,6 @@
         this.selectRowData = selectRowData
         this.preliminaryRowData()
       })
-
-      // 加载路径
-      // const pathList = getPathList()
-      // if (pathList && pathList !== 'undefined') {
-      //   const res = JSON.parse(pathList)
-      //   const list = []
-      //   res.forEach(function(element) {
-      //     const item0 = {}
-      //     item0['folder'] = element.folder + ''
-      //     item0['index'] = element.index
-      //     list.push(item0)
-      //   })
-      //   this.pathList = list
-      // }
 
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
@@ -486,204 +479,41 @@
       formatSize(size) {
         return formatSize(size)
       },
-      upload() {
-        console.log('user', this.$store.state.user);
-        // 打开文件选择框
-        Bus.$emit('openUploader', {
-          // 传入的参数
-          currentDirectory: this.path,
-          username: this.$store.state.user.name,
-          userId: this.$store.state.user.userId
-        })
-      },
-      uploadFolder() {
-        if(window.uploader.supportDirectory){
-          // 打开文件夹选择框
-          console.log('selectFolder')
-          Bus.$emit('uploadFolder', {
-            // 传入的参数
-            currentDirectory: this.path,
-            username: this.$store.state.user.name,
-            userId: this.$store.state.user.userId
-          })
-        }else{
-          this.$message({
-            message: '该浏览器不支持上传文件夹',
-            type: 'warning'
-          });
-        }
-      },
       // 浏览器的返回事件
       goBack(){
         const linkIndex = this.pathList.length-3
         this.handleLink(this.pathList[linkIndex],linkIndex)
       },
-      handleLink(item, index, unPushLink) {
+      handleLink(item, index) {
+        if(index === 0){
+          this.pathList = [
+            { 'folder': '', index: 0 },
+          ],
+          this.getFileList();
+        }
         if(item && item.search){
-          if(item.searchKey){
-            this.searchFileByKeyWord(item.searchKey)
-          } else if(item.row){
-            this.accessShareOpenDir(item.row)
-          }
+          this.accessShareOpenDir(item.fileId)
           this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
-        } else {
-          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
-          this.pathList.forEach((p, number) => {
-            if (number === 0) {
-              this.path = ''
-            } else if (number === this.pathList.length - 1) {
-            } else {
-              this.path += '/' + this.pathList[number].folder
-            }
-          })
-          if(!unPushLink){
-            if (!this.$route.query.path){
-              this.$router.push(`/_m`)
-            } else {
-              // this.$router.push(`?path=${encodeURIComponent(this.path)}`)
-              this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
-            }
-          }
-          setPath(this.path, this.pathList)
-          this.pagination.pageIndex = 1
-          this.getFileList()
         }
-        console.log("this.pathList:", this.pathList)
-      },
-      // 新建文档
-      newDocument() {
-        this.$router.push(`/markdown/editor`)
-      },
-      newFolder() {
-        this.newFolderName = '新建文件夹'
-        let append = 0
-        let filenameList = []
-        this.fileList.forEach(file => {
-          filenameList.push(file.name)
-        })
-        while(filenameList.includes(this.newFolderName)){
-          append += 1
-          this.newFolderName = '新建文件夹' + append
-        }
-        this.showNewFolder = true
-      },
-      hideNewFolderName() {
-        this.showNewFolder = false
-        this.isShowNewFolder = false
-      },
-      showNewFolderClick() {
-        this.isShowNewFolder = true
-      },
-      newFolderNameClickEnter() {
-        this.newFolderNameClick()
-      },
-      // 新建文件夹
-      newFolderNameClick() {
-        console.log('user', this.$store.state.user);
-        if(this.newFolderName){
-          if(/[\/\\"<>\?\*]/gi.test(this.newFolderName)){
-            this.$message({
-              message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
-              type: 'warning'
-            });
-            return;
-          }
-          this.newFolderLoading = true
-          api.uploadFolder({
-            isFolder: true,
-            filename: this.newFolderName,
-            currentDirectory: this.path,
-            username: this.$store.state.user.name,
-            userId: this.$store.state.user.userId
-          }).then((res) => {
-            if(res.data === 1){
-              this.newFolderLoading = false
-              this.$message({
-                message: '该文件夹已存在',
-                type: 'warning'
-              });
-            } else {
-              this.newFolderLoading = false
-              this.showNewFolder = false
-              this.isShowNewFolder = false
-              this.$notify({
-                title: '新建文件夹成功',
-                type: 'success',
-                duration: 1000
-              })
-              if (this.listModeSearch) {
-                this.getFileListBySearchMode()
-              } else {
-                this.getFileList()
-              }
-            }
-          })
-        }else{
-          this.newFolderLoading = false
-          this.$message({
-            message: '请输入文件夹名称',
-            type: 'warning'
-          });
-        }
-      },
-      searchFileByKeyWord(key) {
-        this.searchFile(key)
       },
       // 切换布局
       changeVmode(){
         this.grid = !this.grid
-        console.log(this.$route.fullPath)
         this.vmode = 'list'
         if(this.grid){
           this.vmode = 'grid'
         }
-        if(!this.path){
-          this.path = ''
+        let f = ''
+        if(this.$route.query.f){
+          f = this.$route.query.f
         }
-        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&path=${this.path}`)
-        // 改变拖拽目标
-        this.rowDrop()
+        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&f=${f}`)
       },
-      searchFile(key) {
-        if(key){
-          this.pathList = [{ 'folder': '', index: 0 }]
-          const item1 = {}
-          item1['folder'] = '搜索: ' + '"'+ key +'"'
-          item1['search'] = true
-          item1['searchKey'] = key
-          item1['index'] = 1
-          const item2 = {}
-          item2['folder'] = '+'
-          item2['index'] = 2
-          this.pathList.push(item1)
-          this.pathList.push(item2)
-          // this.$router.push(`?search-file=${key}`)
-          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&search-file=${key}`)
-          this.tableLoading = true
-          api.searchFile({
-            userId: this.$store.state.user.userId,
-            username: this.$store.state.user.name,
-            keyword: key,
-            currentDirectory: this.$route.query.path,
-            pageIndex: this.pagination.pageIndex,
-            pageSize: this.pagination.pageSize
-          }).then(res => {
-            this.fileList = res.data
-            this.tableLoading = false
-            this.clientHeight = document.documentElement.clientHeight - 165
-            this.listModeSearch = true
-            this.path = ''
-            this.pagination['total'] = res.count
-          }).catch(e => {})
-        }else{
-          this.handleLink('',0)
-        }
-      },
-      accessShareOpenDir(row) {
+      accessShareOpenDir(fileId) {
         this.tableLoading = true
         api.accessShareOpenDir({
           share: this.shareId,
-          fileId: row.id,
+          fileId: fileId,
         }).then(res => {
           this.fileList = res.data
           this.clientHeight = document.documentElement.clientHeight - 165
@@ -691,9 +521,19 @@
           this.pagination['total'] = res.count
           this.$nextTick(()=>{
             this.tableLoading = false
+
+            // const path = this.fileList[0].path
+            // console.log(path)
+            // path.split('/').forEach((pathName,index)=>{
+            //   if(index > 0){
+            //     const item = {}
+            //     item['folder'] = pathName
+            //     item['index'] = index
+            //     this.pathList.push(item)
+            //   }
+            // })
           })
         }).catch(e => {})
-        this.path = row.path + row.name
       },
       getFileList() {
         this.tableLoading = true
@@ -701,6 +541,8 @@
           share:this.shareId
         }).then(res => {
           this.fileList = res.data
+          const pathList = this.fileList[0].path.split('/');
+          this.currentDirName = pathList[pathList.length-2]
           this.fileList.map((item,index) => {
             item.index = index
           })
@@ -710,23 +552,17 @@
           this.$nextTick(()=>{
             this.containerResize()
             this.tableLoading = false
-          })
-        }).catch(e => {})
-      },
-      getFileListBySearchMode() {
-        this.tableLoading = true
-        api.fileList({
-          userId: this.$store.state.user.userId,
-          currentDirectory: this.path,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: 30
-        }).then(res => {
-          this.fileList = res.data
-          this.clientHeight = document.documentElement.clientHeight - 165
-          this.listModeSearch = true
-          this.pagination['total'] = res.count
-          this.$nextTick(()=>{
-            this.tableLoading = false
+            // 打开文件夹
+            const item1 = {}
+            item1['folder'] = this.currentDirName
+            item1['index'] = this.pathList.length - 1
+            const item2 = {}
+            item2['folder'] = '+'
+            item2['index'] = this.pathList.length
+            this.pathList[this.pathList.length - 1] = item1
+            this.pathList.push(item2)
+            this.pagination.pageIndex = 1
+
           })
         }).catch(e => {})
       },
@@ -828,6 +664,7 @@
           item_size.sortable = false
           item_date.label = ''
           item_date.sortable = false
+          this.menusIsMultiple = true
         } else {
           item_name.label = '名称'
           item_name.sortable = true
@@ -837,7 +674,7 @@
           item_date.label = '修改日期'
           item_date.sortable = true
         }
-        if(this.indexList.length == this.fileList.length){
+        if(this.indexList.length === this.fileList.length){
           this.allChecked = true
         }else{
           this.allChecked = false
@@ -900,59 +737,6 @@
           if (this.indexList.length > 0 && columnIndex > 0) {
             this.$refs.fileListTable.toggleRowSelection(row)
           }
-        }
-      },
-      // 重命名
-      rowRename(newFileName, row) {
-        if (newFileName) {
-          console.log('newFileName', newFileName)
-          if(/[\/\\"<>\?\*]/gi.test(newFileName)){
-            this.$message({
-              message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
-              type: 'warning'
-            });
-            return;
-          }
-          if (!row.isFolder) {
-            const ext = '.' + row.suffix
-            if (!newFileName.endsWith(ext)) {
-              newFileName += ext
-            }
-          }
-          this.renameLoading = true
-          const findIndex = this.fileList.findIndex(item => {
-            if(newFileName === item.name){
-              return item;
-            }
-          })
-          console.log(findIndex)
-          if(findIndex > -1){
-            let msg = '该文件已存在'
-            if(row.isFolder){
-              msg = '该文件夹已存在'
-            }
-            this.$message({
-              message: msg,
-              type: 'warning'
-            });
-            this.renameLoading = false
-            return
-          }
-
-          api.rename({
-            newFileName: newFileName,
-            username: this.$store.state.user.name,
-            id: row.id
-          }).then(res => {
-            if (res.data) {
-              this.renameLoading = false
-              row.name = newFileName
-              this.fileList[row.index] = row
-              this.editingIndex = -1
-            }
-          })
-        } else {
-          this.editingIndex = -1
         }
       },
       // 更多操作(多选)
@@ -1028,45 +812,18 @@
       // 菜单操作
       menusOperations(operation) {
         switch (operation) {
-          case 'share':
-            break
-          case 'favorite':
-            break
-          case 'edit':
-            break
-          case 'open':d
-            console.log('open', '打开')
+          case 'open':
             this.fileClick(this.rowContextData)
             break
-          case 'deselect':
-            console.log('deselect', '取消选定')
-            this.$refs.fileListTable.toggleRowSelection(this.rowContextData)
-            break
-          case 'unFavorite':
-            break
-          case 'details':
-            this.$notify.info({
-              title: this.rowContextData.name,
-              duration: 2000
-            })
-            console.log('详情', this.rowContextData)
-            break
-          case 'rename':
-            break
-          case 'copy':
-            break
           case 'download':
-            console.log('下载')
             this.downloadFile()
-            break
-          case 'remove':
             break
         }
         this.$refs.contextShow.hideMenu()
       },
       downloadFile() {
         let totalSize = 0
-        if(this.indexList > 0){
+        if(this.indexList.length > 0){
           this.selectRowData.forEach(item => {
             totalSize += item.size
           })
@@ -1074,7 +831,7 @@
           totalSize = this.rowContextData.size
         }
         if (totalSize > 0) {
-          var fileIds = [];
+          let fileIds = [];
           if (this.menusIsMultiple) {
             this.selectRowData.forEach(value => {
               fileIds.push(value.id)
@@ -1082,6 +839,7 @@
           } else {
             fileIds.push(this.rowContextData.id)
           }
+          console.log("fileIds",fileIds)
           window.open(process.env.VUE_APP_BASE_FILE_API + `/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`, '_self')
         } else {
           this.$message({
@@ -1092,13 +850,12 @@
       },
       // 点击文件或文件夹
       fileClick(row) {
-        console.log(row)
         if (row.isFolder) {
           // 打开文件夹
           const item1 = {}
           item1['folder'] = row.name
           item1['search'] = true
-          item1['row'] = row
+          item1['fileId'] = row.id
           item1['index'] = this.pathList.length - 1
           const item2 = {}
           item2['folder'] = '+'
@@ -1106,18 +863,16 @@
           this.pathList[this.pathList.length - 1] = item1
           this.pathList.push(item2)
           this.pagination.pageIndex = 1
-          // this.$router.push(`?search-file=${row.id}`)
-          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&search-file=${row.id}`)
-          this.accessShareOpenDir(row)
+          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&f=${row.id}`)
+          this.accessShareOpenDir(row.id)
         } else {
           if(row.contentType.includes('text')){
-            // let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
-            // window.open(routeData.href, '_blank');
-            this.$router.push(`/public/articles/article?mark=${row.id}`)
+            let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
+            window.open(routeData.href, '_blank');
           }else{
             // 打开文件
             const fileIds = [row.id]
-            const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+            const url = process.env.VUE_APP_BASE_FILE_API + '/public/s/preview/' + row.name + '?fileIds=' + fileIds
             window.open(url, '_blank')
           }
         }
@@ -1128,8 +883,44 @@
 
 <style lang="scss" scoped>
   @import "src/styles/home-index";
-  .el-breadcrumb {
-    margin: 50px;
+  /*.el-breadcrumb {*/
+    /*margin: 50px;*/
+  .header-location {
+    display: block;
+    height: 1px;
+    width: 100%;
+    margin: 0px 0;
+  }
+  .searchClass[data-v-92fa2b3e] {
+    padding: 3px;
+  }
+  .share-header {
+    height: 50px;
+    text-align: center;
+    margin-bottom: 10px;
+
+    -webkit-display:flex;
+    display:flex;
+    -webkit-align-items:center;
+    align-items:center;
+    -webkit-justify-content:center;
+    justify-content:center;
+
+    .share-header-content {
+      display: flex;
+      -webkit-align-items: center;
+      svg {
+        font-size: 50px;
+      }
+      span {
+        margin-left: 10px;
+        font-size: 30px;
+      }
+    }
+    .share-header-content:hover {
+      cursor: pointer;
+      color: #a4d0fd;
+    }
   }
 </style>
 
