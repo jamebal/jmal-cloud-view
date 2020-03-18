@@ -8,7 +8,7 @@
       </a>
     </div>
     <el-divider class="header-location"></el-divider>
-    <el-breadcrumb class="app-breadcrumb" separator="">
+    <el-breadcrumb class="app-breadcrumb" separator="" v-if="!linkFailed">
       <transition-group name="breadcrumb">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
           <span v-if="index===0">当前位置:</span>
@@ -50,12 +50,11 @@
       </ul>
     </e-vue-contextmenu>
 
-
     <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
     <!--list布局-->
     <el-table
-      v-show="!grid"
+      v-show="!grid && !linkFailed"
       ref="fileListTable"
       v-loading="tableLoading"
       :max-height="clientHeight"
@@ -174,7 +173,7 @@
     </el-table>
 
     <!--grid布局-->
-    <div v-show="grid" v-loading="tableLoading"
+    <div v-show="grid && !linkFailed" v-loading="tableLoading"
          element-loading-text="文件加载中"
          element-loading-spinner="el-icon-loading"
          element-loading-background="#f6f7fa88">
@@ -202,6 +201,10 @@
         </van-grid>
       </van-checkbox-group>
       <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
+    </div>
+    <div class="share-header">
+      <p>温馨提示：</p>
+      <p>文件分享已被撤销</p>
     </div>
     <el-pagination
       background
@@ -330,7 +333,8 @@
         shareFileName: '',
         generateShareLinkLoading: true,
         shareId: this.$route.query.s,
-        currentDirName: ''
+        currentDirName: '',
+        linkFailed: true
       }
     },
     computed: {
@@ -562,9 +566,12 @@
             this.pathList[this.pathList.length - 1] = item1
             this.pathList.push(item2)
             this.pagination.pageIndex = 1
-
+            this.linkFailed = false
           })
-        }).catch(e => {})
+        }).catch(() => {
+          this.tableLoading = false
+          this.linkFailed = true
+        })
       },
       currentChange(pageIndex) {
         this.pagination.pageIndex = pageIndex
