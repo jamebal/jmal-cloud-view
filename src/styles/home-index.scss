@@ -187,6 +187,12 @@
 .searchClass{
   float: right;
   width: 30%;
+  display: flex;
+  justify-content: flex-end;
+  .vmode{
+    padding: 5px 10px;
+    margin-left: 5px;
+  }
 }
 
 //.grid {
