@@ -851,10 +851,14 @@ export default {
     },
     // 浏览器的返回事件
     goBack(){
+      if (this.pathList.length === 2){
+        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+        return
+      }
       const linkIndex = this.pathList.length-3
       this.handleLink(this.pathList[linkIndex],linkIndex)
     },
-    handleLink(item, index, unPushLink) {
+    handleLink(item, index, unPushLink, unRefresh) {
       if(item && item.search){
         if(item.searchKey){
           this.searchFileByKeyWord(item.searchKey)
@@ -874,17 +878,17 @@ export default {
         })
         if(!unPushLink){
           if (!this.$route.query.path){
-            this.$router.push(`/_m`)
+            this.$router.push(`/?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
           } else {
-            // this.$router.push(`?path=${encodeURIComponent(this.path)}`)
             this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
           }
         }
-        setPath(this.path, this.pathList)
-        this.pagination.pageIndex = 1
-        this.getFileList()
+        if(!unRefresh){
+          this.pagination.pageIndex = 1
+          this.getFileList()
+        }
+        // setPath(this.path, this.pathList)
       }
-      console.log("this.pathList:", this.pathList)
     },
     // 新建文档
     newDocument() {
