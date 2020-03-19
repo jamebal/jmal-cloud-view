@@ -57,9 +57,6 @@
             <el-button slot="prepend" @click="searchFile(searchFileName)">
               <svg-icon icon-class="search" />
             </el-button>
-<!--            <el-button slot="append" @click="changeVmode">-->
-<!--              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />-->
-<!--            </el-button>-->
           </el-input>
           <el-button class="vmode" @click="changeVmode">
             <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
@@ -123,7 +120,7 @@
     <!--分享-->
     <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
       <div v-loading="generateShareLinkLoading">
-        <el-input v-model="shareLink"></el-input>
+        <el-input readonly="readonly" v-model="shareLink"></el-input>
         <div slot="footer" class="dialog-footer share-dialog-footer">
           <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
         </div>
@@ -202,7 +199,7 @@
 
             <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
               <template slot-scope="scope">
-                <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />
+                <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" @click="share(scope.row)"/>
               </template>
             </el-table-column>
 
@@ -258,7 +255,23 @@
          element-loading-spinner="el-icon-loading"
          element-loading-background="#f6f7fa88">
       <div class="checkbox-group-header">
-        <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">{{indexList.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
+        <div class="select-operation">
+          <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">{{indexList.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
+          <div>
+            <el-button class="select-operation-button" icon="el-icon-download" v-if="indexList.length > 0" @click="downloadFile">
+              下载
+            </el-button>
+            <el-button class="select-operation-button" icon="el-icon-share" v-if="indexList.length === 1" @click="share">
+              分享
+            </el-button>
+            <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="indexList.length > 0" @click="moveOrCopy">
+              移动或复制
+            </el-button>
+            <el-button class="select-operation-button" icon="el-icon-delete" v-if="indexList.length > 0" type="danger" @click="deleteFile">
+            </el-button>
+
+          </div>
+        </div>
         <el-divider></el-divider>
       </div>
 
@@ -435,7 +448,7 @@ export default {
       positionX:0,
       positionY:0,
       grid: true,
-      vmode: 'list',
+      vmode: 'grid',
       gridColumnNum: -1,
       gridHoverItemIndex: -1,
       gridHoverIntermediate: -1,
@@ -563,6 +576,9 @@ export default {
       },10)
     },
     clickGridItemCheckBox(item,index) {
+      if(this.indexList.length === 0){
+        this.selectRowData = []
+      }
       // 同步列表的checkbox
       if(this.indexList.includes(index)){
         this.$refs.fileListTable.toggleRowSelection(item,false)
@@ -1394,37 +1410,27 @@ export default {
     menusOperations(operation) {
       switch (operation) {
         case 'share':
-          this.shareDialog = true
-          this.shareFileName = this.rowContextData.name
-          api.generate({
-            userId: this.rowContextData.userId,
-            fileId: this.rowContextData.id
-          }).then(res => {
-            if (res.data) {
-              this.shareLink = 'http://'+window.location.host+'/s?s='+res.data
-              this.generateShareLinkLoading = false
-              console.log(window.location.host, this.$route)
-            }
-          })
+          // 分享
+          this.share()
           break
         case 'favorite':
-          console.log('operation', '收藏')
+          // 收藏
           this.favoriteOperating(true)
           break
         case 'edit':
-          console.log('edit', '编辑')
+          // 编辑
           this.$router.push(`/markdown/editor?id=${this.rowContextData.id}`)
           break
-        case 'open':d
-          console.log('open', '打开')
+        case 'open':
+          // 打开
           this.fileClick(this.rowContextData)
           break
         case 'deselect':
-          console.log('deselect', '取消选定')
+          // 取消选定
           this.$refs.fileListTable.toggleRowSelection(this.rowContextData)
           break
         case 'unFavorite':
-          console.log('unFavorite', '取消收藏')
+          // 取消收藏
           this.favoriteOperating(false)
           break
         case 'details':
@@ -1435,25 +1441,20 @@ export default {
           console.log('详情', this.rowContextData)
           break
         case 'rename':
-          console.log('重命名')
+          // 重命名
           this.renameFileName = this.rowContextData.name
           this.editingIndex = this.rowContextData.index
           break
         case 'copy':
-          console.log('移动或复制')
-          this.dialogMoveOrCopyVisible = true
-          const that = this
-          setTimeout(function () {
-            that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
-            that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
-          },100)
+          // 移动或复制
+          this.moveOrCopy()
           break
         case 'download':
-          console.log('下载')
+          // 下载
           this.downloadFile()
           break
         case 'remove':
-          console.log('operation', '删除')
+          // 删除
           this.deleteFile()
           break
       }
@@ -1499,6 +1500,14 @@ export default {
     copyFileTree() {
       this.copyOrMove('copy');
     },
+    moveOrCopy(){
+      this.dialogMoveOrCopyVisible = true
+      const that = this
+      setTimeout(function () {
+        that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
+        that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
+      },100)
+    },
     copyOrMove(operating){
       let operation = '复制'
       if(operating === 'move'){
@@ -1510,7 +1519,7 @@ export default {
       }
 
       let fileIds = [];
-      if (this.menusIsMultiple) {
+      if (this.menusIsMultiple || this.indexList.length > 1) {
         const exits = this.selectRowData.some(value => {
           fileIds.push(value.id)
           const thisParentPath = value.path
@@ -1526,7 +1535,11 @@ export default {
           return
         }
       } else {
-        fileIds.push(this.rowContextData.id)
+        if(this.rowContextData.id){
+          fileIds.push(this.rowContextData.id)
+        }else{
+          fileIds.push(this.rowContextData[0].id)
+        }
       }
       this.copyOrMoveApi(operating,fileIds,this.selectTreeNode.id)
     },
@@ -1593,6 +1606,27 @@ export default {
           </span>);
       }
     },
+    share(row) {
+      if(!row || !row.id){
+        if(this.rowContextData.id){
+          row = this.rowContextData
+        } else {
+          row = this.selectRowData[0]
+        }
+      }
+      this.shareDialog = true
+      this.shareFileName = row.name
+      api.generate({
+        userId: row.userId,
+        fileId: row.id
+      }).then(res => {
+        if (res.data) {
+          this.shareLink = 'http://'+window.location.host+'/s?s='+res.data
+          this.generateShareLinkLoading = false
+          console.log(window.location.host, this.$route)
+        }
+      })
+    },
     // 复制分享链接
     copyShareLink() {
       var clipboard = new Clipboard('.tag-share-link')
@@ -1624,12 +1658,16 @@ export default {
       })
       if (totalSize > 0) {
         var fileIds = [];
-        if (this.menusIsMultiple) {
+        if (this.indexList.length > 1) {
           this.selectRowData.forEach(value => {
               fileIds.push(value.id)
           })
         } else {
+          if (this.rowContextData.id) {
             fileIds.push(this.rowContextData.id)
+          } else {
+            fileIds.push(this.selectRowData[0].id)
+          }
         }
         window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
       } else {
@@ -1654,7 +1692,7 @@ export default {
     deleteFile() {
       let fileList = []
       const fileIds = []
-      if (this.menusIsMultiple) {
+      if (this.menusIsMultiple || this.indexList.length > 1) {
         fileList = this.selectRowData
         this.selectRowData.forEach(value => {
           fileIds.push(value.id)
@@ -1662,6 +1700,7 @@ export default {
       } else {
         fileIds.push(this.selectRowData[0].id)
       }
+      console.log(fileIds)
       const str = this.getShowSumFileAndFolder(fileList)
 
       this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
@@ -1738,9 +1777,14 @@ export default {
         }else{
           // 打开文件
           const fileIds = [row.id]
-          const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+          let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
           window.open(url, '_blank')
         }
+        // const fileIds = [row.id]
+        // let url = 'http://localhost:10010/preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+        // url = process.env.VUE_APP_BASE_PRIVIEW_API+'/onlinePreview?url='+encodeURIComponent(url);
+        // console.log("url",url)
+        // window.open(url);
       }
     }
   }

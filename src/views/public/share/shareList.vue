@@ -19,7 +19,7 @@
         <div class="search-content">
           <div class="searchClass">
             <el-button v-if="indexList.length > 0" type="primary" @click="downloadFile">
-              下载
+            下载
             </el-button>
             <el-button class="vmode" @click="changeVmode">
               <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />

@@ -339,3 +339,14 @@
   height: 60px;
   margin: 20px;
 }
+
+.select-operation {
+  display: flex;
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  .select-operation-button {
+    margin-top: 5px;
+    padding: 10px;
+  }
+}
