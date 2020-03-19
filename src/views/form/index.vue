@@ -1,84 +1,133 @@
 <template>
-  <div class="app-container">
-    <el-form ref="form" :model="form" label-width="120px">
-      <el-form-item label="Activity name">
-        <el-input v-model="form.name" />
-      </el-form-item>
-      <el-form-item label="Activity zone">
-        <el-select v-model="form.region" placeholder="please select your zone">
-          <el-option label="Zone one" value="shanghai" />
-          <el-option label="Zone two" value="beijing" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Activity time">
-        <el-col :span="11">
-          <el-date-picker v-model="form.date1" type="date" placeholder="Pick a date" style="width: 100%;" />
-        </el-col>
-        <el-col :span="2" class="line">-</el-col>
-        <el-col :span="11">
-          <el-time-picker v-model="form.date2" type="fixed-time" placeholder="Pick a time" style="width: 100%;" />
-        </el-col>
-      </el-form-item>
-      <el-form-item label="Instant delivery">
-        <el-switch v-model="form.delivery" />
-      </el-form-item>
-      <el-form-item label="Activity type">
-        <el-checkbox-group v-model="form.type">
-          <el-checkbox label="Online activities" name="type" />
-          <el-checkbox label="Promotion activities" name="type" />
-          <el-checkbox label="Offline activities" name="type" />
-          <el-checkbox label="Simple brand exposure" name="type" />
-        </el-checkbox-group>
-      </el-form-item>
-      <el-form-item label="Resources">
-        <el-radio-group v-model="form.resource">
-          <el-radio label="Sponsor" />
-          <el-radio label="Venue" />
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="Activity form">
-        <el-input v-model="form.desc" type="textarea" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">Create</el-button>
-        <el-button @click="onCancel">Cancel</el-button>
-      </el-form-item>
-    </el-form>
+  <div id="demo">
+    <!-- 遮罩层 -->
+    <div class="container" v-show="panel">
+      <div class="xx">
+        <img id="image" :src="headerImage"/>
+      </div>
+      <button type="button" id="button" @click="crop">确定</button>
+    </div>
+
+    <div style="padding:20px;">
+      <div class="show">
+        <div class="picture" :style="'backgroundImage:url('+headerImage+')'">
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <input type="file" id="change" accept="image" @change="change">
+        <label for="change"></label>
+      </div>
+
+    </div>
+
   </div>
 </template>
 
 <script>
+  import "@/assets/css/cropper.css"
+  import Cropper from 'cropperjs'
   export default {
-    data() {
+    components: {
+
+    },
+    data () {
       return {
-        form: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
-        }
+        headerImage:'',
+        picValue:'',
+        cropper:'',
+        croppable:false,
+        panel:false,
+        url:''
       }
     },
+    mounted () {
+      //初始化这个裁剪框
+      var self = this;
+      var image = document.getElementById('image');
+      this.cropper = new Cropper(image, {
+        aspectRatio: 1,
+        viewMode: 1,
+        background:false,
+        zoomable:false,
+        ready: function () {
+          self.croppable = true;
+        }
+      });
+    },
     methods: {
-      onSubmit() {
-        this.$message('submit!')
+      getObjectURL (file) {
+        var url = null ;
+        if (window.createObjectURL!=undefined) { // basic
+          url = window.createObjectURL(file) ;
+        } else if (window.URL!=undefined) { // mozilla(firefox)
+          url = window.URL.createObjectURL(file) ;
+        } else if (window.webkitURL!=undefined) { // webkit or chrome
+          url = window.webkitURL.createObjectURL(file) ;
+        }
+        return url ;
       },
-      onCancel() {
-        this.$message({
-          message: 'cancel!',
-          type: 'warning'
-        })
+      change (e) {
+        let files = e.target.files || e.dataTransfer.files;
+        if (!files.length) return;
+        this.panel = true;
+        this.picValue = files[0];
+
+        this.url = this.getObjectURL(this.picValue);
+        //每次替换图片要重新得到新的url
+        if(this.cropper){
+          this.cropper.replace(this.url);
+        }
+        this.panel = true;
+
+      },
+      crop () {
+        this.panel = false;
+        var croppedCanvas;
+        var roundedCanvas;
+
+        if (!this.croppable) {
+          return;
+        }
+        // Crop
+        croppedCanvas = this.cropper.getCroppedCanvas();
+        console.log(this.cropper)
+        // Round
+        roundedCanvas = this.getRoundedCanvas(croppedCanvas);
+
+        this.headerImage = roundedCanvas.toDataURL();
+        this.postImg()
+
+      },
+      getRoundedCanvas (sourceCanvas) {
+
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var width = sourceCanvas.width;
+        var height = sourceCanvas.height;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        context.imageSmoothingEnabled = true;
+        context.drawImage(sourceCanvas, 0, 0, width, height);
+        context.globalCompositeOperation = 'destination-in';
+        context.beginPath();
+        context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
+        context.fill();
+
+        return canvas;
+      },
+      postImg () {
+        //这边写图片的上传
       }
     }
   }
 </script>
 
-<style scoped>
-  .line{
-    text-align: center;
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss">
+  img {
+    display: block;
+    max-width: 100%;
   }
 </style>

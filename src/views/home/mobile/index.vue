@@ -648,6 +648,7 @@
         this.getFileList();
       },
       getFileList(onLoad) {
+        console.log('getFileList',onLoad)
         if (onLoad) {
           this.pagination.pageIndex++
         } else {

@@ -9,7 +9,7 @@
       </div>
       <div v-else>
         <svg-icon v-if="!grid" icon-class="menu-favorite-hover"
-                  style="font-size: 0.5rem;float: right;margin-left: 2rem;position: absolute;"/>
+                  style="font-size: 0.5rem;float: right;margin-left: 0.5rem;position: absolute;"/>
         <svg-icon v-if="grid" icon-class="menu-favorite-hover"
                   style="font-size: 1rem;right: 0;top: -1rem;position: absolute;z-index: 1;"/>
       </div>

@@ -1,8 +1,14 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" :model="form" label-width="120px">
-      <el-form-item label="头像">
 
+    <div class="img-dialog" :v-show="dialogVisible">
+      <img id="image" :src="form.avater"/>
+    </div>
+
+
+
+    <el-form ref="form" :model="form" label-width="120px">
+      <el-form-item label="头像" class="form-item-avatar">
         <el-upload
           class="avatar-uploader"
           :action="UploadAvatarURL"
@@ -10,7 +16,8 @@
           :on-change="addAvatar"
           :auto-upload="false"
           :before-upload="beforeAvatarUpload">
-          <img v-if="form.avater" :src="form.avater" class="avatar">
+          <img id="imageAvatar" v-if="form.avater" :src="form.avater" class="avatar">
+<!--          <el-image v-if="form.avater" class="avatar" :src="form.avater" :fit="cover"></el-image>-->
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
@@ -61,12 +68,15 @@
 </template>
 
 <script>
-
+  import "@/assets/css/cropper.css"
+  import Cropper from 'cropperjs'
   import api from '@/api/upload-api'
 
   export default {
     data() {
       return {
+        dialogVisible:false,
+        cropper:'',
         UploadAvatarURL: api.simpleUploadAvatarURL,
         form: {
           avater: '',
@@ -81,6 +91,18 @@
         }
       }
     },
+    mounted() {
+      let _this = this;
+      let image = document.getElementById('image');
+      this.cropper = new Cropper(image, {
+        aspectRatio: 1,
+        viewMode: 1,
+        background:false,
+        zoomable:false,
+        ready: function () {
+        }
+      });
+    },
     methods: {
       onSubmit() {
         this.$message('submit!')
@@ -92,11 +114,17 @@
         })
       },
       addAvatar(file, fileList) {
-        console.log(file,fileList)
+        // const isLt2M = file.size / 1024 / 1024 < 2;
+        // if (!isLt2M) {
+        //   this.$message.error('上传头像图片大小不能超过 2MB!');
+        //   return
+        // }
         let reader = new FileReader();
         const _this = this
         reader.onload = function (e) {
           _this.form.avater = e.target.result
+          _this.dialogVisible = true
+          _this.cropper.replace(e.target.result);
         };
         reader.readAsDataURL(file.raw)
       },
@@ -106,18 +134,40 @@
           this.$message.error('上传头像图片大小不能超过 2MB!');
         }
         return isLt2M;
-      }
+      },
+      crop () {
+        this.panel = false;
+        var croppedCanvas;
+        var roundedCanvas;
+
+        if (!this.croppable) {
+          return;
+        }
+        // Crop
+        croppedCanvas = this.cropper.getCroppedCanvas();
+        console.log(this.cropper)
+        // Round
+        roundedCanvas = this.getRoundedCanvas(croppedCanvas);
+        this.form.avater = roundedCanvas.toDataURL();
+      },
     }
   }
 </script>
 
+<!--<style src="@styles/cropper.css"></style>-->
 <style scoped>
   .line{
     text-align: center;
   }
+  .img-dialog {
+
+  }
    /deep/ .avatar-uploader .el-upload {
      border: 1px dashed #d9d9d9;
-     border-radius: 6px;
+     width: 100px;
+     height: 100px;
+     line-height: 100px;
+     border-radius: 50%;
      cursor: pointer;
      position: relative;
      overflow: hidden;
@@ -128,14 +178,17 @@
   /deep/.avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
     text-align: center;
   }
   /deep/.avatar {
-    width: 178px;
-    height: 178px;
+    width: 100px;
+    height: 100px;
     display: block;
+  }
+  .form-item-avatar {
+    line-height: 100px;
   }
 </style>
