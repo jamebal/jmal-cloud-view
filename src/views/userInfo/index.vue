@@ -1,6 +1,19 @@
 <template>
   <div class="app-container">
     <el-form ref="form" :model="form" label-width="120px">
+      <el-form-item label="头像">
+
+        <el-upload
+          class="avatar-uploader"
+          :action="UploadAvatarURL"
+          :show-file-list="false"
+          :on-change="addAvatar"
+          :auto-upload="false"
+          :before-upload="beforeAvatarUpload">
+          <img v-if="form.avater" :src="form.avater" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-form-item>
       <el-form-item label="Activity name">
         <el-input v-model="form.name" />
       </el-form-item>
@@ -48,10 +61,15 @@
 </template>
 
 <script>
+
+  import api from '@/api/upload-api'
+
   export default {
     data() {
       return {
+        UploadAvatarURL: api.simpleUploadAvatarURL,
         form: {
+          avater: '',
           name: '',
           region: '',
           date1: '',
@@ -72,6 +90,22 @@
           message: 'cancel!',
           type: 'warning'
         })
+      },
+      addAvatar(file, fileList) {
+        console.log(file,fileList)
+        let reader = new FileReader();
+        const _this = this
+        reader.onload = function (e) {
+          _this.form.avater = e.target.result
+        };
+        reader.readAsDataURL(file.raw)
+      },
+      beforeAvatarUpload(file) {
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isLt2M;
       }
     }
   }
@@ -80,5 +114,28 @@
 <style scoped>
   .line{
     text-align: center;
+  }
+   /deep/ .avatar-uploader .el-upload {
+     border: 1px dashed #d9d9d9;
+     border-radius: 6px;
+     cursor: pointer;
+     position: relative;
+     overflow: hidden;
+   }
+  /deep/.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  /deep/.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  /deep/.avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
   }
 </style>

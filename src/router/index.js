@@ -87,6 +87,18 @@ export const constantRoutes = [
   },
 
   {
+    path: '/userinfo',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'userInfo',
+        component: () => import('@/views/userInfo/index'),
+      }
+    ]
+  },
+
+  {
     path: '/share',
     component: Layout,
     children: [
@@ -156,7 +168,7 @@ export const constantRoutes = [
     children: [
       {
         path: '',
-        name: 'share',
+        name: 's',
         component: () => import('@/views/public/share/shareList'),
       }
     ]

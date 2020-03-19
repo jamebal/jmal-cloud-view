@@ -4,6 +4,8 @@ const qs = require('qs')
 export default {
   // 上传
   simpleUploadURL: process.env.VUE_APP_BASE_API + '/upload',
+  // 上传头像
+  simpleUploadAvatarURL: process.env.VUE_APP_BASE_API + '/upload',
   // 合并
   mergeSimpleUpload: function(params) {
     return request({
