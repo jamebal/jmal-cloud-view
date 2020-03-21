@@ -84,7 +84,7 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
 })
 
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {

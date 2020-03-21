@@ -74,8 +74,8 @@ export default {
     }
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'jmal',
+        password: '123456'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -116,7 +116,6 @@ export default {
             this.loading = false
           })
         } else {
-          console.log('error submit!!')
           return false
         }
       })

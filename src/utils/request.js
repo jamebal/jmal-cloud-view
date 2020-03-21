@@ -46,6 +46,10 @@ service.interceptors.response.use(
 
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 0) {
+      if(res.code === 5) {
+        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+        return
+      }
       if(res.code === -2){
         Message({
           message: res.message || '服务器开小差了...',

@@ -87,13 +87,13 @@ export const constantRoutes = [
   },
 
   {
-    path: '/userinfo',
+    path: '/setting',
     component: Layout,
     children: [
       {
         path: '',
-        name: 'userInfo',
-        component: () => import('@/views/userInfo/index'),
+        name: 'setting',
+        component: () => import('@/views/setting/index'),
       }
     ]
   },

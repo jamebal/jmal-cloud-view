@@ -1,0 +1,45 @@
+.img-dialog {
+
+}
+.form-item-avatar {
+  .avatar-value{
+    position: absolute;
+    z-index: 1;
+  }
+  .avatar-value:hover {
+    cursor: pointer;
+    z-index: 0;
+  }
+  .avatar-overlay{
+    position: absolute;
+  }
+  .avatar-overlay:hover{
+    cursor: pointer;
+    z-index: 1;
+    background: #2f2f2fa8;
+  }
+}
+.form-item-avatar /deep/ .el-form-item__label{
+  padding: 30px 12px;
+}
+.dialog-avatar {
+  /deep/.el-dialog {
+    min-width: 800px;
+    margin-top: 5vh!important;
+  }
+}
+/deep/.el-input {
+  width: unset;
+}
+/deep/.el-textarea {
+  max-width: 500px;
+}
+.form-slogan {
+  width: 100%;
+  max-width: 500px;
+}
+.quota-space {
+  margin-top: 10px;
+  max-width: 300px;
+}
+
