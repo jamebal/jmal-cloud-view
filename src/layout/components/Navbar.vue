@@ -7,7 +7,8 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar" class="user-avatar">
+          <!--<img :src="avatar" class="user-avatar">-->
+          <el-avatar :src="imageUrl+avatar" icon="el-icon-user-solid"></el-avatar>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -41,6 +42,7 @@ import Hamburger from '@/components/Hamburger'
 export default {
   data() {
     return {
+      imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
     }
   },
   components: {
