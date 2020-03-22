@@ -352,6 +352,7 @@ export default {
       showNewFolder: false,
       isShowNewFolder: false,
       listModeSearch: false,
+      listModeSearchOpenDir: false,
       newFolderName: '新建文件夹',
       renameFileName: '',
       searchFileName: '',
@@ -1012,6 +1013,7 @@ export default {
           this.tableLoading = false
           this.clientHeight = document.documentElement.clientHeight - 165
           this.listModeSearch = true
+          this.listModeSearchOpenDir = false
           this.path = ''
           this.pagination['total'] = res.count
         }).catch(e => {})
@@ -1031,6 +1033,7 @@ export default {
         this.fileList = res.data
         this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = true
+        this.listModeSearchOpenDir = row
         this.pagination['total'] = res.count
         this.$nextTick(()=>{
           this.tableLoading = false
@@ -1053,6 +1056,7 @@ export default {
         })
         this.clientHeight = document.documentElement.clientHeight - 165
         this.listModeSearch = false
+        this.listModeSearchOpenDir = false
         this.pagination['total'] = res.count
         this.$nextTick(()=>{
           this.containerResize()
@@ -1082,7 +1086,11 @@ export default {
     currentChange(pageIndex) {
       this.pagination.pageIndex = pageIndex
       if (this.listModeSearch) {
-        this.searchFile(this.searchFileName)
+        if(this.listModeSearchOpenDir){
+          this.searchFileAndOpenDir(this.listModeSearchOpenDir)
+        }else{
+          this.searchFile(this.searchFileName)
+        }
       } else {
         this.getFileList()
       }
@@ -1622,7 +1630,8 @@ export default {
       this.shareFileName = row.name
       api.generate({
         userId: row.userId,
-        fileId: row.id
+        fileId: row.id,
+        isFile: !row.isFolder
       }).then(res => {
         if (res.data) {
           this.shareLink = 'http://'+window.location.host+'/s?s='+res.data

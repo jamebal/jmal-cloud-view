@@ -16,6 +16,14 @@ export function getInfo(params) {
   })
 }
 
+export function userList(params) {
+  return request({
+    url: 'user/userList',
+    method: 'get',
+    params
+  })
+}
+
 export function logout() {
   return request({
     url: 'logout',
@@ -30,3 +38,45 @@ export function userUpdate(data) {
     data
   })
 }
+
+export function addUser(data) {
+  return request({
+    url: 'user/add',
+    method: 'post',
+    data
+  })
+}
+
+export function validOldPass(data) {
+  return request({
+    url: 'valid-old-pass',
+    method: 'post',
+    data
+  })
+}
+
+export function updatePass(data) {
+  return request({
+    url: 'user/update-pass',
+    method: 'post',
+    data
+  })
+}
+
+export function resetPass(id) {
+  return request({
+    url: 'user/reset-pass',
+    method: 'post',
+    params: {id}
+  })
+}
+
+export function delUser(id) {
+  return request({
+    url: 'user/delete',
+    method: 'get',
+    params: {id}
+  })
+}
+
+

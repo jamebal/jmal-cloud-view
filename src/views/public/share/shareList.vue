@@ -1,5 +1,8 @@
 <template>
   <div class="dashboard-container" v-resize="containerResize">
+    <transition name="fade">
+      <al-loading v-if="isLoading"></al-loading>
+    </transition>
     <div class="share-h">
       <div class="share-header">
         <a href="">
@@ -205,8 +208,8 @@
       <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
     <div v-if="linkFailed" class="share-header">
-      <p>温馨提示：</p>
-      <p>文件分享已被撤销</p>
+      <p v-if="prompt !== ''">温馨提示：</p>
+      <p>{{prompt}}</p>
     </div>
     <el-pagination
       background
@@ -235,12 +238,15 @@
   import api from '@/api/upload-api'
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
   import IconFile from "@/components/Icon/IconFile";
+  import AlLoading from "@/components/loading/AlLoading";
 
   export default {
-    components: { IconFile, BreadcrumbFilePath,
+    components: { IconFile, BreadcrumbFilePath,AlLoading
     },
     data() {
       return {
+        prompt: '文件分享已被撤销',// 文件分享已被撤销
+        isLoading: true,
         imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
         fileMenuActive: '',
         path: this.$route.query.path,
@@ -255,6 +261,7 @@
         ],
         fileList: [],
         pagination: {
+          fileId: false,
           pageIndex: 1,
           pageSize: 25,
           total: 0,
@@ -369,7 +376,7 @@
 
       const that = this
       window.onresize = function temp() {
-        that.clientHeight = document.documentElement.clientHeight - 165
+        that.clientHeight = document.documentElement.clientHeight - 265
       }
 
       // 加载布局
@@ -520,10 +527,13 @@
         api.accessShareOpenDir({
           share: this.shareId,
           fileId: fileId,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
         }).then(res => {
           this.fileList = res.data
-          this.clientHeight = document.documentElement.clientHeight - 165
+          this.clientHeight = document.documentElement.clientHeight - 265
           this.listModeSearch = true
+          this.pagination.fileId = fileId
           this.pagination['total'] = res.count
           this.$nextTick(()=>{
             this.tableLoading = false
@@ -541,35 +551,51 @@
           })
         }).catch(e => {})
       },
-      getFileList() {
+      getFileList(pagination) {
         this.tableLoading = true
         api.accessShare({
-          share:this.shareId
+          share:this.shareId,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
         }).then(res => {
-          this.fileList = res.data
-          const pathList = this.fileList[0].path.split('/');
-          this.currentDirName = pathList[pathList.length-2]
-          this.fileList.map((item,index) => {
-            item.index = index
-          })
-          this.clientHeight = document.documentElement.clientHeight - 165
-          this.listModeSearch = false
-          this.pagination['total'] = res.count
-          this.$nextTick(()=>{
-            this.containerResize()
-            this.tableLoading = false
-            // 打开文件夹
-            const item1 = {}
-            item1['folder'] = this.currentDirName
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
-            this.pagination.pageIndex = 1
-            this.linkFailed = false
-          })
+          this.isLoading = false
+          if(Object.getPrototypeOf(res.data) === String.prototype){
+            this.prompt = '该链接已失效'
+          }else{
+            this.fileList = res.data
+            this.fileList.map((item,index) => {
+              item.index = index
+            })
+            this.clientHeight = document.documentElement.clientHeight - 265
+            this.listModeSearch = false
+            this.listModeSearchOpenDir = false
+            this.pagination['total'] = res.count
+            this.$nextTick(()=>{
+              this.containerResize()
+              this.tableLoading = false
+              this.linkFailed = false
+            })
+            if(!pagination){
+              const pathList = this.fileList[0].path.split('/');
+              this.currentDirName = pathList[pathList.length-2]
+            }
+            this.$nextTick(()=>{
+              this.containerResize()
+              this.tableLoading = false
+              this.linkFailed = false
+              if(!pagination){
+                // 打开文件夹
+                const item1 = {}
+                item1['folder'] = this.currentDirName
+                item1['index'] = this.pathList.length - 1
+                const item2 = {}
+                item2['folder'] = '+'
+                item2['index'] = this.pathList.length
+                this.pathList[this.pathList.length - 1] = item1
+                this.pathList.push(item2)
+              }
+            })
+          }
         }).catch(() => {
           this.tableLoading = false
           this.linkFailed = true
@@ -577,10 +603,11 @@
       },
       currentChange(pageIndex) {
         this.pagination.pageIndex = pageIndex
-        if (this.listModeSearch) {
-          this.searchFile(this.searchFileName)
-        } else {
-          this.getFileList()
+        console.log(this.pagination.fileId)
+        if(this.pagination.fileId){
+          this.accessShareOpenDir(this.pagination.fileId)
+        }else{
+          this.getFileList(true)
         }
       },
       getSummaries(param) {

@@ -28,6 +28,11 @@
     margin-top: 5vh!important;
   }
 }
+.dialog-cm {
+  /deep/.el-dialog {
+    max-width: 500px;
+  }
+}
 /deep/.el-input {
   width: unset;
 }
