@@ -34,7 +34,7 @@ export function logout() {
 export function userUpdate(data) {
   return request({
     url: 'user/update',
-    method: 'post',
+    method: 'put',
     data
   })
 }
@@ -58,7 +58,7 @@ export function validOldPass(data) {
 export function updatePass(data) {
   return request({
     url: 'user/update-pass',
-    method: 'post',
+    method: 'put',
     data
   })
 }
@@ -66,7 +66,7 @@ export function updatePass(data) {
 export function resetPass(id) {
   return request({
     url: 'user/reset-pass',
-    method: 'post',
+    method: 'put',
     params: {id}
   })
 }
@@ -74,7 +74,7 @@ export function resetPass(id) {
 export function delUser(id) {
   return request({
     url: 'user/delete',
-    method: 'get',
+    method: 'delete',
     params: {id}
   })
 }

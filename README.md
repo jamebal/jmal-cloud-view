@@ -37,7 +37,7 @@ npm run dev
 ```
 
 ### 4. Build
-```bush
+```bash
 # build for test environment
 npm run build:stage
 

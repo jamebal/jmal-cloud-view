@@ -5,6 +5,10 @@
   .avatar-value{
     position: absolute;
     z-index: 1;
+    /deep/.el-icon-user-solid{
+      font-size: 50px;
+      padding: 25px;
+    }
   }
   .avatar-value:hover {
     cursor: pointer;

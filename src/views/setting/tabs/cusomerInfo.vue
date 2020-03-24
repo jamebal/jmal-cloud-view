@@ -22,7 +22,7 @@
     </el-dialog>
     <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="120px">
       <el-form-item label="头像" class="form-item-avatar">
-        <el-avatar class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage" ></el-avatar>
+        <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage" ></el-avatar>
         <el-avatar class="avatar-overlay" shape="circle" :size="100" @click.native="dialogAvatar=true"> 修改头像 </el-avatar>
       </el-form-item>
       <el-form-item label="密码">
@@ -175,10 +175,10 @@
             }else{
               // 验证旧密码
               this.userUpdateLoading = true
-              let data = new FormData()
-              data.append("id",this.$store.state.user.userId)
-              data.append("password",this.passwordForm.oldPassword)
-              validOldPass(data).then(() => {
+              validOldPass({
+                id: this.$store.state.user.userId,
+                password: this.passwordForm.oldPassword
+              }).then(() => {
                 this.userUpdateLoading = false
                 this.validOldPass = true
                 this.passwordFormTitle = '新密码'
