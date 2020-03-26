@@ -1,6 +1,6 @@
 <template>
   <div>
-    <show-file :defaultGrid="false" :sortable="sortable"></show-file>
+    <show-file :defaultGrid="false"></show-file>
   </div>
 </template>
 
@@ -11,9 +11,6 @@ export default {
   components: {ShowFile},
   data() {
     return {
-      sortable: {
-        prop: 'updateDate', order: 'descending'
-      },
     }
   },
 }

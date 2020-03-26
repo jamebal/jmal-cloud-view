@@ -173,16 +173,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column
-          v-if="index === 2"
-          :key="index"
-          :show-overflow-tooltip="true"
-          max-width="200"
-          :index="index"
-          :prop="item.name"
-          :label="item.label"
-          :sortable="item.sortable && orderCustom ?'custom':false"
-          @click.stop="fileClick(scope.row)">
+        <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" max-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="orderCustom?'custom':item.sortable" @click.stop="fileClick(scope.row)">
           <template slot-scope="scope">
             <el-col v-if="scope.row.index === editingIndex" :span="10">
               <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
@@ -230,7 +221,7 @@
           :prop="item.name"
           :index="index"
           :label="item.label"
-          :sortable="item.sortable && orderCustom ?'custom':false"
+          :sortable="orderCustom?'custom':item.sortable"
           :show-overflow-tooltip="true"
           align="left"
           header-align="left"
@@ -247,7 +238,7 @@
           :prop="item.name"
           :index="index"
           :label="item.label"
-          :sortable="item.sortable && orderCustom ?'custom':false"
+          :sortable="orderCustom?'custom':item.sortable"
           :show-overflow-tooltip="true"
           align="left"
           header-align="left"
@@ -362,59 +353,6 @@
         'default': function () {
           return {isFolder:null}
         }
-      },
-      singleMenus: {
-        'type': Array,
-        'default': function () {
-          return [
-            { iconClass: 'menu-open', label: '打开', operation: 'open' },
-            { iconClass: 'share', label: '分享', operation: 'share' },
-            { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-            { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
-            { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
-            { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-            { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-            { iconClass: 'menu-download', label: '下载', operation: 'download' },
-            { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-          ]
-        }
-      },
-      singleMenusEdit: {
-        'type': Array,
-        'default': function () {
-          return [
-            { iconClass: 'menu-open', label: '打开', operation: 'open' },
-            { iconClass: 'share', label: '分享', operation: 'share' },
-            { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-            { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
-            { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
-            { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-            { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-            { iconClass: 'menu-download', label: '下载', operation: 'download' },
-            { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-          ]
-        }
-      },
-      multipleMenus: {
-        'type': Array,
-        'default': function () {
-          return [
-            { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-            { iconClass: 'menu-download', label: '下载', operation: 'download' },
-            { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-          ]
-        }
-      },
-      multipleRightMenus: {
-        'type': Array,
-        'default': function () {
-          return [
-            { iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect' },
-            { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-            { iconClass: 'menu-download', label: '下载', operation: 'download' },
-            { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-          ]
-        }
       }
     },
     data() {
@@ -470,6 +408,38 @@
         isJustHideMenus: false,
         menusIsMultiple: false,
         menus: [],
+        singleMenus: [
+          { iconClass: 'menu-open', label: '打开', operation: 'open' },
+          { iconClass: 'share', label: '分享', operation: 'share' },
+          { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
+          { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
+          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
+        singleMenusEdit: [
+          { iconClass: 'menu-open', label: '打开', operation: 'open' },
+          { iconClass: 'share', label: '分享', operation: 'share' },
+          { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
+          { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
+          { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
+          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
+        multipleMenus: [
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
+        multipleRightMenus: [
+          { iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect' },
+          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
+          { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
         rowContextData: {},
         selectRowData: [],
         tableLoading: false,
@@ -486,6 +456,7 @@
           children: 'children',
           isLeaf: 'isLeaf'
         },
+
         dragLoop: null,
         positionX:0,
         positionY:0,
@@ -1745,115 +1716,8 @@
           });
         }
       },
-      // 收藏/取消收藏
-      favoriteOperating(isFavorite) {
-        this.selectRowData[0].isFavorite = isFavorite
-        this.highlightFavorite(isFavorite, true)
-        api.favoriteUrl({
-          token: this.$store.state.user.token,
-          id: this.selectRowData[0].id,
-          isFavorite: isFavorite
-        }).then(res => {
-        })
-      },
-      // 删除
-      deleteFile() {
-        let fileList = []
-        const fileIds = []
-        if (this.menusIsMultiple || this.indexList.length > 1) {
-          fileList = this.selectRowData
-          this.selectRowData.forEach(value => {
-            fileIds.push(value.id)
-          })
-        } else {
-          fileIds.push(this.selectRowData[0].id)
-        }
-        console.log(fileIds)
-        const str = this.getShowSumFileAndFolder(fileList)
-
-        this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          api.delete({
-            username: this.$store.state.user.name,
-            fileIds: fileIds
-          }).then(() => {
-            this.$notify({
-              title: '删除成功',
-              type: 'success',
-              duration: 1000
-            })
-            // 移除列表
-            if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.selectRowData[0].index, 1)
-            } else {
-              this.getFileList()
-            }
-            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-            this.selectRowData = []
-          })
-        })
-      },
-      // 点击文件或文件夹
       fileClick(row) {
         console.log(row)
-        if (row.isFolder) {
-          // 打开文件夹
-          if (this.listModeSearch) {
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['search'] = true
-            item1['row'] = row
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
-            this.pagination.pageIndex = 1
-            // this.$router.push(`?search-file=${row.id}`)
-            this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`)
-            this.searchFileAndOpenDir(row)
-          } else {
-            if(this.path){
-              this.path += '/' + row.name
-            } else {
-              this.path = '/' + row.name
-            }
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
-            setPath(this.path, this.pathList)
-            this.pagination.pageIndex = 1
-            const path = encodeURIComponent(this.path);
-            this.$router.push(`?vmode=${this.vmode}&path=${path}`)
-            this.searchFileAndOpenDir(row)
-            // this.getFileList()
-          }
-        } else {
-          if(row.contentType.includes('text')){
-            // let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
-            // window.open(routeData.href, '_blank');
-            this.$router.push(`/public/articles/article?mark=${row.id}`)
-          }else{
-            // 打开文件
-            const fileIds = [row.id]
-            let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-            window.open(url, '_blank')
-          }
-          // const fileIds = [row.id]
-          // let url = 'http://localhost:10010/preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          // url = process.env.VUE_APP_BASE_PRIVIEW_API+'/onlinePreview?url='+encodeURIComponent(url);
-          // console.log("url",url)
-          // window.open(url);
-        }
       }
     }
   }

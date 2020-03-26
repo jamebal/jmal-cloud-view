@@ -156,9 +156,9 @@ export const constantRoutes = [
     component: Layout,
     children: [
       {
-        path: 'index',
+        path: '',
         name: 'share',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/share/index'),
         meta: { title: '分享', icon: 'gongxiangzhongxin' }
       }
     ]
