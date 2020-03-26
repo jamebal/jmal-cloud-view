@@ -15,7 +15,7 @@
           prop: 'updateDate', order: 'descending'
         },
         queryCondition: {
-          isFolder:false
+          isFavorite: false
         }
       }
     },

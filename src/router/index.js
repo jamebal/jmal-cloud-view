@@ -65,10 +65,63 @@ export const constantRoutes = [
     redirect: '/recently',
     children: [
       {
-        path: 'recently',
+        path: '',
         name: 'recently',
         component: () => import('@/views/recently/index'),
         meta: { title: '最近', icon: 'zuijinyuedu' }
+      }
+    ]
+  },
+
+  {
+    path: '/audio',
+    component: Layout,
+    redirect: '/audio',
+    children: [
+      {
+        path: '',
+        name: 'audio',
+        component: () => import('@/views/fileType/audio'),
+        meta: { title: '音乐', icon: 'audio' }
+      }
+    ]
+  },
+  {
+    path: '/video',
+    component: Layout,
+    redirect: '/video',
+    children: [
+      {
+        path: '',
+        name: 'video',
+        component: () => import('@/views/fileType/video'),
+        meta: { title: '视频', icon: 'video' }
+      }
+    ]
+  },
+  {
+    path: '/image',
+    component: Layout,
+    redirect: '/image',
+    children: [
+      {
+        path: '',
+        name: 'image',
+        component: () => import('@/views/fileType/image'),
+        meta: { title: '图片', icon: 'image' }
+      }
+    ]
+  },
+  {
+    path: '/document',
+    component: Layout,
+    redirect: '/document',
+    children: [
+      {
+        path: '',
+        name: 'document',
+        component: () => import('@/views/fileType/document'),
+        meta: { title: '文档', icon: 'document' }
       }
     ]
   },
@@ -80,7 +133,7 @@ export const constantRoutes = [
       {
         path: 'index',
         name: 'Form',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/favorite/index'),
         meta: { title: '收藏', icon: 'Favoritestarrate' }
       }
     ]
