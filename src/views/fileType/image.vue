@@ -3,6 +3,7 @@
     <show-file
       queryFileType="image"
       :orderCustom="true"
+      emptyStatus="还没有图片呢~"
     >
     </show-file>
   </div>

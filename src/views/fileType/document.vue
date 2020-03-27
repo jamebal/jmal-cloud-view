@@ -3,6 +3,7 @@
     <show-file
       queryFileType="document"
       :orderCustom="true"
+      emptyStatus="还没有文档呢~"
     >
     </show-file>
   </div>

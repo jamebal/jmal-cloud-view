@@ -131,7 +131,7 @@
 
     <!--list布局-->
     <el-table
-      v-show="!grid"
+      v-show="!grid && this.fileList.length > 0"
       ref="fileListTable"
       v-loading="tableLoading"
       :max-height="clientHeight"
@@ -268,7 +268,7 @@
     </el-table>
 
     <!--grid布局-->
-    <div v-show="grid" v-loading="tableLoading"
+    <div v-show="grid && this.fileList.length > 0" v-loading="tableLoading"
          element-loading-text="文件加载中"
          element-loading-spinner="el-icon-loading"
          element-loading-background="#f6f7fa88">
@@ -313,6 +313,11 @@
       </van-checkbox-group>
       <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
+    <empty-file
+      v-if="this.fileList.length < 1"
+      :emptyStatus="emptyStatus"
+    >
+    </empty-file>
     <el-pagination
       background
       layout="prev, pager, next"
@@ -340,13 +345,17 @@
   import api from '@/api/upload-api'
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
   import IconFile from "@/components/Icon/IconFile";
+  import EmptyFile from "@/components/EmptyFile";
   import Clipboard from 'clipboard';
 
   export default {
     name: 'ShowFile',
-    components: { IconFile, BreadcrumbFilePath,
-    },
+    components: { IconFile, BreadcrumbFilePath,EmptyFile},
     props: {
+      emptyStatus: {
+        'type': String,
+        'default': '空空如也~',
+      },
       singleFileType: {
         'type': String,
         'default': '',

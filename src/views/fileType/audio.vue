@@ -4,6 +4,7 @@
       queryFileType="audio"
       :orderCustom="true"
       singleFileType="音乐"
+      emptyStatus="还没有音乐呢~"
     ></show-file>
   </div>
 </template>
