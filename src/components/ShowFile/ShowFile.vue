@@ -314,7 +314,7 @@
       <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
     <empty-file
-      v-if="this.fileList.length < 1"
+      v-if="this.fileList.length < 1 && !tableLoading"
       :emptyStatus="emptyStatus"
     >
     </empty-file>
@@ -1198,10 +1198,8 @@
           this.getFileList()
         }
       },
-      sortChange(column, prop, order) {
-        // console.log(this.listModeSearch)
+      sortChange(column) {
         if(this.orderCustom || this.listModeSearch){
-          console.log('sortChange',column)
           this.sortable.prop = column.prop
           this.sortable.order = column.order
 
@@ -1314,7 +1312,7 @@
           item_date.label = '修改日期'
           item_date.sortable = true
         }
-        if(this.indexList.length == this.fileList.length){
+        if(this.indexList.length === this.fileList.length){
           this.allChecked = true
         }else{
           this.allChecked = false
@@ -1751,7 +1749,7 @@
         api.generate({
           userId: row.userId,
           fileId: row.id,
-          isFile: !row.isFolder
+          isFolder: row.isFolder
         }).then(res => {
           if (res.data) {
             this.shareLink = 'http://'+window.location.host+'/s?s='+res.data

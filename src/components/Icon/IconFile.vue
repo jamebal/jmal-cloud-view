@@ -19,12 +19,12 @@
     <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio"/>
     <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>
     <div v-else-if="item.contentType.indexOf('image') > -1">
-      <el-image v-if="grid" style="width: 80px;height: 80px;" fit="contain" :src="imageUrl+item.id">
+      <el-image v-if="grid" style="width: 80px;height: 80px;" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
           <svg-icon icon-class="loading-image-error"/>
         </div>
       </el-image>
-      <el-avatar v-if="!grid" shape="square" :src="imageUrl+item.id"></el-avatar>
+      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)"></el-avatar>
     </div>
     <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>
     <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>
@@ -63,7 +63,9 @@
     },
     mounted() {
     },
-    methods: {}
+    methods: {
+
+    }
   }
 </script>
 <style lang="scss" scoped>

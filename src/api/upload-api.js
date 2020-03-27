@@ -130,6 +130,22 @@ export default {
       data: data
     })
   },
+  // 取消分享
+  cancelShareLink: function(params) {
+    return request({
+      url: 'share/cancel',
+      method: 'delete',
+      params
+    })
+  },
+  // 分享列表
+  sharelist: function(params) {
+    return request({
+      url: '/share/list',
+      method: 'get',
+      params
+    })
+  },
   // 访问分享链接
   accessShare: function(params) {
     return request({
