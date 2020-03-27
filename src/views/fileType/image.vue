@@ -1,6 +1,10 @@
 <template>
   <div>
-    <show-file queryFileType="image"></show-file>
+    <show-file
+      queryFileType="image"
+      :orderCustom="true"
+    >
+    </show-file>
   </div>
 </template>
 

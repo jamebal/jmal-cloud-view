@@ -3,8 +3,9 @@
     <show-file
       :defaultGrid="false"
       :sortable="sortable"
-      :queryCondition="queryCondition"
       :orderCustom="true"
+      :defaultSort="sortable"
+      :queryCondition="queryCondition"
       :singleMenus="singleMenus"
       :singleMenusEdit="singleMenusEdit"
       :multipleMenus="multipleMenus"
@@ -22,7 +23,7 @@
     data() {
       return {
         sortable: {
-          prop: 'updateDate', order: 'descending'
+          prop: 'updateDate', order: 'ascending'
         },
         queryCondition: {
           isFavorite: true

@@ -1,6 +1,12 @@
 <template>
   <div>
-    <show-file :defaultGrid="false" :sortable="sortable" :queryCondition="queryCondition" :orderCustom="true"></show-file>
+    <show-file
+      :defaultGrid="false"
+      :sortable="sortable"
+      :queryCondition="queryCondition"
+      :orderCustom="true"
+      :showNavigation="false"
+    ></show-file>
   </div>
 </template>
 

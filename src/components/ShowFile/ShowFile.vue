@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container" v-resize="containerResize">
     <el-breadcrumb class="app-breadcrumb" separator="">
-      <transition-group name="breadcrumb">
+      <transition-group name="breadcrumb" v-if="showNavigation">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
           <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
           <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
@@ -16,19 +16,19 @@
               <ul>
                 <li @click="upload">
                   <label class="menuitem">
-                    <svg-icon icon-class="file-upload" /><span class="menuitem text">上传文件</span>
+                    <svg-icon icon-class="file-upload" /><span class="menuitem text">{{singleFileType !==''?singleFileType:'上传文件'}}</span>
                   </label>
                 </li>
-                <li @click="uploadFolder">
+                <li v-if="singleFileType === ''" @click="uploadFolder">
                   <label class="menuitem">
                     <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
                   </label>
                 </li>
-                <li @click.prevent="newDocument">
+                <li v-if="singleFileType === ''" @click.prevent="newDocument">
                   <a href="#" class="menuitem"><svg-icon icon-class="md" /><span class="menuitem text">新建文档</span>
                   </a>
                 </li>
-                <li @click.prevent="newFolder">
+                <li v-if="singleFileType === ''" @click.prevent="newFolder">
                   <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
                   </a>
                 </li>
@@ -135,6 +135,7 @@
       ref="fileListTable"
       v-loading="tableLoading"
       :max-height="clientHeight"
+      :default-sort="sortable"
       style="width: 100%;margin: 20px 0 0 0;"
       empty-text="无文件"
       :data="fileList"
@@ -154,6 +155,7 @@
       @sort-change="sortChange"
     >
       <template v-for="(item,index) in tableHead">
+        <!--索引-->
         <el-table-column
           v-if="index === 0"
           :key="index"
@@ -162,6 +164,7 @@
           min-width="50"
         >
         </el-table-column>
+        <!--图标-->
         <el-table-column
           v-if="index === 1"
           :key="index"
@@ -172,7 +175,7 @@
             <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
           </template>
         </el-table-column>
-
+        <!--名称-->
         <el-table-column
           v-if="index === 2"
           :key="index"
@@ -181,7 +184,8 @@
           :index="index"
           :prop="item.name"
           :label="item.label"
-          :sortable="item.sortable && orderCustom ?'custom':false"
+          :sort-orders="['ascending', 'descending']"
+          :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
           @click.stop="fileClick(scope.row)">
           <template slot-scope="scope">
             <el-col v-if="scope.row.index === editingIndex" :span="10">
@@ -206,13 +210,15 @@
             <span v-else class="table-file-name">{{ scope.row.name }}</span>
           </template>
         </el-table-column>
-
-        <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" @click="share(scope.row)"/>
-          </template>
+        <!--分享-->
+        <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+            <template slot-scope="scope">
+              <el-tooltip class="item" effect="dark" content="分享" placement="top">
+                <svg-icon title="分享" v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" @click="share(scope.row)"/>
+              </el-tooltip>
+            </template>
         </el-table-column>
-
+        <!--更多-->
         <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
           <!-- 使用组件, 并传值到组件中 -->
           <template slot="header">
@@ -222,7 +228,7 @@
             <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click="moreClick(scope.row,$event)" />
           </template>
         </el-table-column>
-
+        <!--文件大小-->
         <el-table-column
           v-if="index === 5"
           :key="index"
@@ -230,7 +236,8 @@
           :prop="item.name"
           :index="index"
           :label="item.label"
-          :sortable="item.sortable && orderCustom ?'custom':false"
+          :sort-orders="['ascending', 'descending']"
+          :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
           :show-overflow-tooltip="true"
           align="left"
           header-align="left"
@@ -239,15 +246,16 @@
             <span>{{formatSize(scope.row.size)}}</span>
           </template>
         </el-table-column>
-
+        <!--修改时间-->
         <el-table-column
           v-if="index === 6"
           :key="index"
-          width="300"
+          width="250"
           :prop="item.name"
           :index="index"
           :label="item.label"
-          :sortable="item.sortable && orderCustom ?'custom':false"
+          :sort-orders="['ascending', 'descending']"
+          :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
           :show-overflow-tooltip="true"
           align="left"
           header-align="left"
@@ -339,6 +347,14 @@
     components: { IconFile, BreadcrumbFilePath,
     },
     props: {
+      singleFileType: {
+        'type': String,
+        'default': '',
+      },
+      showNavigation: {
+        'type': Boolean,
+        'default': true,
+      },
       queryFileType: {
         'type': String,
         'default': null
@@ -351,6 +367,12 @@
         'type': Boolean,
         'default': false
       },
+      // defaultSort: {
+      //   'type': Object,
+      //   'default': function () {
+      //     return { prop: '', order: null }
+      //   }
+      // },
       sortable: {
         'type': Object,
         'default': function () {
@@ -370,7 +392,6 @@
             { iconClass: 'menu-open', label: '打开', operation: 'open' },
             { iconClass: 'share', label: '分享', operation: 'share' },
             { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-            { iconClass: 'menu-edit1', label: '编辑', operation: 'edit' },
             { iconClass: 'menu-details', label: '详细信息', operation: 'details' },
             { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
             { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
@@ -920,7 +941,7 @@
           })
           if(!unPushLink){
             if (!this.$route.query.path){
-              this.$router.push(`/?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+              this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
             } else {
               this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
             }
@@ -1082,6 +1103,32 @@
         }).catch(e => {})
         this.path = row.path + row.name
       },
+      openDir(row) {
+        this.tableLoading = true
+        api.searchFileAndOpenDir({
+          userId: this.$store.state.user.userId,
+          id: row.id,
+          currentDirectory: this.$route.query.path,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
+        }).then(res => {
+          this.fileList = res.data
+          this.fileList.map((item,index) => {
+            item.index = index
+          })
+          this.clientHeight = document.documentElement.clientHeight - 165
+          this.listModeSearch = false
+          this.listModeSearchOpenDir = false
+          this.pagination['total'] = res.count
+          this.$nextTick(()=>{
+            this.containerResize()
+            this.tableLoading = false
+          })
+          // 使列表可拖拽
+          this.rowDrop()
+        }).catch(e => {})
+        this.path = row.path + row.name
+      },
       getFileList() {
         this.tableLoading = true
         api.fileList({
@@ -1143,11 +1190,19 @@
         }
       },
       sortChange(column, prop, order) {
-        if(this.orderCustom){
+        // console.log(this.listModeSearch)
+        if(this.orderCustom || this.listModeSearch){
           console.log('sortChange',column)
           this.sortable.prop = column.prop
           this.sortable.order = column.order
-          this.getFileList();
+
+          this.pagination.pageIndex = 1
+
+          if(this.listModeSearch){
+            this.searchFile(this.searchFileName)
+          }else{
+            this.getFileList();
+          }
         }
       },
       getSummaries(param) {
@@ -1198,7 +1253,8 @@
       getShowSumSize(totalSize) {
         let sizeSum = ''
         if (totalSize > 0) {
-          sizeSum = '  共'
+          // sizeSum = '  共'
+          sizeSum = '  '
         }
         if (totalSize < 1024) {
           sizeSum += totalSize + 'B'
@@ -1834,7 +1890,7 @@
             this.pagination.pageIndex = 1
             const path = encodeURIComponent(this.path);
             this.$router.push(`?vmode=${this.vmode}&path=${path}`)
-            this.searchFileAndOpenDir(row)
+            this.openDir(row)
             // this.getFileList()
           }
         } else {

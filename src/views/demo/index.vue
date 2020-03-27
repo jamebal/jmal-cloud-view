@@ -114,18 +114,4 @@
   }
 </script>
 <style>
-  .dsada {
-    background-color: red;
-  }
-  .el-input__inner {
-    height: 25px !important;
-  }
-  body, html {
-    overflow: auto;
-    margin: 0;
-    padding: 10px;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-  }
 </style>

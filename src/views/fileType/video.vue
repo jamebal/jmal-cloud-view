@@ -1,6 +1,10 @@
 <template>
   <div>
-    <show-file queryFileType="video"></show-file>
+    <show-file
+      queryFileType="video"
+      :orderCustom="true"
+    >
+    </show-file>
   </div>
 </template>
 

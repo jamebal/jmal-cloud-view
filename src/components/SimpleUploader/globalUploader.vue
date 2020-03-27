@@ -125,7 +125,6 @@ export default {
         query() {}
       },
       attrs: {
-        // accept: ACCEPT_CONFIG.getAll()
         accept: '*'
       },
       statusText: {

@@ -1,6 +1,10 @@
 <template>
   <div>
-    <show-file queryFileType="audio"></show-file>
+    <show-file
+      queryFileType="audio"
+      :orderCustom="true"
+      singleFileType="音乐"
+    ></show-file>
   </div>
 </template>
 
