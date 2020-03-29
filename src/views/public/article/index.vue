@@ -211,6 +211,7 @@
   }
 </script>
 <style lang="scss" scoped>
+  @import "src/styles/index";
   @import "src/styles/markdown";
   @import "src/styles/articles";
   /deep/ .el-backtop {

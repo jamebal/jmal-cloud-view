@@ -27,7 +27,7 @@
 
 <script>
   import markdownApi from '@/api/markdown-api'
-  import uploadApi from '@/api/upload-api'
+  import uploadApi from '@/api/file-api'
   export default {
     data() {
       return {

@@ -76,7 +76,7 @@
         >
           <template slot="header">
             <div v-if="item.label === ''" class="cancel-share-header">
-              <span class="header-font">{{sumFileAndFolder}}</span><el-button icon="el-icon-my-export">取消分享</el-button>
+              <span class="header-font">{{sumFileAndFolder}}</span><el-button icon="el-icon-my-export" @click="cancelShare(false)">取消分享</el-button>
             </div>
           </template>
           <template slot-scope="scope">
@@ -152,7 +152,7 @@
   import EmptyFile from "@/components/EmptyFile";
   import IconFile from "@/components/Icon/IconFile";
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
-  import api from '@/api/upload-api'
+  import api from '@/api/file-api'
   import Clipboard from 'clipboard';
   export default {
     components: { ShowFile, EmptyFile, IconFile },
@@ -436,14 +436,25 @@
       },
       // 取消分享
       cancelShare(row) {
-        console.log(row)
-        this.fileList.splice(row.index,1)
-        // api.cancelShareLink({
-        //   userId: this.$store.state.user.userId,
-        //   shareId: row.id
-        // }).then(() => {
-        //   this.fileList.splice(row.index,1)
-        // })
+        let shareIds = []
+        if(row){
+          shareIds.push(row.id)
+        } else {
+          this.selectRowData.forEach(row => {
+            shareIds.push(row.id)
+          })
+        }
+        console.log(shareIds)
+        api.cancelShareLink({
+          userId: this.$store.state.user.userId,
+          shareId: shareIds
+        }).then(() => {
+          if(shareIds.length === 1){
+            this.fileList.splice(row.index,1)
+          }else{
+            this.getFileList()
+          }
+        })
       },
       // 点击文件或文件夹
       fileClick(row) {

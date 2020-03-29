@@ -166,7 +166,7 @@
   import 'vant/lib/checkbox-group/style';
 
   import {formatSize, formatTime, strlen, substring10} from '@/utils/number'
-  import api from '@/api/upload-api'
+  import api from '@/api/file-api'
   import IconFile from "../../../components/Icon/IconFile";
   import Bus from '@/assets/js/bus'
   import {Dialog, Notify, Toast} from 'vant';

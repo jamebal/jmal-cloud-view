@@ -328,6 +328,7 @@
       :total="pagination.total"
       @current-change="currentChange">
     </el-pagination>
+    <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
   </div>
 </template>
 
@@ -341,16 +342,18 @@
   // import defaultSettings from '@/settings'
   import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
+  import { suffix } from '@/utils/file-type'
   import Bus from '@/assets/js/bus'
-  import api from '@/api/upload-api'
+  import api from '@/api/file-api'
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
   import IconFile from "@/components/Icon/IconFile";
   import EmptyFile from "@/components/EmptyFile";
+  import SimTextPreview from "@/components/SimTextPreview/SimTextPreview";
   import Clipboard from 'clipboard';
 
   export default {
     name: 'ShowFile',
-    components: { IconFile, BreadcrumbFilePath,EmptyFile},
+    components: {SimTextPreview, IconFile, BreadcrumbFilePath,EmptyFile},
     props: {
       emptyStatus: {
         'type': String,
@@ -530,6 +533,8 @@
         shareLink: '',
         shareFileName: '',
         generateShareLinkLoading: true,
+        textPreviewVisible : false,
+        textPreviewRow: {},
       }
     },
     computed: {
@@ -548,20 +553,6 @@
         this.selectRowData = selectRowData
         this.preliminaryRowData()
       })
-
-      // 加载路径
-      // const pathList = getPathList()
-      // if (pathList && pathList !== 'undefined') {
-      //   const res = JSON.parse(pathList)
-      //   const list = []
-      //   res.forEach(function(element) {
-      //     const item0 = {}
-      //     item0['folder'] = element.folder + ''
-      //     item0['index'] = element.index
-      //     list.push(item0)
-      //   })
-      //   this.pathList = list
-      // }
 
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
@@ -1861,7 +1852,6 @@
       },
       // 点击文件或文件夹
       fileClick(row) {
-        console.log(row)
         if (row.isFolder) {
           // 打开文件夹
           if (this.listModeSearch) {
@@ -1901,16 +1891,21 @@
             // this.getFileList()
           }
         } else {
+          if(suffix.simText.includes(row.suffix)){
+            this.textPreviewRow = row
+            this.textPreviewVisible = true
+            return
+          }
           if(row.contentType.includes('text')){
             // let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
             // window.open(routeData.href, '_blank');
             this.$router.push(`/public/articles/article?mark=${row.id}`)
-          }else{
-            // 打开文件
-            const fileIds = [row.id]
-            let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-            window.open(url, '_blank')
+            return
           }
+          // 打开文件
+          const fileIds = [row.id]
+          let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+          window.open(url, '_blank')
           // const fileIds = [row.id]
           // let url = 'http://localhost:10010/preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
           // url = process.env.VUE_APP_BASE_PRIVIEW_API+'/onlinePreview?url='+encodeURIComponent(url);
@@ -1923,7 +1918,33 @@
 </script>
 
 <style lang="scss" scoped>
+  @import "src/styles/index";
   @import "src/styles/home-index";
-
+  /*/deep/.el-table__body-wrapper::-webkit-scrollbar {*/
+    /*!*滚动条整体样式*!*/
+    /*width : 10px;  !*高宽分别对应横竖滚动条的尺寸*!*/
+    /*height: 1px;*/
+  /*}*/
+  /*/deep/.el-table__body-wrapper::-webkit-scrollbar-thumb {*/
+    /*!*滚动条里面小方块*!*/
+    /*border-radius   : 10px;*/
+    /*background-color: skyblue;*/
+    /*background-image: -webkit-linear-gradient(*/
+        /*45deg,*/
+        /*rgba(255, 255, 255, 0.2) 25%,*/
+        /*transparent 25%,*/
+        /*transparent 50%,*/
+        /*rgba(255, 255, 255, 0.2) 50%,*/
+        /*rgba(255, 255, 255, 0.2) 75%,*/
+        /*transparent 75%,*/
+        /*transparent*/
+    /*);*/
+  /*}*/
+  /*/deep/.el-table__body-wrapper::-webkit-scrollbar-track {*/
+    /*!*滚动条里面轨道*!*/
+    /*box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);*/
+    /*background   : #ededed;*/
+    /*border-radius: 10px;*/
+  /*}*/
 </style>
 

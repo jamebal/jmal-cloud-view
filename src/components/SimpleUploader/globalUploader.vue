@@ -84,7 +84,7 @@
 import Bus from '@/assets/js/bus'
 import $ from 'jquery'
 import SparkMD5 from 'spark-md5'
-import api from '@/api/upload-api'
+import api from '@/api/file-api'
 import { formatNetSpeed } from '@/utils/number'
 
 export default {

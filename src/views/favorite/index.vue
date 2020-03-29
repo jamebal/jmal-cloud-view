@@ -23,7 +23,7 @@
     data() {
       return {
         sortable: {
-          prop: 'updateDate', order: 'ascending'
+          prop: 'updateDate', order: 'descending'
         },
         queryCondition: {
           isFavorite: true

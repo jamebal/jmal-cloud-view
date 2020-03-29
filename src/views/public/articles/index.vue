@@ -40,7 +40,7 @@
                     <div class="new-meta-box">
                       <div class="new-meta-item author">
                         <a href="http://blog.jmal.com" rel="nofollow">
-                          <img :src="article.avatar" :data-original="article.avatar">
+                          <img :src="imageUrl+article.avatar" :data-original="imageUrl+article.avatar">
                           <p>{{article.username}}</p>
                         </a>
                       </div>
@@ -205,6 +205,7 @@
     components: { AlBackTop, AlLoading },
     data() {
       return {
+        imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
         isLoading: true,
         pageTitle: "文章列表",
         articleList: [],
@@ -253,6 +254,7 @@
   }
 </script>
 <style lang="scss" scoped>
+  @import "src/styles/index";
   @import "src/styles/markdown";
   @import "src/styles/articles";
   .l_side {

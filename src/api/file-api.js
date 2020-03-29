@@ -135,7 +135,10 @@ export default {
     return request({
       url: 'share/cancel',
       method: 'delete',
-      params
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
     })
   },
   // 分享列表
@@ -158,6 +161,14 @@ export default {
   accessShareOpenDir: function(params) {
     return request({
       url: 'public/access-share/open',
+      method: 'get',
+      params
+    })
+  },
+  // 访问分享链接里的文件夹
+  previewText: function(params) {
+    return request({
+      url: '/preview/text',
       method: 'get',
       params
     })

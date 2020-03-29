@@ -8,22 +8,22 @@ function resolve(dir) {
 
 const name = defaultSettings.title || 'jmalCloud' // page title
 
-// If your port is set to 80,
-// use administrator privileges to execute the command line.
-// For example, Mac: sudo npm run
-// You can change the port by the following methods:
-// port = 9528 npm run dev OR npm run dev --port = 9528
+//如果您的端口设置为80，
+//使用管理员权限执行命令行。
+//例如，Mac：sudo npm run
+//您可以通过以下方法更改端口：
+// port = 9528 npm run dev或npm run dev --port = 9528
 const port = process.env.port || process.env.npm_config_port || 9528 // dev port
 
-// All configuration item explanations can be find in https://cli.vuejs.org/config/
+//所有配置项说明均可在https://cli.vuejs.org/config/中找到
 module.exports = {
-  /**
-   * You will need to set publicPath if you plan to deploy your site under a sub path,
-   * for example GitHub Pages. If you plan to deploy your site to https://foo.github.io/bar/,
-   * then publicPath should be set to "/bar/".
-   * In most cases please use '/' !!!
-   * Detail: https://cli.vuejs.org/config/#publicpath
-   */
+/**
+  *如果您打算在子路径下部署网站，则需要设置publicPath，
+  *例如GitHub Pages。如果您打算将网站部署到https://foo.github.io/bar/，
+  *然后publicPath应该设置为“ / bar /”。
+  *在大多数情况下，请使用'/'！
+  *详细信息：https://cli.vuejs.org/config/#publicpath
+*/       
   publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
@@ -65,8 +65,8 @@ module.exports = {
     // before: require('./mock/mock-server.js')
   },
   configureWebpack: {
-    // provide the app's title in webpack's name field, so that
-    // it can be accessed in index.html to inject the correct title.
+    //在webpack的名称字段中提供应用程序的标题，以便
+    //可以在index.html中对其进行访问以注入正确的标题。
     name: name,
     resolve: {
       alias: {

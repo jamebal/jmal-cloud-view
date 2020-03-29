@@ -235,7 +235,7 @@
   import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import Bus from '@/assets/js/bus'
-  import api from '@/api/upload-api'
+  import api from '@/api/file-api'
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
   import IconFile from "@/components/Icon/IconFile";
   import AlLoading from "@/components/loading/AlLoading";
