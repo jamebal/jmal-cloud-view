@@ -329,6 +329,7 @@
       @current-change="currentChange">
     </el-pagination>
     <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
+    <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imageViewerVisible"></image-viewer>
   </div>
 </template>
 
@@ -348,12 +349,13 @@
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
   import IconFile from "@/components/Icon/IconFile";
   import EmptyFile from "@/components/EmptyFile";
-  import SimTextPreview from "@/components/SimTextPreview/SimTextPreview";
   import Clipboard from 'clipboard';
+  import SimTextPreview from "@/components/preview/SimTextPreview";
+  import ImageViewer from "@/components/preview/ImageViewer";
 
   export default {
     name: 'ShowFile',
-    components: {SimTextPreview, IconFile, BreadcrumbFilePath,EmptyFile},
+    components: {ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile},
     props: {
       emptyStatus: {
         'type': String,
@@ -535,6 +537,8 @@
         generateShareLinkLoading: true,
         textPreviewVisible : false,
         textPreviewRow: {},
+        imagePreviewRow: {},
+        imageViewerVisible : false,
       }
     },
     computed: {
@@ -1891,7 +1895,14 @@
             // this.getFileList()
           }
         } else {
+          if(row.contentType.indexOf('image') > -1){
+            // 图片
+            this.imageViewerVisible = true
+            this.imagePreviewRow = row
+            return
+          }
           if(suffix.simText.includes(row.suffix)){
+            // 文本文件
             this.textPreviewRow = row
             this.textPreviewVisible = true
             return
