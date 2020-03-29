@@ -26,6 +26,8 @@ import '@/permission' // permission control
 
 import VueTouch from"vue-touch";
 import Viewer from 'v-viewer'
+// import VideoPlayer from 'vue-video-player'
+// Vue.use(VideoPlayer)
 Vue.use(Viewer)
 Vue.use(VueTouch, {name:'v-touch'})
 

@@ -127,6 +127,8 @@
   }
 </script>
 
-<style lang="scss" scoped>
-  
+<style>
+.viewer-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+}
 </style>

@@ -329,7 +329,8 @@
       @current-change="currentChange">
     </el-pagination>
     <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
-    <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imageViewerVisible"></image-viewer>
+    <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
+    <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
   </div>
 </template>
 
@@ -352,10 +353,11 @@
   import Clipboard from 'clipboard';
   import SimTextPreview from "@/components/preview/SimTextPreview";
   import ImageViewer from "@/components/preview/ImageViewer";
+  import VideoPreview from "@/components/preview/VideoPreview";
 
   export default {
     name: 'ShowFile',
-    components: {ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile},
+    components: {VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile},
     props: {
       emptyStatus: {
         'type': String,
@@ -538,7 +540,9 @@
         textPreviewVisible : false,
         textPreviewRow: {},
         imagePreviewRow: {},
-        imageViewerVisible : false,
+        imagePreviewVisible : false,
+        videoPreviewRow: {},
+        videoPreviewVisible: false,
       }
     },
     computed: {
@@ -1897,7 +1901,7 @@
         } else {
           if(row.contentType.indexOf('image') > -1){
             // 图片
-            this.imageViewerVisible = true
+            this.imagePreviewVisible = true
             this.imagePreviewRow = row
             return
           }
@@ -1905,6 +1909,12 @@
             // 文本文件
             this.textPreviewRow = row
             this.textPreviewVisible = true
+            return
+          }
+          if(row.contentType.indexOf('video') > -1){
+            // 视屏
+            this.videoPreviewVisible = true
+            this.videoPreviewRow = row
             return
           }
           if(row.contentType.includes('text')){
