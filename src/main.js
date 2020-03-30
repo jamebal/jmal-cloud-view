@@ -26,6 +26,13 @@ import '@/permission' // permission control
 
 import VueTouch from"vue-touch";
 import Viewer from 'v-viewer'
+
+import APlayer from '@moefe/vue-aplayer';
+Vue.use(APlayer, {
+  defaultCover: 'https://github.com/u3u.png', // 设置播放器默认封面图片
+  productionTip: true, // 是否在控制台输出版本信息
+});
+
 Vue.use(Viewer)
 Vue.use(VueTouch, {name:'v-touch'})
 

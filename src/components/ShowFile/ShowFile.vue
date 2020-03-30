@@ -331,7 +331,7 @@
     <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
-    <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview>
+    <!-- <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview> -->
   </div>
 </template>
 
@@ -1923,8 +1923,9 @@
           }
           if(row.contentType.indexOf('audio') > -1){
             // 音频文件
-            this.audioPreviewVisible = true
-            this.audioPreviewRow = row
+            // this.audioPreviewVisible = true
+            // this.audioPreviewRow = row
+            Bus.$emit('onAddAudio',row)
             return
           }
           if(row.contentType.includes('text')){

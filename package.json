@@ -17,6 +17,7 @@
   "dependencies": {
     "@ionic/core": "^4.11.10",
     "@ionic/vue": "0.0.4",
+    "@moefe/vue-aplayer": "^2.0.0-beta.5",
     "axios": "0.18.1",
     "clipboard": "^2.0.6",
     "cropperjs": "^1.5.6",

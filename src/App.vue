@@ -1,6 +1,8 @@
 <template>
   <div id="app">
     <router-view />
+    <!-- 全局音乐播放 -->
+    <audio-preview></audio-preview>
     <!-- 将上传组件全局注册 -->
     <global-uploader></global-uploader>
   </div>
@@ -8,12 +10,13 @@
 
 <script>
 
+import AudioPreview from "@/components/preview/AudioPreview";
 import globalUploader from '@/components/SimpleUploader/globalUploader.vue'
 
 export default {
   name: 'App',
   components: {
-    globalUploader
+    AudioPreview,globalUploader
   },
   watch: {
     $route: function(to, from) {
