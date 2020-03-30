@@ -331,6 +331,7 @@
     <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
+    <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview>
   </div>
 </template>
 
@@ -354,10 +355,11 @@
   import SimTextPreview from "@/components/preview/SimTextPreview";
   import ImageViewer from "@/components/preview/ImageViewer";
   import VideoPreview from "@/components/preview/VideoPreview";
+  import AudioPreview from "@/components/preview/AudioPreview";
 
   export default {
     name: 'ShowFile',
-    components: {VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile},
+    components: {AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile},
     props: {
       emptyStatus: {
         'type': String,
@@ -543,6 +545,8 @@
         imagePreviewVisible : false,
         videoPreviewRow: {},
         videoPreviewVisible: false,
+        audioPreviewRow: {},
+        audioPreviewVisible: false,
       }
     },
     computed: {
@@ -1912,9 +1916,15 @@
             return
           }
           if(row.contentType.indexOf('video') > -1){
-            // 视屏
+            // 视频文件
             this.videoPreviewVisible = true
             this.videoPreviewRow = row
+            return
+          }
+          if(row.contentType.indexOf('audio') > -1){
+            // 音频文件
+            this.audioPreviewVisible = true
+            this.audioPreviewRow = row
             return
           }
           if(row.contentType.includes('text')){

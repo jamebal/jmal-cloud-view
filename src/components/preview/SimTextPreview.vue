@@ -5,7 +5,7 @@
              :close-on-click-modal="false"
              @close="closeDialog"
              :before-close="handleClose"
-             dialogDragWidth v-dialogDrag="{ x: transformX, y: transformY }">
+             v-dialogDrag="{ x: transformX, y: transformY }">
     <div slot="title" class="header-title">
           <span class="title-name">{{file.name}}</span>
         <div class="title-extension">

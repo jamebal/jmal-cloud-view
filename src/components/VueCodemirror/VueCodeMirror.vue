@@ -113,8 +113,10 @@
         var editorValue = this.editor.getValue()
         if (newVal !== editorValue) {
           this.skipNextChangeEvent = true
-          var scrollInfo = this.editor.getScrollInfo()
+          // var scrollInfo = this.editor.getScrollInfo()
+          // this.editor.refresh()
           this.editor.setValue(newVal)
+          this.editor.scrollTo(0, 0)
           // this.editor.scrollTo(scrollInfo.left, scrollInfo.top)
         }
         this.editor.clearHistory();
