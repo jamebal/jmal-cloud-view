@@ -1,6 +1,6 @@
 <template>
 <div ref="audioPreview" v-show="show">
-  <div class="audio-player" 
+  <div class="audio-player"
     v-aplayerDrag="{ x: transformX, y: transformY }"
     @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false">
 <!-- <div class="audio-player">  -->
@@ -12,7 +12,7 @@
     order.sync="list"
     :mini.sync="mini"
     :audio="audio"
-    :lrctype="3">
+    :lrc-type="0">
   </aplayer>
   <div v-show="closeBarShow" class="close-bar" @click="close">
     <svg-icon class="audio-player-close" icon-class="close"/>
@@ -41,7 +41,7 @@ export default {
         closeBarShow: false,
         audio: [],
         mini: false,
-      }  
+      }
     },
     mounted() {
       this.onPicClick = this.onPicClick.bind(this);
@@ -50,15 +50,17 @@ export default {
       Bus.$on('onAddAudio',newFile => {
         this.show = true
         let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + newFile.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + newFile.id
+        let music = newFile.music
+        let fileName = newFile.name.substring(0,newFile.name.length - newFile.suffix.length-1)
         let musicOperation = {
           id: newFile.id,
-          name: newFile.name,
-          artist: newFile.name,
+          name: music.songName ? music.songName : fileName,
+          artist: music.songName ? music.singer : fileName,
           url: url,
           type: newFile.contentType,
-          cover: 'https://images.unsplash.com/photo-1495420378468-78588a508652?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2100&q=80',
+          cover: music.songName ? 'data:image/png;base64,'+music.coverBase64 :'',
         }
-        let musicIndex = this.audio.findIndex(item => item.id===newFile.id)     
+        let musicIndex = this.audio.findIndex(item => item.id===newFile.id)
         if(musicIndex < 0){
           if(this.audio.length === 1){
             let loop = document.querySelector('.aplayer-icon.aplayer-icon-loop');
@@ -85,7 +87,7 @@ export default {
       },
       onPicClick() {
         // this.mini = !this.mini
-        console.log(this.$refs.audioPlayer)
+        // console.log(this.$refs.audioPlayer)
       },
     },
     destroyed() {

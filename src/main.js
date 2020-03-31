@@ -29,7 +29,7 @@ import Viewer from 'v-viewer'
 
 import APlayer from '@moefe/vue-aplayer';
 Vue.use(APlayer, {
-  defaultCover: 'https://images.unsplash.com/photo-1495420378468-78588a508652?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2100&q=80', // 设置播放器默认封面图片
+  defaultCover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60', // 设置播放器默认封面图片
   productionTip: false, // 是否在控制台输出版本信息
 });
 

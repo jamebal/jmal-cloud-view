@@ -104,7 +104,7 @@ export default {
         checkChunkUploadedByResponse: function(chunk, message) {
           const objMessage = JSON.parse(message)
           const res = objMessage.data
-          if (res.pass) {
+          if (res && res.pass) {
             // 秒传
             return true
           }
