@@ -24,7 +24,7 @@
           <svg-icon icon-class="loading-image-error"/>
         </div>
       </el-image>
-      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)"></el-avatar>
+      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : ('data:image/png;base64,'+item.content)"></el-avatar>
     </div>
     <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>
     <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>
