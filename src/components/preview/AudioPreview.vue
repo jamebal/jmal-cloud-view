@@ -83,6 +83,7 @@ export default {
     methods: {
       close(){
         this.show = false
+        this.$refs.audioPlayer.pause();
         this.audio.splice(0,this.audio.length)
       },
       onPicClick() {
