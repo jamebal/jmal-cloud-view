@@ -15,7 +15,7 @@ Vue.directive('aplayerDrag', {
     dialogHeaderEl.onmousedown = (e) => {
       // 鼠标按下，计算当前元素距离可视区的距离 (鼠标点击位置距离可视窗口的距离)
       const disX = e.clientX - dialogHeaderEl.offsetLeft + 102;
-      const disY = e.clientY - dialogHeaderEl.offsetTop + 14;
+      const disY = e.clientY - dialogHeaderEl.offsetTop + 10;
       // 获取到的值带px 正则匹配替换
       let styL, styT;
       // 注意在ie中 第一次获取到的值为组件自带50% 移动之后赋值为px
@@ -26,7 +26,7 @@ Vue.directive('aplayerDrag', {
         styL = +sty.left.replace(/\px/g, '')+binding.value.x;
         styT = +sty.top.replace(/\px/g, '')+binding.value.y;
       };
-      console.log('styL',styL,'styT',styT,'disX',disX,'disY',disY)
+      // console.log('styL',styL,'styT',styT,'disX',disX,'disY',disY)
       // 鼠标拖拽事件
       document.onmousemove = function (e) {
         // 通过事件委托，计算移动的距离 （开始拖拽至结束拖拽的距离）
@@ -54,6 +54,9 @@ Vue.directive('aplayerDrag', {
       document.onmouseup = function (e) {
         document.onmousemove = null;
         document.onmouseup = null;
+        // e.preventDefault()
+        // e.stopPropagation()
+        return false
       };
     }
   }
