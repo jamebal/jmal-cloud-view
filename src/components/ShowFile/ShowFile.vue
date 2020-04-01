@@ -272,7 +272,7 @@
          element-loading-text="文件加载中"
          element-loading-spinner="el-icon-loading"
          element-loading-background="#f6f7fa88">
-      <div class="checkbox-group-header">
+      <div v-show="indexList.length > 0" class="checkbox-group-header">
         <div class="select-operation">
           <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">{{indexList.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
           <div>
