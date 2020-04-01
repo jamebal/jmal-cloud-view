@@ -1,55 +1,46 @@
 # jmal-cloud-view
-netdisk server 
+网盘前端界面
 
-based on [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
-## Setup
+## 开始
 
-### 1.run nginx server and need to be install nginx plugin of [mod_zip](https://github.com/evanmiller/mod_zip) 
+### 1.运行nginx服务器，需要安装[mod_zip](https://github.com/evanmiller/mod_zip) 的nginx插件 
 
-view [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)
+nginx配置 [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)
 
-### 2.run web server (view[jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server))
+### 2.运行web服务器 [jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server)
 
 ```bash
-# clone the jmal-cloud-sever
 git clone https://github.com/jamebal/jmal-cloud-server.git
-cd jmal-cloud-server
 
-# run server
-run java-server
+# 启动该java服务
 ```
 
-### 3.setup the proejct
+### 3.启动前端服务(开发模式)
 
 ```bash
-# clone the project
 git clone https://github.com/jamebal/jmal-cloud-view.git
 
-# enter the project directory
 cd jmal-cloud-view
 
-# install dependency
 npm install
 
-# develop
 npm run dev
 ```
+然后打开 http://localhost:9528
 
-### 4. Build
+### 4. 构建
 ```bash
-# build for test environment
+# 为测试环境构建
 npm run build:stage
 
-# build for production environment
+# 为生产环境构建
 npm run build:prod
 ```
+构建后按照nginx配置即可
 
-This will automatically open http://localhost:9528
-
-## Browsers support
-
-Modern browsers and Internet Explorer 10+.
+## 浏览器支持
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
 | --------- | --------- | --------- | --------- |
