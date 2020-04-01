@@ -332,6 +332,32 @@
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
     <!-- <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview> -->
+
+    <!--文件详细信息-->
+    <el-drawer
+      :title="rowContextData.name"
+      :visible.sync="drawer">
+      <div class="drawer-icon">
+        <icon-file class="drawer-icon-font" :item="rowContextData" :image-url="imageUrl"></icon-file>
+      </div>
+      <el-form class="details-form">
+        <el-form-item label="类型:">
+          <span>{{rowContextData.isFolder ? '文件夹': rowContextData.contentType}}</span>
+        </el-form-item>
+        <el-form-item label="大小:">
+          <span> {{rowContextData.size}}字节 ({{formatSize(rowContextData.size)}})   </span>
+        </el-form-item>
+        <el-form-item label="位置:">
+          <a :href="'?path='+rowContextData.path">{{rowContextData.path}}</a>
+        </el-form-item>
+        <el-form-item label="创建时间:">
+          <span>{{rowContextData.uploadDate}}</span>
+        </el-form-item>
+        <el-form-item label="修改时间:">
+          <span>{{rowContextData.updateDate}}</span>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
   </div>
 </template>
 
@@ -547,6 +573,7 @@
         videoPreviewVisible: false,
         audioPreviewRow: {},
         audioPreviewVisible: false,
+        drawer: false
       }
     },
     computed: {
@@ -1567,11 +1594,12 @@
             this.favoriteOperating(false)
             break
           case 'details':
-            this.$notify.info({
-              title: this.rowContextData.name,
-              duration: 2000
-            })
+            // this.$notify.info({
+            //   title: this.rowContextData.name,
+            //   duration: 2000
+            // })
             console.log('详情', this.rowContextData)
+            this.drawer = true
             break
           case 'rename':
             // 重命名
@@ -1952,31 +1980,28 @@
 <style lang="scss" scoped>
   @import "src/styles/index";
   @import "src/styles/home-index";
-  /*/deep/.el-table__body-wrapper::-webkit-scrollbar {*/
-    /*!*滚动条整体样式*!*/
-    /*width : 10px;  !*高宽分别对应横竖滚动条的尺寸*!*/
-    /*height: 1px;*/
-  /*}*/
-  /*/deep/.el-table__body-wrapper::-webkit-scrollbar-thumb {*/
-    /*!*滚动条里面小方块*!*/
-    /*border-radius   : 10px;*/
-    /*background-color: skyblue;*/
-    /*background-image: -webkit-linear-gradient(*/
-        /*45deg,*/
-        /*rgba(255, 255, 255, 0.2) 25%,*/
-        /*transparent 25%,*/
-        /*transparent 50%,*/
-        /*rgba(255, 255, 255, 0.2) 50%,*/
-        /*rgba(255, 255, 255, 0.2) 75%,*/
-        /*transparent 75%,*/
-        /*transparent*/
-    /*);*/
-  /*}*/
-  /*/deep/.el-table__body-wrapper::-webkit-scrollbar-track {*/
-    /*!*滚动条里面轨道*!*/
-    /*box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);*/
-    /*background   : #ededed;*/
-    /*border-radius: 10px;*/
-  /*}*/
+  /*overflow: hidden;*/
+  /*white-space: nowrap;*/
+  /*text-overflow: ellipsis;*/
+  /deep/:focus {
+    outline:0;
+  }
+
+  /deep/.el-drawer__header span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .details-form {
+    margin-left: 20px;
+    margin-top: 20px;
+  }
+  .drawer-icon {
+    text-align: center;
+  }
+  .drawer-icon-font /deep/.svg-icon {
+    font-size: 8rem;
+  }
 </style>
 

@@ -17,7 +17,7 @@
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
     <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio"/>
-    <svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>
+    <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
     <div v-else-if="item.contentType.indexOf('image') > -1">
       <el-image v-if="grid" style="width: 80px;height: 80px;" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
@@ -26,14 +26,15 @@
       </el-image>
       <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : ('data:image/png;base64,'+item.content)"></el-avatar>
     </div>
-    <svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>
-    <svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>
-    <svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip"/>
-    <svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel"/>
-    <svg-icon v-else icon-class="file"/>
+    <!--<svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>-->
+    <!--<svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>-->
+    <!--<svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip"/>-->
+    <!--<svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel"/>-->
+    <svg-icon v-else :icon-class="findIconClass"/>
   </span>
 </template>
 <script>
+  import { iconClass } from '@/utils/file-type'
   export default {
     name: 'IconFile',
     props: {
@@ -58,10 +59,19 @@
     },
     data() {
       return {
-        pc: window.pc
+        pc: window.pc,
       }
     },
     mounted() {
+    },
+    computed: {
+      findIconClass(){
+        let suffix = this.item.suffix;
+        if(iconClass.has(suffix)){
+          return iconClass.get(suffix)
+        }
+        return 'file'
+      }
     },
     methods: {
 
