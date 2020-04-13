@@ -2,13 +2,22 @@
   <div class="dashboard-container" v-resize="containerResize">
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb" v-if="showNavigation">
-        <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.index">
-          <a v-if="index===0" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
+        <el-breadcrumb-item v-for="(item,index) in pathList" :key="index">
+          <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级" placement="top">
+            <a @click.prevent="lastLink()"><svg-icon icon-class="back" style="font-size: 24px;"/>&nbsp;</a>
+          </el-tooltip>
+          <el-tooltip v-if="index===0 && pathList.length > 2" class="item" effect="dark" content="根目录" placement="top">
+            <a class="home-link" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
+          </el-tooltip>
           <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
+        </el-breadcrumb-item>
+      </transition-group>
+      <div class="search-content">
+        <div class="searchClass">
           <el-popover
-            v-if="index===pathList.length-1"
             v-model="isShowNewFolder"
             placement="bottom"
+            trigger="hover"
             @click="showNewFolderClick"
             @after-leave="hideNewFolderName"
           >
@@ -47,15 +56,13 @@
                 </div>
               </ul>
             </div>
-            <el-button slot="reference" icon="el-icon-plus add-file-button" circle />
+            <!--<el-button slot="reference" icon="el-icon-plus add-file-button" circle />-->
+            <button-upload slot="reference" :name="''" @click.native="upload" style="margin-right: 5px"></button-upload>
           </el-popover>
-        </el-breadcrumb-item>
-      </transition-group>
-      <div class="search-content">
-        <div class="searchClass">
+
           <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
             <el-button slot="prepend" @click="searchFile(searchFileName)">
-              <svg-icon icon-class="search" />
+              <svg-icon icon-class="search" style="font-size: 22px"/>
             </el-button>
           </el-input>
           <el-button class="vmode" @click="changeVmode">
@@ -72,8 +79,8 @@
         <li
           v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
           @click="menusOperations(item.operation)"
-          @mouseover.prevent="menuFavoriteOver(index,selectRowData[0].isFavorite)"
-          @mouseleave.prevent="menuFavoriteLeave(index,selectRowData[0].isFavorite)"
+          @mouseover.prevent.stop="menuFavoriteOver(index,rowContextData.isFavorite)"
+          @mouseleave.prevent.stop="menuFavoriteLeave(index,rowContextData.isFavorite)"
         >
           <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
           </label>
@@ -130,149 +137,181 @@
     <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
     <!--list布局-->
-    <el-table
-      v-show="!grid && this.fileList.length > 0"
-      ref="fileListTable"
-      v-loading="tableLoading"
-      :max-height="clientHeight"
-      :default-sort="sortable"
-      style="width: 100%;margin: 20px 0 0 0;"
-      empty-text="无文件"
-      :data="fileList"
-      row-key="id"
-      :summary-method="getSummaries"
-      show-summary
-      :cell-style="rowRed"
-      :row-class-name="tableRowClassName"
-      element-loading-text="文件加载中"
-      element-loading-spinner="el-icon-loading"
-      element-loading-background="#f6f7fa88"
-      @selection-change="handleSelectionChange"
-      @row-contextmenu="rowContextmenu"
-      @cell-click="cellClick"
-      @cell-mouse-enter="cellMouseEnter"
-      @cell-mouse-leave="cellMouseLeave"
-      @sort-change="sortChange"
-    >
-      <template v-for="(item,index) in tableHead">
-        <!--索引-->
-        <el-table-column
-          v-if="index === 0"
-          :key="index"
-          :index="index"
-          type="selection"
-          min-width="50"
-        >
-        </el-table-column>
-        <!--图标-->
-        <el-table-column
-          v-if="index === 1"
-          :key="index"
-          :index="index"
-          width="50"
-        >
-          <template slot-scope="scope">
-            <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
-          </template>
-        </el-table-column>
-        <!--名称-->
-        <el-table-column
-          v-if="index === 2"
-          :key="index"
-          :show-overflow-tooltip="true"
-          max-width="200"
-          :index="index"
-          :prop="item.name"
-          :label="item.label"
-          :sort-orders="['ascending', 'descending']"
-          :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-          @click.stop="fileClick(scope.row)">
-          <template slot-scope="scope">
-            <el-col v-if="scope.row.index === editingIndex" :span="10">
-              <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
-              </el-input>
-              <el-button
-                v-loading="renameLoading"
-                element-loading-spinner="el-icon-loading"
-                element-loading-background="#f6f7fa88"
-                class="el-icon-check"
-                @click="rowRename(renameFileName, scope.row)"
-              >
-              </el-button>
-              <el-button
-                element-loading-spinner="el-icon-loading"
-                element-loading-background="#f6f7fa88"
-                class="el-icon-close"
-                @click="editingIndex = -1"
-              >
-              </el-button>
-            </el-col>
-            <span v-else class="table-file-name">{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
-        <!--分享-->
-        <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+    <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
+    <div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">
+      <pl-table
+        ref="fileListTable"
+        v-loading="tableLoading"
+        :max-height="clientHeight"
+        :default-sort="sortable"
+        :highlight-current-row="false"
+        empty-text="无文件"
+        :datas="fileList"
+        :use-virtual="true"
+        :summary-method="getSummaries"
+        show-summary
+        :border="false"
+        :excess-rows="3"
+        :pagination-show="false"
+        style="width: 100%;margin: 20px 0 0 0;"
+        :row-style="rowStyle"
+        :height-change="false"
+        :row-class-name="tableRowClassName"
+        element-loading-text="文件加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="#f6f7fa88"
+        @selection-change="handleSelectionChange"
+        @row-contextmenu="rowContextmenu"
+        @cell-click="cellClick"
+        @row-dblclick="dblclick"
+        @cell-mouse-enter="cellMouseEnter"
+        @cell-mouse-leave="cellMouseLeave"
+        @sort-change="sortChange"
+        @table-body-scroll="tableBodyScroll"
+      >
+        <template v-for="(item,index) in tableHead">
+          <!--索引-->
+          <pl-table-column
+            v-if="index === 0"
+            :key="index"
+            :index="index"
+            type="selection"
+            min-width="50"
+          >
+          </pl-table-column>
+          <!--图标-->
+          <pl-table-column
+            v-if="index === 1"
+            :key="index"
+            :index="index"
+            width="50"
+          >
             <template slot-scope="scope">
-              <el-tooltip class="item" effect="dark" content="分享" placement="top">
-                <svg-icon title="分享" v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" @click="share(scope.row)"/>
-              </el-tooltip>
+              <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
             </template>
-        </el-table-column>
-        <!--更多-->
-        <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
-          <!-- 使用组件, 并传值到组件中 -->
-          <template slot="header">
-            <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)" />
-          </template>
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click="moreClick(scope.row,$event)" />
-          </template>
-        </el-table-column>
-        <!--文件大小-->
-        <el-table-column
-          v-if="index === 5"
-          :key="index"
-          width="200"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sort-orders="['ascending', 'descending']"
-          :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-          :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
-        >
-          <template slot-scope="scope">
-            <span>{{formatSize(scope.row.size)}}</span>
-          </template>
-        </el-table-column>
-        <!--修改时间-->
-        <el-table-column
-          v-if="index === 6"
-          :key="index"
-          width="250"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sort-orders="['ascending', 'descending']"
-          :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-          :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
-        >
-          <template slot-scope="scope">
-            <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
-          </template>
-        </el-table-column>
-      </template>
-    </el-table>
+          </pl-table-column>
+          <!--名称-->
+          <pl-table-column
+            v-if="index === 2"
+            :key="index"
+            :show-overflow-tooltip="true"
+            max-width="200"
+            :index="index"
+            :prop="item.name"
+            :label="item.label"
+            :sort-orders="['ascending', 'descending']"
+            :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+            >
+            <template slot-scope="scope">
+              <el-col v-if="scope.row.index === editingIndex" :span="10">
+                <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @focus="renameInputFocus($event,scope.row)" @keyup.enter.native="rowRename(renameFileName, scope.row)">
+                </el-input>
+                <el-button
+                  v-loading="renameLoading"
+                  element-loading-spinner="el-icon-loading"
+                  element-loading-background="#f6f7fa88"
+                  class="el-icon-check"
+                  @click="rowRename(renameFileName, scope.row)"
+                >
+                </el-button>
+                <el-button
+                  element-loading-spinner="el-icon-loading"
+                  element-loading-background="#f6f7fa88"
+                  class="el-icon-close"
+                  @click="editingIndex = -1"
+                >
+                </el-button>
+              </el-col>
+              <a v-else @click.stop="fileClick(scope.row)" class="table-file-name"><span>{{ scope.row.name }}</span></a>
+            </template>
+          </pl-table-column>
+          <!--分享-->
+          <pl-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+              <template slot-scope="scope">
+                <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享" placement="top">
+                  <svg-icon title="分享" class="button-class" icon-class="share" @click.stop="share(scope.row)"/>
+                </el-tooltip>
+              </template>
+          </pl-table-column>
+          <!--更多-->
+          <pl-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
+            <!-- 使用组件, 并传值到组件中 -->
+            <template slot="header">
+              <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click.stop="moreOperation($event)" />
+            </template>
+            <template slot-scope="scope">
+              <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click.stop="moreClick(scope.row,$event)" />
+            </template>
+          </pl-table-column>
+          <!--文件大小-->
+          <pl-table-column
+            v-if="index === 5"
+            :key="index"
+            width="200"
+            :prop="item.name"
+            :index="index"
+            :label="item.label"
+            :sort-orders="['ascending', 'descending']"
+            :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+            :show-overflow-tooltip="true"
+            align="left"
+            header-align="left"
+          >
+            <template slot-scope="scope">
+              <span>{{formatSize(scope.row.size)}}</span>
+            </template>
+          </pl-table-column>
+          <!--修改时间-->
+          <pl-table-column
+            v-if="index === 6"
+            :key="index"
+            width="250"
+            :prop="item.name"
+            :index="index"
+            :label="item.label"
+            :sort-orders="['ascending', 'descending']"
+            :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+            :show-overflow-tooltip="true"
+            align="left"
+            header-align="left"
+          >
+            <template slot-scope="scope">
+              <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
+            </template>
+          </pl-table-column>
+        </template>
+      </pl-table>
+      <!--grid布局-->
+    </div>
+    <!--<div class="infinite-list-wrapper" style="overflow:auto;max-height: 500px">-->
+    <!--<el-checkbox :indeterminate="isIndeterminate" v-model="isSelectAll" @change="selectAll">全选</el-checkbox>-->
+    <!--<div class="infinite-list-wrapper" :style="{'overflow':'auto','max-height': clientHeight+'px'}">-->
+      <!--<ul-->
+        <!--v-infinite-scroll="load"-->
+        <!--infinite-scroll-distance="100"-->
+        <!--:infinite-scroll-disabled="finished">-->
+          <!--<li v-for="(item,index) in fileList" class="list-item">-->
+            <!--<el-row>-->
+              <!--<el-col :span="4"><div class="grid-content bg-purple">-->
+                <!--<el-checkbox v-model="indexList.includes(index)" @change="checkChange($event,index)"></el-checkbox>-->
+              <!--</div></el-col>-->
+              <!--<el-col :span="4"><div class="grid-content bg-purple-light">2</div></el-col>-->
+              <!--<el-col :span="4"><div class="grid-content bg-purple"></div>3</el-col>-->
+              <!--<el-col :span="4"><div class="grid-content bg-purple-light">4</div></el-col>-->
+              <!--<el-col :span="4"><div class="grid-content bg-purple"></div></el-col>-->
+              <!--<el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>-->
+            <!--</el-row>-->
+          <!--</li>-->
+      <!--</ul>-->
+      <!--<p v-if="tableLoading">加载中...</p>-->
+      <!--<p v-if="finished">没有更多了</p>-->
+    <!--</div>-->
 
-    <!--grid布局-->
-    <div v-show="grid && this.fileList.length > 0" v-loading="tableLoading"
+    <div v-show="grid && fileList.length > 0" v-loading="tableLoading"
          element-loading-text="文件加载中"
          element-loading-spinner="el-icon-loading"
          element-loading-background="#f6f7fa88">
-      <div v-show="indexList.length > 0" class="checkbox-group-header">
+      <div class="checkbox-group-header">
         <div class="select-operation">
           <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">{{indexList.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
           <div>
@@ -293,7 +332,7 @@
         <el-divider></el-divider>
       </div>
 
-      <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
+      <van-checkbox-group v-model="$refs.fil" @change="handleSelectionChange" ref="checkboxGroup">
         <van-grid square :center="true" :column-num="gridColumnNum" :gutter="20" :border="false">
           <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
           >
@@ -313,21 +352,22 @@
       </van-checkbox-group>
       <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
+
     <empty-file
       v-if="this.fileList.length < 1 && !tableLoading"
       :emptyStatus="emptyStatus"
     >
     </empty-file>
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :hide-on-single-page="true"
-      :current-page.sync="pagination.pageIndex"
-      :page-sizes="pagination.pageSizes"
-      :page-size="pagination.pageSize"
-      :total="pagination.total"
-      @current-change="currentChange">
-    </el-pagination>
+    <!--<el-pagination-->
+      <!--background-->
+      <!--layout="prev, pager, next"-->
+      <!--:hide-on-single-page="true"-->
+      <!--:current-page.sync="pagination.pageIndex"-->
+      <!--:page-sizes="pagination.pageSizes"-->
+      <!--:page-size="pagination.pageSize"-->
+      <!--:total="pagination.total"-->
+      <!--@current-change="currentChange">-->
+    <!--</el-pagination>-->
     <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
@@ -341,11 +381,14 @@
         <icon-file class="drawer-icon-font" :item="rowContextData" :image-url="imageUrl"></icon-file>
       </div>
       <el-form class="details-form">
-        <el-form-item label="类型:">
-          <span>{{rowContextData.isFolder ? '文件夹': rowContextData.contentType}}</span>
+        <el-form-item label="名称:">
+          <span>{{rowContextData.name}}</span>
+        </el-form-item>
+        <el-form-item label="类型:" class="details-name">
+          <span >{{rowContextData.isFolder ? '文件夹': rowContextData.contentType}}</span>
         </el-form-item>
         <el-form-item label="大小:">
-          <span> {{rowContextData.size}}字节 ({{formatSize(rowContextData.size)}})   </span>
+          <span> {{rowContextData.size}}字节 {{rowContextData.size >0 ? '('+formatSize(rowContextData.size)+')': ''}}</span>
         </el-form-item>
         <el-form-item label="位置:">
           <a :href="'?path='+rowContextData.path">{{rowContextData.path}}</a>
@@ -369,7 +412,7 @@
   /* eslint-disable */
   import { mapGetters } from 'vuex'
   // import defaultSettings from '@/settings'
-  import { getPath, getPathList, setPath, removePath } from '@/utils/path'
+  // import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import { suffix } from '@/utils/file-type'
   import Bus from '@/assets/js/bus'
@@ -382,10 +425,19 @@
   import ImageViewer from "@/components/preview/ImageViewer";
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
+  import ButtonUpload from "@/components/button/ButtonUpload";
 
+  import 'pl-table/themes/index.css';
+  // import 'pl-table/themes/plTableStyle.css';
+  import { PlTable, PlTableColumn } from 'pl-table';
+  var rowStyleExecuting = false
   export default {
     name: 'ShowFile',
-    components: {AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile},
+    components: {AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
+      PlTable,
+      PlTableColumn,
+      ButtonUpload
+    },
     props: {
       emptyStatus: {
         'type': String,
@@ -496,16 +548,17 @@
         renameFileName: '',
         searchFileName: '',
         pathList: [
-          { 'folder': '', index: 0 },
-          { 'folder': '+', index: 1 }
+          { 'folder': ''},
         ],
         fileList: [],
         pagination: {
           pageIndex: 1,
-          pageSize: 25,
+          pageSize: 100,
           total: 0,
           pageSizes: [10,20,30,40,50]
         },
+        isIndeterminate: false,
+        isSelectAll: false,
         indexList: [],
         clientHeight: 500,
         // 表头数据
@@ -536,8 +589,8 @@
         menusIsMultiple: false,
         menus: [],
         rowContextData: {},
-        selectRowData: [],
-        tableLoading: false,
+        tableLoading: true,
+        finished: false,
         newFolderLoading: false,
         renameLoading: false,
         menuTriangle: '', // 三角菜单
@@ -573,7 +626,8 @@
         videoPreviewVisible: false,
         audioPreviewRow: {},
         audioPreviewVisible: false,
-        drawer: false
+        drawer: false,
+        rowStyleExecuting: false,
       }
     },
     computed: {
@@ -585,11 +639,12 @@
       this.getFileList()
     },
     mounted() {
+
       Bus.$on('fileSuccess', () => {
         this.getFileList()
       })
       Bus.$on('clickMore', (selectRowData) => {
-        this.selectRowData = selectRowData
+        this.$refs.fileListTable.tableSelectData = selectRowData
         this.preliminaryRowData()
       })
 
@@ -602,6 +657,7 @@
       const that = this
       window.onresize = function temp() {
         that.clientHeight = document.documentElement.clientHeight - 165
+        console.log('that.clientHeight',that.clientHeight)
       }
 
       // 加载布局
@@ -615,25 +671,19 @@
       }
 
       // 加载url上的path
-      if(this.$route.query.path){
+      if(this.$route.query.path !== '/'){
         const path = decodeURI(this.$route.query.path)
         this.pathList.splice(1,1)
         path.split('/').forEach((pathName,index)=>{
           if(index > 0){
             const item = {}
             item['folder'] = pathName
-            item['index'] = index
             this.pathList.push(item)
           }
         })
-        const item = {}
-        item['folder'] = '+'
-        item['index'] = this.pathList.length
-        this.pathList.push(item)
       }
     },
     destroyed() {
-      removePath()
       window.removeEventListener('popstate', this.goBack, false);
     },
     directives: {
@@ -664,6 +714,9 @@
       }
     },
     methods: {
+      load () {
+        this.getFileList(true)
+      },
       gridItemHover(item,index) {
         this.gridHoverItemIndex = index;
         this.gridHoverIntermediate = index;
@@ -679,7 +732,7 @@
       },
       clickGridItemCheckBox(item,index) {
         if(this.indexList.length === 0){
-          this.selectRowData = []
+          this.$refs.fileListTable.tableSelectData = []
         }
         // 同步列表的checkbox
         if(this.indexList.includes(index)){
@@ -960,6 +1013,9 @@
         const linkIndex = this.pathList.length-3
         this.handleLink(this.pathList[linkIndex],linkIndex)
       },
+      lastLink(){
+        this.handleLink(this.pathList[this.pathList.length-2],this.pathList.length-2)
+      },
       handleLink(item, index, unPushLink, unRefresh) {
         if(item && item.search){
           if(item.searchKey){
@@ -967,9 +1023,9 @@
           } else if(item.row){
             this.searchFileAndOpenDir(item.row)
           }
-          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+          this.pathList.splice(this.pathList.findIndex((v,i) => i === index + 1), this.pathList.length - (index + 1))
         } else {
-          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+          this.pathList.splice(this.pathList.findIndex((v,i) => i === index + 1), this.pathList.length - (index + 1))
           this.pathList.forEach((p, number) => {
             if (number === 0) {
               this.path = ''
@@ -1074,10 +1130,11 @@
       // 切换布局
       changeVmode(){
         this.grid = !this.grid
-        console.log(this.$route.fullPath)
         this.vmode = 'list'
         if(this.grid){
           this.vmode = 'grid'
+        }else{
+          this.$refs.fileListTable.setHeight()
         }
         if(!this.path){
           this.path = ''
@@ -1088,18 +1145,12 @@
       },
       searchFile(key) {
         if(key){
-          this.pathList = [{ 'folder': '', index: 0 }]
+          this.pathList = [{ 'folder': ''}]
           const item1 = {}
           item1['folder'] = '搜索: ' + '"'+ key +'"'
           item1['search'] = true
           item1['searchKey'] = key
-          item1['index'] = 1
-          const item2 = {}
-          item2['folder'] = '+'
-          item2['index'] = 2
           this.pathList.push(item1)
-          this.pathList.push(item2)
-          // this.$router.push(`?search-file=${key}`)
           this.$router.push(`?vmode=${this.vmode}&search-file=${key}`)
           this.tableLoading = true
           api.searchFile({
@@ -1168,7 +1219,12 @@
         }).catch(e => {})
         this.path = row.path + row.name
       },
-      getFileList() {
+      getFileList(onLoad) {
+        if (onLoad) {
+          this.pagination.pageIndex++
+        } else {
+          this.pagination.pageIndex = 1
+        }
         this.tableLoading = true
         api.fileList({
           userId: this.$store.state.user.userId,
@@ -1183,11 +1239,24 @@
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
-          this.fileList = res.data
+          if(onLoad){
+            res.data.forEach((file,number) => {
+              file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
+              this.fileList.push(file)
+            });
+          }else{
+            this.fileList = res.data
+          }
+          // 数据全部加载完成
+          if (this.fileList.length >= res.count) {
+            this.finished = true;
+          }
+
           this.fileList.map((item,index) => {
             item.index = index
           })
           this.clientHeight = document.documentElement.clientHeight - 165
+          this.clientHeight = 550 + 40 + 51
           this.listModeSearch = false
           this.listModeSearchOpenDir = false
           this.pagination['total'] = res.count
@@ -1304,99 +1373,125 @@
         }
         return sizeSum
       },
-      // 收集选中的index值作为数组 传递给rowRed判断变换样式
-      handleSelectionChange(row) {
-        // 选中的值
-        this.selectRowData = row
-        let selectTotalSize = 0
-        this.indexList = []
-        for (const item of row) {
-          selectTotalSize += item.size
-          this.indexList.push(item.index)
-        }
-
-        row.forEach(r => {
-          this.$refs.fileListTable.toggleRowSelection(r,true)
-        });
-
-        const item_name = this.tableHead[2]
-        const item_more = this.tableHead[4]
-        const item_size = this.tableHead[5]
-        const item_date = this.tableHead[6]
-        if (this.selectRowData.length > 0) {
-          const sumFileAndFolder = this.getShowSumFileAndFolder(row)
-          const sizeSum = this.getShowSumSize(selectTotalSize)
-          item_name.label = sumFileAndFolder
-          item_name.sortable = false
-          item_more.name = 'more'
-          item_size.label = sizeSum
-          item_size.sortable = false
-          item_date.label = ''
-          item_date.sortable = false
-        } else {
-          item_name.label = '名称'
-          item_name.sortable = true
-          item_more.name = ''
-          item_size.label = '大小'
-          item_size.sortable = true
-          item_date.label = '修改日期'
-          item_date.sortable = true
-        }
-        if(this.indexList.length === this.fileList.length){
-          this.allChecked = true
+      selectAll(checked) {
+        this.isSelectAll = checked
+        if(checked){
+          this.fileList.forEach(row => {
+            this.indexList.push(row.index)
+          })
         }else{
-          this.allChecked = false
+          this.indexList.splice(0,this.indexList.length)
+          this.isIndeterminate = false
         }
       },
-      // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
-      rowRed({ row, column, rowIndex, columnIndex }) {
-        if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
-          return { cursor: 'pointer', color: "#19ACF9" }
+      checkChange(checked,index) {
+        if(checked){
+          this.indexList.push(index)
+        }else{
+          this.indexList.splice(this.indexList.findIndex(i => index === i), 1)
         }
-        for (let i = 0; i < this.indexList.length; i++) {
-          if (rowIndex === this.indexList[i]) {
-            return { backgroundColor: '#EBEEF5', color: '#b7b5b6', cursor: 'default' }
+        if(this.indexList.length > 0){
+          this.isIndeterminate = true
+        }else{
+          this.isIndeterminate = false
+        }
+      },
+      tableBodyScroll(table, e) {
+        let scrollBottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop;
+        if(scrollBottom < 200){
+          if(!this.finished){
+            this.getFileList(true)
           }
+        }
+      },
+      // 收集选中的index值作为数组 传递给rowRed判断变换样式
+      handleSelectionChange(row) {
+        this.$refs.fileListTable.tableSelectData = row
+          let selectTotalSize = 0
+          row.forEach(item => {
+            selectTotalSize += item.size
+          })
+          const item_name = this.tableHead[2]
+          const item_more = this.tableHead[4]
+          const item_size = this.tableHead[5]
+          const item_date = this.tableHead[6]
+          if (row.length > 0) {
+            const sumFileAndFolder = this.getShowSumFileAndFolder(row)
+            const sizeSum = this.getShowSumSize(selectTotalSize)
+            item_name.label = sumFileAndFolder
+            item_name.sortable = false
+            item_more.name = 'more'
+            item_size.label = sizeSum
+            item_size.sortable = false
+            item_date.label = ''
+            item_date.sortable = false
+          } else {
+            item_name.label = '名称'
+            item_name.sortable = true
+            item_more.name = ''
+            item_size.label = '大小'
+            item_size.sortable = true
+            item_date.label = '修改日期'
+            item_date.sortable = true
+          }
+      },
+      // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
+      rowStyle({ row, rowIndex}) {
+        if(this.$refs.fileListTable.tableSelectData.length > 0){
+          console.log('rowStyle',this.$refs.fileListTable.tableSelectData[0].index)
+        }
+        if(this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1){
+          return { backgroundColor: '#F5F7FA' }
         }
       },
       // 动态添加index到row里面去
       tableRowClassName({ row, rowIndex }) {
-        row.index = rowIndex
+        // row.index = rowIndex
       },
       // 选择某行预备数据
       preliminaryRowData(row) {
         if (row) {
-          this.selectRowData[0] = row
+          this.$refs.fileListTable.tableSelectData[0] = row
           this.rowContextData = row
         }
-        const isFavorite = this.selectRowData[0].isFavorite
+        const isFavorite = this.$refs.fileListTable.tableSelectData[0].isFavorite
         this.highlightFavorite(isFavorite, false)
       },
-      // 单元格hover进入时时间
+      // 单元格hover进入时事件
       cellMouseEnter(row) {
-        if(this.editingIndex === -1){
+        if(this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex !== row.index) {
+          this.$refs.contextShow.hideMenu()
+        }
+        if(this.editingIndex === -1 && !this.$refs.contextShow.ctxVisible) {
           if (this.indexList.length < 1) {
             this.cellMouseIndex = row.index
           }
         }
       },
-      // 单元格hover退出时时间
-      cellMouseLeave() {
+      // 单元格hover退出时事件
+      cellMouseLeave(row) {
+        if(this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex !== row.index) {
+          this.$refs.contextShow.hideMenu()
+          return
+        }
+        if(this.$refs.contextShow.ctxVisible && this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex === row.index) {
+          return
+        }
         this.cellMouseIndex = -1
+      },
+      //双击
+      dblclick(row){
+        // this.fileClick(row)
       },
       // 单元格点击事件
       cellClick(row, column) {
         clearTimeout(this.Loop);
         if(this.editingIndex === -1) {
           const columnIndex = column.index
-          if (columnIndex === 0) {
-            // 点击选中
-            this.$refs.fileListTable.toggleRowSelection(row)
-          }
           if (columnIndex === 2) {
             if (this.indexList.length < 1) {
               if (row.index !== this.editingIndex) {
-                this.fileClick(row)
+                // this.fileClick(row)
                 this.editingIndex = -1
               }
             }
@@ -1404,10 +1499,18 @@
           if (columnIndex === 4) {
             // // 单个操作
           }
-          if (this.indexList.length > 0 && columnIndex > 0) {
-            this.$refs.fileListTable.toggleRowSelection(row)
+          if(columnIndex === 0 ){
+            this.$refs.fileListTable.toggleRowSelection([{row:row}])
+          } else {
+            this.$refs.fileListTable.clearSelection()
+            this.$refs.fileListTable.toggleRowSelection([{row:row}])
           }
         }
+      },
+      // 选取输入框部分内容
+      renameInputFocus(event,row) {
+        event.currentTarget.selectionStart = 0
+        event.currentTarget.selectionEnd = event.currentTarget.value.length - row.suffix.length - 1
       },
       // 重命名
       rowRename(newFileName, row) {
@@ -1457,6 +1560,8 @@
               this.fileList[row.index] = row
               this.editingIndex = -1
             }
+          }).then(()=>{
+            this.$refs.fileListTable.clearSelection()
           })
         } else {
           this.editingIndex = -1
@@ -1476,16 +1581,17 @@
         }else{
           this.menus = this.singleMenus
         }
-        // this.showOperationMenus(event)
         this.preliminaryRowData(row)
-        this.showOperationMenus(event)
+        this.showOperationMenus(event,{'menuType':'moreClick',rowIndex: row.index})
       },
       // 鼠标右击
       rowContextmenu(row) {
-        if (this.indexList.includes(row.index)) {
+        if (this.$refs.fileListTable.tableSelectData.length > 1 && this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1) {
           this.menusIsMultiple = true
           this.menus = this.multipleRightMenus
         } else {
+          this.$refs.fileListTable.clearSelection()
+          this.$refs.fileListTable.toggleRowSelection([{row:row}])
           this.menusIsMultiple = false
           if(row.contentType && row.contentType.includes("text")){
             this.menus = this.singleMenusEdit
@@ -1494,6 +1600,7 @@
           }
           this.preliminaryRowData(row)
         }
+        console.log('menusIsMultiple', this.menusIsMultiple)
         event.preventDefault()
         this.menuTriangle = ''
         const e = {}
@@ -1504,25 +1611,26 @@
         e.clientX = event.clientX + 5
         e.clientY = event.clientY + 2
         this.$refs.contextShow.showMenu(e)
+        this.cellMouseIndex = -1
       },
       // 显示操作菜单
-      showOperationMenus(event) {
+      showOperationMenus(event, menuData) {
+        let offsetY = event.pageY
+        if(event.target.clientHeight > 0){
+          offsetY += event.target.clientHeight/2-event.offsetY
+        }
         const e = {}
-        if (document.body.scrollHeight - event.pageY > 400) {
+        if (document.body.scrollHeight - offsetY > 400) {
           this.menuTriangle = 'menu-triangle-top'
           e.pageX = event.pageX - 78
-          e.pageY = event.pageY + 30
-          e.clientX = event.clientX + 78
-          e.clientY = event.clientY + 30
+          e.pageY = offsetY + 25
         } else {
           this.menuTriangle = 'menu-triangle-bottom'
           e.pageX = event.pageX - 78
-          e.pageY = event.pageY - 350
-          e.clientX = event.clientX + 78
-          e.clientY = event.clientY - 350
+          e.pageY = offsetY - (this.menus.length * 38) - 36
         }
         if (!this.isJustHideMenus) {
-          this.$refs.contextShow.showMenu(e)
+          this.$refs.contextShow.showMenu(e,menuData)
         }
       },
       menuFavoriteOver(index, isFavorite) {
@@ -1541,7 +1649,7 @@
         if (item_menu) {
           if (isFavorite) {
             item_menu.label = '取消收藏'
-            item_menu.iconClass = 'menu-favorite-hover'
+            item_menu.iconClass = 'menu-unfavorite-hover'
             item_menu.operation = 'unFavorite'
           } else {
             if (isHover) {
@@ -1564,6 +1672,7 @@
         setTimeout(function() {
           that.isJustHideMenus = false
         }, 100)
+        this.cellMouseIndex = -1
         console.log('菜单隐藏了')
       },
       // 菜单操作
@@ -1587,7 +1696,7 @@
             break
           case 'deselect':
             // 取消选定
-            this.$refs.fileListTable.toggleRowSelection(this.rowContextData)
+            this.$refs.fileListTable.clearSelection()
             break
           case 'unFavorite':
             // 取消收藏
@@ -1681,7 +1790,7 @@
 
         let fileIds = [];
         if (this.menusIsMultiple || this.indexList.length > 1) {
-          const exits = this.selectRowData.some(value => {
+          const exits = this.$refs.fileListTable.tableSelectData.some(value => {
             fileIds.push(value.id)
             const thisParentPath = value.path
             if(thisParentPath === selectNodePath){
@@ -1732,13 +1841,13 @@
 
           if(operating === 'move'){
             // 移除列表
-            if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.selectRowData[0].index, 1)
+            if (this.$refs.fileListTable.tableSelectData.length === 1) {
+              this.fileList.splice(this.$refs.fileListTable.tableSelectData[0].index, 1)
             } else {
               this.getFileList()
             }
             this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-            this.selectRowData = []
+            this.$refs.fileListTable.tableSelectData = []
           }
 
           setTimeout(function () {
@@ -1772,7 +1881,7 @@
           if(this.rowContextData.id){
             row = this.rowContextData
           } else {
-            row = this.selectRowData[0]
+            row = this.$refs.fileListTable.tableSelectData[0]
           }
         }
         this.shareDialog = true
@@ -1815,21 +1924,26 @@
       },
       downloadFile() {
         let totalSize = 0
-        this.selectRowData.forEach(item => {
+        this.$refs.fileListTable.tableSelectData.forEach(item => {
           totalSize += item.size
         })
         if (totalSize > 0) {
           var fileIds = [];
-          if (this.indexList.length > 1) {
-            this.selectRowData.forEach(value => {
+          // if (this.indexList.length > 1) {
+          //   this.$refs.fileListTable.tableSelectData.forEach(value => {
+          //     fileIds.push(value.id)
+          //   })
+          // } else {
+          //   if (this.rowContextData.id) {
+          //     fileIds.push(this.rowContextData.id)
+          //   } else {
+          //     fileIds.push(this.$refs.fileListTable.tableSelectData[0].id)
+          //   }
+          // }
+          if (this.$refs.fileListTable.tableSelectData.length > 0) {
+            this.$refs.fileListTable.tableSelectData.forEach(value => {
               fileIds.push(value.id)
             })
-          } else {
-            if (this.rowContextData.id) {
-              fileIds.push(this.rowContextData.id)
-            } else {
-              fileIds.push(this.selectRowData[0].id)
-            }
           }
           window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
         } else {
@@ -1841,11 +1955,11 @@
       },
       // 收藏/取消收藏
       favoriteOperating(isFavorite) {
-        this.selectRowData[0].isFavorite = isFavorite
+        this.$refs.fileListTable.tableSelectData[0].isFavorite = isFavorite
         this.highlightFavorite(isFavorite, true)
         api.favoriteUrl({
           token: this.$store.state.user.token,
-          id: this.selectRowData[0].id,
+          id: this.$refs.fileListTable.tableSelectData[0].id,
           isFavorite: isFavorite
         }).then(res => {
         })
@@ -1855,15 +1969,16 @@
         let fileList = []
         const fileIds = []
         if (this.menusIsMultiple || this.indexList.length > 1) {
-          fileList = this.selectRowData
-          this.selectRowData.forEach(value => {
+          fileList = this.$refs.fileListTable.tableSelectData
+          this.$refs.fileListTable.tableSelectData.forEach(value => {
             fileIds.push(value.id)
           })
         } else {
-          fileIds.push(this.selectRowData[0].id)
+          fileIds.push(this.$refs.fileListTable.tableSelectData[0].id)
         }
-        console.log(fileIds)
         const str = this.getShowSumFileAndFolder(fileList)
+
+        console.log(this.$refs.fileListTable.tableSelectData)
 
         this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -1874,19 +1989,24 @@
             username: this.$store.state.user.name,
             fileIds: fileIds
           }).then(() => {
+            // 移除列表
+            if(this.$refs.fileListTable.tableSelectData.length > 0){
+              this.$refs.fileListTable.tableSelectData.forEach(item => {
+                let fileIndex = this.fileList.findIndex(file => file.id === item.id)
+                if(fileIndex > -1){
+                  this.fileList.splice(fileIndex,1)
+                }
+              })
+            }
+            this.$refs.fileListTable.doLayout()
+            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
+            this.$refs.fileListTable.tableSelectData = []
+          }).then(()=>{
             this.$notify({
               title: '删除成功',
               type: 'success',
               duration: 1000
             })
-            // 移除列表
-            if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.selectRowData[0].index, 1)
-            } else {
-              this.getFileList()
-            }
-            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-            this.selectRowData = []
           })
         })
       },
@@ -1895,18 +2015,12 @@
         if (row.isFolder) {
           // 打开文件夹
           if (this.listModeSearch) {
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['search'] = true
-            item1['row'] = row
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
+            const item = {}
+            item['folder'] = row.name
+            item['search'] = true
+            item['row'] = row
+            this.pathList.push(item)
             this.pagination.pageIndex = 1
-            // this.$router.push(`?search-file=${row.id}`)
             this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`)
             this.searchFileAndOpenDir(row)
           } else {
@@ -1915,20 +2029,13 @@
             } else {
               this.path = '/' + row.name
             }
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
-            setPath(this.path, this.pathList)
+            const item = {'folder':row.name}
+            this.pathList.push(item)
             this.pagination.pageIndex = 1
             const path = encodeURIComponent(this.path);
             this.$router.push(`?vmode=${this.vmode}&path=${path}`)
             this.openDir(row)
-            // this.getFileList()
+            console.log(this.pathList)
           }
         } else {
           if(row.contentType.indexOf('image') > -1){
@@ -1986,22 +2093,48 @@
   /deep/:focus {
     outline:0;
   }
-
-  /deep/.el-drawer__header span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  /deep/.el-drawer__header {
+    color: #000000;
+    span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
-
   .details-form {
-    margin-left: 20px;
-    margin-top: 20px;
+    margin: 20px 10px 0 20px;
+    /deep/.el-form-item__content {
+      white-space: normal;
+      word-break: break-all;
+      word-wrap: break-word;
+    }
+    /deep/.el-form-item {
+      margin-bottom: 0;
+    }
+    a:hover {
+      color: #409EFF;
+    }
   }
   .drawer-icon {
     text-align: center;
   }
   .drawer-icon-font /deep/.svg-icon {
     font-size: 8rem;
+  }
+  .list-item {
+    height: 50px;
+  }
+  .table-file-name:hover {
+    color: #19ACF9;
+  }
+  /deep/.plTableBox .el-table .el-table__header th {
+    background-color: #FFFFFF;
+  }
+  /deep/.el-table td {
+    height: 50px!important;
+  }
+  .home-link:hover {
+    corlor: #409EFF;
   }
 </style>
 
