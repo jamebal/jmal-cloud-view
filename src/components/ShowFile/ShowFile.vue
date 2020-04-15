@@ -316,11 +316,11 @@
       </div>
 
       <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-        <van-grid square :center="true" :column-num="gridColumnNum" :gutter="20" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
+        <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
           <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
           >
             <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                 :style="{'background': selectRowData.includes(item)?'#baebff91':'','cursor': 'pointer'}"
+                 :style="{'background': selectRowData.includes(item)?'#caeaf991':'','border': selectRowData.includes(item)?'solid 1px #7bd7ff':''}"
                  @mouseover="gridItemHover(item,index)"
                  @mouseout="gridItemOut(item,index)"
                  @click="gridItemClick(item)"
@@ -736,13 +736,13 @@
         },10)
       },
       clickGridItemCheckBox(row,index) {
-        this.pinSelect(null,row)
         // 同步列表的checkbox
         if(this.selectRowData.includes(row)){
           this.$refs.fileListTable.toggleRowSelection([{row:row,selected:false}])
         }else{
           this.$refs.fileListTable.toggleRowSelection([{row:row,selected:true}])
         }
+        this.pinSelect(null,row)
       },
       clickGridAllCheckBox() {
         if(this.selectRowData.length !== this.fileList.length){
@@ -760,6 +760,10 @@
       },
       // 行拖拽
       rowDrop() {
+        // 目标元素的背景颜色
+        let dragEnterBackCorlor = null
+        // 被拖拽元素的背景色
+        let dragBackCorlor = null
         const _this = this
         // 被拖动的元素的索引
         let dragged = null;
@@ -796,6 +800,8 @@
               // console.log('child'+i+'开始拖拽');
               _this.cellMouseIndex = -1
               dragged.style.cursor = 'grabbing'
+              console.log(dragged.style.backgroundColor)
+              dragBackCorlor = dragged.style.backgroundColor
             }
             child.ondragend = function(){
               // console.log('child'+i+'拖拽结束');
@@ -881,6 +887,7 @@
               if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder){
                 // 改变本次进入的容器的状态
                 dragged.style.cursor = 'copy'
+                dragEnterBackCorlor = throughRow.style.backgroundColor
                 throughRow.style.backgroundColor = '#e9fdcf'
                 if(_this.grid){
                   throughRow.style.height = throughRow.clientWidth + 15 +'px'
@@ -945,19 +952,19 @@
         }
 
         let clearClass = function (node) {
+          console.log('clearClass',node)
           if(node){
             if(_this.grid){
               node = node.children[0].children[0]
               node.style.height = null
               node.style.width = null
-              node.style.backgroundColor = null
+              node.style.backgroundColor = dragEnterBackCorlor
               dragged.style.cursor = 'grabbing'
             }else{
               node.style.height = 'unset'
-              node.style.backgroundColor = '#fff'
-              dragged.style.cursor = 'grabbing'
             }
           }
+          dragged.style.backgroundColor = dragBackCorlor
         }
 
       },
@@ -1277,8 +1284,11 @@
           const orgin = this.selectOrgin
           this.selectEnd = row.index
           let diff = this.selectEnd - orgin
-          // 先清除
+          // 先清除选中
           this.$refs.fileListTable.clearSelection()
+          if(diff === 0){
+            this.selectOrgin = -1
+          }
           if(diff > 0){
             for(let i = orgin;i <= this.selectEnd;i++){
               this.$refs.fileListTable.toggleRowSelection([{row:this.fileList[i],selected: true}])
