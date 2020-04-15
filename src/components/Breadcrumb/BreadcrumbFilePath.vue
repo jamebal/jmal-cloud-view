@@ -13,10 +13,10 @@
           <span v-if="index < pathList.length-1 && strLength(item.folder) > 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
         </a>
         <a v-if="index===pathList.length-1">
-          <span v-if="strLength(item.folder) <= 10" class="no-redirect">{{ item.folder }}</span>
-          <span v-if="strLength(item.folder) > 10 && strLength(item.folder) <= 50 && item.searchKey" class="no-redirect">{{ item.folder }}</span>
+          <span v-if="strLength(item.folder) <= 20" class="no-redirect">{{ item.folder }}</span>
+          <span v-if="strLength(item.folder) > 20 && strLength(item.folder) <= 50 && item.searchKey" class="no-redirect">{{ item.folder }}</span>
           <span v-if="strLength(item.folder) > 50 && item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
-          <span v-if="strLength(item.folder) > 10 && !item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
+          <span v-if="strLength(item.folder) > 20 && !item.searchKey" class="no-redirect">{{ substring(item.folder,20) }}...</span>
         </a>
       </el-tooltip>
     </a>
@@ -41,7 +41,7 @@
   </span>
 </template>
 <script>
-  import { strlen, substring10 } from '@/utils/number'
+  import { strlen, substring10,substring } from '@/utils/number'
   export default {
     name: 'BreadcrumbFilePath',
     props: {
@@ -73,6 +73,9 @@
       },
       substring10(str) {
         return substring10(str)
+      },
+      substring(str,n){
+        return substring(str,n)
       },
       handleLink(item, index) {
         this.$emit('clickLink',item, index)

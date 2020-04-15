@@ -75,6 +75,31 @@ export function substring10(str){
   return res;
 }
 
+/***
+ * 截取字符串前n位
+ * @param str
+ * @param n
+ * @returns {string}
+ */
+export function substring(str,n){
+  var len = 0;
+  var res = '';
+  for (var i=0; i<str.length; i++) {
+    var c = str.charCodeAt(i);
+    //单字节加1
+    if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) {
+      len++;
+    }
+    else {
+      len+=2;
+    }
+    if(len <= n){
+      res += str[i];
+    }
+  }
+  return res;
+}
+
 /**
  * @param {number} agoTime
  * @returns {string}

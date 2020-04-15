@@ -5,7 +5,7 @@
       :sortable="sortable"
       :queryCondition="queryCondition"
       :orderCustom="true"
-      :showNavigation="false"
+      :showNavigation="true"
     ></show-file>
   </div>
 </template>
