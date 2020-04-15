@@ -108,7 +108,6 @@
       },
     },
     destroyed() {
-      console.log('destroyed')
       clearInterval(this.interval)
     }
   }

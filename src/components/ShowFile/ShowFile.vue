@@ -296,18 +296,18 @@
          element-loading-background="#f6f7fa88">
       <div class="checkbox-group-header">
         <div class="select-operation">
-          <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">{{indexList.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
+          <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">{{selectRowData.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
           <div>
-            <el-button class="select-operation-button" icon="el-icon-download" v-if="indexList.length > 0" @click="downloadFile">
+            <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0" @click="downloadFile">
               下载
             </el-button>
-            <el-button class="select-operation-button" icon="el-icon-share" v-if="indexList.length === 1" @click="share">
+            <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1" @click="share">
               分享
             </el-button>
-            <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="indexList.length > 0" @click="moveOrCopy">
+            <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0" @click="moveOrCopy">
               移动或复制
             </el-button>
-            <el-button class="select-operation-button" icon="el-icon-delete" v-if="indexList.length > 0" type="danger" @click="deleteFile">
+            <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0" type="danger" @click="deleteFile">
             </el-button>
 
           </div>
@@ -316,17 +316,17 @@
       </div>
 
       <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-        <van-grid square :center="true" :column-num="gridColumnNum" :gutter="20" :border="false">
+        <van-grid square :center="true" :column-num="gridColumnNum" :gutter="20" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
           <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
           >
             <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                 :style="{'background': indexList.includes(index)?'#baebff91':'','cursor': indexList.length > 0 ?'default':'pointer'}"
+                 :style="{'background': selectRowData.includes(item)?'#baebff91':'','cursor': 'pointer'}"
                  @mouseover="gridItemHover(item,index)"
                  @mouseout="gridItemOut(item,index)"
                  @click="gridItemClick(item)"
                  @contextmenu.prevent="rowContextmenu(item)"
             >
-              <van-checkbox v-if="gridHoverItemIndex === index || indexList.includes(index)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
+              <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
               <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
               <span class="grid-item-text">{{item.name}}</span>
             </div>
@@ -341,16 +341,6 @@
       :emptyStatus="emptyStatus"
     >
     </empty-file>
-    <!--<el-pagination-->
-      <!--background-->
-      <!--layout="prev, pager, next"-->
-      <!--:hide-on-single-page="true"-->
-      <!--:current-page.sync="pagination.pageIndex"-->
-      <!--:page-sizes="pagination.pageSizes"-->
-      <!--:page-size="pagination.pageSize"-->
-      <!--:total="pagination.total"-->
-      <!--@current-change="currentChange">-->
-    <!--</el-pagination>-->
     <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
@@ -373,7 +363,7 @@
         <el-form-item label="大小:">
           <span> {{rowContextData.size}}字节 {{rowContextData.size >0 ? '('+formatSize(rowContextData.size)+')': ''}}</span>
         </el-form-item>
-        <el-form-item label="位置:">
+        <el-form-item label="位置:" class="details-position">
           <a :href="'?path='+rowContextData.path">{{rowContextData.path}}</a>
         </el-form-item>
         <el-form-item label="创建时间:">
@@ -536,13 +526,12 @@
         fileList: [],
         pagination: {
           pageIndex: 1,
-          pageSize: 1000,
+          pageSize: 50,
           total: 0,
           pageSizes: [10,20,30,40,50]
         },
         isIndeterminate: false,
         isSelectAll: false,
-        indexList: [],
         clientHeight: 500,
         // 表头数据
         tableHead: [
@@ -746,39 +735,24 @@
           }
         },10)
       },
-      clickGridItemCheckBox(item,index) {
-        if(this.indexList.length === 0){
-          this.$refs.fileListTable.tableSelectData = []
-        }
+      clickGridItemCheckBox(row,index) {
+        this.pinSelect(null,row)
         // 同步列表的checkbox
-        if(this.indexList.includes(index)){
-          this.$refs.fileListTable.toggleRowSelection(item,false)
+        if(this.selectRowData.includes(row)){
+          this.$refs.fileListTable.toggleRowSelection([{row:row,selected:false}])
+        }else{
+          this.$refs.fileListTable.toggleRowSelection([{row:row,selected:true}])
         }
       },
       clickGridAllCheckBox() {
-        console.log(this.indexList.length,this.fileList.length)
-        if(this.indexList.length !== this.fileList.length){
-          console.log('toggleAll')
-          // this.$refs.checkboxGroup.toggleAll(true);
+        if(this.selectRowData.length !== this.fileList.length){
           this.$refs.fileListTable.toggleAllSelection()
         }else{
-          // this.$refs.checkboxGroup.toggleAll();
           this.$refs.fileListTable.clearSelection();
         }
       },
       gridItemClick(row) {
-        if (this.indexList.length < 1) {
-          if (row.index !== this.editingIndex) {
-            this.fileClick(row)
-            this.editingIndex = -1
-          }
-        } else {
-          if(this.indexList.includes(row.index)){
-            this.$refs.fileListTable.toggleRowSelection(row,false)
-          }else{
-            this.$refs.fileListTable.toggleRowSelection(row,true)
-          }
-        }
+        this.fileClick(row)
       },
       containerResize() {
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
@@ -940,7 +914,6 @@
                 leaveIndex = throughRow.rowIndex
                 loop = setTimeout(function () {
                   if(leaveIndex > -1){
-                    console.log("离开了",leaveIndex)
                     const leave = target.children[leaveIndex];
                     clearClass(leave)
                     dragIndex = -1
@@ -997,7 +970,6 @@
         return formatSize(size)
       },
       upload() {
-        console.log('user', this.$store.state.user);
         // 打开文件选择框
         Bus.$emit('openUploader', {
           // 传入的参数
@@ -1009,7 +981,6 @@
       uploadFolder() {
         if(window.uploader.supportDirectory){
           // 打开文件夹选择框
-          console.log('selectFolder')
           Bus.$emit('uploadFolder', {
             // 传入的参数
             currentDirectory: this.path,
@@ -1096,7 +1067,6 @@
       },
       // 新建文件夹
       newFolderNameClick() {
-        console.log('user', this.$store.state.user);
         if(this.newFolderName){
           if(/[\/\\"<>\?\*]/gi.test(this.newFolderName)){
             this.$message({
@@ -1227,8 +1197,6 @@
             this.listModeSearch = true
             this.listModeSearchOpenDir = false
           })
-        }else{
-          this.handleLink('',0)
         }
       },
       searchFileAndOpenDir(row,onLoad) {
@@ -1305,7 +1273,6 @@
         }
       },
       pinSelect(rows,row){
-        console.log('this.selectPin',this.selectPin,'this.selectOrgin',this.selectOrgin)
         if(this.selectPin && this.selectOrgin > -1){
           const orgin = this.selectOrgin
           this.selectEnd = row.index
@@ -1401,21 +1368,8 @@
         this.isSelectAll = checked
         if(checked){
           this.fileList.forEach(row => {
-            this.indexList.push(row.index)
+            this.selectRowData.push(row)
           })
-        }else{
-          this.indexList.splice(0,this.indexList.length)
-          this.isIndeterminate = false
-        }
-      },
-      checkChange(checked,index) {
-        if(checked){
-          this.indexList.push(index)
-        }else{
-          this.indexList.splice(this.indexList.findIndex(i => index === i), 1)
-        }
-        if(this.indexList.length > 0){
-          this.isIndeterminate = true
         }else{
           this.isIndeterminate = false
         }
@@ -1423,30 +1377,22 @@
       // 收集选中的index值作为数组 传递给rowRed判断变换样式
       handleSelectionChange(rows) {
         // 起点
-        console.log('handleSelectionChange1')
         if(rows.length > 0){
           if(!this.selectPin){
             this.selectOrgin = rows[0].index
           }
-          //rows.findIndex(item => item.index === this.selectEnd) === -1 && rows[rows.length - 1].index === this.selectEnd
           if(this.selectPin){
-            console.log('handleSelectionChange2')
-            // rows = this.$refs.fileListTable.tableSelectData
             return
           }
-        }else{
-          // this.selectOrgin = -1
         }
         this.$refs.fileListTable.tableSelectData = rows
-        // this.selectRowData = rows
+        this.selectRowData = rows
         this.changeSelectedStyle(rows)
       },
       changeSelectedStyle(rows){
         let selectTotalSize = 0
-        this.indexList = []
         rows.forEach(item => {
           selectTotalSize += item.size
-          // this.indexList.push(item.index)
         })
         const item_name = this.tableHead[2]
         const item_more = this.tableHead[4]
@@ -1471,7 +1417,7 @@
           item_date.label = '修改日期'
           item_date.sortable = true
         }
-        if(this.indexList.length === this.fileList.length){
+        if(this.selectRowData.length === this.fileList.length){
           this.allChecked = true
         }else{
           this.allChecked = false
@@ -1479,9 +1425,6 @@
       },
       // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
       rowStyle({ row, rowIndex}) {
-        // if(this.$refs.fileListTable.tableSelectData.length > 0){
-        //   console.log('rowStyle',this.$refs.fileListTable.tableSelectData[0].index)
-        // }
         if(this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1){
           return { backgroundColor: '#F5F7FA' }
         }
@@ -1505,7 +1448,7 @@
           this.$refs.contextShow.hideMenu()
         }
         if(this.editingIndex === -1 && !this.$refs.contextShow.ctxVisible) {
-          if (this.indexList.length <= 1) {
+          if (this.selectRowData.length <= 1) {
             this.cellMouseIndex = row.index
           }
         }
@@ -1532,7 +1475,7 @@
         if(this.editingIndex === -1) {
           const columnIndex = column.index
           if (columnIndex === 2) {
-            if (this.indexList.length < 1) {
+            if (this.selectRowData.length < 1) {
               if (row.index !== this.editingIndex) {
                 // this.fileClick(row)
                 this.editingIndex = -1
@@ -1560,7 +1503,6 @@
       // 重命名
       rowRename(newFileName, row) {
         if (newFileName) {
-          console.log('newFileName', newFileName)
           if(/[\/\\"<>\?\*]/gi.test(newFileName)){
             this.$message({
               message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
@@ -1580,7 +1522,6 @@
               return item;
             }
           })
-          console.log(findIndex)
           if(findIndex > -1){
             let msg = '该文件已存在'
             if(row.isFolder){
@@ -1645,12 +1586,9 @@
           }
           this.preliminaryRowData(row)
         }
-        console.log('menusIsMultiple', this.menusIsMultiple)
         event.preventDefault()
         this.menuTriangle = ''
         const e = {}
-        console.log('pageX:' + event.pageX, 'clientX:' + event.clientX)
-        console.log('pageY:' + event.pageY, 'clientY:' + event.clientY)
         e.pageX = event.pageX + 5
         e.pageY = event.pageY + 2
         e.clientX = event.clientX + 5
@@ -1709,7 +1647,6 @@
         }
       },
       show() {
-        console.log('菜单显示了')
       },
       hide() {
         const that = this
@@ -1718,7 +1655,6 @@
           that.isJustHideMenus = false
         }, 100)
         this.cellMouseIndex = -1
-        console.log('菜单隐藏了')
       },
       // 菜单操作
       menusOperations(operation) {
@@ -1752,7 +1688,6 @@
             //   title: this.rowContextData.name,
             //   duration: 2000
             // })
-            console.log('详情', this.rowContextData)
             this.drawer = true
             break
           case 'rename':
@@ -1777,7 +1712,6 @@
       },
       // 加载下一级文件树
       directoryTreeLoadNode(node, resolve) {
-        console.log(node)
         let fileId = null
         if (node.level === 0) {
           const that = this
@@ -1834,7 +1768,7 @@
         }
 
         let fileIds = [];
-        if (this.menusIsMultiple || this.indexList.length > 1) {
+        if (this.menusIsMultiple || this.selectRowData.length > 1) {
           const exits = this.$refs.fileListTable.tableSelectData.some(value => {
             fileIds.push(value.id)
             const thisParentPath = value.path
@@ -1939,7 +1873,6 @@
           if (res.data) {
             this.shareLink = 'http://'+window.location.host+'/s?s='+res.data
             this.generateShareLinkLoading = false
-            console.log(window.location.host, this.$route)
           }
         })
       },
@@ -1974,17 +1907,6 @@
         })
         if (totalSize > 0) {
           var fileIds = [];
-          // if (this.indexList.length > 1) {
-          //   this.$refs.fileListTable.tableSelectData.forEach(value => {
-          //     fileIds.push(value.id)
-          //   })
-          // } else {
-          //   if (this.rowContextData.id) {
-          //     fileIds.push(this.rowContextData.id)
-          //   } else {
-          //     fileIds.push(this.$refs.fileListTable.tableSelectData[0].id)
-          //   }
-          // }
           if (this.$refs.fileListTable.tableSelectData.length > 0) {
             this.$refs.fileListTable.tableSelectData.forEach(value => {
               fileIds.push(value.id)
@@ -2013,7 +1935,7 @@
       deleteFile() {
         let fileList = []
         const fileIds = []
-        if (this.menusIsMultiple || this.indexList.length > 1) {
+        if (this.menusIsMultiple || this.selectRowData.length > 1) {
           fileList = this.$refs.fileListTable.tableSelectData
           this.$refs.fileListTable.tableSelectData.forEach(value => {
             fileIds.push(value.id)
@@ -2022,9 +1944,6 @@
           fileIds.push(this.$refs.fileListTable.tableSelectData[0].id)
         }
         const str = this.getShowSumFileAndFolder(fileList)
-
-        console.log(this.$refs.fileListTable.tableSelectData)
-
         this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -2081,7 +2000,6 @@
             const path = encodeURIComponent(this.path);
             this.$router.push(`?vmode=${this.vmode}&path=${path}`)
             this.openDir(row)
-            console.log(this.pathList)
           }
         } else {
           if(row.contentType.indexOf('image') > -1){
@@ -2116,14 +2034,16 @@
             return
           }
           // 打开文件
-          const fileIds = [row.id]
-          let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          window.open(url, '_blank')
-          // const fileIds = [row.id]
-          // let url = 'http://localhost:10010/preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          // url = process.env.VUE_APP_BASE_PRIVIEW_API+'/onlinePreview?url='+encodeURIComponent(url);
-          // console.log("url",url)
-          // window.open(url);
+          let fileIds = [row.id]
+
+          this.$confirm('此文件不支持预览, 是否下载该文件?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+            window.open(url, '_self')
+          })
         }
       }
     }
@@ -2159,6 +2079,15 @@
     }
     /deep/.el-form-item {
       margin-bottom: 0;
+    }
+    /deep/.details-position{
+      margin: 10px 0;
+      .el-form-item__content {
+        line-height: 20px;
+      }
+      .el-form-item__label {
+        line-height: 20px;
+      }
     }
     a:hover {
       color: #409EFF;
