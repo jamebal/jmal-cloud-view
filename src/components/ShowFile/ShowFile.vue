@@ -610,6 +610,7 @@
         selectEnd: -1,// 选择终点
         selectPin: false,// 默认false,不按住
         dragElementList: [],
+        drawFlag: false,
       }
     },
     computed: {
@@ -761,7 +762,9 @@
         }
       },
       gridItemClick(row) {
-        this.fileClick(row)
+        if(!this.drawFlag){
+          this.fileClick(row)
+        }
       },
       containerResize() {
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
@@ -777,11 +780,14 @@
         console.log('draw',draw)
         let wId = "rectangle1"
         let startX = 0, startY = 0
-        let flag = false
+        // let flag = false
         let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
         draw.onmousedown = function(e){
-          flag = true
           let evt = window.event || e
+          if(evt.button !== 0){
+            return
+          }
+          console.log('onmousedown',evt.button)
           let scrollTop = draw.scrollTop || draw.scrollTop
           let scrollLeft = draw.scrollLeft || draw.scrollLeft
           startX = evt.clientX + scrollLeft
@@ -800,7 +806,9 @@
           div.style.overflow = 'hidden'
           draw.appendChild(div)
           document.onmousemove = function(e){
-            if(flag){
+            console.log('onmousemove')
+            _this.drawFlag = true
+            if(_this.drawFlag){
               let evt = window.event || e
               let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
               let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
@@ -814,50 +822,51 @@
               drawRectangle.style.width = retcWidth + 'px'
               drawRectangle.style.height = retcHeight + 'px'
               drawRectangle.style.backgroundColor = '#f2f5fa55'
-              _this.$refs.fileListTable.clearSelection()
-              console.log(89)
-              // _this.dragElementList.forEach(element => {
-              //    if(checkTouch(element,$$(wId))){
-              //      _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: true}])
-              //    }
-              // })
+              if(!drawSelecting){
+                drawSelect({x:retcLeft,y:retcTop,w:retcWidth,h:retcHeight})
+              }
+              // drawSelect()
+            }
+          }
+          document.onmouseup = function(e){
+            document.onmousemove = null;
+            document.onmouseup = null;
+            console.log('onmouseup')
+            setTimeout(function () {
+              _this.drawFlag = false
+            },50)
+            if($$(wId)){
+              draw.removeChild($$(wId))
             }
           }
         }
-        document.onmouseup = function(e){
-          flag = false
-          if($$(wId)){
-            draw.removeChild($$(wId))
-          }
-        }
-
+        let drawSelecting = false
+       let drawSelect = function(drawNode){
+         drawSelecting = true
+         _this.dragElementList.forEach(element => {
+           if(checkTouch(element,drawNode)){
+             _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: true}])
+           }else{
+             _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: false}])
+           }
+         })
+         setTimeout(function () {
+           drawSelecting = false
+         },150)
+       }
         //检查两个DIV是否有接触
-       let checkTouch = function(o1,o2){
+       let checkTouch = function(item,draw){
           //得到左上角的绝对坐标
-          let p1=getObjPos(o1);
-          let p2=getObjPos(o2);
-          let x1=p1.x
-          let y1=p1.y
-          let x2=p2.x
-          let y2=p2.y
-          let w1=o1.offsetWidth;
-          let h1=o1.offsetHeight;
-          let w2=o2.offsetWidth;
-          let h2=o2.offsetHeight;
-          return ((x1-x2<=0)&&(x2-x1<w1)||(x1-x2>=0)&&(x1-x2<w2))&&
-            ((y1-y2<=0)&&(y2-y1<h1)||(y1-y2>=0)&&(y1-y2<h2));
+          let x1=item.x
+          let y1=item.y
+          let x2=draw.x
+          let y2=draw.y
+          let w1=item.w;
+          let h1=item.h;
+          let w2=draw.w;
+          let h2=draw.h;
+          return ((x1-x2<=0)&&(x2-x1<w1)||(x1-x2>=0)&&(x1-x2<w2))&&((y1-y2<=0)&&(y2-y1<h1)||(y1-y2>=0)&&(y1-y2<h2))
         };
-
-        function getObjPos(obj) {
-          let pos = {x:0,y:0}
-          while(obj){
-            pos.x += obj.offsetLeft
-            pos.y += obj.offsetTop
-            obj = obj.offsetParent
-            console.log(999)
-          }
-          return pos
-        }
       },
       // 行拖拽
       rowDrop() {
@@ -898,7 +907,14 @@
               child.children[0].children[0].rowIndex = i
               child = child.children[0].children[0]
             }
-            _this.dragElementList.push(child)
+            // 为画矩形选取准备数据
+            let pos = getObjPos(child)
+            pos.w = child.offsetWidth
+            pos.h = child.offsetHeight
+            pos.rowIndex = child.rowIndex
+            _this.dragElementList.push(pos)
+
+            // 使元素可拖动
             child.draggable = true
 
             child.ondragstart = function(e){
@@ -1061,7 +1077,6 @@
             }).catch()
           }
         }
-
         let clearClass = function (node) {
           if(node){
             if(_this.grid){
@@ -1076,7 +1091,15 @@
           }
           dragged.style.backgroundColor = dragBackCorlor
         }
-
+        function getObjPos(obj) {
+          let pos = {x:0,y:0}
+          while(obj){
+            pos.x += obj.offsetLeft
+            pos.y += obj.offsetTop
+            obj = obj.offsetParent
+          }
+          return pos
+        }
       },
       // 格式化最近时间
       formatTime(time) {
