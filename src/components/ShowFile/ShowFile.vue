@@ -99,7 +99,6 @@
           <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
           </label>
         </li>
-
       </ul>
     </e-vue-contextmenu>
 
@@ -145,9 +144,10 @@
 
     <!--list布局-->
     <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
-    <div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">
+    <div id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight+'px'}">
       <pl-table
         ref="fileListTable"
+        v-show="!grid && fileList.length > 0"
         v-loading="tableLoading"
         :max-height="clientHeight"
         :default-sort="sortable"
@@ -288,52 +288,56 @@
           </pl-table-column>
         </template>
       </pl-table>
-    </div>
-    <!--grid布局-->
-    <div v-show="grid && fileList.length > 0" v-loading="tableLoading"
-         element-loading-text="文件加载中"
-         element-loading-spinner="el-icon-loading"
-         element-loading-background="#f6f7fa88">
-      <div class="checkbox-group-header">
-        <div class="select-operation">
-          <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">{{selectRowData.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
-          <div>
-            <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0" @click="downloadFile">
-              下载
-            </el-button>
-            <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1" @click="share">
-              分享
-            </el-button>
-            <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0" @click="moveOrCopy">
-              移动或复制
-            </el-button>
-            <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0" type="danger" @click="deleteFile">
-            </el-button>
 
+
+      <!--grid布局-->
+      <div v-show="grid && fileList.length > 0" v-loading="tableLoading"
+           element-loading-text="文件加载中"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="#f6f7fa88">
+        <div class="checkbox-group-header">
+          <div class="select-operation">
+            <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">{{selectRowData.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
+            <div>
+              <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0" @click="downloadFile">
+                下载
+              </el-button>
+              <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1" @click="share">
+                分享
+              </el-button>
+              <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0" @click="moveOrCopy">
+                移动或复制
+              </el-button>
+              <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0" type="danger" @click="deleteFile">
+              </el-button>
+
+            </div>
           </div>
+          <el-divider style="transform: scaleY(0.5);"></el-divider>
         </div>
-        <el-divider style="transform: scaleY(0.5);"></el-divider>
+
+        <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
+          <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
+            <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
+            >
+              <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                   :style="{'background': selectRowData.includes(item)?'#caeaf991':'','border': selectRowData.includes(item)?'solid 1px #7bd7ff':''}"
+                   @mouseover="gridItemHover(item,index)"
+                   @mouseout="gridItemOut(item,index)"
+                   @click="gridItemClick(item)"
+                   @contextmenu.prevent="rowContextmenu(item)"
+              >
+                <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
+                <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
+                <span class="grid-item-text">{{item.name}}</span>
+              </div>
+            </van-grid-item>
+          </van-grid>
+        </van-checkbox-group>
+        <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
       </div>
 
-      <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-        <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
-          <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
-          >
-            <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                 :style="{'background': selectRowData.includes(item)?'#caeaf991':'','border': selectRowData.includes(item)?'solid 1px #7bd7ff':''}"
-                 @mouseover="gridItemHover(item,index)"
-                 @mouseout="gridItemOut(item,index)"
-                 @click="gridItemClick(item)"
-                 @contextmenu.prevent="rowContextmenu(item)"
-            >
-              <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
-              <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
-              <span class="grid-item-text">{{item.name}}</span>
-            </div>
-          </van-grid-item>
-        </van-grid>
-      </van-checkbox-group>
-      <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
+
     </div>
 
     <empty-file
@@ -399,6 +403,7 @@
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
   import ButtonUpload from "@/components/button/ButtonUpload";
+  import '@/utils/directives.js'
 
   import 'pl-table/themes/index.css';
   // import 'pl-table/themes/plTableStyle.css';
@@ -604,6 +609,7 @@
         selectOrgin: -1,// 选择起点(主要用于按住shift键多选)
         selectEnd: -1,// 选择终点
         selectPin: false,// 默认false,不按住
+        dragElementList: [],
       }
     },
     computed: {
@@ -687,6 +693,9 @@
           }
         })
       }
+
+      // 画矩形选区
+      this.darwRectangle()
     },
     destroyed() {
       window.removeEventListener('popstate', this.goBack, false);
@@ -758,6 +767,98 @@
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
         this.gridColumnNum = clientWidth/120 -2
       },
+      // 画矩形选区
+      darwRectangle(){
+        const _this = this
+        let $$ = function(id){
+          return document.getElementById(id)
+        }
+        let draw = $$("v-draw-rectangle")
+        console.log('draw',draw)
+        let wId = "rectangle1"
+        let startX = 0, startY = 0
+        let flag = false
+        let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
+        draw.onmousedown = function(e){
+          flag = true
+          let evt = window.event || e
+          let scrollTop = draw.scrollTop || draw.scrollTop
+          let scrollLeft = draw.scrollLeft || draw.scrollLeft
+          startX = evt.clientX + scrollLeft
+          startY = evt.clientY + scrollTop
+          let div = document.createElement("div")
+          div.id = wId
+          div.className = "draw-rectangle"
+          div.style.left = evt.x + "px"
+          div.style.top = evt.y + "px"
+          div.style.position = 'fixed'
+          div.style.border = '1px dashed #2898ff'
+          div.style.width = '0px'
+          div.style.height = '0px'
+          div.style.left = '0px'
+          div.style.top = '0px'
+          div.style.overflow = 'hidden'
+          draw.appendChild(div)
+          document.onmousemove = function(e){
+            if(flag){
+              let evt = window.event || e
+              let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
+              let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
+              retcLeft = (startX - evt.clientX - scrollLeft > 0 ? evt.clientX + scrollLeft : startX)
+              retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
+              retcHeight = Math.abs(startY - evt.clientY - scrollTop)
+              retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
+              const drawRectangle = $$(wId)
+              drawRectangle.style.left = retcLeft + 'px'
+              drawRectangle.style.top = retcTop + 'px'
+              drawRectangle.style.width = retcWidth + 'px'
+              drawRectangle.style.height = retcHeight + 'px'
+              drawRectangle.style.backgroundColor = '#f2f5fa55'
+              _this.$refs.fileListTable.clearSelection()
+              console.log(89)
+              // _this.dragElementList.forEach(element => {
+              //    if(checkTouch(element,$$(wId))){
+              //      _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: true}])
+              //    }
+              // })
+            }
+          }
+        }
+        document.onmouseup = function(e){
+          flag = false
+          if($$(wId)){
+            draw.removeChild($$(wId))
+          }
+        }
+
+        //检查两个DIV是否有接触
+       let checkTouch = function(o1,o2){
+          //得到左上角的绝对坐标
+          let p1=getObjPos(o1);
+          let p2=getObjPos(o2);
+          let x1=p1.x
+          let y1=p1.y
+          let x2=p2.x
+          let y2=p2.y
+          let w1=o1.offsetWidth;
+          let h1=o1.offsetHeight;
+          let w2=o2.offsetWidth;
+          let h2=o2.offsetHeight;
+          return ((x1-x2<=0)&&(x2-x1<w1)||(x1-x2>=0)&&(x1-x2<w2))&&
+            ((y1-y2<=0)&&(y2-y1<h1)||(y1-y2>=0)&&(y1-y2<h2));
+        };
+
+        function getObjPos(obj) {
+          let pos = {x:0,y:0}
+          while(obj){
+            pos.x += obj.offsetLeft
+            pos.y += obj.offsetTop
+            obj = obj.offsetParent
+            console.log(999)
+          }
+          return pos
+        }
+      },
       // 行拖拽
       rowDrop() {
         // 目标元素的背景颜色
@@ -781,6 +882,11 @@
           target = document.querySelector('.van-checkbox-group .van-grid')
         }
 
+        //鼠标点击按下事件，画图准备
+        target.onmousedown = function(e){
+          //鼠标移动事件，画图
+        }
+
         let rows = 0;//行数
         setTimeout(function () {
           rows = target.childElementCount
@@ -792,16 +898,21 @@
               child.children[0].children[0].rowIndex = i
               child = child.children[0].children[0]
             }
+            _this.dragElementList.push(child)
             child.draggable = true
-            // child.style.cursor = 'copy'
+
             child.ondragstart = function(e){
               dragged = e.path[0]
               draggedIndex = e.path[0].rowIndex
               // console.log('child'+i+'开始拖拽');
               _this.cellMouseIndex = -1
               dragged.style.cursor = 'grabbing'
-              console.log(dragged.style.backgroundColor)
+              dragged.style.borderRadius = '10px'
               dragBackCorlor = dragged.style.backgroundColor
+
+              let dragImage = document.createElement('img')
+              dragImage.src = require('@/assets/img/File.png')
+              e.dataTransfer.setDragImage(dragImage, 10, 10);
             }
             child.ondragend = function(){
               // console.log('child'+i+'拖拽结束');
@@ -884,11 +995,11 @@
               }
               // console.log('拖动进入目标元素'+throughRow.rowIndex,'dragIndex:',dragIndex);
               // 不是自己或未文件夹时才改变状态
-              if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder){
+              if(draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder && _this.selectRowData.findIndex(item => item.index === throughRow.rowIndex) === -1){
                 // 改变本次进入的容器的状态
                 dragged.style.cursor = 'copy'
                 dragEnterBackCorlor = throughRow.style.backgroundColor
-                throughRow.style.backgroundColor = '#e9fdcf'
+                // throughRow.style.backgroundColor = '#e9fdcf'
                 if(_this.grid){
                   throughRow.style.height = throughRow.clientWidth + 15 +'px'
                   throughRow.style.width = throughRow.clientWidth + 15 +'px'
@@ -920,7 +1031,7 @@
                 // 离开第一行或最后一行
                 leaveIndex = throughRow.rowIndex
                 loop = setTimeout(function () {
-                  if(leaveIndex > -1){
+                  if(leaveIndex > -1) {
                     const leave = target.children[leaveIndex];
                     clearClass(leave)
                     dragIndex = -1
@@ -934,7 +1045,7 @@
           // console.log('放下了'+draggedIndex);
           const form = _this.fileList[draggedIndex]
           const to = _this.fileList[dragIndex]
-          if(form && to && form.id !== to.id && to.isFolder){
+          if(form && to && form.id !== to.id && to.isFolder && !_this.selectRowData.includes(to)){
             // 移动文件/文件夹
             // _this.copyOrMoveApi('move', form.id, to.id)
             let fileType = '文件'
@@ -952,13 +1063,12 @@
         }
 
         let clearClass = function (node) {
-          console.log('clearClass',node)
           if(node){
             if(_this.grid){
               node = node.children[0].children[0]
               node.style.height = null
               node.style.width = null
-              node.style.backgroundColor = dragEnterBackCorlor
+              // node.style.backgroundColor = dragEnterBackCorlor
               dragged.style.cursor = 'grabbing'
             }else{
               node.style.height = 'unset'

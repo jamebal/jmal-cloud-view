@@ -1,6 +1,71 @@
 
 import Vue from 'vue'
 
+// v-draw-rectangle 画矩形选区
+Vue.directive('drawRectangle',{
+  bind(el,binding,vnode,oldVnode){
+    let $$ = function(id){
+      return document.getElementById(id)
+    }
+    let draw = el
+    console.log('draw',draw)
+    let wId = "rectangle1"
+    let startX = 0, startY = 0
+    let flag = false
+    let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
+    draw.onmousedown = function(e){
+      flag = true
+      let evt = window.event || e
+      let scrollTop = draw.scrollTop || draw.scrollTop
+      let scrollLeft = draw.scrollLeft || draw.scrollLeft
+      startX = evt.clientX + scrollLeft
+      startY = evt.clientY + scrollTop
+      let div = document.createElement("div")
+      div.id = wId
+      div.className = "draw-rectangle"
+      div.style.left = evt.x + "px"
+      div.style.top = evt.y + "px"
+      div.style.position = 'fixed'
+      div.style.border = '1px dashed #2898ff'
+      div.style.width = '0px'
+      div.style.height = '0px'
+      div.style.left = '0px'
+      div.style.top = '0px'
+      div.style.overflow = 'hidden'
+      draw.appendChild(div)
+
+      document.onmousemove = function(e){
+        if(flag){
+          let evt = window.event || e
+          let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
+          let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
+          retcLeft = (startX - evt.clientX - scrollLeft > 0 ? evt.clientX + scrollLeft : startX)
+          retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
+          retcHeight = Math.abs(startY - evt.clientY - scrollTop)
+          retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
+          $$(wId).style.left = retcLeft + 'px'
+          $$(wId).style.top = retcTop + 'px'
+          $$(wId).style.width = retcWidth + 'px'
+          $$(wId).style.height = retcHeight + 'px'
+          $$(wId).style.backgroundColor = '#f2f5fa55'
+        }
+      }
+
+    }
+
+    document.onmouseup = function(e){
+      flag = false
+      if($$(wId)){
+        console.log('left',retcLeft, 'top',retcTop, 'width',retcWidth, 'hieght',retcHeight)
+        draw.removeChild($$(wId))
+        if(retcWidth > 1 && retcHeight > 1){
+        }
+      }
+      return false
+    }
+  }
+})
+
 // v-aplayerDrag: 音乐播放拖拽
 Vue.directive('aplayerDrag', {
   bind(el, binding, vnode, oldVnode) {
