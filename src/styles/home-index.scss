@@ -283,6 +283,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/deep/ .grid-item-text:hover {
+  color: #19ACF9;
+}
 /deep/ .grid-time {
   border-radius: 10px;
   padding: 0 8px;

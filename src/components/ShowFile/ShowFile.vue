@@ -208,7 +208,7 @@
             :label="item.label"
             :sort-orders="['ascending', 'descending']"
             :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-            >
+          >
             <template slot-scope="scope">
               <el-col v-if="scope.row.index === editingIndex" :span="10">
                 <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @focus="renameInputFocus($event,scope.row)" @keyup.enter.native="rowRename(renameFileName, scope.row)">
@@ -234,11 +234,11 @@
           </pl-table-column>
           <!--分享-->
           <pl-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
-              <template slot-scope="scope">
-                <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享" placement="top">
-                  <svg-icon title="分享" class="button-class" icon-class="share" @click.stop="share(scope.row)"/>
-                </el-tooltip>
-              </template>
+            <template slot-scope="scope">
+              <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享" placement="top">
+                <svg-icon title="分享" class="button-class" icon-class="share" @click.stop="share(scope.row)"/>
+              </el-tooltip>
+            </template>
           </pl-table-column>
           <!--更多-->
           <pl-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
@@ -310,7 +310,6 @@
               </el-button>
               <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0" type="danger" @click="deleteFile">
               </el-button>
-
             </div>
           </div>
           <el-divider style="transform: scaleY(0.5);"></el-divider>
@@ -329,7 +328,9 @@
               >
                 <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
                 <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
-                <span class="grid-item-text">{{item.name}}</span>
+                <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
+                  <span :title="item.name" class="grid-item-text">{{item.name}}</span>
+                <!--</el-tooltip>-->
               </div>
             </van-grid-item>
           </van-grid>
@@ -611,6 +612,7 @@
         selectPin: false,// 默认false,不按住
         dragElementList: [],
         drawFlag: false,
+        fileListScrollTop: 0,
       }
     },
     computed: {
@@ -701,6 +703,11 @@
     destroyed() {
       window.removeEventListener('popstate', this.goBack, false);
     },
+    // watch: {
+    //   fileList: function (newValue,oldValue) {
+    //     console.log(newValue,oldValue)
+    //   }
+    // },
     directives: {
       // 注册一个局部的自定义指令 v-focus
       focus: {
@@ -769,6 +776,7 @@
       containerResize() {
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
         this.gridColumnNum = clientWidth/120 -2
+        this.rowDrop()
       },
       // 画矩形选区
       darwRectangle(){
@@ -777,17 +785,30 @@
           return document.getElementById(id)
         }
         let draw = $$("v-draw-rectangle")
-        console.log('draw',draw)
         let wId = "rectangle1"
         let startX = 0, startY = 0
-        // let flag = false
         let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
+        _this.drawFlag = false
+        let itemClassName = 'el-table__row'
         draw.onmousedown = function(e){
+          if(_this.fileListScrollTop > 0){
+            return
+          }
           let evt = window.event || e
+          if(_this.grid){
+            itemClassName = 'van-grid-item van-grid-item--square'
+          }
+          let throughRow = e.path.find(path => {
+            if(path.className === itemClassName){
+              return path
+            }
+          })
+          if(throughRow && _this.selectRowData.includes(_this.fileList[throughRow.rowIndex])){
+            return
+          }
           if(evt.button !== 0){
             return
           }
-          console.log('onmousedown',evt.button)
           let scrollTop = draw.scrollTop || draw.scrollTop
           let scrollLeft = draw.scrollLeft || draw.scrollLeft
           startX = evt.clientX + scrollLeft
@@ -795,8 +816,8 @@
           let div = document.createElement("div")
           div.id = wId
           div.className = "draw-rectangle"
-          div.style.left = evt.x + "px"
-          div.style.top = evt.y + "px"
+          div.style.left = startX + "px"
+          div.style.top = startY + "px"
           div.style.position = 'fixed'
           div.style.border = '1px dashed #2898ff'
           div.style.width = '0px'
@@ -806,33 +827,34 @@
           div.style.overflow = 'hidden'
           draw.appendChild(div)
           document.onmousemove = function(e){
-            console.log('onmousemove')
-            _this.drawFlag = true
-            if(_this.drawFlag){
-              let evt = window.event || e
-              let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
-              let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
-              retcLeft = (startX - evt.clientX - scrollLeft > 0 ? evt.clientX + scrollLeft : startX)
-              retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
-              retcHeight = Math.abs(startY - evt.clientY - scrollTop)
-              retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
-              const drawRectangle = $$(wId)
+            let evt = window.event || e
+            let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
+            let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
+            retcLeft = (startX - evt.clientX - scrollLeft > 0 ? evt.clientX + scrollLeft : startX)
+            retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
+            retcHeight = Math.abs(startY - evt.clientY - scrollTop)
+            retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
+            const drawRectangle = $$(wId)
+            if(drawRectangle){
+              noScroll()
+              _this.drawFlag = true
               drawRectangle.style.left = retcLeft + 'px'
               drawRectangle.style.top = retcTop + 'px'
               drawRectangle.style.width = retcWidth + 'px'
               drawRectangle.style.height = retcHeight + 'px'
               drawRectangle.style.backgroundColor = '#f2f5fa55'
+            }
+            if(_this.drawFlag && (retcHeight + retcWidth) > 4){
               if(!drawSelecting){
                 drawSelect({x:retcLeft,y:retcTop,w:retcWidth,h:retcHeight})
               }
-              // drawSelect()
             }
           }
           document.onmouseup = function(e){
             document.onmousemove = null;
             document.onmouseup = null;
-            console.log('onmouseup')
-            setTimeout(function () {
+            setTimeout(function (){
+              restoreScroll()
               _this.drawFlag = false
             },50)
             if($$(wId)){
@@ -840,22 +862,55 @@
             }
           }
         }
+
+        // 添加grid视图的scroll事件
+        document.querySelector('.van-grid').onscroll = function (e) {
+          _this.tableBodyScroll(null,e)
+        }
+
+        let scrollDiv = document.querySelector('.ant-table-scroll')
+        if(_this.grid){
+          scrollDiv = document.querySelector('.van-grid')
+        }
+        // 禁止滚动
+        let noScroll = function(){
+          scrollDiv.onmousewheel = function (evt){
+            evt = evt || window.event
+            if (evt.preventDefault) {
+              // Firefox
+              evt.preventDefault()
+              evt.stopPropagation()
+            } else {
+              // IE
+              evt.cancelBubble = true
+              evt.returnValue = false
+            }
+            return false
+          }
+        }
+        // 恢复滚动
+        let restoreScroll = function(){
+          scrollDiv.onmousewheel = function (evt) {
+            return true
+          }
+        }
+
         let drawSelecting = false
-       let drawSelect = function(drawNode){
-         drawSelecting = true
-         _this.dragElementList.forEach(element => {
-           if(checkTouch(element,drawNode)){
-             _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: true}])
-           }else{
-             _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: false}])
-           }
-         })
-         setTimeout(function () {
-           drawSelecting = false
-         },150)
-       }
+        let drawSelect = function(drawNode){
+          drawSelecting = true
+          _this.dragElementList.forEach(element => {
+            if(checkTouch(element,drawNode)){
+              _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: true}])
+            }else{
+              _this.$refs.fileListTable.toggleRowSelection([{row:_this.fileList[element.rowIndex],selected: false}])
+            }
+          })
+          setTimeout(function () {
+            drawSelecting = false
+          },150)
+        }
         //检查两个DIV是否有接触
-       let checkTouch = function(item,draw){
+        let checkTouch = function(item,draw){
           //得到左上角的绝对坐标
           let x1=item.x
           let y1=item.y
@@ -870,6 +925,9 @@
       },
       // 行拖拽
       rowDrop() {
+        if(this.fileListScrollTop > 0){
+          return
+        }
         // 目标元素的背景颜色
         let dragEnterBackCorlor = null
         // 被拖拽元素的背景色
@@ -891,14 +949,10 @@
           target = document.querySelector('.van-checkbox-group .van-grid')
         }
 
-        //鼠标点击按下事件，画图准备
-        target.onmousedown = function(e){
-          //鼠标移动事件，画图
-        }
-
         let rows = 0;//行数
         setTimeout(function () {
           rows = target.childElementCount
+          _this.dragElementList = []
           for (let i = 0; i < target.childElementCount; i++) {
             let child = target.children[i]
             // 设置索引,表格自带rowIndex,这里我们设置grid的
@@ -918,9 +972,17 @@
             child.draggable = true
 
             child.ondragstart = function(e){
+              // 避免和画矩形选取冲突
+              _this.drawFlag = false
+              let rectangle = document.getElementById('rectangle1')
+              if(rectangle){
+                document.getElementById('v-draw-rectangle').removeChild(rectangle)
+              }
+
               dragged = e.path[0]
               draggedIndex = e.path[0].rowIndex
               // console.log('child'+i+'开始拖拽');
+              // 只有选中的才能拖拽
               _this.cellMouseIndex = -1
               dragged.style.cursor = 'grabbing'
               dragged.style.borderRadius = '10px'
@@ -1063,17 +1125,16 @@
           const to = _this.fileList[dragIndex]
           if(form && to && form.id !== to.id && to.isFolder && !_this.selectRowData.includes(to)){
             // 移动文件/文件夹
-            // _this.copyOrMoveApi('move', form.id, to.id)
-            let fileType = '文件'
-            if(form.isFolder){
-              fileType = '文件夹'
-            }
-            _this.$confirm('是否将'+fileType+'否移动到 "' + to.name + '"?', '提示', {
+            let forms = []
+            _this.selectRowData.forEach(row => {
+              forms.push(row.id)
+            })
+            _this.$confirm(`是否将选中的${_this.selectRowData.length}项移动到 ${to.name}?`, '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'info'
             }).then(() => {
-              _this.copyOrMoveApi('move', form.id, to.id)
+              _this.copyOrMoveApi('move', forms, to.id)
             }).catch()
           }
         }
@@ -1271,6 +1332,8 @@
         this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
         // 改变拖拽目标
         this.rowDrop()
+        // 画矩形选取
+        this.darwRectangle()
       },
       // 请求之前的准备
       beforeLoadData(onLoad){
@@ -1309,6 +1372,7 @@
         })
         // 使列表可拖拽
         this.rowDrop()
+        this.fileListScrollTop = 0
         // 是列表会到顶部
         if(!onLoad){
           this.$refs.fileListTable.pagingScrollTopLeft()
@@ -1397,6 +1461,7 @@
         })
       },
       tableBodyScroll(table, e) {
+        this.fileListScrollTop = e.target.scrollTop
         let scrollBottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop;
         if(scrollBottom < 200){
           if(!this.finished){
@@ -1438,6 +1503,7 @@
         this.changeSelectedStyle(this.$refs.fileListTable.tableSelectData)
       },
       sortChange(column) {
+        this.rowDrop()
         if(this.orderCustom || this.listModeSearch){
           this.sortable.prop = column.prop
           this.sortable.order = column.order
@@ -1827,10 +1893,7 @@
             this.favoriteOperating(false)
             break
           case 'details':
-            // this.$notify.info({
-            //   title: this.rowContextData.name,
-            //   duration: 2000
-            // })
+            console.log(this.rowContextData)
             this.drawer = true
             break
           case 'rename':
