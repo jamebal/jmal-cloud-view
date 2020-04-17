@@ -144,10 +144,10 @@
 
     <!--list布局-->
     <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
-    <div id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight+'px'}">
+    <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight+'px'}">
       <pl-table
         ref="fileListTable"
-        v-show="!grid && fileList.length > 0"
+        v-show="!grid"
         v-loading="tableLoading"
         :max-height="clientHeight"
         :default-sort="sortable"
@@ -291,7 +291,7 @@
 
 
       <!--grid布局-->
-      <div v-show="grid && fileList.length > 0" v-loading="tableLoading"
+      <div v-show="grid" v-loading="tableLoading"
            element-loading-text="文件加载中"
            element-loading-spinner="el-icon-loading"
            element-loading-background="#f6f7fa88">
@@ -342,7 +342,7 @@
     </div>
 
     <empty-file
-      v-if="this.fileList.length < 1 && !tableLoading"
+      v-if="fileList.length < 1 && !tableLoading"
       :emptyStatus="emptyStatus"
     >
     </empty-file>

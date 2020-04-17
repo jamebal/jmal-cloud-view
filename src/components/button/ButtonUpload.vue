@@ -113,7 +113,7 @@
   }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   .button {
     --background: #409EFF;
     --background-hover: #6bcbff;

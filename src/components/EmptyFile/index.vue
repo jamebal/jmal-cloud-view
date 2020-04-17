@@ -45,7 +45,7 @@
 <style lang="scss" scoped>
   .container {
     width: 100%;
-    min-height: calc(100vh - 50px);
+    /*min-height: calc(100vh - 50px);*/
   }
   .share-empty {
     height: 30%;

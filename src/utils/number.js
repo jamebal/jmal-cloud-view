@@ -106,7 +106,7 @@ export function substring(str,n){
  */
 export function formatTime(agoTime) {
   const diff = agoTime / 1000
-  if (diff < 30) {
+  if (diff < 60) {
     return '刚刚'
   } else if (diff < 3600) {
     // less 1 hour
