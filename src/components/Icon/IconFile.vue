@@ -16,14 +16,25 @@
     </div>
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
-    <svg-icon v-else-if="item.contentType.indexOf('audio') > -1" icon-class="audio"/>
-    <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
-    <div v-else-if="item.contentType.indexOf('image') > -1">
-      <el-image v-if="grid" style="width: 80px;height: 80px;" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
+    <div v-else-if="item.contentType.indexOf('audio') > -1">
+      <div v-if="item.music.coverBase64 !== null">
+        <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="'data:image/png;base64,'+item.music.coverBase64">
         <div slot="error" class="image-slot">
           <svg-icon icon-class="loading-image-error"/>
         </div>
       </el-image>
+      <el-avatar v-if="!grid" shape="square" :src="'data:image/png;base64,'+item.music.coverBase64"></el-avatar>
+      </div>
+      <svg-icon v-else icon-class="audio"/>
+    </div>
+    <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
+    <div v-else-if="item.contentType.indexOf('image') > -1">
+      <el-image v-if="grid || grid === 'details'" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
+        <div slot="error" class="image-slot">
+          <svg-icon icon-class="loading-image-error"/>
+        </div>
+      </el-image>
+
       <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : ('data:image/png;base64,'+item.content)"></el-avatar>
     </div>
     <!--<svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>-->
@@ -43,6 +54,10 @@
         default: ''
       },
       grid: {
+        type: Boolean,
+        default: false
+      },
+      details: {
         type: Boolean,
         default: false
       },

@@ -356,7 +356,7 @@
       :title="rowContextData.name"
       :visible.sync="drawer">
       <div class="drawer-icon">
-        <icon-file class="drawer-icon-font" :item="rowContextData" :image-url="imageUrl"></icon-file>
+        <icon-file class="drawer-icon-font" :grid="true" :details="true" :item="rowContextData" :image-url="imageUrl"></icon-file>
       </div>
       <el-form class="details-form">
         <el-form-item label="名称:">
