@@ -1,6 +1,5 @@
 <template>
   <div id="global-uploader" v-wechat-title="process === -10 || process===100 || this.fileListLength === 0 ? $route.meta.title : process+'%'+' | '+$route.meta.title" >
-
     <!-- 上传 -->
     <uploader
       ref="uploader"
@@ -12,9 +11,14 @@
       @file-success="onFileSuccess"
       @file-progress="onFileProgress"
       @file-error="onFileError"
+      @dragenter="onDragenter"
       @file-removed="onFileRemoved"
     >
       <uploader-unsupport></uploader-unsupport>
+
+      <uploader-drop v-if="dragover" class="uploader-drop">
+        <span>上传文件到当前目录下</span>
+      </uploader-drop>
 
       <uploader-btn id="global-uploader-btn" ref="uploadBtn" :attrs="attrs">选择文件</uploader-btn>
 
@@ -147,7 +151,8 @@ export default {
       isUploading: false,
       filePanel: {},
       processAreaClass: {},
-      pc: true
+      pc: true,
+      dragover: false
     }
   },
   computed: {
@@ -158,6 +163,24 @@ export default {
   },
   watch: {},
   mounted() {
+
+    let that = this
+    let dropbox = document.body
+    dropbox.addEventListener("dragenter", function(e){
+      e.stopPropagation();
+      e.preventDefault();
+    }, false);
+    dropbox.addEventListener("dragover", function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      that.dragover = true
+    }, false);
+    dropbox.addEventListener("drop", function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      that.dragover = false
+    }, false);
+
     Bus.$on('openUploader', query => {
       this.params = query || {}
       if (this.$refs.uploadBtn) {
@@ -189,6 +212,14 @@ export default {
     Bus.$off('uploadFileListBack')
   },
   methods: {
+    onDragenter(e) {
+      console.log('onDragenter')
+      this.params = {
+        currentDirectory: this.$route.query.path || '/',
+        username: this.$store.state.user.name,
+        userId: this.$store.state.user.userId
+      }
+    },
     // onFileAdded(file) {
     //   console.log('file', file)
     //   console.log(this.uploader.filePaths)
@@ -197,6 +228,7 @@ export default {
     //   Bus.$emit('fileAdded')
     // },
     onFilesAdded(files) {
+      console.log(files)
       this.fileListLength = this.uploader.fileList.length
       const filePaths = this.uploader.filePaths
       const paths = Object.keys(filePaths)
@@ -226,21 +258,6 @@ export default {
       }
       files.forEach(file => {
         // 上传文件
-        console.log('上传->', file)
-        console.log(pathsLength)
-        // this.computeMD5(file)
-        // if (pathsLength < 1) {
-        //   // this.computeMD5(file)
-        // } else {
-        //   console.log(pathsLength)
-        //   Object.assign(this.uploader.opts, {
-        //     query: {
-        //       isFolder: false,
-        //       ...this.params
-        //     }
-        //   })
-        //   this.uploader.resume()
-        // }
         Object.assign(this.uploader.opts, {
           query: {
             isFolder: false,
@@ -255,7 +272,6 @@ export default {
       // fileList.forEach(file => {
       //   file.currentSpeed
       // })
-      console.log('window.uploader',window.uploader)
       this.netSpeed = formatNetSpeed(file.currentSpeed)
       this.process = Math.trunc(window.uploader.progress() * 100)
       if(this.process > 0 && this.process < 100 && window.uploader.fileList.length > 0){
@@ -266,7 +282,7 @@ export default {
         window.onbeforeunload = null
       }
       this.isUploading = window.uploader.isUploading()
-      console.log(`上传中 ${file.name}，chunk：${chunk.startByte / 1024 / 1024} ~ ${chunk.endByte / 1024 / 1024}`)
+      // console.log(`上传中 ${file.name}，chunk：${chunk.startByte / 1024 / 1024} ~ ${chunk.endByte / 1024 / 1024}`)
     },
     onFileSuccess(rootFile, file, response) {
       const res = JSON.parse(response)
@@ -278,7 +294,7 @@ export default {
         this.statusSet(file.id, 'failed')
         return
       } else {
-        console.log(`上传成功 ${file.name}`)
+        // console.log(`上传成功 ${file.name}`)
         this.statusSet(file.id, 'success')
       }
       // 如果服务端返回需要合并
@@ -538,9 +554,26 @@ export default {
 <style scoped lang="scss">
     #global-uploader {
         position: fixed;
-        z-index: 20;
+        z-index: 1002;
         right: 15px;
         bottom: 15px;
+
+        .uploader-drop {
+          text-align: center;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #ffffff99;
+          span {
+            font-size: 34px;
+            font-weight: 700;
+            color: #616161;
+            position: relative;
+            top: 48%;
+          }
+        }
 
         .uploader-app {
             width: 720px;
