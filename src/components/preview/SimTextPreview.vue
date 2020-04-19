@@ -73,7 +73,7 @@
       return{
         textPreviewVisible: false,
         transformX: (document.body.clientWidth-900)/2,
-        transformY: 150,
+        transformY: (document.body.clientHeight-640)/2,
         content: '',
         newContent: '',
         codeMode: 'javascript',
@@ -171,7 +171,7 @@
               type: 'success',
               duration : 1000
             });
-          })  
+          })
       },
       changePreviewMode() {
         this.previewMode = !this.previewMode

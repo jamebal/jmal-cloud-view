@@ -17,13 +17,13 @@
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
     <div v-else-if="item.contentType.indexOf('audio') > -1">
-      <div v-if="item.music.coverBase64 !== null">
-        <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="'data:image/png;base64,'+item.music.coverBase64">
+      <div v-if="item.music.name !== null">
+        <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
         <div slot="error" class="image-slot">
           <svg-icon icon-class="loading-image-error"/>
         </div>
       </el-image>
-      <el-avatar v-if="!grid" shape="square" :src="'data:image/png;base64,'+item.music.coverBase64"></el-avatar>
+      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)"></el-avatar>
       </div>
       <svg-icon v-else icon-class="audio"/>
     </div>
@@ -35,7 +35,7 @@
         </div>
       </el-image>
 
-      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : ('data:image/png;base64,'+item.content)"></el-avatar>
+      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)"></el-avatar>
     </div>
     <!--<svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>-->
     <!--<svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>-->
@@ -50,6 +50,10 @@
     name: 'IconFile',
     props: {
       imageUrl: {
+        type: String,
+        default: ''
+      },
+      audioCoverUrl: {
         type: String,
         default: ''
       },

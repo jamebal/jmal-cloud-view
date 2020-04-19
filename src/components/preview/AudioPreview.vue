@@ -24,7 +24,6 @@
 <script>
 import '@/utils/directives.js'
 import Bus from '@/assets/js/bus'
-import colorThief from '@/assets/js/color-thief.min.js'
 export default {
     name: 'AudioPreview',
     components: {
@@ -33,7 +32,7 @@ export default {
     },
     computed: {
     },
-    data($this) {
+    data() {
       return {
         transformX: (document.body.clientWidth-500)/2,
         transformY: 0,
@@ -47,7 +46,7 @@ export default {
       this.onPicClick = this.onPicClick.bind(this);
       let pic = document.querySelector('.aplayer-pic')
       pic.addEventListener('click', this.onPicClick);
-      Bus.$on('onAddAudio',newFile => {
+      Bus.$on('onAddAudio',(newFile,audioCoverUrl) => {
         this.show = true
         let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + newFile.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + newFile.id
         let music = newFile.music
@@ -58,7 +57,7 @@ export default {
           artist: music.songName ? music.singer : fileName,
           url: url,
           type: newFile.contentType,
-          cover: music.songName ? 'data:image/png;base64,'+music.coverBase64 :'',
+          cover: music.songName ? audioCoverUrl+newFile.id :'',
         }
         let musicIndex = this.audio.findIndex(item => item.id===newFile.id)
         if(musicIndex < 0){

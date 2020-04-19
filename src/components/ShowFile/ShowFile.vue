@@ -194,7 +194,7 @@
             width="50"
           >
             <template slot-scope="scope">
-              <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
+              <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
             </template>
           </pl-table-column>
           <!--名称-->
@@ -327,7 +327,7 @@
                    @contextmenu.prevent="rowContextmenu(item)"
               >
                 <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
-                <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true"></icon-file></div>
+                <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true"></icon-file></div>
                 <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
                   <span :title="item.name" class="grid-item-text">{{item.name}}</span>
                 <!--</el-tooltip>-->
@@ -356,7 +356,7 @@
       :title="rowContextData.name"
       :visible.sync="drawer">
       <div class="drawer-icon">
-        <icon-file class="drawer-icon-font" :grid="true" :details="true" :item="rowContextData" :image-url="imageUrl"></icon-file>
+        <icon-file class="drawer-icon-font" :grid="true" :details="true" :item="rowContextData" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
       </div>
       <el-form class="details-form">
         <el-form-item label="名称:">
@@ -516,7 +516,7 @@
     data() {
       return {
         imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-        // imageUrl: 'http://localhost:8088/view?username=' + this.$store.state.user.name + '&id=',
+        audioCoverUrl: process.env.VUE_APP_BASE_API + '/view/cover?jmal-token=' + this.$store.state.user.token + '&id=',
         fileMenuActive: '',
         path: this.$route.query.path,
         showNewFolder: false,
@@ -2230,7 +2230,7 @@
             // 音频文件
             // this.audioPreviewVisible = true
             // this.audioPreviewRow = row
-            Bus.$emit('onAddAudio',row)
+            Bus.$emit('onAddAudio',row, this.audioCoverUrl)
             return
           }
           if(row.contentType.includes('text')){
