@@ -29,6 +29,9 @@
         default: false
       }
     },
+    created(){
+      console.log('emptyFile - created')
+    },
     data() {
       return {
         // sourceImg: this.emptyImgUrl,

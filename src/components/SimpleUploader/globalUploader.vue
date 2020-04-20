@@ -166,14 +166,12 @@ export default {
 
     let that = this
     let dropbox = document.body
-    dropbox.addEventListener("dragenter", function(e){
-      e.stopPropagation();
-      e.preventDefault();
-    }, false);
     dropbox.addEventListener("dragover", function(e){
       e.stopPropagation();
       e.preventDefault();
-      that.dragover = true
+      if(e.dataTransfer.files.length > 0){
+        that.dragover = true
+      }
     }, false);
     dropbox.addEventListener("drop", function(e){
       e.stopPropagation();
@@ -212,8 +210,7 @@ export default {
     Bus.$off('uploadFileListBack')
   },
   methods: {
-    onDragenter(e) {
-      console.log('onDragenter')
+    onDragenter() {
       this.params = {
         currentDirectory: this.$route.query.path || '/',
         username: this.$store.state.user.name,

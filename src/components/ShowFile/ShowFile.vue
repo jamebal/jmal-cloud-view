@@ -123,7 +123,7 @@
       >
       </el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogMoveOrCopyVisible = false"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
         <el-button type="primary" @click="moveFileTree">移 动</el-button>
         <el-button type="primary" @click="copyFileTree">复制</el-button>
         <el-button @click="dialogMoveOrCopyVisible = false">取 消</el-button>
@@ -641,7 +641,6 @@
       this.getFileList()
     },
     mounted() {
-
       Bus.$on('fileSuccess', () => {
         this.getFileList()
       })
@@ -1244,17 +1243,21 @@
         this.$router.push(`/markdown/editor`)
       },
       newFolder() {
-        this.newFolderName = '新建文件夹'
+        this.newFolderName = this.getNewFolderName(this.fileList,'新建文件夹')
+        this.showNewFolder = true
+      },
+      getNewFolderName(fileList,newFolderName){
         let append = 0
         let filenameList = []
-        this.fileList.forEach(file => {
-          filenameList.push(file.name)
+        fileList.forEach(file => {
+          filenameList.push(file.name || file.label)
         })
-        while(filenameList.includes(this.newFolderName)){
+        console.log(filenameList)
+        while(filenameList.includes(newFolderName)){
           append += 1
-          this.newFolderName = '新建文件夹' + append
+          newFolderName = '新建文件夹' + append
         }
-        this.showNewFolder = true
+        return newFolderName
       },
       hideNewFolderName() {
         this.showNewFolder = false
@@ -1941,11 +1944,40 @@
       },
       // 点击文件树
       treeNodeClick(row,node,event) {
+        console.log('treeNodeClick',node)
         this.selectTreeNode = row
         this.selectTreeNode.showName = ' "' + row.name + '"'
       },
       // 节点被展开时触发
       treeNodeExpand(row,node,event) {
+      },
+      // 文件树里新建文件夹
+      fileTreeAndNewFolder() {
+        let newNodeId = 'newFolderNodeKey'
+        let node = this.$refs.directoryTree.getNode(newNodeId)
+        if(node !== null){
+          this.$refs.directoryTree.remove(node)
+        }
+
+        let childNodes = this.$refs.directoryTree.store.currentNode.childNodes
+        let newFolderName = this.getNewFolderName(childNodes,'新建文件夹')
+        let newNode = {
+          id: newNodeId,
+          newFolder: true,
+          name: newFolderName,
+          showName: newFolderName,
+          isLeaf: true
+        }
+        this.$refs.directoryTree.append(newNode,this.selectTreeNode)
+        const that = this
+        setTimeout(function (){
+          let treeInput = document.getElementById("treeInput")
+          if(treeInput){
+            treeInput.value = newFolderName
+            treeInput.focus()
+            treeInput.select()
+          }
+        },100)
       },
       // 移动文件
       moveFileTree() {
@@ -2043,6 +2075,23 @@
         })
       },
       renderContent(h, { node, data, store }) {
+        if(data.newFolder){
+          return (
+            <span class="custom-tree-node">
+            <span><svg-icon icon-class="folder" /></span>
+            <span>
+            <div class="el-input el-input--mini el-input-tree">
+              <input type="text" autocomplete="on" value="新建文件夹" id="treeInput" class="el-input__inner"></input>
+            </div>
+            <button type="button" on-click={() => {}} class="el-button el-icon-check el-button--mini el-input-tree-button" element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
+            <button type="button" on-click={() => {
+            this.$refs.directoryTree.remove(node)
+            window.event.preventDefault()
+            window.event.stopPropagation()
+          }} class="el-button el-icon-close el-button--mini el-input-tree-button" element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
+            </span>
+            </span>);
+        }
         if(node.expanded){
           return (
             <span class="custom-tree-node">
@@ -2335,6 +2384,12 @@
       line-height: 16px;
       color: #666;
     }
+  }
+  /deep/.el-input-tree {
+    width: 50% !important;
+  }
+  /deep/.el-input-tree-button {
+    margin-left: 5px!important;
   }
 </style>
 

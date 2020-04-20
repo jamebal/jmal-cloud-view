@@ -60,6 +60,8 @@ service.interceptors.response.use(
         })
       }
 
+      console.log(res.message)
+
       if (res.code === 5) {
         // to re-login
         MessageBox.confirm('您已注销，可以取消停留在此页面上，或者再次登录', '确认登出', {
