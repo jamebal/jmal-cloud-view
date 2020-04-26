@@ -942,13 +942,17 @@
         let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
 
         // 目标元素
-        let target = document.querySelector('.el-table__body-wrapper tbody');
+        let target = document.querySelector('.el-table__body-wrapper tbody')
 
         if(this.grid){
           target = document.querySelector('.van-checkbox-group .van-grid')
         }
 
         let rows = 0;//行数
+
+        let img = new Image();
+        img.src = require('@/assets/img/File.png')
+
         setTimeout(function () {
           rows = target.childElementCount
           _this.dragElementList = []
@@ -969,8 +973,15 @@
 
             // 使元素可拖动
             child.draggable = true
+            // 使元素可拖动
+            child.slot = 'jmal'
 
             child.ondragstart = function(e){
+              // img.src = require('@/assets/img/File.png')
+
+              e.dataTransfer.setDragImage(img, 0, 0);
+
+              Bus.$emit('onDragStart', true)
               // 避免和画矩形选取冲突
               _this.drawFlag = false
               let rectangle = document.getElementById('rectangle1')
@@ -986,12 +997,9 @@
               dragged.style.cursor = 'grabbing'
               dragged.style.borderRadius = '10px'
               dragBackCorlor = dragged.style.backgroundColor
-
-              let dragImage = document.createElement('img')
-              dragImage.src = require('@/assets/img/File.png')
-              e.dataTransfer.setDragImage(dragImage, 10, 10);
             }
             child.ondragend = function(){
+              Bus.$emit('onDragStart', false)
               // console.log('child'+i+'拖拽结束');
               // 清除上次进入的容器的状态
               const last = target.children[dragIndex];
@@ -1076,13 +1084,7 @@
                 // 改变本次进入的容器的状态
                 dragged.style.cursor = 'copy'
                 dragEnterBackCorlor = throughRow.style.backgroundColor
-                // throughRow.style.backgroundColor = '#e9fdcf'
-                if(_this.grid){
-                  throughRow.style.height = throughRow.clientWidth + 15 +'px'
-                  throughRow.style.width = throughRow.clientWidth + 15 +'px'
-                }else{
-                  throughRow.style.height = 60+'px'
-                }
+                throughRow.style.backgroundColor = '#9fcdfc99'
               }
               dragIndex = throughRow.rowIndex
             }
@@ -1141,13 +1143,17 @@
           if(node){
             if(_this.grid){
               node = node.children[0].children[0]
-              node.style.height = null
-              node.style.width = null
-              // node.style.backgroundColor = dragEnterBackCorlor
-              dragged.style.cursor = 'grabbing'
+              if(node.style.backgroundColor !== 'rgba(202, 234, 249, 0.57)'){
+                node.style.backgroundColor = null
+              }
             }else{
               node.style.height = 'unset'
+              //#F5F7FA
+              if(node.style.backgroundColor !== 'rgb(245, 247, 250)'){
+                node.style.backgroundColor = null
+              }
             }
+            dragged.style.cursor = 'grabbing'
           }
           dragged.style.backgroundColor = dragBackCorlor
         }

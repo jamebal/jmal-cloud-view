@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang=en>
+<title>Example of DataTransfer.setDragImage()</title>
+<meta name="viewport" content="width=device-width">
+<style>
+  div {
+    margin: 0em;
+    padding: 2em;
+  }
+  #source {
+    color: blue;
+    border: 1px solid black;
+  }
+  #target {
+    border: 1px solid black;
+  }
+</style>
+<script>
+  function dragstart_handler(ev) {
+    console.log("dragStart");
+    // 设置拖动的格式和数据。使用事件目标的id作为数据
+    // ev.dataTransfer.setData("text/plain", ev.target.id);
+    // 创建一个图像并且使用它作为拖动图像
+    // 请注意： 改变 "example.gif" 为一个已经存在的图片
+    // 或者，一个还没有创建出来的图片，那么浏览器将会使用默认的拖动图片
+    // 译者注：默认的拖动图片与拖动对象没有联系。一般是一个小型文件图标
+    let img = new Image();
+    img.src = 'https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png';
+    ev.dataTransfer.setDragImage(img, 10, 10);
+  }
+
+  function dragover_handler(ev) {
+    console.log("dragOver");
+    ev.preventDefault();
+  }
+
+  function drop_handler(ev) {
+    console.log("Drop");
+    ev.preventDefault();
+    // 获取拖放目标的id数据
+    let data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+  }
+</script>
+<body>
+<h1>Example of <code>DataTransfer.setDragImage()</code></h1>
+<div>
+  <p id="source" ondragstart="dragstart_handler(event);" draggable="true">
+    Select this element, drag it to the Drop Zone and then release the selection to move the element.</p>
+</div>
+<div id="target" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">Drop Zone</div>
+</body>
+</html>

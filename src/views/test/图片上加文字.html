@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang=en>
+<title>Example of DataTransfer.setDragImage()</title>
+<meta name="viewport" content="width=device-width">
+<style>
+  div {
+    margin: 0em;
+    padding: 2em;
+  }
+  #source {
+    color: blue;
+    border: 1px solid black;
+  }
+  #target {
+    border: 1px solid black;
+  }
+</style>
+<script>
+</script>
+<body>
+<img src="../../assets/img/moveFile.png">
+<h1>Example of <code>DataTransfer.setDragImage()</code></h1>
+<div>
+  <p id="source" ondragstart="dragstart_handler(event);" draggable="true">
+    Select this element, drag it to the Drop Zone and then release the selection to move the element.</p>
+</div>
+<div id="target" ondrop="drop_handler(event);" ondragover="dragover_handler(event);">Drop Zone</div>
+</body>
+</html>
