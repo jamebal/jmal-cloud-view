@@ -10,16 +10,20 @@
       </div>
     </el-dialog>
     <!--list布局-->
-    <el-table
-      v-show="fileList.length > 0"
+    <div v-show="fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">
+    <pl-table
       ref="fileListTable"
       v-loading="tableLoading"
       :max-height="clientHeight"
       :default-sort="sortable"
-      style="width: 100%;margin: 20px 0 0 0;"
+      :highlight-current-row="false"
       empty-text="无文件"
-      :data="fileList"
-      row-key="id"
+      :datas="fileList"
+      :use-virtual="true"
+      :border="false"
+      :excess-rows="3"
+      :pagination-show="false"
+      style="width: 100%;margin: 20px 0 0 0;"
       :cell-style="rowRed"
       :row-class-name="tableRowClassName"
       element-loading-text="文件加载中"
@@ -30,19 +34,20 @@
       @cell-mouse-enter="cellMouseEnter"
       @cell-mouse-leave="cellMouseLeave"
       @sort-change="sortChange"
+      @table-body-scroll="tableBodyScroll"
     >
       <template v-for="(item,index) in tableHead">
         <!--索引-->
-        <el-table-column
+        <pl-table-column
           v-if="index === 0"
           :key="index"
           :index="index"
           type="selection"
           min-width="50"
         >
-        </el-table-column>
+        </pl-table-column>
         <!--图标-->
-        <el-table-column
+        <pl-table-column
           v-if="index === 1"
           :prop="item.name"
           :label="item.label"
@@ -59,9 +64,9 @@
           <template slot-scope="scope">
             <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
           </template>
-        </el-table-column>
+        </pl-table-column>
         <!--名称-->
-        <el-table-column
+        <pl-table-column
           v-if="index === 2"
           :key="index"
           :show-overflow-tooltip="true"
@@ -82,15 +87,15 @@
           <template slot-scope="scope">
             <span class="table-file-name">{{ scope.row.fileName }}</span>
           </template>
-        </el-table-column>
+        </pl-table-column>
         <!--取消分享-->
-        <el-table-column v-if="index === 4" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+        <pl-table-column v-if="index === 4" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
           <template slot-scope="scope">
               <svg-icon title="分享" v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="cancel-share" @click="cancelShare(scope.row)"/>
           </template>
-        </el-table-column>
+        </pl-table-column>
         <!--时间-->
-        <el-table-column
+        <pl-table-column
           v-if="index === 5"
           :key="index"
           width="250"
@@ -106,9 +111,9 @@
           <template slot-scope="scope">
             <span>{{scope.row.createDate}}</span>
           </template>
-        </el-table-column>
+        </pl-table-column>
         <!--修改时间-->
-        <el-table-column
+        <pl-table-column
           v-if="index === 6"
           :key="index"
           width="250"
@@ -124,20 +129,21 @@
           <template slot-scope="scope">
             <span>{{scope.row.expireDate?scope.row.expireDate:'永久有效'}}</span>
           </template>
-        </el-table-column>
+        </pl-table-column>
       </template>
-    </el-table>
+    </pl-table>
+    </div>
 
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :hide-on-single-page="true"
-      :current-page.sync="pagination.pageIndex"
-      :page-sizes="pagination.pageSizes"
-      :page-size="pagination.pageSize"
-      :total="pagination.total"
-      @current-change="currentChange">
-    </el-pagination>
+    <!--<el-pagination-->
+      <!--background-->
+      <!--layout="prev, pager, next"-->
+      <!--:hide-on-single-page="true"-->
+      <!--:current-page.sync="pagination.pageIndex"-->
+      <!--:page-sizes="pagination.pageSizes"-->
+      <!--:page-size="pagination.pageSize"-->
+      <!--:total="pagination.total"-->
+      <!--@current-change="currentChange">-->
+    <!--</el-pagination>-->
     <empty-file
       v-if="fileList.length < 1 && !tableLoading"
       emptyStatus="您还没有分享历史哦~"
@@ -154,8 +160,14 @@
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import api from '@/api/file-api'
   import Clipboard from 'clipboard';
+  import 'pl-table/themes/index.css';
+  // import 'pl-table/themes/plTableStyle.css';
+  import { PlTable, PlTableColumn } from 'pl-table';
   export default {
-    components: { ShowFile, EmptyFile, IconFile },
+    components: { ShowFile, EmptyFile, IconFile,
+      PlTable,
+      PlTableColumn,
+    },
     props: {
       emptyStatus: {
         'type': String,
@@ -214,7 +226,7 @@
         fileList: [],
         pagination: {
           pageIndex: 1,
-          pageSize: 25,
+          pageSize: 20,
           total: 0,
           pageSizes: [10,20,30,40,50]
         },
@@ -244,23 +256,12 @@
             name: 'expireDate', label: '过期时间', sortable: 'custom', index: 6
           }
         ],
-        isJustHideMenus: false,
-        menusIsMultiple: false,
-        menus: [],
         rowContextData: {},
         selectRowData: [],
         tableLoading: false,
-        newFolderLoading: false,
-        renameLoading: false,
-        menuTriangle: '', // 三角菜单
+        finished: false,
         cellMouseIndex: -1,
         editingIndex: -1,
-        directoryTreeProps: {
-          label: 'name',
-          children: 'children',
-          isLeaf: 'isLeaf'
-        },
-        allChecked: false,
         shareDialog: false,
         shareLink: '',
         shareFileName: '',
@@ -272,8 +273,18 @@
       this.getFileList()
     },
     methods: {
-      getFileList() {
+      // 请求之前的准备
+      beforeLoadData(onLoad){
+        if (onLoad) {
+          this.pagination.pageIndex++
+        } else {
+          this.pagination.pageIndex = 1
+        }
         this.tableLoading = true
+        this.finished = false
+      },
+      getFileList(onLoad) {
+        this.beforeLoadData(onLoad)
         api.sharelist({
           userId: this.$store.state.user.userId,
           sortableProp: this.sortable.prop,
@@ -281,27 +292,36 @@
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
-          this.fileList = res.data
-          this.fileList.map((item,index) => {
-            item.index = index
-          })
-          this.clientHeight = document.documentElement.clientHeight - 165
+          if(onLoad){
+            res.data.forEach((file,number) => {
+              file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
+              this.fileList.push(file)
+            });
+          }else{
+            this.fileList = res.data
+            this.fileList.map((item,index) => {
+              item.index = index
+            })
+          }
+          // 数据全部加载完成
+          if (this.fileList.length >= res.count) {
+            this.finished = true;
+          }
+          this.tableLoading = false
+          this.clientHeight = document.documentElement.clientHeight - 80
           this.pagination['total'] = res.count
           this.$nextTick(()=>{
             this.tableLoading = false
           })
         }).catch(e => {})
       },
-      currentChange(pageIndex) {
-        this.pagination.pageIndex = pageIndex
-        if (this.listModeSearch) {
-          if(this.listModeSearchOpenDir){
-            this.searchFileAndOpenDir(this.listModeSearchOpenDir)
-          }else{
-            this.searchFile(this.searchFileName)
+      tableBodyScroll(table, e) {
+        this.fileListScrollTop = e.target.scrollTop
+        let scrollBottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop;
+        if(scrollBottom < 200){
+          if(!this.finished){
+            this.getFileList(true)
           }
-        } else {
-          this.getFileList()
         }
       },
       sortChange(column) {
@@ -345,11 +365,6 @@
           itemSize.sortable = 'custom'
           itemDate.label = '过期时间'
           itemDate.sortable = 'custom'
-        }
-        if(this.indexList.length === this.fileList.length){
-          this.allChecked = true
-        }else{
-          this.allChecked = false
         }
       },
       // 统计文件和文件夹
@@ -522,6 +537,12 @@
     content: "\66ff";
     font-size: 16px;
     visibility: hidden;
+  }
+  /deep/.plTableBox .el-table .el-table__header th {
+    background-color: #FFFFFF;
+  }
+  /deep/.el-table td {
+    height: 50px!important;
   }
 </style>
 
