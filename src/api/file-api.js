@@ -14,6 +14,7 @@ export default {
       params
     })
   },
+  // 上传文件夹
   uploadFolder: function(params) {
     return request({
       url: 'upload-folder',
@@ -22,6 +23,14 @@ export default {
       paramsSerializer: function(params) {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
+    })
+  },
+  // 新建文件夹
+  newFolder: function(params) {
+    return request({
+      url: 'new_folder',
+      method: 'post',
+      params
     })
   },
   // 文件列表

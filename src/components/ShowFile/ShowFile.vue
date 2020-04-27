@@ -106,6 +106,7 @@
     <el-dialog
       :title="'移动或复制到'+selectTreeNode.showName"
       :visible.sync="dialogMoveOrCopyVisible"
+      @close="clearTreeNode"
     >
       <el-tree
         ref="directoryTree"
@@ -1289,7 +1290,6 @@
         fileList.forEach(file => {
           filenameList.push(file.name || file.label)
         })
-        console.log(filenameList)
         while(filenameList.includes(newFolderName)){
           append += 1
           newFolderName = '新建文件夹' + append
@@ -1958,6 +1958,12 @@
         }
         this.$refs.contextShow.hideMenu()
       },
+      clearTreeNode() {
+        let rootNode = this.$refs.directoryTree.getNode('0')
+        rootNode.loaded = false
+        rootNode.expanded = false
+        console.log(rootNode)
+      },
       // 加载下一级文件树
       directoryTreeLoadNode(node, resolve) {
         let fileId = null
@@ -2122,12 +2128,34 @@
             <div class="el-input el-input--mini el-input-tree">
               <input type="text" autocomplete="on" value="新建文件夹" id="treeInput" class="el-input__inner"></input>
             </div>
-            <button type="button" on-click={() => {}} class="el-button el-icon-check el-button--mini el-input-tree-button" element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
             <button type="button" on-click={() => {
-            this.$refs.directoryTree.remove(node)
-            window.event.preventDefault()
-            window.event.stopPropagation()
-          }} class="el-button el-icon-close el-button--mini el-input-tree-button" element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
+              let path = '/'
+              let parentData = node.parent.data
+              if(parentData.path){
+                path = parentData.path + parentData.name + path
+              }
+              api.newFolder({
+                isFolder: true,
+                filename: data.name,
+                currentDirectory: path,
+                username: this.$store.state.user.name,
+                userId: this.$store.state.user.userId
+              }).then((res) => {
+                data.newFolder = false
+                data.id = res.data.id
+                console.log(data)
+              }).catch(() => {
+                window.event.preventDefault()
+                window.event.stopPropagation()
+              })
+          }}
+            class="el-button el-icon-check el-button--mini el-input-tree-button" element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
+            <button type="button" on-click={() => {
+              this.$refs.directoryTree.remove(node)
+              window.event.preventDefault()
+              window.event.stopPropagation()
+          }}
+            class="el-button el-icon-close el-button--mini el-input-tree-button" element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
             </span>
             </span>);
         }
