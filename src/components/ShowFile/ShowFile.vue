@@ -379,6 +379,7 @@
         </el-form-item>
       </el-form>
     </el-drawer>
+    <img id="dragImage" draggable="false" style="position: fixed;top: -100px;z-index: 99999" src="~@/assets/img/move-file.png">
   </div>
 </template>
 
@@ -610,6 +611,7 @@
         selectOrgin: -1,// 选择起点(主要用于按住shift键多选)
         selectEnd: -1,// 选择终点
         selectPin: false,// 默认false,不按住
+        isCmd: false,// 是否按住了command键
         dragElementList: [],
         drawFlag: false,
         fileListScrollTop: 0,
@@ -655,15 +657,24 @@
       }
 
       // 获取键盘事件
-      window.addEventListener('keydown',code => {
+      window.addEventListener('keydown',event => {
+        const isMac = navigator.platform.startsWith('Mac');
+        const {key, c, keyCode, ctrlKey, metaKey} = event;
+        this.isCmd = isMac && metaKey || !isMac && ctrlKey;
         // 按住shift建
-        if(code.keyCode === 16 && code.shiftKey){
+        if(event.keyCode === 16 && event.shiftKey){
           this.selectPin = true
         }
       })
-      window.addEventListener('keyup',code => {
+
+      window.addEventListener('keyup',event => {
+
+        const isMac = navigator.platform.startsWith('Mac');
+        const {key, c, keyCode, ctrlKey, metaKey} = event;
+        this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+
         // 松开shift建
-        if(code.keyCode === 16 ){
+        if(event.keyCode === 16 ){
           this.selectPin = false
         }
       })
@@ -768,6 +779,11 @@
         }
       },
       gridItemClick(row) {
+        if(this.isCmd){
+          this.pinSelect(null,row)
+          this.$refs.fileListTable.toggleRowSelection([{row:row}])
+          return
+        }
         if(!this.drawFlag){
           this.fileClick(row)
         }
@@ -950,9 +966,12 @@
 
         let rows = 0;//行数
 
-        let img = new Image();
-        img.src = require('@/assets/img/File.png')
-
+        // let images = {}
+        // for (let i = 1; i <= 9; i++) {
+        //   let img = new Image()
+        //   img.src = require(`@/assets/img/move-file${i}.png`)
+        //   images[i] = img
+        // }
         setTimeout(function () {
           rows = target.childElementCount
           _this.dragElementList = []
@@ -973,16 +992,30 @@
 
             // 使元素可拖动
             child.draggable = true
-            // 使元素可拖动
+            // 给能拖动的元素加上标识,只有加上此标识才能被拖动,否则即使draggable = true,也无法拖动(在全局的ondragstart里拦截)
             child.slot = 'jmal'
 
-            child.ondragstart = function(e){
-              // img.src = require('@/assets/img/File.png')
+            let childOfImg = child.querySelector('.el-avatar > img')
+            if(_this.grid){
+              childOfImg = child.querySelector('.el-image > img')
+            }
+            if(childOfImg){
+              childOfImg.draggable = false
+            }
 
-              e.dataTransfer.setDragImage(img, 0, 0);
+            child.ondragstart = function(e){
+              console.log(e)
+              let count = _this.selectRowData.length
+              if(_this.selectRowData.length >= 99){
+                count = 99
+              }
+              let dragImage = document.getElementById('dragImage');
+              dragImage.src = require(`@/assets/img/move-file/move-file${count}.png`)
+
+              e.dataTransfer.setDragImage(dragImage, 10, 10);
 
               Bus.$emit('onDragStart', true)
-              // 避免和画矩形选取冲突
+              // 避免和画矩形选区冲突
               _this.drawFlag = false
               let rectangle = document.getElementById('rectangle1')
               if(rectangle){
@@ -991,7 +1024,7 @@
 
               dragged = e.path[0]
               draggedIndex = e.path[0].rowIndex
-              // console.log('child'+i+'开始拖拽');
+              console.log('child'+draggedIndex+'开始拖拽');
               // 只有选中的才能拖拽
               _this.cellMouseIndex = -1
               dragged.style.cursor = 'grabbing'
@@ -1383,7 +1416,7 @@
         this.rowDrop()
         this.fileListScrollTop = 0
         // 是列表会到顶部
-        if(!onLoad){
+        if(!onLoad && !this.grid){
           this.$refs.fileListTable.pagingScrollTopLeft()
         }
       },
@@ -1700,8 +1733,10 @@
               }
             }
           }
-          if (columnIndex === 4) {
-            // // 单个操作
+          if(this.isCmd){
+            this.pinSelect(null,row)
+            this.$refs.fileListTable.toggleRowSelection([{row:row}])
+            return
           }
           if(columnIndex === 0 ){
             this.pinSelect(null,row)

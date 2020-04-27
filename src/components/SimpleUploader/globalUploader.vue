@@ -169,8 +169,8 @@
       let dropbox = document.body
 
       document.body.ondragstart = function(e){
+        console.log(e.target)
         return e.target.slot === 'jmal';
-
       }
 
       dropbox.addEventListener("dragenter", function(e){
