@@ -1004,7 +1004,6 @@
             }
 
             child.ondragstart = function(e){
-              console.log(e)
               let count = _this.selectRowData.length
               if(_this.selectRowData.length >= 99){
                 count = 99
@@ -1024,7 +1023,6 @@
 
               dragged = e.path[0]
               draggedIndex = e.path[0].rowIndex
-              console.log('child'+draggedIndex+'开始拖拽');
               // 只有选中的才能拖拽
               _this.cellMouseIndex = -1
               dragged.style.cursor = 'grabbing'
