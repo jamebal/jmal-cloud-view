@@ -3,6 +3,7 @@
     <show-file
       queryFileType="audio"
       :orderCustom="true"
+      :defaultGrid="false"
       singleFileType="音乐"
       emptyStatus="还没有音乐呢~"
     ></show-file>

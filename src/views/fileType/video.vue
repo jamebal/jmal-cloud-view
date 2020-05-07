@@ -3,6 +3,7 @@
     <show-file
       queryFileType="video"
       :orderCustom="true"
+      :defaultGrid="false"
       emptyStatus="还没有视频文件呢~"
     >
     </show-file>

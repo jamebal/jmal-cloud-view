@@ -1,6 +1,7 @@
 <template>
   <div>
     <show-file
+      :isCollectView="true"
       :defaultGrid="false"
       :sortable="sortable"
       :orderCustom="true"
