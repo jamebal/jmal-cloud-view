@@ -1005,30 +1005,32 @@
             }
 
             child.ondragstart = function(e){
-              let count = _this.selectRowData.length
-              if(_this.selectRowData.length >= 99){
-                count = 99
+              if(_this.fileListScrollTop === 0){
+                let count = _this.selectRowData.length
+                if(_this.selectRowData.length >= 99){
+                  count = 99
+                }
+                let dragImage = document.getElementById('dragImage');
+                dragImage.src = require(`@/assets/img/move-file/move-file${count}.png`)
+
+                e.dataTransfer.setDragImage(dragImage, 10, 10);
+
+                Bus.$emit('onDragStart', true)
+                // 避免和画矩形选区冲突
+                _this.drawFlag = false
+                let rectangle = document.getElementById('rectangle1')
+                if(rectangle){
+                  document.getElementById('v-draw-rectangle').removeChild(rectangle)
+                }
+
+                dragged = e.path[0]
+                draggedIndex = e.path[0].rowIndex
+                // 只有选中的才能拖拽
+                _this.cellMouseIndex = -1
+                // dragged.style.cursor = 'grabbing'
+                dragged.style.borderRadius = '10px'
+                dragBackCorlor = dragged.style.backgroundColor
               }
-              let dragImage = document.getElementById('dragImage');
-              dragImage.src = require(`@/assets/img/move-file/move-file${count}.png`)
-
-              e.dataTransfer.setDragImage(dragImage, 10, 10);
-
-              Bus.$emit('onDragStart', true)
-              // 避免和画矩形选区冲突
-              _this.drawFlag = false
-              let rectangle = document.getElementById('rectangle1')
-              if(rectangle){
-                document.getElementById('v-draw-rectangle').removeChild(rectangle)
-              }
-
-              dragged = e.path[0]
-              draggedIndex = e.path[0].rowIndex
-              // 只有选中的才能拖拽
-              _this.cellMouseIndex = -1
-              dragged.style.cursor = 'grabbing'
-              dragged.style.borderRadius = '10px'
-              dragBackCorlor = dragged.style.backgroundColor
             }
             child.ondragend = function(){
               Bus.$emit('onDragStart', false)
@@ -1502,6 +1504,7 @@
       },
       tableBodyScroll(table, e) {
         this.fileListScrollTop = e.target.scrollTop
+        Bus.$emit("fileListScrollTop",this.fileListScrollTop)
         let scrollBottom = e.target.scrollHeight-e.target.clientHeight-e.target.scrollTop;
         if(scrollBottom < 200){
           if(!this.finished){

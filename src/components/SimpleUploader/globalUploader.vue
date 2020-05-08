@@ -154,6 +154,8 @@
         pc: true,
         dragover: false,
         isDragStart: false,
+        fileListScrollTop: 0,
+        dragoverLoop: null,
       }
     },
     computed: {
@@ -169,25 +171,41 @@
       let dropbox = document.body
 
       document.body.ondragstart = function(e){
-        return e.target.slot === 'jmal';
+        return e.target.slot === 'jmal' && that.fileListScrollTop === 0;
       }
 
       dropbox.addEventListener("dragenter", function(e){
         e.stopPropagation();
         e.preventDefault();
       }, false);
+
       dropbox.addEventListener("dragover", function(e){
         e.stopPropagation();
         e.preventDefault();
+        clearInterval(that.dragoverLoop)
         if(!that.isDragStart){
           that.dragover = true
         }
+        that.dragoverLoop = setTimeout(function () {
+          that.dragover = false
+        },100)
       }, false);
+
+      dropbox.addEventListener("ondragleave", function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        that.dragover = false
+      }, false);
+
       dropbox.addEventListener("drop", function(e){
         e.stopPropagation();
         e.preventDefault();
         that.dragover = false
       }, false);
+
+      Bus.$on('fileListScrollTop', fileListScrollTop => {
+        this.fileListScrollTop = fileListScrollTop
+      })
 
       Bus.$on('onDragStart', isDragStart => {
         this.isDragStart = isDragStart
@@ -233,6 +251,9 @@
         }
       },
       onFilesAdded(files) {
+        if(files.length === 0){
+          return
+        }
         this.fileListLength = this.uploader.fileList.length
         const filePaths = this.uploader.filePaths
         const paths = Object.keys(filePaths)
