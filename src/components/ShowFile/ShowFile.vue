@@ -2227,15 +2227,21 @@
       },
       downloadFile() {
         let totalSize = 0
-        this.$refs.fileListTable.tableSelectData.forEach(item => {
-          totalSize += item.size
-        })
+        if(this.$refs.fileListTable.tableSelectData.length > 0){
+          this.$refs.fileListTable.tableSelectData.forEach(item => {
+            totalSize += item.size
+          })
+        }else{
+          totalSize += this.rowContextData.size
+        }
         if (totalSize > 0) {
           var fileIds = [];
           if (this.$refs.fileListTable.tableSelectData.length > 0) {
             this.$refs.fileListTable.tableSelectData.forEach(value => {
               fileIds.push(value.id)
             })
+          }else{
+            fileIds.push(this.rowContextData.id)
           }
           window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
         } else {
@@ -2247,11 +2253,11 @@
       },
       // 收藏/取消收藏
       favoriteOperating(isFavorite) {
-        this.$refs.fileListTable.tableSelectData[0].isFavorite = isFavorite
+        this.rowContextData.isFavorite = isFavorite
         this.highlightFavorite(isFavorite, true)
         api.favoriteUrl({
           token: this.$store.state.user.token,
-          id: this.$refs.fileListTable.tableSelectData[0].id,
+          id: this.rowContextData.id,
           isFavorite: isFavorite
         }).then(res => {
         })
@@ -2266,7 +2272,7 @@
             fileIds.push(value.id)
           })
         } else {
-          fileIds.push(this.$refs.fileListTable.tableSelectData[0].id)
+          fileIds.push(this.rowContextData.id)
         }
         const str = this.getShowSumFileAndFolder(fileList)
         this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
