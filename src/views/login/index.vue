@@ -3,7 +3,8 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">登录 jmalCloud</h3>
+        <h3 v-if="!initialize" class="title">登录 jmalCloud</h3>
+        <h3 v-if="initialize" class="title">创建管理员</h3>
       </div>
 
       <el-form-item prop="username">
@@ -41,7 +42,27 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+      <el-form-item v-if="initialize" prop="confirmPassword">
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input
+          :key="passwordType"
+          ref="password"
+          v-model="loginForm.confirmPassword"
+          :type="passwordType"
+          placeholder="确认密码"
+          name="password"
+          tabindex="2"
+          auto-complete="on"
+          @keyup.enter.native="handleLogin"
+        />
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+        </span>
+      </el-form-item>
+
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{initialize?'创建':'登录'}}</el-button>
 
       <!--<div class="tips">-->
         <!--<span style="margin-right:20px;">username: admin</span>-->
@@ -54,6 +75,8 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
+
+import {hasUser,initialization} from '@/api/user'
 
 export default {
   name: 'Login',
@@ -72,18 +95,30 @@ export default {
         callback()
       }
     }
+    const confirmPassword = (rule, value, callback) => {
+      if (value.length < 6) {
+        callback(new Error('密码不能少于6位数字'))
+      } else if(this.loginForm.password !== value) {
+        callback(new Error('密码不一致'))
+      } else {
+        callback()
+      }
+    }
     return {
       loginForm: {
         username: '',
-        password: ''
+        password: '',
+        confirmPassword: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        confirmPassword: [{ required: true, trigger: 'blur', validator: confirmPassword }]
       },
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      initialize: false,
     }
   },
   watch: {
@@ -93,6 +128,13 @@ export default {
       },
       immediate: true
     }
+  },
+  mounted() {
+    hasUser().then((data)=>{
+      if(data.count < 1){
+        this.initialize = true
+      }
+    })
   },
   methods: {
     showPwd() {
@@ -108,13 +150,26 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
-            this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
+          if(this.initialize){
+            // 初始化
+            console.log('初始化')
+            let data = new FormData()
+            data.append('username',this.loginForm.username)
+            data.append('password',this.loginForm.password)
+            initialization(data).then(()=>{
+                this.initialize = false
+                this.$message.success('创建成功')
+            })
+          }else{
+            // 登录
+            this.loading = true
+            this.$store.dispatch('user/login', this.loginForm).then(() => {
+              this.$router.push({ path: this.redirect || '/' })
+              this.loading = false
+            }).catch(() => {
+              this.loading = false
+            })
+          }
         } else {
           return false
         }

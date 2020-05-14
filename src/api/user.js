@@ -79,4 +79,19 @@ export function delUser(id) {
   })
 }
 
+export function hasUser() {
+  return request({
+    url: 'public/has_user',
+    method: 'get',
+  })
+}
+
+export function initialization(data) {
+  return request({
+    url: '/public/initialization',
+    method: 'post',
+    data
+  })
+}
+
 
