@@ -1,56 +1,135 @@
 <template>
   <div class="container">
     <!-- <van-pull-refresh v-model="refreshing" @refresh="onRefresh"> -->
+
+    <!--左侧菜单-->
+    <van-popup v-model="leftMenuShow" get-container="body" position="left" :style="{ height: '100%', width: '35%'}">
+      <div class="left-menu">
+        <div class="avatar">
+          <van-image
+            round
+            width="5rem"
+            height="5rem"
+            fit="cover"
+            :src="imageUrl+avatar"
+          />
+        </div>
+        <span>{{name}}</span>
+
+        <div class="classification">
+          <van-cell title="首页" icon="wap-home-o"  @click="clickFileType(null,{})"/>
+          <van-cell title="收藏" icon="star-o"  @click="clickFileType(null,{isFavorite: true})"/>
+          <van-cell title="图片" icon="photo-o" @click="clickFileType('image',{isFolder: false})"/>
+          <van-cell title="视频" icon="video-o" @click="clickFileType('video',{isFolder: false})"/>
+          <van-cell title="音乐" icon="music-o" @click="clickFileType('audio',{isFolder: false})"/>
+        </div>
+
+        <div class="logout">
+          <van-button round type="danger" @click.native="logout">退出登录</van-button>
+        </div>
+      </div>
+    </van-popup>
+
     <van-list
       v-model="loading"
       :finished="finished"
       :finished-text="statistics()"
-      @load="getFileList(true)"
+      @load="searchStatus && searchValue.length>0?searchFile(searchValue,true):getFileList(true)"
     >
       <van-checkbox-group v-model="selectRowData" @change="checkboxChange" ref="checkboxGroup">
         <van-cell-group>
-
           <van-sticky :offset-top="-1">
             <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
             <van-nav-bar
+              :style="vanNavBarClass"
               v-if="pathList.length < 3 && !selectStatus"
               title="浏览"
               right-arrow
-              @click-right="titleRightClick">
-              <svg-icon class="title-right-icon" icon-class="add-file" slot="right"/>
+              @click-right="checkboxAll"
+              :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
+              @click-left="leftMenu"
+              left-arrow>
+              <div class="header-button" slot="left">
+                <svg
+                  class="header-button-icon"
+                  viewBox="0 0 1024 1024"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="25"
+                >
+                  <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 0 0 0-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0 0 14.4 7z" />
+                </svg>
+              </div>
             </van-nav-bar>
             <van-nav-bar
+              :style="vanNavBarClass"
               v-if="pathList.length < 3 && selectStatus"
               :title="selectRowData.length === 0 ? '选择项目' : selectRowData.length+'项'"
               right-arrow
-              :right-text="this.selectRowData.length !== this.fileList.length ? '全选' : '取消全选'"
-              @click-right="checkboxAll">
+              :left-text="this.selectRowData.length !== this.fileList.length ? '全选' : '取消全选'"
+              @click-left="checkboxAll"
+              @click-right="cancelSelect"
+              right-text="完成"
+            >
             </van-nav-bar>
 
             <van-nav-bar
-              v-if="pathList.length === 3"
+              :style="vanNavBarClass"
+              v-if="pathList.length >= 3"
               :title="pathList[pathList.length-2].folder"
-              left-text="所有文件"
               right-text="选择"
               left-arrow
               @click-left="clickBack">
+              <div class="header-button" slot="left">
+                <van-icon name="arrow-left" />
+              </div>
             </van-nav-bar>
-
-            <van-nav-bar
-              v-if="pathList.length > 3"
-              :title="pathList[pathList.length-2].folder"
-              :left-text="pathList[pathList.length-3].folder"
-              right-text="选择"
-              left-arrow
-              @click-left="clickBack">
-            </van-nav-bar>
+            <div class="searchbar" :style="searchBarClass">
+              <van-search
+                ref="search"
+                v-model="searchValue"
+                :show-action="searchStatus"
+                shape="round"
+                placeholder="搜索"
+                @focus="startSearch"
+                @search="onSearch"
+                @input="onSearch"
+              >
+                <div slot="action" @click="endSearch">取消</div>
+              </van-search>
+            </div>
           </van-sticky>
 
-          <van-cell class="list-item" :style="{'background': selectIndexList.includes(index) ? '#90c2fcb5' : ''}" center v-for="(item,index) in fileList" :key="item.id" @click="fileClick(item,index)" :is-link="item.isFolder">
+          <!--操作-->
+          <van-cell :center="true" style="padding: 0 0 10px 0;">
+            <div class="operating-header">
+              <van-row>
+                <van-col class="operating-header-col" span="4" align="center" type="flex" @click="moreOperations">
+                  <van-icon name="more-o"/>
+                </van-col>
+                <van-col class="operating-header-col" span="16" align="center" @click="showSortSheet">
+                  已按{{actionsSortName}}排序 <van-icon class="sortable" :name="'arrow-'+sortOrder" />
+                </van-col>
+                <van-col class="operating-header-col" span="4" align="center" @click="changeVmode">
+                  <van-icon name="bars" :style="!grid?{background:'#1989fa',color:'#ffffff',padding:'0 5px',borderRadius: '5px'}:{}"/>
+                </van-col>
+              </van-row>
+            </div>
+          </van-cell>
+
+          <!--搜索结果-->
+          <van-cell v-if="searchStatus && searchValue.length > 0 && fileList.length > 0" style="background-color:#f7f8fa;">
+            <div class="search-result">{{resultCount}}个结果</div>
+          </van-cell>
+          <van-cell v-if="searchStatus && searchValue.length > 0 && fileList.length === 0">
+            <div class="search-result-no">无结果</div>
+          </van-cell>
+
+          <van-cell v-show="!grid" class="list-item" :style="{'background': selectIndexList.includes(index) ? '#90c2fcb5' : ''}" center v-for="(item,index) in fileList" :key="item.id" @click="fileClick(item,index)" :is-link="item.isFolder">
             <div class="list-item-div" @touchstart="touchStart(item)" @touchend="touchEnd" @touchmove="touchMove">
               <van-row class="row-file">
                 <van-col span="4" align="center" class="list-cell-icon">
-                  <icon-file :item="item" :image-url="imageUrl"></icon-file>
+                  <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
                 </van-col>
                 <van-col span="16" class="list-item-content">
                   <van-col span="24">
@@ -69,6 +148,18 @@
             </div>
             <van-checkbox v-if="selectStatus" slot="right-icon" :name="item" ref="checkboxes"></van-checkbox>
           </van-cell>
+
+          <van-grid v-show="grid" square :center="true" :column-num="4" :gutter="10" :border="false" :style="{'width':'100%','overflow':'auto'}">
+            <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id">
+              <div>
+                <div class="grid-item-icon">
+                  <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true"></icon-file>
+                </div>
+                <span :title="item.name" class="grid-item-text">{{item.name}}</span>
+              </div>
+            </van-grid-item>
+          </van-grid>
+
         </van-cell-group>
       </van-checkbox-group>
 
@@ -84,13 +175,14 @@
       @select="selectActionsMenus">
     </van-action-sheet>
 
-    <!--选择文件操作菜单-->
+    <!--排序菜单-->
     <van-action-sheet
-      v-model="actionSheetShow"
-      :actions="actionsMenus"
+      v-model="actionSortSheetShow"
+      :actions="actionsSortMenus"
       cancel-text="取消"
+      description="排序方式"
       @cancel="onCancel"
-      @select="selectActionsMenus">
+      @select="selectSortActionsMenus">
     </van-action-sheet>
 
     <van-dialog v-model="showNewFolder" show-cancel-button @confirm="newFolderNameClick">
@@ -164,7 +256,10 @@
   import 'vant/lib/notify/style';
   import 'vant/lib/checkbox/style';
   import 'vant/lib/checkbox-group/style';
+  import 'vant/lib/popup/style';
+  import 'vant/lib/search/style';
 
+  import { mapGetters } from 'vuex'
   import {formatSize, formatTime, strlen, substring10} from '@/utils/number'
   import api from '@/api/file-api'
   import IconFile from "../../../components/Icon/IconFile";
@@ -172,8 +267,16 @@
   import {Dialog, Notify, Toast} from 'vant';
   import {getPath, getPathList, removePath, setPath} from '@/utils/path'
 
+  let pinyin = require("pinyin");
+
   export default {
     components: {IconFile,[Dialog.Component.name]: Dialog.Component},
+    computed: {
+      ...mapGetters([
+        'name',
+        'avatar'
+      ])
+    },
     data() {
       return {
         test: 0,
@@ -181,6 +284,7 @@
         diffTabbarTop: 0,// 底部tabbar与上边框的变化距离
         isiPhoneX: 0,
         imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
+        audioCoverUrl: process.env.VUE_APP_BASE_API + '/view/cover?jmal-token=' + this.$store.state.user.token + '&id=',
         tabActive: 0,
         path: this.$route.query.path,
         fileList: [],
@@ -190,9 +294,11 @@
         ],
         pagination: {
           pageIndex: 0,
-          pageSize: 25,
+          pageSize: 50,
           total: 0,
         },
+        queryFileType: null,
+        queryCondition: {isFolder:null},
         loading: false,
         finished: false,
         refreshing: false,
@@ -200,6 +306,13 @@
         actionsMenus: [
           { name: '新建文件夹' },
         ],
+        actionSortSheetShow: false,
+        actionsSortMenus: [
+          { name: '名称' },
+          { name: '日期' },
+          { name: '大小' },
+        ],
+        actionsSortName: '名称',
         showNewFolder: false,
         showRename: false,
         newFolderName: '新建文件夹',
@@ -224,7 +337,18 @@
         selectStatus: false,
         isShowCheckContext: false,
         overlayShow: false,
-        overlayContentClass: {}
+        overlayContentClass: {},
+        vanNavBarClass: {},
+        searchBarClass: {},
+        leftMenuShow: false,
+        searchValue: '',
+        searchStatus: true,
+        resultCount: 0,
+        sortOrder: 'up',
+        sortableProp: null,
+        order: null,
+        grid: false,
+        vmode: 'list'
       };
     },
     mounted(){
@@ -261,7 +385,7 @@
         if (item_menu) {
           if (isFavorite) {
             item_menu.label = '取消收藏'
-            item_menu.iconClass = 'menu-favorite-hover'
+            item_menu.iconClass = 'menu-unfavorite-hover'
             item_menu.operation = 'unFavorite'
           } else {
             if (isHover) {
@@ -371,6 +495,7 @@
             break
           case 'copy':
             console.log('移动或复制')
+            Toast('暂不支持移动');
             break
           case 'download':
             console.log('下载')
@@ -435,11 +560,15 @@
       // 下载
       downloadFile() {
         let totalSize = 0
-        this.selectRowData.forEach(item => {
-          totalSize += item.size
-        })
+        if(this.selectRowData.length > 0){
+          this.selectRowData.forEach(item => {
+            totalSize += item.size
+          })
+        }else{
+          totalSize += this.rowContextData.size
+        }
         if (totalSize > 0) {
-          var fileIds = [];
+          let fileIds = [];
           if (this.selectRowData.length > 0) {
             this.selectRowData.forEach(value => {
               fileIds.push(value.id)
@@ -447,7 +576,15 @@
           } else {
             fileIds.push(this.rowContextData.id)
           }
-          window.open(process.env.VUE_APP_BASE_FILE_API + 'download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+          if(process.env.NODE_ENV !== 'development'){
+            let host = window.location.host
+            if(window.location.port.length > 0){
+              host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
+            }
+            window.open(`http://${host}:10010/download?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`,'_self')
+          }else{
+            window.open(process.env.VUE_APP_BASE_FILE_API + '/download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
+          }
         } else {
           this.$message({
             message: '所选文件夹为空',
@@ -579,8 +716,70 @@
         const linkIndex = this.pathList.length-3
         this.handleLink(this.pathList[linkIndex], linkIndex, true)
       },
-      // 点击右边按钮(标题)
-      titleRightClick() {
+      //菜单键
+      leftMenu(){
+        console.log('菜单')
+        this.leftMenuShow = true
+      },
+      async logout() {
+        await this.$store.dispatch('user/logout')
+        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      },
+      startSearch(){
+        console.log('startSearch')
+        // this.searchStatus = true
+        this.vanNavBarClass = {
+          visibility: 'hidden'
+        }
+        this.searchBarClass = {
+          marginTop: '-30px'
+        }
+        let searchAction = document.querySelector('.van-search__action')
+        searchAction.style.marginRight = '0px'
+        searchAction.style.visibility = 'visible'
+        searchAction.style.color = '#1989fa'
+      },
+      endSearch() {
+        const that = this
+        setTimeout(function () {
+          that.vanNavBarClass = {
+            visibility: 'visible'
+          }
+        },150)
+        this.searchBarClass = {
+          marginTop: '0px'
+        }
+        let searchAction = document.querySelector('.van-search__action')
+        searchAction.style.marginRight = '-44px'
+        searchAction.style.visibility = 'hidden'
+        this.searchValue = ''
+        this.getFileList()
+      },
+      onSearch(){
+        console.log('onSearch')
+        if(this.searchValue.length < 1){
+          this.getFileList()
+        }else{
+          this.searchFile(this.searchValue)
+        }
+      },
+      // 切换布局
+      changeVmode(){
+        this.grid = !this.grid
+        this.vmode = 'list'
+        if(this.grid){
+          this.vmode = 'grid'
+        }
+        if(!this.path){
+          this.path = ''
+        }
+        this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
+      },
+      showSortSheet() {
+        this.actionSortSheetShow = true
+      },
+      // 更多操作
+      moreOperations() {
         // Toast("提示").setDefaultOptions({ duration: 200 });
         this.actionSheetShow = true
         this.actionsMenus = [
@@ -648,35 +847,77 @@
         this.getFileList();
       },
       getFileList(onLoad) {
-        console.log('getFileList',onLoad)
+        this.beforeLoadData(onLoad)
+        api.fileList({
+          userId: this.$store.state.user.userId,
+          currentDirectory: this.$route.query.path,
+          queryFileType: this.queryFileType,
+          sortableProp: this.sortableProp,
+          order: this.order,
+          isFolder: this.queryCondition.isFolder,
+          isFavorite: this.queryCondition.isFavorite,
+          queryCondition: this.queryCondition,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize,
+        }).then(res => {
+          this.loadData(res,onLoad)
+        }).catch(e => {})
+      },
+      searchFile(key,onLoad) {
+        if(key){
+          this.beforeLoadData(onLoad)
+          this.$router.push(`?vmode=${this.vmode}&search-file=${key}`)
+          api.searchFile({
+            userId: this.$store.state.user.userId,
+            username: this.$store.state.user.name,
+            keyword: key,
+            currentDirectory: this.$route.query.path,
+            pageIndex: this.pagination.pageIndex,
+            pageSize: this.pagination.pageSize
+          }).then(res => {
+            this.loadData(res,onLoad)
+            this.path = ''
+            this.listModeSearch = true
+            this.listModeSearchOpenDir = false
+          })
+        }
+      },
+      // 请求之前的准备
+      beforeLoadData(onLoad){
         if (onLoad) {
           this.pagination.pageIndex++
         } else {
           this.pagination.pageIndex = 1
         }
         this.finished = false;
-        api.fileList({
-          userId: this.$store.state.user.userId,
-          currentDirectory: this.$route.query.path,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize,
-        }).then(res => {
-          if(onLoad){
-            res.data.forEach((file,number) => {
-              file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
-              this.fileList.push(file)
-            });
-          }else{
-            this.fileList = res.data
-          }
-          // 加载状态结束
-          this.loading = false;
-          this.refreshing = false;
-          // 数据全部加载完成
-          if (this.fileList.length >= res.count) {
-            this.finished = true;
-          }
-        }).catch(e => {})
+      },
+      // 填充数据
+      loadData(res,onLoad){
+        if(onLoad){
+          res.data.forEach((file,number) => {
+            file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
+            this.fileList.push(file)
+          });
+        }else{
+          this.fileList = res.data
+        }
+        // 加载状态结束
+        this.loading = false
+        this.refreshing = false
+        this.resultCount = res.count
+        // 数据全部加载完成
+        if (this.fileList.length >= res.count) {
+          this.finished = true;
+        }
+        // 排序
+        this.fileList.sort(this.compare(this.sortableProp))
+      },
+      clickFileType(queryFileType,queryCondition){
+        console.log(queryCondition)
+        this.queryCondition = queryCondition
+        this.queryFileType = queryFileType
+        this.getFileList()
+        this.leftMenuShow = false
       },
       // 统计
       statistics() {
@@ -734,6 +975,14 @@
           this.$refs.checkboxGroup.toggleAll();
         }
       },
+      // 取消选择状态
+      cancelSelect() {
+        this.$refs.checkboxGroup.toggleAll(false)
+        const that = this
+        setTimeout(function () {
+          that.selectStatus = false
+        })
+      },
       // 选择状态改变时触发
       checkboxChange(any) {
         this.selectRowData = any
@@ -755,14 +1004,14 @@
             } else {
               this.path = '/' + row.name
             }
-            const item1 = {}
-            item1['folder'] = row.name
-            item1['index'] = this.pathList.length - 1
-            const item2 = {}
-            item2['folder'] = '+'
-            item2['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = item1
-            this.pathList.push(item2)
+            const itemFirst = {}
+            itemFirst['folder'] = row.name
+            itemFirst['index'] = this.pathList.length - 1
+            const itemSecond = {}
+            itemSecond['folder'] = '+'
+            itemSecond['index'] = this.pathList.length
+            this.pathList[this.pathList.length - 1] = itemFirst
+            this.pathList.push(itemSecond)
             this.$router.push(`/_m?path=${encodeURIComponent(this.path)}`)
             setPath(this.path, this.pathList)
             this.getFileList()
@@ -781,10 +1030,52 @@
         }
       },
       onCancel() {
-        this.actionSheetShow = false;
+        this.actionSheetShow = false
+        this.actionSortSheetShow = false
+      },
+      compare(property){
+        return (a,b) => {
+          let value1 = a[property]
+          let value2 = b[property]
+          if(this.order === 'ascending'){
+            return value1 - value2
+          }else{
+            return value2 - value1
+          }
+        }
+      },
+      selectSortActionsMenus(action) {
+        const that = this
+        setTimeout(function () {
+          that.actionSortSheetShow = false
+        },100)
+        if(this.sortOrder === 'up'){
+          this.sortOrder = 'down'
+          this.order = 'descending'
+        }else{
+          this.sortOrder = 'up'
+          this.order = 'ascending'
+        }
+        this.actionsSortName = action.name
+        if(action.name === '名称'){
+          this.sortableProp = 'name'
+          if(this.sortOrder === 'up'){
+            this.order = null
+          }
+          this.getFileList()
+        }
+        if(action.name === '大小'){
+          this.sortableProp = 'size'
+          this.fileList.sort(this.compare(this.sortableProp))
+        }
+        if(action.name === '日期'){
+          this.sortableProp = 'updateDate'
+          this.getFileList()
+          // this.fileList.sort(this.compare('agoTime'))
+        }
       },
       // 选择上传文件菜单
-      selectActionsMenus(action,index) {
+      selectActionsMenus(action) {
         const that = this
         setTimeout(function () {
           that.actionSheetShow = false
@@ -807,7 +1098,6 @@
             that.$refs.newFolderInput.focus()
           },0)
         }
-
         // 上传文件
         if(action.name === '上传文件'){
           // 打开文件选择框
@@ -818,11 +1108,9 @@
             userId: this.$store.state.user.userId
           })
         }
-
         // 上传文件夹
         if(action.name === '上传文件夹'){
           // 打开文件夹选择框
-          console.log('selectFolder')
           Bus.$emit('uploadFolder', {
             // 传入的参数
             currentDirectory: this.path,
@@ -994,25 +1282,38 @@
     background-color: #bfcbd930;
   }
 
+  /deep/.van-sticky {
+    background: inherit;
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px);
+    background-color: rgba(255,255,255,0.72);
+    box-shadow: 2px 0 2px rgba(0, 0, 0, 0.25);
+  }
+
+  [class*=van-hairline]::after {
+    border: 0 solid rgba(255,255,255,0.72);
+  }
+
   /deep/ .van-sticky--fixed {
     z-index: 1;
   }
 
   .van-nav-bar {
-    height: 59px;
-    line-height: 59px;
-    /*background: #ffffffcc;*/
+    /*height: 59px;*/
+    /*line-height: 59px;*/
     background-color: unset;
-    position: relative;
-    box-shadow: 4px 0 2px rgba(0,0,0,0.5);
+    -webkit-transition: all .15s ease-in-out 0s;
+    transition: all .15s ease-in-out 0s;
+    /*position: relative;*/
+    /*box-shadow: 4px 0 2px rgba(0,0,0,0.5);*/
   }
   .van-nav-bar::after{
-    background: inherit;
-    /*-webkit-filter: blur(15px);*/
-    /*filter: blur(20px);*/
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    background-color: rgba(255,255,255,0.72);
+    /*background: inherit;*/
+    /*!*-webkit-filter: blur(15px);*!*/
+    /*!*filter: blur(20px);*!*/
+    /*-webkit-backdrop-filter: saturate(180%) blur(20px);*/
+    /*backdrop-filter: saturate(180%) blur(20px);*/
+    /*background-color: rgba(255,255,255,0.72);*/
   }
 
   .van-overlay {
@@ -1031,28 +1332,17 @@
   .van-nav-bar__left {
     //  max-width: 30%;
     z-index: 11;
+    .van-icon-arrow-left {
+      font-size: 24px;
+    }
   }
-  .van-nav-bar__left:active {
-    background-color: hsl(0, 94%, 47%);
-  }
+  /*.van-nav-bar__left:active {*/
+    /*background-color: #f8f8f8;*/
+    /*!*background-color: hsl(0, 94%, 47%);*!*/
+  /*}*/
   .van-nav-bar__right {
     z-index: 11;
   }
-  /*.van-nav-bar__left {*/
-  /*left: 0;*/
-  /*}*/
-
-  .van-icon.van-icon-arrow-left.van-nav-bar__arrow {
-    left: 5px;
-  }
-
-  .van-nav-bar__left {
-    left: 0;
-    .van-nav-bar__text {
-      padding: 0 0 0 25px;
-    }
-  }
-
   .van-nav-bar__arrow+.van-nav-bar__text {
     max-width: 7.5rem;
     min-width: 5.5rem;
@@ -1062,11 +1352,6 @@
     text-overflow:ellipsis;
   }
 
-  .title-right-icon {
-    width: 2rem;
-    height: 2rem;
-    vertical-align: middle;
-  }
   .new-folder-input /deep/ .van-field__body{
     height: 40px;
   }
@@ -1141,5 +1426,101 @@
     border-radius: 1rem;
     -webkit-box-shadow: 0 0 0 #ccc;
     box-shadow: 0 0 0 #ccc;
+  }
+  .header-button {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+  .header-button-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: middle;
+  }
+  .header-button:active {
+    background-color: #f2f3f5;
+  }
+  .left-menu {
+    padding: 1rem 0 0 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+  }
+  .logout {
+    padding: 1rem 0 0 0;
+  }
+  .classification {
+    padding: 1rem 0 0 0;
+    /deep/.van-cell:active {
+      background-color: #f8f8f8;
+    }
+  }
+  .searchbar{
+    height: 48px;
+    background-color: unset;
+    -webkit-transition: all .3s ease-in-out 0s;
+    transition: all .3s ease-in-out 0s;
+    /*background: inherit;*/
+    /*background-color: #fff;*/
+    /*-webkit-backdrop-filter: saturate(180%) blur(20px);*/
+    /*backdrop-filter: saturate(180%) blur(20px);*/
+    /*background-color: rgba(255,255,255,0.72);*/
+  }
+  /*.searchbar::after{*/
+    /*background: inherit;*/
+    /*background-color: #fff;*/
+    /*-webkit-backdrop-filter: saturate(180%) blur(20px);*/
+    /*backdrop-filter: saturate(180%) blur(20px);*/
+    /*background-color: rgba(255,255,255,0.72);*/
+  /*}*/
+  .van-search {
+    padding:0 12px;
+  }
+  .van-search__action {
+    -webkit-transition: all .3s ease-in-out 0s;
+    transition: all .3s ease-in-out 0s;
+    margin-right: -44px;
+    visibility: hidden;
+  }
+  .search-result {
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .search-result-no {
+    height: 80px;
+    line-height: 80px;
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+  }
+  .operating-header {
+    .operating-header-col {
+      height: 28px;
+      color: #1989fa;
+      .sortable {
+        font-size: 14px!important;
+      }
+      .van-icon{
+        line-height: 28px;
+        font-size: 20px;
+        color: #1989fa;
+      }
+    }
+    .operating-header-col:active {
+      color: #C2CCD1;
+      .van-icon{
+        color: #C2CCD1;
+      }
+    }
+  }
+
+  /deep/ .grid-item-text {
+    text-align: center;
+    color: #606266;
+    font-size: smaller;
+    word-wrap: break-word;
+    width: -webkit-fill-available;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>

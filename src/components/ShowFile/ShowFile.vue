@@ -338,8 +338,6 @@
         </van-checkbox-group>
         <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
       </div>
-
-
     </div>
 
     <empty-file
@@ -2247,7 +2245,6 @@
           if(window.location.port.length > 0){
             host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
           }
-          console.log(host)
           if(process.env.NODE_ENV !== 'development'){
             let host = window.location.host
             if(window.location.port.length > 0){

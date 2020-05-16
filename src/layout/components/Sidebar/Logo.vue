@@ -2,11 +2,13 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 v-else class="sidebar-title">{{ title }} </h1>
+        <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
+        <svg-icon class="sidebar-logo" icon-class="jmal-cloud"></svg-icon>
+        <h1 class="sidebar-title">{{ title }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo">
+        <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
+        <svg-icon class="sidebar-logo-expand" icon-class="jmal-cloud"></svg-icon>
         <h1 class="sidebar-title">{{ title }} </h1>
       </router-link>
     </transition>
@@ -24,8 +26,7 @@ export default {
   },
   data() {
     return {
-      title: 'Vue Admin Template',
-      logo: 'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png'
+      title: 'Jmal Cloud',
     }
   }
 }
@@ -58,7 +59,14 @@ export default {
       width: 32px;
       height: 32px;
       vertical-align: middle;
-      margin-right: 12px;
+      margin-right: 2px!important;
+    }
+
+    & .sidebar-logo-expand {
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+      margin-right: 12px!important;
     }
 
     & .sidebar-title {

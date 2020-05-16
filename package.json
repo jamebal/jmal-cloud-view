@@ -33,6 +33,7 @@
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",
+    "pinyin": "^2.9.1",
     "pl-table": "2.5.8",
     "scriptjs": "^2.5.9",
     "sortablejs": "^1.10.2",

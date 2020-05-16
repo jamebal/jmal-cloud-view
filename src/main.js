@@ -15,7 +15,7 @@ import router from './router'
 import VueWechatTitle from 'vue-wechat-title'
 // import WeVue from 'we-vue'
 // import 'we-vue/lib/style.css'
-import { Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup, Grid, GridItem} from 'vant';
+import { Popup,Search, Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup, Grid, GridItem} from 'vant';
 
 // mavonEditor
 import mavonEditor from 'mavon-editor'
@@ -58,6 +58,8 @@ Vue.use(ElementUI)
 Vue.use(VueWechatTitle)
 
 // 有赞的移动UI
+Vue.use(Popup);
+Vue.use(Search);
 Vue.use(Button);
 Vue.use(Cell);
 Vue.use(CellGroup);
