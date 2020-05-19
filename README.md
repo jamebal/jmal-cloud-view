@@ -1,4 +1,4 @@
-### DEMO: http://120.79.63.182:19898 , 用户名:amdin,密码:123456
+### DEMO: http://jmal.cloud/ , 用户名:amdin,密码:123456
 
 部分截图:
 ![image](https://raw.githubusercontent.com/jamebal/jmal-cloud-view/master/doc/demo.png)
