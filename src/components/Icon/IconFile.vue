@@ -17,15 +17,21 @@
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
     <div v-else-if="item.contentType.indexOf('audio') > -1" v-on:mousedown="noDrag($event)">
-      <div v-if="item.music.name !== null">
-        <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
-        <div slot="error" class="image-slot">
-          <svg-icon icon-class="loading-image-error"/>
+      <div v-if="item.music !== undefined">
+        <div v-if="item.music.name !== null">
+          <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
+          <div slot="error" class="image-slot">
+            <svg-icon icon-class="audio"/>
+          </div>
+        </el-image>
+        <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
+          <div slot="default">
+            <svg-icon class="avatar-default-image" icon-class="audio"/>
+          </div>
+        </el-avatar>
         </div>
-      </el-image>
-      <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)"></el-avatar>
       </div>
-      <svg-icon v-else icon-class="audio"/>
+      <svg-icon v-else class="avatar-default-image" icon-class="audio"/>
     </div>
     <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
     <div v-else-if="item.contentType.indexOf('image') > -1" v-on:mousedown="noDrag($event)">
@@ -101,5 +107,9 @@
   }
 </script>
 <style lang="scss" scoped>
-
+  .avatar-default-image{
+    height: 35px;
+    width: 35px;
+    line-height: 35px;
+  }
 </style>
