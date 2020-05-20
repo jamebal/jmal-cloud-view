@@ -156,6 +156,7 @@
         isDragStart: false,
         fileListScrollTop: 0,
         dragoverLoop: null,
+        successMsg: null,
       }
     },
     computed: {
@@ -340,17 +341,35 @@
             this.statusRemove(file.id)
             this.statusSet(file.id, 'success')
             // file.removeFile(file)
+            this.showSuccessMsg()
           }).catch(e => {})
-
           // 不需要合并
         } else {
           Bus.$emit('fileSuccess')
           // 完成后从文件列表移除
           // file.removeFile(file)
           // console.log('上传成功')
+          this.showSuccessMsg()
         }
         if (file.parent == null) {
           this.close()
+        }
+      },
+      showSuccessMsg() {
+        if(this.successMsg === null){
+          this.successMsg = this.$message({
+            message: '文件上传成功',
+            type: 'success',
+            onClose: ()=>{
+              this.successMsg = null
+            }
+          });
+        }else{
+
+        }
+        if(this.process === -10 || this.process === 100 || this.fileListLength === 0){
+          this.uploader.cancel()
+          this.panelShow = false
         }
       },
       onFileError(rootFile, file, response) {
