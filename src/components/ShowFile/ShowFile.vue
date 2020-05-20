@@ -2295,17 +2295,27 @@
             fileIds: fileIds
           }).then(() => {
             // 移除列表
+            let removeFileIndexList = []
             if(this.$refs.fileListTable.tableSelectData.length > 0){
               this.$refs.fileListTable.tableSelectData.forEach(item => {
                 let fileIndex = this.fileList.findIndex(file => file.id === item.id)
                 if(fileIndex > -1){
-                  this.fileList.splice(fileIndex,1)
+                  removeFileIndexList.push(fileIndex)
                 }
               })
             }
+            // 先清空之前选择的数据
             this.$refs.fileListTable.doLayout()
-            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
+            this.$refs.fileListTable.clearSelection()
             this.$refs.fileListTable.tableSelectData = []
+            const that = this
+            setTimeout(function () {
+              // 再执行移除
+              removeFileIndexList.forEach(fileIndex => {
+                that.fileList.splice(fileIndex,1)
+              })
+            },300)
+
           }).then(()=>{
             this.$notify({
               title: '删除成功',
