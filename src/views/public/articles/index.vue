@@ -39,7 +39,7 @@
                     </h2>
                     <div class="new-meta-box">
                       <div class="new-meta-item author">
-                        <a href="http://blog.jmal.com" rel="nofollow">
+                        <a href="http://www.jmal.top" rel="nofollow">
                           <img :src="imageUrl+article.avatar" :data-original="imageUrl+article.avatar">
                           <p>{{article.username}}</p>
                         </a>
@@ -77,7 +77,7 @@
                 <a href="" class="social fas fa-rss flat-btn waves-effect waves-button" target="_blank" rel="external nofollow noopener noreferrer">
                   <svg-icon icon-class="widget-subscription"></svg-icon>
                 </a>
-                <a href="mailto:zhushilun163@084.com" class="social fas fa-envelope flat-btn waves-effect waves-button" target="_blank" rel="external nofollow noopener noreferrer">
+                <a href="mailto:zhushilun084@163.com" class="social fas fa-envelope flat-btn waves-effect waves-button" target="_blank" rel="external nofollow noopener noreferrer">
                   <svg-icon icon-class="widget-email"></svg-icon>
                 </a>
                 <a href="https://github.com/jamebal" class="social fab fa-github flat-btn waves-effect waves-button" target="_blank" rel="external nofollow noopener noreferrer">

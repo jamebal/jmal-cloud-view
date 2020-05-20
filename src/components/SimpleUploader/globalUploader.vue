@@ -93,7 +93,7 @@
 
   export default {
     components: {},
-    data($this) {
+    data() {
       return {
         username: this.$store.state.user.name,
         options: {
@@ -127,7 +127,7 @@
               .replace(/\sseconds?/, '秒')
           },
           headers: {
-            'jmal-token': $this.$store.state.user.token
+            'jmal-token': this.$store.state.user.token
           },
           query() {}
         },
@@ -166,7 +166,6 @@
     },
     watch: {},
     mounted() {
-
       let that = this
       let dropbox = document.body
 
@@ -243,7 +242,6 @@
     },
     methods: {
       onDragenter(e) {
-        console.log('onDragenter',e)
         this.params = {
           currentDirectory: this.$route.query.path || '/',
           username: this.$store.state.user.name,

@@ -8,6 +8,10 @@
       </div>
       <app-main />
     </div>
+     <!--全局音乐播放 -->
+    <audio-preview></audio-preview>
+    <!-- 将上传组件全局注册 -->
+    <global-uploader></global-uploader>
   </div>
 </template>
 
@@ -15,13 +19,17 @@
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { getToken } from '@/utils/auth'
+import AudioPreview from "@/components/preview/AudioPreview";
+import globalUploader from '@/components/SimpleUploader/globalUploader.vue'
 
 export default {
   name: 'Layout',
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    AudioPreview,
+    globalUploader
   },
   data() {
     return {
