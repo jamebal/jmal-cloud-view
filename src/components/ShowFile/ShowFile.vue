@@ -42,7 +42,7 @@
                   </a>
                 </li>
                 <div v-show="showNewFolder" class="folder-name-form">
-                  <el-input v-focus v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
+                  <el-input ref="newFolderName" v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
                     <el-button
                       slot="append"
                       v-loading="newFolderLoading"
@@ -1287,6 +1287,10 @@
       newFolder() {
         this.newFolderName = this.getNewFolderName(this.fileList,'新建文件夹')
         this.showNewFolder = true
+        this.$nextTick(()=>{
+          this.$refs.newFolderName.focus()
+          this.$refs.newFolderName.select()
+        })
       },
       getNewFolderName(fileList,newFolderName){
         let append = 0
