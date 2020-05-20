@@ -418,6 +418,10 @@
       ButtonUpload
     },
     props: {
+      isCollectView: {
+        type: Boolean,
+        default: false
+      },
       emptyStatus: {
         'type': String,
         'default': '空空如也~',
@@ -1690,7 +1694,7 @@
           this.rowContextData = row
         }
         const isFavorite = this.rowContextData.isFavorite
-        this.highlightFavorite(isFavorite, false)
+        this.highlightFavorite(this.isCollectView ? true : isFavorite, false)
       },
       // 单元格hover进入时事件
       cellMouseEnter(row) {
@@ -1827,6 +1831,7 @@
         if (this.$refs.fileListTable.tableSelectData.length > 1 && this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1) {
           this.menusIsMultiple = true
           this.menus = this.multipleRightMenus
+          this.highlightFavorite(this.isCollectView, false)
         } else {
           this.$refs.fileListTable.clearSelection()
           this.$refs.fileListTable.toggleRowSelection([{row:row}])
@@ -1869,10 +1874,10 @@
         }
       },
       menuFavoriteOver(index, isFavorite) {
-        this.highlightFavorite(isFavorite, true)
+        this.highlightFavorite(this.isCollectView ? true: isFavorite, false)
       },
       menuFavoriteLeave(index, isFavorite) {
-        this.highlightFavorite(isFavorite, false)
+        this.highlightFavorite(this.isCollectView ? true : isFavorite, false)
       },
       // 是否高亮收图标
       highlightFavorite(isFavorite, isHover) {
@@ -2263,13 +2268,18 @@
       },
       // 收藏/取消收藏
       favoriteOperating(isFavorite) {
+        const fileIds = this.getSelectIdList()
         this.rowContextData.isFavorite = isFavorite
         this.highlightFavorite(isFavorite, true)
         api.favoriteUrl({
-          token: this.$store.state.user.token,
-          id: this.rowContextData.id,
+          fileIds: fileIds,
           isFavorite: isFavorite
         }).then(res => {
+          // 收藏页面
+          if(!isFavorite && this.isCollectView){
+            // 移除列表
+            this.removeSelectItme()
+          }
         })
       },
       // 删除
@@ -2295,27 +2305,7 @@
             fileIds: fileIds
           }).then(() => {
             // 移除列表
-            let removeFileIndexList = []
-            if(this.$refs.fileListTable.tableSelectData.length > 0){
-              this.$refs.fileListTable.tableSelectData.forEach(item => {
-                let fileIndex = this.fileList.findIndex(file => file.id === item.id)
-                if(fileIndex > -1){
-                  removeFileIndexList.push(fileIndex)
-                }
-              })
-            }
-            // 先清空之前选择的数据
-            this.$refs.fileListTable.doLayout()
-            this.$refs.fileListTable.clearSelection()
-            this.$refs.fileListTable.tableSelectData = []
-            const that = this
-            setTimeout(function () {
-              // 再执行移除
-              removeFileIndexList.forEach(fileIndex => {
-                that.fileList.splice(fileIndex,1)
-              })
-            },300)
-
+            this.removeSelectItme()
           }).then(()=>{
             this.$notify({
               title: '删除成功',
@@ -2324,6 +2314,43 @@
             })
           })
         })
+      },
+      // 获取选中项id列表
+      getSelectIdList(){
+        const fileIds = []
+        if (this.selectRowData.length > 1 || this.menusIsMultiple) {
+          this.$refs.fileListTable.tableSelectData.forEach(value => {
+            fileIds.push(value.id)
+          })
+        } else {
+          fileIds.push(this.rowContextData.id)
+        }
+        return fileIds
+      },
+      // 移除选中项
+      removeSelectItme(){
+        let removeFileIndexList = []
+        if(this.$refs.fileListTable.tableSelectData.length > 0){
+          this.$refs.fileListTable.tableSelectData.forEach(item => {
+            let fileIndex = this.fileList.findIndex(file => file.id === item.id)
+            if(fileIndex > -1){
+              removeFileIndexList.push(fileIndex)
+            }
+          })
+        }
+        // 先清空之前选择的数据
+        this.$refs.fileListTable.doLayout()
+        this.$refs.fileListTable.clearSelection()
+        this.$refs.fileListTable.tableSelectData = []
+        // 反序
+        removeFileIndexList = removeFileIndexList.reverse()
+        const that = this
+        setTimeout(function () {
+          // 再执行移除
+          for (let i = 0; i < removeFileIndexList.length; i++) {
+            that.fileList.splice(removeFileIndexList[i],1)
+          }
+        },300)
       },
       // 点击文件或文件夹
       fileClick(row) {

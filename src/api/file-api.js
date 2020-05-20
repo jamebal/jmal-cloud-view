@@ -48,13 +48,19 @@ export default {
       return request({
         url: 'favorite',
         method: 'post',
-        params
+        params,
+        paramsSerializer: function(params) {
+          return qs.stringify(params, { arrayFormat: 'repeat' })
+        }
       })
     } else {
       return request({
         url: 'unFavorite',
         method: 'post',
-        params
+        params,
+        paramsSerializer: function(params) {
+          return qs.stringify(params, { arrayFormat: 'repeat' })
+        }
       })
     }
   },
