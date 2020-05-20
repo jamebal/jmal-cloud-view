@@ -232,7 +232,6 @@
   import 'vant/lib/checkbox/style';
   import 'vant/lib/checkbox-group/style';
   import { mapGetters } from 'vuex'
-  import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import Bus from '@/assets/js/bus'
   import api from '@/api/file-api'
@@ -256,9 +255,7 @@
         newFolderName: '新建文件夹',
         renameFileName: '',
         searchFileName: '',
-        pathList: [
-          { 'folder': '', index: 0 },
-        ],
+        pathList: [],
         fileList: [],
         pagination: {
           fileId: false,
@@ -330,7 +327,7 @@
         dragLoop: null,
         positionX:0,
         positionY:0,
-        grid: true,
+        grid: false,
         vmode: 'list',
         gridColumnNum: -1,
         gridHoverItemIndex: -1,
@@ -353,11 +350,6 @@
     },
     created() {
       this.getFileList()
-      // if(this.$route.query.f){
-      //   this.accessShareOpenDir(this.$route.query.f)
-      // }else{
-      //   this.getFileList()
-      // }
     },
     mounted() {
       Bus.$on('fileSuccess', () => {
@@ -388,27 +380,8 @@
           this.grid = true
         }
       }
-
-      // 加载url上的path
-      if(this.$route.query.path){
-        const path = decodeURI(this.$route.query.path)
-        this.pathList.splice(1,1)
-        path.split('/').forEach((pathName,index)=>{
-          if(index > 0){
-            const item = {}
-            item['folder'] = pathName
-            item['index'] = index
-            this.pathList.push(item)
-          }
-        })
-        const item = {}
-        item['folder'] = '+'
-        item['index'] = this.pathList.length
-        this.pathList.push(item)
-      }
     },
     destroyed() {
-      removePath()
       window.removeEventListener('popstate', this.goBack, false);
     },
     directives: {
@@ -499,15 +472,15 @@
       },
       handleLink(item, index) {
         if(index === 0){
-          this.pathList = [
-            { 'folder': '', index: 0 },
-          ],
-          this.getFileList();
+          this.pathList.splice(this.pathList.findIndex((v,i) => i === index + 1), this.pathList.length - (index + 1))
+          this.getFileList(null,true);
+          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
         }
-        if(item && item.search){
+        if(item && item.fileId){
           this.accessShareOpenDir(item.fileId)
-          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+          this.pathList.splice(this.pathList.findIndex((v,i) => i === index + 1), this.pathList.length - (index + 1))
         }
+        console.log(this.pathList)
       },
       // 切换布局
       changeVmode(){
@@ -517,10 +490,7 @@
           this.vmode = 'grid'
         }
         let f = ''
-        if(this.$route.query.f){
-          f = this.$route.query.f
-        }
-        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&f=${f}`)
+        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
       },
       accessShareOpenDir(fileId) {
         this.tableLoading = true
@@ -530,28 +500,20 @@
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
+          this.isLoading = false
           this.fileList = res.data
           this.clientHeight = document.documentElement.clientHeight - 265
           this.listModeSearch = true
           this.pagination.fileId = fileId
           this.pagination['total'] = res.count
           this.$nextTick(()=>{
+            this.containerResize()
             this.tableLoading = false
-
-            // const path = this.fileList[0].path
-            // console.log(path)
-            // path.split('/').forEach((pathName,index)=>{
-            //   if(index > 0){
-            //     const item = {}
-            //     item['folder'] = pathName
-            //     item['index'] = index
-            //     this.pathList.push(item)
-            //   }
-            // })
+            this.linkFailed = false
           })
         }).catch(e => {})
       },
-      getFileList(pagination) {
+      getFileList(pagination,overload) {
         this.tableLoading = true
         api.accessShare({
           share:this.shareId,
@@ -585,14 +547,12 @@
               this.linkFailed = false
               if(!pagination){
                 // 打开文件夹
-                const item1 = {}
-                item1['folder'] = this.currentDirName
-                item1['index'] = this.pathList.length - 1
-                const item2 = {}
-                item2['folder'] = '+'
-                item2['index'] = this.pathList.length
-                this.pathList[this.pathList.length - 1] = item1
-                this.pathList.push(item2)
+                const item = {}
+                item['folder'] = this.currentDirName
+                item['index'] = this.pathList.length
+                if(!overload){
+                  this.pathList.push(item)
+                }
               }
             })
           }
@@ -875,8 +835,16 @@
           } else {
             fileIds.push(this.rowContextData.id)
           }
-          console.log("fileIds",fileIds)
-          window.open(process.env.VUE_APP_BASE_FILE_API + `/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`, '_self')
+
+          if(process.env.NODE_ENV !== 'development'){
+            let host = window.location.host
+            if(window.location.port.length > 0){
+              host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
+            }
+            window.open(`http://${host}:10010/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`,'_self')
+          }else{
+            window.open(process.env.VUE_APP_BASE_FILE_API + `/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`, '_self')
+          }
         } else {
           this.$message({
             message: '所选文件为空',
@@ -888,29 +856,19 @@
       fileClick(row) {
         if (row.isFolder) {
           // 打开文件夹
-          const item1 = {}
-          item1['folder'] = row.name
-          item1['search'] = true
-          item1['fileId'] = row.id
-          item1['index'] = this.pathList.length - 1
-          const item2 = {}
-          item2['folder'] = '+'
-          item2['index'] = this.pathList.length
-          this.pathList[this.pathList.length - 1] = item1
-          this.pathList.push(item2)
+          const item = {}
+          item['folder'] = row.name
+          item['fileId'] = row.id
+          item['index'] = this.pathList.length
+          this.pathList.push(item)
           this.pagination.pageIndex = 1
-          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}&f=${row.id}`)
+          this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
           this.accessShareOpenDir(row.id)
         } else {
-          if(row.contentType.includes('text')){
-            let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
-            window.open(routeData.href, '_blank');
-          }else{
-            // 打开文件
-            const fileIds = [row.id]
-            const url = process.env.VUE_APP_BASE_FILE_API + '/public/s/preview/' + row.name + '?fileIds=' + fileIds
-            window.open(url, '_blank')
-          }
+          // 打开文件
+          const fileIds = [row.id]
+          const url = process.env.VUE_APP_BASE_FILE_API + '/public/s/preview/' + row.name + '?fileIds=' + fileIds
+          window.open(url, '_blank')
         }
       }
     }

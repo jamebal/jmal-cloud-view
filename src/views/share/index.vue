@@ -146,7 +146,7 @@
     <!--</el-pagination>-->
     <empty-file
       v-if="fileList.length < 1 && !tableLoading"
-      emptyStatus="您还没有分享历史哦~"
+      emptyStatus="还没有分享历史哦~"
       :emptyShare="true"
     >
     </empty-file>

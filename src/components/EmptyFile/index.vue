@@ -51,32 +51,34 @@
     /*min-height: calc(100vh - 50px);*/
   }
   .share-empty {
-    height: 30%;
-    width: 50%;
+    /*height: 30%;*/
+    /*width: 50%;*/
     color: #6e6e6e;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin: -15% 0 0 -25%;
-  }
-  .share-empty-icon {
-    width: 268px;
-    margin: 0 auto;
-    img {
-      width: 100%;
-    }
-  }
-  .share-empty-status {
-    text-align: center;
-    padding-top: 40px;
-    font-size: 18px;
-    line-height: 28px;
-  }
-  .share-empty-text {
-    padding-top: 20px;
-    font-size: 16px;
-    text-align: center;
-    line-height: 28px;
-  }
+    margin: 20%;
+    /*left: 50%;*/
+    /*position: absolute;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    /*margin: -15% 0 0 -25%;*/
+ }
+ .share-empty-icon {
+   width: 268px;
+   margin: 0 auto;
+   img {
+     width: 100%;
+   }
+ }
+ .share-empty-status {
+   text-align: center;
+   padding-top: 40px;
+   font-size: 18px;
+   line-height: 28px;
+ }
+ .share-empty-text {
+   padding-top: 20px;
+   font-size: 16px;
+   text-align: center;
+   line-height: 28px;
+ }
 </style>
 
