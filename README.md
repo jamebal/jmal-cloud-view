@@ -1,8 +1,10 @@
+### DEMO: http://jmal.cloud , 用户名:amdin,密码:123456
+
+部分截图:
+![image](https://raw.githubusercontent.com/jamebal/jmal-cloud-view/master/doc/demo.png)
+
 # jmal-cloud-view
 网盘前端界面
-
-示例:
-![image](https://raw.githubusercontent.com/jamebal/jmal-cloud-view/master/doc/demo.png)
 
 基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
