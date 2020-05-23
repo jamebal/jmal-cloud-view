@@ -147,6 +147,8 @@ export const constantRoutes = [
         path: '',
         name: 'setting',
         component: () => import('@/views/setting/index'),
+        meta: { title: '设置' },
+        hidden: true
       }
     ]
   },

@@ -21,7 +21,7 @@
         <div v-if="item.music.name !== null">
           <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
           <div slot="error" class="image-slot">
-            <svg-icon icon-class="audio"/>
+            <svg-icon class="avatar-default-image" icon-class="audio"/>
           </div>
         </el-image>
         <el-avatar v-if="!grid" shape="square" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
@@ -31,7 +31,7 @@
         </el-avatar>
         </div>
       </div>
-      <svg-icon v-else class="avatar-default-image" icon-class="audio"/>
+      <svg-icon v-else icon-class="audio"/>
     </div>
     <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
     <div v-else-if="item.contentType.indexOf('image') > -1" v-on:mousedown="noDrag($event)">
@@ -92,6 +92,9 @@
     computed: {
       findIconClass(){
         let suffix = this.item.suffix;
+        if(!suffix && this.item.fileName){
+          suffix = this.item.fileName.substring(this.item.fileName.lastIndexOf('.') + 1);
+        }
         if(iconClass.has(suffix)){
           return iconClass.get(suffix)
         }

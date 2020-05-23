@@ -4,33 +4,38 @@
 
     <breadcrumb class="breadcrumb-container" />
 
-    <div class="right-menu">
-      <el-dropdown class="avatar-container" trigger="click">
-        <div class="avatar-wrapper">
-          <!--<img :src="avatar" class="user-avatar">-->
-          <el-avatar :src="imageUrl+avatar" icon="el-icon-user-solid"></el-avatar>
-          <i class="el-icon-caret-bottom" />
-        </div>
-        <el-dropdown-menu slot="dropdown" class="user-dropdown">
-          <router-link to="/setting">
-            <el-dropdown-item>
-              <i class="el-icon-setting" />设置
-            </el-dropdown-item>
-          </router-link>
-          <!--<router-link to="/">-->
+    <div class="right-content">
+      <div class="right-username">{{username}}</div>
+      <div class="right-menu">
+        <el-dropdown class="avatar-container" trigger="click">
+          <div class="avatar-wrapper">
+            <!--<img :src="avatar" class="user-avatar">-->
+            <el-avatar :src="imageUrl+avatar" icon="el-icon-user-solid"></el-avatar>
+            <i class="el-icon-caret-bottom" />
+          </div>
+          <el-dropdown-menu slot="dropdown" class="user-dropdown">
+            <router-link to="/setting">
+              <el-dropdown-item>
+                <i class="el-icon-setting" />设置
+              </el-dropdown-item>
+            </router-link>
+            <!--<router-link to="/">-->
             <!--<el-dropdown-item>-->
-              <!--首页-->
+            <!--首页-->
             <!--</el-dropdown-item>-->
-          <!--</router-link>-->
-          <!--<a target="_blank" href="https://github.com/jamebal/jmal-cloud-view/">-->
+            <!--</router-link>-->
+            <!--<a target="_blank" href="https://github.com/jamebal/jmal-cloud-view/">-->
             <!--<el-dropdown-item>Github</el-dropdown-item>-->
-          <!--</a>-->
-          <el-dropdown-item divided @click.native="logout">
-            <span style="display:block;">退出登录</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+            <!--</a>-->
+            <el-dropdown-item divided @click.native="logout">
+              <span style="display:block;">退出登录</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
+
     </div>
+
   </div>
 </template>
 
@@ -43,6 +48,7 @@ export default {
   data() {
     return {
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
+      username: this.$store.state.user.name,
     }
   },
   components: {
@@ -90,6 +96,21 @@ export default {
 
   .breadcrumb-container {
     float: left;
+  }
+
+  .right-content {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+
+    .right-username {
+      line-height: 50px;
+      margin-right: 10px;
+    }
+
   }
 
   .right-menu {
