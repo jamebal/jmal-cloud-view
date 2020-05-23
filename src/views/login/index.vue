@@ -1,75 +1,83 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
-      <div class="title-container">
-        <h3 v-if="!initialize" class="title">登录 jmalCloud</h3>
-        <h3 v-if="initialize" class="title">创建管理员</h3>
-      </div>
 
-      <el-form-item prop="username">
+    <el-card class="box-card">
+      <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+
+        <div class="title-container">
+          <h3 v-if="!initialize" class="title">
+            <span class="jmal-cloud-log"><svg-icon icon-class="jmal-cloud"></svg-icon></span>
+            <span>JmalCloud</span>
+          </h3>
+          <h3 v-if="initialize" class="title">创建管理员</h3>
+        </div>
+
+        <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
-        <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="用户名"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
-      </el-form-item>
+          <el-input
+            ref="username"
+            v-model="loginForm.username"
+            placeholder="用户名"
+            name="username"
+            type="text"
+            tabindex="1"
+            auto-complete="on"
+          />
+        </el-form-item>
 
-      <el-form-item prop="password">
+        <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
+          <el-input
+            :key="passwordType"
+            ref="password"
+            v-model="loginForm.password"
+            :type="passwordType"
+            placeholder="密码"
+            name="password"
+            tabindex="2"
+            auto-complete="on"
+            @keyup.enter.native="handleLogin"
+          />
+          <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
-      </el-form-item>
+        </el-form-item>
 
-      <el-form-item v-if="initialize" prop="confirmPassword">
+        <el-form-item v-if="initialize" prop="confirmPassword">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.confirmPassword"
-          :type="passwordType"
-          placeholder="确认密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
+          <el-input
+            :key="passwordType"
+            ref="password"
+            v-model="loginForm.confirmPassword"
+            :type="passwordType"
+            placeholder="确认密码"
+            name="password"
+            tabindex="2"
+            auto-complete="on"
+            @keyup.enter.native="handleLogin"
+          />
+          <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
-      </el-form-item>
+        </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{initialize?'创建':'登录'}}</el-button>
+        <el-button :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?'创建':'登录'}}</el-button>
 
-      <!--<div class="tips">-->
+        <!--<div class="tips">-->
         <!--<span style="margin-right:20px;">username: admin</span>-->
         <!--<span> password: any</span>-->
-      <!--</div>-->
+        <!--</div>-->
 
-    </el-form>
+      </el-form>
+    </el-card>
+
   </div>
 </template>
 
@@ -186,15 +194,17 @@ export default {
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
-$bg:#283443;
-$light_gray:#fff;
-$cursor: #fff;
+$bg:#1890ff;;
+$cursor: #409eff;
 
-@supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
-  .login-container .el-input input {
-    color: $cursor;
-  }
-}
+/*@supports (-webkit-mask: none) {*/
+  /*/deep/.login-container .el-input input {*/
+    /*background: unset;*/
+    /*color: #fff;*/
+    /*height: 47px;*/
+    /*caret-color: #409eff;*/
+  /*}*/
+/*}*/
 
 /* reset element-ui css */
 .login-container {
@@ -209,20 +219,18 @@ $cursor: #fff;
       -webkit-appearance: none;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
-      color: $light_gray;
       height: 47px;
       caret-color: $cursor;
 
       &:-webkit-autofill {
-        box-shadow: 0 0 0px 1000px $bg inset !important;
-        -webkit-text-fill-color: $cursor !important;
+        box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+        /*-webkit-text-fill-color: #FFFFFF !important;*/
       }
     }
   }
 
   .el-form-item {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid #d9d9d9;
     border-radius: 5px;
     color: #454545;
   }
@@ -231,20 +239,31 @@ $cursor: #fff;
 
 <style lang="scss" scoped>
 $bg:#2d3a4b;
-$dark_gray:#889aa4;
 $light_gray:#eee;
 
 .login-container {
   min-height: 100%;
   width: 100%;
-  background-color: $bg;
   overflow: hidden;
+  background: linear-gradient(#002766,30%, #0040f4);
+
+  /*/deep/.el-form-item__content {*/
+    /*line-height: 28px;*/
+  /*}*/
+
+  .box-card {
+    text-align: center;
+    max-width: 316px;
+    margin-top: 128px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   .login-form {
     position: relative;
     width: 520px;
     max-width: 100%;
-    padding: 160px 35px 0;
+    padding: 3px 5px 0 5px;
     margin: 0 auto;
     overflow: hidden;
   }
@@ -262,8 +281,7 @@ $light_gray:#eee;
   }
 
   .svg-container {
-    padding: 6px 5px 6px 15px;
-    color: $dark_gray;
+    padding: 0 5px 0 15px;
     vertical-align: middle;
     width: 30px;
     display: inline-block;
@@ -274,10 +292,14 @@ $light_gray:#eee;
 
     .title {
       font-size: 26px;
-      color: $light_gray;
-      margin: 0px auto 40px auto;
+      color: #0a001f;
+      margin: 20px auto 40px auto;
       text-align: center;
-      font-weight: bold;
+      font-weight: 500;
+    }
+
+    .jmal-cloud-log {
+      font-size: 42px;
     }
   }
 
@@ -286,7 +308,6 @@ $light_gray:#eee;
     right: 10px;
     top: 7px;
     font-size: 16px;
-    color: $dark_gray;
     cursor: pointer;
     user-select: none;
   }
