@@ -62,7 +62,8 @@
             </div>
           </template>
           <template slot-scope="scope">
-            <icon-file :item="scope.row" :image-url="imageUrl"></icon-file>
+            <!--<icon-file :item="scope.row" :image-url="imageUrl"></icon-file>-->
+            <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
           </template>
         </pl-table-column>
         <!--名称-->
@@ -209,7 +210,7 @@
     data() {
       return {
         imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-        // imageUrl: 'http://localhost:8088/view?username=' + this.$store.state.user.name + '&id=',
+        audioCoverUrl: process.env.VUE_APP_BASE_API + '/view/cover?jmal-token=' + this.$store.state.user.token + '&id=',
         fileMenuActive: '',
         path: this.$route.query.path,
         showNewFolder: false,
