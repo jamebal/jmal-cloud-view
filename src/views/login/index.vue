@@ -1,7 +1,11 @@
 <template>
   <div class="login-container">
+    <!--<div class="overlay1" :style="backgroundImg">-->
+    <!--</div>-->
+    <div class="stars">
 
-
+    </div>
+    <!--<img src="http://localhost:9528/file/public/s/preview/login-bg.png?fileIds=5eca6fe63c9ae7058035e99b">-->
     <el-card class="box-card">
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
@@ -83,7 +87,9 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
-
+import $ from 'jquery'
+require('@/assets/js/prefixfree.min.js')
+require('@/assets/js/stopExecutionOnTimeout.js')
 import {hasUser,initialization} from '@/api/user'
 
 export default {
@@ -127,6 +133,12 @@ export default {
       passwordType: 'password',
       redirect: undefined,
       initialize: false,
+      backgroundImg: {
+        background: "url("+require("@/assets/img/login-bg.png")+")",
+        width: '100%',
+        height: '100%',
+        position: 'absolute'
+      }
     }
   },
   watch: {
@@ -143,6 +155,28 @@ export default {
         this.initialize = true
       }
     })
+
+    var stars = 800;
+    var $stars = $('.stars');
+    var r = 800;
+    for (var i = 0; i < stars; i++) {
+      if (window.CP.shouldStopExecution(1)) {
+        break;
+      }
+      var $star = $('<div/>').addClass('star');
+      $stars.append($star);
+    }
+    window.CP.exitedLoop(1);
+    $('.star').each(function () {
+      var cur = $(this);
+      var s = 0.2 + Math.random() * 1;
+      var curR = r + Math.random() * 300;
+      cur.css({
+        transformOrigin: '0 0 ' + curR + 'px',
+        transform: ' translate3d(0,0,-' + curR + 'px) rotateY(' + Math.random() * 360 + 'deg) rotateX(' + Math.random() * -50 + 'deg) scale(' + s + ',' + s + ')'
+      });
+    });
+
   },
   methods: {
     showPwd() {
@@ -207,6 +241,45 @@ $cursor: #409eff;
 /*}*/
 
 /* reset element-ui css */
+
+body {
+  /*background: radial-gradient(200% 100% at bottom center, #0070aa, #0b2570, #000035, #000);*/
+  /*background: radial-gradient(220% 105% at top center, #000 10%, #000035 40%, #0b2570 65%, #0070aa);*/
+  background: linear-gradient(#002766,30%, #0040f4);
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+@keyframes rotate {
+  0% {
+    transform: perspective(400px) rotateZ(20deg) rotateX(-40deg) rotateY(0);
+  }
+  100% {
+    transform: perspective(400px) rotateZ(20deg) rotateX(-40deg) rotateY(-360deg);
+  }
+}
+.stars {
+  transform: perspective(500px);
+  transform-style: preserve-3d;
+  position: absolute;
+  bottom: 0;
+  perspective-origin: 50% 100%;
+  left: 50%;
+  animation: rotate 90s infinite linear;
+}
+
+.star {
+  width: 2px;
+  height: 2px;
+  background: #F7F7B6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0 -300px;
+  transform: translate3d(0, 0, -300px);
+  backface-visibility: hidden;
+}
+
 .login-container {
   .el-input {
     display: inline-block;
@@ -245,11 +318,47 @@ $light_gray:#eee;
   min-height: 100%;
   width: 100%;
   overflow: hidden;
-  background: linear-gradient(#002766,30%, #0040f4);
+  /*background: linear-gradient(#002766,30%, #0040f4);*/
 
   /*/deep/.el-form-item__content {*/
     /*line-height: 28px;*/
   /*}*/
+
+  .overlay1 {
+    transform: rotate(360deg);
+    -ms-transform: rotate(360deg); /* IE 9 */
+    -webkit-transform: rotate(360deg); /* Safari and Chrome */
+    animation: first1 120s linear infinite;
+    -webkit-animation: first1 120s linear infinite;
+  }
+
+  @keyframes first1
+  {
+    0%   {
+      transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes first1
+  {
+    0%   {
+      transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+    }
+  }
+
 
   .box-card {
     text-align: center;

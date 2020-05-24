@@ -69,8 +69,8 @@
           // 在行槽中添加行号显示器、折叠器、语法检测器
           gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
           readOnly: this.readOnly,
-          // theme: 'darcula',
-          theme: 'default',
+          theme: 'darcula',
+          // theme: 'default',
           fullScreen: false, // 全屏
           matchBrackets: true, //括号匹配
           hintOptions: {
