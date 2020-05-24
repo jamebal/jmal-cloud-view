@@ -231,24 +231,6 @@ export default {
 $bg:#1890ff;;
 $cursor: #409eff;
 
-/*@supports (-webkit-mask: none) {*/
-  /*/deep/.login-container .el-input input {*/
-    /*background: unset;*/
-    /*color: #fff;*/
-    /*height: 47px;*/
-    /*caret-color: #409eff;*/
-  /*}*/
-/*}*/
-
-/* reset element-ui css */
-
-body {
-  /*background: radial-gradient(200% 100% at bottom center, #0070aa, #0b2570, #000035, #000);*/
-  /*background: radial-gradient(220% 105% at top center, #000 10%, #000035 40%, #0b2570 65%, #0070aa);*/
-  background: linear-gradient(#002766,30%, #0040f4);
-  background-attachment: fixed;
-  overflow: hidden;
-}
 
 @keyframes rotate {
   0% {
@@ -318,7 +300,7 @@ $light_gray:#eee;
   min-height: 100%;
   width: 100%;
   overflow: hidden;
-  /*background: linear-gradient(#002766,30%, #0040f4);*/
+  background: linear-gradient(#002766,30%, #0040f4);
 
   /*/deep/.el-form-item__content {*/
     /*line-height: 28px;*/

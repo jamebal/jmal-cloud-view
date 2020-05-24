@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'jmalCloud',
+  title: 'JmalCloud',
 
   /**
    * @type {boolean} true | false
