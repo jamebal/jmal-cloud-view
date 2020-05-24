@@ -7,21 +7,39 @@
 <script>
 
   // htmlmixed mode
-  require('codemirror/mode/vue/vue.js')
-  require('codemirror/mode/xml/xml.js')
-  require('codemirror/mode/javascript/javascript.js')
-  require('codemirror/mode/css/css.js')
-  require('codemirror/mode/shell/shell.js')
-  require('codemirror/mode/yaml/yaml.js')
-  require('codemirror/mode/swift/swift.js')
-  require('codemirror/mode/sql/sql.js')
-  require('codemirror/mode/sass/sass.js')
-  require('codemirror/mode/sas/sas.js')
-  require('codemirror/mode/php/php.js')
-  require('codemirror/mode/css/css.js')
-  require('codemirror/mode/markdown/markdown.js')
-  require('codemirror/mode/go/go.js')
-  require('codemirror/mode/dart/dart.js')
+  const modulesFiles = require.context("codemirror/mode", true, /\.js$/);
+
+  // you do not need `import app from './modules/app'`
+
+  // it will auto require all vuex module from modules file
+
+  const modules = modulesFiles.keys().reduce((modules, modulePath) => {
+
+    // set './app.js' => 'app'
+
+    const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, "$1");
+
+    const value = modulesFiles(modulePath);
+
+    modules[moduleName] = value.default;
+
+    return modules;
+
+  }, {});
+  // require('codemirror/mode/xml/xml.js')
+  // require('codemirror/mode/javascript/javascript.js')
+  // require('codemirror/mode/css/css.js')
+  // require('codemirror/mode/shell/shell.js')
+  // require('codemirror/mode/yaml/yaml.js')
+  // require('codemirror/mode/swift/swift.js')
+  // require('codemirror/mode/sql/sql.js')
+  // require('codemirror/mode/sass/sass.js')
+  // require('codemirror/mode/sas/sas.js')
+  // require('codemirror/mode/php/php.js')
+  // require('codemirror/mode/css/css.js')
+  // require('codemirror/mode/markdown/markdown.js')
+  // require('codemirror/mode/go/go.js')
+  // require('codemirror/mode/dart/dart.js')
   // require('codemirror/mode/clike/clike.js')
 
   // theme
@@ -29,11 +47,28 @@
   require('codemirror/theme/ayu-dark.css')
   require('codemirror/theme/3024-day.css')
   require('codemirror/theme/3024-night.css')
+  require('codemirror/theme/ambiance.css')
+  require('codemirror/theme/seti.css')
 
-  // require hint addon for javacript
+  // 支持代码折叠
+  require('codemirror/addon/fold/foldgutter.css')
+  require('codemirror/addon/fold/foldcode.js')
+  require('codemirror/addon/fold/foldgutter.js')
+  require('codemirror/addon/fold/brace-fold.js')
+  require('codemirror/addon/fold/comment-fold.js')
+
+  // 全屏模式
+  require('codemirror/addon/display/fullscreen.css')
+  require('codemirror/addon/display/fullscreen.js')
+
+  // 自动补全
   require('codemirror/addon/hint/show-hint.js')
   require('codemirror/addon/hint/show-hint.css')
   require('codemirror/addon/hint/javascript-hint.js')
+  require('codemirror/addon/hint/anyword-hint.js')
+  require('codemirror/addon/hint/html-hint.js')
+  require('codemirror/addon/hint/xml-hint.js')
+  require('codemirror/addon/hint/css-hint.js')
 
   // Crtl-F 搜索
   import 'codemirror/addon/dialog/dialog';
@@ -70,7 +105,6 @@
       }
     },
     ready: function () {
-      console.log(6789)
       let that = this
       this.editor = CodeMirror.fromTextArea(this.$el.querySelector('textarea'), this.options)
       this.editor.setValue(this.value)

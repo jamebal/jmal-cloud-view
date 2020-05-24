@@ -58,14 +58,19 @@
     computed: {
       options: function () {
         return {
-          mode: this.codeMode,
-          // tabSize: 2,
+          mode: this.codeMode,//代码高亮
+          // tabSize: 2,  // table键缩进
           styleActiveLine: true,
-          lineNumbers: true,
-          lineWrapping: this.lineWrapping,
+          lineNumbers: true, //显示行号
+          lineWrapping: this.lineWrapping,//代码折叠
+          foldGutter: true,
+          gutters:["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
           readOnly: this.readOnly,
           theme: 'idea',
-          extraKeys: {'Ctrl-Z': 'autocomplete'},
+          // theme: 'default',
+          fullScreen: false, // 全屏
+          matchBrackets: true, //括号匹配
+          extraKeys: {'Ctrl-I': 'autocomplete'}, //智能提示
         }
       }
     },
@@ -95,13 +100,17 @@
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
 
-        this.codeMode = 'javascript'
+        this.codeMode = 'text/javascript'
         let suffix = a.suffix
         const modeIndex =  modeInfo.findIndex(item => item.ext && item.ext.includes(suffix))
         if(modeIndex > -1){
           const mode = modeInfo[modeIndex].mode
           if(CodeMirror.modes.hasOwnProperty(mode)){
-            this.codeMode = mode
+            let mime = modeInfo[modeIndex].mime
+            if(!mime){
+              mime = modeInfo[modeIndex].mimes[0]
+            }
+            this.codeMode = mime
           }else{
             this.$message.warning("暂不支持的文件类型:",modeInfo[modeIndex].mime)
           }
