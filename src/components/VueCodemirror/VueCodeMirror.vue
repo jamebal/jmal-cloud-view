@@ -6,25 +6,13 @@
 
 <script>
 
-  // htmlmixed mode
+  // 加载codemirror/mode目录下所有js文件
   const modulesFiles = require.context("codemirror/mode", true, /\.js$/);
-
-  // you do not need `import app from './modules/app'`
-
-  // it will auto require all vuex module from modules file
-
-  const modules = modulesFiles.keys().reduce((modules, modulePath) => {
-
-    // set './app.js' => 'app'
-
+  modulesFiles.keys().reduce((modules, modulePath) => {
     const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, "$1");
-
     const value = modulesFiles(modulePath);
-
     modules[moduleName] = value.default;
-
     return modules;
-
   }, {});
   // require('codemirror/mode/xml/xml.js')
   // require('codemirror/mode/javascript/javascript.js')
@@ -42,6 +30,22 @@
   // require('codemirror/mode/dart/dart.js')
   // require('codemirror/mode/clike/clike.js')
 
+  // 语法警告
+  // 加载codemirror/addon/hint目录下所有js文件
+  window.JSHINT = require('jshint').JSHINT;
+  require('codemirror/addon/lint/lint.js')
+  require('codemirror/addon/lint/lint.css')
+  require('codemirror/addon/lint/javascript-lint.js')
+  // require('codemirror/addon/lint/json-lint.js')
+  // require('codemirror/addon/lint/html-lint.js')
+  // const modulesFiles1 = require.context("codemirror/addon/lint", true, /\.js$/);
+  // modulesFiles1.keys().reduce((modules, modulePath) => {
+  //   const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, "$1");
+  //   const value = modulesFiles1(modulePath);
+  //   modules[moduleName] = value.default;
+  //   return modules;
+  // }, {});
+
   // theme
   require('codemirror/theme/idea.css')
   require('codemirror/theme/ayu-dark.css')
@@ -49,6 +53,7 @@
   require('codemirror/theme/3024-night.css')
   require('codemirror/theme/ambiance.css')
   require('codemirror/theme/seti.css')
+  require('codemirror/theme/darcula.css')
 
   // 支持代码折叠
   require('codemirror/addon/fold/foldgutter.css')
@@ -57,18 +62,22 @@
   require('codemirror/addon/fold/brace-fold.js')
   require('codemirror/addon/fold/comment-fold.js')
 
+  // 括号高亮
+  require('codemirror/addon/edit/matchbrackets.js')
+
   // 全屏模式
   require('codemirror/addon/display/fullscreen.css')
   require('codemirror/addon/display/fullscreen.js')
 
   // 自动补全
-  require('codemirror/addon/hint/show-hint.js')
-  require('codemirror/addon/hint/show-hint.css')
-  require('codemirror/addon/hint/javascript-hint.js')
   require('codemirror/addon/hint/anyword-hint.js')
-  require('codemirror/addon/hint/html-hint.js')
-  require('codemirror/addon/hint/xml-hint.js')
   require('codemirror/addon/hint/css-hint.js')
+  require('codemirror/addon/hint/html-hint.js')
+  require('codemirror/addon/hint/javascript-hint.js')
+  require('codemirror/addon/hint/show-hint.css')
+  require('codemirror/addon/hint/show-hint.js')
+  require('codemirror/addon/hint/sql-hint.js')
+  require('codemirror/addon/hint/xml-hint.js')
 
   // Crtl-F 搜索
   import 'codemirror/addon/dialog/dialog';
@@ -104,21 +113,26 @@
         nowValue: ''
       }
     },
-    ready: function () {
-      let that = this
-      this.editor = CodeMirror.fromTextArea(this.$el.querySelector('textarea'), this.options)
-      this.editor.setValue(this.value)
-      this.editor.on('change', function(cm) {
-        if (that.skipNextChangeEvent) {
-          that.skipNextChangeEvent = false
-          return
-        }
-        that.nowValue = cm.getValue()
-        if (!!that.$emit) {
-          that.$emit('change', cm.getValue())
-        }
-      })
-    },
+    // ready: function () {
+    //   let that = this
+    //   this.editor = CodeMirror.fromTextArea(this.$el.querySelector('textarea'), this.options)
+    //   this.editor.setValue(this.value)
+    //   this.editor.on('change', function(cm) {
+    //     console.log('change')
+    //     if (that.skipNextChangeEvent) {
+    //       that.skipNextChangeEvent = false
+    //       return
+    //     }
+    //     that.nowValue = cm.getValue()
+    //     if (!!that.$emit) {
+    //       that.$emit('change', cm.getValue())
+    //     }
+    //   })
+    //   this.editor.on("cursorActivity", () => {
+    //     console.log('cursorActivity')
+    //     this.editor.showHint();
+    //   });
+    // },
     beforeMount(){
       this.onKeyDown = this.onKeyDown.bind(this);
       document.addEventListener('keydown', this.onKeyDown);
@@ -138,6 +152,12 @@
           that.$emit('input', cm.getValue())
         }
       })
+
+      this.editor.on("cursorActivity", () => {
+        console.log('cursorActivity')
+        // this.editor.showHint();
+      });
+
       this.$nextTick(()=>{
         this.editor.clearHistory();
       })

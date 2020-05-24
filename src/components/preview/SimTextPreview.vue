@@ -59,18 +59,25 @@
       options: function () {
         return {
           mode: this.codeMode,//代码高亮
-          // tabSize: 2,  // table键缩进
-          styleActiveLine: true,
+          smartIndent: true, // 智能缩进
+          indentUnit: 4, // 智能缩进单位为4个空格长度
+          indentWithTabs: true, // 使用制表符进行智能缩进
+          styleActiveLine: true, // 显示选中行的样式
           lineNumbers: true, //显示行号
           lineWrapping: this.lineWrapping,//代码折叠
-          foldGutter: true,
-          gutters:["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+          foldGutter: true, // 启用行槽中的代码折叠
+          // 在行槽中添加行号显示器、折叠器、语法检测器
+          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
           readOnly: this.readOnly,
-          theme: 'idea',
-          // theme: 'default',
+          // theme: 'darcula',
+          theme: 'default',
           fullScreen: false, // 全屏
           matchBrackets: true, //括号匹配
-          extraKeys: {'Ctrl-I': 'autocomplete'}, //智能提示
+          hintOptions: {
+            completeSingle: false
+          },
+          lint: true,
+          extraKeys: {'ctrl-space': 'autocomplete'}, //智能提示
         }
       }
     },
