@@ -16,13 +16,19 @@ nginx配置 [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/maste
 
 ### 2.运行web服务器 [jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server)
 
+下载 [clouddisk-1.0-exec.jar](https://github.com/jamebal/jmal-cloud-server/releases/download/1.0/clouddisk-1.0-exec.jar)
+
+启动(需要提前安装jdk环境)
+```bash
+java -jar clouddisk-1.0-exec.jar --file.rrootDir=/home/jmal/file/
+# file.rrootDir表示文件保存的目录
+```
+或者克隆下来自己编译
 ```bash
 git clone https://github.com/jamebal/jmal-cloud-server.git
-
-# 启动该java服务
 ```
 
-### 3.启动前端服务(开发模式)
+### 3. 启动前端服务(开发模式)
 
 ```bash
 git clone https://github.com/jamebal/jmal-cloud-view.git
@@ -35,15 +41,13 @@ npm run dev
 ```
 然后打开 http://localhost:9528
 
-### 4. 构建
+### 4. 生产构建
 ```bash
-# 为测试环境构建
-npm run build:stage
-
 # 为生产环境构建
 npm run build:prod
 ```
-构建后按照nginx配置即可
+将生成的dist目录配置到[nginx](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)中
+然后访问 http://localhost 即可
 
 ## 浏览器支持
 
