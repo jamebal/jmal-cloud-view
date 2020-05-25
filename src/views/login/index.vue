@@ -1,10 +1,10 @@
 <template>
   <div class="login-container">
-    <!--<div class="overlay1" :style="backgroundImg">-->
-    <!--</div>-->
-    <div class="stars">
 
-    </div>
+    <div id='stars'></div>
+    <div id='stars2'></div>
+    <div id='stars3'></div>
+
     <!--<img src="http://localhost:9528/file/public/s/preview/login-bg.png?fileIds=5eca6fe63c9ae7058035e99b">-->
     <el-card class="box-card">
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
@@ -293,6 +293,8 @@ $cursor: #409eff;
 </style>
 
 <style lang="scss" scoped>
+@import "src/styles/stars";
+
 $bg:#2d3a4b;
 $light_gray:#eee;
 
@@ -301,46 +303,6 @@ $light_gray:#eee;
   width: 100%;
   overflow: hidden;
   background: linear-gradient(#002766,30%, #0040f4);
-
-  /*/deep/.el-form-item__content {*/
-    /*line-height: 28px;*/
-  /*}*/
-
-  .overlay1 {
-    transform: rotate(360deg);
-    -ms-transform: rotate(360deg); /* IE 9 */
-    -webkit-transform: rotate(360deg); /* Safari and Chrome */
-    animation: first1 120s linear infinite;
-    -webkit-animation: first1 120s linear infinite;
-  }
-
-  @keyframes first1
-  {
-    0%   {
-      transform: rotate(0deg);
-      -ms-transform: rotate(0deg);
-      -webkit-transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-      -ms-transform: rotate(360deg);
-      -webkit-transform: rotate(360deg);
-    }
-  }
-  @-webkit-keyframes first1
-  {
-    0%   {
-      transform: rotate(0deg);
-      -ms-transform: rotate(0deg);
-      -webkit-transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-      -ms-transform: rotate(360deg);
-      -webkit-transform: rotate(360deg);
-    }
-  }
-
 
   .box-card {
     text-align: center;
@@ -403,4 +365,7 @@ $light_gray:#eee;
     user-select: none;
   }
 }
+
+
+
 </style>
