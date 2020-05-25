@@ -13,7 +13,7 @@
           <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
         </div>
     </div>
-    <div class="content">
+    <div class="content" @keydown="onKeyDown">
       <MonacoEditor
         width="900"
         height="640"
@@ -23,6 +23,7 @@
         original="..."
         :value="content"
         :options="options"
+        @change="change"
       ></MonacoEditor>
     </div>
   </el-dialog>
@@ -135,9 +136,8 @@
         this.isShowUpdateBtn = true
         this.newContent = code
       },
-      save(code,q) {
+      save() {
         if(this.isShowUpdateBtn){
-          this.newContent = code
           this.update()
         }
       },
@@ -161,7 +161,23 @@
       },
       changePreviewMode() {
         this.previewMode = !this.previewMode
-      }
+      },
+      onKeyDown(event) {
+        const isMac = navigator.platform.startsWith('Mac');
+        const {key, code, keyCode, ctrlKey, metaKey} = event;
+        const isCmd = isMac && metaKey || !isMac && ctrlKey;
+        if (!isCmd) {
+          return;
+        }
+        const isS = key === 's' || code === 'KeyS' || keyCode === 83;
+        if (isS && this.textPreviewVisible) {
+          if(this.newContent !== ''){
+            this.save()
+          }
+          event.stopPropagation();
+          event.preventDefault();
+        }
+      },
     }
   }
 </script>
