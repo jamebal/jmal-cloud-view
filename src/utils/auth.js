@@ -2,6 +2,19 @@ import Cookies from 'js-cookie'
 
 const TokenKey = 'jmal_token'
 const consumerId = 'consumerId'
+const rememberName = 'rememberName'
+
+export function getRememberName() {
+  return Cookies.get(rememberName)
+}
+
+export function setRememberName(username) {
+  return Cookies.set(rememberName, username)
+}
+
+export function removeRememberName() {
+  return Cookies.remove(rememberName)
+}
 
 export function getToken() {
   return Cookies.get(TokenKey)

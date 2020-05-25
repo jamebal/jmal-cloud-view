@@ -2,7 +2,7 @@
   <div class="dashboard-container" v-resize="containerResize">
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb" v-if="showNavigation">
-        <el-breadcrumb-item v-for="(item,index) in pathList" :key="index">
+        <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.folder+index">
           <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级" placement="top">
             <a @click.prevent="lastLink()"><svg-icon icon-class="back" style="font-size: 24px;"/>&nbsp;</a>
           </el-tooltip>

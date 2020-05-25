@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, getConsumerId, setConsumerId, removeToken, removeConsumerId } from '@/utils/auth'
+import { getToken, setToken, getConsumerId, setConsumerId, removeToken, removeConsumerId , setRememberName, removeRememberName } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -34,7 +34,7 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    const { username, password, rememberMe } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
@@ -42,6 +42,11 @@ const actions = {
         setToken(data.token)
         commit('SET_USERID', data.userId)
         setConsumerId(data.userId)
+        if(rememberMe){
+          setRememberName(username)
+        } else {
+          removeRememberName()
+        }
         resolve()
       }).catch(error => {
         reject(error)
