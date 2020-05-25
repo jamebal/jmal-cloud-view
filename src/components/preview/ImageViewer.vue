@@ -1,18 +1,17 @@
 <template>
 <div>
-    <viewer v-show="false" 
+    <viewer v-show="false"
       :options="options"
       :images="images"
       @inited="inited"
-      class="viewer" ref="viewer"      
+      class="viewer" ref="viewer"
     >
-      <template scope="scope">
-        <div v-for="src in scope.images"  :key="src">
+      <template scope="c">
+        <div v-for="src in c.images"  :key="src">
           <!-- <video v-if="src.contentType === 'video'" :src="src.url"> -->
           <!-- <video v-if="src.contentType === 'video'" controls="" name="media"><source :src="src.url" type="video/mp4"></video> -->
           <img :src="src">
         </div>
-        <!-- {{scope.options}} -->
       </template>
     </viewer>
     <!-- <button type="button" @click="show">Show</button> -->
@@ -46,7 +45,7 @@
       }
     },
     computed: {
-      
+
     },
     data(){
       return{
