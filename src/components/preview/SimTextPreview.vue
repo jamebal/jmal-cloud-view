@@ -14,32 +14,32 @@
         </div>
     </div>
     <div class="content">
-      <vue-code-mirror
+      <MonacoEditor
+        width="900"
+        height="640"
+        theme="vs"
+        :language="language"
+        :diffEditor="diffEditor"
+        original="..."
         :value="content"
         :options="options"
-        ref="myEditor"
-        @change="change"
-        @save="save"
-      >
-      </vue-code-mirror>
+      ></MonacoEditor>
     </div>
   </el-dialog>
 </template>
 <script>
 
-  import { modeInfo,lineWrapping } from '@/utils/file-type'
-
-  let CodeMirror = require('codemirror/lib/codemirror.js')
-
   import '@/utils/directives.js'
   import api from '@/api/file-api.js'
   import markdownApi from '@/api/markdown-api'
-  import VueCodeMirror from '@/components/VueCodemirror/VueCodeMirror'
+
+  import MonacoEditor from '../MonacoEditorVue'
+  import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
   export default {
     name: "SimTextPreview",
     components: {
-      VueCodeMirror,
+      MonacoEditor
     },
     props: {
       file: {
@@ -55,34 +55,13 @@
         }
       }
     },
-    computed: {
-      options: function () {
-        return {
-          mode: this.codeMode,// 代码高亮
-          smartIndent: true, // 智能缩进
-          indentUnit: 4, // 智能缩进单位为4个空格长度
-          indentWithTabs: true, // 使用制表符进行智能缩进
-          styleActiveLine: true, // 显示选中行的样式
-          lineNumbers: true, //显示行号
-          lineWrapping: this.lineWrapping, //代码换行显示
-          // foldGutter: true, // 启用行槽中的代码折叠
-          // // 在行槽中添加行号显示器、折叠器、语法检测器
-          // gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
-          lint: true,
-          readOnly: this.readOnly,
-          theme: 'darcula',
-          // theme: 'default',
-          fullScreen: false, // 全屏
-          matchBrackets: true, // 括号匹配
-          hintOptions: {
-            completeSingle: false
-          },
-          extraKeys: {'ctrl-space': 'autocomplete'}, //智能提示
-        }
-      }
-    },
     data(){
       return{
+        language: 'html',
+        options: {
+
+        },
+        diffEditor: false,
         textPreviewVisible: false,
         transformX: (document.body.clientWidth-900)/2,
         transformY: (document.body.clientHeight-640)/2,
@@ -106,24 +85,15 @@
           dangerouslyUseHTMLString: true,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
-
-        this.codeMode = 'text/javascript'
+        this.codeMode = 'javascript'
         let suffix = a.suffix
-        const modeIndex =  modeInfo.findIndex(item => item.ext && item.ext.includes(suffix))
-        if(modeIndex > -1){
-          const mode = modeInfo[modeIndex].mode
-          if(CodeMirror.modes.hasOwnProperty(mode)){
-            let mime = modeInfo[modeIndex].mime
-            if(!mime){
-              mime = modeInfo[modeIndex].mimes[0]
-            }
-            this.codeMode = mime
-          }else{
-            this.$message.warning("暂不支持的文件类型:",modeInfo[modeIndex].mime)
-          }
-        }
-        if(lineWrapping.includes(suffix)){
-          this.lineWrapping = true
+
+        let languages = monaco.languages.getLanguages();
+        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+suffix))
+        if(languagesIndex > -1){
+          const language = languages[languagesIndex].id
+          console.log(language)
+          this.language = language
         }
         api.previewText({
           id: a.id,

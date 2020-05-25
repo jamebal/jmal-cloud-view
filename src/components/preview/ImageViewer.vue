@@ -6,8 +6,8 @@
       @inited="inited"
       class="viewer" ref="viewer"
     >
-      <template scope="c">
-        <div v-for="src in c.images"  :key="src">
+      <template slot-scope="scope">
+        <div v-for="src in scope.images"  :key="src">
           <!-- <video v-if="src.contentType === 'video'" :src="src.url"> -->
           <!-- <video v-if="src.contentType === 'video'" controls="" name="media"><source :src="src.url" type="video/mp4"></video> -->
           <img :src="src">

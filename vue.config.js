@@ -16,7 +16,23 @@ const name = defaultSettings.title || 'jmalCloud' // page title
 const port = process.env.port || process.env.npm_config_port || 9528 // dev port
 
 //所有配置项说明均可在https://cli.vuejs.org/config/中找到
+
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+
+// let monacoLanguages = []
+// const modulesFiles = require.context("monaco-languages/release/dev/", true, /\.js$/)
+// modulesFiles.keys().reduce((modules, modulePath) => {
+//   const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, "$1");
+//   if(moduleName.indexOf('contribution') === -1){
+//     monacoLanguages.push(moduleName.replace(/([/][^/]+)$/, ""))
+//   }
+//   // const value = modulesFiles(modulePath);
+//   // modules[moduleName] = value.default;
+//   // return modules;
+// }, {});
+
 module.exports = {
+
 /**
   *如果您打算在子路径下部署网站，则需要设置publicPath，
   *例如GitHub Pages。如果您打算将网站部署到https://foo.github.io/bar/，
@@ -77,6 +93,13 @@ module.exports = {
   chainWebpack(config) {
     config.plugins.delete('preload') // TODO: need test
     config.plugins.delete('prefetch') // TODO: need test
+
+    config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
+      {
+        // Languages are loaded on demand at runtime
+        languages: ["abap", "apex", "azcli", "bat", "cameligo", "clojure", "coffee", "cpp", "csharp", "csp", "css", "dockerfile", "fsharp", "go", "graphql", "handlebars", "html", "ini", "java", "javascript", "kotlin", "less", "lua", "markdown", "mips", "msdax", "mysql", "objective-c", "pascal", "pascaligo", "perl", "pgsql", "php", "postiats", "powerquery", "powershell", "pug", "python", "r", "razor", "redis", "redshift", "restructuredtext", "ruby", "rust", "sb", "scheme", "scss", "shell", "solidity", "sophia", "sql", "st", "swift", "tcl", "twig", "typescript", "vb", "xml", "yaml"]
+      }
+    ])
 
     // set svg-sprite-loader
     config.module
