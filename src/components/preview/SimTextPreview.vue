@@ -58,25 +58,25 @@
     computed: {
       options: function () {
         return {
-          mode: this.codeMode,//代码高亮
+          mode: this.codeMode,// 代码高亮
           smartIndent: true, // 智能缩进
           indentUnit: 4, // 智能缩进单位为4个空格长度
           indentWithTabs: true, // 使用制表符进行智能缩进
           styleActiveLine: true, // 显示选中行的样式
           lineNumbers: true, //显示行号
-          lineWrapping: this.lineWrapping,//代码折叠
-          foldGutter: true, // 启用行槽中的代码折叠
-          // 在行槽中添加行号显示器、折叠器、语法检测器
-          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+          lineWrapping: this.lineWrapping, //代码换行显示
+          // foldGutter: true, // 启用行槽中的代码折叠
+          // // 在行槽中添加行号显示器、折叠器、语法检测器
+          // gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+          lint: true,
           readOnly: this.readOnly,
           theme: 'darcula',
           // theme: 'default',
           fullScreen: false, // 全屏
-          matchBrackets: true, //括号匹配
+          matchBrackets: true, // 括号匹配
           hintOptions: {
             completeSingle: false
           },
-          lint: true,
           extraKeys: {'ctrl-space': 'autocomplete'}, //智能提示
         }
       }
@@ -91,7 +91,7 @@
         codeMode: 'javascript',
         previewMode: true,
         lineWrapping: false,
-        readOnly: this.$store.state.user.token ? false : true,
+        readOnly: !this.$store.state.user.token,
         isShowUpdateBtn: false,
         updating: false,
         loading: {},

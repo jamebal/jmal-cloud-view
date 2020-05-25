@@ -80,12 +80,15 @@
   require('codemirror/addon/hint/xml-hint.js')
 
   // Crtl-F 搜索
-  import 'codemirror/addon/dialog/dialog';
-  import 'codemirror/addon/scroll/annotatescrollbar';
-  import 'codemirror/addon/search/matchesonscrollbar';
-  import 'codemirror/addon/search/jump-to-line';
-  import 'codemirror/addon/search/search';
-  import 'codemirror/addon/search/searchcursor';
+
+  import 'codemirror/addon/scroll/annotatescrollbar.js'
+  import 'codemirror/addon/search/matchesonscrollbar.js'
+  import 'codemirror/addon/search/match-highlighter.js'
+  import 'codemirror/addon/search/jump-to-line.js'
+  import 'codemirror/addon/dialog/dialog.js'
+  import 'codemirror/addon/dialog/dialog.css'
+  import 'codemirror/addon/search/searchcursor.js'
+  import 'codemirror/addon/search/search.js'
 
   let CodeMirror = require('codemirror/lib/codemirror.js')
   require('codemirror/lib/codemirror.css')
@@ -102,7 +105,11 @@
           return {
             mode: 'text/javascript',
             lineNumbers: true,
-            lineWrapping: true
+            lineWrapping: true,
+            // foldGutter: true, // 启用行槽中的代码折叠
+            // // 在行槽中添加行号显示器、折叠器、语法检测器
+            // gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+            // lint: true,
           }
         }
       },
@@ -113,26 +120,6 @@
         nowValue: ''
       }
     },
-    // ready: function () {
-    //   let that = this
-    //   this.editor = CodeMirror.fromTextArea(this.$el.querySelector('textarea'), this.options)
-    //   this.editor.setValue(this.value)
-    //   this.editor.on('change', function(cm) {
-    //     console.log('change')
-    //     if (that.skipNextChangeEvent) {
-    //       that.skipNextChangeEvent = false
-    //       return
-    //     }
-    //     that.nowValue = cm.getValue()
-    //     if (!!that.$emit) {
-    //       that.$emit('change', cm.getValue())
-    //     }
-    //   })
-    //   this.editor.on("cursorActivity", () => {
-    //     console.log('cursorActivity')
-    //     this.editor.showHint();
-    //   });
-    // },
     beforeMount(){
       this.onKeyDown = this.onKeyDown.bind(this);
       document.addEventListener('keydown', this.onKeyDown);
@@ -153,13 +140,10 @@
         }
       })
 
-      this.editor.on("cursorActivity", () => {
-        console.log('cursorActivity')
-        // this.editor.showHint();
-      });
+      console.log(this.editor)
 
       this.$nextTick(()=>{
-        this.editor.clearHistory();
+        this.editor.clearHistory()
       })
     },
     watch: {
@@ -173,7 +157,7 @@
           this.editor.scrollTo(0, 0)
           // this.editor.scrollTo(scrollInfo.left, scrollInfo.top)
         }
-        this.editor.clearHistory();
+        this.editor.clearHistory()
       },
       'options': function (newOptions, oldVal) {
         if (typeof newOptions === 'object') {
@@ -199,11 +183,6 @@
             this.$emit('save', this.nowValue)
           }
           event.stopPropagation();
-          event.preventDefault();
-        }
-        const isF = key === 'f' || code === 'KeyF' || keyCode === 70;
-        if (isF && this.editor) {
-          this.editor.execCommand('find');
           event.preventDefault();
         }
       },

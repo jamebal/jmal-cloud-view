@@ -1,3 +1,6 @@
+push.sh
+update.sh
+dist.tar
 .DS_Store
 node_modules/
 dist/
