@@ -16,7 +16,7 @@ nginx配置 [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/maste
 
 ### 2.运行web服务器 [jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server)
 
-下载 [clouddisk-1.0-exec.jar](https://github.com/jamebal/jmal-cloud-server/releases/download/1.0/clouddisk-1.0-exec.jar)
+下载最新的 [clouddisk-x.x.x-exec.jar](https://github.com/jamebal/jmal-cloud-server/releases)
 
 启动(需要提前安装jdk环境)
 ```bash
