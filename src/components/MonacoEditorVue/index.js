@@ -1,7 +1,5 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
-require('monaco-languages/release/min/java/java.js')
-
 function noop() { }
 
 export { monaco };
@@ -91,6 +89,7 @@ export default {
       });
       this.diffEditor && this._setModel(this.value, this.original);
       this._editorMounted(this.editor);      //编辑器初始化后
+      console.log(this.editor.getOptions())
     },
 
     _getEditor() {

@@ -97,7 +97,15 @@ module.exports = {
     config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
       {
         // Languages are loaded on demand at runtime
-        languages: ["abap", "apex", "azcli", "bat", "cameligo", "clojure", "coffee", "cpp", "csharp", "csp", "css", "dockerfile", "fsharp", "go", "graphql", "handlebars", "html", "ini", "java", "javascript", "kotlin", "less", "lua", "markdown", "mips", "msdax", "mysql", "objective-c", "pascal", "pascaligo", "perl", "pgsql", "php", "postiats", "powerquery", "powershell", "pug", "python", "r", "razor", "redis", "redshift", "restructuredtext", "ruby", "rust", "sb", "scheme", "scss", "shell", "solidity", "sophia", "sql", "st", "swift", "tcl", "twig", "typescript", "vb", "xml", "yaml"]
+        languages: [
+          "json","abap", "apex", "azcli", "bat", "cameligo","clojure", "coffee", "cpp", "yaml",
+          "csharp", "csp", "css","dockerfile", "fsharp", "go", "graphql", "handlebars","html", "ini",
+          "java", "javascript", "kotlin", "less","lua", "markdown", "mips", "msdax", "mysql", "objective-c",
+          "pascal", "pascaligo", "perl", "pgsql", "php", "postiats","powerquery", "powershell", "pug", "python",
+          "r", "razor","redis", "redshift", "restructuredtext", "ruby", "rust","sb", "scheme", "scss",
+          "shell", "solidity", "sophia", "sql","st", "swift", "tcl", "twig", "typescript", "vb",
+          "xml",
+        ]
       }
     ])
 

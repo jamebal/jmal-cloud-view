@@ -14,10 +14,13 @@
         </div>
     </div>
     <div class="content" @keydown="onKeyDown">
+      <div class="editor_main_storey"></div>
       <MonacoEditor
+        v-if="textPreviewVisible"
+        ref="monacoEditor"
         width="900"
         height="640"
-        theme="vs"
+        theme="vs-dark"
         :language="language"
         :diffEditor="diffEditor"
         original="..."
@@ -33,6 +36,8 @@
   import '@/utils/directives.js'
   import api from '@/api/file-api.js'
   import markdownApi from '@/api/markdown-api'
+
+  import { lineWrapping } from '@/utils/file-type'
 
   import MonacoEditor from '../MonacoEditorVue'
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
@@ -58,9 +63,17 @@
     },
     data(){
       return{
-        language: 'html',
+        defalutLanguage: 'redis',
+        language: this.defalutLanguage,
+        lineWrapping: false,
         options: {
-
+          fontSize: 14,
+          contextmenu: true,
+          readOnly: !this.$store.state.user.token,
+          // 换行
+          wordWrap: this.lineWrapping ? 'wordWrapColumn':'',
+          wordWrapMinified: true,
+          wrappingIndent: "indent"
         },
         diffEditor: false,
         textPreviewVisible: false,
@@ -68,10 +81,7 @@
         transformY: (document.body.clientHeight-640)/2,
         content: '',
         newContent: '',
-        codeMode: 'javascript',
         previewMode: true,
-        lineWrapping: false,
-        readOnly: !this.$store.state.user.token,
         isShowUpdateBtn: false,
         updating: false,
         loading: {},
@@ -86,15 +96,20 @@
           dangerouslyUseHTMLString: true,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
-        this.codeMode = 'javascript'
         let suffix = a.suffix
 
         let languages = monaco.languages.getLanguages();
         const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+suffix))
         if(languagesIndex > -1){
-          const language = languages[languagesIndex].id
-          console.log(language)
-          this.language = language
+          this.language = languages[languagesIndex].id
+        }else{
+          this.language = this.defalutLanguage
+        }
+        if(lineWrapping.includes(suffix)) {
+          this.options.wordWrap = 'wordWrapColumn'
+          this.lineWrapping = true
+        }else{
+          this.options.wordWrap = ''
         }
         api.previewText({
           id: a.id,
@@ -128,13 +143,16 @@
           done()
         }
       },
-      closeDialog(done) {
+      closeDialog() {
         this.$emit('update:status', this.textPreviewVisible)
         this.isShowUpdateBtn = false
       },
       change(code) {
         this.isShowUpdateBtn = true
         this.newContent = code
+        if(code === this.content){
+          this.isShowUpdateBtn = false
+        }
       },
       save() {
         if(this.isShowUpdateBtn){
@@ -190,8 +208,23 @@
       /*height: 600px;*/
       /*overflow: scroll;*/
     /*}*/
+
+    /deep/.content {
+      border-top: unset!important;
+      .editor_main_storey {
+        display: inline-block;
+        position: absolute;
+        z-index: 999;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0));
+      }
+    }
+
     .el-dialog__header {
       padding: 5px 20px 5px;
+      background-color: #292929;
+      color: #fff;
       .el-dialog__headerbtn {
         top: 16px;
         right: 16px;
@@ -212,6 +245,7 @@
     }
     .el-dialog__body {
       padding: 0;
+      word-break: normal;
     }
     .content {
       border-top: 1px solid #ccc;
