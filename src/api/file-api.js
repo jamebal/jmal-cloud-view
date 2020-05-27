@@ -180,10 +180,18 @@ export default {
       params
     })
   },
-  // 访问分享链接里的文件夹
+  // 预览文本文件
   previewText: function(params) {
     return request({
       url: '/preview/text',
+      method: 'get',
+      params
+    })
+  },
+  // 访问分享的文本文件
+  sharePreviewText: function(params) {
+    return request({
+      url: '/public/s/preview/text',
       method: 'get',
       params
     })

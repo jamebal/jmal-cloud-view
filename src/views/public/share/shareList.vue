@@ -126,9 +126,9 @@
         </el-table-column>
 
         <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />
-          </template>
+          <!--<template slot-scope="scope">-->
+            <!--<svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />-->
+          <!--</template>-->
         </el-table-column>
 
         <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
@@ -211,6 +211,11 @@
       <p v-if="prompt !== ''">温馨提示：</p>
       <p>{{prompt}}</p>
     </div>
+
+    <sim-text-preview :file="textPreviewRow" :shareId="shareId" :status.sync="textPreviewVisible"></sim-text-preview>
+    <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
+    <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
+
     <el-pagination
       background
       layout="prev, pager, next"
@@ -239,8 +244,16 @@
   import IconFile from "@/components/Icon/IconFile";
   import AlLoading from "@/components/loading/AlLoading";
 
+  import { suffix } from '@/utils/file-type'
+
+  import SimTextPreview from "@/components/preview/SimTextPreview";
+  import ImageViewer from "@/components/preview/ImageViewer";
+  import VideoPreview from "@/components/preview/VideoPreview";
+  import AudioPreview from "@/components/preview/AudioPreview";
+
   export default {
-    components: { IconFile, BreadcrumbFilePath,AlLoading
+    components: { IconFile, BreadcrumbFilePath,AlLoading,
+      AudioPreview, VideoPreview, ImageViewer, SimTextPreview
     },
     data() {
       return {
@@ -340,7 +353,15 @@
         generateShareLinkLoading: true,
         shareId: this.$route.query.s,
         currentDirName: '',
-        linkFailed: true
+        linkFailed: true,
+        textPreviewVisible : false,
+        textPreviewRow: {},
+        imagePreviewRow: {},
+        imagePreviewVisible : false,
+        videoPreviewRow: {},
+        videoPreviewVisible: false,
+        audioPreviewRow: {},
+        audioPreviewVisible: false,
       }
     },
     computed: {
@@ -865,6 +886,32 @@
           this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
           this.accessShareOpenDir(row.id)
         } else {
+          if(row.contentType.indexOf('image') > -1){
+            // 图片
+            this.imagePreviewVisible = true
+            this.imagePreviewRow = row
+            return
+          }
+          if(suffix.simText.includes(row.suffix)){
+            // 文本文件
+            this.textPreviewRow = row
+            this.textPreviewVisible = true
+            return
+          }
+          if(row.contentType.indexOf('video') > -1){
+            // 视频文件
+            this.videoPreviewVisible = true
+            this.videoPreviewRow = row
+            return
+          }
+          if(row.contentType.indexOf('audio') > -1){
+            // 音频文件
+            // this.audioPreviewVisible = true
+            // this.audioPreviewRow = row
+            Bus.$emit('onAddAudio',row, this.audioCoverUrl)
+            return
+          }
+
           // 打开文件
           const fileIds = [row.id]
           const url = process.env.VUE_APP_BASE_FILE_API + '/public/s/preview/' + row.name + '?fileIds=' + fileIds

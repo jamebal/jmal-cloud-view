@@ -62,6 +62,10 @@
           return {}
         }
       },
+      shareId: {
+        type: String,
+        default: undefined
+      },
       status: {
         type: Boolean,
         default: function () {
@@ -126,7 +130,7 @@
       }
     },
     watch: { //监听file的变化，进行相应的操作即可
-      file: function (a) {
+      file: function (file) {
         this.editorWidth = document.body.clientWidth * this.dialogWidth
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
 
@@ -137,7 +141,7 @@
           dangerouslyUseHTMLString: true,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
-        let suffix = a.suffix
+        let suffix = file.suffix
 
         let languages = monaco.languages.getLanguages();
         const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+suffix))
@@ -152,8 +156,14 @@
         }else{
           this.options.wordWrap = ''
         }
-        api.previewText({
-          id: a.id,
+        let request = 'previewText'
+        if(this.shareId){
+          request = 'sharePreviewText'
+        }
+        api[request]({
+          shareId: this.shareId,
+          fileId: file.id,
+          id: file.id,
           username: this.$store.state.user.name
         }).then((res)=>{
             this.loading.close()

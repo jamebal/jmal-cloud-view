@@ -31,6 +31,10 @@
           return {}
         }
       },
+      shareId: {
+        type: String,
+        default: undefined
+      },
       fileList: {
         type: Array,
         default: function () {
@@ -54,32 +58,23 @@
         options: {
           initialViewIndex: 3,
           ready: function (e) {
-            console.log(e.type);
           },
           show: function (e) {
-            console.log(e.type);
           },
           shown: function (e) {
-            console.log(e.type);
           },
           hide: function (e) {
-            console.log(e.type);
           },
           hidden: function (e) {
-            console.log(e.type);
             Bus.$emit('updateImageViewerStatus',false)
           },
           view: function (e) {
-            console.log(e.type);
           },
           viewed: function (e) {
-            console.log(e.type);
           },
           zoom: function (e) {
-            console.log(e.type);
           },
           zoomed: function (e) {
-            console.log(e.type);
           }
         },
       }
@@ -91,7 +86,10 @@
           let viewIndex = 0
           this.fileList.forEach(element => {
             if(!element.isFolder && element.contentType.indexOf('image') > -1){
-              const url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + element.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + element.id
+              let url = `${process.env.VUE_APP_BASE_FILE_API}preview/${element.name}?jmal-token=${this.$store.state.user.token}&fileIds=${element.id}`
+              if(this.shareId){
+                url = `${process.env.VUE_APP_BASE_FILE_API}/public/s/preview/${element.name}?fileIds=${element.id}`
+              }
               this.images.push(url)
               if(this.file.id === element.id){
                 viewIndex = this.images.length-1

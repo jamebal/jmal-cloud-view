@@ -48,7 +48,11 @@ export default {
       pic.addEventListener('click', this.onPicClick);
       Bus.$on('onAddAudio',(newFile,audioCoverUrl) => {
         this.show = true
-        let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + newFile.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + newFile.id
+        let url = `${process.env.VUE_APP_BASE_FILE_API}preview/${newFile.name}?jmal-token=${this.$store.state.user.token}&fileIds=${newFile.id}`
+        if(!this.$store.state.user.token){
+          url = `${process.env.VUE_APP_BASE_FILE_API}/public/s/preview/${newFile.name}?fileIds=${newFile.id}`
+        }
+        // let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + newFile.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + newFile.id
         let music = newFile.music
         let fileName = newFile.name.substring(0,newFile.name.length - newFile.suffix.length-1)
         let musicOperation = {
