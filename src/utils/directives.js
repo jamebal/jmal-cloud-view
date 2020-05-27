@@ -134,7 +134,10 @@ Vue.directive('dialogDrag', {
     // 获取拖拽内容头部
     const dialogHeaderEl = el.querySelector('.el-dialog__header');
     const dragDom = el.querySelector('.el-dialog');
-    dragDom.style.transform="translate("+binding.value.x+"px,"+binding.value.y+"px)";
+    let dialogWidth = document.body.clientWidth * binding.value.dialogWidth;
+    let x = (document.body.clientWidth - dialogWidth)/2
+    let y = (document.body.clientHeight - document.body.clientHeight * binding.value.dialogWidth)/2
+    dragDom.style.transform="translate("+x+"px,"+y+"px)";
     dialogHeaderEl.style.cursor = 'move';
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null);
     const sty = dragDom.currentStyle || window.getComputedStyle(dragDom, null);
@@ -147,11 +150,11 @@ Vue.directive('dialogDrag', {
       let styL, styT;
       // 注意在ie中 第一次获取到的值为组件自带50% 移动之后赋值为px
       if (sty.left.includes('%')) {
-        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100)+binding.value.x;
-        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100)+binding.value.y;
+        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100)+x;
+        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100)+y;
       } else {
-        styL = +sty.left.replace(/\px/g, '')+binding.value.x;
-        styT = +sty.top.replace(/\px/g, '')+binding.value.y;
+        styL = +sty.left.replace(/\px/g, '')+x;
+        styT = +sty.top.replace(/\px/g, '')+y;
       };
       // 鼠标拖拽事件
       document.onmousemove = function (e) {
@@ -172,8 +175,8 @@ Vue.directive('dialogDrag', {
         } else if (finallyT > dragDom.offsetParent.clientHeight - dragDom.clientHeight) (///底部
           finallyT = dragDom.offsetParent.clientHeight - dragDom.clientHeight
         )
-        binding.value.x=finallyL;
-        binding.value.y=finallyT;
+        x=finallyL;
+        y=finallyT;
         dragDom.style.transform="translate("+finallyL+"px,"+finallyT+"px)";
         //将此时的位置传出去
         //binding.value({x:e.pageX,y:e.pageY})

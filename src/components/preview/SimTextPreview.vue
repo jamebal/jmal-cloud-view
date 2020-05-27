@@ -1,26 +1,34 @@
 <template>
   <el-dialog v-bind="$attrs" v-on="$listeners"
+             :fullscreen="fullscreen"
              :visible.sync="textPreviewVisible"
              :title="file.name"
              :close-on-click-modal="false"
              @close="closeDialog"
              :before-close="handleClose"
-             v-dialogDrag="{ x: transformX, y: transformY }">
-    <div slot="title" class="header-title">
-          <span class="title-name">{{file.name}}</span>
-        <div class="title-extension">
-          <el-button v-if="isShowUpdateBtn" @click="update" :loading="updating">Ctrl-S 保存</el-button>
-          <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
-        </div>
-    </div>
+             :width="dialogWidth*100+'%'"
+             v-resize="containerResize"
+             class="simtext-dialog"
+             v-dialogDrag="{ dialogWidth: dialogWidth}">
+      <div slot="title" class="simtext-header-title">
+            <span class="title-name">{{file.name}}</span>
+          <div class="title-extension">
+            <el-button v-if="isShowUpdateBtn" @click="update" :class="lightTheme?'':'dark-button'" :loading="updating">Ctrl-S 保存</el-button>
+            <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
+            <el-button @click="skinning" :class="lightTheme?'':'dark-button'">{{lightTheme?'暗色':'亮色'}}</el-button>
+            <button class="title-extension-button" @click="fullScreen">
+              <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
+            </button>
+          </div>
+      </div>
     <div class="content" @keydown="onKeyDown">
       <div class="editor_main_storey"></div>
       <MonacoEditor
         v-if="textPreviewVisible"
         ref="monacoEditor"
-        width="900"
-        height="640"
-        theme="vs-dark"
+        :width="editorWidth"
+        :height="editorHieght"
+        :theme="lightTheme?'vs':'vs-dark'"
         :language="language"
         :diffEditor="diffEditor"
         original="..."
@@ -63,6 +71,7 @@
     },
     data(){
       return{
+        lightTheme: false,
         defalutLanguage: 'redis',
         language: this.defalutLanguage,
         lineWrapping: false,
@@ -77,18 +86,50 @@
         },
         diffEditor: false,
         textPreviewVisible: false,
-        transformX: (document.body.clientWidth-900)/2,
-        transformY: (document.body.clientHeight-640)/2,
+        fullscreen: false,
+        dialogWidth: 0.7,
+        editorWidth: 1035,
+        editorHieght: 640,
         content: '',
         newContent: '',
         previewMode: true,
         isShowUpdateBtn: false,
         updating: false,
         loading: {},
+        darkButton: {
+          background: '#565656!important',
+          border: '1px solid #565656!important',
+          color: '#ffffff!important'
+        }
+      }
+    },
+    mounted() {
+      this.setTheme()
+    },
+    directives: {
+      resize: { // 指令的名称
+        bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
+          let width = '', height = '';
+          function isReize() {
+            const style = document.defaultView.getComputedStyle(el);
+            if (width !== style.width || height !== style.height) {
+              binding.value();  // 关键
+            }
+            width = style.width;
+            height = style.height;
+          }
+          el.__vueSetInterval__ = setInterval(isReize, 0);
+        },
+        unbind(el) {
+          clearInterval(el.__vueSetInterval__);
+        }
       }
     },
     watch: { //监听file的变化，进行相应的操作即可
       file: function (a) {
+        this.editorWidth = document.body.clientWidth * this.dialogWidth
+        this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
+
         this.loading = this.$message({
           iconClass: 'el-icon-loading',
           type: 'info',
@@ -129,6 +170,10 @@
       }
     },
     methods:{
+      containerResize() {
+        this.editorWidth = document.body.clientWidth * this.dialogWidth
+        this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
+      },
       handleClose(done) {
         if(this.isShowUpdateBtn){
           this.$confirm('是否保存修改？')
@@ -170,12 +215,45 @@
           }).then(() => {
             this.updating = false
             this.isShowUpdateBtn = false
+            this.content = this.newContent
             this.$message({
               message: "更新成功",
               type: 'success',
               duration : 1000
             });
           })
+      },
+      // 全屏
+      fullScreen() {
+        this.fullscreen = !this.fullscreen
+
+        const dragDom = document.querySelector('.simtext-dialog .el-dialog');
+        if(this.fullscreen){
+          this.dialogWidth = 1
+          dragDom.style.transform="translate("+0+"px,"+0+"px)";
+        }else{
+          this.dialogWidth = 0.7
+          let dialogWidth = document.body.clientWidth * this.dialogWidth;
+          let x = (document.body.clientWidth - dialogWidth)/2
+          let y = (document.body.clientHeight - document.body.clientHeight * this.dialogWidth)/2
+          dragDom.style.transform="translate("+x+"px,"+y+"px)";
+        }
+        this.containerResize()
+      },
+      // 换肤
+      skinning() {
+        this.lightTheme = !this.lightTheme
+        this.setTheme()
+      },
+      setTheme(){
+        let header = document.querySelector('.simtext-dialog .el-dialog__header')
+        if(this.lightTheme){
+          header.style.background = '#FFF'
+          header.style.color = '#181818'
+        }else{
+          header.style.background = '#292929'
+          header.style.color = '#fff'
+        }
       },
       changePreviewMode() {
         this.previewMode = !this.previewMode
@@ -201,9 +279,12 @@
 </script>
 <style lang="scss" scoped>
   @import "src/styles/markdown";
+
+
   /deep/.el-dialog {
-    width: 900px;
+    /*width: 1035px;*/
     margin: 0 !important;
+    overflow: hidden;
     /*.content {*/
       /*height: 600px;*/
       /*overflow: scroll;*/
@@ -211,6 +292,7 @@
 
     /deep/.content {
       border-top: unset!important;
+      background-color: #1e1e1e;
       .editor_main_storey {
         display: inline-block;
         position: absolute;
@@ -223,11 +305,42 @@
 
     .el-dialog__header {
       padding: 5px 20px 5px;
-      background-color: #292929;
-      color: #fff;
+      /*background-color: #292929;*/
+      /*color: #fff;*/
+
+      /*.svg-icon {*/
+        /*font-size: 20px;*/
+        /*margin-top: 10px;*/
+        /*margin-left: 20px;*/
+        /*margin-right: 5px;*/
+      /*}*/
+
+      .dark-button {
+        background: #565656;
+        border: 1px solid #565656;
+        color: #ffffff;
+      }
+      .el-button:focus{
+        background: #FFF;
+        border: 1px solid #DCDFE6;
+        color: #606266;
+      }
+      .dark-button:focus{
+        background: #565656;
+        border: 1px solid #565656;
+        color: #ffffff;
+      }
+      .dark-button:hover {
+        color: #409EFF;
+        background-color: #1e1e1e;
+      }
+
       .el-dialog__headerbtn {
-        top: 16px;
+        top: 12px;
         right: 16px;
+        .el-dialog__close {
+          font-size: 26px;
+        }
       }
       .title-name {
         line-height: 40px;
@@ -241,6 +354,23 @@
         -webkit-box-pack: end;
         -ms-flex-pack: end;
         justify-content: flex-end;
+
+        .title-extension-button {
+          padding: 5px;
+          margin-left: 15px;
+          background: 0 0;
+          border: none;
+          outline: 0;
+          cursor: pointer;
+          color: #909399;
+          .svg-icon {
+            font-size: 18px;
+          }
+          .svg-icon:hover {
+            color: #409EFF;
+          }
+        }
+
       }
     }
     .el-dialog__body {
@@ -251,8 +381,6 @@
       border-top: 1px solid #ccc;
     }
   }
-  /deep/.CodeMirror {
-    height: 640px;
-  }
+
 
 </style>

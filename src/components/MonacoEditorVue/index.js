@@ -8,8 +8,10 @@ export default {
   name: 'MonacoEditor',
   props: {
     diffEditor: { type: Boolean, default: false },      //是否使用diff模式
-    width: {type: [String, Number], default: '100%'},
-    height: {type: [String, Number], default: '100%'},
+    // width: {type: [String, Number], default: '100%'},
+    // height: {type: [String, Number], default: '100%'},
+    width: Number,
+    height: Number,
     original: String,       //只有在diff模式下有效
     value: String,
     language: {type: String, default: 'javascript'},
@@ -57,8 +59,8 @@ export default {
   computed: {
     style() {
       return {
-        width: !/^\d+$/.test(this.width) ? this.width : `${this.width}px`,
-        height: !/^\d+$/.test(this.height) ? this.height : `${this.height}px`
+        width: `${this.width}px`,
+        height: `${this.height}px`
       }
     }
   },
@@ -89,7 +91,6 @@ export default {
       });
       this.diffEditor && this._setModel(this.value, this.original);
       this._editorMounted(this.editor);      //编辑器初始化后
-      console.log(this.editor.getOptions())
     },
 
     _getEditor() {
