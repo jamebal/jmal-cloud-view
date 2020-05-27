@@ -28,8 +28,9 @@ java -jar clouddisk-1.0-exec.jar --file.rrootDir=/home/jmal/file/
 git clone https://github.com/jamebal/jmal-cloud-server.git
 ```
 
-### 3. 启动前端服务(开发模式)
+### 3. 配置前端界面
 
+#### 开发模式
 ```bash
 git clone https://github.com/jamebal/jmal-cloud-view.git
 
@@ -41,12 +42,16 @@ npm run dev
 ```
 然后打开 http://localhost:9528
 
-### 4. 生产构建
+#### 或者构建
 ```bash
 # 为生产环境构建
 npm run build:prod
 ```
+
 将生成的dist目录配置到[nginx](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)中
+
+也可在[这里](https://github.com/jamebal/jmal-cloud-server/releases)下载最新的 dist目录
+
 然后访问 http://localhost 即可
 
 ## 浏览器支持
