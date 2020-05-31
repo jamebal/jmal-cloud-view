@@ -107,6 +107,14 @@ export default {
       params
     })
   },
+  // 查找下级目录
+  listfiles: function(params) {
+    return request({
+      url: 'listfiles',
+      method: 'get',
+      params
+    })
+  },
   // 移动文件/文件夹
   move: function(params) {
     return request({
@@ -180,6 +188,14 @@ export default {
       params
     })
   },
+  // 通过filepath预览文本文件
+  previewTextByPath: function(params) {
+    return request({
+      url: '/preview/path/text',
+      method: 'get',
+      params
+    })
+  },
   // 预览文本文件
   previewText: function(params) {
     return request({
@@ -192,6 +208,14 @@ export default {
   sharePreviewText: function(params) {
     return request({
       url: '/public/s/preview/text',
+      method: 'get',
+      params
+    })
+  },
+  // 解压文件
+  unzip: function(params) {
+    return request({
+      url: '/unzip',
       method: 'get',
       params
     })

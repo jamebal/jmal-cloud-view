@@ -6,7 +6,10 @@ export const suffix = {
     'xml','xsl','iml','m','bas','prg','cmd',
     'sass','sas','php','lst','key','pem','log',
     'cmake','db','gradle','bat'
-  ]
+  ],
+  compressedFile: [
+    'zip'
+  ],
 }
 
 monaco.languages.getLanguages().forEach(language => {

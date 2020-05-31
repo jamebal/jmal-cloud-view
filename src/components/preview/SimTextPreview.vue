@@ -66,6 +66,10 @@
         type: String,
         default: undefined
       },
+      filepath: {
+        type: String,
+        default: undefined
+      },
       status: {
         type: Boolean,
         default: function () {
@@ -160,15 +164,20 @@
         if(this.shareId){
           request = 'sharePreviewText'
         }
+        if(this.filepath){
+          request = 'previewTextByPath'
+          this.options.readOnly = true
+        }
         api[request]({
           shareId: this.shareId,
           fileId: file.id,
           id: file.id,
+          path: this.filepath,
           username: this.$store.state.user.name
         }).then((res)=>{
-            this.loading.close()
-            this.textPreviewVisible = true
-            this.content = res.data.contentText
+          this.loading.close()
+          this.textPreviewVisible = true
+          this.content = res.data.contentText
         }).catch(() => {
           this.loading.close()
         })
@@ -256,7 +265,7 @@
         this.setTheme()
       },
       setTheme(){
-        let header = document.querySelector('.simtext-dialog .el-dialog__header')
+        let header = document.querySelector('.simtext-dialog .el-dialog .el-dialog__header')
         if(this.lightTheme){
           header.style.background = '#FFF'
           header.style.color = '#181818'
@@ -289,7 +298,6 @@
 </script>
 <style lang="scss" scoped>
   @import "src/styles/markdown";
-
 
   /deep/.el-dialog {
     /*width: 1035px;*/

@@ -102,6 +102,37 @@
       </ul>
     </e-vue-contextmenu>
 
+    <el-dialog
+      class="open-file-dialog"
+      title="提示"
+      top="35vh"
+      :visible.sync="openCompressionVisible">
+      <svg-icon icon-class="open-folder"></svg-icon> <span class="dialog-msg">查看压缩文件</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" >解压到...</el-button>
+      <el-button size="small" @click="unzip(openingFile,openingFile.id,false)">解压到当前目录</el-button>
+      <el-button size="small" type="primary" @click=compressionFilePreview(openingFile)>预览</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      class="open-file-dialog"
+      title="提示"
+      top="35vh"
+      :visible.sync="notPreviewDialogVisible">
+      <svg-icon icon-class="warring"></svg-icon> <span class="dialog-msg">此文件不支持预览, 是否下载该文件?</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="forciblyOpen(openingFile)">强行使用文本编辑器打开</el-button>
+      <el-button size="small" @click="notPreviewDialogVisible = false">取 消</el-button>
+      <el-button size="small" type="primary" @click=determineDownload(openingFile)>确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!--展示压缩文件-->
+    <el-dialog class="compressed-file-dialog" :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
+      <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
+    </el-dialog>
+
     <!--移动或复制弹出框-->
     <el-dialog
       :title="'移动或复制到'+selectTreeNode.showName"
@@ -404,6 +435,9 @@
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
   import ButtonUpload from "@/components/button/ButtonUpload";
+
+  import FileTree from"@/components/FileTree"
+
   import '@/utils/directives.js'
 
   import 'pl-table/themes/index.css';
@@ -415,7 +449,8 @@
     components: {AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
       PlTable,
       PlTableColumn,
-      ButtonUpload
+      ButtonUpload,
+      FileTree
     },
     props: {
       isCollectView: {
@@ -579,7 +614,10 @@
         cellMouseIndex: -1,
         editingIndex: -1,
         dialogMoveOrCopyVisible: false,
+        compressedFileVisible: false,
         directoryTreeData: [],
+        compressedFileData: [],
+        compressedFileName: '',
         selectTreeNode: {},
         directoryTreeProps: {
           label: 'name',
@@ -618,6 +656,10 @@
         dragElementList: [],
         drawFlag: false,
         fileListScrollTop: 0,
+        notPreviewDialogVisible: false,
+        openingFile: '',
+        openCompressionVisible: false,
+        compressedFileTempDir: false,
       }
     },
     computed: {
@@ -2356,8 +2398,43 @@
           }
         },300)
       },
+      // 预览压缩文件
+      compressionFilePreview(file){
+        this.unzip(file,undefined,true)
+      },
+      // 解压文件
+      unzip(file, destFileId, tempDir) {
+        let status = '解压'
+        let decompressing = this.$message({
+          iconClass: 'el-icon-loading',
+          type: 'info',
+          duration: 0,
+          dangerouslyUseHTMLString: true,
+          message: '<span>&nbsp;&nbsp;正在'+status+'</span>'
+        });
+        api.unzip({
+          fileId: file.id,
+          destFileId: destFileId
+        }).then((res) => {
+          decompressing.iconClass = null
+          decompressing.type = 'success'
+          decompressing.message = status+'成功'
+
+          this.compressedFileData = res.data
+          this.compressedFileVisible = true
+          this.compressedFileName = file.name
+          this.compressedFileTempDir = tempDir
+
+          setTimeout(function () {
+            decompressing.close()
+          },1000)
+        }).catch(() => {
+          decompressing.close()
+        })
+      },
       // 点击文件或文件夹
       fileClick(row) {
+        this.openingFile = row
         if (row.isFolder) {
           this.editingIndex = -1
           // 打开文件夹
@@ -2415,19 +2492,46 @@
             this.$router.push(`/public/articles/article?mark=${row.id}`)
             return
           }
+          if(suffix.compressedFile.includes(row.suffix)){
+            // this.unzip(row)
+            this.openCompressionVisible = true
+            return
+          }
           // 打开文件
           let fileIds = [row.id]
 
-          this.$confirm('此文件不支持预览, 是否下载该文件?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-            window.open(url, '_self')
-          })
+          this.notPreviewDialogVisible = true
+
+          // this.$confirm('此文件不支持预览, 是否下载该文件?', '提示', {
+          //   confirmButtonText: '确定',
+          //   cancelButtonText: '强行使用文本编辑器打开',
+          //   type: 'warning',
+          //   distinguishCancelAndClose: true
+          // }).then(() => {
+          //   let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
+          //   window.open(url, '_self')
+          // }).catch(() => {
+          //   this.textPreviewRow = row
+          //   this.textPreviewVisible = true
+          // })
         }
-      }
+      },
+      // 强行使用文本编辑器打开
+      forciblyOpen(file) {
+        this.textPreviewRow = file
+        this.textPreviewVisible = true
+        const that = this
+        setTimeout(function () {
+          that.notPreviewDialogVisible = false
+        },100)
+      },
+      determineDownload(file) {
+        this.downLaod(file)
+        this.notPreviewDialogVisible = false
+      },
+      downLaod(file){
+        window.open(`${process.env.VUE_APP_BASE_FILE_API}preview/${file.name}?jmal-token=${this.$store.state.user.token}&fileIds=${file.id}`, '_self')
+      },
     }
   }
 </script>
@@ -2517,6 +2621,17 @@
   }
   /deep/.el-input-tree-button {
     margin-left: 5px!important;
+  }
+  /deep/.open-file-dialog {
+    .el-dialog {
+      width: 400px;
+    }
+    .svg-icon {
+      font-size: 20px;
+    }
+    .dialog-msg {
+      margin-left: 10px;
+    }
   }
 </style>
 
