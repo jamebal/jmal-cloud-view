@@ -22,38 +22,45 @@
           </div>
       </div>
     <div class="content" @keydown="onKeyDown">
-      <div class="editor_main_storey"></div>
-      <MonacoEditor
-        v-if="textPreviewVisible"
-        ref="monacoEditor"
-        :width="editorWidth"
-        :height="editorHieght"
-        :theme="lightTheme?'vs':'vs-dark'"
-        :language="language"
-        :diffEditor="diffEditor"
-        original="..."
-        :value="content"
-        :options="options"
-        @change="change"
-      ></MonacoEditor>
+      <div class="file-contents">
+        <file-tree :directoryTreeData="directoryTreeData" :localFileMode="true" @treeNodeClick="treeNodeClick"></file-tree>
+      </div>
+      <div class="editor">
+        <div class="editor_main_storey"></div>
+        <MonacoEditor
+          v-if="textPreviewVisible"
+          ref="monacoEditor"
+          :width="editorWidth"
+          :height="editorHieght"
+          :theme="lightTheme?'vs':'vs-dark'"
+          :language="language"
+          :diffEditor="diffEditor"
+          original="..."
+          :value="content"
+          :options="options"
+          @change="change"
+        ></MonacoEditor>
+      </div>
     </div>
   </el-dialog>
 </template>
 <script>
 
   import '@/utils/directives.js'
-  import api from '@/api/file-api.js'
+  import api from '@/api/file-api'
   import markdownApi from '@/api/markdown-api'
 
   import { lineWrapping } from '@/utils/file-type'
 
   import MonacoEditor from '../MonacoEditorVue'
-  import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+  import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+
+  import FileTree from"@/components/FileTree"
 
   export default {
     name: "SimTextPreview",
     components: {
-      MonacoEditor
+      MonacoEditor,FileTree
     },
     props: {
       file: {
@@ -108,7 +115,8 @@
           background: '#565656!important',
           border: '1px solid #565656!important',
           color: '#ffffff!important'
-        }
+        },
+        directoryTreeData: []
       }
     },
     mounted() {
@@ -135,7 +143,7 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file: function (file) {
-        this.editorWidth = document.body.clientWidth * this.dialogWidth
+        this.editorWidth = document.body.clientWidth * this.dialogWidth - 250
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
 
         this.loading = this.$message({
@@ -163,6 +171,7 @@
         let request = 'previewText'
         if(this.shareId){
           request = 'sharePreviewText'
+          this.options.readOnly = true
         }
         if(this.filepath){
           request = 'previewTextByPath'
@@ -176,6 +185,7 @@
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()
+          this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, path: res.data.path}]
           this.textPreviewVisible = true
           this.content = res.data.contentText
         }).catch(() => {
@@ -189,8 +199,44 @@
       }
     },
     methods:{
+      treeNodeClick(row) {
+        this.loading = this.$message({
+          iconClass: 'el-icon-loading',
+          type: 'info',
+          duration: 0,
+          dangerouslyUseHTMLString: true,
+          message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
+        })
+        let suffix = row.suffix
+
+        let languages = monaco.languages.getLanguages();
+        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+suffix))
+        if(languagesIndex > -1){
+          this.language = languages[languagesIndex].id
+        }else{
+          this.language = this.defalutLanguage
+        }
+        if(lineWrapping.includes(suffix)) {
+          this.options.wordWrap = 'wordWrapColumn'
+          this.lineWrapping = true
+        }else{
+          this.options.wordWrap = ''
+        }
+        console.log(row)
+        api.previewTextByPath({
+          path: row.path,
+          username: this.$store.state.user.name
+        }).then((res)=>{
+          this.loading.close()
+          // this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, path: res.data.path}]
+          // this.textPreviewVisible = true
+          this.content = res.data.contentText
+        }).catch(() => {
+          this.loading.close()
+        })
+      },
       containerResize() {
-        this.editorWidth = document.body.clientWidth * this.dialogWidth
+        this.editorWidth = document.body.clientWidth * this.dialogWidth - 250
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
       },
       handleClose(done) {
@@ -397,6 +443,11 @@
     }
     .content {
       border-top: 1px solid #ccc;
+      display: flex;
+      .file-contents{
+        width: 250px;
+      }
+
     }
   }
 
