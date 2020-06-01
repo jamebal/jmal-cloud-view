@@ -266,6 +266,7 @@
       },
       setTheme(){
         let header = document.querySelector('.simtext-dialog .el-dialog .el-dialog__header')
+        console.log('header',header)
         if(this.lightTheme){
           header.style.background = '#FFF'
           header.style.color = '#181818'

@@ -15,7 +15,6 @@
       @node-expand="treeNodeExpand"
     >
     </el-tree>
-    <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible" :filepath="filepath"></sim-text-preview>
   </div>
 </template>
 
@@ -43,9 +42,6 @@
     },
     data() {
       return {
-        textPreviewVisible : false,
-        textPreviewRow: {},
-        filepath: undefined,
         directoryTreeProps: {
           label: 'name',
           children: 'children',
@@ -61,7 +57,9 @@
         }else{
           let keys = []
           this.directoryTreeData.forEach(file => {
-            keys.push(file.path)
+            if(!file.isLeaf){
+              keys.push(file.path)
+            }
           })
           return keys
         }
@@ -71,8 +69,6 @@
       // 加载下一级文件树  localFileMode = true
       loadOfLocalFileMode(node, resolve) {
         if (node.level === 0) {
-          let elDialogWrapper = document.querySelector('.compressed-file-dialog')
-          elDialogWrapper.style.zIndex += 5
           return resolve(this.directoryTreeData)
         }
         if (node.level > 0){
@@ -113,12 +109,6 @@
       // 点击文件树
       treeNodeClick(row) {
         this.$emit('treeNodeClick',row)
-        // if(suffix.simText.includes(row.suffix)){
-        //   // 文本文件
-        //   this.textPreviewRow = row
-        //   this.textPreviewVisible = true
-        //   this.filepath = row.path
-        // }
       },
       // 节点被展开时触发
       treeNodeExpand(row,node,event) {

@@ -129,7 +129,7 @@
     </el-dialog>
 
     <!--展示压缩文件-->
-    <el-dialog class="compressed-file-dialog" :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
+    <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
       <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
     </el-dialog>
 
@@ -2518,18 +2518,12 @@
             Bus.$emit('onAddAudio',row, this.audioCoverUrl)
             return
           }
-          if(row.contentType.includes('text')){
-            // let routeData = this.$router.resolve({path: '/public/articles/article',query: {mark: row.id}})
-            // window.open(routeData.href, '_blank');
-            this.$router.push(`/public/articles/article?mark=${row.id}`)
-            return
-          }
           if(suffix.compressedFile.includes(row.suffix)){
-            // this.unzip(row)
+            // 压缩文件
             this.openCompressionVisible = true
             return
           }
-          // 打开文件
+          // 其他文件
           let fileIds = [row.id]
           this.notPreviewDialogVisible = true
         }
