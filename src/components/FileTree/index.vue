@@ -72,7 +72,6 @@
       loadOfLocalFileMode(node, resolve) {
         if (node.level === 0) {
           let elDialogWrapper = document.querySelector('.compressed-file-dialog')
-          console.log('elDialogWrapper', elDialogWrapper.style.zIndex)
           elDialogWrapper.style.zIndex += 5
           return resolve(this.directoryTreeData)
         }
@@ -91,11 +90,13 @@
       directoryTreeLoadNode(node, resolve) {
         let fileId = null
         if (node.level === 0) {
+          let data = [{'id':"0",'name':'全部文件'}]
           const that = this
           setTimeout(function () {
             that.$refs.fileTree.setCurrentKey('0')
+            that.$emit('treeNodeClick',data[0])
           },0)
-          return resolve([{'id':"0",'name':'全部文件'}])
+          return resolve(data)
         }
         if (node.level > 1){
           fileId = node.data.id
@@ -111,12 +112,13 @@
       },
       // 点击文件树
       treeNodeClick(row) {
-        if(suffix.simText.includes(row.suffix)){
-          // 文本文件
-          this.textPreviewRow = row
-          this.textPreviewVisible = true
-          this.filepath = row.path
-        }
+        this.$emit('treeNodeClick',row)
+        // if(suffix.simText.includes(row.suffix)){
+        //   // 文本文件
+        //   this.textPreviewRow = row
+        //   this.textPreviewVisible = true
+        //   this.filepath = row.path
+        // }
       },
       // 节点被展开时触发
       treeNodeExpand(row,node,event) {
@@ -171,6 +173,9 @@
             </span>);
         }else{
           let iconClass = this.findIconClass(node.data)
+          if(!this.localFileMode && node.data.id === '0'){
+            iconClass = 'folder'
+          }
           return (
             <span class="custom-tree-node">
             <svg-icon icon-class={iconClass}/>

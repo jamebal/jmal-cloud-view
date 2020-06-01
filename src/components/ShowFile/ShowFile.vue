@@ -109,7 +109,7 @@
       :visible.sync="openCompressionVisible">
       <svg-icon icon-class="open-folder"></svg-icon> <span class="dialog-msg">查看压缩文件</span>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" >解压到...</el-button>
+        <el-button size="small" @click="unzipTo(openingFile)">解压到...</el-button>
       <el-button size="small" @click="unzip(openingFile,openingFile.id,false)">解压到当前目录</el-button>
       <el-button size="small" type="primary" @click=compressionFilePreview(openingFile)>预览</el-button>
       </span>
@@ -122,7 +122,7 @@
       :visible.sync="notPreviewDialogVisible">
       <svg-icon icon-class="warring"></svg-icon> <span class="dialog-msg">此文件不支持预览, 是否下载该文件?</span>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="forciblyOpen(openingFile)">强行使用文本编辑器打开</el-button>
+        <el-button  size="small" @click="forciblyOpen(openingFile)">强行使用文本编辑器打开</el-button>
       <el-button size="small" @click="notPreviewDialogVisible = false">取 消</el-button>
       <el-button size="small" type="primary" @click=determineDownload(openingFile)>确 定</el-button>
       </span>
@@ -133,9 +133,14 @@
       <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
     </el-dialog>
 
+    <!--&lt;!&ndash;解压到哪里&ndash;&gt;-->
+    <!--<el-dialog class="unzip-to-dialog" :title="'解压到: '+unzipToName" :visible.sync="unzipToVisible">-->
+      <!--<file-tree :directoryTreeData="unzipToData" :localFileMode="false" :tempDir="unzipToTempDir" @treeNodeClick="unzipToNodeClick"></file-tree>-->
+    <!--</el-dialog>-->
+
     <!--移动或复制弹出框-->
     <el-dialog
-      :title="'移动或复制到'+selectTreeNode.showName"
+      :title="titlePrefix+selectTreeNode.showName"
       :visible.sync="dialogMoveOrCopyVisible"
       @close="clearTreeNode"
     >
@@ -155,10 +160,11 @@
       >
       </el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
-        <el-button type="primary" @click="moveFileTree">移 动</el-button>
-        <el-button type="primary" @click="copyFileTree">复制</el-button>
-        <el-button @click="dialogMoveOrCopyVisible = false">取 消</el-button>
+        <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
+        <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
+        <el-button v-if="unzipOperating" size="small" type="primary" @click="confirmUnzip">解压</el-button>
+        <el-button size="small" @click="dialogMoveOrCopyVisible = false">取 消</el-button>
       </div>
     </el-dialog>
 
@@ -613,11 +619,14 @@
         menuTriangle: '', // 三角菜单
         cellMouseIndex: -1,
         editingIndex: -1,
+        titlePrefix: '',
+        unzipOperating: false,
         dialogMoveOrCopyVisible: false,
-        compressedFileVisible: false,
         directoryTreeData: [],
+        compressedFileVisible: false,
         compressedFileData: [],
         compressedFileName: '',
+        compressedFileTempDir: false,
         selectTreeNode: {},
         directoryTreeProps: {
           label: 'name',
@@ -659,7 +668,6 @@
         notPreviewDialogVisible: false,
         openingFile: '',
         openCompressionVisible: false,
-        compressedFileTempDir: false,
       }
     },
     computed: {
@@ -2014,7 +2022,6 @@
         let rootNode = this.$refs.directoryTree.getNode('0')
         rootNode.loaded = false
         rootNode.expanded = false
-        console.log(rootNode)
       },
       // 加载下一级文件树
       directoryTreeLoadNode(node, resolve) {
@@ -2041,7 +2048,6 @@
       },
       // 点击文件树
       treeNodeClick(row,node,event) {
-        console.log('treeNodeClick',node)
         this.selectTreeNode = row
         this.selectTreeNode.showName = ' "' + row.name + '"'
       },
@@ -2084,8 +2090,13 @@
       copyFileTree() {
         this.copyOrMove('copy');
       },
+      // 解压文件
+      confirmUnzip() {
+        this.unzip(this.openingFile,this.selectTreeNode.id,false)
+      },
       moveOrCopy(){
         this.dialogMoveOrCopyVisible = true
+        this.titlePrefix = '移动或复制到: '
         const that = this
         setTimeout(function () {
           that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
@@ -2402,6 +2413,17 @@
       compressionFilePreview(file){
         this.unzip(file,undefined,true)
       },
+      unzipTo(file){
+        this.dialogMoveOrCopyVisible = true
+        this.titlePrefix = '解压到: '
+        this.unzipOperating = true
+        const that = this
+        setTimeout(function () {
+          that.openCompressionVisible = false
+          that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
+          that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
+        },100)
+      },
       // 解压文件
       unzip(file, destFileId, tempDir) {
         let status = '解压'
@@ -2420,13 +2442,23 @@
           decompressing.type = 'success'
           decompressing.message = status+'成功'
 
-          this.compressedFileData = res.data
-          this.compressedFileVisible = true
-          this.compressedFileName = file.name
-          this.compressedFileTempDir = tempDir
+          if(tempDir){
+            this.compressedFileData = res.data
+            this.compressedFileVisible = true
+            this.compressedFileName = file.name
+            this.compressedFileTempDir = tempDir
+          }
 
+          const that = this
           setTimeout(function () {
             decompressing.close()
+            that.openCompressionVisible = false
+            if(file.id === destFileId){
+              that.getFileList()
+            }
+            if(destFileId && file.id !== destFileId && !tempDir){
+              that.dialogMoveOrCopyVisible = false
+            }
           },1000)
         }).catch(() => {
           decompressing.close()
@@ -2499,21 +2531,7 @@
           }
           // 打开文件
           let fileIds = [row.id]
-
           this.notPreviewDialogVisible = true
-
-          // this.$confirm('此文件不支持预览, 是否下载该文件?', '提示', {
-          //   confirmButtonText: '确定',
-          //   cancelButtonText: '强行使用文本编辑器打开',
-          //   type: 'warning',
-          //   distinguishCancelAndClose: true
-          // }).then(() => {
-          //   let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + row.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds
-          //   window.open(url, '_self')
-          // }).catch(() => {
-          //   this.textPreviewRow = row
-          //   this.textPreviewVisible = true
-          // })
         }
       },
       // 强行使用文本编辑器打开
