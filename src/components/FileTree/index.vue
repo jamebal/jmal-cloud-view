@@ -58,7 +58,9 @@
           let keys = []
           this.directoryTreeData.forEach(file => {
             if(!file.isLeaf){
-              keys.push(file.path)
+              if(keys.length < 1){
+                keys.push(file.path)
+              }
             }
           })
           return keys

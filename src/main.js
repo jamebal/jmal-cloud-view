@@ -17,6 +17,11 @@ import VueWechatTitle from 'vue-wechat-title'
 // import 'we-vue/lib/style.css'
 import { Popup,Search, Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup, Grid, GridItem} from 'vant';
 
+
+// ant-design-vue
+import { Tree } from 'ant-design-vue';
+Vue.use(Tree)
+
 // mavonEditor
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'

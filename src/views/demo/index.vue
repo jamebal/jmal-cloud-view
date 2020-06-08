@@ -1,105 +1,105 @@
 <template>
-  <div id="app">
-    <MonacoEditor
-      width="800"
-      height="500"
-      theme="vs-dark"
-      language="json"
-      :diffEditor="diffEditor"
-      original="..."
-      :value="value"
-      :options="options"
-      @change="onChange"
-    ></MonacoEditor>
+  <div class="dir-tree">
+    <file-tree :directoryTreeData="compressedFileData"></file-tree>
   </div>
 </template>
 
 <script>
-  import { MonacoEditor,monaco} from 'monaco-editor-vue';
+  import api from '@/api/file-api'
+  import FileTree from"@/components/FileTree"
   export default {
-    name: "App",
-    components: {
-      MonacoEditor
-    },
+    components: {FileTree},
     data() {
       return {
-        options: {
-          //Monaco Editor Options
-        },
-        diffEditor: false,
-        value: "{\n" +
-          "\t\"type\": \"team\",\n" +
-          "\t\"test\": {\n" +
-          "\t\t\"testPage\": \"tools/testing/run-tests.htm\",\n" +
-          "\t\t\"enabled\": true\n" +
-          "\t},\n" +
-          "    \"search\": {\n" +
-          "        \"excludeFolders\": [\n" +
-          "\t\t\t\".git\",\n" +
-          "\t\t\t\"node_modules\",\n" +
-          "\t\t\t\"tools/bin\",\n" +
-          "\t\t\t\"tools/counts\",\n" +
-          "\t\t\t\"tools/policheck\",\n" +
-          "\t\t\t\"tools/tfs_build_extensions\",\n" +
-          "\t\t\t\"tools/testing/jscoverage\",\n" +
-          "\t\t\t\"tools/testing/qunit\",\n" +
-          "\t\t\t\"tools/testing/chutzpah\",\n" +
-          "\t\t\t\"server.net\"\n" +
-          "        ]\n" +
-          "    },\n" +
-          "\t\"languages\": {\n" +
-          "\t\t\"vs.languages.typescript\": {\n" +
-          "\t\t\t\"validationSettings\": [{\n" +
-          "\t\t\t\t\"scope\":\"/\",\n" +
-          "\t\t\t\t\"noImplicitAny\":true,\n" +
-          "\t\t\t\t\"noLib\":false,\n" +
-          "\t\t\t\t\"extraLibs\":[],\n" +
-          "\t\t\t\t\"semanticValidation\":true,\n" +
-          "\t\t\t\t\"syntaxValidation\":true,\n" +
-          "\t\t\t\t\"codeGenTarget\":\"ES5\",\n" +
-          "\t\t\t\t\"moduleGenTarget\":\"\",\n" +
-          "\t\t\t\t\"lint\": {\n" +
-          "                    \"emptyBlocksWithoutComment\": \"warning\",\n" +
-          "                    \"curlyBracketsMustNotBeOmitted\": \"warning\",\n" +
-          "                    \"comparisonOperatorsNotStrict\": \"warning\",\n" +
-          "                    \"missingSemicolon\": \"warning\",\n" +
-          "                    \"unknownTypeOfResults\": \"warning\",\n" +
-          "                    \"semicolonsInsteadOfBlocks\": \"warning\",\n" +
-          "                    \"functionsInsideLoops\": \"warning\",\n" +
-          "                    \"functionsWithoutReturnType\": \"warning\",\n" +
-          "                    \"tripleSlashReferenceAlike\": \"warning\",\n" +
-          "                    \"unusedImports\": \"warning\",\n" +
-          "                    \"unusedVariables\": \"warning\",\n" +
-          "                    \"unusedFunctions\": \"warning\",\n" +
-          "                    \"unusedMembers\": \"warning\"\n" +
-          "                }\n" +
-          "\t\t\t}, \n" +
-          "\t\t\t{\n" +
-          "\t\t\t\t\"scope\":\"/client\",\n" +
-          "\t\t\t\t\"baseUrl\":\"/client\",\n" +
-          "\t\t\t\t\"moduleGenTarget\":\"amd\"\n" +
-          "\t\t\t},\n" +
-          "\t\t\t{\n" +
-          "\t\t\t\t\"scope\":\"/server\",\n" +
-          "\t\t\t\t\"moduleGenTarget\":\"commonjs\"\n" +
-          "\t\t\t},\n" +
-          "\t\t\t{\n" +
-          "\t\t\t\t\"scope\":\"/build\",\n" +
-          "\t\t\t\t\"moduleGenTarget\":\"commonjs\"\n" +
-          "\t\t\t},\n" +
-          "\t\t\t{\n" +
-          "\t\t\t\t\"scope\":\"/node_modules/nake\",\n" +
-          "\t\t\t\t\"moduleGenTarget\":\"commonjs\"\n" +
-          "\t\t\t}],\n" +
-          "\t\t\t\"allowMultipleWorkers\": true\n" +
-          "\t\t}\n" +
-          "\t}\n" +
-          "}",
+        compressedFileData: []
       }
     },
+    mounted() {
+      api.listfiles({
+        username: this.$store.state.user.name,
+        path: "",
+        tempDir: this.tempDir
+      }).then(res => {
+        this.compressedFileData = res.data
+      })
+    },
+    computed: {
+    },
     methods: {
-      onChange(value) {
-      }
     }
-  };
+  }
 </script>
+
+<style lang="scss" scoped>
+  .dir-tree{
+    height: 500px;
+    width: 250px;
+    overflow: auto;
+  }
+</style>
+
+
+<!--<template>-->
+<!--  <a-directory-tree-->
+<!--    :treeData="treeData"-->
+<!--    :replaceFields="replaceFields"-->
+<!--    :loadData="onLoadData"-->
+<!--    @select="onSelect"-->
+<!--    @expand="onExpand">-->
+<!--  </a-directory-tree>-->
+<!--</template>-->
+<!--<script>-->
+<!--  import api from '@/api/file-api'-->
+<!--  import IconFile from "@/components/Icon/IconFile"-->
+<!--  import { iconClass,suffix } from '@/utils/file-type'-->
+<!--  export default {-->
+<!--    components: {IconFile},-->
+<!--    mounted() {-->
+<!--      this.listFile()-->
+<!--    },-->
+<!--    data(){-->
+<!--      return ({-->
+<!--        treeData: [],-->
+<!--        replaceFields: {-->
+<!--          key: 'path',-->
+<!--          title: 'name',-->
+<!--        }-->
+<!--      })-->
+<!--    },-->
+<!--    methods: {-->
+<!--      listFile(){-->
+<!--        api.listfiles({-->
+<!--          username: this.$store.state.user.name,-->
+<!--          path: "",-->
+<!--        }).then(res => {-->
+<!--          this.treeData = res.data.map(data => {-->
+<!--            data.slots = { icon: 'meh' }-->
+<!--            return data-->
+<!--          })-->
+<!--        })-->
+<!--      },-->
+<!--      onLoadData(treeNode){-->
+<!--        return new Promise(resolve => {-->
+<!--          if (treeNode.dataRef.children) {-->
+<!--            resolve();-->
+<!--            return;-->
+<!--          }-->
+<!--          api.listfiles({-->
+<!--            username: this.$store.state.user.name,-->
+<!--            path: treeNode.dataRef.path,-->
+<!--          }).then(res => {-->
+<!--            treeNode.dataRef.children = res.data-->
+<!--            this.treeData = [...this.treeData]-->
+<!--            resolve()-->
+<!--          })-->
+<!--        });-->
+<!--      },-->
+<!--      onSelect(keys, event) {-->
+<!--        console.log('Trigger Select', keys, event);-->
+<!--      },-->
+<!--      onExpand() {-->
+<!--        console.log('Trigger Expand');-->
+<!--      },-->
+<!--    },-->
+<!--  };-->
+<!--</script>-->

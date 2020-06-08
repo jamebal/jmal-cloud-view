@@ -356,7 +356,8 @@
 
     /deep/.content {
       border-top: unset!important;
-      background-color: #1e1e1e;
+      /*background-color: #1e1e1e;*/
+      background-color: #fff;
       .editor_main_storey {
         display: inline-block;
         position: absolute;
@@ -445,7 +446,16 @@
       border-top: 1px solid #ccc;
       display: flex;
       .file-contents{
-        width: 250px;
+        width: 300px;
+        height: 500px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        .svg-icon {
+          font-size: 18px;
+        }
+        /deep/.el-tree-node>.el-tree-node__children{
+          overflow: unset;
+        }
       }
 
     }
