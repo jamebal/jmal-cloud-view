@@ -2518,6 +2518,11 @@
             Bus.$emit('onAddAudio',row, this.audioCoverUrl)
             return
           }
+          if(row.suffix === 'pdf'){
+            // pdf文件
+            window.open(`${process.env.VUE_APP_BASE_FILE_API}/preview/${row.name}?jmal-token=${this.$store.state.user.token}&fileIds=${row.id}`, '_blank')
+            return
+          }
           if(suffix.compressedFile.includes(row.suffix)){
             // 压缩文件
             this.openCompressionVisible = true
@@ -2542,7 +2547,7 @@
         this.notPreviewDialogVisible = false
       },
       downLaod(file){
-        window.open(`${process.env.VUE_APP_BASE_FILE_API}preview/${file.name}?jmal-token=${this.$store.state.user.token}&fileIds=${file.id}`, '_self')
+        window.open(`${process.env.VUE_APP_BASE_FILE_API}/preview/${file.name}?jmal-token=${this.$store.state.user.token}&fileIds=${file.id}`, '_self')
       },
     }
   }

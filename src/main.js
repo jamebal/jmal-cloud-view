@@ -19,8 +19,8 @@ import { Popup,Search, Button, Cell, CellGroup, Image, List, PullRefresh, SwipeC
 
 
 // ant-design-vue
-import { Tree } from 'ant-design-vue';
-Vue.use(Tree)
+// import { Tree } from 'ant-design-vue';
+// Vue.use(Tree)
 
 // mavonEditor
 import mavonEditor from 'mavon-editor'
