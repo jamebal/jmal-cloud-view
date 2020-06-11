@@ -5,7 +5,7 @@ export const suffix = {
     'vue','asp','jsp',
     'xml','xsl','iml','m','bas','prg','cmd',
     'sass','sas','php','lst','key','pem','log',
-    'cmake','db','gradle','bat'
+    'cmake','db','gradle','bat',''
   ],
   compressedFile: [
     'zip','tar','jar','tar.gz','tgz','tar.bz2'

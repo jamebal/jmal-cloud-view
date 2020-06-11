@@ -1,10 +1,20 @@
 <template>
-  <div class="dir-tree">
-    <file-tree :directoryTreeData="compressedFileData"></file-tree>
+  <div id="dir-tree">
+    <!--<file-tree :directoryTreeData="compressedFileData"></file-tree>-->
   </div>
 </template>
 
 <script>
+
+  import $ from "jquery";
+
+  import 'jquery.fancytree/dist/skin-lion/ui.fancytree.less';  // CSS or LESS
+
+  import {createTree} from 'jquery.fancytree';
+
+  import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
+  import 'jquery.fancytree/dist/modules/jquery.fancytree.filter';
+
   import api from '@/api/file-api'
   import FileTree from"@/components/FileTree"
   export default {
@@ -15,6 +25,18 @@
       }
     },
     mounted() {
+
+      const tree = createTree('#dir-tree', {
+        extensions: ['edit', 'filter'],
+        source: [ { "title": "Node 1", "key": "1" },
+          {"title": "Folder 2","key": "2","folder": true,"children": [
+              { "title": "Node 2.1", "key": "3" },
+              { "title": "Node 2.2", "key": "4" }
+            ]}
+        ]
+      });
+
+
       api.listfiles({
         username: this.$store.state.user.name,
         path: "",
@@ -31,75 +53,10 @@
 </script>
 
 <style lang="scss" scoped>
-  .dir-tree{
+  #dir-tree{
     height: 500px;
     width: 250px;
     overflow: auto;
   }
 </style>
 
-
-<!--<template>-->
-<!--  <a-directory-tree-->
-<!--    :treeData="treeData"-->
-<!--    :replaceFields="replaceFields"-->
-<!--    :loadData="onLoadData"-->
-<!--    @select="onSelect"-->
-<!--    @expand="onExpand">-->
-<!--  </a-directory-tree>-->
-<!--</template>-->
-<!--<script>-->
-<!--  import api from '@/api/file-api'-->
-<!--  import IconFile from "@/components/Icon/IconFile"-->
-<!--  import { iconClass,suffix } from '@/utils/file-type'-->
-<!--  export default {-->
-<!--    components: {IconFile},-->
-<!--    mounted() {-->
-<!--      this.listFile()-->
-<!--    },-->
-<!--    data(){-->
-<!--      return ({-->
-<!--        treeData: [],-->
-<!--        replaceFields: {-->
-<!--          key: 'path',-->
-<!--          title: 'name',-->
-<!--        }-->
-<!--      })-->
-<!--    },-->
-<!--    methods: {-->
-<!--      listFile(){-->
-<!--        api.listfiles({-->
-<!--          username: this.$store.state.user.name,-->
-<!--          path: "",-->
-<!--        }).then(res => {-->
-<!--          this.treeData = res.data.map(data => {-->
-<!--            data.slots = { icon: 'meh' }-->
-<!--            return data-->
-<!--          })-->
-<!--        })-->
-<!--      },-->
-<!--      onLoadData(treeNode){-->
-<!--        return new Promise(resolve => {-->
-<!--          if (treeNode.dataRef.children) {-->
-<!--            resolve();-->
-<!--            return;-->
-<!--          }-->
-<!--          api.listfiles({-->
-<!--            username: this.$store.state.user.name,-->
-<!--            path: treeNode.dataRef.path,-->
-<!--          }).then(res => {-->
-<!--            treeNode.dataRef.children = res.data-->
-<!--            this.treeData = [...this.treeData]-->
-<!--            resolve()-->
-<!--          })-->
-<!--        });-->
-<!--      },-->
-<!--      onSelect(keys, event) {-->
-<!--        console.log('Trigger Select', keys, event);-->
-<!--      },-->
-<!--      onExpand() {-->
-<!--        console.log('Trigger Expand');-->
-<!--      },-->
-<!--    },-->
-<!--  };-->
-<!--</script>-->

@@ -31,6 +31,8 @@ export default {
 
     value() {
       this.editor && this.value !== this._getValue() && this._setValue(this.value);
+      // 滚动到顶部
+      this.editor.setScrollPosition({scrollTop: 0,scrollLeft: 0});
     },
 
     language() {

@@ -50,7 +50,7 @@
   import api from '@/api/file-api'
   import markdownApi from '@/api/markdown-api'
 
-  import { lineWrapping } from '@/utils/file-type'
+  import { lineWrapping,suffix } from '@/utils/file-type'
 
   import MonacoEditor from '../MonacoEditorVue'
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -153,16 +153,14 @@
           dangerouslyUseHTMLString: true,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
-        let suffix = file.suffix
-
         let languages = monaco.languages.getLanguages();
-        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+suffix))
+        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+file.suffix))
         if(languagesIndex > -1){
           this.language = languages[languagesIndex].id
         }else{
           this.language = this.defalutLanguage
         }
-        if(lineWrapping.includes(suffix)) {
+        if(lineWrapping.includes(file.suffix)) {
           this.options.wordWrap = 'wordWrapColumn'
           this.lineWrapping = true
         }else{
@@ -200,6 +198,12 @@
     },
     methods:{
       treeNodeClick(row) {
+        if(row.isFolder){
+          return
+        }
+        if(!suffix.simText.includes(row.suffix)){
+          return
+        }
         this.loading = this.$message({
           iconClass: 'el-icon-loading',
           type: 'info',
@@ -207,22 +211,19 @@
           dangerouslyUseHTMLString: true,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
-        let suffix = row.suffix
-
         let languages = monaco.languages.getLanguages();
-        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+suffix))
+        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+row.suffix))
         if(languagesIndex > -1){
           this.language = languages[languagesIndex].id
         }else{
           this.language = this.defalutLanguage
         }
-        if(lineWrapping.includes(suffix)) {
+        if(lineWrapping.includes(row.suffix)) {
           this.options.wordWrap = 'wordWrapColumn'
           this.lineWrapping = true
         }else{
           this.options.wordWrap = ''
         }
-        console.log(row)
         api.previewTextByPath({
           path: row.path,
           username: this.$store.state.user.name
@@ -446,10 +447,26 @@
       border-top: 1px solid #ccc;
       display: flex;
       .file-contents{
+        background: #1e1e1e;
         width: 300px;
-        height: 500px;
+        /*overflow: auto;*/
         overflow-y: scroll;
         overflow-x: hidden;
+
+        .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content {
+          background-color: #2f2f2f;
+        }
+
+        .el-tree {
+          background: #1e1e1e;
+          color: #c5c5c5;
+
+          .el-tree-node__content:hover{
+            background-color: #2f2f2f;
+          }
+
+        }
+
         .svg-icon {
           font-size: 18px;
         }
@@ -461,5 +478,15 @@
     }
   }
 
+  ::-webkit-scrollbar-thumb {
+    border: unset!important;
+    background-color: #565656!important;
+    -webkit-border-radius: unset!important;
+  }
+
+  ::-webkit-scrollbar-track-piece {
+    background-color: unset!important;
+    -webkit-border-radius: 3px;
+  }
 
 </style>
