@@ -79,7 +79,10 @@
             path: node.data.path,
             tempDir: this.tempDir
           }).then(res => {
-            const nextNodes = res.data
+            const nextNodes = res.data.map(data => {
+              data.isLeaf = !data.isFolder
+              return data
+            })
             return resolve(nextNodes)
           })
         }
