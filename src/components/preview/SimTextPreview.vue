@@ -25,10 +25,11 @@
       </div>
     <div class="content" @keydown="onKeyDown">
       <div class="editor_main_storey"></div>
-      <div class="file-contents" :style="{height: editorHieght+'px'}">
+      <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
         <!--<file-tree :directoryTreeData="directoryTreeData" :localFileMode="true" @treeNodeClick="treeNodeClick"></file-tree>-->
         <fancy-tree v-if="directoryTreeData.length > 0" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
       </div>
+      <div class="editor-resize" style="width: 5px;cursor: col-resize;"></div>
       <div class="editor">
         <MonacoEditor
           v-if="textPreviewVisible"
@@ -108,6 +109,7 @@
         fullscreen: false,
         dialogWidth: 0.7,
         lastTransform: undefined,
+        contentsWidth: 300,
         editorWidth: 1035,
         editorHieght: 640,
         content: '',
@@ -125,7 +127,6 @@
       }
     },
     mounted() {
-      this.setTheme()
     },
     directives: {
       resize: { // 指令的名称
@@ -148,7 +149,7 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file: function (file) {
-        this.editorWidth = document.body.clientWidth * this.dialogWidth - 250
+        this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
 
         this.loading = this.$message({
@@ -191,6 +192,12 @@
           this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, id: res.data.id, path: res.data.path}]
           this.textPreviewVisible = true
           this.content = res.data.contentText
+
+          // 界面的渲染后的初始化工作
+          this.$nextTick(()=>{
+            this.dragControllerDiv()
+            this.setTheme()
+          })
         }).catch(() => {
           this.loading.close()
         })
@@ -202,6 +209,34 @@
       }
     },
     methods:{
+      dragControllerDiv() {
+        let resize = document.querySelector('.el-dialog__body .content .editor-resize');
+        let left = document.querySelector('.file-contents');
+        if(resize){
+          // 鼠标按下事件
+          const that = this
+          resize.onmousedown = function (e) {
+            let startX = e.clientX;
+            let contentsStartWidth = left.offsetWidth + 10
+            // 鼠标拖动事件
+            document.onmousemove = function (e) {
+              let endX = e.clientX;
+              // 移动的距离。负数向左移动,正数向右移动
+              let moveLen = endX - startX
+              left.style.width = (contentsStartWidth + moveLen)+'px'
+              that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
+            }
+            // 鼠标松开事件
+            document.onmouseup = function (evt) {
+              document.onmousemove = null;
+              document.onmouseup = null;
+              resize.releaseCapture && resize.releaseCapture(); //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
+            }
+            resize.setCapture && resize.setCapture(); //该函数在属于当前线程的指定窗口里设置鼠标捕获
+            return false;
+          }
+        }
+      },
       treeNodeClick(row) {
         if(row.isFolder){
           return
@@ -240,7 +275,7 @@
         })
       },
       containerResize() {
-        this.editorWidth = document.body.clientWidth * this.dialogWidth - 250
+        this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
       },
       handleClose(done) {
@@ -294,7 +329,6 @@
       },
       // 全屏
       fullScreen() {
-        console.log(this.$refs.simTextDialog)
         this.fullscreen = !this.fullscreen
         const dragDom = document.querySelector('.simtext-dialog .el-dialog');
         if(this.fullscreen){
@@ -480,7 +514,6 @@
       }
 
       .file-contents{
-        width: 300px;
         overflow-y: scroll;
         overflow-x: hidden;
 
