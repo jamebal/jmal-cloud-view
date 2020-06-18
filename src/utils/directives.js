@@ -158,6 +158,10 @@ Vue.directive('dialogDrag', {
       };
       // 鼠标拖拽事件
       document.onmousemove = function (e) {
+        // 全屏禁止拖动
+        if((dragDom.offsetParent.clientWidth - dragDom.clientWidth) === 0){
+          return
+        }
         // 通过事件委托，计算移动的距离 （开始拖拽至结束拖拽的距离）
         const l = e.clientX - disX;
         const t = e.clientY - disY;
@@ -179,7 +183,7 @@ Vue.directive('dialogDrag', {
         y=finallyT;
         dragDom.style.transform="translate("+finallyL+"px,"+finallyT+"px)";
         //将此时的位置传出去
-        //binding.value({x:e.pageX,y:e.pageY})
+        // binding.value({x:e.pageX,y:e.pageY})
       };
       document.onmouseup = function (e) {
         document.onmousemove = null;
