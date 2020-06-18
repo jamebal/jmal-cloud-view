@@ -1,0 +1,51 @@
+$bg-color: #ffffff;
+$tree-title-bg-color: #dddddd;
+
+//#dir-tree {
+//  span.fancytree-title {
+//    color: #dedede;
+//  }
+//
+//  ul.fancytree-container {
+//    background: #1e1e1e;
+//  }
+//
+//  .fancytree-plain span.fancytree-active span.fancytree-title{
+//    background-color: $tree-title-bg-color;
+//    border-color: $bg-color;
+//  }
+//
+//  .fancytree-plain span.fancytree-node:hover span.fancytree-title{
+//    background-color: $tree-title-bg-color;
+//    border-color: $bg-color;
+//  }
+//
+//  .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
+//    background-color: $tree-title-bg-color;
+//    border-color: $bg-color;
+//  }
+//}
+
+
+span.fancytree-title {
+  color: #dedede;
+}
+
+ul.fancytree-container {
+  background: #1e1e1e;
+}
+
+.fancytree-plain span.fancytree-active span.fancytree-title{
+  background-color: $tree-title-bg-color;
+  border-color: $bg-color;
+}
+
+.fancytree-plain span.fancytree-node:hover span.fancytree-title{
+  background-color: $tree-title-bg-color;
+  border-color: $bg-color;
+}
+
+.fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
+  background-color: $tree-title-bg-color;
+  border-color: $bg-color;
+}

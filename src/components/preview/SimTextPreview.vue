@@ -1,5 +1,7 @@
 <template>
-  <el-dialog v-bind="$attrs" v-on="$listeners"
+  <el-dialog
+              ref="simTextDialog"
+              v-bind="$attrs" v-on="$listeners"
              :fullscreen="fullscreen"
              :visible.sync="textPreviewVisible"
              :title="file.name"
@@ -22,11 +24,12 @@
           </div>
       </div>
     <div class="content" @keydown="onKeyDown">
-      <div class="file-contents">
-        <file-tree :directoryTreeData="directoryTreeData" :localFileMode="true" @treeNodeClick="treeNodeClick"></file-tree>
+      <div class="editor_main_storey"></div>
+      <div class="file-contents" :style="{height: editorHieght+'px'}">
+        <!--<file-tree :directoryTreeData="directoryTreeData" :localFileMode="true" @treeNodeClick="treeNodeClick"></file-tree>-->
+        <fancy-tree v-if="directoryTreeData.length > 0" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
       </div>
       <div class="editor">
-        <div class="editor_main_storey"></div>
         <MonacoEditor
           v-if="textPreviewVisible"
           ref="monacoEditor"
@@ -56,11 +59,12 @@
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
   import FileTree from"@/components/FileTree"
+  import FancyTree from"@/components/FancyTree"
 
   export default {
     name: "SimTextPreview",
     components: {
-      MonacoEditor,FileTree
+      MonacoEditor,FileTree,FancyTree
     },
     props: {
       file: {
@@ -86,7 +90,7 @@
     },
     data(){
       return{
-        lightTheme: false,
+        lightTheme: true,
         defalutLanguage: 'redis',
         language: this.defalutLanguage,
         lineWrapping: false,
@@ -103,6 +107,7 @@
         textPreviewVisible: false,
         fullscreen: false,
         dialogWidth: 0.7,
+        lastTransform: undefined,
         editorWidth: 1035,
         editorHieght: 640,
         content: '',
@@ -183,7 +188,7 @@
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()
-          this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, path: res.data.path}]
+          this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, id: res.data.id, path: res.data.path}]
           this.textPreviewVisible = true
           this.content = res.data.contentText
         }).catch(() => {
@@ -229,8 +234,6 @@
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()
-          // this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, path: res.data.path}]
-          // this.textPreviewVisible = true
           this.content = res.data.contentText
         }).catch(() => {
           this.loading.close()
@@ -291,18 +294,23 @@
       },
       // 全屏
       fullScreen() {
+        console.log(this.$refs.simTextDialog)
         this.fullscreen = !this.fullscreen
-
         const dragDom = document.querySelector('.simtext-dialog .el-dialog');
         if(this.fullscreen){
+          this.lastTransform = dragDom.style.transform
           this.dialogWidth = 1
           dragDom.style.transform="translate("+0+"px,"+0+"px)";
         }else{
           this.dialogWidth = 0.7
-          let dialogWidth = document.body.clientWidth * this.dialogWidth;
+          let dialogWidth = document.body.clientWidth * this.dialogWidth
           let x = (document.body.clientWidth - dialogWidth)/2
           let y = (document.body.clientHeight - document.body.clientHeight * this.dialogWidth)/2
-          dragDom.style.transform="translate("+x+"px,"+y+"px)";
+          if(this.lastTransform){
+            dragDom.style.transform=this.lastTransform
+          }else{
+            dragDom.style.transform="translate("+x+"px,"+y+"px)"
+          }
         }
         this.containerResize()
       },
@@ -313,12 +321,19 @@
       },
       setTheme(){
         let header = document.querySelector('.simtext-dialog .el-dialog .el-dialog__header')
+        let fileContests = document.querySelector('.content');
         if(this.lightTheme){
           header.style.background = '#FFF'
           header.style.color = '#181818'
+          if(fileContests){
+            fileContests.setAttribute('data-theme', 'light')
+          }
         }else{
           header.style.background = '#292929'
           header.style.color = '#fff'
+          if(fileContests){
+            fileContests.setAttribute('data-theme', 'dark')
+          }
         }
       },
       changePreviewMode() {
@@ -346,40 +361,48 @@
 <style lang="scss" scoped>
   @import "src/styles/markdown";
 
+  $bg-color: #1e1e1e;
+  $tree-title-bg-color: #3e3e3e;
+
+  @mixin scrollBarLightStyle() {
+    &::-webkit-scrollbar {
+      width: 7px!important;
+      height: 10px!important;
+    }
+    &::-webkit-scrollbar-thumb {
+      border: unset!important;
+      background-color: #c1c1c1 !important;
+      -webkit-border-radius: unset!important;
+    }
+    &::-webkit-scrollbar-track-piece {
+      background-color: unset!important;
+      -webkit-border-radius: 3px;
+    }
+  }
+
+  @mixin scrollBarDarkStyle() {
+    &::-webkit-scrollbar {
+      width: 7px!important;
+      height: 10px!important;
+    }
+    &::-webkit-scrollbar-thumb {
+      border: unset!important;
+      background-color: #4b4b4b !important;
+      -webkit-border-radius: unset!important;
+    }
+    &::-webkit-scrollbar-track-piece {
+      background-color: unset!important;
+      -webkit-border-radius: 3px;
+    }
+  }
+
   /deep/.el-dialog {
     /*width: 1035px;*/
     margin: 0 !important;
     overflow: hidden;
-    /*.content {*/
-      /*height: 600px;*/
-      /*overflow: scroll;*/
-    /*}*/
-
-    /deep/.content {
-      border-top: unset!important;
-      /*background-color: #1e1e1e;*/
-      background-color: #fff;
-      .editor_main_storey {
-        display: inline-block;
-        position: absolute;
-        z-index: 999;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0));
-      }
-    }
 
     .el-dialog__header {
       padding: 5px 20px 5px;
-      /*background-color: #292929;*/
-      /*color: #fff;*/
-
-      /*.svg-icon {*/
-        /*font-size: 20px;*/
-        /*margin-top: 10px;*/
-        /*margin-left: 20px;*/
-        /*margin-right: 5px;*/
-      /*}*/
 
       .dark-button {
         background: #565656;
@@ -398,7 +421,7 @@
       }
       .dark-button:hover {
         color: #409EFF;
-        background-color: #1e1e1e;
+        background-color: $bg-color;
       }
 
       .el-dialog__headerbtn {
@@ -444,49 +467,95 @@
       word-break: normal;
     }
     .content {
-      border-top: 1px solid #ccc;
+      border-top: unset!important;
       display: flex;
+
+      .editor_main_storey {
+        display: inline-block;
+        position: absolute;
+        z-index: 999;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(rgba(221,221,221,1), rgba(255, 255, 255, 0));
+      }
+
       .file-contents{
-        background: #1e1e1e;
         width: 300px;
-        /*overflow: auto;*/
         overflow-y: scroll;
         overflow-x: hidden;
 
-        .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content {
-          background-color: #2f2f2f;
-        }
+        @include scrollBarLightStyle;
+        background: #fff;
+        box-shadow: inset #eaeaea -7px 0px;
 
-        .el-tree {
-          background: #1e1e1e;
-          color: #c5c5c5;
-
-          .el-tree-node__content:hover{
-            background-color: #2f2f2f;
+        #dir-tree {
+          ul.fancytree-container{
+            padding: 3px 0 0 0;
           }
-
         }
-
         .svg-icon {
           font-size: 18px;
         }
-        /deep/.el-tree-node>.el-tree-node__children{
-          overflow: unset;
+        #dir-tree {
+          .fancytree-plain span.fancytree-active span.fancytree-title{
+            background-color: #409eff30;
+            border-color: #ffffff;
+          }
+
+          .fancytree-plain span.fancytree-node:hover span.fancytree-title{
+            background-color: #409eff30;
+            border-color: #ffffff;
+          }
+
+          .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
+            background-color: #409eff30;
+            border-color: #ffffff;
+          }
+        }
+      }
+
+      &[data-theme=dark] {
+        .file-contents{
+          @include scrollBarDarkStyle;
+          background: $bg-color;
+          box-shadow: inset #2d2d2d -7px 0px;
+          #dir-tree {
+            span.fancytree-title {
+              color: #dedede;
+            }
+            ul.fancytree-container {
+              background: #1e1e1e;
+            }
+            .fancytree-plain span.fancytree-active span.fancytree-title{
+              background-color: $tree-title-bg-color;
+              border-color: $bg-color;
+            }
+
+            .fancytree-plain span.fancytree-node:hover span.fancytree-title{
+              background-color: $tree-title-bg-color;
+              border-color: $bg-color;
+            }
+
+            .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
+              background-color: $tree-title-bg-color;
+              border-color: $bg-color;
+            }
+          }
+        }
+        .editor_main_storey {
+          background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0));
+        }
+      }
+
+      .monaco-editor {
+        padding: 3px 0 0 0;
+
+        .scroll-decoration{
+          box-shadow: unset!important;
         }
       }
 
     }
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border: unset!important;
-    background-color: #565656!important;
-    -webkit-border-radius: unset!important;
-  }
-
-  ::-webkit-scrollbar-track-piece {
-    background-color: unset!important;
-    -webkit-border-radius: 3px;
   }
 
 </style>

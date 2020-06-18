@@ -2,10 +2,10 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 export const suffix = {
   simText: [
-    'vue','asp','jsp',
+    'vue','asp','jsp','TXT',
     'xml','xsl','iml','m','bas','prg','cmd',
     'sass','sas','php','lst','key','pem','log',
-    'cmake','db','gradle','bat',''
+    'cmake','db','gradle','bat','','conf'
   ],
   compressedFile: [
     'zip','tar','jar','tar.gz','tgz','tar.bz2'
@@ -40,6 +40,7 @@ iconClass.set('go','file-go')
 iconClass.set('DS_Store','file-Ds-store')
 iconClass.set('jar','file-jar')
 iconClass.set('properties','file-properties')
+iconClass.set('conf','file-conf')
 iconClass.set('factories','file-factories')
 iconClass.set('class','file-class')
 iconClass.set('excel','file-excel')
