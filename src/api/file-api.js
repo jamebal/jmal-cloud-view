@@ -107,6 +107,14 @@ export default {
       params
     })
   },
+  // 查找上级目录
+  upperLevelList: function(params) {
+    return request({
+      url: 'upper-level-list',
+      method: 'get',
+      params
+    })
+  },
   // 查找下级目录
   listfiles: function(params) {
     return request({

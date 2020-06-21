@@ -17,7 +17,7 @@
           <div class="title-extension">
             <el-button v-if="isShowUpdateBtn" @click="update" :class="lightTheme?'':'dark-button'" :loading="updating">Ctrl-S 保存</el-button>
             <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
-            <el-button @click="skinning" :class="lightTheme?'':'dark-button'">{{lightTheme?'暗色':'亮色'}}</el-button>
+            <el-button @click="skinning" :class="lightTheme?'':'dark-button'" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
             <button class="title-extension-button" @click="fullScreen">
               <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
             </button>
@@ -26,8 +26,15 @@
     <div class="content" @keydown="onKeyDown">
       <div class="editor_main_storey"></div>
       <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
-        <!--<file-tree :directoryTreeData="directoryTreeData" :localFileMode="true" @treeNodeClick="treeNodeClick"></file-tree>-->
-        <fancy-tree v-if="directoryTreeData.length > 0" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+        <div class="dir-tools" :style="{width: contentsWidth+5+'px'}">
+          <el-button-group>
+            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
+            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-plus">新建</el-button>
+            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-search">搜索</el-button>
+          </el-button-group>
+        </div>
+        <fancy-tree ref="fancTree" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
       </div>
       <div class="editor-resize" style="width: 5px;cursor: col-resize;"></div>
       <div class="editor">
@@ -109,7 +116,7 @@
         fullscreen: false,
         dialogWidth: 0.7,
         lastTransform: undefined,
-        contentsWidth: 300,
+        contentsWidth: 273,
         editorWidth: 1035,
         editorHieght: 640,
         content: '',
@@ -157,6 +164,7 @@
           type: 'info',
           duration: 0,
           dangerouslyUseHTMLString: true,
+          offset: 100,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
         let languages = monaco.languages.getLanguages();
@@ -209,6 +217,12 @@
       }
     },
     methods:{
+      upperLeve(){
+        this.$refs.fancTree.upperLeve()
+      },
+      refresh(){
+        this.$refs.fancTree.refresh()
+      },
       dragControllerDiv() {
         let resize = document.querySelector('.el-dialog__body .content .editor-resize');
         let left = document.querySelector('.file-contents');
@@ -249,6 +263,7 @@
           type: 'info',
           duration: 0,
           dangerouslyUseHTMLString: true,
+          offset: document.body.clientHeight/3,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
         let languages = monaco.languages.getLanguages();
@@ -435,28 +450,28 @@
     margin: 0 !important;
     overflow: hidden;
 
+    .dark-button {
+      background: #565656;
+      border: 1px solid #565656;
+      color: #ffffff;
+    }
+    .el-button:focus{
+      background: #FFF;
+      border: 1px solid #DCDFE6;
+      color: #606266;
+    }
+    .dark-button:focus{
+      background: #565656;
+      border: 1px solid #565656;
+      color: #ffffff;
+    }
+    .dark-button:hover {
+      color: #409EFF;
+      background-color: $bg-color;
+    }
+
     .el-dialog__header {
       padding: 5px 20px 5px;
-
-      .dark-button {
-        background: #565656;
-        border: 1px solid #565656;
-        color: #ffffff;
-      }
-      .el-button:focus{
-        background: #FFF;
-        border: 1px solid #DCDFE6;
-        color: #606266;
-      }
-      .dark-button:focus{
-        background: #565656;
-        border: 1px solid #565656;
-        color: #ffffff;
-      }
-      .dark-button:hover {
-        color: #409EFF;
-        background-color: $bg-color;
-      }
 
       .el-dialog__headerbtn {
         top: 12px;
@@ -545,9 +560,22 @@
             border-color: #ffffff;
           }
         }
+
+
+        .dir-tools {
+          .el-button--mini, .el-button--mini.is-round {
+            padding: 7px 10px;
+          }
+        }
+
       }
 
       &[data-theme=dark] {
+
+        .editor-resize {
+          background: $bg-color;
+        }
+
         .file-contents{
           @include scrollBarDarkStyle;
           background: $bg-color;
