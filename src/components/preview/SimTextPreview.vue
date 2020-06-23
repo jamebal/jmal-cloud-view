@@ -15,42 +15,56 @@
       <div slot="title" class="simtext-header-title">
             <span class="title-name">{{file.name}}</span>
           <div class="title-extension">
-            <el-button v-if="isShowUpdateBtn" @click="update" :class="lightTheme?'':'dark-button'" :loading="updating">Ctrl-S 保存</el-button>
+            <el-button v-if="isShowUpdateBtn" @click="update" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
             <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
-            <el-button @click="skinning" :class="lightTheme?'':'dark-button'" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
-            <button class="title-extension-button" @click="fullScreen">
+            <el-button @click="skinning" :class="lightTheme?'':'dark-button'" size="small" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
+            <button class="title-extension-button" @click="fullScreen" size="small">
               <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
             </button>
           </div>
       </div>
-    <div class="content" @keydown="onKeyDown">
-      <div class="editor_main_storey"></div>
-      <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
-        <div class="dir-tools" :style="{width: contentsWidth+5+'px'}">
+    <div class="content">
+      <!--<div class="editor_main_storey"></div>-->
+      <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+31+'px'}">
+        <div class="dir-tools" :style="{width: contentsWidth+2+'px',minWidth: 272+'px'}">
           <el-button-group>
-            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
-            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-refresh" @click="refresh">刷新</el-button>
-            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-plus">新建</el-button>
-            <el-button :class="lightTheme?'':'dark-button'" size="mini" icon="el-icon-search">搜索</el-button>
+            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
+            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus">新建</el-button>
+            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
           </el-button-group>
         </div>
-        <fancy-tree ref="fancTree" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+        <div class="content-tree" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
+          <fancy-tree ref="fancTree" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+        </div>
       </div>
-      <div class="editor-resize" style="width: 5px;cursor: col-resize;"></div>
-      <div class="editor">
-        <MonacoEditor
-          v-if="textPreviewVisible"
-          ref="monacoEditor"
-          :width="editorWidth"
-          :height="editorHieght"
-          :theme="lightTheme?'vs':'vs-dark'"
-          :language="language"
-          :diffEditor="diffEditor"
-          original="..."
-          :value="content"
-          :options="options"
-          @change="change"
-        ></MonacoEditor>
+      <div class="editor-resize" style="width: 3px;cursor: col-resize;"></div>
+      <div :style="{width: editorWidth-3+'px'}">
+        <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
+          <el-tab-pane
+            v-for="(item,index) in editableTabs"
+            :key="item.name"
+            :label="item.title"
+            :name="item.name"
+          >
+            <div class="editor">
+              <MonacoEditor
+                v-if="textPreviewVisible"
+                ref="monacoEditor"
+                :width="editorWidth"
+                :height="editorHieght"
+                :theme="lightTheme?'vs':'vs-dark'"
+                :language="language"
+                :diffEditor="diffEditor"
+                original="..."
+                :value="item.content"
+                :options="options"
+                @change="change($event,index)"
+                @save="save($event,index)"
+              ></MonacoEditor>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </div>
   </el-dialog>
@@ -130,7 +144,9 @@
           border: '1px solid #565656!important',
           color: '#ffffff!important'
         },
-        directoryTreeData: []
+        directoryTreeData: [],
+        editableTabsValue: '1',
+        editableTabs: [],
       }
     },
     mounted() {
@@ -156,6 +172,7 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file: function (file) {
+        this.editableTabs = []
         this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
 
@@ -201,6 +218,15 @@
           this.textPreviewVisible = true
           this.content = res.data.contentText
 
+          // 加载tabs
+          this.editableTabs.push({
+            title: res.data.name,
+            copyTitle: res.data.name,
+            name: res.data.path.substring(1,res.data.path.length)+res.data.name,
+            content: res.data.contentText
+          })
+          this.editableTabsValue = res.data.path.substring(1,res.data.path.length)+res.data.name
+
           // 界面的渲染后的初始化工作
           this.$nextTick(()=>{
             this.dragControllerDiv()
@@ -226,6 +252,8 @@
       dragControllerDiv() {
         let resize = document.querySelector('.el-dialog__body .content .editor-resize');
         let left = document.querySelector('.file-contents');
+        let leftTools = document.querySelector('.file-contents .dir-tools');
+        let leftTree = document.querySelector('.file-contents .content-tree');
         if(resize){
           // 鼠标按下事件
           const that = this
@@ -237,8 +265,13 @@
               let endX = e.clientX;
               // 移动的距离。负数向左移动,正数向右移动
               let moveLen = endX - startX
-              left.style.width = (contentsStartWidth + moveLen)+'px'
-              that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
+              // left.style.width = (contentsStartWidth + moveLen)+'px'
+              // leftTree.style.width = (contentsStartWidth + moveLen)+'px'
+              console.log(leftTools.style.minWidth.split('\px')[0])
+              if((contentsStartWidth + moveLen) > leftTools.style.minWidth.split('\px')[0]){
+                that.contentsWidth = contentsStartWidth + moveLen
+                that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
+              }
             }
             // 鼠标松开事件
             document.onmouseup = function (evt) {
@@ -284,7 +317,17 @@
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()
-          this.content = res.data.contentText
+          if(this.editableTabs.findIndex(tab=> tab.name===row.path) < 0){
+            console.log('添加一个tab')
+            // 添加一个tab
+            this.editableTabs.push({
+              title: row.name,
+              copyTitle: row.name,
+              name: row.path,
+              content: res.data.contentText
+            })
+          }
+          this.editableTabsValue = row.path
         }).catch(() => {
           this.loading.close()
         })
@@ -311,26 +354,39 @@
         this.$emit('update:status', this.textPreviewVisible)
         this.isShowUpdateBtn = false
       },
-      change(code) {
-        this.isShowUpdateBtn = true
-        this.newContent = code
-        if(code === this.content){
-          this.isShowUpdateBtn = false
+      change(value,index) {
+        if(value === this.editableTabs[index].content){
+          if(this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
+            this.editableTabs[index].title = this.editableTabs[index].copyTitle
+            // 没有任何改变
+            if(this.editableTabs.findIndex(tab=>tab.title !== tab.copyTitle) < 0){
+              this.isShowUpdateBtn = false
+            }
+          }
+        }else{
+          if(this.editableTabs[index].copyTitle === this.editableTabs[index].title){
+            this.editableTabs[index].title += '*'
+            this.isShowUpdateBtn = true
+          }
+        }
+        // this.isShowUpdateBtn = true
+        // this.newContent = code
+        // if(code === this.content){
+        //   this.isShowUpdateBtn = false
+        // }
+      },
+      save(value,index) {
+        if(value !== this.editableTabs[index].content && this.isShowUpdateBtn){
+
+          this.update(value,this.editableTabs[index].name)
         }
       },
-      save() {
-        if(this.isShowUpdateBtn){
-          this.update()
-        }
-      },
-      update() {
+      update(value,path) {
         this.updating = true
-        markdownApi.editMarkdown({
-            fileId: this.file.id,
-            userId: this.$store.state.user.userId,
+        markdownApi.editMarkdownByPath({
+            relativePath: path,
             username: this.$store.state.user.name,
-            filename: this.file.name,
-            contentText: this.newContent
+            contentText: value
           }).then(() => {
             this.updating = false
             this.isShowUpdateBtn = false
@@ -388,22 +444,22 @@
       changePreviewMode() {
         this.previewMode = !this.previewMode
       },
-      onKeyDown(event) {
-        const isMac = navigator.platform.startsWith('Mac');
-        const {key, code, keyCode, ctrlKey, metaKey} = event;
-        const isCmd = isMac && metaKey || !isMac && ctrlKey;
-        if (!isCmd) {
-          return;
+      removeTab(targetName) {
+        let tabs = this.editableTabs;
+        let activeName = this.editableTabsValue;
+        if (activeName === targetName) {
+          tabs.forEach((tab, index) => {
+            if (tab.name === targetName) {
+              let nextTab = tabs[index + 1] || tabs[index - 1];
+              if (nextTab) {
+                activeName = nextTab.name;
+              }
+            }
+          });
         }
-        const isS = key === 's' || code === 'KeyS' || keyCode === 83;
-        if (isS && this.textPreviewVisible) {
-          if(this.newContent !== ''){
-            this.save()
-          }
-          event.stopPropagation();
-          event.preventDefault();
-        }
-      },
+        this.editableTabsValue = activeName;
+        this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+      }
     }
   }
 </script>
@@ -450,6 +506,15 @@
     margin: 0 !important;
     overflow: hidden;
 
+    .el-button--small.is-circle {
+      padding: 9px 10px;
+    }
+
+    .light-button {
+      background: #ececec;
+      border: 1px solid #ececec;
+    }
+
     .dark-button {
       background: #565656;
       border: 1px solid #565656;
@@ -486,6 +551,7 @@
       .title-extension {
         float: right;
         margin-right: 30px;
+        margin-top: 3px;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
@@ -517,7 +583,15 @@
     }
     .content {
       border-top: unset!important;
-      display: flex;
+      display: inline-flex;
+
+      .el-tabs__header {
+        margin: 0 0 0;
+        .el-tabs__item {
+          height: 31px;
+          line-height: 31px;
+        }
+      }
 
       .editor_main_storey {
         display: inline-block;
@@ -528,43 +602,58 @@
         background: linear-gradient(rgba(221,221,221,1), rgba(255, 255, 255, 0));
       }
 
+      .el-tabs__nav-wrap {
+        margin-left: -1px;
+      }
+
+      .el-tabs--card>.el-tabs__header .el-tabs__nav {
+        border-radius: 0 0 0 0;
+      }
+
+      .el-tabs__nav-next, .el-tabs__nav-prev {
+        line-height: 31px;
+      }
+
       .file-contents{
-        overflow-y: scroll;
-        overflow-x: hidden;
+        .content-tree{
+          overflow-y: scroll;
+          overflow-x: hidden;
 
-        @include scrollBarLightStyle;
-        background: #fff;
-        box-shadow: inset #eaeaea -7px 0px;
+          @include scrollBarLightStyle;
+          background: #fff;
+          box-shadow: inset #ececec -7px 0px;
 
-        #dir-tree {
-          ul.fancytree-container{
-            padding: 3px 0 0 0;
+          #dir-tree {
+            ul.fancytree-container{
+              padding: 3px 0 0 0;
+            }
+          }
+          .svg-icon {
+            font-size: 18px;
+          }
+          #dir-tree {
+            .fancytree-plain span.fancytree-active span.fancytree-title{
+              background-color: #409eff30;
+              border-color: #ffffff;
+            }
+
+            .fancytree-plain span.fancytree-node:hover span.fancytree-title{
+              background-color: #409eff30;
+              border-color: #ffffff;
+            }
+
+            .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
+              background-color: #409eff30;
+              border-color: #ffffff;
+            }
           }
         }
-        .svg-icon {
-          font-size: 18px;
-        }
-        #dir-tree {
-          .fancytree-plain span.fancytree-active span.fancytree-title{
-            background-color: #409eff30;
-            border-color: #ffffff;
-          }
-
-          .fancytree-plain span.fancytree-node:hover span.fancytree-title{
-            background-color: #409eff30;
-            border-color: #ffffff;
-          }
-
-          .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
-            background-color: #409eff30;
-            border-color: #ffffff;
-          }
-        }
-
 
         .dir-tools {
-          .el-button--mini, .el-button--mini.is-round {
-            padding: 7px 10px;
+          background: #ececec;
+          border-right: 5px solid #fff;
+          .el-button--small {
+            padding: 9px 10px;
           }
         }
 
@@ -577,29 +666,38 @@
         }
 
         .file-contents{
-          @include scrollBarDarkStyle;
-          background: $bg-color;
-          box-shadow: inset #2d2d2d -7px 0px;
-          #dir-tree {
-            span.fancytree-title {
-              color: #dedede;
-            }
-            ul.fancytree-container {
-              background: #1e1e1e;
-            }
-            .fancytree-plain span.fancytree-active span.fancytree-title{
-              background-color: $tree-title-bg-color;
-              border-color: $bg-color;
-            }
 
-            .fancytree-plain span.fancytree-node:hover span.fancytree-title{
-              background-color: $tree-title-bg-color;
-              border-color: $bg-color;
-            }
+          background: #565656;
 
-            .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
-              background-color: $tree-title-bg-color;
-              border-color: $bg-color;
+          .dir-tools {
+            background: #565656;
+          }
+
+          .content-tree {
+            @include scrollBarDarkStyle;
+            background: $bg-color;
+            box-shadow: inset #2d2d2d -7px 0px;
+            #dir-tree {
+              span.fancytree-title {
+                color: #dedede;
+              }
+              ul.fancytree-container {
+                background: #1e1e1e;
+              }
+              .fancytree-plain span.fancytree-active span.fancytree-title{
+                background-color: $tree-title-bg-color;
+                border-color: $bg-color;
+              }
+
+              .fancytree-plain span.fancytree-node:hover span.fancytree-title{
+                background-color: $tree-title-bg-color;
+                border-color: $bg-color;
+              }
+
+              .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
+                background-color: $tree-title-bg-color;
+                border-color: $bg-color;
+              }
             }
           }
         }
@@ -608,13 +706,13 @@
         }
       }
 
-      .monaco-editor {
-        padding: 3px 0 0 0;
+      /*.monaco-editor {*/
+        /*padding: 3px 0 0 0;*/
 
-        .scroll-decoration{
-          box-shadow: unset!important;
-        }
-      }
+        /*.scroll-decoration{*/
+          /*box-shadow: unset!important;*/
+        /*}*/
+      /*}*/
 
     }
   }

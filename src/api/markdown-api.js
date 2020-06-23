@@ -26,4 +26,12 @@ export default {
       data
     })
   },
+  // 编辑文档 /markdown/edit
+  editMarkdownByPath: function(data) {
+    return request({
+      url: '/markdown/edit1',
+      method: 'post',
+      data
+    })
+  },
 }

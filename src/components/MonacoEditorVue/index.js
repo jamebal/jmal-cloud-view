@@ -77,11 +77,41 @@ export default {
 
   render (h) {
     return (
-      <div class="monaco_editor_container" style={this.style}></div>
+      <div class="monaco_editor_container" style={this.style} on-keydown={event => {
+        const isMac = navigator.platform.startsWith('Mac');
+        const {key, code, keyCode, ctrlKey, metaKey} = event;
+        const isCmd = isMac && metaKey || !isMac && ctrlKey;
+        console.log('keydown',isCmd)
+        if (!isCmd) {
+          return;
+        }
+        const isS = key === 's' || code === 'KeyS' || keyCode === 83;
+        if (isS) {
+          this.$emit('save', this._getValue());
+          event.stopPropagation();
+          event.preventDefault();
+        }
+      }}
+      ></div>
   );
   },
 
   methods: {
+    keyDown(event){
+      const isMac = navigator.platform.startsWith('Mac');
+      const {key, code, keyCode, ctrlKey, metaKey} = event;
+      const isCmd = isMac && metaKey || !isMac && ctrlKey;
+      console.log('keydown',isCmd)
+      if (!isCmd) {
+        return;
+      }
+      const isS = key === 's' || code === 'KeyS' || keyCode === 83;
+      if (isS) {
+        this.$emit('save', this._getValue());
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    },
     initMonaco() {
       const { value, language, theme, options } = this;
       Object.assign(options, this._editorBeforeMount());      //编辑器初始化前
@@ -93,6 +123,23 @@ export default {
       });
       this.diffEditor && this._setModel(this.value, this.original);
       this._editorMounted(this.editor);      //编辑器初始化后
+    },
+
+    onKeyDown(event) {
+      const isMac = navigator.platform.startsWith('Mac');
+      const {key, code, keyCode, ctrlKey, metaKey} = event;
+      const isCmd = isMac && metaKey || !isMac && ctrlKey;
+      if (!isCmd) {
+        return;
+      }
+      const isS = key === 's' || code === 'KeyS' || keyCode === 83;
+      if (isS && this.textPreviewVisible) {
+        if(this.newContent !== ''){
+          this.save()
+        }
+        event.stopPropagation();
+        event.preventDefault();
+      }
     },
 
     _getEditor() {
@@ -141,8 +188,8 @@ export default {
       }
     },
 
-    _emitChange(value, event) {
-      this.$emit('change', value, event);
+    _emitChange(value) {
+      this.$emit('change', value);
       this.$emit('input', value);
     }
   }
