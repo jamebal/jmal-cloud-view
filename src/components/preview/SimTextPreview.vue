@@ -318,14 +318,14 @@
         }).then((res)=>{
           this.loading.close()
           if(this.editableTabs.findIndex(tab=> tab.name===row.path) < 0){
-            console.log('添加一个tab')
             // 添加一个tab
-            this.editableTabs.push({
-              title: row.name,
-              copyTitle: row.name,
-              name: row.path,
-              content: res.data.contentText
-            })
+            let tab = {title: row.name,copyTitle: row.name,name: row.path,content: res.data.contentText}
+            let thisTabIndex = this.editableTabs.findIndex(tab=> tab.name===this.editableTabsValue)
+            if(this.editableTabs[thisTabIndex].title !== this.editableTabs[thisTabIndex].copyTitle){
+              this.editableTabs.push(tab)
+            }else{
+              this.editableTabs[thisTabIndex] = tab
+            }
           }
           this.editableTabsValue = row.path
         }).catch(() => {
@@ -369,19 +369,13 @@
             this.isShowUpdateBtn = true
           }
         }
-        // this.isShowUpdateBtn = true
-        // this.newContent = code
-        // if(code === this.content){
-        //   this.isShowUpdateBtn = false
-        // }
       },
       save(value,index) {
         if(value !== this.editableTabs[index].content && this.isShowUpdateBtn){
-
-          this.update(value,this.editableTabs[index].name)
+          this.update(value,this.editableTabs[index].name,index)
         }
       },
-      update(value,path) {
+      update(value,path,index) {
         this.updating = true
         markdownApi.editMarkdownByPath({
             relativePath: path,
@@ -389,8 +383,16 @@
             contentText: value
           }).then(() => {
             this.updating = false
-            this.isShowUpdateBtn = false
-            this.content = this.newContent
+            if(undefined !== index){
+              this.editableTabs[index].content = value
+              if(this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
+                this.editableTabs[index].title = this.editableTabs[index].copyTitle
+                // 没有任何改变
+                if(this.editableTabs.findIndex(tab=>tab.title !== tab.copyTitle) < 0){
+                  this.isShowUpdateBtn = false
+                }
+              }
+            }
             this.$message({
               message: "更新成功",
               type: 'success',
@@ -447,9 +449,11 @@
       removeTab(targetName) {
         let tabs = this.editableTabs;
         let activeName = this.editableTabsValue;
+        let removeIndex = 0
         if (activeName === targetName) {
           tabs.forEach((tab, index) => {
             if (tab.name === targetName) {
+              removeIndex = index
               let nextTab = tabs[index + 1] || tabs[index - 1];
               if (nextTab) {
                 activeName = nextTab.name;
@@ -457,8 +461,15 @@
             }
           });
         }
-        this.editableTabsValue = activeName;
-        this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+        if(!this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
+          this.editableTabsValue = activeName;
+          this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+        }else{
+          this.$confirm('是否保存修改？').then(()=>{
+          }).catch(()=>{
+
+          })
+        }
       }
     }
   }
@@ -477,11 +488,11 @@
     &::-webkit-scrollbar-thumb {
       border: unset!important;
       background-color: #c1c1c1 !important;
-      -webkit-border-radius: unset!important;
+      border-radius: unset!important;
     }
     &::-webkit-scrollbar-track-piece {
       background-color: unset!important;
-      -webkit-border-radius: 3px;
+      border-radius: 3px;
     }
   }
 
@@ -493,11 +504,11 @@
     &::-webkit-scrollbar-thumb {
       border: unset!important;
       background-color: #4b4b4b !important;
-      -webkit-border-radius: unset!important;
+      border-radius: unset!important;
     }
     &::-webkit-scrollbar-track-piece {
       background-color: unset!important;
-      -webkit-border-radius: 3px;
+      border-radius: 3px;
     }
   }
 

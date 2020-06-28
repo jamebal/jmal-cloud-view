@@ -81,7 +81,6 @@ export default {
         const isMac = navigator.platform.startsWith('Mac');
         const {key, code, keyCode, ctrlKey, metaKey} = event;
         const isCmd = isMac && metaKey || !isMac && ctrlKey;
-        console.log('keydown',isCmd)
         if (!isCmd) {
           return;
         }
