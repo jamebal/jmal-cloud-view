@@ -447,8 +447,10 @@
   import '@/utils/directives.js'
 
   import 'pl-table/themes/index.css';
-  // import 'pl-table/themes/plTableStyle.css';
   import { PlTable, PlTableColumn } from 'pl-table';
+
+  // import ws from '@/websocket/websocket_config';
+
   var rowStyleExecuting = false
   export default {
     name: 'ShowFile',
@@ -762,6 +764,9 @@
 
       // 画矩形选区
       this.darwRectangle()
+
+      // 监听websocket
+      this.onmessage()
     },
     destroyed() {
       window.removeEventListener('popstate', this.goBack, false);
@@ -799,6 +804,14 @@
       }
     },
     methods: {
+      onmessage(){
+        // if(ws.isConnected){
+        //   // 订阅系统数据
+        //   this.stompClient = ws.stompClient.subscribe('/topic/updateData', (msg) => {
+        //     console.log('/topic/updateData',msg)
+        //   },ws.headers);
+        // }
+      },
       load () {
         this.getFileList(true)
       },

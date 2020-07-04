@@ -15,7 +15,7 @@
       <div slot="title" class="simtext-header-title">
             <span class="title-name">{{file.name}}</span>
           <div class="title-extension">
-            <el-button v-if="isShowUpdateBtn" @click="update" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
+            <el-button v-if="isShowUpdateBtn" @click="saveAll" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
             <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
             <el-button @click="skinning" :class="lightTheme?'':'dark-button'" size="small" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
             <button class="title-extension-button" @click="fullScreen" size="small">
@@ -54,7 +54,7 @@
                 :width="editorWidth"
                 :height="editorHieght"
                 :theme="lightTheme?'vs':'vs-dark'"
-                :language="language"
+                :language="item.language"
                 :diffEditor="diffEditor"
                 original="..."
                 :value="item.content"
@@ -114,7 +114,6 @@
       return{
         lightTheme: true,
         defalutLanguage: 'redis',
-        language: this.defalutLanguage,
         lineWrapping: false,
         options: {
           fontSize: 14,
@@ -184,13 +183,6 @@
           offset: 100,
           message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
         })
-        let languages = monaco.languages.getLanguages();
-        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+file.suffix))
-        if(languagesIndex > -1){
-          this.language = languages[languagesIndex].id
-        }else{
-          this.language = this.defalutLanguage
-        }
         if(lineWrapping.includes(file.suffix)) {
           this.options.wordWrap = 'wordWrapColumn'
           this.lineWrapping = true
@@ -222,9 +214,12 @@
           this.editableTabs.push({
             title: res.data.name,
             copyTitle: res.data.name,
+            language: this.getEditorLanguage(res.data.suffix),
+            status: undefined,//标签状态
             name: res.data.path.substring(1,res.data.path.length)+res.data.name,
             content: res.data.contentText
           })
+          console.log(this.editableTabs)
           this.editableTabsValue = res.data.path.substring(1,res.data.path.length)+res.data.name
 
           // 界面的渲染后的初始化工作
@@ -243,6 +238,15 @@
       }
     },
     methods:{
+      getEditorLanguage(suffix) {
+        let editorLanguage = this.defalutLanguage
+        let languages = monaco.languages.getLanguages();
+        const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.' + suffix))
+        if (languagesIndex > -1) {
+          editorLanguage = languages[languagesIndex].id
+        }
+        return editorLanguage;
+      },
       upperLeve(){
         this.$refs.fancTree.upperLeve()
       },
@@ -319,12 +323,19 @@
           this.loading.close()
           if(this.editableTabs.findIndex(tab=> tab.name===row.path) < 0){
             // 添加一个tab
-            let tab = {title: row.name,copyTitle: row.name,name: row.path,content: res.data.contentText}
-            let thisTabIndex = this.editableTabs.findIndex(tab=> tab.name===this.editableTabsValue)
-            if(this.editableTabs[thisTabIndex].title !== this.editableTabs[thisTabIndex].copyTitle){
-              this.editableTabs.push(tab)
-            }else{
+            let tab = {
+              title:row.name,
+              copyTitle:row.name,
+              status: undefined,
+              language: this.getEditorLanguage(row.suffix),
+              name:row.path,
+              content:res.data.contentText
+            }
+            let thisTabIndex = this.editableTabs.findIndex(tab=> tab.status===undefined)
+            if(thisTabIndex > -1){
               this.editableTabs[thisTabIndex] = tab
+            }else{
+              this.editableTabs.push(tab)
             }
           }
           this.editableTabsValue = row.path
@@ -358,6 +369,7 @@
         if(value === this.editableTabs[index].content){
           if(this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
             this.editableTabs[index].title = this.editableTabs[index].copyTitle
+            this.editableTabs[index].status = 'Modified'
             // 没有任何改变
             if(this.editableTabs.findIndex(tab=>tab.title !== tab.copyTitle) < 0){
               this.isShowUpdateBtn = false
@@ -366,9 +378,17 @@
         }else{
           if(this.editableTabs[index].copyTitle === this.editableTabs[index].title){
             this.editableTabs[index].title += '*'
+            this.editableTabs[index].status = 'Modifying'
             this.isShowUpdateBtn = true
           }
         }
+      },
+      saveAll(){
+        this.editableTabs.forEach((tab,index) => {
+          if(tab.status === 'Modifying'){
+            this.update(tab.content,tab.name,index)
+          }
+        })
       },
       save(value,index) {
         if(value !== this.editableTabs[index].content && this.isShowUpdateBtn){
@@ -379,6 +399,7 @@
         this.updating = true
         markdownApi.editMarkdownByPath({
             relativePath: path,
+            userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             contentText: value
           }).then(() => {
@@ -387,6 +408,7 @@
               this.editableTabs[index].content = value
               if(this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
                 this.editableTabs[index].title = this.editableTabs[index].copyTitle
+                this.editableTabs[index].status = 'Modified'
                 // 没有任何改变
                 if(this.editableTabs.findIndex(tab=>tab.title !== tab.copyTitle) < 0){
                   this.isShowUpdateBtn = false
@@ -461,7 +483,7 @@
             }
           });
         }
-        if(!this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
+        if(this.editableTabs[removeIndex].status !== 'Modifying'){
           this.editableTabsValue = activeName;
           this.editableTabs = tabs.filter(tab => tab.name !== targetName);
         }else{

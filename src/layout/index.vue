@@ -22,6 +22,9 @@ import { getToken } from '@/utils/auth'
 import AudioPreview from "@/components/preview/AudioPreview";
 import globalUploader from '@/components/SimpleUploader/globalUploader.vue'
 
+import {toConnection} from "@/websocket/sockJS";
+import ws from '@/websocket/websocket_config';
+
 export default {
   name: 'Layout',
   components: {
@@ -65,6 +68,11 @@ export default {
 
     if(getToken()){
       this.isShow = window.pc;
+      //与服务器建立websocket连接
+      console.log(ws)
+      if(!ws.isConnected){
+        toConnection(this.$store.state.user.name,this.$store.state.user.token);
+      }
     }else{
       this.isShow = false
     }
