@@ -115,28 +115,21 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-      class="open-file-dialog"
+    <warn-confirm
       title="提示"
-      top="35vh"
-      :visible.sync="notPreviewDialogVisible">
-      <svg-icon icon-class="warring"></svg-icon> <span class="dialog-msg">此文件不支持预览, 是否下载该文件?</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button  size="small" @click="forciblyOpen(openingFile)">强行使用文本编辑器打开</el-button>
-      <el-button size="small" @click="notPreviewDialogVisible = false">取 消</el-button>
-      <el-button size="small" type="primary" @click=determineDownload(openingFile)>确 定</el-button>
-      </span>
-    </el-dialog>
+      content="此文件不支持预览, 是否下载该文件?"
+      :show.sync="notPreviewDialogVisible"
+      operatButtonName="强行使用文本编辑器打开"
+      confirmButtonName="下载"
+      @operating="forciblyOpen(openingFile)"
+      @confirm="determineDownload(openingFile)"
+    >
+    </warn-confirm>
 
     <!--展示压缩文件-->
     <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
       <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
     </el-dialog>
-
-    <!--&lt;!&ndash;解压到哪里&ndash;&gt;-->
-    <!--<el-dialog class="unzip-to-dialog" :title="'解压到: '+unzipToName" :visible.sync="unzipToVisible">-->
-      <!--<file-tree :directoryTreeData="unzipToData" :localFileMode="false" :tempDir="unzipToTempDir" @treeNodeClick="unzipToNodeClick"></file-tree>-->
-    <!--</el-dialog>-->
 
     <!--移动或复制弹出框-->
     <el-dialog
@@ -424,10 +417,7 @@
   import 'vant/lib/grid-item/style';
   import 'vant/lib/checkbox/style';
   import 'vant/lib/checkbox-group/style';
-  /* eslint-disable */
   import { mapGetters } from 'vuex'
-  // import defaultSettings from '@/settings'
-  // import { getPath, getPathList, setPath, removePath } from '@/utils/path'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import { suffix } from '@/utils/file-type'
   import Bus from '@/assets/js/bus'
@@ -441,6 +431,7 @@
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
   import ButtonUpload from "@/components/button/ButtonUpload";
+  import WarnConfirm from "@/components/confirm/WarnConfirm";
 
   import FileTree from"@/components/FileTree"
 
@@ -449,12 +440,13 @@
   import 'pl-table/themes/index.css';
   import { PlTable, PlTableColumn } from 'pl-table';
 
-  // import ws from '@/websocket/websocket_config';
+  import ws from '@/websocket/websocket_config';
 
   var rowStyleExecuting = false
   export default {
     name: 'ShowFile',
-    components: {AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
+    components: {
+      WarnConfirm, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
       PlTable,
       PlTableColumn,
       ButtonUpload,
@@ -766,10 +758,22 @@
       this.darwRectangle()
 
       // 监听websocket
-      this.onmessage()
+      if(ws.isConnected){
+        this.onmessage()
+      }else{
+        const that = this
+        setTimeout(function () {
+          if(ws.isConnected){
+            that.onmessage()
+          }
+        },3000)
+      }
     },
     destroyed() {
       window.removeEventListener('popstate', this.goBack, false);
+      if(this.stompClient){
+        this.stompClient.unsubscribe()
+      }
     },
     // watch: {
     //   fileList: function (newValue,oldValue) {
@@ -805,12 +809,18 @@
     },
     methods: {
       onmessage(){
-        // if(ws.isConnected){
-        //   // 订阅系统数据
-        //   this.stompClient = ws.stompClient.subscribe('/topic/updateData', (msg) => {
-        //     console.log('/topic/updateData',msg)
-        //   },ws.headers);
-        // }
+        // 订阅系统数据
+        console.log("订阅",'/user/queue/sendUser')
+        this.stompClient = ws.stompClient.subscribe('/user/queue/sendUser', (msg) => {
+          let fileDoc = JSON.parse(msg.body)
+          console.log('/queue/sendUser', fileDoc)
+          let index = this.fileList.findIndex(file=>file.id === fileDoc.id)
+          if(index > -1){
+            console.log(this.fileList[index])
+            this.fileList[index].size = fileDoc.size
+            this.fileList[index].agoTime = 1
+          }
+        },ws.headers);
       },
       load () {
         this.getFileList(true)

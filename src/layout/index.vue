@@ -69,7 +69,6 @@ export default {
     if(getToken()){
       this.isShow = window.pc;
       //与服务器建立websocket连接
-      console.log(ws)
       if(!ws.isConnected){
         toConnection(this.$store.state.user.name,this.$store.state.user.token);
       }

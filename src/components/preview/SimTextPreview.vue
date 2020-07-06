@@ -1,73 +1,87 @@
 <template>
-  <el-dialog
-              ref="simTextDialog"
-              v-bind="$attrs" v-on="$listeners"
-             :fullscreen="fullscreen"
-             :visible.sync="textPreviewVisible"
-             :title="file.name"
-             :close-on-click-modal="false"
-             @close="closeDialog"
-             :before-close="handleClose"
-             :width="dialogWidth*100+'%'"
-             v-resize="containerResize"
-             class="simtext-dialog"
-             v-dialogDrag="{ dialogWidth: dialogWidth}">
+  <div>
+    <warn-confirm
+      title="提示"
+      content="是否保存修改？"
+      :show.sync="isSaveDialogVisible"
+      operatButtonName="不保存"
+      confirmButtonName="保存"
+      @operating="closeDialog"
+      @confirm="saveAll(openingFile)"
+    >
+    </warn-confirm>
+
+    <el-dialog
+      ref="simTextDialog"
+      v-bind="$attrs" v-on="$listeners"
+      :fullscreen="fullscreen"
+      :visible.sync="textPreviewVisible"
+      :title="file.name"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+      :before-close="handleClose"
+      :width="dialogWidth*100+'%'"
+      v-resize="containerResize"
+      class="simtext-dialog"
+      v-dialogDrag="{ dialogWidth: dialogWidth}">
       <div slot="title" class="simtext-header-title">
-            <span class="title-name">{{file.name}}</span>
-          <div class="title-extension">
-            <el-button v-if="isShowUpdateBtn" @click="saveAll" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
-            <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
-            <el-button @click="skinning" :class="lightTheme?'':'dark-button'" size="small" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
-            <button class="title-extension-button" @click="fullScreen" size="small">
-              <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
-            </button>
+        <span class="title-name">{{file.name}}</span>
+        <div class="title-extension">
+          <el-button v-if="isShowUpdateBtn" @click="saveAll" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
+          <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
+          <el-button @click="skinning" :class="lightTheme?'':'dark-button'" size="small" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
+          <button class="title-extension-button" @click="fullScreen" size="small">
+            <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <!--<div class="editor_main_storey"></div>-->
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+31+'px'}">
+          <div class="dir-tools" :style="{width: contentsWidth+2+'px',minWidth: 272+'px'}">
+            <el-button-group>
+              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
+              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus">新建</el-button>
+              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
+            </el-button-group>
           </div>
-      </div>
-    <div class="content">
-      <!--<div class="editor_main_storey"></div>-->
-      <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+31+'px'}">
-        <div class="dir-tools" :style="{width: contentsWidth+2+'px',minWidth: 272+'px'}">
-          <el-button-group>
-            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
-            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
-            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus">新建</el-button>
-            <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
-          </el-button-group>
+          <div class="content-tree" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
+            <fancy-tree ref="fancTree" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+          </div>
         </div>
-        <div class="content-tree" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
-          <fancy-tree ref="fancTree" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+        <div class="editor-resize" style="width: 3px;cursor: col-resize;"></div>
+        <div :style="{width: editorWidth-3+'px'}">
+          <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
+            <el-tab-pane
+              v-for="(item,index) in editableTabs"
+              :key="item.name"
+              :label="item.title"
+              :name="item.name"
+            >
+              <div class="editor">
+                <MonacoEditor
+                  v-if="textPreviewVisible"
+                  ref="monacoEditor"
+                  :width="editorWidth"
+                  :height="editorHieght"
+                  :theme="lightTheme?'vs':'vs-dark'"
+                  :language="item.language"
+                  :diffEditor="diffEditor"
+                  original="..."
+                  :value="item.content"
+                  :options="options"
+                  @change="change($event,index)"
+                  @save="save($event,index)"
+                ></MonacoEditor>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
         </div>
       </div>
-      <div class="editor-resize" style="width: 3px;cursor: col-resize;"></div>
-      <div :style="{width: editorWidth-3+'px'}">
-        <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
-          <el-tab-pane
-            v-for="(item,index) in editableTabs"
-            :key="item.name"
-            :label="item.title"
-            :name="item.name"
-          >
-            <div class="editor">
-              <MonacoEditor
-                v-if="textPreviewVisible"
-                ref="monacoEditor"
-                :width="editorWidth"
-                :height="editorHieght"
-                :theme="lightTheme?'vs':'vs-dark'"
-                :language="item.language"
-                :diffEditor="diffEditor"
-                original="..."
-                :value="item.content"
-                :options="options"
-                @change="change($event,index)"
-                @save="save($event,index)"
-              ></MonacoEditor>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-    </div>
-  </el-dialog>
+    </el-dialog>
+
+  </div>
 </template>
 <script>
 
@@ -82,11 +96,12 @@
 
   import FileTree from"@/components/FileTree"
   import FancyTree from"@/components/FancyTree"
+  import WarnConfirm from "@/components/confirm/WarnConfirm"
 
   export default {
     name: "SimTextPreview",
     components: {
-      MonacoEditor,FileTree,FancyTree
+      MonacoEditor,FileTree,FancyTree,WarnConfirm
     },
     props: {
       file: {
@@ -137,6 +152,8 @@
         previewMode: true,
         isShowUpdateBtn: false,
         updating: false,
+        modifyMsg: undefined,
+        isSaveDialogVisible: false,
         loading: {},
         darkButton: {
           background: '#565656!important',
@@ -349,10 +366,17 @@
       },
       handleClose(done) {
         if(this.isShowUpdateBtn){
-          this.$confirm('是否保存修改？')
+          // this.isSaveDialogVisible = true
+          this.$confirm('',
+            {
+              message:'是否保存修改？',
+              cancelButtonText: '不保存',
+              confirmButtonText: '保存'
+            }
+          )
           .then(_ => {
             done();
-            this.update()
+            this.saveAll()
           })
           .catch(_ => {
             done();
@@ -363,6 +387,7 @@
       },
       closeDialog() {
         this.$emit('update:status', this.textPreviewVisible)
+        this.isSaveDialogVisible = false
         this.isShowUpdateBtn = false
       },
       change(value,index) {
@@ -380,13 +405,14 @@
             this.editableTabs[index].title += '*'
             this.editableTabs[index].status = 'Modifying'
             this.isShowUpdateBtn = true
+            this.editableTabs[index].change = value
           }
         }
       },
       saveAll(){
         this.editableTabs.forEach((tab,index) => {
           if(tab.status === 'Modifying'){
-            this.update(tab.content,tab.name,index)
+            this.update(tab.change,tab.name,index)
           }
         })
       },
@@ -415,11 +441,17 @@
                 }
               }
             }
-            this.$message({
-              message: "更新成功",
-              type: 'success',
-              duration : 1000
-            });
+            if(!this.modifyMsg){
+              this.modifyMsg = this.$message({
+                message: "更新成功",
+                type: 'success',
+                duration : 1000
+              });
+              const that = this
+              setTimeout(function () {
+                that.modifyMsg = undefined
+              },1000)
+            }
           })
       },
       // 全屏
@@ -487,9 +519,14 @@
           this.editableTabsValue = activeName;
           this.editableTabs = tabs.filter(tab => tab.name !== targetName);
         }else{
-          this.$confirm('是否保存修改？').then(()=>{
+          this.$confirm('',{message:'是否保存修改？',cancelButtonText: '不保存',confirmButtonText: '保存'}
+          ).then(()=>{
+            this.update(this.editableTabs[removeIndex].change,this.editableTabs[removeIndex].name,removeIndex)
           }).catch(()=>{
-
+            console.log(this.editableTabs[removeIndex].change,this.editableTabs[removeIndex].name,removeIndex)
+          }).then(()=>{
+            this.editableTabsValue = activeName;
+            this.editableTabs = tabs.filter(tab => tab.name !== targetName);
           })
         }
       }
