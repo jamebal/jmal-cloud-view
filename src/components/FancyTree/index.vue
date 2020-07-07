@@ -83,7 +83,7 @@
             break
           case 'remove':
             console.log('remove',this.contextData)
-            this.delFile(this.contextData.path)
+            this.delFile(this.contextData)
             break
           default:
             console.log('default',this.contextData)
@@ -91,14 +91,20 @@
         }
       },
       // 删除文件/文件夹
-      delFile(path){
-        api.delFile({
-          username: this.$store.state.user.name,
-          path: path
-        }).then(()=>{
-          let node = this.tree.getActiveNode()
-          node.remove()
-          this.$message.success("删除成功！")
+      delFile(data){
+        this.$confirm('此操作将永久删除' + data.name + ', 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          api.delFile({
+            username: this.$store.state.user.name,
+            path: data.path
+          }).then(()=>{
+            let node = this.tree.getActiveNode()
+            node.remove()
+            this.$message.success("删除成功！")
+          })
         })
       },
       // 上级目录
