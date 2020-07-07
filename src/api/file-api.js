@@ -228,4 +228,15 @@ export default {
       params
     })
   },
+  // 根据path删除文件
+  delFile: function(params) {
+    return request({
+      url: 'delFile',
+      method: 'delete',
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
 }

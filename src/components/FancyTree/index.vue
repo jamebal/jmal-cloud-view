@@ -9,10 +9,12 @@
   </div>
 </template>
 <script>
+  import $ from 'jquery'
   import 'v-contextmenu/dist/index.css'
   import { iconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
-  import {createTree,getNode} from 'jquery.fancytree';
+  import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
+  import fancytree from 'jquery.fancytree';
 
   import api from '@/api/file-api'
   export default {
@@ -60,7 +62,7 @@
         setTimeout(function () {
           that.rightClicking = false
         },200)
-        this.contextData = getNode(vnode).data
+        this.contextData = fancytree.getNode(vnode).data
         // 触发节点的点击事件
         let evObj = document.createEvent('MouseEvents');
         evObj.initMouseEvent('click',true,true,window,1,12,345,7,220,false,false,true,false,0,null);
@@ -81,7 +83,7 @@
             break
           case 'remove':
             console.log('remove',this.contextData)
-            this.delFile(path)
+            this.delFile(this.contextData.path)
             break
           default:
             console.log('default',this.contextData)
@@ -89,8 +91,15 @@
         }
       },
       // 删除文件/文件夹
-      delFile(){
-
+      delFile(path){
+        api.delFile({
+          username: this.$store.state.user.name,
+          path: path
+        }).then(()=>{
+          let node = this.tree.getActiveNode()
+          node.remove()
+          this.$message.success("删除成功！")
+        })
       },
       // 上级目录
       upperLeve(){
@@ -165,7 +174,8 @@
         })
       },
       initTree(treeData){
-        this.tree = createTree('#dir-tree', {
+        this.tree = fancytree.createTree('#dir-tree', {
+          extensions: ["edit"],
           icon: (event,data)=> this.icon(event,data),
           source: this.convert(treeData),
           lazyLoad: (event,data)=> this.lazyLoad(event,data),
@@ -173,7 +183,55 @@
           dblclick: (event,data)=> this.dblclick(event,data),
           activate: (event,data)=> this.activate(event,data),
           createNode: (event,data)=> this.createNode(event,data),
+          edit: {
+            triggerStart: ["f2", "mac+enter"],
+            beforeEdit: function(event, data){
+              console.log(event.type, data);
+              // Return false to prevent edit mode
+            },
+            edit: function(event, data){
+              console.log(event.type, data);
+              // Editor was opened (available as data.input)
+            },
+            beforeClose: function(event, data){
+              // Return false to prevent cancel/save (data.input is available)
+              console.log(event.type, data);
+              if( data.originalEvent.type === "mousedown" ) {
+                // We could prevent the mouse click from generating a blur event
+                // (which would then again close the editor) and return `false` to keep
+                // the editor open:
+//                  data.originalEvent.preventDefault();
+//                  return false;
+                // Or go on with closing the editor, but discard any changes:
+//                  data.save = false;
+              }
+            },
+            save: function(event, data){
+              console.log(event.type, data);
+              // Save data.input.val() or return false to keep editor open
+              // Simulate to start a slow ajax request...
+              // setTimeout(function(){
+              //   console.log(data.node.span)
+              //   $(data.node.span).removeClass("pending");
+              //   // Let's pretend the server returned a slightly modified
+              //   // title:
+              //   data.node.setTitle(data.node.title + "!");
+              // }, 2000);
+              // We return true, so ext-edit will set the current user input
+              // as title
+              return true;
+            },
+            close: function(event, data){
+              console.log(event.type, data);
+              // Editor was removed
+              if( data.save ) {
+                // Since we started an async request, mark the node as preliminary
+                // $(data.node.span).addClass("pending");
+              }
+            }
+          }
         });
+        console.log(this.tree.getActiveNode(),fancytree._extensions)
       },
       icon(event,data) {
         return { html: this.loadSvg(this.findIconClass(data.node.data)) }
@@ -226,6 +284,7 @@
       },
       click(event, data){
         if(!this.rightClicking){
+
           this.$emit('treeNodeClick',data.node.data)
         }
       },

@@ -810,16 +810,24 @@
     },
     methods: {
       onmessage(){
-        // 订阅系统数据
-        console.log("订阅",'/user/queue/sendUser')
-        this.stompClient = ws.stompClient.subscribe('/user/queue/sendUser', (msg) => {
+        // 订阅消息
+        console.log("订阅",'/user/queue/updateFile')
+        this.stompClient = ws.stompClient.subscribe('/user/queue/updateFile', (msg) => {
           let fileDoc = JSON.parse(msg.body)
-          console.log('/queue/sendUser', fileDoc)
+          console.log('/queue/updateFile', fileDoc)
           let index = this.fileList.findIndex(file=>file.id === fileDoc.id)
           if(index > -1){
-            console.log(this.fileList[index])
             this.fileList[index].size = fileDoc.size
             this.fileList[index].agoTime = 1
+          }
+        },ws.headers);
+        console.log("订阅",'/user/queue/deleteFile')
+        this.stompClient = ws.stompClient.subscribe('/user/queue/deleteFile', (msg) => {
+          let fileDoc = JSON.parse(msg.body)
+          console.log('/queue/deleteFile', fileDoc)
+          let index = this.fileList.findIndex(file=>file.id === fileDoc.id)
+          if(index > -1){
+            this.fileList.splice(index,1)
           }
         },ws.headers);
       },
