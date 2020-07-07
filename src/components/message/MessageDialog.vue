@@ -1,16 +1,17 @@
 <template>
   <div>
     <el-dialog
-      class="open-file-dialog"
+      class="jmal-message-dialog"
       :title="title"
-      top="35vh"
       :visible.sync="visible"
+      top="0vh"
+      :close-on-click-modal="false"
       @close="closeDialog">
       <svg-icon icon-class="warring"></svg-icon> <span class="dialog-msg">{{content}}</span>
       <span slot="footer" class="dialog-footer">
-        <el-button :size="buttonSize" @click="operating">{{operatButtonName}}</el-button>
-        <el-button :size="buttonSize" @click="cancel">{{cancelButtonName}}</el-button>
-        <el-button :size="buttonSize" type="primary" @click=confirm>{{confirmButtonName}}</el-button>
+        <el-button :size="buttonSize" @click="operating">{{operatButtonText}}</el-button>
+        <el-button :size="buttonSize" @click="cancel">{{cancelButtonText}}</el-button>
+        <el-button :size="buttonSize" type="primary" @click=confirm>{{confirmButtonText}}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -18,7 +19,7 @@
 
 <script>
   export default {
-    name: "WarnConfirm",
+    name: "MessageDialog",
     props: {
       title: {
         type: String,
@@ -38,15 +39,15 @@
         type: String,
         default: 'small'
       },
-      operatButtonName: {
+      operatButtonText: {
         type: String,
         default: ''
       },
-      cancelButtonName: {
+      cancelButtonText: {
         type: String,
         default: '取 消'
       },
-      confirmButtonName: {
+      confirmButtonText: {
         type: String,
         default: '确 定'
       }
@@ -79,3 +80,18 @@
     }
   }
 </script>
+<style lang="scss" scoped>
+  >>>.jmal-message-dialog {
+    height: 200px;
+    top: calc(50% - 100px);
+    .el-dialog {
+      width: 420px;
+    }
+    .svg-icon {
+      font-size: 20px;
+    }
+    .dialog-msg {
+      margin-left: 10px;
+    }
+  }
+</style>

@@ -1,15 +1,26 @@
 <template>
   <div>
-    <warn-confirm
-      title="提示"
-      content="是否保存修改？"
+    <message-dialog
+      title="确认信息"
+      content="检测到未保存的内容，是否在离开前保存修改？"
       :show.sync="isSaveDialogVisible"
-      operatButtonName="不保存"
-      confirmButtonName="保存"
+      operatButtonText="放弃修改"
+      confirmButtonText="保存"
       @operating="closeDialog"
-      @confirm="saveAll(openingFile)"
+      @confirm="confirmUpdate"
     >
-    </warn-confirm>
+    </message-dialog>
+
+    <message-dialog
+      title="确认信息"
+      content="是否在关闭前保存修改？"
+      :show.sync="isTabSaveDialogVisible"
+      operatButtonText="放弃修改"
+      confirmButtonText="保存"
+      @operating="closeTabDialog"
+      @confirm="saveTab"
+    >
+    </message-dialog>
 
     <el-dialog
       ref="simTextDialog"
@@ -96,12 +107,12 @@
 
   import FileTree from"@/components/FileTree"
   import FancyTree from"@/components/FancyTree"
-  import WarnConfirm from "@/components/confirm/WarnConfirm"
+  import MessageDialog from "@/components/message/MessageDialog"
 
   export default {
     name: "SimTextPreview",
     components: {
-      MonacoEditor,FileTree,FancyTree,WarnConfirm
+      MonacoEditor,FileTree,FancyTree,MessageDialog
     },
     props: {
       file: {
@@ -154,6 +165,8 @@
         updating: false,
         modifyMsg: undefined,
         isSaveDialogVisible: false,
+        isTabSaveDialogVisible: false,
+        removeIndex: 0,
         loading: {},
         darkButton: {
           background: '#565656!important',
@@ -187,7 +200,10 @@
       }
     },
     watch: { //监听file的变化，进行相应的操作即可
-      file: function (file) {
+      file(file) {
+        if(!file.path){
+          return
+        }
         this.editableTabs = []
         this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
         this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
@@ -236,7 +252,6 @@
             name: res.data.path.substring(1,res.data.path.length)+res.data.name,
             content: res.data.contentText
           })
-          console.log(this.editableTabs)
           this.editableTabsValue = res.data.path.substring(1,res.data.path.length)+res.data.name
 
           // 界面的渲染后的初始化工作
@@ -274,7 +289,6 @@
         let resize = document.querySelector('.el-dialog__body .content .editor-resize');
         let left = document.querySelector('.file-contents');
         let leftTools = document.querySelector('.file-contents .dir-tools');
-        let leftTree = document.querySelector('.file-contents .content-tree');
         if(resize){
           // 鼠标按下事件
           const that = this
@@ -286,9 +300,6 @@
               let endX = e.clientX;
               // 移动的距离。负数向左移动,正数向右移动
               let moveLen = endX - startX
-              // left.style.width = (contentsStartWidth + moveLen)+'px'
-              // leftTree.style.width = (contentsStartWidth + moveLen)+'px'
-              console.log(leftTools.style.minWidth.split('\px')[0])
               if((contentsStartWidth + moveLen) > leftTools.style.minWidth.split('\px')[0]){
                 that.contentsWidth = contentsStartWidth + moveLen
                 that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
@@ -366,29 +377,34 @@
       },
       handleClose(done) {
         if(this.isShowUpdateBtn){
-          // this.isSaveDialogVisible = true
-          this.$confirm('',
-            {
-              message:'是否保存修改？',
-              cancelButtonText: '不保存',
-              confirmButtonText: '保存'
-            }
-          )
-          .then(_ => {
-            done();
-            this.saveAll()
-          })
-          .catch(_ => {
-            done();
-          });
+          this.isSaveDialogVisible = true
         }else{
           done()
+          this.closeAllTabs()
         }
       },
-      closeDialog() {
+      saveTab(){
+        this.update(this.editableTabs[this.removeIndex].change,this.editableTabs[this.removeIndex].name)
+        this.isTabSaveDialogVisible = false
+        this.editableTabs.splice(this.removeIndex,1)
+      },
+      confirmUpdate(){
+        this.saveAll(true)
+        this.textPreviewVisible = false
         this.$emit('update:status', this.textPreviewVisible)
         this.isSaveDialogVisible = false
         this.isShowUpdateBtn = false
+      },
+      closeTabDialog(){
+        this.isTabSaveDialogVisible = false
+        this.editableTabs.splice(this.removeIndex,1)
+      },
+      closeDialog() {
+        this.textPreviewVisible = false
+        this.$emit('update:status', this.textPreviewVisible)
+        this.isSaveDialogVisible = false
+        this.isShowUpdateBtn = false
+        this.closeAllTabs()
       },
       change(value,index) {
         if(value === this.editableTabs[index].content){
@@ -409,12 +425,23 @@
           }
         }
       },
-      saveAll(){
+      saveAll(isClose){
         this.editableTabs.forEach((tab,index) => {
           if(tab.status === 'Modifying'){
-            this.update(tab.change,tab.name,index)
+            if(isClose){
+              this.update(tab.change,tab.name)
+            }else{
+              this.update(tab.change,tab.name,index)
+            }
           }
         })
+        if(isClose){
+          this.closeAllTabs()
+        }
+      },
+      closeAllTabs(){
+        this.editableTabs.splice(0,this.editableTabs.length)
+        this.$emit('update:file', {})
       },
       save(value,index) {
         if(value !== this.editableTabs[index].content && this.isShowUpdateBtn){
@@ -439,6 +466,16 @@
                 if(this.editableTabs.findIndex(tab=>tab.title !== tab.copyTitle) < 0){
                   this.isShowUpdateBtn = false
                 }
+              }
+            }else{
+              let update = false
+              this.editableTabs.forEach((tab) => {
+                if(tab.status === 'Modifying'){
+                  update = true
+                }
+              })
+              if(!update){
+                this.isShowUpdateBtn = false
               }
             }
             if(!this.modifyMsg){
@@ -519,15 +556,8 @@
           this.editableTabsValue = activeName;
           this.editableTabs = tabs.filter(tab => tab.name !== targetName);
         }else{
-          this.$confirm('',{message:'是否保存修改？',cancelButtonText: '不保存',confirmButtonText: '保存'}
-          ).then(()=>{
-            this.update(this.editableTabs[removeIndex].change,this.editableTabs[removeIndex].name,removeIndex)
-          }).catch(()=>{
-            console.log(this.editableTabs[removeIndex].change,this.editableTabs[removeIndex].name,removeIndex)
-          }).then(()=>{
-            this.editableTabsValue = activeName;
-            this.editableTabs = tabs.filter(tab => tab.name !== targetName);
-          })
+          this.removeIndex = removeIndex
+          this.isTabSaveDialogVisible = true
         }
       }
     }
@@ -776,15 +806,23 @@
         }
       }
 
-      /*.monaco-editor {*/
-        /*padding: 3px 0 0 0;*/
-
-        /*.scroll-decoration{*/
-          /*box-shadow: unset!important;*/
-        /*}*/
-      /*}*/
-
     }
   }
 
+</style>
+<style lang="scss" scoped>
+  >>>.jmal-message-dialog {
+    width: 420px;
+    height: 200px;
+    top: calc(50% - 100px);
+    left: calc(50% - 210px);
+    .el-dialog {
+      .el-dialog__header {
+        padding: 15px 20px 15px;
+      }
+      .el-dialog__body {
+        padding: 0 10px 5px 20px;
+      }
+    }
+  }
 </style>

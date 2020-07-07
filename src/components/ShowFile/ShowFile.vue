@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container" v-resize="containerResize">
+
     <el-breadcrumb class="app-breadcrumb" separator="">
       <transition-group name="breadcrumb" v-if="showNavigation">
         <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.folder+index">
@@ -115,16 +116,16 @@
       </span>
     </el-dialog>
 
-    <warn-confirm
+    <message-dialog
       title="提示"
       content="此文件不支持预览, 是否下载该文件?"
       :show.sync="notPreviewDialogVisible"
-      operatButtonName="强行使用文本编辑器打开"
-      confirmButtonName="下载"
+      operatButtonText="强行使用文本编辑器打开"
+      confirmButtonText="下载"
       @operating="forciblyOpen(openingFile)"
       @confirm="determineDownload(openingFile)"
     >
-    </warn-confirm>
+    </message-dialog>
 
     <!--展示压缩文件-->
     <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
@@ -375,7 +376,7 @@
       :emptyStatus="emptyStatus"
     >
     </empty-file>
-    <sim-text-preview :file="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
+    <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
     <!-- <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview> -->
@@ -431,7 +432,7 @@
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
   import ButtonUpload from "@/components/button/ButtonUpload";
-  import WarnConfirm from "@/components/confirm/WarnConfirm";
+  import MessageDialog from "@/components/message/MessageDialog";
 
   import FileTree from"@/components/FileTree"
 
@@ -446,7 +447,7 @@
   export default {
     name: 'ShowFile',
     components: {
-      WarnConfirm, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
+      MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
       PlTable,
       PlTableColumn,
       ButtonUpload,
@@ -2662,9 +2663,9 @@
   /deep/.el-input-tree-button {
     margin-left: 5px!important;
   }
-  /deep/.open-file-dialog {
+  >>>.open-file-dialog {
     .el-dialog {
-      width: 400px;
+      width: 420px;
     }
     .svg-icon {
       font-size: 20px;

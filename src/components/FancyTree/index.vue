@@ -81,13 +81,18 @@
             break
           case 'remove':
             console.log('remove',this.contextData)
+            this.delFile(path)
             break
           default:
             console.log('default',this.contextData)
             break
         }
       },
-      //上级目录
+      // 删除文件/文件夹
+      delFile(){
+
+      },
+      // 上级目录
       upperLeve(){
         let path = this.tree.rootNode.children[0].key
         let title = this.tree.rootNode.children[0].title
@@ -140,27 +145,22 @@
           username: this.$store.state.user.name,
           path: treeData[0].path,
         }).then(res => {
-          treeData.map(data => {
-            let oldname = data.name
-            let pathlist = data.path.split("\/")
-            data.name = pathlist[pathlist.length-2]
-            data.expanded = true
-            data.children = res.data.map(doc => {
-              if(oldname === doc.name){
-                doc.active = true
-              }
-              doc.key = doc.path
-              doc.title = doc.name
-              doc.folder = doc.isFolder
-              doc.lazy = doc.isFolder
-              return doc
-            })
-            return data;
+          let oldname = treeData[0].name
+
+          let data = res.data.map(doc => {
+            if(oldname === doc.name){
+              doc.active = true
+            }
+            doc.key = doc.path
+            doc.title = doc.name
+            doc.folder = doc.isFolder
+            doc.lazy = doc.isFolder
+            return doc
           })
           if(reLoad){
-            this.tree.reload(this.convert(treeData))
+            this.tree.reload(this.convert(data))
           }else{
-            this.initTree(this.convert(treeData))
+            this.initTree(this.convert(data))
           }
         })
       },
@@ -255,6 +255,10 @@
 
 <style lang="scss" scoped>
   #dir-tree{
+    >>>span.fancytree-custom-icon {
+      margin-top: 3px;
+      margin-left: 0;
+    }
   }
   /deep/ul.fancytree-container {
     border: unset;
