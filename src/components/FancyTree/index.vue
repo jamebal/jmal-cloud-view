@@ -1,5 +1,11 @@
 <template>
   <div>
+    <v-contextmenu ref="contextmenu" :theme="lightTheme?'default':'dark'" @contextmenu="contextmenu">
+      <v-contextmenu-item v-for="item of menus" :key="item.operation" @click="contextmenuClick(item.operation)">
+        <svg-icon :icon-class="item.iconClass"></svg-icon>
+        {{item.label}}
+      </v-contextmenu-item>
+    </v-contextmenu>
     <div class="dir-tools" style="min-width: 272px;">
       <el-button-group>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
@@ -9,12 +15,6 @@
       </el-button-group>
     </div>
     <div id="dir-tree" :style="{width: contentsWidth+'px',height: contentsHieght+'px'}">
-      <v-contextmenu ref="contextmenu" :theme="lightTheme?'default':'dark'" @contextmenu="contextmenu">
-        <v-contextmenu-item v-for="item of menus" :key="item.operation" @click="contextmenuClick(item.operation)">
-          <svg-icon :icon-class="item.iconClass"></svg-icon>
-          {{item.label}}
-        </v-contextmenu-item>
-      </v-contextmenu>
     </div>
   </div>
 </template>
@@ -57,8 +57,13 @@
           { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
         fileMenus: [
+          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
           { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
-        ]
+        ],
+        newFileMenus: [
+          { iconClass: 'add-file', label: '新建文件', operation: 'addFile' },
+          { iconClass: 'folder-add', label: '新建目录', operation: 'addFolder' }
+        ],
       }
     },
     watch: {
@@ -84,7 +89,6 @@
         let evObj = document.createEvent('MouseEvents');
         evObj.initMouseEvent('click',true,true,window,1,12,345,7,220,false,false,true,false,0,null);
         vnode.dispatchEvent(evObj);
-
         if(this.contextData.isFolder){
           this.menus = this.folderMenus
         }else{
@@ -102,6 +106,10 @@
             console.log('remove',this.contextData)
             this.delFile(this.contextData)
             break
+          case 'rename':
+            console.log('rename',this.contextData)
+            this.tree.getActiveNode().editStart()
+            break
           default:
             console.log('default',this.contextData)
             break
@@ -109,7 +117,8 @@
       },
       // 删除文件/文件夹
       delFile(data){
-        this.$confirm('此操作将永久删除' + data.name + ', 是否继续?', '提示', {
+        this.$confirm('此操作将永久删除' + data.name + '，' +
+          '\n 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -197,6 +206,7 @@
         })
       },
       initTree(treeData){
+        const that = this
         this.tree = fancytree.createTree('#dir-tree', {
           extensions: ["edit"],
           icon: (event,data)=> this.icon(event,data),
@@ -230,7 +240,8 @@
               }
             },
             save: function(event, data){
-              console.log(event.type, data);
+              console.log(event.type, data , data.input.val());
+              that.nodeRename(data.input.val(), data.node.data, data.node)
               // Save data.input.val() or return false to keep editor open
               // Simulate to start a slow ajax request...
               // setTimeout(function(){
@@ -255,6 +266,42 @@
           }
         });
         console.log(this.tree.getActiveNode(),fancytree._extensions)
+      },
+      // 重命名
+      nodeRename(newFileName, row, node) {
+        if (newFileName) {
+          if(/[\/\\"<>\?\*]/gi.test(newFileName)){
+            this.$message({
+              message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+              type: 'warning'
+            });
+            return;
+          }
+          let strFileName = newFileName.replace(/(.*\/)*([^.]+).*/ig,"$2");
+          let newExt = newFileName.replace(/.+\./,"");
+          if (!row.isFolder) {
+            if (row.suffix !== newExt) {
+              this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,'提示',{
+                type: 'warning',
+                confirmButtonText: `保持.${row.suffix}`,
+                cancelButtonText: `使用.${newExt}`,
+              }).then(()=>{
+                newFileName = strFileName + '.' + row.suffix
+              }).catch(()=>{
+              }).then(()=>{
+                this.rename(row,newFileName,node)
+              })
+            }else{
+              this.rename(row,newFileName,node)
+            }
+          }else{
+            this.rename(row,newFileName,node)
+          }
+        }
+      },
+      rename(row,newFileName,node){
+        // 重命名
+        node.setTitle(newFileName);
       },
       icon(event,data) {
         return { html: this.loadSvg(this.findIconClass(data.node.data)) }

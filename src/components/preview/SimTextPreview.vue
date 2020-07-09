@@ -743,7 +743,6 @@
 
         .dir-tools {
           background: #ececec;
-          border-right: 5px solid #fff;
           .el-button--small {
             padding: 9px 10px;
           }

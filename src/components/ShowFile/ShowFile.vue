@@ -1852,48 +1852,68 @@
             });
             return;
           }
+          let strFileName = newFileName.replace(/(.*\/)*([^.]+).*/ig,"$2");
+          let newExt = newFileName.replace(/.+\./,"");
           if (!row.isFolder) {
-            const ext = '.' + row.suffix
-            if (!newFileName.endsWith(ext)) {
-              newFileName += ext
+            if (row.suffix !== newExt) {
+              this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,'提示',{
+                type: 'warning',
+                confirmButtonText: `保持.${row.suffix}`,
+                cancelButtonText: `使用.${newExt}`,
+              }).then(()=>{
+                newFileName = strFileName + '.' + row.suffix
+              }).catch(()=>{
+              }).then(()=>{
+                this.rename(row,newFileName)
+              })
+            }else{
+              this.rename(row,newFileName)
             }
+          }else{
+            this.rename(row,newFileName)
           }
-          this.renameLoading = true
-          const findIndex = this.fileList.findIndex(item => {
-            if(newFileName === item.name){
-              return item;
-            }
-          })
-          if(findIndex > -1){
-            let msg = '该文件已存在'
-            if(row.isFolder){
-              msg = '该文件夹已存在'
-            }
-            this.$message({
-              message: msg,
-              type: 'warning'
-            });
-            this.renameLoading = false
-            return
-          }
-
-          api.rename({
-            newFileName: newFileName,
-            username: this.$store.state.user.name,
-            id: row.id
-          }).then(res => {
-            if (res.data) {
-              this.renameLoading = false
-              row.name = newFileName
-              this.fileList[row.index] = row
-              this.editingIndex = -1
-            }
-          }).then(()=>{
-            this.$refs.fileListTable.clearSelection()
-          })
         } else {
           this.editingIndex = -1
         }
+      },
+      rename(row,newFileName){
+        if(row.name === newFileName){
+          this.editingIndex = -1
+          return
+        }
+        this.renameLoading = true
+        const findIndex = this.fileList.findIndex(item => {
+          if(newFileName === item.name){
+            return item
+          }
+        })
+        if(findIndex > -1){
+          let msg = '该文件已存在'
+          if(row.isFolder){
+            msg = '该文件夹已存在'
+          }
+          this.$message({
+            message: msg,
+            type: 'warning'
+          });
+          this.renameLoading = false
+          return
+        }
+        api.rename({
+          newFileName: newFileName,
+          username: this.$store.state.user.name,
+          id: row.id
+        }).then(res => {
+          if (res.data) {
+            this.renameLoading = false
+            row.name = newFileName
+            row.suffix = newFileName.replace(/.+\./,"")
+            this.fileList[row.index] = row
+            this.editingIndex = -1
+          }
+        }).then(()=>{
+          this.$refs.fileListTable.clearSelection()
+        })
       },
       // 更多操作(多选)
       moreOperation(event) {
