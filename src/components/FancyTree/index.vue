@@ -1,15 +1,24 @@
 <template>
-  <div id="dir-tree" >
-    <v-contextmenu ref="contextmenu" :theme="lightTheme?'default':'dark'" @contextmenu="contextmenu">
-      <v-contextmenu-item v-for="item of menus" :key="item.operation" @click="contextmenuClick(item.operation)">
-        <svg-icon :icon-class="item.iconClass"></svg-icon>
-        {{item.label}}
-      </v-contextmenu-item>
-    </v-contextmenu>
+  <div>
+    <div class="dir-tools" style="min-width: 272px;">
+      <el-button-group>
+        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
+        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus">新建</el-button>
+        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
+      </el-button-group>
+    </div>
+    <div id="dir-tree" :style="{width: contentsWidth+'px',height: contentsHieght+'px'}">
+      <v-contextmenu ref="contextmenu" :theme="lightTheme?'default':'dark'" @contextmenu="contextmenu">
+        <v-contextmenu-item v-for="item of menus" :key="item.operation" @click="contextmenuClick(item.operation)">
+          <svg-icon :icon-class="item.iconClass"></svg-icon>
+          {{item.label}}
+        </v-contextmenu-item>
+      </v-contextmenu>
+    </div>
   </div>
 </template>
 <script>
-  import $ from 'jquery'
   import 'v-contextmenu/dist/index.css'
   import { iconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
@@ -20,6 +29,14 @@
   export default {
     name: "FancyTree",
     props: {
+      contentsWidth: {
+        type: Number,
+        default: 250
+      },
+      contentsHieght: {
+        type: Number,
+        default: 500
+      },
       directoryTreeData: {
         type: Array,
         default: () => []

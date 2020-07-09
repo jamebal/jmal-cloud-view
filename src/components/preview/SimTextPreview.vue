@@ -47,18 +47,9 @@
         </div>
       </div>
       <div class="content">
-        <!--<div class="editor_main_storey"></div>-->
         <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+31+'px'}">
-          <div class="dir-tools" :style="{width: contentsWidth+2+'px',minWidth: 272+'px'}">
-            <el-button-group>
-              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
-              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
-              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus">新建</el-button>
-              <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
-            </el-button-group>
-          </div>
-          <div class="content-tree" :style="{width: contentsWidth+'px',height: editorHieght+'px'}">
-            <fancy-tree ref="fancTree" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+          <div class="content-tree">
+            <fancy-tree ref="fancTree" :contentsWidth="contentsWidth" :contentsHieght="editorHieght" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
           </div>
         </div>
         <div class="editor-resize" style="width: 3px;cursor: col-resize;"></div>
@@ -279,12 +270,6 @@
         }
         return editorLanguage;
       },
-      upperLeve(){
-        this.$refs.fancTree.upperLeve()
-      },
-      refresh(){
-        this.$refs.fancTree.refresh()
-      },
       dragControllerDiv() {
         let resize = document.querySelector('.el-dialog__body .content .editor-resize');
         let left = document.querySelector('.file-contents');
@@ -301,8 +286,11 @@
               // 移动的距离。负数向左移动,正数向右移动
               let moveLen = endX - startX
               if((contentsStartWidth + moveLen) > leftTools.style.minWidth.split('\px')[0]){
-                that.contentsWidth = contentsStartWidth + moveLen
-                that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
+                let contentsWidth = contentsStartWidth + moveLen
+                if(600 > contentsWidth){
+                  that.contentsWidth = contentsWidth
+                  that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
+                }
               }
             }
             // 鼠标松开事件
@@ -620,19 +608,22 @@
       border: 1px solid #565656;
       color: #ffffff;
     }
-    .el-button:focus{
-      background: #FFF;
-      border: 1px solid #DCDFE6;
-      color: #606266;
-    }
-    .dark-button:focus{
-      background: #565656;
-      border: 1px solid #565656;
-      color: #ffffff;
+    /*.el-button:focus{*/
+      /*background: #FFF;*/
+      /*border: 1px solid #DCDFE6;*/
+      /*color: #606266;*/
+    /*}*/
+    /*.dark-button:focus{*/
+      /*background: #565656;*/
+      /*border: 1px solid #565656;*/
+      /*color: #ffffff;*/
+    /*}*/
+    .light-button:hover {
+      background: #DCDFE6;
     }
     .dark-button:hover {
       color: #409EFF;
-      background-color: $bg-color;
+      background-color: #1e1e1e;
     }
 
     .el-dialog__header {
@@ -716,14 +707,15 @@
 
       .file-contents{
         .content-tree{
-          overflow-y: scroll;
-          overflow-x: hidden;
 
-          @include scrollBarLightStyle;
           background: #fff;
           box-shadow: inset #ececec -7px 0px;
 
           #dir-tree {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            @include scrollBarLightStyle;
+
             ul.fancytree-container{
               padding: 3px 0 0 0;
             }
@@ -774,10 +766,10 @@
           }
 
           .content-tree {
-            @include scrollBarDarkStyle;
             background: $bg-color;
             box-shadow: inset #2d2d2d -7px 0px;
             #dir-tree {
+              @include scrollBarDarkStyle;
               span.fancytree-title {
                 color: #dedede;
               }
