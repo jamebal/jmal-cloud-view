@@ -693,7 +693,7 @@
     },
     mounted() {
       Bus.$on('fileSuccess', () => {
-        this.getFileList()
+        //this.getFileList()
       })
       Bus.$on('clickMore', (rows) => {
         this.$refs.fileListTable.tableSelectData = rows
@@ -835,6 +835,14 @@
           if('deleteFile' === url){
             if(index > -1){
               this.fileList.splice(index,1)
+            }
+          }
+          if('createFile' === url){
+            if(!this.path){
+              this.path = ''
+            }
+            if(this.path+'/' === fileDoc.$set.path){
+              this.getFileList()
             }
           }
         },ws.headers);
@@ -1512,9 +1520,10 @@
         // 使列表可拖拽
         this.rowDrop()
         this.fileListScrollTop = 0
-        // 是列表会到顶部
+        // 使列表滑到顶部
         if(!onLoad && !this.grid){
-          this.$refs.fileListTable.pagingScrollTopLeft()
+          console.log('使列表滑到顶部',this.$refs.fileListTable)
+          //this.$refs.fileListTable.pagingScrollTopLeft()
         }
       },
       searchFile(key,onLoad) {
@@ -1867,6 +1876,8 @@
             if (row.suffix !== newExt) {
               this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,'提示',{
                 type: 'warning',
+                showClose: false,
+                closeOnClickModal: false,
                 confirmButtonText: `保持.${row.suffix}`,
                 cancelButtonText: `使用.${newExt}`,
               }).then(()=>{
