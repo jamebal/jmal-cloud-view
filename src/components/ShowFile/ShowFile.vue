@@ -663,6 +663,7 @@
         notPreviewDialogVisible: false,
         openingFile: '',
         openCompressionVisible: false,
+        stompClient: undefined,//websocket订阅集合
       }
     },
     computed: {
@@ -811,25 +812,24 @@
     methods: {
       onmessage(){
         // 订阅消息
-        console.log("订阅",'/user/queue/updateFile')
-        this.stompClient = ws.stompClient.subscribe('/user/queue/updateFile', (msg) => {
+        this.stompClient = ws.stompClient.subscribe('/user/queue/update', (msg) => {
           let fileDoc = JSON.parse(msg.body)
-          console.log('/queue/updateFile', fileDoc)
+          const url = msg.headers.url
+          console.log('onmessage.url', url, fileDoc)
           let index = this.fileList.findIndex(file=>file.id === fileDoc.id)
-          if(index > -1){
-            this.fileList[index].size = fileDoc.size
-            this.fileList[index].agoTime = 1
+          if('updateFile' === url){
+            if(index > -1){
+              this.fileList[index].size = fileDoc.size
+              this.fileList[index].agoTime = 1
+            }
+          }
+          if('deleteFile' === url){
+            if(index > -1){
+              this.fileList.splice(index,1)
+            }
           }
         },ws.headers);
-        console.log("订阅",'/user/queue/deleteFile')
-        this.stompClient = ws.stompClient.subscribe('/user/queue/deleteFile', (msg) => {
-          let fileDoc = JSON.parse(msg.body)
-          console.log('/queue/deleteFile', fileDoc)
-          let index = this.fileList.findIndex(file=>file.id === fileDoc.id)
-          if(index > -1){
-            this.fileList.splice(index,1)
-          }
-        },ws.headers);
+        console.log("订阅",'/user/queue/update')
       },
       load () {
         this.getFileList(true)
