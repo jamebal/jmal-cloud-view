@@ -19,11 +19,13 @@
   </div>
 </template>
 <script>
+  import $ from 'jquery'
   import 'v-contextmenu/dist/index.css'
   import { iconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
   import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
   import fancytree from 'jquery.fancytree';
+  import Bus from '@/assets/js/bus'
 
   import api from '@/api/file-api'
   export default {
@@ -187,7 +189,6 @@
           path: treeData[0].path,
         }).then(res => {
           let oldname = treeData[0].name
-
           let data = res.data.map(doc => {
             if(oldname === doc.name){
               doc.active = true
@@ -220,48 +221,23 @@
             triggerStart: ["f2", "mac+enter"],
             beforeEdit: function(event, data){
               console.log(event.type, data);
-              // Return false to prevent edit mode
             },
             edit: function(event, data){
-              console.log(event.type, data);
-              // Editor was opened (available as data.input)
+              let intput = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
+              let width = intput.style.width.substring(0,intput.style.width.length-2)
+              intput.style.width = parseInt(width)+50+'px'
             },
             beforeClose: function(event, data){
-              // Return false to prevent cancel/save (data.input is available)
-              console.log(event.type, data);
-              if( data.originalEvent.type === "mousedown" ) {
-                // We could prevent the mouse click from generating a blur event
-                // (which would then again close the editor) and return `false` to keep
-                // the editor open:
-//                  data.originalEvent.preventDefault();
-//                  return false;
-                // Or go on with closing the editor, but discard any changes:
-//                  data.save = false;
-              }
             },
             save: function(event, data){
-              console.log(event.type, data , data.input.val());
               that.nodeRename(data.input.val(), data.node.data, data.node)
-              // Save data.input.val() or return false to keep editor open
-              // Simulate to start a slow ajax request...
-              // setTimeout(function(){
-              //   console.log(data.node.span)
-              //   $(data.node.span).removeClass("pending");
-              //   // Let's pretend the server returned a slightly modified
-              //   // title:
-              //   data.node.setTitle(data.node.title + "!");
-              // }, 2000);
-              // We return true, so ext-edit will set the current user input
-              // as title
               return true;
             },
             close: function(event, data){
               console.log(event.type, data);
-              // Editor was removed
               if( data.save ) {
-                // Since we started an async request, mark the node as preliminary
-                // $(data.node.span).addClass("pending");
               }
+              return false
             }
           }
         });
@@ -277,8 +253,8 @@
             });
             return;
           }
-          let strFileName = newFileName.replace(/(.*\/)*([^.]+).*/ig,"$2");
           let newExt = newFileName.replace(/.+\./,"");
+          let strFileName = newFileName.substring(0,newFileName.length - newExt.length);
           if (!row.isFolder) {
             if (row.suffix !== newExt) {
               this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,'提示',{
@@ -301,7 +277,41 @@
       },
       rename(row,newFileName,node){
         // 重命名
-        node.setTitle(newFileName);
+        if(row.name === newFileName){
+          node.setTitle(newFileName);
+          return
+        }
+        const findIndex = node.parent.children.findIndex(item => {
+          if(newFileName === item.data.name){
+            return item
+          }
+        })
+        if(findIndex > -1){
+          let msg = '该文件已存在'
+          if(row.isFolder){
+            msg = '该文件夹已存在'
+          }
+          this.$message({
+            message: msg,
+            type: 'warning'
+          });
+          return
+        }
+        api.renameByPath({
+          newFileName: newFileName,
+          username: this.$store.state.user.name,
+          path: node.data.path
+        }).then(res => {
+          if (res.data) {
+            row.oldName = node.data.name
+            row.name = newFileName
+            row.suffix = newFileName.replace(/.+\./,"")
+            Bus.$emit('renameRow',row)
+            row.path = row.path.substring(0,row.path.length - row.oldName.length) + newFileName
+            node.setTitle(newFileName);
+            this.$message.success("修改成功！")
+          }
+        })
       },
       icon(event,data) {
         return { html: this.loadSvg(this.findIconClass(data.node.data)) }
@@ -354,7 +364,6 @@
       },
       click(event, data){
         if(!this.rightClicking){
-
           this.$emit('treeNodeClick',data.node.data)
         }
       },

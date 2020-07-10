@@ -239,4 +239,12 @@ export default {
       }
     })
   },
+  // 根据path重命名文件
+  renameByPath: function(params) {
+    return request({
+      url: '/rename/path',
+      method: 'get',
+      params
+    })
+  },
 }

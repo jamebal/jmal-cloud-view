@@ -699,6 +699,15 @@
         this.$refs.fileListTable.tableSelectData = rows
         this.preliminaryRowData()
       })
+      Bus.$on('renameRow',(row) => {
+        let index = this.fileList.findIndex((file)=>file.name === row.oldName)
+        if(index > -1){
+          let newRow = this.fileList[index]
+          newRow.suffix = row.suffix
+          newRow.name = row.name
+          this.$refs.fileListTable.clearSelection()
+        }
+      })
 
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
