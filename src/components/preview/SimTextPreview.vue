@@ -36,7 +36,8 @@
       class="simtext-dialog"
       v-dialogDrag="{ dialogWidth: dialogWidth}">
       <div slot="title" class="simtext-header-title">
-        <span class="title-name">{{file.name}}</span>
+        <!--<span class="title-name">{{file.name}}</span>-->
+        <span><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
           <el-button v-if="isShowUpdateBtn" @click="saveAll" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
           <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
@@ -49,7 +50,16 @@
       <div class="content">
         <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+31+'px'}">
           <div class="content-tree">
-            <fancy-tree ref="fancTree" :contentsWidth="contentsWidth" :contentsHieght="editorHieght" v-if="directoryTreeData.length > 0" :lightTheme="lightTheme" :directoryTreeData="directoryTreeData" @treeNodeClick="treeNodeClick"></fancy-tree>
+            <fancy-tree
+              ref="fancTree"
+              :contentsWidth="contentsWidth"
+              :contentsHieght="editorHieght"
+              :lightTheme="lightTheme"
+              :directoryTreeData="directoryTreeData"
+              @treeNodeClick="treeNodeClick"
+              @onLoadTreePath="onLoadTreePath"
+            >
+            </fancy-tree>
           </div>
         </div>
         <div class="editor-resize" style="width: 3px;cursor: col-resize;"></div>
@@ -99,11 +109,12 @@
   import FileTree from"@/components/FileTree"
   import FancyTree from"@/components/FancyTree"
   import MessageDialog from "@/components/message/MessageDialog"
+  import FilePathNav from '@/components/Breadcrumb/FilePathNav'
 
   export default {
     name: "SimTextPreview",
     components: {
-      MonacoEditor,FileTree,FancyTree,MessageDialog
+      MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav
     },
     props: {
       file: {
@@ -164,9 +175,10 @@
           border: '1px solid #565656!important',
           color: '#ffffff!important'
         },
-        directoryTreeData: [],
+        directoryTreeData: {},
         editableTabsValue: '1',
         editableTabs: [],
+        filePathNav: '',
       }
     },
     mounted() {
@@ -230,7 +242,7 @@
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()
-          this.directoryTreeData = [{name: res.data.name, isFolder: true, isLeaf: false, id: res.data.id, path: res.data.path}]
+          this.directoryTreeData = {name: res.data.name, isFolder: true, isLeaf: false, id: res.data.id, path: res.data.path}
           this.textPreviewVisible = true
           this.content = res.data.contentText
 
@@ -303,6 +315,12 @@
             return false;
           }
         }
+      },
+      loadPath(data){
+        this.$refs.fancTree.loadPath(data)
+      },
+      onLoadTreePath(path){
+        this.filePathNav = path
       },
       treeNodeClick(row) {
         if(row.isFolder){
@@ -514,11 +532,17 @@
           if(fileContests){
             fileContests.setAttribute('data-theme', 'light')
           }
+          if(header){
+            header.setAttribute('data-theme', 'light')
+          }
         }else{
           header.style.background = '#292929'
           header.style.color = '#fff'
           if(fileContests){
             fileContests.setAttribute('data-theme', 'dark')
+          }
+          if(header){
+            header.setAttribute('data-theme', 'dark')
           }
         }
       },
@@ -637,7 +661,7 @@
         }
       }
       .title-name {
-        line-height: 40px;
+        line-height: 34px;
       }
       .title-extension {
         float: right;
@@ -667,6 +691,19 @@
         }
 
       }
+
+      &[data-theme=dark] {
+        .redirect{
+          color: #f5f5f5;
+        }
+        .no-redirect {
+          color: #b7b7b7;
+        }
+        .home-link {
+          color: #f5f5f5;
+        }
+      }
+
     }
     .el-dialog__body {
       padding: 0;

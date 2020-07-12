@@ -247,4 +247,12 @@ export default {
       params
     })
   },
+  // 根据path添加文件/文件夹
+  addFile: function(params) {
+    return request({
+      url: '/addfile',
+      method: 'post',
+      params
+    })
+  },
 }

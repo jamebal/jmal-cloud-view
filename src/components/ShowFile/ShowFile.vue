@@ -1519,12 +1519,13 @@
         })
         // 使列表可拖拽
         this.rowDrop()
-        this.fileListScrollTop = 0
         // 使列表滑到顶部
         if(!onLoad && !this.grid){
-          console.log('使列表滑到顶部',this.$refs.fileListTable)
-          //this.$refs.fileListTable.pagingScrollTopLeft()
+          if(this.fileListScrollTop > 0){
+            this.$refs.fileListTable.pagingScrollTopLeft()
+          }
         }
+        this.fileListScrollTop = 0
       },
       searchFile(key,onLoad) {
         if(key){

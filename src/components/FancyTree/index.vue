@@ -1,5 +1,12 @@
 <template>
   <div>
+    <v-contextmenu ref="clickContextmenu" :theme="lightTheme?'default':'dark'" event-type="click">
+      <v-contextmenu-item v-for="item of menus" :key="item.operation" @click="contextmenuClick(item.operation)">
+        <svg-icon :icon-class="item.iconClass"></svg-icon>
+        {{item.label}}
+      </v-contextmenu-item>
+    </v-contextmenu>
+
     <v-contextmenu ref="contextmenu" :theme="lightTheme?'default':'dark'" @contextmenu="contextmenu">
       <v-contextmenu-item v-for="item of menus" :key="item.operation" @click="contextmenuClick(item.operation)">
         <svg-icon :icon-class="item.iconClass"></svg-icon>
@@ -10,7 +17,7 @@
       <el-button-group>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
-        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus">新建</el-button>
+        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus" @click="newFileAndFolder" v-contextmenu:clickContextmenu>新建</el-button>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
       </el-button-group>
     </div>
@@ -19,7 +26,6 @@
   </div>
 </template>
 <script>
-  import $ from 'jquery'
   import 'v-contextmenu/dist/index.css'
   import { iconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
@@ -40,17 +46,18 @@
         default: 500
       },
       directoryTreeData: {
-        type: Array,
-        default: () => []
+        type: Object,
+        default: () => {}
       },
       lightTheme: {
         type: Boolean,
         default: true,
-      }
+      },
     },
     data(){
       return {
         tree:{},
+        currentPath: '/',
         contextData: {},
         rightClicking: false,
         menus: [],
@@ -80,6 +87,48 @@
     computed: {
     },
     methods: {
+      initTree(treeData){
+        const that = this
+        this.tree = fancytree.createTree('#dir-tree', {
+          extensions: ["edit"],
+          icon: (event,data)=> this.icon(event,data),
+          source: this.convert(treeData),
+          lazyLoad: (event,data)=> this.lazyLoad(event,data),
+          click: (event,data)=> this.click(event,data),
+          dblclick: (event,data)=> this.dblclick(event,data),
+          activate: (event,data)=> this.activate(event,data),
+          createNode: (event,data)=> this.createNode(event,data),
+          edit: {
+            triggerStart: ["f2", "mac+enter"],
+            beforeEdit: function(event, data){
+            },
+            edit: function(event, data){
+              let intput = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
+              let width = intput.style.width.substring(0,intput.style.width.length-2)
+              intput.style.width = parseInt(width)+50+'px'
+            },
+            beforeClose: function(event, data){
+              if( data.originalEvent.type === "mousedown" ) {
+                 data.originalEvent.preventDefault();
+                 return false;
+              }
+            },
+            save: function(event, data){
+              if(data.node.data.path){
+                that.nodeRename(data.input.val(), data.node.data, data.node)
+              }else{
+                that.createFile(data.input.val(), data.node.data, data.node)
+              }
+              return true;
+            },
+            close: function(event, data){
+              if( data.save ) {
+              }
+              return false
+            }
+          }
+        });
+      },
       contextmenu(vnode){
         this.rightClicking = true
         const that = this
@@ -94,27 +143,45 @@
         if(this.contextData.isFolder){
           this.menus = this.folderMenus
         }else{
-          this.menus = this.fileMenus
+          if(this.contextData.isFolder === undefined){
+
+          }else{
+            this.menus = this.fileMenus
+          }
         }
       },
       // 菜单点击事件
       contextmenuClick(operation){
+        let node = this.tree.getActiveNode()
         switch (operation) {
           case 'openFolder':
-            console.log('openFolder',this.contextData)
             this.enterDir(this.contextData)
             break
           case 'remove':
-            console.log('remove',this.contextData)
             this.delFile(this.contextData)
             break
           case 'rename':
-            console.log('rename',this.contextData)
             this.tree.getActiveNode().editStart()
             break
-          default:
-            console.log('default',this.contextData)
+          case 'addFile':
+            this.editCreateNode(node,false)
             break
+          case 'addFolder':
+            this.editCreateNode(node,true)
+            break
+          default:
+            break
+        }
+      },
+      editCreateNode(node,isFolder){
+        if(node === null || node === undefined){
+          this.tree.getRootNode().editCreateNode("child",{title:'',folder:isFolder})
+          return
+        }
+        if(node.folder){
+          node.editCreateNode("child",{title:'',folder:isFolder})
+        }else{
+          node.editCreateNode("after",{title:'',folder:isFolder})
         }
       },
       // 删除文件/文件夹
@@ -135,16 +202,13 @@
           })
         })
       },
-      // 上级目录
       upperLeve(){
-        let path = this.tree.rootNode.children[0].key
-        let title = this.tree.rootNode.children[0].title
-        if(path.endsWith(title)){
-          path = path.substring(0,path.length-title.length)
-        }
-        if(path.length === 0){
+        if(this.currentPath.length === 0){
           return
         }
+        let pathList = this.currentPath.split('/')
+        let title = pathList[pathList.length-2]
+        let path = this.currentPath.substring(0,this.currentPath.length-title.length)
         api.upperLevelList({
           username: this.$store.state.user.name,
           path: path,
@@ -154,12 +218,16 @@
       },
       // 刷新当前目录
       refresh(){
-        api.upperLevelList({
+        api.listfiles({
+          userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          path: this.tree.rootNode.children[0].key,
+          path: this.currentPath,
         }).then(res => {
           this.tree.reload(this.convert(res.data))
         })
+      },
+      newFileAndFolder(){
+        this.menus = this.newFileMenus
       },
       //进入目录
       enterDir(node){
@@ -177,18 +245,25 @@
           path: node.path,
         }).then(res => {
           loading.close()
+          if(res.data.length === 0){
+            this.currentPath = node.path+'/'
+          }
           this.tree.reload(this.convert(res.data))
         }).catch(()=>{
           loading.close()
         })
       },
-      loadTreeData(treeData,reLoad) {
+      loadPath(data){
+        data.name = data.title
+        this.loadTreeData(data,true)
+      },
+      loadTreeData(treeData,reLoad,activeNodeData) {
         api.listfiles({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          path: treeData[0].path,
+          path: treeData.path,
         }).then(res => {
-          let oldname = treeData[0].name
+          let oldname = treeData.name
           let data = res.data.map(doc => {
             if(oldname === doc.name){
               doc.active = true
@@ -201,47 +276,45 @@
           })
           if(reLoad){
             this.tree.reload(this.convert(data))
+            if(activeNodeData){
+              this.$emit('treeNodeClick', activeNodeData)
+            }
           }else{
             this.initTree(this.convert(data))
           }
         })
       },
-      initTree(treeData){
-        const that = this
-        this.tree = fancytree.createTree('#dir-tree', {
-          extensions: ["edit"],
-          icon: (event,data)=> this.icon(event,data),
-          source: this.convert(treeData),
-          lazyLoad: (event,data)=> this.lazyLoad(event,data),
-          click: (event,data)=> this.click(event,data),
-          dblclick: (event,data)=> this.dblclick(event,data),
-          activate: (event,data)=> this.activate(event,data),
-          createNode: (event,data)=> this.createNode(event,data),
-          edit: {
-            triggerStart: ["f2", "mac+enter"],
-            beforeEdit: function(event, data){
-              console.log(event.type, data);
-            },
-            edit: function(event, data){
-              let intput = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
-              let width = intput.style.width.substring(0,intput.style.width.length-2)
-              intput.style.width = parseInt(width)+50+'px'
-            },
-            beforeClose: function(event, data){
-            },
-            save: function(event, data){
-              that.nodeRename(data.input.val(), data.node.data, data.node)
-              return true;
-            },
-            close: function(event, data){
-              console.log(event.type, data);
-              if( data.save ) {
-              }
-              return false
-            }
+      // 新建文件
+      createFile(fileName,row,node){
+        let parentPath = '/'
+        if(node.parent.folder){
+          parentPath = node.parent.data.path
+        }else{
+          let parent = node.parent.children[0].data
+          if(parent.path){
+            parentPath += parent.path.substring(0,parent.path.length-parent.name.length)
+          }else{
+            parentPath += this.currentPath
           }
-        });
-        console.log(this.tree.getActiveNode(),fancytree._extensions)
+        }
+        api.addFile({
+          fileName: fileName,
+          isFolder: node.folder,
+          username: this.$store.state.user.name,
+          parentPath: parentPath
+        }).then((res)=>{
+          let str = node.folder?'文件夹':'文件'
+          this.$message.success(`新建${str}成功`)
+          let activeNodeData = res.data
+          // if(node.parent.folder){
+          //   activeNodeData = node.parent.data
+          //   activeNodeData.children = res.data
+          // }
+          let path = '/'+ activeNodeData.path.substring(0,activeNodeData.path.length-activeNodeData.name.length)
+          this.loadTreeData({name: activeNodeData.name,path: path},true,activeNodeData)
+        }).catch(()=>{
+          node.remove()
+        })
       },
       // 重命名
       nodeRename(newFileName, row, node) {
@@ -259,6 +332,8 @@
             if (row.suffix !== newExt) {
               this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,'提示',{
                 type: 'warning',
+                showClose: false,
+                closeOnClickModal: false,
                 confirmButtonText: `保持.${row.suffix}`,
                 cancelButtonText: `使用.${newExt}`,
               }).then(()=>{
@@ -372,13 +447,20 @@
       activate(event, data){
       },
       createNode(event, data){
-        if(data.node.key  !== '_1'){
+        if(data.node.statusNodeType  !== 'nodata'){
           this.$refs.contextmenu.addRef({el:data.node.span,vnode: data.node.span})
         }else{
           data.node.span.querySelector('.fancytree-title').innerText = '无数据'
         }
       },
       convert(data){
+        if(data && data.length >0){
+          this.currentPath = data[0].path.substring(0,data[0].path.length - data[0].name.length)
+        }
+        if(this.currentPath.length === 0){
+          this.currentPath = '/'
+        }
+        this.$emit('onLoadTreePath', this.currentPath)
         return data.map(doc => {
           doc.key = doc.path
           doc.title = doc.name
