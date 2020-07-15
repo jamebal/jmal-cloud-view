@@ -13,6 +13,7 @@
         {{item.label}}
       </v-contextmenu-item>
     </v-contextmenu>
+
     <div class="dir-tools" style="min-width: 272px;">
       <el-button-group>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
@@ -26,7 +27,7 @@
   </div>
 </template>
 <script>
-  import 'v-contextmenu/dist/index.css'
+  import $ from 'jquery'
   import { iconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
   import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
@@ -306,10 +307,6 @@
           let str = node.folder?'文件夹':'文件'
           this.$message.success(`新建${str}成功`)
           let activeNodeData = res.data
-          // if(node.parent.folder){
-          //   activeNodeData = node.parent.data
-          //   activeNodeData.children = res.data
-          // }
           let path = '/'+ activeNodeData.path.substring(0,activeNodeData.path.length-activeNodeData.name.length)
           this.loadTreeData({name: activeNodeData.name,path: path},true,activeNodeData)
         }).catch(()=>{
@@ -448,7 +445,8 @@
       },
       createNode(event, data){
         if(data.node.statusNodeType  !== 'nodata'){
-          this.$refs.contextmenu.addRef({el:data.node.span,vnode: data.node.span})
+          let title = data.node.span.querySelector('.fancytree-title')
+          this.$refs.contextmenu.addRef({el:title,vnode: title})
         }else{
           data.node.span.querySelector('.fancytree-title').innerText = '无数据'
         }

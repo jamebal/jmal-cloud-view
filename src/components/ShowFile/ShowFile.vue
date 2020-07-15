@@ -1,386 +1,409 @@
 <template>
-  <div class="dashboard-container" v-resize="containerResize">
-
-    <el-breadcrumb class="app-breadcrumb" separator="">
-      <transition-group name="breadcrumb" v-if="showNavigation">
-        <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.folder+index">
-          <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级" placement="top">
-            <a @click.prevent="lastLink()"><svg-icon icon-class="back" style="font-size: 24px;"/>&nbsp;</a>
-          </el-tooltip>
-          <el-tooltip v-if="index===0 && pathList.length > 2" class="item" effect="dark" content="根目录" placement="top">
-            <a class="home-link" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
-          </el-tooltip>
-          <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
-        </el-breadcrumb-item>
-      </transition-group>
-      <div class="search-content">
-        <div class="searchClass">
-          <el-popover
-            v-model="isShowNewFolder"
-            placement="bottom"
-            trigger="hover"
-            @click="showNewFolderClick"
-            @after-leave="hideNewFolderName"
-          >
-            <div class="newFileMenu" style="display: block;">
-              <ul>
-                <li @click="upload">
-                  <label class="menuitem">
-                    <svg-icon icon-class="file-upload" /><span class="menuitem text">{{singleFileType !==''?singleFileType:'上传文件'}}</span>
-                  </label>
-                </li>
-                <li v-if="singleFileType === ''" @click="uploadFolder">
-                  <label class="menuitem">
-                    <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
-                  </label>
-                </li>
-                <li v-if="singleFileType === ''" @click.prevent="newDocument">
-                  <a href="#" class="menuitem"><svg-icon icon-class="md" /><span class="menuitem text">新建文档</span>
-                  </a>
-                </li>
-                <li v-if="singleFileType === ''" @click.prevent="newFolder">
-                  <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
-                  </a>
-                </li>
-                <div v-show="showNewFolder" class="folder-name-form">
-                  <el-input ref="newFolderName" v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
-                    <el-button
-                      slot="append"
-                      v-loading="newFolderLoading"
-                      element-loading-spinner="el-icon-loading"
-                      element-loading-background="#f6f7fa88"
-                      class="el-icon-right"
-                      @click="newFolderNameClick"
-                    >
-                    </el-button>
-                  </el-input>
-                </div>
-              </ul>
+  <div>
+    <div class="dashboard-container" v-resize="containerResize" v-contextmenu:homeContextmenu>
+      <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
+        <div v-for="item of contextMenus" :key="item.operation">
+          <!-- 一级菜单 -->
+          <v-contextmenu-item v-if="!item.child" :divider="item.divider?true:false" @click="item.onClick()">
+            <svg-icon v-if="item.iconClass" :icon-class="item.iconClass"></svg-icon>
+            {{item.label}}
+          </v-contextmenu-item>
+          <v-contextmenu-submenu v-if="item.child" :title="item.label">
+            <!-- 二级菜单 -->
+            <div v-for="itemSecond of item.child" :key="itemSecond.operation">
+              <v-contextmenu-item v-if="!itemSecond.child" :divider="itemSecond.divider?true:false" @click="itemSecond.onClick()">
+                <svg-icon v-if="itemSecond.iconClass" :icon-class="itemSecond.iconClass"></svg-icon>
+                {{itemSecond.label}}
+              </v-contextmenu-item>
+              <v-contextmenu-submenu v-if="itemSecond.child" :title="itemSecond.label">
+              </v-contextmenu-submenu>
             </div>
-            <!--<el-button slot="reference" icon="el-icon-plus add-file-button" circle />-->
-            <button-upload slot="reference" :name="''" @click.native="upload" style="margin-right: 5px"></button-upload>
-          </el-popover>
+          </v-contextmenu-submenu>
+        </div>
+      </v-contextmenu>
 
-          <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
-            <el-button slot="prepend" @click="searchFile(searchFileName)">
-              <svg-icon icon-class="search" style="font-size: 22px"/>
+      <el-breadcrumb class="app-breadcrumb" separator="">
+        <transition-group name="breadcrumb" v-if="showNavigation">
+          <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.folder+index">
+            <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级" placement="top">
+              <a @click.prevent="lastLink()"><svg-icon icon-class="back" style="font-size: 24px;"/>&nbsp;</a>
+            </el-tooltip>
+            <el-tooltip v-if="index===0 && pathList.length > 2" class="item" effect="dark" content="根目录" placement="top">
+              <a class="home-link" @click.prevent="handleLink(item,index)"><svg-icon icon-class="home" style="font-size: 24px;"/></a>
+            </el-tooltip>
+            <breadcrumb-file-path :pathList="pathList" :item="item" :index="index" @clickLink="handleLink"></breadcrumb-file-path>
+          </el-breadcrumb-item>
+        </transition-group>
+        <div class="search-content">
+          <div class="searchClass">
+            <el-popover
+              v-model="isShowNewFolder"
+              placement="bottom"
+              trigger="hover"
+              @click="showNewFolderClick"
+              @after-leave="hideNewFolderName"
+            >
+              <div class="newFileMenu" style="display: block;">
+                <ul>
+                  <li @click="upload">
+                    <label class="menuitem">
+                      <svg-icon icon-class="file-upload" /><span class="menuitem text">{{singleFileType !==''?singleFileType:'上传文件'}}</span>
+                    </label>
+                  </li>
+                  <li v-if="singleFileType === ''" @click="uploadFolder">
+                    <label class="menuitem">
+                      <svg-icon icon-class="folder-upload" /><span class="menuitem text">上传文件夹</span>
+                    </label>
+                  </li>
+                  <li v-if="singleFileType === ''" @click.prevent="newDocument">
+                    <a href="#" class="menuitem"><svg-icon icon-class="md" /><span class="menuitem text">新建文档</span>
+                    </a>
+                  </li>
+                  <li v-if="singleFileType === ''" @click.prevent="newFolder">
+                    <a href="#" class="menuitem"><svg-icon icon-class="folder-add" /><span class="menuitem text">新建文件夹</span>
+                    </a>
+                  </li>
+                  <div v-show="showNewFolder" class="folder-name-form">
+                    <el-input ref="newFolderName" v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true" @keyup.enter.native="newFolderNameClickEnter">
+                      <el-button
+                        slot="append"
+                        v-loading="newFolderLoading"
+                        element-loading-spinner="el-icon-loading"
+                        element-loading-background="#f6f7fa88"
+                        class="el-icon-right"
+                        @click="newFolderNameClick"
+                      >
+                      </el-button>
+                    </el-input>
+                  </div>
+                </ul>
+              </div>
+              <!--<el-button slot="reference" icon="el-icon-plus add-file-button" circle />-->
+              <button-upload slot="reference" :name="''" @click.native="upload" style="margin-right: 5px"></button-upload>
+            </el-popover>
+
+            <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
+              <el-button slot="prepend" @click="searchFile(searchFileName)">
+                <svg-icon icon-class="search" style="font-size: 22px"/>
+              </el-button>
+            </el-input>
+            <el-button class="vmode" @click="changeVmode">
+              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
             </el-button>
-          </el-input>
-          <el-button class="vmode" @click="changeVmode">
-            <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
-          </el-button>
+          </div>
+        </div>
+      </el-breadcrumb>
+      <div>
+        <!--统计信息-->
+        <div class="info-statistics">
+          <span v-if="tableLoading">获取更多数据...</span>
+          <span v-if="!tableLoading">{{!finished?'已加载 '+getSummaries3:'已全部加载 '+getSummaries3}}</span>
         </div>
       </div>
-    </el-breadcrumb>
-    <div>
-      <!--统计信息-->
-      <div class="info-statistics">
-        <span v-if="tableLoading">获取更多数据...</span>
-        <span v-if="!tableLoading">{{!finished?'已加载 '+getSummaries3:'已全部加载 '+getSummaries3}}</span>
-      </div>
-    </div>
 
-    <!--右键菜单-->
-    <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
-      <div class="popper-arrow"></div>
-      <ul v-for="(item,index) in menus" :key="item.label">
-        <li
-          v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
-          @click="menusOperations(item.operation)"
-          @mouseover.prevent.stop="menuFavoriteOver(index,rowContextData.isFavorite)"
-          @mouseleave.prevent.stop="menuFavoriteLeave(index,rowContextData.isFavorite)"
-        >
-          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-          </label>
-        </li>
-        <li
-          v-else
-          @click="menusOperations(item.operation)"
-        >
-          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-          </label>
-        </li>
-      </ul>
-    </e-vue-contextmenu>
+      <!--右键菜单-->
+      <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
+        <div class="popper-arrow"></div>
+        <ul v-for="(item,index) in menus" :key="item.label">
+          <li
+            v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
+            @click="menusOperations(item.operation)"
+            @mouseover.prevent.stop="menuFavoriteOver(index,rowContextData.isFavorite)"
+            @mouseleave.prevent.stop="menuFavoriteLeave(index,rowContextData.isFavorite)"
+          >
+            <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
+            </label>
+          </li>
+          <li
+            v-else
+            @click="menusOperations(item.operation)"
+          >
+            <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+      </e-vue-contextmenu>
 
-    <el-dialog
-      class="open-file-dialog"
-      title="提示"
-      top="35vh"
-      :visible.sync="openCompressionVisible">
-      <svg-icon icon-class="open-folder"></svg-icon> <span class="dialog-msg">查看压缩文件</span>
-      <span slot="footer" class="dialog-footer">
+      <el-dialog
+        class="open-file-dialog"
+        title="提示"
+        top="35vh"
+        :visible.sync="openCompressionVisible">
+        <svg-icon icon-class="open-folder"></svg-icon> <span class="dialog-msg">查看压缩文件</span>
+        <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="unzipTo(openingFile)">解压到...</el-button>
       <el-button size="small" @click="unzip(openingFile,openingFile.id,false)">解压到当前目录</el-button>
       <el-button size="small" type="primary" @click=compressionFilePreview(openingFile)>预览</el-button>
       </span>
-    </el-dialog>
+      </el-dialog>
 
-    <message-dialog
-      title="提示"
-      content="此文件不支持预览, 是否下载该文件?"
-      :show.sync="notPreviewDialogVisible"
-      operatButtonText="强行使用文本编辑器打开"
-      confirmButtonText="下载"
-      @operating="forciblyOpen(openingFile)"
-      @confirm="determineDownload(openingFile)"
-    >
-    </message-dialog>
-
-    <!--展示压缩文件-->
-    <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
-      <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
-    </el-dialog>
-
-    <!--移动或复制弹出框-->
-    <el-dialog
-      :title="titlePrefix+selectTreeNode.showName"
-      :visible.sync="dialogMoveOrCopyVisible"
-      @close="clearTreeNode"
-    >
-      <el-tree
-        ref="directoryTree"
-        :data="directoryTreeData"
-        node-key="id"
-        :props="directoryTreeProps"
-        :load="directoryTreeLoadNode"
-        :highlight-current="true"
-        :default-expanded-keys="['0']"
-        :render-content="renderContent"
-        hight="100"
-        lazy
-        @node-click="treeNodeClick"
-        @node-expand="treeNodeExpand"
+      <message-dialog
+        title="提示"
+        content="此文件不支持预览, 是否下载该文件?"
+        :show.sync="notPreviewDialogVisible"
+        operatButtonText="强行使用文本编辑器打开"
+        confirmButtonText="下载"
+        @operating="forciblyOpen(openingFile)"
+        @confirm="determineDownload(openingFile)"
       >
-      </el-tree>
-      <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
-        <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
-        <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
-        <el-button v-if="unzipOperating" size="small" type="primary" @click="confirmUnzip">解压</el-button>
-        <el-button size="small" @click="dialogMoveOrCopyVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
+      </message-dialog>
 
-    <!--分享-->
-    <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
-      <div v-loading="generateShareLinkLoading">
-        <el-input readonly="readonly" v-model="shareLink"></el-input>
-        <div slot="footer" class="dialog-footer share-dialog-footer">
-          <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
+      <!--展示压缩文件-->
+      <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
+        <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
+      </el-dialog>
+
+      <!--移动或复制弹出框-->
+      <el-dialog
+        :title="titlePrefix+selectTreeNode.showName"
+        :visible.sync="dialogMoveOrCopyVisible"
+        @close="clearTreeNode"
+      >
+        <el-tree
+          ref="directoryTree"
+          :data="directoryTreeData"
+          node-key="id"
+          :props="directoryTreeProps"
+          :load="directoryTreeLoadNode"
+          :highlight-current="true"
+          :default-expanded-keys="['0']"
+          :render-content="renderContent"
+          hight="100"
+          lazy
+          @node-click="treeNodeClick"
+          @node-expand="treeNodeExpand"
+        >
+        </el-tree>
+        <div slot="footer" class="dialog-footer">
+          <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+          <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
+          <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
+          <el-button v-if="unzipOperating" size="small" type="primary" @click="confirmUnzip">解压</el-button>
+          <el-button size="small" @click="dialogMoveOrCopyVisible = false">取 消</el-button>
         </div>
-      </div>
-    </el-dialog>
+      </el-dialog>
 
-    <!--<div class="dashboard-text">path: {{ path }}</div>-->
-
-    <!--list布局-->
-    <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
-    <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight+'px'}">
-      <pl-table
-        ref="fileListTable"
-        v-show="!grid"
-        v-loading="tableLoading"
-        :max-height="clientHeight"
-        :default-sort="sortable"
-        :highlight-current-row="false"
-        empty-text="无文件"
-        :datas="fileList"
-        :use-virtual="true"
-        :border="false"
-        :excess-rows="3"
-        :pagination-show="false"
-        style="width: 100%;margin: 20px 0 0 0;"
-        :row-style="rowStyle"
-        :height-change="false"
-        :summary-method="getSummaries"
-        :row-class-name="tableRowClassName"
-        element-loading-text="文件加载中"
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="#f6f7fa88"
-        @selection-change="handleSelectionChange"
-        @row-contextmenu="rowContextmenu"
-        @cell-click="cellClick"
-        @row-dblclick="dblclick"
-        @cell-mouse-enter="cellMouseEnter"
-        @cell-mouse-leave="cellMouseLeave"
-        @sort-change="sortChange"
-        @table-body-scroll="tableBodyScroll"
-        @select="pinSelect"
-      >
-        <template v-for="(item,index) in tableHead">
-          <!--索引-->
-          <pl-table-column
-            v-if="index === 0"
-            :key="index"
-            :index="index"
-            type="selection"
-            min-width="50"
-          >
-          </pl-table-column>
-          <!--图标-->
-          <pl-table-column
-            v-if="index === 1"
-            :key="index"
-            :index="index"
-            width="50"
-          >
-            <template slot-scope="scope">
-              <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
-            </template>
-          </pl-table-column>
-          <!--名称-->
-          <pl-table-column
-            v-if="index === 2"
-            :key="index"
-            :show-overflow-tooltip="true"
-            max-width="200"
-            :index="index"
-            :prop="item.name"
-            :label="item.label"
-            :sort-orders="['ascending', 'descending']"
-            :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-          >
-            <template slot-scope="scope">
-              <el-col v-if="scope.row.index === editingIndex" :span="10">
-                <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @focus="renameInputFocus($event,scope.row)" @keyup.enter.native="rowRename(renameFileName, scope.row)">
-                </el-input>
-                <el-button
-                  v-loading="renameLoading"
-                  element-loading-spinner="el-icon-loading"
-                  element-loading-background="#f6f7fa88"
-                  class="el-icon-check"
-                  @click="rowRename(renameFileName, scope.row)"
-                >
-                </el-button>
-                <el-button
-                  element-loading-spinner="el-icon-loading"
-                  element-loading-background="#f6f7fa88"
-                  class="el-icon-close"
-                  @click="editingIndex = -1"
-                >
-                </el-button>
-              </el-col>
-              <a v-else @click.stop="fileClick(scope.row)" class="table-file-name"><span>{{ scope.row.name }}</span></a>
-            </template>
-          </pl-table-column>
-          <!--分享-->
-          <pl-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
-            <template slot-scope="scope">
-              <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享" placement="top">
-                <svg-icon title="分享" class="button-class" icon-class="share" @click.stop="share(scope.row)"/>
-              </el-tooltip>
-            </template>
-          </pl-table-column>
-          <!--更多-->
-          <pl-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
-            <!-- 使用组件, 并传值到组件中 -->
-            <template slot="header">
-              <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click.stop="moreOperation($event)" />
-            </template>
-            <template slot-scope="scope">
-              <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click.stop="moreClick(scope.row,$event)" />
-            </template>
-          </pl-table-column>
-          <!--文件大小-->
-          <pl-table-column
-            v-if="index === 5"
-            :key="index"
-            width="200"
-            :prop="item.name"
-            :index="index"
-            :label="item.label"
-            :sort-orders="['ascending', 'descending']"
-            :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-            :show-overflow-tooltip="true"
-            align="left"
-            header-align="left"
-          >
-            <template slot-scope="scope">
-              <span>{{formatSize(scope.row.size)}}</span>
-            </template>
-          </pl-table-column>
-          <!--修改时间-->
-          <pl-table-column
-            v-if="index === 6"
-            :key="index"
-            width="250"
-            :prop="item.name"
-            :index="index"
-            :label="item.label"
-            :sort-orders="['ascending', 'descending']"
-            :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
-            :show-overflow-tooltip="true"
-            align="left"
-            header-align="left"
-          >
-            <template slot-scope="scope">
-              <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
-            </template>
-          </pl-table-column>
-        </template>
-      </pl-table>
-
-
-      <!--grid布局-->
-      <div v-show="grid" v-loading="tableLoading"
-           element-loading-text="文件加载中"
-           element-loading-spinner="el-icon-loading"
-           element-loading-background="#f6f7fa88">
-        <div class="checkbox-group-header">
-          <div class="select-operation">
-            <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">{{selectRowData.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
-            <div>
-              <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0" @click="downloadFile">
-                下载
-              </el-button>
-              <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1" @click="share">
-                分享
-              </el-button>
-              <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0" @click="moveOrCopy">
-                移动或复制
-              </el-button>
-              <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0" type="danger" @click="deleteFile">
-              </el-button>
-            </div>
+      <!--分享-->
+      <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
+        <div v-loading="generateShareLinkLoading">
+          <el-input readonly="readonly" v-model="shareLink"></el-input>
+          <div slot="footer" class="dialog-footer share-dialog-footer">
+            <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
           </div>
-          <el-divider style="transform: scaleY(0.5);"></el-divider>
         </div>
+      </el-dialog>
 
-        <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-          <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
-            <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
+      <!--<div class="dashboard-text">path: {{ path }}</div>-->
+
+      <!--list布局-->
+      <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
+      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight+'px'}">
+        <pl-table
+          ref="fileListTable"
+          v-show="!grid"
+          v-loading="tableLoading"
+          :max-height="clientHeight"
+          :default-sort="sortable"
+          :highlight-current-row="false"
+          empty-text="无文件"
+          :datas="fileList"
+          :use-virtual="true"
+          :border="false"
+          :excess-rows="3"
+          :pagination-show="false"
+          style="width: 100%;margin: 20px 0 0 0;"
+          :row-style="rowStyle"
+          :height-change="false"
+          :summary-method="getSummaries"
+          :row-class-name="tableRowClassName"
+          element-loading-text="文件加载中"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="#f6f7fa88"
+          @selection-change="handleSelectionChange"
+          @row-contextmenu="rowContextmenu"
+          @cell-click="cellClick"
+          @row-dblclick="dblclick"
+          @cell-mouse-enter="cellMouseEnter"
+          @cell-mouse-leave="cellMouseLeave"
+          @sort-change="sortChange"
+          @table-body-scroll="tableBodyScroll"
+          @select="pinSelect"
+        >
+          <template v-for="(item,index) in tableHead">
+            <!--索引-->
+            <pl-table-column
+              v-if="index === 0"
+              :key="index"
+              :index="index"
+              type="selection"
+              min-width="50"
             >
-              <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                   :style="{'background': selectRowData.includes(item)?'#caeaf991':'','border': selectRowData.includes(item)?'solid 1px #7bd7ff':''}"
-                   @mouseover="gridItemHover(item,index)"
-                   @mouseout="gridItemOut(item,index)"
-                   @click="gridItemClick(item)"
-                   @contextmenu.prevent="rowContextmenu(item)"
-              >
-                <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
-                <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true"></icon-file></div>
-                <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
-                  <span :title="item.name" class="grid-item-text">{{item.name}}</span>
-                <!--</el-tooltip>-->
-              </div>
-            </van-grid-item>
-          </van-grid>
-        </van-checkbox-group>
-        <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
-      </div>
-    </div>
+            </pl-table-column>
+            <!--图标-->
+            <pl-table-column
+              v-if="index === 1"
+              :key="index"
+              :index="index"
+              width="50"
+            >
+              <template slot-scope="scope">
+                <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
+              </template>
+            </pl-table-column>
+            <!--名称-->
+            <pl-table-column
+              v-if="index === 2"
+              :key="index"
+              :show-overflow-tooltip="true"
+              max-width="200"
+              :index="index"
+              :prop="item.name"
+              :label="item.label"
+              :sort-orders="['ascending', 'descending']"
+              :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+            >
+              <template slot-scope="scope">
+                <el-col v-if="scope.row.index === editingIndex" :span="10">
+                  <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @focus="renameInputFocus($event,scope.row)" @keyup.enter.native="rowRename(renameFileName, scope.row)">
+                  </el-input>
+                  <el-button
+                    v-loading="renameLoading"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="#f6f7fa88"
+                    class="el-icon-check"
+                    @click="rowRename(renameFileName, scope.row)"
+                  >
+                  </el-button>
+                  <el-button
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="#f6f7fa88"
+                    class="el-icon-close"
+                    @click="editingIndex = -1"
+                  >
+                  </el-button>
+                </el-col>
+                <a v-else @click.stop="fileClick(scope.row)" class="table-file-name"><span>{{ scope.row.name }}</span></a>
+              </template>
+            </pl-table-column>
+            <!--分享-->
+            <pl-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+              <template slot-scope="scope">
+                <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享" placement="top">
+                  <svg-icon title="分享" class="button-class" icon-class="share" @click.stop="share(scope.row)"/>
+                </el-tooltip>
+              </template>
+            </pl-table-column>
+            <!--更多-->
+            <pl-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
+              <!-- 使用组件, 并传值到组件中 -->
+              <template slot="header">
+                <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click.stop="moreOperation($event)" />
+              </template>
+              <template slot-scope="scope">
+                <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click.stop="moreClick(scope.row,$event)" />
+              </template>
+            </pl-table-column>
+            <!--文件大小-->
+            <pl-table-column
+              v-if="index === 5"
+              :key="index"
+              width="200"
+              :prop="item.name"
+              :index="index"
+              :label="item.label"
+              :sort-orders="['ascending', 'descending']"
+              :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+              :show-overflow-tooltip="true"
+              align="left"
+              header-align="left"
+            >
+              <template slot-scope="scope">
+                <span>{{formatSize(scope.row.size)}}</span>
+              </template>
+            </pl-table-column>
+            <!--修改时间-->
+            <pl-table-column
+              v-if="index === 6"
+              :key="index"
+              width="250"
+              :prop="item.name"
+              :index="index"
+              :label="item.label"
+              :sort-orders="['ascending', 'descending']"
+              :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+              :show-overflow-tooltip="true"
+              align="left"
+              header-align="left"
+            >
+              <template slot-scope="scope">
+                <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
+              </template>
+            </pl-table-column>
+          </template>
+        </pl-table>
 
-    <empty-file
-      v-if="fileList.length < 1 && !tableLoading"
-      :emptyStatus="emptyStatus"
-    >
-    </empty-file>
+
+        <!--grid布局-->
+        <div v-show="grid" v-loading="tableLoading"
+             element-loading-text="文件加载中"
+             element-loading-spinner="el-icon-loading"
+             element-loading-background="#f6f7fa88">
+          <div class="checkbox-group-header">
+            <div class="select-operation">
+              <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">{{selectRowData.length>0 ? '已选择 '+this.tableHead[2].label : "选择"}}</van-checkbox>
+              <div>
+                <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0" @click="downloadFile">
+                  下载
+                </el-button>
+                <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1" @click="share">
+                  分享
+                </el-button>
+                <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0" @click="moveOrCopy">
+                  移动或复制
+                </el-button>
+                <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0" type="danger" @click="deleteFile">
+                </el-button>
+              </div>
+            </div>
+            <el-divider style="transform: scaleY(0.5);"></el-divider>
+          </div>
+
+          <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
+            <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false" :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
+              <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
+              >
+                <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                     :style="{'background': selectRowData.includes(item)?'#caeaf991':'','border': selectRowData.includes(item)?'solid 1px #7bd7ff':''}"
+                     @mouseover="gridItemHover(item,index)"
+                     @mouseout="gridItemOut(item,index)"
+                     @click="gridItemClick(item)"
+                     @contextmenu.prevent="rowContextmenu(item)"
+                >
+                  <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
+                  <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true"></icon-file></div>
+                  <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
+                  <span :title="item.name" class="grid-item-text">{{item.name}}</span>
+                  <!--</el-tooltip>-->
+                </div>
+              </van-grid-item>
+            </van-grid>
+          </van-checkbox-group>
+          <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
+        </div>
+      </div>
+
+      <empty-file
+        v-if="fileList.length < 1 && !tableLoading"
+        :emptyStatus="emptyStatus"
+      >
+      </empty-file>
+      <img id="dragImage" draggable="false" style="position: fixed;top: -100px;z-index: 99999" src="~@/assets/img/move-file.png">
+    </div>
+    <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
     <!-- <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview> -->
-
     <!--文件详细信息-->
     <el-drawer
       :title="rowContextData.name"
@@ -409,7 +432,6 @@
         </el-form-item>
       </el-form>
     </el-drawer>
-    <img id="dragImage" draggable="false" style="position: fixed;top: -100px;z-index: 99999" src="~@/assets/img/move-file.png">
   </div>
 </template>
 
@@ -482,12 +504,6 @@
         'type': Boolean,
         'default': false
       },
-      // defaultSort: {
-      //   'type': Object,
-      //   'default': function () {
-      //     return { prop: '', order: null }
-      //   }
-      // },
       sortable: {
         'type': Object,
         'default': function () {
@@ -606,6 +622,23 @@
         isJustHideMenus: false,
         menusIsMultiple: false,
         menus: [],
+        contextmenuDisabled: false,
+        contextMenus: [
+          { label: '查看', operation: 'viewMode' ,child: [
+              { iconClass: this.grid?'':'menu-point', label: '列表', operation: 'list' , onClick: ()=>{this.grid=true;this.changeVmode()}},
+              { iconClass: this.grid?'menu-point':'', label: '缩略图', operation: 'grid', onClick: ()=>{this.grid=false;this.changeVmode()}},
+            ]
+          },
+          { label: '排列方式', operation: 'arrangement' ,child: [
+              { label: '名称', operation: 'orderName' , onClick: ()=>{}},
+              { label: '大小', operation: 'orderSize', onClick: ()=>{}},
+              { label: '日期', operation: 'orderDate', onClick: ()=>{}},
+            ]
+          },
+          { label: '刷新', operation: 'refresh' ,onClick: ()=>{this.getFileList()}},
+          { divider: true, operation: 'divider' },
+          { label: '新建文件', operation: 'createFile' ,onClick: ()=>{}},
+        ],
         rowContextData: {},
         tableLoading: true,
         finished: false,
@@ -750,6 +783,7 @@
         }else{
           this.grid = true
         }
+        this.loadContextMenusViewMode()
       }
 
       // 加载url上的path
@@ -1481,6 +1515,22 @@
         this.rowDrop()
         // 画矩形选取
         this.darwRectangle()
+        // 修改菜单查看状态
+        this.loadContextMenusViewMode()
+      },
+      loadContextMenusViewMode(){
+        // 加载菜单查看状态
+        const viewModeIndex = this.contextMenus.findIndex(item=>item.operation==='viewMode')
+        if(viewModeIndex > -1){
+          const child = this.contextMenus[viewModeIndex].child
+          if(this.grid){
+            child[0].iconClass = ''
+            child[1].iconClass = 'menu-point'
+          }else{
+            child[0].iconClass = 'menu-point'
+            child[1].iconClass = ''
+          }
+        }
       },
       // 请求之前的准备
       beforeLoadData(onLoad){
@@ -1653,6 +1703,7 @@
         this.changeSelectedStyle(this.$refs.fileListTable.tableSelectData)
       },
       sortChange(column) {
+        console.log(column)
         this.rowDrop()
         if(this.orderCustom || this.listModeSearch){
           this.sortable.prop = column.prop
@@ -2031,6 +2082,7 @@
         }
       },
       show() {
+        this.contextmenuDisabled = true
       },
       hide() {
         const that = this
@@ -2039,6 +2091,7 @@
           that.isJustHideMenus = false
         }, 100)
         this.cellMouseIndex = -1
+        this.contextmenuDisabled = false
       },
       // 菜单操作
       menusOperations(operation) {
@@ -2721,6 +2774,11 @@
     }
     .dialog-msg {
       margin-left: 10px;
+    }
+  }
+  >>>.v-contextmenu-item{
+    .svg-icon {
+      font-size: 14px;
     }
   }
 </style>
