@@ -204,6 +204,7 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file(file) {
+        console.log('watch file',file)
         if(!file.path){
           return
         }
@@ -232,13 +233,18 @@
         }
         if(this.filepath){
           request = 'previewTextByPath'
+          file.path = this.filepath
           this.options.readOnly = true
         }
+        if(!file.id){
+          request = 'previewTextByPath'
+        }
+        console.log(request,file)
         api[request]({
           shareId: this.shareId,
           fileId: file.id,
           id: file.id,
-          path: this.filepath,
+          path: file.path,
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()

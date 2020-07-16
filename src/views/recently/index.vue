@@ -2,9 +2,9 @@
   <div>
     <show-file
       :defaultGrid="false"
+      :orderCustom="true"
       :sortable="sortable"
       :queryCondition="queryCondition"
-      :orderCustom="true"
       :showNavigation="true"
     ></show-file>
   </div>

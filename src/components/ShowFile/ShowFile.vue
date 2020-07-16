@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="dashboard-container" v-resize="containerResize" v-contextmenu:homeContextmenu>
+    <div class="dashboard-container" v-resize="containerResize">
       <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
         <div v-for="item of contextMenus" :key="item.operation">
           <!-- 一级菜单 -->
-          <v-contextmenu-item v-if="!item.child" :divider="item.divider?true:false" @click="item.onClick()">
+          <v-contextmenu-item v-if="!item.child" :divider="item.divider?true:false" @click="contextmenuClick(item.operation)">
             <svg-icon v-if="item.iconClass" :icon-class="item.iconClass"></svg-icon>
             {{item.label}}
           </v-contextmenu-item>
           <v-contextmenu-submenu v-if="item.child" :title="item.label">
             <!-- 二级菜单 -->
             <div v-for="itemSecond of item.child" :key="itemSecond.operation">
-              <v-contextmenu-item v-if="!itemSecond.child" :divider="itemSecond.divider?true:false" @click="itemSecond.onClick()">
+              <v-contextmenu-item v-if="!itemSecond.child" :divider="itemSecond.divider?true:false" @click="contextmenuClick(itemSecond.operation)">
                 <svg-icon v-if="itemSecond.iconClass" :icon-class="itemSecond.iconClass"></svg-icon>
                 {{itemSecond.label}}
               </v-contextmenu-item>
@@ -124,75 +124,6 @@
         </ul>
       </e-vue-contextmenu>
 
-      <el-dialog
-        class="open-file-dialog"
-        title="提示"
-        top="35vh"
-        :visible.sync="openCompressionVisible">
-        <svg-icon icon-class="open-folder"></svg-icon> <span class="dialog-msg">查看压缩文件</span>
-        <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="unzipTo(openingFile)">解压到...</el-button>
-      <el-button size="small" @click="unzip(openingFile,openingFile.id,false)">解压到当前目录</el-button>
-      <el-button size="small" type="primary" @click=compressionFilePreview(openingFile)>预览</el-button>
-      </span>
-      </el-dialog>
-
-      <message-dialog
-        title="提示"
-        content="此文件不支持预览, 是否下载该文件?"
-        :show.sync="notPreviewDialogVisible"
-        operatButtonText="强行使用文本编辑器打开"
-        confirmButtonText="下载"
-        @operating="forciblyOpen(openingFile)"
-        @confirm="determineDownload(openingFile)"
-      >
-      </message-dialog>
-
-      <!--展示压缩文件-->
-      <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
-        <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
-      </el-dialog>
-
-      <!--移动或复制弹出框-->
-      <el-dialog
-        :title="titlePrefix+selectTreeNode.showName"
-        :visible.sync="dialogMoveOrCopyVisible"
-        @close="clearTreeNode"
-      >
-        <el-tree
-          ref="directoryTree"
-          :data="directoryTreeData"
-          node-key="id"
-          :props="directoryTreeProps"
-          :load="directoryTreeLoadNode"
-          :highlight-current="true"
-          :default-expanded-keys="['0']"
-          :render-content="renderContent"
-          hight="100"
-          lazy
-          @node-click="treeNodeClick"
-          @node-expand="treeNodeExpand"
-        >
-        </el-tree>
-        <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
-          <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
-          <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
-          <el-button v-if="unzipOperating" size="small" type="primary" @click="confirmUnzip">解压</el-button>
-          <el-button size="small" @click="dialogMoveOrCopyVisible = false">取 消</el-button>
-        </div>
-      </el-dialog>
-
-      <!--分享-->
-      <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
-        <div v-loading="generateShareLinkLoading">
-          <el-input readonly="readonly" v-model="shareLink"></el-input>
-          <div slot="footer" class="dialog-footer share-dialog-footer">
-            <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
-          </div>
-        </div>
-      </el-dialog>
-
       <!--<div class="dashboard-text">path: {{ path }}</div>-->
 
       <!--list布局-->
@@ -206,10 +137,10 @@
           :default-sort="sortable"
           :highlight-current-row="false"
           empty-text="无文件"
-          :datas="fileList"
           :use-virtual="true"
+          :row-height="50"
           :border="false"
-          :excess-rows="3"
+          :excess-rows="10"
           :pagination-show="false"
           style="width: 100%;margin: 20px 0 0 0;"
           :row-style="rowStyle"
@@ -264,7 +195,7 @@
             >
               <template slot-scope="scope">
                 <el-col v-if="scope.row.index === editingIndex" :span="10">
-                  <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @focus="renameInputFocus($event,scope.row)" @keyup.enter.native="rowRename(renameFileName, scope.row)">
+                  <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @focus="renameInputFocus($event,scope.row.suffix)" @keyup.enter.native="rowRename(renameFileName, scope.row)">
                   </el-input>
                   <el-button
                     v-loading="renameLoading"
@@ -432,6 +363,88 @@
         </el-form-item>
       </el-form>
     </el-drawer>
+
+    <el-dialog
+      class="open-file-dialog"
+      title="提示"
+      top="35vh"
+      :visible.sync="openCompressionVisible">
+      <svg-icon icon-class="open-folder"></svg-icon> <span class="dialog-msg">查看压缩文件</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="unzipTo(openingFile)">解压到...</el-button>
+      <el-button size="small" @click="unzip(openingFile,openingFile.id,false)">解压到当前目录</el-button>
+      <el-button size="small" type="primary" @click=compressionFilePreview(openingFile)>预览</el-button>
+      </span>
+    </el-dialog>
+
+    <message-dialog
+      title="提示"
+      content="此文件不支持预览, 是否下载该文件?"
+      :show.sync="notPreviewDialogVisible"
+      operatButtonText="强行使用文本编辑器打开"
+      confirmButtonText="下载"
+      @operating="forciblyOpen(openingFile)"
+      @confirm="determineDownload(openingFile)"
+    >
+    </message-dialog>
+
+    <!--展示压缩文件-->
+    <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
+      <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
+    </el-dialog>
+
+    <!--移动或复制弹出框-->
+    <el-dialog
+      :title="titlePrefix+selectTreeNode.showName"
+      :visible.sync="dialogMoveOrCopyVisible"
+      @close="clearTreeNode"
+    >
+      <el-tree
+        ref="directoryTree"
+        :data="directoryTreeData"
+        node-key="id"
+        :props="directoryTreeProps"
+        :load="directoryTreeLoadNode"
+        :highlight-current="true"
+        :default-expanded-keys="['0']"
+        :render-content="renderContent"
+        hight="100"
+        lazy
+        @node-click="treeNodeClick"
+        @node-expand="treeNodeExpand"
+      >
+      </el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
+        <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
+        <el-button v-if="unzipOperating" size="small" type="primary" @click="confirmUnzip">解压</el-button>
+        <el-button size="small" @click="dialogMoveOrCopyVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!--分享-->
+    <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
+      <div v-loading="generateShareLinkLoading">
+        <el-input readonly="readonly" v-model="shareLink"></el-input>
+        <div slot="footer" class="dialog-footer share-dialog-footer">
+          <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      class="new-text-file-dialog"
+      title="新建文本文件"
+      :show-close="false"
+      :visible.sync="newTextFileDialog">
+        <el-input ref="newTextFileName" size="small" v-model="newTextFileName" class="dialog-msg" @focus="renameInputFocus($event,'')" :clearable="true"></el-input>
+        <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="newTextFileDialog=false">取消</el-button>
+        <el-button size="small" type="primary" @click="createTextFile(newTextFileName)" v-loading="createTextFileLoading" @keyup.enter.native="createTextFile(newTextFileName)">确定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -567,6 +580,10 @@
             { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
           ]
         }
+      },
+      contextMenus: {
+        type: Array,
+        default: ()=> []
       }
     },
     data() {
@@ -623,22 +640,6 @@
         menusIsMultiple: false,
         menus: [],
         contextmenuDisabled: false,
-        contextMenus: [
-          { label: '查看', operation: 'viewMode' ,child: [
-              { iconClass: this.grid?'':'menu-point', label: '列表', operation: 'list' , onClick: ()=>{this.grid=true;this.changeVmode()}},
-              { iconClass: this.grid?'menu-point':'', label: '缩略图', operation: 'grid', onClick: ()=>{this.grid=false;this.changeVmode()}},
-            ]
-          },
-          { label: '排列方式', operation: 'arrangement' ,child: [
-              { label: '名称', operation: 'orderName' , onClick: ()=>{}},
-              { label: '大小', operation: 'orderSize', onClick: ()=>{}},
-              { label: '日期', operation: 'orderDate', onClick: ()=>{}},
-            ]
-          },
-          { label: '刷新', operation: 'refresh' ,onClick: ()=>{this.getFileList()}},
-          { divider: true, operation: 'divider' },
-          { label: '新建文件', operation: 'createFile' ,onClick: ()=>{}},
-        ],
         rowContextData: {},
         tableLoading: true,
         finished: false,
@@ -672,6 +673,9 @@
         allChecked: false,
         summaries: '',
         shareDialog: false,
+        newTextFileDialog: false,
+        newTextFileName: '',
+        createTextFileLoading: false,
         shareLink: '',
         shareFileName: '',
         generateShareLinkLoading: true,
@@ -783,7 +787,6 @@
         }else{
           this.grid = true
         }
-        this.loadContextMenusViewMode()
       }
 
       // 加载url上的path
@@ -1014,13 +1017,12 @@
           }
         }
 
-        // 添加grid视图的scroll事件
-        document.querySelector('.van-grid').onscroll = function (e) {
-          _this.tableBodyScroll(null,e)
-        }
-
-        let scrollDiv = document.querySelector('.ant-table-scroll')
+        let scrollDiv = document.querySelector('.el-table__body-wrapper')
         if(_this.grid){
+          // 添加grid视图的scroll事件
+          document.querySelector('.van-grid').onscroll = function (e) {
+            _this.tableBodyScroll(null,e)
+          }
           scrollDiv = document.querySelector('.van-grid')
         }
         // 禁止滚动
@@ -1418,22 +1420,23 @@
         this.$router.push(`/markdown/editor`)
       },
       newFolder() {
-        this.newFolderName = this.getNewFolderName(this.fileList,'新建文件夹')
+        this.newFolderName = this.getNewFileName(this.fileList,'新建文件夹')
         this.showNewFolder = true
         this.$nextTick(()=>{
           this.$refs.newFolderName.focus()
           this.$refs.newFolderName.select()
         })
       },
-      getNewFolderName(fileList,newFolderName){
+      getNewFileName(fileList,newFolderName){
         let append = 0
         let filenameList = []
         fileList.forEach(file => {
           filenameList.push(file.name || file.label)
         })
+        const newName = newFolderName
         while(filenameList.includes(newFolderName)){
           append += 1
-          newFolderName = '新建文件夹' + append
+          newFolderName = newName + append
         }
         return newFolderName
       },
@@ -1495,6 +1498,39 @@
           });
         }
       },
+      // 新建文本文件
+      createTextFile(newFileName){
+        if(newFileName){
+          if(/[\/\\"<>\?\*]/gi.test(newFileName)){
+            this.$message({
+              message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+              type: 'warning'
+            });
+            return;
+          }
+          this.createTextFileLoading = true
+          api.addFile({
+            fileName: newFileName,
+            isFolder: false,
+            username: this.$store.state.user.name,
+            parentPath: this.path
+          }).then((res)=>{
+            this.createTextFileLoading = false
+
+            // 打开编辑器
+            // let path = res.data.path
+            // path = '/' +  path.substring(0,path.length - res.data.name.length)
+            this.textPreviewRow = res.data
+            this.textPreviewVisible = true
+
+            this.$message.success(`新建文件成功`)
+            this.newTextFileDialog = false
+          }).catch(()=>{
+
+          })
+
+        }
+      },
       searchFileByKeyWord(key) {
         this.searchFile(key)
       },
@@ -1515,21 +1551,46 @@
         this.rowDrop()
         // 画矩形选取
         this.darwRectangle()
-        // 修改菜单查看状态
-        this.loadContextMenusViewMode()
+        this.loadContextMenus()
       },
-      loadContextMenusViewMode(){
-        // 加载菜单查看状态
+      // 加载菜单查看状态
+      loadContextMenus(){
+        if(this.contextMenus.length < 1){
+          this.contextmenuDisabled = true
+          return
+        }
+        let container = document.querySelector('.dashboard-container')
+        if(this.$refs.homeContextmenu.references.length === 0){
+          this.$refs.homeContextmenu.addRef({el:container,vnode: container})
+        }
         const viewModeIndex = this.contextMenus.findIndex(item=>item.operation==='viewMode')
+        const arrangementModeIndex = this.contextMenus.findIndex(item=>item.operation==='arrangement')
         if(viewModeIndex > -1){
           const child = this.contextMenus[viewModeIndex].child
           if(this.grid){
-            child[0].iconClass = ''
+            child[0].iconClass = 'menu-empty'
             child[1].iconClass = 'menu-point'
           }else{
             child[0].iconClass = 'menu-point'
-            child[1].iconClass = ''
+            child[1].iconClass = 'menu-empty'
           }
+        }
+        if(arrangementModeIndex > -1){
+          const child = this.contextMenus[arrangementModeIndex].child
+          const prop = this.sortable.prop
+          child.forEach(item=>{
+            const orderProp = item.orderProp
+            if(orderProp === prop){
+              child.map(item=>{
+                if(orderProp === item.orderProp){
+                  item.iconClass = 'menu-'+this.sortable.order
+                }else{
+                  item.iconClass = 'menu-null'
+                }
+                return item
+              })
+            }
+          })
         }
       },
       // 请求之前的准备
@@ -1554,6 +1615,7 @@
           this.fileList.map((item,index) => {
             item.index = index
           })
+          this.$refs.fileListTable.reloadData(this.fileList)
         }
         // 数据全部加载完成
         if (this.fileList.length >= res.count) {
@@ -1569,6 +1631,8 @@
         })
         // 使列表可拖拽
         this.rowDrop()
+        // 加载菜单状态
+        this.loadContextMenus()
         // 使列表滑到顶部
         if(!onLoad && !this.grid){
           if(this.fileListScrollTop > 0){
@@ -1702,12 +1766,27 @@
         }
         this.changeSelectedStyle(this.$refs.fileListTable.tableSelectData)
       },
+      sortChangeOfMenu(prop,headerIndex) {
+        let tableHeader = document.querySelector('.el-table__header thead tr')
+        // 去掉table-header上所有排序高亮
+        tableHeader.childNodes.forEach(el=>{
+          if(el.className.indexOf('is-sortable') > -1){
+            this.removeClass(el,"descending")
+            this.removeClass(el,"ascending")
+          }
+        })
+        // 重新加上排序高亮
+        let order = this.sortable.order === 'ascending'?'descending':'ascending'
+        this.addClass(tableHeader.children[headerIndex],order)
+        this.orderCustom = true
+        this.sortChange({prop: prop,order: order})
+      },
       sortChange(column) {
-        console.log(column)
+        let {prop,order} = column
         this.rowDrop()
         if(this.orderCustom || this.listModeSearch){
-          this.sortable.prop = column.prop
-          this.sortable.order = column.order
+          this.sortable.prop = prop
+          this.sortable.order = order
           this.pagination.pageIndex = 1
           if(this.listModeSearch){
             this.searchFile(this.searchFileName)
@@ -1715,6 +1794,16 @@
             this.getFileList();
           }
         }
+      },
+      removeClass(el,className){
+        const str = el.className
+        if(str.indexOf(className) > -1){
+          el.className = str.replace(className,"")
+        }
+      },
+      addClass(el,className){
+        const str = el.className
+        el.className = el.className +" "+className
       },
       getSummaries(param) {
         // 合计
@@ -1908,9 +1997,9 @@
         }
       },
       // 选取输入框部分内容
-      renameInputFocus(event,row) {
+      renameInputFocus(event,suffix) {
         event.currentTarget.selectionStart = 0
-        event.currentTarget.selectionEnd = event.currentTarget.value.length - row.suffix.length - 1
+        event.currentTarget.selectionEnd = event.currentTarget.value.length - suffix.length===0?0:suffix.length - 1
       },
       // 重命名
       rowRename(newFileName, row) {
@@ -2082,18 +2171,57 @@
         }
       },
       show() {
+        const that = this
         this.contextmenuDisabled = true
+        setTimeout(function() {
+          that.contextmenuDisabled = false
+        }, 1000)
       },
       hide() {
+        console.log('菜单隐藏了')
         const that = this
         this.isJustHideMenus = true
         setTimeout(function() {
           that.isJustHideMenus = false
         }, 100)
         this.cellMouseIndex = -1
-        this.contextmenuDisabled = false
       },
-      // 菜单操作
+      // 全局右键菜单操作
+      contextmenuClick(operation) {
+        console.log(operation)
+        switch (operation) {
+          case 'vmode-list':
+            this.grid=true;this.changeVmode()
+            break
+          case 'vmode-grid':
+            this.grid=false;this.changeVmode()
+            break
+          case 'orderName':
+            this.sortChangeOfMenu('name',2)
+            break
+          case 'orderSize':
+            this.sortChangeOfMenu('size',5)
+            break
+          case 'orderUpdate':
+            this.sortChangeOfMenu('update',6)
+            break
+          case 'refresh':
+            this.getFileList()
+            break
+          case 'createTextFile':
+            this.newTextFileName = this.getNewFileName(this.fileList,'未命名文件')
+            this.newTextFileDialog = true
+            this.$nextTick(()=>{
+              this.$refs.newTextFileName.focus()
+              this.$refs.newTextFileName.select()
+            })
+            break
+          case 'createMarkdownFile':
+            this.newDocument()
+            break
+        }
+      },
+      // 列表右键菜单操作
       menusOperations(operation) {
         switch (operation) {
           case 'share':
@@ -2189,7 +2317,7 @@
         }
 
         let childNodes = this.$refs.directoryTree.store.currentNode.childNodes
-        let newFolderName = this.getNewFolderName(childNodes,'新建文件夹')
+        let newFolderName = this.getNewFileName(childNodes,'新建文件夹')
         let newNode = {
           id: newNodeId,
           newFolder: true,
@@ -2734,8 +2862,13 @@
   .table-file-name:hover {
     color: #19ACF9;
   }
-  /deep/.plTableBox .el-table .el-table__header th {
-    background-color: #FFFFFF;
+  /deep/.plTableBox .el-table .el-table__header {
+    th {
+      background-color: #FFFFFF;
+    }
+    .is-sortable:hover {
+      background-color: #f5f7fa;
+    }
   }
   /deep/.el-table td {
     height: 50px!important;
@@ -2776,9 +2909,28 @@
       margin-left: 10px;
     }
   }
-  >>>.v-contextmenu-item{
+  >>>.v-contextmenu-item {
     .svg-icon {
       font-size: 14px;
+    }
+  }
+  >>>.new-text-file-dialog {
+    height: 350px;
+    top: calc(50% - 175px);
+    .el-dialog {
+      width: 420px;
+      .el-dialog__header {
+        padding: 15px 20px 15px;
+      }
+      .dialog-footer {
+        .el-loading-spinner {
+          margin-top: -13px;
+          .circular {
+            height: 26px;
+            width: 26px;
+          }
+        }
+      }
     }
   }
 </style>
