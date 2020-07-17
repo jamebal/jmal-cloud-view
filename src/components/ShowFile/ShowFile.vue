@@ -2634,6 +2634,7 @@
       },
       // 移除选中项
       removeSelectItme(){
+        console.log(this.$refs.fileListTable.tableSelectData.length,this.$refs.fileListTable.tableSelectData)
         let removeFileIndexList = []
         if(this.$refs.fileListTable.tableSelectData.length > 0){
           this.$refs.fileListTable.tableSelectData.forEach(item => {
@@ -2647,8 +2648,8 @@
         this.$refs.fileListTable.doLayout()
         this.$refs.fileListTable.clearSelection()
         this.$refs.fileListTable.tableSelectData = []
-        // 反序
-        removeFileIndexList = removeFileIndexList.reverse()
+        // 倒序
+        removeFileIndexList = removeFileIndexList.sort((a,b)=> b-a)
         const that = this
         setTimeout(function () {
           // 再执行移除
