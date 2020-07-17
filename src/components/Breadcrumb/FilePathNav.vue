@@ -31,7 +31,6 @@ export default {
   },
   watch: {
     path(path){
-      console.log('path', path)
       this.pathList = [{folder:'',path: '/'}]
       let list = path.split('/').filter((item)=>item.length>0)
       list.forEach((pathName,index)=>{

@@ -204,7 +204,6 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file(file) {
-        console.log('watch file',file)
         if(!file.path){
           return
         }
@@ -239,7 +238,6 @@
         if(!file.id){
           request = 'previewTextByPath'
         }
-        console.log(request,file)
         api[request]({
           shareId: this.shareId,
           fileId: file.id,
@@ -252,16 +250,21 @@
           this.textPreviewVisible = true
           this.content = res.data.contentText
 
+          let pathname = res.data.path.substring(1,res.data.path.length)+res.data.name
+          if('previewTextByPath' === request){
+            pathname = `/${res.data.path}/${res.data.name}`
+          }
+
           // 加载tabs
           this.editableTabs.push({
             title: res.data.name,
             copyTitle: res.data.name,
             language: this.getEditorLanguage(res.data.suffix),
             status: undefined,//标签状态
-            name: res.data.path.substring(1,res.data.path.length)+res.data.name,
+            name: pathname,
             content: res.data.contentText
           })
-          this.editableTabsValue = res.data.path.substring(1,res.data.path.length)+res.data.name
+          this.editableTabsValue = pathname
 
           // 界面的渲染后的初始化工作
           this.$nextTick(()=>{

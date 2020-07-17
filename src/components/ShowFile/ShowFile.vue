@@ -823,11 +823,6 @@
         this.stompClient.unsubscribe()
       }
     },
-    // watch: {
-    //   fileList: function (newValue,oldValue) {
-    //     console.log(newValue,oldValue)
-    //   }
-    // },
     directives: {
       // 注册一个局部的自定义指令 v-focus
       focus: {
@@ -861,7 +856,6 @@
         this.stompClient = ws.stompClient.subscribe('/user/queue/update', (msg) => {
           let fileDoc = JSON.parse(msg.body)
           const url = msg.headers.url
-          console.log('onmessage.url', url, fileDoc)
           let index = this.fileList.findIndex(file=>file.id === fileDoc.id)
           if('updateFile' === url){
             if(index > -1){
@@ -1524,7 +1518,10 @@
             this.textPreviewVisible = true
 
             this.$message.success(`新建文件成功`)
-            this.newTextFileDialog = false
+            const that = this
+            setTimeout(function () {
+              that.newTextFileDialog = false
+            },200)
           }).catch(()=>{
 
           })
@@ -2178,7 +2175,6 @@
         }, 1000)
       },
       hide() {
-        console.log('菜单隐藏了')
         const that = this
         this.isJustHideMenus = true
         setTimeout(function() {
@@ -2188,7 +2184,6 @@
       },
       // 全局右键菜单操作
       contextmenuClick(operation) {
-        console.log(operation)
         switch (operation) {
           case 'vmode-list':
             this.grid=true;this.changeVmode()
@@ -2460,7 +2455,6 @@
               }).then((res) => {
                 data.newFolder = false
                 data.id = res.data.id
-                console.log(data)
               }).catch(() => {
                 window.event.preventDefault()
                 window.event.stopPropagation()
