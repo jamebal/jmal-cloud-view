@@ -1,47 +1,47 @@
 <template>
   <span>
-    <a v-if="strLength(item.folder) > 10">
+    <a v-if="strLength(item.folder) > maxNameLength">
       <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
-        <a v-if="pathList.length >= 7">
-          <span v-if="index === pathList.length-6" class="redirect" >&nbsp;</span>
-          <a v-if="index === pathList.length-6" class="redirect" v-on:click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <a v-if="index >= pathList.length-6 && index < pathList.length-1 && strLength(item.folder) <= 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <span v-if="index >= pathList.length-6 && index < pathList.length-1 && strLength(item.folder) > 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
+        <a v-if="pathList.length >= maxPathCount">
+          <span v-if="index === pathList.length-maxPathCount-1" class="redirect" >&nbsp;</span>
+          <a v-if="index === pathList.length-maxPathCount-1" class="redirect" v-on:click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <a v-if="index >= pathList.length-maxPathCount-1 && index < pathList.length-1 && strLength(item.folder) <= maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <span v-if="index >= pathList.length-maxPathCount-1 && index < pathList.length-1 && strLength(item.folder) > maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring(item.folder,maxNameLength) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
         </a>
-        <a v-if="pathList.length < 7">
-          <a v-if="index < pathList.length-1 && strLength(item.folder) <= 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-          <span v-if="index < pathList.length-1 && strLength(item.folder) > 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
+        <a v-if="pathList.length < maxPathCount">
+          <a v-if="index < pathList.length-1 && strLength(item.folder) <= maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+          <span v-if="index < pathList.length-1 && strLength(item.folder) > maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring(item.folder,maxNameLength) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
         </a>
         <a v-if="index===pathList.length-1">
           <span v-if="strLength(item.folder) <= 20" class="no-redirect">{{ item.folder }}</span>
-          <span v-if="strLength(item.folder) > 20 && strLength(item.folder) <= 50 && item.searchKey" class="no-redirect">{{ item.folder }}</span>
-          <span v-if="strLength(item.folder) > 50 && item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
+          <span v-if="strLength(item.folder) > 20 && strLength(item.folder) <= maxNameLengthOfLast && item.searchKey" class="no-redirect">{{ item.folder }}</span>
+          <span v-if="strLength(item.folder) > maxNameLengthOfLast && item.searchKey" class="no-redirect">{{ substring(item.folder,maxNameLength) }}...</span>
           <span v-if="strLength(item.folder) > 20 && !item.searchKey" class="no-redirect">{{ substring(item.folder,20) }}...</span>
         </a>
       </el-tooltip>
     </a>
-    <a v-if="strLength(item.folder) <= 10">
-      <a v-if="pathList.length >= 7">
-        <span v-if="index === pathList.length-6" class="redirect" >&nbsp;</span>
-        <a v-if="index === pathList.length-6" class="redirect" v-on:click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-        <a v-if="index >= pathList.length-6 && index < pathList.length-1 && strLength(item.folder) <= 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-        <span v-if="index >= pathList.length-6 && index < pathList.length-1 && strLength(item.folder) > 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
+    <a v-if="strLength(item.folder) <= maxNameLength">
+      <a v-if="pathList.length >= maxPathCount">
+        <span v-if="index === pathList.length-maxPathCount-1" class="redirect" >&nbsp;</span>
+        <a v-if="index === pathList.length-maxPathCount-1" class="redirect" v-on:click.prevent="handleLink(item,index)">...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+        <a v-if="index > pathList.length-maxPathCount-1 && index < pathList.length-1 && strLength(item.folder) <= maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+        <span v-if="index >= pathList.length-maxPathCount-1 && index < pathList.length-1 && strLength(item.folder) > maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring(item.folder,maxNameLength) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
       </a>
-      <a v-if="pathList.length < 7">
-        <a v-if="index < pathList.length-1 && strLength(item.folder) <= 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
-        <span v-if="index < pathList.length-1 && strLength(item.folder) > 10" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring10(item.folder) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
+      <a v-if="pathList.length < maxPathCount">
+        <a v-if="index < pathList.length-1 && strLength(item.folder) <= maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ item.folder }}<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></a>
+        <span v-if="index < pathList.length-1 && strLength(item.folder) > maxNameLength" class="redirect" v-on:click.prevent="handleLink(item,index)">{{ substring(item.folder,maxNameLength) }}...<svg-icon style="font-size: 1rem;" icon-class="breadcrumb-right" /></span>
       </a>
       <a v-if="index===pathList.length-1">
-        <span v-if="strLength(item.folder) <= 10" class="no-redirect">{{ item.folder }}</span>
-        <span v-if="strLength(item.folder) > 10 && strLength(item.folder) <= 50 && item.searchKey" class="no-redirect">{{ item.folder }}</span>
-        <span v-if="strLength(item.folder) > 50 && item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
-        <span v-if="strLength(item.folder) > 10 && !item.searchKey" class="no-redirect">{{ substring10(item.folder) }}...</span>
+        <span v-if="strLength(item.folder) <= maxNameLength" class="no-redirect">{{ item.folder }}</span>
+        <span v-if="strLength(item.folder) > maxNameLength && strLength(item.folder) <= maxNameLengthOfLast && item.searchKey" class="no-redirect">{{ item.folder }}</span>
+        <span v-if="strLength(item.folder) > maxNameLengthOfLast && item.searchKey" class="no-redirect">{{ substring(item.folder,maxNameLength) }}...</span>
+        <span v-if="strLength(item.folder) > maxNameLength && !item.searchKey" class="no-redirect">{{ substring(item.folder,maxNameLength) }}...</span>
       </a>
     </a>
   </span>
 </template>
 <script>
-  import { strlen, substring10,substring } from '@/utils/number'
+  import { strlen,substring } from '@/utils/number'
   export default {
     name: 'BreadcrumbFilePath',
     props: {
@@ -51,6 +51,18 @@
           // { 'folder': '', index: 0 },
           // { 'folder': '+', index: 1 }
         ]
+      },
+      maxNameLength: {
+        type: Number,
+        default: 10
+      },
+      maxPathCount: {
+        type: Number,
+        default: 7
+      },
+      maxNameLengthOfLast: {
+        type: Number,
+        default: 50
       },
       index: {
         type: Number,
@@ -70,9 +82,6 @@
     methods: {
       strLength(str) {
         return strlen(str)
-      },
-      substring10(str) {
-        return substring10(str)
       },
       substring(str,n){
         return substring(str,n)
