@@ -5,7 +5,7 @@ export const suffix = {
     'vue','asp','jsp','TXT',
     'xml','xsl','iml','m','bas','prg','cmd',
     'sass','sas','php','lst','key','pem','log',
-    'cmake','db','gradle','bat','','conf','dart'
+    'cmake','db','gradle','bat','','conf','dart','plist'
   ],
   compressedFile: [
     'zip','tar','jar','tar.gz','tgz','tar.bz2'
@@ -75,3 +75,4 @@ iconClass.set('gradle','file-gradle')
 iconClass.set('bat','file-bat')
 iconClass.set('swift','file-swift')
 iconClass.set('yml','file-yml')
+iconClass.set('plist','file-plist')

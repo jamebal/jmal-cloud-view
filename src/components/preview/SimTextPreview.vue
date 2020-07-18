@@ -18,7 +18,7 @@
       operatButtonText="放弃修改"
       confirmButtonText="保存"
       @operating="closeTabDialog"
-      @confirm="saveTab"
+      @confirm="saveTabAndClose"
     >
     </message-dialog>
 
@@ -39,7 +39,7 @@
         <!--<span class="title-name">{{file.name}}</span>-->
         <span><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
-          <el-button v-if="isShowUpdateBtn" @click="saveAll" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
+          <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
           <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
           <el-button @click="skinning" :class="lightTheme?'':'dark-button'" size="small" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
           <button class="title-extension-button" @click="fullScreen" size="small">
@@ -52,6 +52,8 @@
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
+              :editableTabs.sync="editableTabs"
+              :editableTabsValue.sync="editableTabsValue"
               :contentsWidth="contentsWidth"
               :contentsHieght="editorHieght"
               :lightTheme="lightTheme"
@@ -398,7 +400,7 @@
           this.closeAllTabs()
         }
       },
-      saveTab(){
+      saveTabAndClose(){
         this.update(this.editableTabs[this.removeIndex].change,this.editableTabs[this.removeIndex].name)
         this.isTabSaveDialogVisible = false
         this.editableTabs.splice(this.removeIndex,1)
@@ -797,6 +799,27 @@
       }
 
       &[data-theme=dark] {
+
+        background: $bg-color;
+
+        .el-tabs--card>.el-tabs__header {
+          border-bottom: 1px solid #565656;
+          .el-tabs__nav {
+            border: 1px solid #565656;
+            border-bottom: none;
+          }
+          .el-tabs__item {
+            border-left: 1px solid #565656;
+            color: #afafaf;
+          }
+          .el-tabs__item:first-child {
+            border-left: none;
+          }
+          .el-tabs__item.is-active {
+            border-bottom-color: $bg-color;
+            color: #409EFF;
+          }
+        }
 
         .editor-resize {
           background: $bg-color;

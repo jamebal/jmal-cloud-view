@@ -27,7 +27,6 @@
   </div>
 </template>
 <script>
-  import $ from 'jquery'
   import { iconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
   import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
@@ -54,6 +53,14 @@
         type: Boolean,
         default: true,
       },
+      editableTabs: {
+        type: Array,
+        default: () => []
+      },
+      editableTabsValue: {
+        type: String,
+        defalut: '1'
+      }
     },
     data(){
       return {
@@ -77,9 +84,12 @@
       }
     },
     watch: {
-      directoryTreeData(newVal,oldVal) {
+      directoryTreeData(newVal) {
         this.directoryTreeData = newVal
         this.loadTreeData(newVal,true)
+      },
+      editableTabs(newVal){
+        this.editableTabs = newVal
       }
     },
     mounted() {
@@ -102,6 +112,13 @@
           edit: {
             triggerStart: ["f2", "mac+enter"],
             beforeEdit: function(event, data){
+              const isModifying = that.editableTabs.some(item => {
+                return data.node.data.path === item.name && 'Modifying' === item.status;
+              })
+              if(isModifying){
+                that.$message.warning('不能对正在修改的文件重命名')
+              }
+              return !isModifying
             },
             edit: function(event, data){
               let intput = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
@@ -109,10 +126,11 @@
               intput.style.width = parseInt(width)+50+'px'
             },
             beforeClose: function(event, data){
-              if( data.originalEvent.type === "mousedown" ) {
+              if(data.originalEvent.type === "mousedown") {
                  data.originalEvent.preventDefault();
-                 return false;
+                 return false
               }
+              return that.nameValid(data.input.val(), data.node.data, data.node)
             },
             save: function(event, data){
               if(data.node.data.path){
@@ -123,8 +141,8 @@
               return true;
             },
             close: function(event, data){
-              if( data.save ) {
-              }
+              let title = data.node.span.querySelector('.fancytree-title')
+              that.$refs.contextmenu.addRef({el:title,vnode: title})
               return false
             }
           }
@@ -313,19 +331,40 @@
           node.remove()
         })
       },
-      // 重命名
-      nodeRename(newFileName, row, node) {
-        if (newFileName) {
+      nameValid(newFileName,row,node){
+        if(newFileName){
+          if(newFileName === row.name){
+            return true
+          }
           if(/[\/\\"<>\?\*]/gi.test(newFileName)){
             this.$message({
               message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
               type: 'warning'
             });
-            return;
+            return false
           }
+          const findIndex = node.parent.children.findIndex(item => newFileName === item.data.name)
+          if(findIndex > -1){
+            let msg = '该文件已存在'
+            if(row.isFolder){
+              msg = '该文件夹已存在'
+            }
+            this.$message({
+              message: msg,
+              type: 'warning'
+            });
+            return false
+          }
+          return true
+        }
+        return false
+      },
+      // 重命名
+      nodeRename(newFileName, row, node) {
+        if (newFileName) {
           let newExt = newFileName.replace(/.+\./,"");
           let strFileName = newFileName.substring(0,newFileName.length - newExt.length);
-          if (!row.isFolder) {
+          if (!row.isFolder){
             if (row.suffix !== newExt) {
               this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,'提示',{
                 type: 'warning',
@@ -345,28 +384,13 @@
           }else{
             this.rename(row,newFileName,node)
           }
+          return true
         }
       },
       rename(row,newFileName,node){
         // 重命名
         if(row.name === newFileName){
           node.setTitle(newFileName);
-          return
-        }
-        const findIndex = node.parent.children.findIndex(item => {
-          if(newFileName === item.data.name){
-            return item
-          }
-        })
-        if(findIndex > -1){
-          let msg = '该文件已存在'
-          if(row.isFolder){
-            msg = '该文件夹已存在'
-          }
-          this.$message({
-            message: msg,
-            type: 'warning'
-          });
           return
         }
         api.renameByPath({
@@ -379,9 +403,22 @@
             row.name = newFileName
             row.suffix = newFileName.replace(/.+\./,"")
             Bus.$emit('renameRow',row)
+            const oldPath = row.path
             row.path = row.path.substring(0,row.path.length - row.oldName.length) + newFileName
-            node.setTitle(newFileName);
+            node.setTitle(newFileName)
             this.$message.success("修改成功！")
+            // 同步到 editableTabs
+            this.editableTabs.map(item => {
+              if(item.name === oldPath){
+                item.title = row.name
+                item.copyTitle = row.name
+                item.name = row.path
+              }
+              return item
+            })
+            if(this.editableTabsValue === oldPath){
+              this.$emit('update:editableTabsValue', row.path)
+            }
           }
         })
       },
