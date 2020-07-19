@@ -52,7 +52,7 @@
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
-              :editableTabs.sync="editableTabs"
+              :editableTabs="editableTabs"
               :editableTabsValue.sync="editableTabsValue"
               :contentsWidth="contentsWidth"
               :contentsHieght="editorHieght"
@@ -60,12 +60,17 @@
               :directoryTreeData="directoryTreeData"
               @treeNodeClick="treeNodeClick"
               @onLoadTreePath="onLoadTreePath"
+              @onRename="onRename"
             >
             </fancy-tree>
           </div>
         </div>
-        <div class="editor-resize" style="width: 3px;cursor: col-resize;"></div>
-        <div :style="{width: editorWidth-3+'px'}">
+        <div class="editor-resize" :style="{marginLeft: contentsWidth+'px'}">
+          <div class="darg-resize-conter"></div>
+          <i class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录">
+          </i>
+        </div>
+        <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
             <el-tab-pane
               v-for="(item,index) in editableTabs"
@@ -301,11 +306,11 @@
           // 鼠标按下事件
           const that = this
           resize.onmousedown = function (e) {
-            let startX = e.clientX;
-            let contentsStartWidth = left.offsetWidth + 10
+            let startX = e.clientX
+            let contentsStartWidth = left.offsetWidth
             // 鼠标拖动事件
             document.onmousemove = function (e) {
-              let endX = e.clientX;
+              let endX = e.clientX
               // 移动的距离。负数向左移动,正数向右移动
               let moveLen = endX - startX
               if((contentsStartWidth + moveLen) > leftTools.style.minWidth.split('\px')[0]){
@@ -313,22 +318,36 @@
                 if(600 > contentsWidth){
                   that.contentsWidth = contentsWidth
                   that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
+                  console.log('contentsWidth:',that.contentsWidth)
+                  console.log('editorWidth:',that.editorWidth)
                 }
               }
             }
             // 鼠标松开事件
             document.onmouseup = function (evt) {
-              document.onmousemove = null;
-              document.onmouseup = null;
-              resize.releaseCapture && resize.releaseCapture(); //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
+              document.onmousemove = null
+              document.onmouseup = null
+              resize.releaseCapture && resize.releaseCapture() //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
             }
-            resize.setCapture && resize.setCapture(); //该函数在属于当前线程的指定窗口里设置鼠标捕获
+            resize.setCapture && resize.setCapture() //该函数在属于当前线程的指定窗口里设置鼠标捕获
             return false;
           }
         }
       },
       loadPath(data){
         this.$refs.fancTree.loadPath(data)
+      },
+      onRename(row){
+        // 同步到 editableTabs
+        this.editableTabs.map(item => {
+          if(item.name === row.oldPath){
+            item.title = row.name
+            item.copyTitle = row.name
+            item.name = row.path
+          }
+          return item
+        })
+        this.editableTabsValue = row.path
       },
       onLoadTreePath(path){
         this.filePathNav = path
@@ -340,14 +359,6 @@
         if(!suffix.simText.includes(row.suffix)){
           return
         }
-        this.loading = this.$message({
-          iconClass: 'el-icon-loading',
-          type: 'info',
-          duration: 0,
-          dangerouslyUseHTMLString: true,
-          offset: document.body.clientHeight/3,
-          message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
-        })
         let languages = monaco.languages.getLanguages();
         const languagesIndex = languages.findIndex(item => item.extensions && item.extensions.includes('.'+row.suffix))
         if(languagesIndex > -1){
@@ -361,12 +372,20 @@
         }else{
           this.options.wordWrap = ''
         }
-        api.previewTextByPath({
-          path: row.path,
-          username: this.$store.state.user.name
-        }).then((res)=>{
-          this.loading.close()
-          if(this.editableTabs.findIndex(tab=> tab.name===row.path) < 0){
+        if(this.editableTabs.findIndex(tab=> tab.name===row.path) < 0){
+          this.loading = this.$message({
+            iconClass: 'el-icon-loading',
+            type: 'info',
+            duration: 0,
+            dangerouslyUseHTMLString: true,
+            offset: document.body.clientHeight/3,
+            message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
+          })
+          api.previewTextByPath({
+            path: row.path,
+            username: this.$store.state.user.name
+          }).then((res)=>{
+            this.loading.close()
             // 添加一个tab
             let tab = {
               title:row.name,
@@ -376,17 +395,23 @@
               name:row.path,
               content:res.data.contentText
             }
-            let thisTabIndex = this.editableTabs.findIndex(tab=> tab.status===undefined)
-            if(thisTabIndex > -1){
-              this.editableTabs[thisTabIndex] = tab
-            }else{
+            if(row.isAddTab){
               this.editableTabs.push(tab)
+            }else{
+              let thisTabIndex = this.editableTabs.findIndex(tab=> tab.status===undefined)
+              if(thisTabIndex > -1){
+                this.editableTabs[thisTabIndex] = tab
+              }else{
+                this.editableTabs.push(tab)
+              }
             }
-          }
+            this.editableTabsValue = row.path
+          }).catch(() => {
+            this.loading.close()
+          })
+        }else{
           this.editableTabsValue = row.path
-        }).catch(() => {
-          this.loading.close()
-        })
+        }
       },
       containerResize() {
         this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
@@ -535,6 +560,7 @@
         this.setTheme()
       },
       setTheme(){
+        let dialog = document.querySelector('.simtext-dialog .el-dialog')
         let header = document.querySelector('.simtext-dialog .el-dialog .el-dialog__header')
         let fileContests = document.querySelector('.content');
         if(this.lightTheme){
@@ -543,12 +569,18 @@
           if(fileContests){
             fileContests.setAttribute('data-theme', 'light')
           }
+          if(dialog){
+            dialog.style.background = '#FFF'
+          }
           if(header){
             header.setAttribute('data-theme', 'light')
           }
         }else{
           header.style.background = '#292929'
           header.style.color = '#fff'
+          if(dialog){
+            dialog.style.background = '#1e1e1e'
+          }
           if(fileContests){
             fileContests.setAttribute('data-theme', 'dark')
           }
@@ -603,8 +635,9 @@
       border-radius: unset!important;
     }
     &::-webkit-scrollbar-track-piece {
-      background-color: unset!important;
-      border-radius: 3px;
+      border: unset!important;
+      background-color: #ececec !important;
+      border-radius: unset!important;
     }
   }
 
@@ -615,12 +648,13 @@
     }
     &::-webkit-scrollbar-thumb {
       border: unset!important;
-      background-color: #4b4b4b !important;
+      background-color: #aeaeae !important;
       border-radius: unset!important;
     }
     &::-webkit-scrollbar-track-piece {
-      background-color: unset!important;
-      border-radius: 3px;
+      border: unset!important;
+      background-color: #565656 !important;
+      border-radius: unset!important;
     }
   }
 
@@ -754,10 +788,14 @@
       }
 
       .file-contents{
+
+        transition: left 500ms ease 0s;
+        position: absolute;
+
         .content-tree{
 
           background: #fff;
-          box-shadow: inset #ececec -7px 0px;
+          //box-shadow: inset #ececec -7px 0px;
 
           #dir-tree {
             overflow-y: scroll;
@@ -798,9 +836,60 @@
 
       }
 
+      .editor-resize {
+        width: 2px;
+        bottom: 0;
+        top: 0;
+        cursor: col-resize;
+        transition: margin-left 500ms ease 0s;
+
+        .darg-resize-conter {
+          width: 2px;
+        }
+        .editor-resize-conter{
+          height: 50px;
+          width: 14px;
+          position: absolute;
+          z-index: 999;
+          top: 48%;
+          background: #e2e2e2;
+          border-top-right-radius: 15px;
+          border-bottom-right-radius: 15px;
+          border: 1px solid #ececec;
+          border-left: none;
+          cursor: pointer;
+        }
+        .editor-resize-conter:after {
+          content: " ";
+          display: inline-block;
+          height: 10px;
+          width: 10px;
+          position: absolute;
+          top: 50%;
+          margin-top: -6.5px;
+          left: 4px;
+          z-index: 999;
+          border-width: 2px 2px 0 0;
+          border-color: #9a9a9a;
+          border-style: solid;
+          -webkit-transform: matrix(-0.71, 0.71, 0.71, 0.71, 0, 0);
+          transform: matrix(-0.71, 0.71, 0.71, 0.71, 0, 0);
+        }
+      }
+
       &[data-theme=dark] {
 
         background: $bg-color;
+
+        .editor-resize {
+          .editor-resize-conter{
+            background: #222;
+            border: 1px solid #525252;
+          }
+          .editor-resize-conter:after {
+            border-color: #b2b2b2;
+          }
+        }
 
         .el-tabs--card>.el-tabs__header {
           border-bottom: 1px solid #565656;
@@ -821,10 +910,6 @@
           }
         }
 
-        .editor-resize {
-          background: $bg-color;
-        }
-
         .file-contents{
 
           background: #565656;
@@ -835,7 +920,7 @@
 
           .content-tree {
             background: $bg-color;
-            box-shadow: inset #2d2d2d -7px 0px;
+            //box-shadow: inset #2d2d2d -7px 0px;
             #dir-tree {
               @include scrollBarDarkStyle;
               span.fancytree-title {

@@ -19,7 +19,16 @@
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus" @click="newFileAndFolder" v-contextmenu:clickContextmenu>新建</el-button>
-        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
+        <el-popover
+          placement="bottom"
+          width="250"
+          trigger="click">
+          <el-input placeholder="请输入内容" size="small">
+            <el-button slot="append" size="small" icon="el-icon-search"></el-button>
+          </el-input>
+          <el-button slot="reference" :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
+        </el-popover>
+
       </el-button-group>
     </div>
     <div id="dir-tree" :style="{width: contentsWidth+'px',height: contentsHieght+'px'}">
@@ -77,19 +86,15 @@
           { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
           { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
         ],
+        fileMenus1: [
+          { iconClass: 'menu-addtab', label: '在新的标签打开', operation: 'openFileOfNewTab' },
+          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
+          { iconClass: 'menu-remove', label: '删除', operation: 'remove' }
+        ],
         newFileMenus: [
           { iconClass: 'add-file', label: '新建文件', operation: 'addFile' },
           { iconClass: 'folder-add', label: '新建目录', operation: 'addFolder' }
         ],
-      }
-    },
-    watch: {
-      directoryTreeData(newVal) {
-        this.directoryTreeData = newVal
-        this.loadTreeData(newVal,true)
-      },
-      editableTabs(newVal){
-        this.editableTabs = newVal
       }
     },
     mounted() {
@@ -130,7 +135,11 @@
                  data.originalEvent.preventDefault();
                  return false
               }
-              return that.nameValid(data.input.val(), data.node.data, data.node)
+              if(data.node.data.path){
+                return that.nameValid(data.input.val(), data.node.data, data.node)
+              }else{
+                return true
+              }
             },
             save: function(event, data){
               if(data.node.data.path){
@@ -141,12 +150,17 @@
               return true;
             },
             close: function(event, data){
-              let title = data.node.span.querySelector('.fancytree-title')
-              that.$refs.contextmenu.addRef({el:title,vnode: title})
+              if(data.node) {
+                that.addRef(data.node)
+              }
               return false
             }
           }
         });
+      },
+      addRef(node){
+        let title = node.span.querySelector('.fancytree-title')
+        this.$refs.contextmenu.addRef({el:title,vnode: title})
       },
       contextmenu(vnode){
         this.rightClicking = true
@@ -166,6 +180,10 @@
 
           }else{
             this.menus = this.fileMenus
+            const tabExist = this.editableTabs.some(item => item.name === this.contextData.path)
+            if(!tabExist && suffix.simText.includes(this.contextData.suffix)){
+              this.menus = this.fileMenus1
+            }
           }
         }
       },
@@ -187,6 +205,10 @@
             break
           case 'addFolder':
             this.editCreateNode(node,true)
+            break
+          case 'openFileOfNewTab':
+            this.contextData.isAddTab = true
+            this.$emit('treeNodeClick',this.contextData)
             break
           default:
             break
@@ -403,20 +425,13 @@
             row.name = newFileName
             row.suffix = newFileName.replace(/.+\./,"")
             Bus.$emit('renameRow',row)
-            const oldPath = row.path
+            row.oldPath = row.path
             row.path = row.path.substring(0,row.path.length - row.oldName.length) + newFileName
             node.setTitle(newFileName)
+            this.addRef(node)
             this.$message.success("修改成功！")
-            // 同步到 editableTabs
-            this.editableTabs.map(item => {
-              if(item.name === oldPath){
-                item.title = row.name
-                item.copyTitle = row.name
-                item.name = row.path
-              }
-              return item
-            })
-            if(this.editableTabsValue === oldPath){
+            this.$emit('onRename', row)
+            if(this.editableTabsValue === row.oldPath){
               this.$emit('update:editableTabsValue', row.path)
             }
           }
@@ -482,8 +497,7 @@
       },
       createNode(event, data){
         if(data.node.statusNodeType  !== 'nodata'){
-          let title = data.node.span.querySelector('.fancytree-title')
-          this.$refs.contextmenu.addRef({el:title,vnode: title})
+          this.addRef(data.node)
         }else{
           data.node.span.querySelector('.fancytree-title').innerText = '无数据'
         }
