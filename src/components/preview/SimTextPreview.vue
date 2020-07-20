@@ -31,10 +31,10 @@
       :close-on-click-modal="false"
       @close="closeDialog"
       :before-close="handleClose"
-      :width="dialogWidth*100+'%'"
+      :width="dialogWidth+'px'"
       v-resize="containerResize"
       class="simtext-dialog"
-      v-dialogDrag="{ dialogWidth: dialogWidth}">
+      v-dialogDrag="{ dialogWidthPercent: dialogWidthPercent}">
       <div slot="title" class="simtext-header-title">
         <!--<span class="title-name">{{file.name}}</span>-->
         <span><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
@@ -47,8 +47,8 @@
           </button>
         </div>
       </div>
-      <div class="content">
-        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+31+'px'}">
+      <div class="content" :style="{height: editorHieght+26+'px'}">
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition}">
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
@@ -65,9 +65,9 @@
             </fancy-tree>
           </div>
         </div>
-        <div class="editor-resize" :style="{marginLeft: contentsWidth+'px'}">
+        <div class="editor-resize" :style="{marginLeft: contentsWidth+'px',transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录">
+          <i class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents">
           </i>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
@@ -98,6 +98,7 @@
           </el-tabs>
         </div>
       </div>
+      <div class="nwse-resize" :style="{left: dialogWidth-15+'px'}"></div>
     </el-dialog>
 
   </div>
@@ -148,6 +149,7 @@
     data(){
       return{
         lightTheme: true,
+        contentsHide: false,
         defalutLanguage: 'redis',
         lineWrapping: false,
         options: {
@@ -162,11 +164,13 @@
         diffEditor: false,
         textPreviewVisible: false,
         fullscreen: false,
-        dialogWidth: 0.7,
+        dialogWidth: 0,
+        dialogWidthPercent: 0.7,
         lastTransform: undefined,
         contentsWidth: 273,
         editorWidth: 1035,
         editorHieght: 640,
+        transition: 'all 500ms ease 0s',
         content: '',
         newContent: '',
         previewMode: true,
@@ -189,6 +193,9 @@
       }
     },
     mounted() {
+      this.$nextTick(()=>{
+        this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+      })
     },
     directives: {
       resize: { // 指令的名称
@@ -215,8 +222,7 @@
           return
         }
         this.editableTabs = []
-        this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
-        this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
+        this.loadEditorSize()
 
         this.loading = this.$message({
           iconClass: 'el-icon-loading',
@@ -275,6 +281,7 @@
 
           // 界面的渲染后的初始化工作
           this.$nextTick(()=>{
+            this.dargDialogSize()
             this.dragControllerDiv()
             this.setTheme()
           })
@@ -298,28 +305,91 @@
         }
         return editorLanguage;
       },
+      // 隐藏目录
+      hideContents(){
+        const that = this
+        let contents = document.querySelector('.file-contents')
+        let resize = document.querySelector('.editor-resize')
+        if(!this.contentsHide){
+          contents.style.left = `-${this.contentsWidth}px`
+          resize.style.marginLeft = '0px'
+          setTimeout(function () {
+            that.editorWidth += that.contentsWidth
+          },250)
+          this.contentsHide = true
+          resize.setAttribute('icon-style', 'hide')
+        }else{
+          contents.style.left = '0px'
+          resize.style.marginLeft = `${this.contentsWidth}px`
+          setTimeout(function () {
+            that.editorWidth -= that.contentsWidth
+          },250)
+          this.contentsHide = false
+          resize.setAttribute('icon-style', 'show')
+        }
+      },
+      // 拖动调整窗口大小
+      dargDialogSize(){
+        // 右下角
+        let nwse = document.querySelector('.el-dialog__body .nwse-resize')
+        if(nwse){
+          const that = this
+          nwse.onmousedown = function (e) {
+            let startX = e.clientX;
+            let startY = e.clientY;
+            let editorWidth = that.editorWidth
+            let editorHieght = that.editorHieght
+            let dialogWidth = that.dialogWidth
+            document.onmousemove = function (e) {
+              console.log('onmousemove,onmousemove,onmousemove')
+              let endX = e.clientX;
+              let endY = e.clientY;
+              const moveX = endX - startX
+              if((dialogWidth + moveX) > 600){
+                that.dialogWidth = dialogWidth + moveX
+                that.editorWidth = editorWidth + moveX
+                that.editorHieght = editorHieght + (endY - startY)
+              }
+            }
+            // 鼠标松开事件
+            document.onmouseup = function () {
+              document.onmousemove = null
+              document.onmouseup = null
+              nwse.releaseCapture && resize.releaseCapture()
+            }
+            nwse.setCapture && nwse.setCapture()
+            return false
+          }
+        }
+      },
+      // 拖动调整目录的宽度
       dragControllerDiv() {
-        let resize = document.querySelector('.el-dialog__body .content .editor-resize');
-        let left = document.querySelector('.file-contents');
-        let leftTools = document.querySelector('.file-contents .dir-tools');
+        let dialogBody = document.querySelector('.el-dialog__body .content')
+        let resize = document.querySelector('.el-dialog__body .content .editor-resize')
+        let contents = document.querySelector('.file-contents')
+        let leftTools = document.querySelector('.file-contents .dir-tools')
         if(resize){
           // 鼠标按下事件
           const that = this
           resize.onmousedown = function (e) {
+            if(that.contentsHide){
+              return false
+            }
             let startX = e.clientX
-            let contentsStartWidth = left.offsetWidth
+            let contentsStartWidth = contents.offsetWidth
+            let dialogBodyWidth = dialogBody.clientWidth
+            let contentsMaxWidth = (dialogBodyWidth * 0.6)>273?(dialogBodyWidth * 0.6):600
             // 鼠标拖动事件
             document.onmousemove = function (e) {
+              that.transition = 'none 500ms ease 0s'
               let endX = e.clientX
               // 移动的距离。负数向左移动,正数向右移动
               let moveLen = endX - startX
               if((contentsStartWidth + moveLen) > leftTools.style.minWidth.split('\px')[0]){
                 let contentsWidth = contentsStartWidth + moveLen
-                if(600 > contentsWidth){
+                if(contentsWidth < contentsMaxWidth){
                   that.contentsWidth = contentsWidth
-                  that.editorWidth = document.body.clientWidth * that.dialogWidth - (contentsStartWidth + moveLen)
-                  console.log('contentsWidth:',that.contentsWidth)
-                  console.log('editorWidth:',that.editorWidth)
+                  that.editorWidth = that.dialogWidth - (contentsStartWidth + moveLen)
                 }
               }
             }
@@ -327,10 +397,13 @@
             document.onmouseup = function (evt) {
               document.onmousemove = null
               document.onmouseup = null
-              resize.releaseCapture && resize.releaseCapture() //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
+              //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
+              resize.releaseCapture && resize.releaseCapture()
+              that.transition = 'all 500ms ease 0s'
             }
-            resize.setCapture && resize.setCapture() //该函数在属于当前线程的指定窗口里设置鼠标捕获
-            return false;
+            //该函数在属于当前线程的指定窗口里设置鼠标捕获
+            resize.setCapture && resize.setCapture()
+            return false
           }
         }
       },
@@ -414,8 +487,16 @@
         }
       },
       containerResize() {
-        this.editorWidth = document.body.clientWidth * this.dialogWidth - this.contentsWidth
-        this.editorHieght = document.body.clientHeight * this.dialogWidth - 50
+        this.loadEditorSize()
+      },
+      loadEditorSize(){
+        this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+        if(this.contentsHide){
+          this.editorWidth = this.dialogWidth
+        }else{
+          this.editorWidth = this.dialogWidth - this.contentsWidth
+        }
+        this.editorHieght = document.body.clientHeight * this.dialogWidthPercent - 76
       },
       handleClose(done) {
         if(this.isShowUpdateBtn){
@@ -539,13 +620,14 @@
         const dragDom = document.querySelector('.simtext-dialog .el-dialog');
         if(this.fullscreen){
           this.lastTransform = dragDom.style.transform
-          this.dialogWidth = 1
+          this.dialogWidthPercent = 1
+          this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
           dragDom.style.transform="translate("+0+"px,"+0+"px)";
         }else{
-          this.dialogWidth = 0.7
-          let dialogWidth = document.body.clientWidth * this.dialogWidth
-          let x = (document.body.clientWidth - dialogWidth)/2
-          let y = (document.body.clientHeight - document.body.clientHeight * this.dialogWidth)/2
+          this.dialogWidthPercent = 0.7
+          this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+          let x = (document.body.clientWidth - this.dialogWidth)/2
+          let y = (document.body.clientHeight - this.dialogWidth)/2
           if(this.lastTransform){
             dragDom.style.transform=this.lastTransform
           }else{
@@ -581,7 +663,7 @@
           if(dialog){
             dialog.style.background = '#1e1e1e'
           }
-          if(fileContests){
+          if(fileContests){1
             fileContests.setAttribute('data-theme', 'dark')
           }
           if(header){
@@ -789,7 +871,7 @@
 
       .file-contents{
 
-        transition: left 500ms ease 0s;
+        left: 0;
         position: absolute;
 
         .content-tree{
@@ -841,7 +923,6 @@
         bottom: 0;
         top: 0;
         cursor: col-resize;
-        transition: margin-left 500ms ease 0s;
 
         .darg-resize-conter {
           width: 2px;
@@ -866,8 +947,8 @@
           width: 10px;
           position: absolute;
           top: 50%;
-          margin-top: -6.5px;
-          left: 4px;
+          margin-top: -5px;
+          left: 3px;
           z-index: 999;
           border-width: 2px 2px 0 0;
           border-color: #9a9a9a;
@@ -875,6 +956,15 @@
           -webkit-transform: matrix(-0.71, 0.71, 0.71, 0.71, 0, 0);
           transform: matrix(-0.71, 0.71, 0.71, 0.71, 0, 0);
         }
+
+        &[icon-style=hide] {
+          .editor-resize-conter:after {
+            left: -2px;
+            -webkit-transform: matrix(0.71, -0.71, -0.71, -0.71, 0, 0);
+            transform: matrix(0.71, -0.71, -0.71, -0.71, 0, 0);
+          }
+        }
+
       }
 
       &[data-theme=dark] {
@@ -950,7 +1040,16 @@
           background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0));
         }
       }
-
+    }
+    .nwse-resize {
+      z-index: 99999;
+      position: fixed;
+      width: 15px;
+      background: #00000000;
+      height: 15px;
+      margin-top: -15px;
+      float: right;
+      cursor: nwse-resize;
     }
   }
 

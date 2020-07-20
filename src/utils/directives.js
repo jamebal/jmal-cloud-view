@@ -134,9 +134,9 @@ Vue.directive('dialogDrag', {
     // 获取拖拽内容头部
     const dialogHeaderEl = el.querySelector('.el-dialog__header');
     const dragDom = el.querySelector('.el-dialog');
-    let dialogWidth = document.body.clientWidth * binding.value.dialogWidth;
+    let dialogWidth = document.body.clientWidth * binding.value.dialogWidthPercent
     let x = (document.body.clientWidth - dialogWidth)/2
-    let y = (document.body.clientHeight - document.body.clientHeight * binding.value.dialogWidth)/2
+    let y = (document.body.clientHeight - document.body.clientHeight * binding.value.dialogWidthPercent)/2
     dragDom.style.transform="translate("+x+"px,"+y+"px)";
     dialogHeaderEl.style.cursor = 'move';
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null);
