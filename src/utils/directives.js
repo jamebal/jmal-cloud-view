@@ -138,7 +138,7 @@ Vue.directive('dialogDrag', {
     let x = (document.body.clientWidth - dialogWidth)/2
     let y = (document.body.clientHeight - document.body.clientHeight * binding.value.dialogWidthPercent)/2
     dragDom.style.transform="translate("+x+"px,"+y+"px)";
-    dialogHeaderEl.style.cursor = 'move';
+    //dialogHeaderEl.style.cursor = 'move';
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null);
     const sty = dragDom.currentStyle || window.getComputedStyle(dragDom, null);
     // 鼠标按下事件

@@ -148,7 +148,7 @@
     },
     data(){
       return{
-        lightTheme: true,
+        lightTheme: false,
         contentsHide: false,
         defalutLanguage: 'redis',
         lineWrapping: false,
@@ -281,6 +281,7 @@
 
           // 界面的渲染后的初始化工作
           this.$nextTick(()=>{
+            this.onDialogDblClick()
             this.dargDialogSize()
             this.dragControllerDiv()
             this.setTheme()
@@ -328,6 +329,16 @@
           resize.setAttribute('icon-style', 'show')
         }
       },
+      // 双击header放大缩小
+      onDialogDblClick() {
+        const dialogHeader = document.querySelector('.simtext-dialog .el-dialog__header')
+        const that = this
+        dialogHeader.ondblclick = function (e) {
+          if(e.target && 'simtext-header-title' === e.target.className){
+            that.fullScreen()
+          }
+        }
+      },
       // 拖动调整窗口大小
       dargDialogSize(){
         // 右下角
@@ -341,7 +352,6 @@
             let editorHieght = that.editorHieght
             let dialogWidth = that.dialogWidth
             document.onmousemove = function (e) {
-              console.log('onmousemove,onmousemove,onmousemove')
               let endX = e.clientX;
               let endY = e.clientY;
               const moveX = endX - startX
