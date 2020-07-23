@@ -182,8 +182,8 @@
         removeIndex: 0,
         loading: {},
         darkButton: {
-          background: '#565656!important',
-          border: '1px solid #565656!important',
+          background: '#444444!important',
+          border: '1px solid #444444!important',
           color: '#ffffff!important'
         },
         directoryTreeData: {},
@@ -745,7 +745,7 @@
     }
     &::-webkit-scrollbar-track-piece {
       border: unset!important;
-      background-color: #565656 !important;
+      background-color: #444444 !important;
       border-radius: unset!important;
     }
   }
@@ -765,8 +765,8 @@
     }
 
     .dark-button {
-      background: #565656;
-      border: 1px solid #565656;
+      background: #444444;
+      border: 1px solid #444444;
       color: #ffffff;
     }
     /*.el-button:focus{*/
@@ -775,8 +775,8 @@
       /*color: #606266;*/
     /*}*/
     /*.dark-button:focus{*/
-      /*background: #565656;*/
-      /*border: 1px solid #565656;*/
+      /*background: #444444;*/
+      /*border: 1px solid #444444;*/
       /*color: #ffffff;*/
     /*}*/
     .light-button:hover {
@@ -992,13 +992,13 @@
         }
 
         .el-tabs--card>.el-tabs__header {
-          border-bottom: 1px solid #565656;
+          border-bottom: 1px solid #444444;
           .el-tabs__nav {
-            border: 1px solid #565656;
+            border: 1px solid #444444;
             border-bottom: none;
           }
           .el-tabs__item {
-            border-left: 1px solid #565656;
+            border-left: 1px solid #444444;
             color: #afafaf;
           }
           .el-tabs__item:first-child {
@@ -1012,10 +1012,10 @@
 
         .file-contents{
 
-          background: #565656;
+          background: #444444;
 
           .dir-tools {
-            background: #565656;
+            background: #444444;
           }
 
           .content-tree {
