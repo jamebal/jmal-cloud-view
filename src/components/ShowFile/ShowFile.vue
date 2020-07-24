@@ -1652,6 +1652,8 @@
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             keyword: key,
+            sortableProp: this.sortable.prop,
+            order: this.sortable.order,
             currentDirectory: this.$route.query.path,
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize
@@ -2197,7 +2199,7 @@
           case 'orderSize':
             this.sortChangeOfMenu('size',5)
             break
-          case 'orderUpdate':
+          case 'orderUpdateDate':
             this.sortChangeOfMenu('update',6)
             break
           case 'refresh':
