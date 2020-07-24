@@ -100,6 +100,12 @@
     mounted() {
       this.loadTreeData(this.directoryTreeData)
     },
+    watch: {
+      directoryTreeData(newVal){
+        this.directoryTreeData = newVal
+        this.loadTreeData(this.directoryTreeData)
+      }
+    },
     computed: {
     },
     methods: {
