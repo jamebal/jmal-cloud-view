@@ -24,7 +24,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+    console.log('123',error) // for debug
     return Promise.reject(error)
   }
 )
@@ -43,38 +43,37 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-
-    // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 0) {
-      if(res.code === -2){
+      if (res.code === -2) {
         Message({
           message: res.message || '服务器开小差了...',
           type: 'warning',
           duration: 2 * 1000
         })
-      }else{
+      } else if (res.code === 5) {
+        // to re-login
+        setTimeout(function () {
+          const hasToken = getToken()
+          if(hasToken){
+            MessageBox.confirm('登录已失效，可以取消停留在此页面上，或者再次登录', '确认登出', {
+              confirmButtonText: '重新登录',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              store.dispatch('user/resetToken').then(() => {
+                location.reload()
+              })
+            })
+          }
+        },200)
+      } else {
         Message({
           message: res.message || '服务器开小差了...',
           type: 'error',
           duration: 3 * 1000
         })
       }
-
-      console.log(res.message)
-
-      if (res.code === 5) {
-        // to re-login
-        MessageBox.confirm('您已注销，可以取消停留在此页面上，或者再次登录', '确认登出', {
-          confirmButtonText: '重新登录',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          store.dispatch('user/resetToken').then(() => {
-            location.reload()
-          })
-        })
-      }
-      return Promise.reject(new Error(res.message || 'Error'))
+      return Promise.reject()
     } else {
       let message = ''
       if(res.message){
@@ -91,9 +90,8 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
     Message({
-      message: error.message,
+      message: '哎呀！服务器出错，请稍后再试！',
       type: 'error',
       duration: 5 * 1000
     })
