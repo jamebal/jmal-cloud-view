@@ -713,7 +713,8 @@
 <style lang="scss" scoped>
   @import "src/styles/markdown";
 
-  $bg-color: #1e1e1e;
+  //$bg-color: #1e1e1e;
+  $bg-color: #292929;
   $tree-title-bg-color: #3e3e3e;
 
   @mixin scrollBarLightStyle() {
@@ -890,7 +891,6 @@
           //box-shadow: inset #ececec -7px 0px;
 
           #dir-tree {
-            overflow-y: scroll;
             overflow-x: hidden;
             @include scrollBarLightStyle;
 
@@ -933,6 +933,7 @@
         bottom: 0;
         top: 0;
         cursor: col-resize;
+        background-color: #ececec;
 
         .darg-resize-conter {
           width: 2px;
@@ -977,14 +978,20 @@
 
       }
 
+      .monaco-editor .margin {
+        background-color: #ececec;
+      }
+
       &[data-theme=dark] {
 
         background: $bg-color;
 
         .editor-resize {
+          background-color: #1e1e1e;
           .editor-resize-conter{
             background: #222;
-            border: 1px solid #525252;
+            border: 1px solid #3e3e3e;
+            border-left: 1px solid #1e1e1e;
           }
           .editor-resize-conter:after {
             border-color: #b2b2b2;
@@ -1019,7 +1026,7 @@
           }
 
           .content-tree {
-            background: $bg-color;
+            background: #292929;
             //box-shadow: inset #2d2d2d -7px 0px;
             #dir-tree {
               @include scrollBarDarkStyle;
@@ -1027,7 +1034,7 @@
                 color: #dedede;
               }
               ul.fancytree-container {
-                background: #1e1e1e;
+                background: #292929;
               }
               .fancytree-plain span.fancytree-active span.fancytree-title{
                 background-color: $tree-title-bg-color;
@@ -1049,6 +1056,11 @@
         .editor_main_storey {
           background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0));
         }
+
+        .monaco-editor .margin {
+          background-color: #292929;
+        }
+
       }
     }
     .nwse-resize {
