@@ -91,7 +91,7 @@ service.interceptors.response.use(
   },
   error => {
     Message({
-      message: '哎呀！服务器出错，请稍后再试！',
+      message: '哎呀！服务器出错了，请稍后再试！',
       type: 'error',
       duration: 5 * 1000
     })

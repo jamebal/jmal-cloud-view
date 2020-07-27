@@ -78,6 +78,7 @@
               :label="item.title"
               :name="item.name"
             >
+              <span slot="label"><svg-icon class="tabs-icon-svg" :icon-class="findSvgClass(item.name)"></svg-icon> {{item.title}}</span>
               <div class="editor">
                 <MonacoEditor
                   v-if="textPreviewVisible"
@@ -109,7 +110,7 @@
   import api from '@/api/file-api'
   import markdownApi from '@/api/markdown-api'
 
-  import { lineWrapping,suffix } from '@/utils/file-type'
+  import { iconClass,lineWrapping,suffix } from '@/utils/file-type'
 
   import MonacoEditor from '../MonacoEditorVue'
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -182,8 +183,8 @@
         removeIndex: 0,
         loading: {},
         darkButton: {
-          background: '#444444!important',
-          border: '1px solid #444444!important',
+          background: '#3e3e3e!important',
+          border: '1px solid #3e3e3e!important',
           color: '#ffffff!important'
         },
         directoryTreeData: {},
@@ -417,6 +418,13 @@
           }
         }
       },
+      findSvgClass(fileName){
+        const suffix = fileName.substring(fileName.lastIndexOf('.') + 1);
+        if(iconClass.has(suffix)){
+          return iconClass.get(suffix)
+        }
+        return 'file'
+      },
       loadPath(data){
         this.$refs.fancTree.loadPath(data)
       },
@@ -648,32 +656,37 @@
       },
       // 换肤
       skinning() {
+        this.transition = 'none 500ms ease 0s'
         this.lightTheme = !this.lightTheme
         this.setTheme()
+        const that = this
+        setTimeout(function () {
+          that.transition = 'all 500ms ease 0s'
+        },100)
       },
       setTheme(){
         let dialog = document.querySelector('.simtext-dialog .el-dialog')
         let header = document.querySelector('.simtext-dialog .el-dialog .el-dialog__header')
         let fileContests = document.querySelector('.content');
         if(this.lightTheme){
-          header.style.background = '#FFF'
+          header.style.background = '#e6e6e6'
           header.style.color = '#181818'
           if(fileContests){
             fileContests.setAttribute('data-theme', 'light')
           }
           if(dialog){
-            dialog.style.background = '#FFF'
+            dialog.style.background = '#fff'
           }
           if(header){
             header.setAttribute('data-theme', 'light')
           }
         }else{
-          header.style.background = '#292929'
+          header.style.background = '#2e2e30'
           header.style.color = '#fff'
           if(dialog){
-            dialog.style.background = '#1e1e1e'
+            dialog.style.background = '#181818'
           }
-          if(fileContests){1
+          if(fileContests){
             fileContests.setAttribute('data-theme', 'dark')
           }
           if(header){
@@ -713,7 +726,6 @@
 <style lang="scss" scoped>
   @import "src/styles/markdown";
 
-  //$bg-color: #1e1e1e;
   $bg-color: #292929;
   $tree-title-bg-color: #3e3e3e;
 
@@ -746,7 +758,7 @@
     }
     &::-webkit-scrollbar-track-piece {
       border: unset!important;
-      background-color: #444444 !important;
+      background-color: #3e3e3e !important;
       border-radius: unset!important;
     }
   }
@@ -766,8 +778,8 @@
     }
 
     .dark-button {
-      background: #444444;
-      border: 1px solid #444444;
+      background: #3e3e3e;
+      border: 1px solid #3e3e3e;
       color: #ffffff;
     }
     /*.el-button:focus{*/
@@ -776,8 +788,8 @@
       /*color: #606266;*/
     /*}*/
     /*.dark-button:focus{*/
-      /*background: #444444;*/
-      /*border: 1px solid #444444;*/
+      /*background: #3e3e3e;*/
+      /*border: 1px solid #3e3e3e;*/
       /*color: #ffffff;*/
     /*}*/
     .light-button:hover {
@@ -785,7 +797,7 @@
     }
     .dark-button:hover {
       color: #409EFF;
-      background-color: #1e1e1e;
+      background-color: #181818;
     }
 
     .el-dialog__header {
@@ -848,14 +860,39 @@
       word-break: normal;
     }
     .content {
+      background: #F3F3F3;
       border-top: unset!important;
       display: inline-flex;
 
       .el-tabs__header {
         margin: 0 0 0;
         .el-tabs__item {
-          height: 31px;
-          line-height: 31px;
+          height: 32px;
+          line-height: 32px;
+        }
+      }
+
+      .tabs-icon-svg {
+        font-size: 14px;
+      }
+
+      .el-tabs--card>.el-tabs__header {
+        border-bottom: unset;
+        .el-tabs__nav {
+          border: unset;
+        }
+        .el-tabs__item {
+          border-left: 1px solid #f3f3f3;
+          color: #6A6A6A;
+          background-color: #ebebeb;
+        }
+        .el-tabs__item:first-child {
+          border-left: none;
+        }
+        .el-tabs__item.is-active {
+          border-bottom-color: #ffffff;
+          background-color: #ffffff;
+          color: #2F302F;
         }
       }
 
@@ -869,7 +906,7 @@
       }
 
       .el-tabs__nav-wrap {
-        margin-left: -1px;
+        //margin-left: -1px;
       }
 
       .el-tabs--card>.el-tabs__header .el-tabs__nav {
@@ -877,7 +914,7 @@
       }
 
       .el-tabs__nav-next, .el-tabs__nav-prev {
-        line-height: 31px;
+        line-height: 32px;
       }
 
       .file-contents{
@@ -886,35 +923,59 @@
         position: absolute;
 
         .content-tree{
-
-          background: #fff;
+          background-color: #F3F3F3;
           //box-shadow: inset #ececec -7px 0px;
 
+          .svg-icon {
+            font-size: 18px;
+          }
           #dir-tree {
+
+            $fancytreeTitleHoverColor: #E9E9E9;
+            $fancytreeTitleActiveColor: #b6d8fb;
+
             overflow-x: hidden;
             @include scrollBarLightStyle;
 
             ul.fancytree-container{
               padding: 3px 0 0 0;
+              background-color: #F3F3F3;
             }
-          }
-          .svg-icon {
-            font-size: 18px;
-          }
-          #dir-tree {
+
+            span.fancytree-title {
+              padding: 2.5px 3px 0 3px;
+            }
+
+            .fancytree-active {
+              background-color: $fancytreeTitleActiveColor;
+            }
+
+            .fancytree-active:hover {
+              background-color: $fancytreeTitleActiveColor!important;
+            }
+
+            .fancytree-node:hover {
+              background-color: $fancytreeTitleHoverColor;
+            }
+
             .fancytree-plain span.fancytree-active span.fancytree-title{
-              background-color: #409eff30;
-              border-color: #ffffff;
+              background-color: $fancytreeTitleActiveColor;
+              border-color: $fancytreeTitleActiveColor;
+              color: #000000;
+            }
+            .fancytree-plain span.fancytree-active:hover span.fancytree-title{
+              background-color: $fancytreeTitleActiveColor!important;
+              border-color: $fancytreeTitleActiveColor!important;
             }
 
             .fancytree-plain span.fancytree-node:hover span.fancytree-title{
-              background-color: #409eff30;
-              border-color: #ffffff;
+              background-color: $fancytreeTitleHoverColor;
+              border-color: $fancytreeTitleHoverColor;
             }
 
             .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
-              background-color: #409eff30;
-              border-color: #ffffff;
+              background-color: $fancytreeTitleActiveColor;
+              border-color: $fancytreeTitleActiveColor;
             }
           }
         }
@@ -933,8 +994,7 @@
         bottom: 0;
         top: 0;
         cursor: col-resize;
-        background-color: #ececec;
-
+        background-color: #ffffff;
         .darg-resize-conter {
           width: 2px;
         }
@@ -978,20 +1038,16 @@
 
       }
 
-      .monaco-editor .margin {
-        background-color: #ececec;
-      }
-
       &[data-theme=dark] {
 
-        background: $bg-color;
+        background: #202020;
 
         .editor-resize {
-          background-color: #1e1e1e;
+          background-color: #181818;
           .editor-resize-conter{
-            background: #222;
+            background: #292929;
             border: 1px solid #3e3e3e;
-            border-left: 1px solid #1e1e1e;
+            border-left: 1px solid #292929;
           }
           .editor-resize-conter:after {
             border-color: #b2b2b2;
@@ -999,34 +1055,35 @@
         }
 
         .el-tabs--card>.el-tabs__header {
-          border-bottom: 1px solid #444444;
+          border-bottom: unset;
           .el-tabs__nav {
-            border: 1px solid #444444;
-            border-bottom: none;
+            border: unset;
           }
           .el-tabs__item {
-            border-left: 1px solid #444444;
-            color: #afafaf;
+            border-left: 1px solid #202021;
+            color: #aaaaaa;
+            background-color: #292929;
           }
           .el-tabs__item:first-child {
             border-left: none;
           }
           .el-tabs__item.is-active {
-            border-bottom-color: $bg-color;
-            color: #409EFF;
+            border-bottom-color: #181818;
+            background-color: #181818;
+            color: #fefefe;
           }
         }
 
         .file-contents{
 
-          background: #444444;
+          background: #3e3e3e;
 
           .dir-tools {
-            background: #444444;
+            background: #3e3e3e;
           }
 
           .content-tree {
-            background: #292929;
+            background: #202021;
             //box-shadow: inset #2d2d2d -7px 0px;
             #dir-tree {
               @include scrollBarDarkStyle;
@@ -1034,21 +1091,47 @@
                 color: #dedede;
               }
               ul.fancytree-container {
-                background: #292929;
+                background: #202021;
               }
+
+              $fancytreeTitleHoverColor: #242A2B;
+              $fancytreeTitleActiveColor: #004471;
+
+              .fancytree-active {
+                background-color: $fancytreeTitleActiveColor;
+              }
+
+              .fancytree-active:hover {
+                background-color: $fancytreeTitleActiveColor!important;
+              }
+
+              .fancytree-node:hover {
+                background-color: $fancytreeTitleHoverColor;
+              }
+
               .fancytree-plain span.fancytree-active span.fancytree-title{
-                background-color: $tree-title-bg-color;
-                border-color: $bg-color;
+                background-color: $fancytreeTitleActiveColor;
+                border-color: $fancytreeTitleActiveColor;
+                color: #FFFFFF;
+              }
+              .fancytree-plain span.fancytree-active:hover span.fancytree-title{
+                background-color: $fancytreeTitleActiveColor!important;
+                border-color: $fancytreeTitleActiveColor!important;
               }
 
               .fancytree-plain span.fancytree-node:hover span.fancytree-title{
-                background-color: $tree-title-bg-color;
-                border-color: $bg-color;
+                background-color: $fancytreeTitleHoverColor;
+                border-color: $fancytreeTitleHoverColor;
               }
 
               .fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title{
-                background-color: $tree-title-bg-color;
-                border-color: $bg-color;
+                background-color: $fancytreeTitleActiveColor;
+                border-color: $fancytreeTitleActiveColor;
+              }
+
+              .fancytree-edit-input {
+                background-color: #202021;
+                border: unset;
               }
             }
           }
@@ -1057,8 +1140,14 @@
           background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0));
         }
 
-        .monaco-editor .margin {
-          background-color: #292929;
+        .monaco-editor, .monaco-editor-background, .monaco-editor .inputarea.ime-input {
+          background-color: #181818;
+        }
+
+        .monaco-editor{
+          .margin {
+            background-color: #181818;
+          }
         }
 
       }

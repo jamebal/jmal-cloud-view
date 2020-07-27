@@ -132,9 +132,13 @@
               return !isModifying
             },
             edit: function(event, data){
-              let intput = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
-              let width = intput.style.width.substring(0,intput.style.width.length-2)
-              intput.style.width = parseInt(width)+50+'px'
+              let input = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
+              let width = input.style.width.substring(0,input.style.width.length-2)
+              input.style.width = parseInt(width)+50+'px'
+              if(input.value.length -1 > data.node.data.suffix.length){
+                input.selectionStart = 0
+                input.selectionEnd = input.value.length - 1 - data.node.data.suffix.length
+              }
             },
             beforeClose: function(event, data){
               if(data.originalEvent.type === "mousedown") {
@@ -165,8 +169,7 @@
         });
       },
       addRef(node){
-        let title = node.span.querySelector('.fancytree-title')
-        this.$refs.contextmenu.addRef({el:title,vnode: title})
+        this.$refs.contextmenu.addRef({el:node.span,vnode: node.span})
       },
       contextmenu(vnode){
         this.rightClicking = true
@@ -542,9 +545,7 @@
     position: relative;
     width: 20px;
     height: 20px;
-    margin-top: -3px;
-    margin-left: -2px;
-    padding: 2px;
+    padding: 2.5px 0 0 0;
   }
 </style>
 
