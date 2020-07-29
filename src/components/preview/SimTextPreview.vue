@@ -977,6 +977,7 @@
               background-color: $fancytreeTitleActiveColor;
               border-color: $fancytreeTitleActiveColor;
             }
+
           }
         }
 
@@ -1133,6 +1134,7 @@
                 background-color: #202021;
                 border: unset;
               }
+
             }
           }
         }
@@ -1179,5 +1181,8 @@
         padding: 0 10px 5px 20px;
       }
     }
+  }
+  >>> .fancytree-expander {
+    margin-top: 5px;
   }
 </style>

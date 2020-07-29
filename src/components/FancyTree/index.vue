@@ -103,7 +103,7 @@
     watch: {
       directoryTreeData(newVal){
         this.directoryTreeData = newVal
-        this.loadTreeData(this.directoryTreeData)
+        this.loadTreeData(this.directoryTreeData,true)
       }
     },
     computed: {
