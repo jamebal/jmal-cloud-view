@@ -729,7 +729,7 @@
       },
     },
     created() {
-      this.getFileList()
+
     },
     mounted() {
       Bus.$on('fileSuccess', () => {
