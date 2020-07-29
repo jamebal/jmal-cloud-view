@@ -267,7 +267,10 @@
               header-align="left"
             >
               <template slot-scope="scope">
-                <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
+
+                <el-tooltip class="item" effect="light" :content="scope.row.updateDate" placement="top">
+                  <span>&nbsp;&nbsp;&nbsp;{{formatTime(scope.row.agoTime)}}</span>
+                </el-tooltip>
               </template>
             </pl-table-column>
           </template>
