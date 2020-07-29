@@ -733,7 +733,7 @@
     },
     mounted() {
       Bus.$on('fileSuccess', () => {
-        //this.getFileList()
+
       })
       Bus.$on('clickMore', (rows) => {
         this.$refs.fileListTable.tableSelectData = rows
