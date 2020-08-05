@@ -52,7 +52,7 @@
         </span>
         </el-form-item>
 
-        <el-form-item class="remember">
+        <el-form-item v-if="!initialize" class="remember">
           <!--<el-switch v-model="loginForm.rememberMe"></el-switch>-->
           <el-checkbox label="记住我" v-model="loginForm.rememberMe"></el-checkbox>
         </el-form-item>
