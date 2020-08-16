@@ -7,11 +7,13 @@
  */
 
 (function() {
-  var Stomp, net, overTCP, overWS, wrapTCP, wrapWS;
+  let net, overTCP, overWS, wrapTCP, wrapWS;
 
-  Stomp = require('./stomp');
+  const Stomp = require('./stomp.js');
 
   net = require('net');
+
+  Stomp.Stomp = window.Stomp
 
   Stomp.Stomp.setInterval = function(interval, f) {
     return setInterval(f, interval);
@@ -101,8 +103,11 @@
     return Stomp.Stomp.over(socket);
   };
 
-  exports.overTCP = overTCP;
+  if (typeof exports !== "undefined" && exports !== null) {
 
-  exports.overWS = overWS;
+    exports.overTCP = overTCP;
+
+    exports.overWS = overWS;
+  }
 
 }).call(this);

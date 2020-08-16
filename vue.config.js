@@ -39,7 +39,7 @@ module.exports = {
   *然后publicPath应该设置为“ / bar /”。
   *在大多数情况下，请使用'/'！
   *详细信息：https://cli.vuejs.org/config/#publicpath
-*/       
+*/
   publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
@@ -55,7 +55,6 @@ module.exports = {
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
         target: 'http://localhost:8088/',
-        // target: `http://127.0.0.1:${port}/mock`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
@@ -63,7 +62,6 @@ module.exports = {
       },
       [process.env.VUE_APP_BASE_FILE_API]: {
         target: 'http://localhost:10010/',
-        // target: `http://127.0.0.1:${port}/mock`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_FILE_API]: ''
@@ -71,18 +69,16 @@ module.exports = {
       },
       [process.env.VUE_APP_BASE_PRIVIEW_API]: {
         target: 'http://localhost:8012/',
-        // target: `http://127.0.0.1:${port}/mock`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_PRIVIEW_API]: ''
         }
       }
     }
-    // before: require('./mock/mock-server.js')
   },
   configureWebpack: {
     //在webpack的名称字段中提供应用程序的标题，以便
-    //可以在index.html中对其进行访问以注入正确的标题。
+    //可以在index.html中对其进行访问以注入正确的标题。
     name: name,
     resolve: {
       alias: {
@@ -96,7 +92,6 @@ module.exports = {
 
     config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
       {
-        // Languages are loaded on demand at runtime
         languages: [
           "json","abap", "apex", "azcli", "bat", "cameligo","clojure", "coffee", "cpp", "yaml",
           "csharp", "csp", "css","dockerfile", "fsharp", "go", "graphql", "handlebars","html", "ini",
@@ -138,7 +133,6 @@ module.exports = {
       .end()
 
     config
-    // https://webpack.js.org/configuration/devtool/#development
       .when(process.env.NODE_ENV === 'development',
         config => config.devtool('cheap-source-map')
       )
