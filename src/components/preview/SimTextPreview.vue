@@ -40,8 +40,24 @@
         <span><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
           <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
-          <!-- <el-button @click="changePreviewMode">{{previewMode?'预览模式':'源码模式'}}</el-button> -->
-          <el-button @click="skinning" :class="lightTheme?'':'dark-button'" size="small" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'" circle></el-button>
+          <el-button
+            v-if="editableTabsValue.endsWith('.md')"
+            :class="lightTheme?'':'dark-button'"
+            size="small"
+            circle
+            @click="changePreviewMode"
+            :title="previewMode?'编辑':'预览'"
+          >
+            <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
+          </el-button>
+          <el-button
+            :class="lightTheme?'':'dark-button'"
+            size="small"
+            :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"
+            circle
+            :title="lightTheme?'暗色':'亮色'"
+            @click="skinning"
+          />
           <button class="title-extension-button" @click="fullScreen" size="small">
             <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
           </button>
@@ -79,9 +95,21 @@
               :name="item.name"
             >
               <span slot="label"><svg-icon class="tabs-icon-svg" :icon-class="findSvgClass(item.name)"></svg-icon> {{item.title}}</span>
-              <div class="editor">
+              <div v-if="textPreviewVisible" class="editor">
+                <mavon-editor
+                  ref="simTextMd"
+                  v-show="editableTabsValue.endsWith('.md') && previewMode"
+                  v-model="item.content"
+                  :style="{height: editorHieght+'px'}"
+                  :subfield="false"
+                  :boxShadow="true"
+                  :toolbarsFlag="true"
+                  :toolbars="toolbars"
+                  codeStyle="idea"
+                  defaultOpen="preview"
+                />
                 <MonacoEditor
-                  v-if="textPreviewVisible"
+                  v-show="editableTabsValue.endsWith('.md') ? !previewMode: true"
                   ref="monacoEditor"
                   :width="editorWidth"
                   :height="editorHieght"
@@ -93,7 +121,7 @@
                   :options="options"
                   @change="change($event,index)"
                   @save="save($event,index)"
-                ></MonacoEditor>
+                />
               </div>
             </el-tab-pane>
           </el-tabs>
@@ -119,11 +147,12 @@
   import FancyTree from"@/components/FancyTree"
   import MessageDialog from "@/components/message/MessageDialog"
   import FilePathNav from '@/components/Breadcrumb/FilePathNav'
+  import Icon from '@/components/Icon/Icon.vue'
 
   export default {
     name: "SimTextPreview",
     components: {
-      MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav
+      Icon,MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav
     },
     props: {
       file: {
@@ -149,7 +178,7 @@
     },
     data(){
       return{
-        lightTheme: false,
+        lightTheme: true,
         contentsHide: false,
         defalutLanguage: 'redis',
         lineWrapping: false,
@@ -191,6 +220,10 @@
         editableTabsValue: '1',
         editableTabs: [],
         filePathNav: '',
+        toolbars: {
+          readmodel: true, // 沉浸式阅读
+          navigation: true, // 导航目录
+        }
       }
     },
     mounted() {
@@ -279,7 +312,6 @@
             content: res.data.contentText
           })
           this.editableTabsValue = pathname
-
           // 界面的渲染后的初始化工作
           this.$nextTick(()=>{
             this.onDialogDblClick()
@@ -294,6 +326,11 @@
       status: function(visible) {
         if(visible && this.loading.closed){
           this.textPreviewVisible = true
+        }
+      },
+      editableTabsValue(value){
+        if(value.endsWith('.md')){
+          this.previewMode = false
         }
       }
     },
@@ -719,7 +756,7 @@
           this.removeIndex = removeIndex
           this.isTabSaveDialogVisible = true
         }
-      }
+      },
     }
   }
 </script>
@@ -763,6 +800,23 @@
     }
   }
 
+  >>> .v-note-show.single-show {
+    ::-webkit-scrollbar {
+      width: 10px!important;
+      height: 10px!important;
+    }
+    ::-webkit-scrollbar-thumb {
+      border: unset!important;
+      background-color: #c1c1c1 !important;
+      border-radius: unset!important;
+    }
+    ::-webkit-scrollbar-track-piece {
+      border: unset!important;
+      background-color: #ececec !important;
+      border-radius: unset!important;
+    }
+  }
+
   /deep/.el-dialog {
     /*width: 1035px;*/
     margin: 0 !important;
@@ -782,16 +836,6 @@
       border: 1px solid #3e3e3e;
       color: #ffffff;
     }
-    /*.el-button:focus{*/
-      /*background: #FFF;*/
-      /*border: 1px solid #DCDFE6;*/
-      /*color: #606266;*/
-    /*}*/
-    /*.dark-button:focus{*/
-      /*background: #3e3e3e;*/
-      /*border: 1px solid #3e3e3e;*/
-      /*color: #ffffff;*/
-    /*}*/
     .light-button:hover {
       background: #DCDFE6;
     }
@@ -1165,7 +1209,6 @@
       cursor: nwse-resize;
     }
   }
-
 </style>
 <style lang="scss" scoped>
   >>>.jmal-message-dialog {
