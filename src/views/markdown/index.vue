@@ -1,9 +1,19 @@
 <template>
   <div>
-    <el-header>
+
+    <el-dialog title="文件夹选择文件夹" :visible.sync="selectLocaltionVisible">
+      <file-tree :directoryTreeData="directoryTreeData"></file-tree>
+    </el-dialog>
+
+    <el-header height="120px">
       <div class="header-item">
-        <el-input placeholder="请输入文档名称" v-model="filename">
-          <template slot="append">.md</template>
+        文章标题：
+        <el-input placeholder="文章标题" v-model="filename"/>
+      </div>
+      <div class="header-item">
+        存储位置：
+        <el-input placeholder="存储位置" v-model="storageLocation">
+          <el-button slot="append" @click="selectDir">选择</el-button>
         </el-input>
         <el-button v-if="!editStatus" class="release-button" type="primary" @click="add" :loading="adding">发布文章</el-button>
         <el-button v-if="editStatus" class="release-button" type="primary" @click="update" :loading="updating">更新文章</el-button>
@@ -28,7 +38,11 @@
 <script>
   import markdownApi from '@/api/markdown-api'
   import uploadApi from '@/api/file-api'
+  import FileTree from"@/components/FileTree"
   export default {
+    components: {
+      FileTree
+    },
     data() {
       return {
         editStatus: false,
@@ -38,6 +52,9 @@
         clientHeight: document.documentElement.clientHeight - 155,
         updating: false,
         adding: false,
+        storageLocation: '/',
+        selectLocaltionVisible: false,
+        directoryTreeData: []
       }
     },
     mounted() {
@@ -145,6 +162,9 @@
             });
           })
         }
+      },
+      selectDir(){
+        this.selectLocaltionVisible = true
       }
     }
   }
@@ -154,15 +174,18 @@
     padding: 5px 20px 20px 20px;
   }
   /deep/ .el-header {
-    padding: 12.5px 10px 20px 20px;
+    padding: 12.5px 20px 20px 20px;
   }
   /deep/ .el-input-group {
     width: unset;
   }
   .header-item {
-    float: right;
+    padding: 5px 0 5px 0;
     .release-button {
       margin-left: 10px;
+    }
+    .el-input {
+      width: 50%;
     }
   }
 
