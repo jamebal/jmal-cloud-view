@@ -2110,7 +2110,7 @@
           this.$refs.fileListTable.clearSelection()
           this.$refs.fileListTable.toggleRowSelection([{row:row}])
           this.menusIsMultiple = false
-          if(row.contentType && row.contentType.includes("text")){
+          if(row.suffix && row.suffix.includes("md")){
             this.menus = this.singleMenusEdit
           }else{
             this.menus = this.singleMenus
