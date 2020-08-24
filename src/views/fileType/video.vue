@@ -4,6 +4,8 @@
       queryFileType="video"
       :orderCustom="true"
       :defaultGrid="false"
+      :sortable="sortable"
+      :queryCondition="queryCondition"
       emptyStatus="还没有视频文件呢~"
     >
     </show-file>
@@ -17,6 +19,12 @@ export default {
   components: {ShowFile},
   data() {
     return {
+      sortable: {
+        prop: 'updateDate', order: 'descending'
+      },
+      queryCondition: {
+        isFolder: false
+      }
     }
   },
 }

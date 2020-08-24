@@ -735,7 +735,6 @@
       },
     },
     created() {
-
     },
     mounted() {
       Bus.$on('fileSuccess', () => {

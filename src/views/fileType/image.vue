@@ -3,6 +3,8 @@
     <show-file
       queryFileType="image"
       :orderCustom="true"
+      :sortable="sortable"
+      :queryCondition="queryCondition"
       emptyStatus="还没有图片呢~"
     >
     </show-file>
@@ -16,6 +18,12 @@ export default {
   components: {ShowFile},
   data() {
     return {
+      sortable: {
+        prop: 'updateDate', order: 'descending'
+      },
+      queryCondition: {
+        isFolder: false
+      }
     }
   },
 }

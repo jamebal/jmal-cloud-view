@@ -4,6 +4,8 @@
       queryFileType="audio"
       :orderCustom="true"
       :defaultGrid="false"
+      :sortable="sortable"
+      :queryCondition="queryCondition"
       singleFileType="音乐"
       emptyStatus="还没有音乐呢~"
     ></show-file>
@@ -17,6 +19,12 @@ export default {
   components: {ShowFile},
   data() {
     return {
+      sortable: {
+        prop: 'updateDate', order: 'descending'
+      },
+      queryCondition: {
+        isFolder:false
+      }
     }
   },
 }
