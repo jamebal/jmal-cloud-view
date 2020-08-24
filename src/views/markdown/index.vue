@@ -1,19 +1,14 @@
 <template>
   <div>
-
-    <el-dialog title="文件夹选择文件夹" :visible.sync="selectLocaltionVisible">
-      <file-tree :directoryTreeData="directoryTreeData"></file-tree>
-    </el-dialog>
-
+    <dir-tree ref="dirTree">
+        <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
+    </dir-tree>
     <el-header height="120px">
       <div class="header-item">
         文章标题：
-        <el-input placeholder="文章标题" v-model="filename"/>
-      </div>
-      <div class="header-item">
-        存储位置：
-        <el-input placeholder="存储位置" v-model="storageLocation">
-          <el-button slot="append" @click="selectDir">选择</el-button>
+        <el-input class="articles-title" placeholder="文章标题" v-model="filename"/>
+        <el-input class="articles-storage" placeholder="存储位置" v-model="storageLocation" :readonly="true" @click="selectDir">
+          <el-button slot="prepend" @click="selectDir">选择位置</el-button>
         </el-input>
         <el-button v-if="!editStatus" class="release-button" type="primary" @click="add" :loading="adding">发布文章</el-button>
         <el-button v-if="editStatus" class="release-button" type="primary" @click="update" :loading="updating">更新文章</el-button>
@@ -38,10 +33,10 @@
 <script>
   import markdownApi from '@/api/markdown-api'
   import uploadApi from '@/api/file-api'
-  import FileTree from"@/components/FileTree"
+  import DirTree from"@/components/FileTree/DirTree"
   export default {
     components: {
-      FileTree
+      DirTree
     },
     data() {
       return {
@@ -53,8 +48,7 @@
         updating: false,
         adding: false,
         storageLocation: '/',
-        selectLocaltionVisible: false,
-        directoryTreeData: []
+        selectLocationVisible: false,
       }
     },
     mounted() {
@@ -65,6 +59,7 @@
         }).then((res) => {
           this.content = res.data.contentText
           this.filename = res.data.name.split('.md')[0]
+          this.storageLocation = res.data.path
         })
       }
       const that = this
@@ -117,12 +112,10 @@
         }
       },
       imageFilter() {
-        console.log('imageFilter')
         return true
       },
       // add
       add(){
-        console.log("this.content",this.content)
         this.adding = true
         if(this.filename){
           const filename = this.filename + ".md"
@@ -130,6 +123,7 @@
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             filename: filename,
+            currentDirectory: this.storageLocation,
             contentText: this.content
           }).then((res) => {
             this.adding = false
@@ -152,6 +146,7 @@
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             filename: filename,
+            currentDirectory: this.storageLocation,
             contentText: this.content
           }).then(() => {
             this.updating = false
@@ -164,7 +159,13 @@
         }
       },
       selectDir(){
-        this.selectLocaltionVisible = true
+        this.$refs.dirTree.show()
+      },
+      confirmSelectDir(){
+        const node = this.$refs.dirTree.getSelectTreeNode()
+        console.log(this.$refs.dirTree.getSelectTreeNode())
+        this.storageLocation = node.path + node.name
+        this.$refs.dirTree.hide()
       }
     }
   }
@@ -174,18 +175,20 @@
     padding: 5px 20px 20px 20px;
   }
   /deep/ .el-header {
-    padding: 12.5px 20px 20px 20px;
+    padding: 12.5px 20px 10px 20px;
   }
   /deep/ .el-input-group {
     width: unset;
   }
   .header-item {
+    min-width: 800px;
     padding: 5px 0 5px 0;
     .release-button {
+      float: right;
       margin-left: 10px;
     }
     .el-input {
-      width: 50%;
+      width: 300px;
     }
   }
 
