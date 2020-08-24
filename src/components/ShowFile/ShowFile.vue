@@ -439,12 +439,18 @@
     <el-dialog
       class="new-text-file-dialog"
       title="新建文本文件"
-      :show-close="false"
+      :close-on-click-modal="false"
       :visible.sync="newTextFileDialog">
-        <el-input ref="newTextFileName" size="small" v-model="newTextFileName" class="dialog-msg" @focus="renameInputFocus($event,'')" :clearable="true"></el-input>
+        <el-input
+          ref="newTextFileName" size="small"
+          v-model="newTextFileName"
+          class="dialog-msg"
+          @focus="renameInputFocus($event,'')" :clearable="true"
+          @keyup.enter.native="createTextFile(newTextFileName)"
+        ></el-input>
         <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="newTextFileDialog=false">取消</el-button>
-        <el-button size="small" type="primary" @click="createTextFile(newTextFileName)" v-loading="createTextFileLoading" @keyup.enter.native="createTextFile(newTextFileName)">确定</el-button>
+        <el-button size="small" type="primary" @click="createTextFile(newTextFileName)" v-loading="createTextFileLoading">确定</el-button>
       </span>
     </el-dialog>
 
@@ -1502,8 +1508,8 @@
             this.$message({
               message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
               type: 'warning'
-            });
-            return;
+            })
+            return
           }
           this.createTextFileLoading = true
           api.addFile({
@@ -2874,7 +2880,7 @@
     height: 50px!important;
   }
   .home-link:hover {
-    corlor: #409EFF;
+    color: #409EFF;
   }
   .info-statistics{
     padding: 5px 0;
