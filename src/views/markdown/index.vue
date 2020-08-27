@@ -3,11 +3,11 @@
     <dir-tree ref="dirTree">
         <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
     </dir-tree>
-    <el-header height="120px">
+    <el-header>
       <div class="header-item">
         文章标题：
         <el-input class="articles-title" placeholder="文章标题" v-model="filename"/>
-        <el-input class="articles-storage" placeholder="存储位置" v-model="storageLocation" :readonly="true" @click="selectDir">
+        <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" v-model="storageLocation" :readonly="true" @click="selectDir">
           <el-button slot="prepend" @click="selectDir">选择位置</el-button>
         </el-input>
         <el-button v-if="!editStatus" class="release-button" type="primary" @click="add" :loading="adding">发布文章</el-button>
@@ -25,6 +25,7 @@
         @save="save"
         @imgAdd="$imgAdd"
         @imgDel="$imgDel"
+        @fullScreen="fullScreen"
       />
     </el-main>
   </div>
@@ -44,9 +45,10 @@
         content:"", // 输入的markdown
         html:'',    // 及时转的html
         filename: '新建文档',
-        clientHeight: document.documentElement.clientHeight - 155,
+        clientHeight: document.documentElement.clientHeight - 135,
         updating: false,
         adding: false,
+        isFullScreen: false,
         storageLocation: '/',
         selectLocationVisible: false,
       }
@@ -64,7 +66,7 @@
       }
       const that = this
       window.onresize = function temp() {
-        that.clientHeight = document.documentElement.clientHeight - 155
+        that.reHeight()
       }
     },
     methods: {
@@ -103,6 +105,17 @@
       change(value, render){
         // render 为 markdown 解析后的结果[html]
         this.html = render;
+      },
+      fullScreen(status) {
+        this.isFullScreen = status
+        this.reHeight()
+      },
+      reHeight(){
+        if(this.isFullScreen){
+          this.clientHeight = document.documentElement.clientHeight
+        }else{
+          this.clientHeight = document.documentElement.clientHeight - 135
+        }
       },
       save(){
         if(this.editStatus){
@@ -173,9 +186,12 @@
 <style lang="scss" scoped>
   /deep/ .el-main {
     padding: 5px 20px 20px 20px;
+    .v-note-wrapper {
+      z-index: 200;
+    }
   }
   /deep/ .el-header {
-    padding: 12.5px 20px 10px 20px;
+    padding: 7.5px 20px 10px 20px;
   }
   /deep/ .el-input-group {
     width: unset;
