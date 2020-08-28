@@ -18,13 +18,13 @@
       :default-sort="sortable"
       :highlight-current-row="false"
       empty-text="无文件"
-      :datas="fileList"
-      :use-virtual="true"
+      :use-virtual="false"
+      :row-height="50"
       :border="false"
       :excess-rows="3"
-      :pagination-show="false"
       style="width: 100%;margin: 20px 0 0 0;"
       :cell-style="rowRed"
+      :height-change="false"
       :row-class-name="tableRowClassName"
       element-loading-text="文件加载中"
       element-loading-spinner="el-icon-loading"
@@ -271,7 +271,6 @@
       }
     },
     mounted() {
-      this.getFileList()
     },
     methods: {
       // 请求之前的准备
@@ -303,6 +302,7 @@
             this.fileList.map((item,index) => {
               item.index = index
             })
+            this.$refs.fileListTable.reloadData(this.fileList)
           }
           // 数据全部加载完成
           if (this.fileList.length >= res.count) {
