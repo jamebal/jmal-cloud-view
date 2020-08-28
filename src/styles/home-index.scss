@@ -186,9 +186,12 @@
 
 .searchClass{
   float: right;
-  width: 30%;
+  width: 40%;
   display: flex;
   justify-content: flex-end;
+  .el-input {
+    width: 60%;
+  }
   .vmode{
     padding: 5px 10px;
     margin-left: 5px;
