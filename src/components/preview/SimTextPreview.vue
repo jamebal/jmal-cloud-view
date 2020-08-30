@@ -64,7 +64,7 @@
         </div>
       </div>
       <div class="content" :style="{height: editorHieght+26+'px'}">
-        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition}">
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: options.readOnly?`-${contentsWidth}px`:`0px`}">
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
@@ -81,10 +81,9 @@
             </fancy-tree>
           </div>
         </div>
-        <div class="editor-resize" :style="{marginLeft: contentsWidth+'px',transition: transition}">
+        <div class="editor-resize" :style="{marginLeft: options.readOnly?`0px`:`${contentsWidth}px`,transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents">
-          </i>
+          <i v-show="!options.readOnly" class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
@@ -185,7 +184,11 @@
         options: {
           fontSize: 14,
           contextmenu: true,
-          readOnly: !this.$store.state.user.token,
+          codeLens: true,
+          readOnly: true,
+          minimap: {
+            enabled: this.$pc
+          },
           // 换行
           wordWrap: this.lineWrapping ? 'wordWrapColumn':'',
           wordWrapMinified: true,
@@ -252,12 +255,13 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file(file) {
+        console.log('watich:file',file)
         if(!file.path){
           return
         }
         this.editableTabs = []
+        this.checkReadOnly(file.userId)
         this.loadEditorSize()
-
         this.loading = this.$message({
           iconClass: 'el-icon-loading',
           type: 'info',
@@ -275,12 +279,10 @@
         let request = 'previewText'
         if(this.shareId){
           request = 'sharePreviewText'
-          this.options.readOnly = true
         }
         if(this.filepath){
           request = 'previewTextByPath'
           file.path = this.filepath
-          this.options.readOnly = true
         }
         if(!file.id){
           request = 'previewTextByPath'
@@ -543,6 +545,16 @@
       },
       containerResize() {
         this.loadEditorSize()
+      },
+      checkReadOnly(fileUserId){
+        console.log('readOnly',this.options.readOnly)
+        if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
+          this.options.readOnly = false
+        }
+        if(this.options.readOnly){
+          this.editorWidth += this.contentsWidth
+          this.contentsHide = true
+        }
       },
       loadEditorSize(){
         this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
@@ -1207,6 +1219,9 @@
       margin-top: -15px;
       float: right;
       cursor: nwse-resize;
+    }
+    .el-button--small.is-circle {
+      padding: 9px 9px;
     }
   }
 </style>
