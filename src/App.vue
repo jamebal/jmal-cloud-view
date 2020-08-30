@@ -6,19 +6,19 @@
 
 <script>
 
-
+const pcList = ['/','/s']
+const mobileList = ['/_m','/s_m']
 export default {
   name: 'App',
   components: {},
   watch: {
     $route: function(to) {
       const path = to.path
-      if (path.indexOf('/login') < 0) {
-        if (path === '/_m' && this.$pc) {
-          this.$router.push(path.split('_m')[0])
-        } else if (path === '/' && !this.$pc) {
-          this.$router.push('/_m')
-        }
+      if(pcList.includes(path) && !this.$pc){
+        this.$router.push({path: path+'_m', query: to.query})
+      }
+      if(mobileList.includes(path) && this.$pc){
+        this.$router.push({path: path.split('_m')[0], query: to.query})
       }
     }
   }

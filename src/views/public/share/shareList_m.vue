@@ -24,9 +24,6 @@
             <el-button v-if="indexList.length > 0" type="primary" @click="downloadFile">
             下载
             </el-button>
-            <el-button class="vmode" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
-            </el-button>
           </div>
         </div>
       </el-breadcrumb>
@@ -62,14 +59,11 @@
       v-show="!grid && !linkFailed"
       ref="fileListTable"
       v-loading="tableLoading"
-      :max-height="clientHeight"
-      style="width: 100%;margin: 20px 0 0 0;"
       empty-text="无文件"
       :data="fileList"
       row-key="id"
-      :summary-method="getSummaries"
-      show-summary
       :cell-style="rowRed"
+      :show-header="false"
       :row-class-name="tableRowClassName"
       element-loading-text="文件加载中"
       element-loading-spinner="el-icon-loading"
@@ -82,14 +76,6 @@
     >
       <template v-for="(item,index) in tableHead">
         <el-table-column
-          v-if="index === 0"
-          :key="index"
-          :index="index"
-          type="selection"
-          min-width="50"
-        >
-        </el-table-column>
-        <el-table-column
           v-if="index === 1"
           :key="index"
           :index="index"
@@ -100,7 +86,17 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" max-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
+        <el-table-column
+          v-if="index === 2"
+          :key="index"
+          :show-overflow-tooltip="true"
+          max-width="200"
+          :index="index"
+          :prop="item.name"
+          :label="item.label"
+          align="left"
+          header-align="left"
+          @click.stop="fileClick(scope.row)">
           <template slot-scope="scope">
             <el-col v-if="scope.row.index === editingIndex" :span="10">
               <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
@@ -125,53 +121,19 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
-          <!--<template slot-scope="scope">-->
-            <!--<svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />-->
-          <!--</template>-->
-        </el-table-column>
-
-        <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
-          <!-- 使用组件, 并传值到组件中 -->
-          <template slot="header">
-            <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)" />
-          </template>
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more" @click="moreClick(scope.row,$event)" />
-          </template>
-        </el-table-column>
-
         <el-table-column
           v-if="index === 5"
           :key="index"
-          width="200"
+          width="80"
           :prop="item.name"
           :index="index"
           :label="item.label"
-          :sortable="item.sortable"
           :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
+          align="center"
+          header-align="center"
         >
           <template slot-scope="scope">
             <span>{{formatSize(scope.row.size)}}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          v-if="index === 6"
-          :key="index"
-          width="300"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sortable="item.sortable"
-          :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
-        >
-          <template slot-scope="scope">
-            <span>{{scope.row.updateDate}}</span>
           </template>
         </el-table-column>
       </template>
@@ -389,7 +351,7 @@
 
       const that = this
       window.onresize = function temp() {
-        that.clientHeight = document.documentElement.clientHeight - 265
+        that.reHeight()
       }
 
       // 加载布局
@@ -513,6 +475,9 @@
         let f = ''
         this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
       },
+      reHeight(){
+        this.clientHeight = document.documentElement.clientHeight - 200
+      },
       accessShareOpenDir(fileId) {
         this.tableLoading = true
         api.accessShareOpenDir({
@@ -523,7 +488,6 @@
         }).then(res => {
           this.isLoading = false
           this.fileList = res.data
-          this.clientHeight = document.documentElement.clientHeight - 265
           this.listModeSearch = true
           this.pagination.fileId = fileId
           this.pagination['total'] = res.count
@@ -549,7 +513,7 @@
             this.fileList.map((item,index) => {
               item.index = index
             })
-            this.clientHeight = document.documentElement.clientHeight - 265
+            this.reHeight()
             this.listModeSearch = false
             this.listModeSearchOpenDir = false
             this.pagination['total'] = res.count
@@ -926,21 +890,34 @@
   @import "src/styles/home-index";
   /*.el-breadcrumb {*/
     /*margin: 50px;*/
+
+  .dashboard-container {
+    min-width: unset;
+    margin: 10px 5px 10px 5px;
+  }
+
+  >>>.el-table .cell {
+    overflow: inherit;
+  }
+
+  >>> .el-table {
+    margin: 0 0 0;
+  }
+  .el-pagination {
+    margin: 20px 20px;
+  }
+
   .header-location {
     display: block;
     height: 1px;
     width: 100%;
     margin: 0px 0;
   }
-  >>>.el-table .cell {
-    overflow: inherit;
-  }
-
   .searchClass[data-v-92fa2b3e] {
     padding: 3px;
   }
   .share-h {
-    padding: 0 15px;
+    //padding: 0 15px;
   }
   .share-header {
     height: 50px;
