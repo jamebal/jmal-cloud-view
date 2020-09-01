@@ -100,7 +100,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .aplayer {
   /* position: relative; */
   width: 460px;

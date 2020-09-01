@@ -2,14 +2,17 @@
 <div class="preview" v-if="show">
 <van-overlay :show="show">
   <div class="wrapper">
-    <div class="block">
+    <div class="block" @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false">
+<!--      <div role="button" @click="close" class="viewer-button viewer-close" data-viewer-action="mix"></div>-->
+      <div v-show="pc?closeBarShow:true" class="close-bar" @click="close">
+        <svg-icon class="audio-player-close" icon-class="close"/>
+      </div>
       <video-player class="video-player vjs-custom-skin"
         ref="videoPlayer"
         :playsinline="true"
         :options="playerOptions">
       </video-player>
     </div>
-    <div role="button" @click="close" class="viewer-button viewer-close" data-viewer-action="mix"></div>
   </div>
 </van-overlay>
 </div>
@@ -45,6 +48,8 @@ export default {
     },
     data() {
       return {
+        closeBarShow: false,
+        pc: this.$pc,
         playerOptions: {
                     //播放速度
                     playbackRates: [0.5, 1.0, 1.5, 2.0],
@@ -105,7 +110,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .preview {
   position: fixed;
     top: 0;
@@ -123,6 +128,38 @@ export default {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,.7);
+}
+
+.block {
+  .close-bar {
+    z-index: 2006;
+    position: relative;
+    top: -36px;
+    right: -36px;
+    float: right;
+    width: 0;
+    height: 0;
+    border-radius: 36px;
+    border-width: 36px;
+    border-style: solid;
+    border-color: transparent transparent transparent #d4d4d475;
+    line-height: 36px;
+    transform: rotate(-45deg);
+  }
+
+  .close-bar:hover {
+    cursor: pointer;
+    border-color: transparent transparent transparent #69696975;
+  }
+
+  .audio-player-close {
+    transform: rotate(-45deg);
+    z-index: 2009;
+    position: absolute;
+    font-size: 18px;
+    top: -8px;
+    right: 13px;
+  }
 }
 
 .wrapper {
