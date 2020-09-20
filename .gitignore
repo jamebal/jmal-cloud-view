@@ -1,6 +1,7 @@
 push.sh
 update.sh
 dist.tar
+.history/
 .DS_Store
 node_modules/
 dist/
