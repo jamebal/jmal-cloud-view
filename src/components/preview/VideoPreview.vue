@@ -2,7 +2,7 @@
 <div class="preview" v-if="show">
 <van-overlay :show="show">
   <div class="wrapper">
-    <div class="block" @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false">
+    <div class="block" @mousemove="onmousemove" @mouseout="onmouseout" @mouseenter="onmouseenter" @mouseleave="onmouseleave">
 <!--      <div role="button" @click="close" class="viewer-button viewer-close" data-viewer-action="mix"></div>-->
       <div v-show="pc?closeBarShow:true" class="close-bar" @click="close">
         <svg-icon class="audio-player-close" icon-class="close"/>
@@ -10,7 +10,10 @@
       <video-player class="video-player vjs-custom-skin"
         ref="videoPlayer"
         :playsinline="true"
-        :options="playerOptions">
+        :options="playerOptions"
+        @playing="onPlayerPlaying"
+        @ended="onPlayerEnded"
+        @pause="onPlayerPause">
       </video-player>
     </div>
   </div>
@@ -81,6 +84,8 @@ export default {
                 },
         show: this.status,
         url: '',
+        timeout: null,
+        playing: false,
       }
     },
     watch: {
@@ -102,10 +107,76 @@ export default {
       }
     },
     methods: {
-      close(){
+      close() {
         this.show = false
         this.$emit('update:status', false)
-      }
+      },
+      onPlayerPlaying(){
+        this.playing = true
+        this.clearTimeout()
+        this.timeout = setTimeout(this.timeoutFun, 2500)
+      },
+      onPlayerPause(){
+        this.closeBarShow = true
+        this.playing = false
+      },
+      onPlayerEnded(){
+        this.closeBarShow = true
+        this.playing = false
+      },
+      onmousemove() {
+        if(!this.closeBarShow){
+            this.closeBarShow = true
+          }
+          this.clearTimeout()
+          this.timeout = setTimeout(this.timeoutFun, 2500)
+      },
+      onmouseout() {
+          // console.log('onmouseout')
+          // this.timeout = null
+      },
+      onmouseleave() {
+        this.closeBarShow = false
+        this.clearTimeout()
+      },
+      clearTimeout(){
+        if(this.timeout != null){
+          clearTimeout(this.timeout)
+          this.timeout = null
+        }
+      },
+      timeoutFun(){
+        if(this.playing){
+          console.log("消失",this.$pc)
+          if(!this.$pc){
+            const closeBar = document.querySelector('.block .close-bar')
+            closeBar.style.display = "none"
+          }
+          this.closeBarShow = false
+        }
+        this.clearTimeout()
+      },
+      onmouseenter() {
+        this.closeBarShow = true
+        let player = document.querySelector('.video-player.video-player.vjs-custom-skin')
+        // console.log('player',player)
+        // if(!player) return;
+        // this.onhover(function() {
+        //     console.log('124')
+        //   }, player, 2000);
+      },
+      // onhover(fun, obj, time) {
+      //   var s;
+      //   obj.onmouseover = function() {
+      //       console.log('onmouseover')
+      //       s = setTimeout(fun, 1000);
+      //     };
+      //   obj.onmouseout = function() {
+      //     console.log('onmouseout')
+      //       if(!s) return;
+      //       clearTimeout(s);
+      //     };
+      // },
     }
 }
 </script>
@@ -144,6 +215,7 @@ export default {
     border-style: solid;
     border-color: transparent transparent transparent #d4d4d475;
     line-height: 36px;
+    opacity: 1;
     transform: rotate(-45deg);
   }
 

@@ -33,7 +33,7 @@
     <!--右键菜单-->
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
-      <ul v-for="(item,index) in menus" :key="item.label">
+      <ul v-for="item in menus" :key="item.label">
         <li
           v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
           @click="menusOperations(item.operation)"
@@ -916,9 +916,6 @@
   .searchClass[data-v-92fa2b3e] {
     padding: 3px;
   }
-  .share-h {
-    //padding: 0 15px;
-  }
   .share-header {
     height: 50px;
     text-align: center;
@@ -933,7 +930,7 @@
 
     .share-header-content {
       display: flex;
-      -webkit-align-items: center;
+      align-items: center;
       svg {
         font-size: 50px;
       }

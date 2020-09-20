@@ -29,11 +29,7 @@ function connect(username,token){
   };
   // 向服务器发起websocket连接
   ws.stompClient.connect(ws.headers,() => {
-    console.log('websocket连接成功！')
     ws.isConnected = true;
-    // 订阅系统数据 '/topic/updateData/2/system'
-    // 订阅合并数据 '/topic/updateData/mergeDate/2'
-    // 订阅冷水机1号数据 /topic/updateData/2/1101/1
   }, (err) => {
     ws.isConnected = false;
     // 连接发生错误时的处理函数

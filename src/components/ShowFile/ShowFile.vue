@@ -885,7 +885,6 @@
             }
           }
         },ws.headers);
-        console.log("订阅",'/user/queue/update')
       },
       load () {
         this.getFileList(true)
