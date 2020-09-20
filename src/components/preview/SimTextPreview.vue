@@ -555,7 +555,6 @@
           this.editorWidth += this.contentsWidth
           this.contentsHide = true
         }
-        console.log('readOnly',this.options.readOnly)
       },
       loadEditorSize(){
         this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent

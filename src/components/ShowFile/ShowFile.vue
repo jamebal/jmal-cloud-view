@@ -1510,11 +1510,17 @@
             return
           }
           this.createTextFileLoading = true
+          let parentPath = "/"
+          if(this.path){
+            if(this.path.length > 0){
+              parentPath = this.path
+            }
+          }
           api.addFile({
             fileName: newFileName,
             isFolder: false,
             username: this.$store.state.user.name,
-            parentPath: this.path
+            parentPath: parentPath
           }).then((res)=>{
             this.createTextFileLoading = false
 
