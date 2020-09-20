@@ -6,7 +6,7 @@
       :defaultGrid="false"
       :sortable="sortable"
       :queryCondition="queryCondition"
-      emptyStatus="还没有视频文件呢~"
+      emptyStatus="还没有视频呢~"
     >
     </show-file>
   </div>

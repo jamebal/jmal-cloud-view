@@ -856,12 +856,12 @@
             this.imagePreviewRow = row
             return
           }
-          if(suffix.simText.includes(row.suffix)){
+          // if(suffix.simText.includes(row.suffix)){
             // 文本文件
-            this.textPreviewRow = row
-            this.textPreviewVisible = true
-            return
-          }
+            // this.textPreviewRow = row
+            // this.textPreviewVisible = true
+            // return
+          // }
           if(row.contentType.indexOf('video') > -1){
             // 视频文件
             this.videoPreviewVisible = true
@@ -896,9 +896,9 @@
     margin: 10px 5px 10px 5px;
   }
 
-  >>>.el-table .cell {
-    overflow: inherit;
-  }
+  // >>>.el-table .cell {
+  //   overflow: inherit;
+  // }
 
   >>> .el-table {
     margin: 0 0 0;

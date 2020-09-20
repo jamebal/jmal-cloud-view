@@ -124,7 +124,7 @@
     cursor: pointer;
     border: 0;
     padding: 8px 20px 8px 20px;
-    border-radius: 9px;
+    border-radius: 4px;
     line-height: 24px;
     font-family: inherit;
     font-weight: 600;

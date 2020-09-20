@@ -66,10 +66,22 @@
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
+      margin: 2px 5px;
+      height: 42px;
+      line-height: 42px;
       &:hover {
         background-color: $menuHover !important;
+        border-radius: 4px;
+        margin: 2px 5px 2px 5px;
       }
     }
+
+    .el-menu-item.is-active {
+      color: #409EFF;
+      background-color: #d9d9d9 !important;
+      border-radius: 4px;
+      margin: 2px 5px 2px 5px;
+  }
 
     .is-active>.el-submenu__title {
       color: $subMenuActiveText !important;
@@ -103,7 +115,7 @@
         padding: 0 !important;
 
         .svg-icon {
-          margin-left: 20px;
+          margin-left: 15px;
         }
       }
     }

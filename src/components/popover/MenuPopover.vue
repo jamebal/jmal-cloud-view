@@ -95,7 +95,7 @@ export default {
   }
   .newFileMenu li:hover {
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 4px;
     background-color: #409eff14;
   }
   .newFileMenu li > .menuitem {

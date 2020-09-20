@@ -3,7 +3,7 @@
     <div class="share-empty">
       <div class="share-empty-icon">
         <img v-if="emptyShare" src="~@/assets/img/pic_sharing_empty.png" ref="image" style="max-width: 100%;" alt="">
-        <img v-if="!emptyShare" src="~@/assets/img/emptyfile_intro.png" ref="image" style="max-width: 100%;" alt="">
+        <img v-if="!emptyShare" src="~@/assets/img/emptyfile_intro.jpeg" ref="image" style="max-width: 100%;" alt="">
       </div>
       <p class="share-empty-status">
         {{emptyStatus}}

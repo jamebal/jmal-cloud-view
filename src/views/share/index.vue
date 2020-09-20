@@ -82,7 +82,7 @@
         >
           <template slot="header">
             <div v-if="item.label === ''" class="cancel-share-header">
-              <span class="header-font">{{sumFileAndFolder}}</span><el-button icon="el-icon-my-export" @click="cancelShare(false)">取消分享</el-button>
+              <span class="header-font">{{sumFileAndFolder}}</span><el-button icon="el-icon-my-export" size="small" @click="cancelShare(false)">取消分享</el-button>
             </div>
           </template>
           <template slot-scope="scope">
@@ -509,6 +509,9 @@
 
 <style lang="scss" scoped>
   @import "src/styles/home-index";
+  .container {
+    min-width: 1024px;
+  }
   .cancel-share-header {
     margin-left: -10px;
   }

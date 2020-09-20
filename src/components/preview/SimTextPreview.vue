@@ -399,6 +399,7 @@
                 that.dialogWidth = dialogWidth + moveX
                 that.editorWidth = editorWidth + moveX
                 that.editorHieght = editorHieght + (endY - startY)
+                that.loadConterSize()
               }
             }
             // 鼠标松开事件
@@ -547,7 +548,6 @@
         this.loadEditorSize()
       },
       checkReadOnly(fileUserId){
-        console.log('readOnly',this.options.readOnly)
         if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
           this.options.readOnly = false
         }
@@ -555,6 +555,7 @@
           this.editorWidth += this.contentsWidth
           this.contentsHide = true
         }
+        console.log('readOnly',this.options.readOnly)
       },
       loadEditorSize(){
         this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
@@ -564,6 +565,14 @@
           this.editorWidth = this.dialogWidth - this.contentsWidth
         }
         this.editorHieght = document.body.clientHeight * this.dialogWidthPercent - 76
+        this.loadConterSize()
+      },
+      loadConterSize(){
+        let conter = document.querySelector('.editor-resize .editor-resize-conter');
+        if(conter){
+          console.log()
+          conter.style.marginTop = ((this.editorHieght+26)/2 - conter.clientHeight/2) + 'px'
+        }
       },
       handleClose(done) {
         if(this.isShowUpdateBtn){
@@ -920,6 +929,13 @@
       border-top: unset!important;
       display: inline-flex;
 
+      .monaco-editor .minimap-shadow-visible {
+        position: absolute;
+        left: 0px;
+        width: 6px;
+        box-shadow: -2px 0px 5px #dddddd;
+      }
+
       .el-tabs__header {
         margin: 0 0 0;
         .el-tabs__item {
@@ -1042,6 +1058,10 @@
           .el-button--small {
             padding: 9px 10px;
           }
+          .el-button-group {
+          display: unset;
+          vertical-align: middle;
+          }
         }
 
       }
@@ -1060,7 +1080,7 @@
           width: 14px;
           position: absolute;
           z-index: 999;
-          top: 48%;
+          // top: 48%;
           background: #e2e2e2;
           border-top-right-radius: 15px;
           border-bottom-right-radius: 15px;
@@ -1098,6 +1118,10 @@
       &[data-theme=dark] {
 
         background: #202020;
+
+        .monaco-editor .minimap-shadow-visible {
+         box-shadow: -2px 0px 5px #000000;
+        }
 
         .editor-resize {
           background-color: #181818;

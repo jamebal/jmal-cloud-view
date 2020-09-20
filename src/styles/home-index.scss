@@ -9,6 +9,11 @@
   }
 }
 
+>>>.svg-icon {
+   margin-top: 0.05em;
+  // vertical-align: unset;
+}
+
 .redirect {
   color: #97a8be;
 }
@@ -78,9 +83,11 @@
   top: 0;
   margin-top: 0.54rem;
 }
-/deep/ .cell /deep/ .el-button {
-  padding: 8px 16px;
-  margin-left: 10px;
+/deep/ .cell {
+  .el-button {
+    padding: 6px 10px;
+    margin-left: 20px;
+  }
 }
 /deep/ .el-checkbox {
   cursor: default;
@@ -190,7 +197,7 @@
   display: flex;
   justify-content: flex-end;
   .el-input {
-    width: 60%;
+    width: 235px;
   }
   .vmode{
     padding: 5px 10px;

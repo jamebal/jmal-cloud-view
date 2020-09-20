@@ -124,4 +124,7 @@ export default {
   .mobile .fixed-header {
     width: 100%;
   }
+  >>> .sidebar-logo-container {
+    background-color:unset;
+  }
 </style>

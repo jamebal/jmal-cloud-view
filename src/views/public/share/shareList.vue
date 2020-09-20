@@ -100,7 +100,17 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-if="index === 2" :key="index" :show-overflow-tooltip="true" max-width="200" :index="index" :prop="item.name" :label="item.label" :sortable="item.sortable" @click.stop="fileClick(scope.row)">
+        <el-table-column 
+        v-if="index === 2" 
+        :key="index" 
+        :show-overflow-tooltip="true" 
+        max-width="200" 
+        :index="index" 
+        :prop="item.name" 
+        :label="item.label" 
+        :sortable="item.sortable" 
+        @click.stop="fileClick(scope.row)"
+        >
           <template slot-scope="scope">
             <el-col v-if="scope.row.index === editingIndex" :span="10">
               <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true" @keyup.enter.native="rowRename(renameFileName, scope.row)">
@@ -389,7 +399,7 @@
 
       const that = this
       window.onresize = function temp() {
-        that.clientHeight = document.documentElement.clientHeight - 265
+        that.loadClientHeight()
       }
 
       // 加载布局
@@ -403,7 +413,7 @@
       }
     },
     destroyed() {
-      window.removeEventListener('popstate', this.goBack, false);
+      window.removeEventListener('popstate', this.goBack, false)
     },
     directives: {
       // 注册一个局部的自定义指令 v-focus
@@ -433,6 +443,9 @@
       }
     },
     methods: {
+      loadClientHeight(){
+        this.clientHeight = document.documentElement.clientHeight - 200
+      },
       gridItemHover(item,index) {
         this.gridHoverItemIndex = index;
         this.gridHoverIntermediate = index;
@@ -523,7 +536,7 @@
         }).then(res => {
           this.isLoading = false
           this.fileList = res.data
-          this.clientHeight = document.documentElement.clientHeight - 265
+          this.loadClientHeight()
           this.listModeSearch = true
           this.pagination.fileId = fileId
           this.pagination['total'] = res.count
@@ -549,7 +562,7 @@
             this.fileList.map((item,index) => {
               item.index = index
             })
-            this.clientHeight = document.documentElement.clientHeight - 265
+            this.loadClientHeight()
             this.listModeSearch = false
             this.listModeSearchOpenDir = false
             this.pagination['total'] = res.count
@@ -926,14 +939,14 @@
   @import "src/styles/home-index";
   /*.el-breadcrumb {*/
     /*margin: 50px;*/
+  .dashboard-container {
+    min-width: 1024px;
+  }
   .header-location {
     display: block;
     height: 1px;
     width: 100%;
     margin: 0px 0;
-  }
-  >>>.el-table .cell {
-    overflow: inherit;
   }
 
   .searchClass[data-v-92fa2b3e] {

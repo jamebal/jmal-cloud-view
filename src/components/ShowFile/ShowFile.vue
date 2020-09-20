@@ -82,7 +82,7 @@
               <button-upload slot="reference" :name="''" @click.native="upload" style="margin-right: 5px"></button-upload>
             </el-popover>
 
-            <el-input placeholder="搜索您的文件"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
+            <el-input placeholder="搜索"  v-model="searchFileName" :clearable="true" @keyup.enter.native="searchFile(searchFileName)">
               <el-button slot="prepend" @click="searchFile(searchFileName)">
                 <svg-icon icon-class="search" style="font-size: 22px"/>
               </el-button>
@@ -2818,6 +2818,9 @@
   /*overflow: hidden;*/
   /*white-space: nowrap;*/
   /*text-overflow: ellipsis;*/
+  .dashboard-container {
+    min-width: 900px;
+  }
   /deep/.app-wrapper {
     overflow-y: hidden;
   }

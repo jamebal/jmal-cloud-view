@@ -74,6 +74,32 @@ export const constantRoutes = [
   },
 
   {
+    path: '/favorite',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Form',
+        component: () => import('@/views/favorite/index'),
+        meta: { title: '收藏', icon: 'Favoritestarrate' }
+      }
+    ]
+  },
+
+  {
+    path: '/share',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'share',
+        component: () => import('@/views/share/index'),
+        meta: { title: '分享', icon: 'gongxiangzhongxin' }
+      }
+    ]
+  },
+
+  {
     path: '/audio',
     component: Layout,
     redirect: '/audio',
@@ -127,19 +153,6 @@ export const constantRoutes = [
   },
 
   {
-    path: '/favorite',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/favorite/index'),
-        meta: { title: '收藏', icon: 'Favoritestarrate' }
-      }
-    ]
-  },
-
-  {
     path: '/setting',
     component: Layout,
     children: [
@@ -149,19 +162,6 @@ export const constantRoutes = [
         component: () => import('@/views/setting/index'),
         meta: { title: '设置' },
         hidden: true
-      }
-    ]
-  },
-
-  {
-    path: '/share',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        name: 'share',
-        component: () => import('@/views/share/index'),
-        meta: { title: '分享', icon: 'gongxiangzhongxin' }
       }
     ]
   },
