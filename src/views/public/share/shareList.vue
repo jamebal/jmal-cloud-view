@@ -100,15 +100,15 @@
           </template>
         </el-table-column>
 
-        <el-table-column 
-        v-if="index === 2" 
-        :key="index" 
-        :show-overflow-tooltip="true" 
-        max-width="200" 
-        :index="index" 
-        :prop="item.name" 
-        :label="item.label" 
-        :sortable="item.sortable" 
+        <el-table-column
+        v-if="index === 2"
+        :key="index"
+        :show-overflow-tooltip="true"
+        max-width="200"
+        :index="index"
+        :prop="item.name"
+        :label="item.label"
+        :sortable="item.sortable"
         @click.stop="fileClick(scope.row)"
         >
           <template slot-scope="scope">
@@ -514,7 +514,6 @@
           this.accessShareOpenDir(item.fileId)
           this.pathList.splice(this.pathList.findIndex((v,i) => i === index + 1), this.pathList.length - (index + 1))
         }
-        console.log(this.pathList)
       },
       // 切换布局
       changeVmode(){
@@ -597,7 +596,6 @@
       },
       currentChange(pageIndex) {
         this.pagination.pageIndex = pageIndex
-        console.log(this.pagination.fileId)
         if(this.pagination.fileId){
           this.accessShareOpenDir(this.pagination.fileId)
         }else{
@@ -875,7 +873,7 @@
             if(window.location.port.length > 0){
               host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
             }
-            window.open(`http://${host}:10010/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`,'_self')
+            window.open(`${document.location.protocol}//${host}:10010/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`,'_self')
           }else{
             window.open(process.env.VUE_APP_BASE_FILE_API + `/public/s/download?&share=${this.shareId}&fileIds=${fileIds}`, '_self')
           }

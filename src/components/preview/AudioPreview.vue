@@ -76,7 +76,6 @@ export default {
             this.$refs.audioPlayer.switch(this.audio.length-1)
           })
         }else{
-          console.log(this.$refs.audioPlayer)
           this.$refs.audioPlayer.switch(musicIndex)
         }
       })

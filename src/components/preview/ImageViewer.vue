@@ -118,7 +118,6 @@
         this.$viewer.show()
       },
       updateStatus() {
-        console.log(78)
       }
     }
   }

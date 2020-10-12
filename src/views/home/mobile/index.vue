@@ -451,42 +451,26 @@
         const that = this
         switch (operation) {
           case 'favorite':
-            console.log('operation', '收藏')
             this.favoriteOperating(true)
             break
           case 'open':
-            console.log('open', '打开')
             this.fileClick(this.rowContextData)
             break
           case 'unselect':
-            console.log('unselect', '取消选择')
             const index = this.rowContextData.index
-            // this.selectIndexList.splice(this.selectIndexList.indexOf(index),1)
-
-            console.log(this.selectIndexList)
             this.$refs.checkboxes[index].toggle();
             break
           case 'unFavorite':
-            console.log('unFavorite', '取消收藏')
             this.favoriteOperating(false)
             break
           case 'select':
-            // Notify({
-            //   message: this.rowContextData.name,
-            //   color: '#ad0000',
-            //   background: '#ffe1e1',
-            //   duration: 1000
-            // });
-            console.log('select', this.rowContextData)
             this.selectStatus = true
             this.selectIndexList.push(this.rowContextData.index)
-            console.log(this.selectIndexList)
             setTimeout(function () {
               that.$refs.checkboxes[that.rowContextData.index].toggle();
             },0)
             break
           case 'rename':
-            console.log('重命名')
             this.renameFileName = this.rowContextData.name
             this.showRename = true
             setTimeout(function () {
@@ -494,15 +478,12 @@
             },0)
             break
           case 'copy':
-            console.log('移动或复制')
             Toast('暂不支持移动');
             break
           case 'download':
-            console.log('下载')
             this.downloadFile()
             break
           case 'remove':
-            console.log('operation', '删除')
             this.deleteFile()
             break
         }
@@ -521,7 +502,6 @@
               newFileName += ext
             }
           }
-          console.log('newFileName', newFileName)
           this.renameLoading = true
           const findIndex = this.fileList.findIndex(item => {
             if(newFileName === item.name){
@@ -581,7 +561,7 @@
             if(window.location.port.length > 0){
               host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
             }
-            window.open(`http://${host}:10010/download?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`,'_self')
+            window.open(`${document.location.protocol}//${host}:10010/download?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`,'_self')
           }else{
             window.open(process.env.VUE_APP_BASE_FILE_API + '/download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
           }
@@ -617,7 +597,6 @@
           fileList = this.selectRowData
           fileIds.push(this.rowContextData.id)
         }
-        console.log(this.rowContextData)
         const str = this.getShowSumFileAndFolder(fileList)
 
         Dialog.confirm({
@@ -656,7 +635,6 @@
         this.Loop = setTimeout(function() {
           item.scrollY = e.targetTouches[0].pageY-e.targetTouches[0].clientY
           const touchClientX = e.targetTouches[0].clientX;
-          console.log(e.targetTouches[0])
           that.findListItem(item,e.targetTouches[0].target,touchClientX)
           that.overlayShow = true
           document.documentElement.style.overflow='hidden';
@@ -718,7 +696,6 @@
       },
       //菜单键
       leftMenu(){
-        console.log('菜单')
         this.leftMenuShow = true
       },
       async logout() {
@@ -726,7 +703,6 @@
         this.$router.push(`/login?redirect=${this.$route.fullPath}`)
       },
       startSearch(){
-        console.log('startSearch')
         // this.searchStatus = true
         this.vanNavBarClass = {
           visibility: 'hidden'
@@ -756,7 +732,6 @@
         this.getFileList()
       },
       onSearch(){
-        console.log('onSearch')
         if(this.searchValue.length < 1){
           this.getFileList()
         }else{
@@ -797,10 +772,6 @@
         }
       },
       handleLink(item, index, isPushLink) {
-
-        console.log("handleLink", item)
-        console.log("handleLink - index", index)
-
         if (!this.$route.query.path){
           this.$router.push(`/_m`)
         }
@@ -913,7 +884,6 @@
         this.fileList.sort(this.compare(this.sortableProp))
       },
       clickFileType(queryFileType,queryCondition){
-        console.log(queryCondition)
         this.queryCondition = queryCondition
         this.queryFileType = queryFileType
         this.getFileList()
@@ -1121,7 +1091,6 @@
       },
       // 新建文件夹
       newFolderNameClick() {
-        console.log('user', this.$store.state.user);
         this.newFolderLoading = true
         if(this.newFolderName){
           api.uploadFolder({
@@ -1159,7 +1128,6 @@
       },
       swipeUp() {
         this.test = 10
-        console.log(67)
       },
       tabBottom() {
         return { padding: '0 0 20px 0' }

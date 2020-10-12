@@ -139,7 +139,6 @@
     methods: {
       getUserList(){
         userList().then(res => {
-          console.log(res.data)
           this.userList = res.data
         })
       },

@@ -30,7 +30,6 @@
       }
     },
     created(){
-      console.log('emptyFile - created')
     },
     data() {
       return {

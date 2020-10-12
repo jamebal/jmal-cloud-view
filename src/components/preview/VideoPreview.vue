@@ -147,7 +147,6 @@ export default {
       },
       timeoutFun(){
         if(this.playing){
-          console.log("消失",this.$pc)
           if(!this.$pc){
             const closeBar = document.querySelector('.block .close-bar')
             closeBar.style.display = "none"

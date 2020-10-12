@@ -78,9 +78,7 @@
     },
     methods: {
       onScroll() {
-        console.log("befterScrollTop")
         // let befterScrollTop = document.documentElement.scrollTop;
-        // console.log("befterScrollTop",befterScrollTop)
       },
       getMarkDown() {
         markdownApi.getMarkdown({
@@ -128,7 +126,6 @@
 
               let beforeScrollTop = document.documentElement.scrollTop;
               let fn = fn || function (direction) {
-                console.log(direction)
                 // 判断是上滑显示,下滑隐藏
                 if(direction === 'down'){
                   $('#top').removeClass('animateIn')
@@ -176,7 +173,6 @@
 
               let $root = $('html, body');
               $('.j-titleList li').on("click", function () {
-                console.log(typeof($(this).attr("first"))!=="undefined")
                 let top = 70
                 if (typeof($(this).attr("first"))!=="undefined") {
                   // 点击第一个目录

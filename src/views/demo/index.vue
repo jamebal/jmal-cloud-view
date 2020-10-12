@@ -21,7 +21,6 @@
         tempDir: this.tempDir
       }).then(res => {
         this.source = res.data
-        console.log(this.source)
       })
     },
     mounted() {

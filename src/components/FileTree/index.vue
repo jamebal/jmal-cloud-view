@@ -142,7 +142,6 @@
               }).then((res) => {
                 data.newFolder = false
                 data.id = res.data.id
-                console.log(data)
               }).catch(() => {
                 window.event.preventDefault()
                 window.event.stopPropagation()

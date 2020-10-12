@@ -225,7 +225,6 @@
       })
 
       Bus.$on('uploadFileListBack',() => {
-        console.log(this.process)
         if(this.process !== -10 && this.process !== 100 && this.fileListLength !== 0){
           this.shrink()
         }

@@ -240,7 +240,6 @@
           return null;
       },
       onScroll() {
-        // console.log(document.documentElement.scrollTop)
       },
       getMarkDown() {
         markdownApi.getMarkdown().then((res) => {

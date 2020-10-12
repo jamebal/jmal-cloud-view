@@ -183,7 +183,6 @@ export default {
         this.tableHeight = window.innerHeight - this.$refs.refTable.$el.getBoundingClientRect().top - this.$refs.commonPage.$el.offsetHeight - 10
       } else {
         this.tableHeight = window.innerHeight - this.$refs.refTable.$el.getBoundingClientRect().top - 10
-        console.log(this.$refs.refTable)
       }
 
       // 监听窗口大小变化
@@ -197,9 +196,6 @@ export default {
         }
       }
     })
-    // console.log(this.tableHeight);
-    // console.log(window.innerHeight);
-    // console.log(this.$refs.refTable.$el.getBoundingClientRect().top);
   },
   methods: {
     onClick(row, index) {
@@ -225,7 +221,6 @@ export default {
       if (this.options.mutiSelect) {
         this.$refs.refTable.toggleRowSelection(row)
       }
-      // console.log(row,event,column);
     },
     btn_click() {
 

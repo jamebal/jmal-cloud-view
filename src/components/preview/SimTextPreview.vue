@@ -255,7 +255,6 @@
     },
     watch: { //监听file的变化，进行相应的操作即可
       file(file) {
-        console.log('watich:file',file)
         if(!file.path){
           return
         }
@@ -569,7 +568,6 @@
       loadConterSize(){
         let conter = document.querySelector('.editor-resize .editor-resize-conter');
         if(conter){
-          console.log()
           conter.style.marginTop = ((this.editorHieght+26)/2 - conter.clientHeight/2) + 'px'
         }
       },

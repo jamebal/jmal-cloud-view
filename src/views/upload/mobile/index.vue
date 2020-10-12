@@ -34,7 +34,6 @@
       };
     },
     mounted(){
-      console.log('window.uploader',window.uploader)
       this.fileList = window.uploader.fileList
     },
     destroyed(){

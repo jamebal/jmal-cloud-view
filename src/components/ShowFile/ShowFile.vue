@@ -2259,7 +2259,6 @@
             this.favoriteOperating(false)
             break
           case 'details':
-            console.log(this.rowContextData)
             this.drawer = true
             break
           case 'rename':
@@ -2570,12 +2569,13 @@
           if(window.location.port.length > 0){
             host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
           }
+          let protocol = 'http'
           if(process.env.NODE_ENV !== 'development'){
             let host = window.location.host
             if(window.location.port.length > 0){
               host = window.location.host.substring(0,window.location.host.length - window.location.port.length - 1)
             }
-            window.open(`http://${host}:10010/download?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`,'_self')
+            window.open(`${document.location.protocol}//${host}:10010/download?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`,'_self')
           }else{
             window.open(process.env.VUE_APP_BASE_FILE_API + '/download?jmal-token=' + this.$store.state.user.token + '&fileIds=' + fileIds, '_self')
           }
@@ -2649,7 +2649,6 @@
       },
       // 移除选中项
       removeSelectItme(){
-        console.log(this.$refs.fileListTable.tableSelectData.length,this.$refs.fileListTable.tableSelectData)
         let removeFileIndexList = []
         if(this.$refs.fileListTable.tableSelectData.length > 0){
           this.$refs.fileListTable.tableSelectData.forEach(item => {

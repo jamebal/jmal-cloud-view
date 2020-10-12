@@ -20,7 +20,6 @@ export const addCodeBtn = _ => {
   })
   //监听复制按钮点击事件
   $('pre .code i.code-copy').click(e => {
-    console.log("copy")
     let text = $(e.target).siblings('code').text()
     let element = $('<textarea>' + text + '</textarea>')
     $('body').append(element)

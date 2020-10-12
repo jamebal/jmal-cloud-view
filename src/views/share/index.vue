@@ -326,7 +326,6 @@
         }
       },
       sortChange(column) {
-        console.log('sortChange',column)
         this.sortable.prop = column.prop
         this.sortable.order = column.order
         this.pagination.pageIndex = 1
@@ -460,7 +459,6 @@
             shareIds.push(row.id)
           })
         }
-        console.log(shareIds)
         api.cancelShareLink({
           userId: this.$store.state.user.userId,
           shareId: shareIds

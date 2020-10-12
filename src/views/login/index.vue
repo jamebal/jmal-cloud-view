@@ -181,7 +181,6 @@ export default {
         if (valid) {
           if(this.initialize){
             // 初始化
-            console.log('初始化')
             let data = new FormData()
             data.append('username',this.loginForm.username)
             data.append('password',this.loginForm.password)

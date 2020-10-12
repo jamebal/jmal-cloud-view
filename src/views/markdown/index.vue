@@ -71,7 +71,6 @@
     },
     methods: {
       $imgAdd(pos, $file) {
-        console.log('$file.length',$file.size)
         const maxSize = 1024 * 1024 * 5
         if($file.size > maxSize){
           this.$message({
@@ -99,7 +98,6 @@
         })
       },
       $imgDel(pos, $file) {
-        console.log("del",pos,$file)
       },
       // 所有操作都会被解析重新渲染
       change(value, render){
@@ -176,7 +174,6 @@
       },
       confirmSelectDir(){
         const node = this.$refs.dirTree.getSelectTreeNode()
-        console.log(this.$refs.dirTree.getSelectTreeNode())
         this.storageLocation = node.path + node.name
         this.$refs.dirTree.hide()
       }
