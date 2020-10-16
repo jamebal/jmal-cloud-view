@@ -171,7 +171,6 @@
   box-shadow: rgba(0,0,0,0.1) 0 2px 12px 0;
   width: 285px;
   top: 70px;
-  //bottom: 20px;
   overflow: auto;
   float: right;
   position: fixed;
@@ -182,6 +181,15 @@
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
+  .toc-content {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    box-shadow: -4px -9px 20px #000;
+    -webkit-backdrop-filter: saturate(360%) blur(8px);
+    backdrop-filter: saturate(360%) blur(8px);
+    background-color: rgba(255,255,255,0.72);
+  }
 }
 ::-webkit-scrollbar {
   /*滚动条整体样式*/

@@ -30,7 +30,7 @@
 
           <div v-show="titleList.length > 0" class="right-bj">
             <div class="slimScrollDiv">
-              <div class="right-menu" style="max-height: 700px">
+              <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
                 <div class="toc-content">
                   <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
                 </div>
@@ -67,6 +67,7 @@
         titleList: [],
         tocMaxHeight: 500,
         befterScrollTop: 0,
+        maxMenuHeight: document.documentElement.clientHeight - 155
       }
     },
     mounted() {
@@ -74,7 +75,10 @@
         this.getMarkDown()
         this.showList = false
       }
-
+      let that = this
+      window.onresize = function temp() {
+        that.maxMenuHeight= document.documentElement.clientHeight - 155
+      }
     },
     methods: {
       onScroll() {
