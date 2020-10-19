@@ -560,9 +560,9 @@
           if (window.location.port.length > 0) {
             host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
           }
-          let api = '/api/packageDownload'
+          let api = '/api/file/packageDownload'
           if (fileIds.length === 1 && !this.rowContextData.isFolder) {
-            api = '/api/download'
+            api = '/api/file/download'
           }
           window.open(`${document.location.protocol}//${host}${api}?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`, '_self')
         } else {
