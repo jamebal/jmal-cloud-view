@@ -59,20 +59,6 @@ module.exports = {
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
-      },
-      [process.env.VUE_APP_BASE_FILE_API]: {
-        target: 'http://localhost:10010/',
-        changeOrigin: true,
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_FILE_API]: ''
-        }
-      },
-      [process.env.VUE_APP_BASE_PRIVIEW_API]: {
-        target: 'http://localhost:8012/',
-        changeOrigin: true,
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_PRIVIEW_API]: ''
-        }
       }
     }
   },

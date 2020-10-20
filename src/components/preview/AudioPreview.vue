@@ -24,6 +24,7 @@
 <script>
 import '@/utils/directives.js'
 import Bus from '@/assets/js/bus'
+import fileConfig from '@/utils/file-config'
 export default {
     name: 'AudioPreview',
     components: {
@@ -46,13 +47,13 @@ export default {
       this.onPicClick = this.onPicClick.bind(this);
       let pic = document.querySelector('.aplayer-pic')
       pic.addEventListener('click', this.onPicClick);
-      Bus.$on('onAddAudio',(newFile,audioCoverUrl) => {
+      Bus.$on('onAddAudio',(newFile, audioCoverUrl) => {
         this.show = true
-        let url = `${process.env.VUE_APP_BASE_FILE_API}preview/${newFile.name}?jmal-token=${this.$store.state.user.token}&fileIds=${newFile.id}`
+        let url = fileConfig.previewUrl(this.$store.state.user.name, newFile)
+        console.log(url)
         if(!this.$store.state.user.token){
-          url = `${process.env.VUE_APP_BASE_FILE_API}/public/s/preview/${newFile.name}?fileIds=${newFile.id}`
+          url = fileConfig.publicPreviewUrl(newFile.id);
         }
-        // let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + newFile.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + newFile.id
         let music = newFile.music
         let fileName = newFile.name.substring(0,newFile.name.length - newFile.suffix.length-1)
         let musicOperation = {

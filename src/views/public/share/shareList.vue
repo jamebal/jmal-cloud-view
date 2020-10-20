@@ -260,6 +260,7 @@
   import ImageViewer from "@/components/preview/ImageViewer";
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
+  import fileConfig from "@/utils/file-config";
 
   export default {
     components: { IconFile, BreadcrumbFilePath,AlLoading,
@@ -867,15 +868,11 @@
           } else {
             fileIds.push(this.rowContextData.id)
           }
-          let host = window.location.host
-          if (window.location.port.length > 0) {
-            host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
+          if (fileIds.length > 1 || this.rowContextData.isFolder){
+            fileConfig.publicPackageDownload(this.shareId, fileIds, this.$store.state.user.token)
+            return
           }
-          let api = '/api/file/packageDownload'
-          if (fileIds.length === 1 && !this.rowContextData.isFolder) {
-            api = '/api/file/download'
-          }
-          window.open(`${document.location.protocol}//${host}${api}?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`, '_self')
+          fileConfig.publicDownload( this.shareId, this.rowContextData)
         } else {
           this.$message({
             message: '所选文件为空',
@@ -921,11 +918,8 @@
             Bus.$emit('onAddAudio',row, this.audioCoverUrl)
             return
           }
-
           // 打开文件
-          const fileIds = [row.id]
-          const url = process.env.VUE_APP_BASE_FILE_API + '/public/s/preview/' + row.name + '?fileIds=' + fileIds
-          window.open(url, '_blank')
+          fileConfig.preview(this.$store.state.user.token, row)
         }
       }
     }

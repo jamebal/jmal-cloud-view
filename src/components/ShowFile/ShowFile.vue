@@ -536,6 +536,7 @@ import 'pl-table/themes/index.css';
 import {PlTable, PlTableColumn} from 'pl-table';
 
 import ws from '@/websocket/websocket_config';
+import fileConfig from '@/utils/file-config'
 
 var rowStyleExecuting = false
 export default {
@@ -2622,51 +2623,17 @@ export default {
         } else {
           fileIds.push(this.rowContextData.id)
         }
-        let host = window.location.host
-        if (window.location.port.length > 0) {
-          host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
+        if (fileIds.length > 1 || this.rowContextData.isFolder){
+          fileConfig.packageDownload(fileIds, this.$store.state.user.token)
+          return
         }
-        let api = '/api/file/packageDownload'
-        if (fileIds.length === 1 && !this.rowContextData.isFolder) {
-          api = '/api/file/download'
-        }
-        // this.downloadFile1("haha", `${document.location.protocol}//${host}${api}?fileIds=${fileIds}`, this.$store.state.user.token)
-        // window.open(`${document.location.protocol}//${host}${api}?jmal-token=${this.$store.state.user.token}&fileIds=${fileIds}`, '_self')
-        window.open(`${document.location.protocol}//${host}${api}/${fileIds}`, '_self')
+        fileConfig.download(this.$store.state.user.name, this.rowContextData)
       } else {
         this.$message({
           message: '所选文件为空',
           type: 'warning'
         });
       }
-    },
-    downloadFile1(filename, fileUrl, token) {
-      const xhr = new XMLHttpRequest()
-      const url = fileUrl
-      xhr.open('get', url, true)
-      xhr.setRequestHeader('Authorization', `Bearer ${token}`) // 给后端发送请求头
-      xhr.setRequestHeader('Access-Control-Allow-Origin', `http://localhost:9528`)
-      xhr.responseType = 'blob'
-      xhr.onload = function(e) {
-        if (this.status === 200) {
-          const blob = this.response
-          // URL对象是硬盘（SD卡等）指向文件的一个路径，
-          //如果我们做文件上传的时候，想在没有上传服务器端的情况下看到上传图片的效果图
-          //就可是以通过var url=window.URL.createObjectURL(obj.files[0]);获得一个http格式的url路径
-          //这个时候就可以设置到<img>中显示了
-          //window.webkitURL和window.URL是一样的，window.URL标准定义
-          //window.webkitURL是webkit内核的实现（一般手机上就是使用这个），还有火狐等浏览器的实现。
-          const urlObject = window.URL || window.webkitURL || window
-          const export_blob = new Blob([blob])
-          const a = document.createElementNS('http://www.w3.org/1999/xhtml', 'a') // 利用a标签特性下载
-          const url = urlObject.createObjectURL(export_blob)
-          a.href = url
-          a.download = filename
-          a.click()
-        }
-      }
-      // 发送请求
-      xhr.send()
     },
     // 收藏/取消收藏
     favoriteOperating(isFavorite) {
@@ -2869,8 +2836,7 @@ export default {
           if (window.location.port.length > 0) {
             host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
           }
-          window.open(`${document.location.protocol}//${host}/api/file/download/${row.id}`, '_self')
-          // window.open(`${process.env.VUE_APP_BASE_FILE_API}/preview/${row.name}?jmal-token=${this.$store.state.user.token}&fileIds=${row.id}`, '_blank')
+          fileConfig.preview(this.$store.state.user.name, row)
           return
         }
         if (suffix.compressedFile.includes(row.suffix)) {
@@ -2897,7 +2863,7 @@ export default {
       this.notPreviewDialogVisible = false
     },
     downLaod(file) {
-      window.open(`${process.env.VUE_APP_BASE_FILE_API}/preview/${file.name}?jmal-token=${this.$store.state.user.token}&fileIds=${file.id}`, '_self')
+      fileConfig.download(this.$store.state.user.name, file)
     },
   }
 }

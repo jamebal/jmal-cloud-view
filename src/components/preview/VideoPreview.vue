@@ -26,6 +26,8 @@ import 'vant/lib/overlay/style';
 import 'vue-video-player/src/custom-theme.css'
 import 'video.js/dist/video-js.css'
 import { videoPlayer } from 'vue-video-player'
+import fileConfig from '@/utils/file-config'
+
 export default {
     name: 'VideoPreview',
     components: {
@@ -91,11 +93,10 @@ export default {
     watch: {
       status: function(visible){
         if(visible){
-          let url = `${process.env.VUE_APP_BASE_FILE_API}preview/${this.file.name}?jmal-token=${this.$store.state.user.token}&fileIds=${this.file.id}`
+          let url = fileConfig.previewUrl(this.$store.state.user.name, this.file)
           if(this.shareId){
-            url = `${process.env.VUE_APP_BASE_FILE_API}/public/s/preview/${this.file.name}?fileIds=${this.file.id}`
+            url = fileConfig.publicPreviewUrl(this.file.id);
           }
-          // let url = process.env.VUE_APP_BASE_FILE_API + 'preview/' + this.file.name + '?jmal-token=' + this.$store.state.user.token + '&fileIds=' + this.file.id
           this.playerOptions.sources = [{
                         //类型
                         type: this.file.contentType,

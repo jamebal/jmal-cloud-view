@@ -35,6 +35,7 @@
   import markdownApi from '@/api/markdown-api'
   import uploadApi from '@/api/file-api'
   import DirTree from"@/components/FileTree/DirTree"
+  import fileConfig from '@/utils/file-config'
   export default {
     components: {
       DirTree
@@ -93,7 +94,9 @@
            * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
            * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
            */
-          const url = process.env.VUE_APP_BASE_FILE_API + '/public/image/' + res.data
+          // const url = process.env.VUE_APP_BASE_FILE_API + '/public/image/' + res.data
+          const url = fileConfig.publicPreviewUrl(res.data);
+          console.log(url)
           this.$refs.md.$img2Url(pos, url);
         })
       },

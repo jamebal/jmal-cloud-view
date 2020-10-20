@@ -18,6 +18,7 @@
 </div>
 </template>
 <script>
+  import fileConfig from '@/utils/file-config'
   import 'viewerjs/dist/viewer.css';
   import Bus from '@/assets/js/bus'
   export default {
@@ -86,9 +87,9 @@
           let viewIndex = 0
           this.fileList.forEach(element => {
             if(!element.isFolder && element.contentType.indexOf('image') > -1){
-              let url = `${process.env.VUE_APP_BASE_FILE_API}preview/${element.name}?jmal-token=${this.$store.state.user.token}&fileIds=${element.id}`
+              let url = fileConfig.previewUrl(this.$store.state.user.name, element)
               if(this.shareId){
-                url = `${process.env.VUE_APP_BASE_FILE_API}/public/s/preview/${element.name}?fileIds=${element.id}`
+                url = fileConfig.publicPreviewUrl(element.id);
               }
               this.images.push(url)
               if(this.file.id === element.id){
