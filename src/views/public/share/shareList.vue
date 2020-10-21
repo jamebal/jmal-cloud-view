@@ -919,7 +919,7 @@
             return
           }
           // 打开文件
-          fileConfig.preview(this.$store.state.user.token, row)
+          fileConfig.publicPreview(row.id)
         }
       }
     }

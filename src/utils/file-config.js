@@ -21,7 +21,7 @@ export default {
     window.open(url, '_self')
   },
   publicDownload: function(shareId, file) {
-    let url = `${this.baseUrl}/public/s/download/${file.id}/${shareId}ff`
+    let url = `${this.baseUrl}/public/s/download/${file.id}/${shareId}`
     window.open(url, '_self')
   },
   packageDownload: function(fileIds, token) {
