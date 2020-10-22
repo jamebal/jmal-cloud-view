@@ -55,11 +55,12 @@
                   </div>
                 </section>
                 <section class="article typo">
-                  <div class="article-entry" itemprop="articleBody">
-                    <!--<p><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/2019/88ff47f8-e8f5-3691-cff2-ab0e042dd752.jpg.png" data-original="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/2019/88ff47f8-e8f5-3691-cff2-ab0e042dd752.jpg.png" alt=""></p>-->
-                    <p></p>
-                    <div class="button readmore"><a :href="$route.path+'/article?mark='+article.id">阅读全文 <i class="fas fa-chevron-right"></i></a></div>
-                  </div>
+                  <a :href="$route.path+'/article?mark='+article.id">
+                    <div class="article-entry" itemprop="articleBody">
+                      <p><img class="blog-background" :src="article.cover" onerror="this.src='https://images.unsplash.com/photo-1582230587856-7fec01506148?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60'"/></p>
+                      <!--<div class="button readmore"><a :href="$route.path+'/article?mark='+article.id">阅读全文 <i class="fas fa-chevron-right"></i></a></div>-->
+                    </div>
+                  </a>
                 </section>
               </article>
             </div>
@@ -291,4 +292,11 @@
     height: 100%;
     background: #f5f5f5;
   }
+
+  .blog-background {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    max-height: 15em;
+}
 </style>

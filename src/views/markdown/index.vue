@@ -10,6 +10,7 @@
         <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" v-model="storageLocation" :readonly="true" @click="selectDir">
           <el-button slot="prepend" @click="selectDir">选择位置</el-button>
         </el-input>
+        <el-button type="primary" @click="moreSetting = true">更多设置</el-button>
         <el-button v-if="!editStatus" class="release-button" type="primary" @click="add" :loading="adding">发布文章</el-button>
         <el-button v-if="editStatus" class="release-button" type="primary" @click="update" :loading="updating">更新文章</el-button>
       </div>
@@ -28,6 +29,16 @@
         @fullScreen="fullScreen"
       />
     </el-main>
+
+    <el-drawer
+      :visible.sync="moreSetting"
+      :with-header="false">
+      <div class="more-setting">
+        <h2>更多设置</h2>
+        <p class="mark-setting-label">文章标题：</p>
+        <el-input class="articles-title" type="textarea" placeholder="输入图片URL" v-model="markdownCover"/>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -52,6 +63,8 @@
         isFullScreen: false,
         storageLocation: '/',
         selectLocationVisible: false,
+        moreSetting: false,
+        markdownCover: null,
       }
     },
     mounted() {
@@ -137,6 +150,7 @@
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             filename: filename,
+            cover: this.markdownCover,
             currentDirectory: this.storageLocation,
             contentText: this.content
           }).then((res) => {
@@ -160,6 +174,7 @@
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             filename: filename,
+            cover: this.markdownCover,
             currentDirectory: this.storageLocation,
             contentText: this.content
           }).then(() => {
@@ -205,6 +220,17 @@
     }
     .el-input {
       width: 300px;
+    }
+  }
+
+  .more-setting {
+    padding: 15px;
+    .mark-setting-label {
+      font-weight: 500;
+    }
+    .mark-description {
+      font-size: 12px;
+      font-weight: 100;
     }
   }
 

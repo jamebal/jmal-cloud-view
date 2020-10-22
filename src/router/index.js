@@ -203,10 +203,20 @@ export const constantRoutes = [
       }
     ]
   },
-
+  {
+    path: 'articles',
+    component: Layout,
+    children: [
+      {
+        path: `${document.location.protocol}//${window.location.host}/articles`,
+        meta: { title: '关联博客', icon: 'link' }
+      }
+    ]
+  },
   {
     path: '/articles',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: '',

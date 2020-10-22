@@ -60,17 +60,15 @@ export default {
     }
   },
   mounted() {
-    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
-      window.pc = false
-    } else {
-      window.pc = true
-    }
-
+    window.pc = !/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
     if(getToken()){
       this.isShow = window.pc;
       //与服务器建立websocket连接
       if(!ws.isConnected){
         toConnection(this.$store.state.user.name,this.$store.state.user.token);
+      }
+      if(this.$route.path.startsWith('/articles')){
+        this.isShow = false
       }
     }else{
       this.isShow = false
