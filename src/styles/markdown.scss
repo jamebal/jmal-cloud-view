@@ -34,7 +34,7 @@
   width: 100%;
   position: fixed;
   top: 0;
-  z-index: 10;
+  z-index: 891;
   display: none;
   /* border-bottom: 1px solid #201c29; */
   -webkit-transition: all 350ms ease-in-out;
@@ -117,10 +117,18 @@
 
 /deep/ .v-note-wrapper {
   position: unset;
+  .show {
+    border-radius: 1rem;
+  }
+  .v-note-panel {
+    border-radius: 1rem;
+  }
 }
 
+
 .l_main {
-  padding: 70px 16px 16px;
+  padding: 0 16px 16px;
+  margin-top: -80px;
 }
 
 .l_main {
@@ -170,13 +178,9 @@
   -webkit-box-shadow: rgba(0,0,0,0.1) 0 2px 12px 0;
   box-shadow: rgba(0,0,0,0.1) 0 2px 12px 0;
   width: 285px;
-  top: 70px;
+  margin-top: 67px;
   overflow: auto;
   float: right;
-  position: fixed;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
@@ -185,7 +189,8 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    box-shadow: -4px -9px 20px #000;
+    -webkit-box-shadow: 0px -14px 20px #000;
+    box-shadow: 0px -14px 20px #000;
     -webkit-backdrop-filter: saturate(360%) blur(8px);
     backdrop-filter: saturate(360%) blur(8px);
     background-color: rgba(255,255,255,0.72);
@@ -263,9 +268,9 @@
   flex-direction: column;
 }
 /deep/ .right-menu .toc-header {
-  padding: calc(16px - 2px);
+  padding: calc(11px - 2px);
   color: #2196f3;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 /deep/ .right-menu .toc-header span{
   margin-left: 10px;
@@ -320,7 +325,7 @@
   cursor: pointer;
   padding-right: 16px;
   font-weight: normal;
-  line-height: 40px;
+  line-height: 30px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -384,7 +389,7 @@
 }
 
 /deep/ .markdown-body {
-
+  border-radius: 0.5rem;
   blockquote {
     padding: 0.8em 1em;
     color: #656565;

@@ -6,13 +6,25 @@
     <al-back-top></al-back-top>
 
     <div id="top" style="display: block;" class="animateIn">
-      <div class="bar" style="width: 0;"></div>
       <div class="navigation animated fadeIn fast delay-1s">
-        <a href="/public/articles"><svg-icon id="home-icon" class="icon-home" icon-class="home" ></svg-icon></a>
-        <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
-        <h3 class="subtitle" style="display: block;">{{pageTitle}}</h3>
+        <div class="container-fluid">
+          <a class="navbar-brand text-brand">JMAL'S</a>
+        </div>
+<!--        <a href="/public/articles"><svg-icon id="home-icon" class="icon-home" icon-class="home" ></svg-icon></a>-->
+<!--        <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>-->
+<!--        <h3 class="subtitle" style="display: block;">{{pageTitle}}</h3>-->
       </div>
       <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
+    </div>
+    <div class="article-header">
+      <div class="article-background" :style="{backgroundImage: `url(${file.cover})`}"></div>
+      <div class="inner">
+        <div class="blog-title"><span id="article-title">{{pageTitle}}</span><span class="typed-cursor">_</span></div>
+        <div class="blog-description font-mono">
+          <a itemprop="name" href="https://www.jmal.top/author/1/" rel="author">{{file.username}}</a>
+          · {{file.uploadDate}}
+        </div>
+      </div>
     </div>
     <div class="body-wrapper">
           <el-main class="l_main">
@@ -29,20 +41,22 @@
           </el-main>
 
           <div v-show="titleList.length > 0" class="right-bj">
-            <div class="slimScrollDiv">
-              <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
-                <div class="toc-content">
-                  <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
-                </div>
-                <div class="j-titleList titleList">
-                  <div class="j-bj" style="height: 40px; top: 0;"></div>
+            <a-affix>
+              <div class="slimScrollDiv">
+                <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
+                  <div class="toc-content">
+                    <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
+                  </div>
+                  <div class="j-titleList titleList">
+                    <div class="j-bj" style="height: 30px; top: 0;"></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </a-affix>
           </div>
     </div>
     <footer class="clearfix">
-      <div class="copyright"><p><a href="http://blog.jmal.top">Copyright © 2020 jmal</a></p></div>
+      <div class="copyright"><p><a href="/articles">Copyright © 2020 jmal</a></p></div>
     </footer>
   </div>
 </template>
@@ -57,6 +71,7 @@
     components: { AlBackTop, AlLoading },
     data() {
       return {
+        file: {},
         isLoading: true,
         pageTitle: "文章",
         showList: true,
@@ -67,7 +82,8 @@
         titleList: [],
         tocMaxHeight: 500,
         befterScrollTop: 0,
-        maxMenuHeight: document.documentElement.clientHeight - 155
+        maxMenuHeight: document.documentElement.clientHeight - 155,
+        top: 70
       }
     },
     mounted() {
@@ -84,23 +100,32 @@
       onScroll() {
         // let befterScrollTop = document.documentElement.scrollTop;
       },
+      dynamicTyping() {
+        let divTyping = document.getElementById('article-title')
+        let i = 0,timer = 0,str = this.pageTitle
+        function typing () {
+          if (i <= str.length) {
+            divTyping.innerHTML = str.slice(0, i++)
+            timer = setTimeout(typing, 100)
+          } else {
+            // 结束打字
+            clearTimeout(timer)
+          }
+        }
+        typing()
+      },
       getMarkDown() {
         markdownApi.getMarkdown({
           mark: this.$route.query.mark
         }).then((res) => {
+          this.file = res.data
           const filename = res.data.name
           this.pageTitle = filename.substring(0,filename.length - res.data.suffix.length-1)
           this.content = res.data.contentText
-          // setTimeout(function () {
-          //   // 刷新界面 回到上次滚动条的位置
-          //   if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
-          //     const arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
-          //     document.documentElement.scrollTop = parseInt(arr[1]);
-          //     document.body.scrollTop = parseInt(arr[1]);
-          //   }
-          // },10)
-
           this.$nextTick(()=>{  // DOM更新之后获取子元素
+
+            // 动态打字效果
+            this.dynamicTyping()
 
             const hTag = document.querySelector("h1");
             if(hTag){
@@ -145,7 +170,7 @@
                 for (let i = 0; i < a.length; i++) {
                   if ($(window).scrollTop() > $('#' + a[i]).offset().top - 100 || $(this).scrollTop() + $(this).height() == $(document).height()) {
                     $('.j-titleList').find('li').eq(i).addClass('active').siblings('li').removeClass('active');
-                    $('.j-bj').css('top', i * 44)
+                    $('.j-bj').css('top', i * 34)
                   }
                 }
 
@@ -214,10 +239,5 @@
   @import "src/styles/index";
   @import "src/styles/markdown";
   @import "src/styles/articles";
-  /deep/ .el-backtop {
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(1px);
-    background-color: rgba(255,255,255,0.5);
-    color: #272936;
-  }
+  @import "src/styles/article";
 </style>

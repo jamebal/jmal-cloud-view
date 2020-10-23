@@ -19,8 +19,8 @@ import { Popup,Search, Button, Cell, CellGroup, Image, List, PullRefresh, SwipeC
 
 
 // ant-design-vue
-// import { Tree } from 'ant-design-vue';
-// Vue.use(Tree)
+import { Affix } from 'ant-design-vue';
+Vue.use(Affix)
 
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'

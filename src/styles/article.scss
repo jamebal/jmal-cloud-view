@@ -1,0 +1,133 @@
+/deep/ .el-backtop {
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(1px);
+  background-color: rgba(255,255,255,0.5);
+  color: #272936;
+}
+.article-header {
+  height: 640px;
+  min-height: 12.5px;
+  position: relative;
+  display: table;
+  text-align: center;
+  overflow: hidden;
+  color: #fff;
+  width: -webkit-calc(100% - -0.0625rem);
+  width: calc(100% - -0.0625rem);
+  -webkit-transition: 1s ease background-color;
+  -moz-transition: 1s ease background-color;
+  -ms-transition: 1s ease background-color;
+  -o-transition: 1s ease background-color;
+  transition: 1s ease background-color;
+  .article-background {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    opacity: 1;
+    -webkit-transition: 1s ease opacity;
+    -moz-transition: 1s ease opacity;
+    -ms-transition: 1s ease opacity;
+    -o-transition: 1s ease opacity;
+    transition: 1s ease opacity;
+  }
+}
+
+.inner {
+  display: table-cell;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  left: -1px;
+  vertical-align: middle;
+}
+
+.blog-title {
+  font-size: 2.5rem;
+  line-height: 1.5;
+  margin-bottom: .75rem;
+}
+
+@media not all, screen and (-webkit-min-device-pixel-ratio: 1.5), not all, not all {
+  .blog-description.font-mono {
+    font-family: Consolas,Menlo,Monaco,"lucida console","Liberation Mono","Courier New","andale mono",monospaceX,monospace,sans-serif;
+    font-size: 1.1125rem;
+  }
+}
+
+.typed-cursor {
+  animation: typedjsBlink 0.7s infinite;
+  -webkit-animation: typedjsBlink 0.7s infinite;
+  animation: typedjsBlink 0.7s infinite;
+}
+
+@keyframes typedjsBlink {
+  50% {
+    opacity: 0.0;
+  }
+}
+
+/deep/ .navigation {
+  padding: .75rem 1rem;
+  position: fixed;
+  display: flex;
+  color: rgba(0,0,0,0.9);
+  font-family: 'Mirages Custom', 'Merriweather', 'Open Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', 'WenQuanYi Micro Hei', 'Segoe UI Emoji', 'Segoe UI Symbol', Helvetica, Arial, sans-serif;
+  .container-fluid {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    margin-right: auto;
+    margin-left: auto;
+  }
+  .navbar-brand {
+    display: inline-block;
+    padding: 0;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .navbar-brand.text-brand {
+    padding-top: 0.3125rem;
+    padding-bottom: 0.3125rem;
+  }
+  a {
+    color: rgba(0,0,0,0.9);
+  }
+}
+
+@media screen and (max-width: 759px) {
+  .blog-title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin-bottom: .5rem;
+  }
+}
+
+@media (min-width: 768px){
+  .article-header .inner {
+    padding-top: 3.75rem;
+  }
+  .container-fluid {
+    max-width: 720px;
+  }
+}

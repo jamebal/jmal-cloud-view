@@ -35,8 +35,13 @@
       :with-header="false">
       <div class="more-setting">
         <h2>更多设置</h2>
-        <p class="mark-setting-label">文章标题：</p>
-        <el-input class="articles-title" type="textarea" placeholder="输入图片URL" v-model="markdownCover"/>
+        <p class="mark-setting-label">文章封面：</p>
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 3, maxRows: 8}"
+          placeholder="输入图片URL"
+          v-model="markdownCover">
+        </el-input>
       </div>
     </el-drawer>
   </div>
@@ -75,6 +80,7 @@
         }).then((res) => {
           this.content = res.data.contentText
           this.filename = res.data.name.split('.md')[0]
+          this.markdownCover = res.data.cover
           this.storageLocation = res.data.path
         })
       }
