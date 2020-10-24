@@ -132,7 +132,7 @@
               this.pageTitle = hTag.innerText
             }
 
-            let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>/g);
+            let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>|<h3.*?<\/h3>|<h4.*?<\/h4>/g);
             if(a && a.length >0 ){
               a = a.splice(a.length/2,a.length)
               for (let i = 0; i < a.length; i++) {
