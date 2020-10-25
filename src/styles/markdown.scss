@@ -44,12 +44,14 @@
   box-shadow: 4px -11px 20px #000;
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   backdrop-filter: saturate(180%) blur(20px);
-  background-color: rgba(255,255,255,0.72);
+  background-color: #2f41544d;
 
   .navbar {
     display: flex;
-    color: rgba(0,0,0,0.9);
-    font-family: 'Mirages Custom', 'Merriweather', 'Open Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', 'WenQuanYi Micro Hei', 'Segoe UI Emoji', 'Segoe UI Symbol', Helvetica, Arial, sans-serif;
+    a {
+      color: #f0f5ff;
+      font-family: 'Mirages Custom', 'Merriweather', 'Open Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', 'WenQuanYi Micro Hei', 'Segoe UI Emoji', 'Segoe UI Symbol', Helvetica, Arial, sans-serif;
+    }
     .container-fluid {
       display: -ms-flexbox;
       display: flex;
@@ -132,9 +134,6 @@
     .navbar-brand.text-brand {
       padding-top: 0.3125rem;
       padding-bottom: 0.3125rem;
-    }
-    a {
-      color: rgba(0,0,0,0.9);
     }
   }
 
@@ -228,9 +227,10 @@
 }
 
 
-.l_main {
+.article_l_main {
   padding: 0 16px 16px;
   margin-top: -80px;
+  z-index: 10;
 }
 
 .l_main {
@@ -346,28 +346,28 @@
   /deep/ .slimScrollDiv {
     width: 240px;
   }
-  /deep/ .slimScrollDiv {
+  /deep/ .slimScrollDiv,.l_side {
     transform: translateX(50px);
   }
-  /deep/ .el-main {
+  /deep/ .article_l_main {
     transform: translateX(50px);
   }
 }
 
 @media only screen and (min-width: 1240px){
-  /deep/ .slimScrollDiv {
+  /deep/ .slimScrollDiv,.l_side {
     transform: translateX(80px);
   }
-  /deep/ .el-main {
+  /deep/ .article_l_main {
     transform: translateX(80px);
   }
 }
 
 @media only screen and (min-width: 1400px){
-  /deep/ .slimScrollDiv {
+  /deep/ .slimScrollDiv,.l_side {
     transform: translateX(120px);
   }
-  /deep/ .el-main {
+  /deep/ .article_l_main {
     transform: translateX(120px);
   }
 }

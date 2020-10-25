@@ -1434,7 +1434,7 @@ article .readmore > a:hover {
   align-items: center;
   align-self: center;
   align-content: center;
-  color: #555;
+  color: #f0f5ff;
   padding: 16px
 }
 
@@ -1450,9 +1450,7 @@ article .readmore > a:hover {
 
 .cover-wrapper .cover.half {
   margin-bottom: -100px;
-  max-height: 640px;
-  min-height: 400px;
-  height: calc(36vh - 64px + 200px)
+  height: 70vh;
 }
 
 .cover-wrapper .cover.half .cover-body div.b {
@@ -4380,40 +4378,46 @@ gray, p[gray] {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  height: 700px;
+  height: 70vh;
   z-index: -999998;
   position: absolute;
 }
 
-@media only screen and (max-width: 768px){
-  .backstretch {
-    left: -1000px;
-  }
+.blog-background {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
-@media only screen and (min-width: 768px){
-  .backstretch {
-    left: -888px;
-  }
-}
-
-@media only screen and (min-width: 992px){
-  .backstretch {
-    left: -768px;
-  }
-}
-
-@media only screen and (min-width: 1200px){
-  .backstretch {
-    left: -500px;
-  }
-}
-
-@media only screen and (min-width: 1440px){
-  .backstretch {
-    left: -300px;
-  }
-}
+//@media only screen and (max-width: 768px){
+//  .backstretch {
+//    left: -1000px;
+//  }
+//}
+//
+//@media only screen and (min-width: 768px){
+//  .backstretch {
+//    left: -888px;
+//  }
+//}
+//
+//@media only screen and (min-width: 992px){
+//  .backstretch {
+//    left: -768px;
+//  }
+//}
+//
+//@media only screen and (min-width: 1200px){
+//  .backstretch {
+//    left: -500px;
+//  }
+//}
+//
+//@media only screen and (min-width: 1440px){
+//  .backstretch {
+//    left: -300px;
+//  }
+//}
 
 //@media only screen and (min-width: 1920px){
 //  .backstretch {

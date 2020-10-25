@@ -44,7 +44,7 @@
       </div>
     </div>
     <div class="body-wrapper">
-          <el-main id="main_body" class="l_main">
+          <el-main id="main_body" class="l_main article_l_main">
             <mavon-editor
               ref="md"
               v-if="!showList"
