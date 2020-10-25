@@ -56,9 +56,8 @@
               defaultOpen="preview"
             />
           </el-main>
-
           <div v-show="titleList.length > 0" class="right-bj">
-            <a-affix>
+            <a-affix class="sdf">
               <div class="slimScrollDiv">
                 <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
                   <div class="toc-content">
@@ -219,8 +218,7 @@
                 var scrollTop = $(this).scrollTop();
                 var scrollHeight = $(document).height();
                 var windowHeight = $(this).height();
-
-                var progress = (afterScrollTop/scrollHeight) * 100
+                var progress = ((afterScrollTop + document.body.clientHeight)/scrollHeight) * 100
                 // 改变top bar 进度条
                 document.querySelector(".scrollbar").style.width = progress +'%'
 

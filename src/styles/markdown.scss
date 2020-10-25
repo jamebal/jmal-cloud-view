@@ -346,14 +346,38 @@
   /deep/ .slimScrollDiv {
     width: 240px;
   }
+  /deep/ .slimScrollDiv {
+    transform: translateX(50px);
+  }
+  /deep/ .el-main {
+    transform: translateX(50px);
+  }
+}
+
+@media only screen and (min-width: 1240px){
+  /deep/ .slimScrollDiv {
+    transform: translateX(80px);
+  }
+  /deep/ .el-main {
+    transform: translateX(80px);
+  }
+}
+
+@media only screen and (min-width: 1400px){
+  /deep/ .slimScrollDiv {
+    transform: translateX(120px);
+  }
+  /deep/ .el-main {
+    transform: translateX(120px);
+  }
 }
 
 @media only screen and (min-width: 1920px){
   /deep/ .right-bj {
-    width: 285px;
+    width: 240px;
   }
   /deep/ .slimScrollDiv {
-    width: 285px;
+    width: 240px;
   }
 }
 
