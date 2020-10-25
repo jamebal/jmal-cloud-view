@@ -6,13 +6,30 @@
     <al-back-top></al-back-top>
 
     <div id="top" style="display: block;" class="animateIn">
-      <div class="navigation animated fadeIn fast delay-1s">
+      <div class="navbar animated fadeIn fast delay-1s">
         <div class="container-fluid">
           <a class="navbar-brand text-brand">JMAL'S</a>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item dropdown"></li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
+              </li>
+            </ul>
+
+            <ul class="navbar-nav side-toolbar-list">
+              <li class="nav-item">
+                <a id="nav-side-toolbar-github" href="https://github.com/jamebal" title="Github" target="_blank">fff<i class="fa fa-github"></i></a>
+              </li>
+            </ul>
+          </div>
         </div>
-<!--        <a href="/public/articles"><svg-icon id="home-icon" class="icon-home" icon-class="home" ></svg-icon></a>-->
-<!--        <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>-->
-<!--        <h3 class="subtitle" style="display: block;">{{pageTitle}}</h3>-->
       </div>
       <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
     </div>
@@ -27,7 +44,7 @@
       </div>
     </div>
     <div class="body-wrapper">
-          <el-main class="l_main">
+          <el-main id="main_body" class="l_main">
             <mavon-editor
               ref="md"
               v-if="!showList"
@@ -124,6 +141,19 @@
           this.content = res.data.contentText
           this.$nextTick(()=>{  // DOM更新之后获取子元素
 
+            let main = document.querySelector('.v-show-content.scroll-style.scroll-style-border-radius')
+            let p = document.createElement("p")
+            // let p = "<p class=\"note note-info\">\n" +
+            //   "                \n" +
+            //   "                  本文最后更新于：2020年9月16日 上午\n" +
+            //   "                \n" +
+            //   "              </p>"
+            p.className = "note-update-date"
+            p.innerText = `本文最后更新于：${this.file.updateDate}`
+            // main.insertAdjacentHTML('beforebegin', '<b>复制代码</b>');
+            // main.childNodes[0].insertAdjacentHTML('beforebegin', '<p class="note note-info"></p>')
+            main.insertBefore(p , main.childNodes[0])
+
             // 动态打字效果
             this.dynamicTyping()
 
@@ -132,15 +162,23 @@
               this.pageTitle = hTag.innerText
             }
 
-            let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>|<h3.*?<\/h3>|<h4.*?<\/h4>/g);
+            let a = $('.el-main').html().match(/<h1.*?<\/h1>|<h2.*?<\/h2>|<h3.*?<\/h3>|<h4.*?<\/h4>|<h5.*?<\/h5>|<h6.*?<\/h6>/g);
             if(a && a.length >0 ){
               a = a.splice(a.length/2,a.length)
               for (let i = 0; i < a.length; i++) {
                 a[i] = a[i].replace(/id="/g, 'href="#')
                 if (i ===0 && a[i].indexOf('h1') !== -1) {
-                  a[i] = '<li first>' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
+                  a[i] = '<li first class="h-1">' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
                 }else if (a[i].indexOf('h2') !== -1) {
-                  a[i] = '<li class="pl">' + a[i].replace(/<h2>|<\/h2>/g, '') + '</li>'
+                  a[i] = '<li class="pl h-2">' + a[i].replace(/<h2>|<\/h2>/g, '') + '</li>'
+                }else if (a[i].indexOf('h3') !== -1) {
+                  a[i] = '<li class="pl h-3">' + a[i].replace(/<h3>|<\/h3>/g, '') + '</li>'
+                }else if (a[i].indexOf('h4') !== -1) {
+                  a[i] = '<li class="pl h-4">' + a[i].replace(/<h4>|<\/h4>/g, '') + '</li>'
+                }else if (a[i].indexOf('h5') !== -1) {
+                  a[i] = '<li class="pl h-5">' + a[i].replace(/<h5>|<\/h5>/g, '') + '</li>'
+                }else if (a[i].indexOf('h6') !== -1) {
+                  a[i] = '<li class="pl h-6">' + a[i].replace(/<h6>|<\/h6>/g, '') + '</li>'
                 } else {
                   a[i] = '<li>' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
                 }

@@ -35,7 +35,7 @@
                 <section class="meta">
                   <div class="meta" id="header-meta">
                     <h2 class="title">
-                      <a :href="$route.path+'/article?mark='+article.id" @click="clearCooike">{{article.name}}</a>
+                      <a :href="$route.path+'/article?mark='+article.id">{{article.name}}</a>
                     </h2>
                     <div class="new-meta-box">
                       <div class="new-meta-item author">
@@ -222,17 +222,6 @@
       }
     },
     methods: {
-      clearCooike() {
-        // let name = "scrollTop"
-        // var exp = new Date();
-        // exp.setTime(exp.getTime() - 1);
-        // var cval=getCookie(name);
-        // if(cval!=null){
-        //   document.cookie= name + "="+cval+";expires="+exp.toGMTString();
-        // }
-        document.cookie = "scrollTop=" + scrollPos
-        alert(document.cookie)
-      },
       getCookie (name){
         var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
         if(arr=document.cookie.match(reg))
@@ -245,6 +234,7 @@
       getMarkDown() {
         markdownApi.getMarkdown().then((res) => {
           this.articleList = res.data
+          console.log(this.articleList)
           this.$nextTick(() => {
             this.isLoading = false
           })
