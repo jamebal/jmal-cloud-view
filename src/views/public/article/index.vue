@@ -8,7 +8,7 @@
     <div id="top" style="display: block;" class="animateIn">
       <div class="navbar animated fadeIn fast delay-1s">
         <div class="container-fluid">
-          <a class="navbar-brand text-brand">JMAL'S</a>
+          <a class="navbar-brand text-brand" href="/articles">JMAL'S</a>
           <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
               <li class="nav-item dropdown"></li>

@@ -4,6 +4,34 @@
       <al-loading v-if="isLoading"></al-loading>
     </transition>
     <al-back-top></al-back-top>
+    <div id="top" style="display: block;" class="animateIn">
+      <div class="navbar animated fadeIn fast delay-1s">
+        <div class="container-fluid">
+          <a class="navbar-brand text-brand" href="/articles">JMAL'S</a>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item dropdown"></li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
+              </li>
+            </ul>
+
+            <ul class="navbar-nav side-toolbar-list">
+              <li class="nav-item">
+                <a id="nav-side-toolbar-github" href="https://github.com/jamebal" title="Github" target="_blank">fff<i class="fa fa-github"></i></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
+    </div>
     <div class="cover-wrapper">
       <div class="cover half" style="position: relative; z-index: 0; background-image: none;">
         <div class="cover-body">
@@ -11,20 +39,10 @@
             <p class="title">jmal</p>
             <p class="subtitle">「清空你的杯子, 方能再行注满」</p>
           </div>
-          <div class="b">
-            <div class="m_search">
-              <form name="searchform" class="form u-search-form">
-                <input type="text" class="input u-search-input" placeholder=""> <i class="icon fas fa-search fa-fw"> <svg-icon icon-class="search" /></i>
-              </form>
-            </div>
-          </div>
         </div>
         <div class="backstretch">
-          <!--<img src="~@/assets/img/widget-img1.jpg">-->
           <img class="blog-background" src="https://images.unsplash.com/photo-1603378991000-2dda90e8563a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3200&q=80"
           onerror="this.src='~@/assets/img/widget-img1.jpg'">
-          <!--<el-image  :src="backImageSrc">-->
-          <!--</el-image>-->
         </div>
       </div>
     </div>
@@ -126,6 +144,7 @@
   @import "src/styles/index";
   @import "src/styles/markdown";
   @import "src/styles/articles";
+  @import "src/styles/article";
   .l_side {
     width: 285px;
     float: right;
