@@ -349,7 +349,7 @@
   /deep/ .slimScrollDiv,.l_side {
     transform: translateX(50px);
   }
-  /deep/ .article_l_main {
+  /deep/ .article_l_main[content=show] {
     transform: translateX(50px);
   }
 }
@@ -358,7 +358,7 @@
   /deep/ .slimScrollDiv,.l_side {
     transform: translateX(80px);
   }
-  /deep/ .article_l_main {
+  /deep/ .article_l_main[content=show] {
     transform: translateX(80px);
   }
 }
@@ -367,7 +367,7 @@
   /deep/ .slimScrollDiv,.l_side {
     transform: translateX(120px);
   }
-  /deep/ .article_l_main {
+  /deep/ .article_l_main[content=show] {
     transform: translateX(120px);
   }
 }

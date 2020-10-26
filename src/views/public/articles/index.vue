@@ -20,8 +20,9 @@
           </div>
         </div>
         <div class="backstretch">
-<!--          <img src="~@/assets/img/widget-img1.jpg">-->
-          <img class="blog-background" src="https://images.unsplash.com/photo-1603378991000-2dda90e8563a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3200&q=80">
+          <!--<img src="~@/assets/img/widget-img1.jpg">-->
+          <img class="blog-background" src="https://images.unsplash.com/photo-1603378991000-2dda90e8563a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3200&q=80"
+          onerror="this.src='~@/assets/img/widget-img1.jpg'">
           <!--<el-image  :src="backImageSrc">-->
           <!--</el-image>-->
         </div>

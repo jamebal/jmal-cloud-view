@@ -44,7 +44,7 @@
       </div>
     </div>
     <div class="body-wrapper">
-          <el-main id="main_body" class="l_main article_l_main">
+          <el-main id="main_body" :content="titleList.length > 0?'show':'hide'" class="l_main article_l_main">
             <mavon-editor
               ref="md"
               v-if="!showList"
@@ -139,18 +139,11 @@
           this.pageTitle = filename.substring(0,filename.length - res.data.suffix.length-1)
           this.content = res.data.contentText
           this.$nextTick(()=>{  // DOM更新之后获取子元素
-
+            // 在文章最前面添加更新时间
             let main = document.querySelector('.v-show-content.scroll-style.scroll-style-border-radius')
             let p = document.createElement("p")
-            // let p = "<p class=\"note note-info\">\n" +
-            //   "                \n" +
-            //   "                  本文最后更新于：2020年9月16日 上午\n" +
-            //   "                \n" +
-            //   "              </p>"
             p.className = "note-update-date"
             p.innerText = `本文最后更新于：${this.file.updateDate}`
-            // main.insertAdjacentHTML('beforebegin', '<b>复制代码</b>');
-            // main.childNodes[0].insertAdjacentHTML('beforebegin', '<p class="note note-info"></p>')
             main.insertBefore(p , main.childNodes[0])
 
             // 动态打字效果
