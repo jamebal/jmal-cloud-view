@@ -153,13 +153,13 @@ export const constantRoutes = [
   },
 
   {
-    path: '/setting',
+    path: '/setting/user',
     component: Layout,
     children: [
       {
         path: '',
-        name: 'setting',
-        component: () => import('@/views/setting/index'),
+        name: 'setting-user',
+        component: () => import('@/views/setting/user/index'),
         meta: { title: '设置' },
         hidden: true
       }
@@ -210,6 +210,32 @@ export const constantRoutes = [
       {
         path: `${document.location.protocol}//${window.location.host}/articles`,
         meta: { title: '关联博客', icon: 'link' }
+      }
+    ]
+  },
+  {
+    path: '/setting/manager-categories',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'manager-categories',
+        component: () => import('@/views/setting/articles/categoryManager'),
+        meta: { title: '分类管理', icon: 'md-list' }
+      }
+    ]
+  },
+  {
+    path: '/setting/manager-cloud',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'manager-cloud',
+        component: () => import('@/views/setting/cloudManager'),
+        meta: { title: '网盘管理', icon: 'md-list' }
       }
     ]
   },

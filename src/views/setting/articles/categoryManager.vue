@@ -99,7 +99,7 @@
     },
     data() {
       return {
-        title: "用户管理",
+        title: "分类管理",
         categoryList: [],
         dialogVisible: false,
         dialogTitle: '',
@@ -253,12 +253,9 @@
 
 <!--<style src="@styles/cropper.css"></style>-->
 <style lang="scss" scoped>
-  @import "src/styles/setting";
+@import "src/styles/setting";
   .card-button {
     float: right;
     padding: 3px 0;
-  }
-  .box-card {
-    max-width: 800px;
   }
 </style>

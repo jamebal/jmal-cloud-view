@@ -5,6 +5,26 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-content">
+
+      <div>
+        <el-menu class="el-menu-demo" mode="horizontal">
+          <el-menu-item index="1" href="/setting/manager-categories">
+            <router-link to="/setting/manager-cloud">
+              网盘管理
+            </router-link>
+          </el-menu-item>
+          <el-submenu index="2">
+            <template slot="title">管理</template>
+            <el-menu-item index="2-1"><i class="el-icon-menu"></i>
+              <router-link to="/setting/manager-categories">
+                分类管理
+              </router-link>
+            </el-menu-item>
+            <el-menu-item index="2-2">标签管理</el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </div>
+
       <div class="right-username">{{username}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
@@ -14,9 +34,9 @@
             <i class="el-icon-caret-bottom" />
           </div>
           <el-dropdown-menu slot="dropdown" class="user-dropdown">
-            <router-link to="/setting">
+            <router-link to="/setting/user">
               <el-dropdown-item>
-                <i class="el-icon-setting" />设置
+                <i class="el-icon-setting" />个人信息
               </el-dropdown-item>
             </router-link>
             <!--<router-link to="/">-->
@@ -47,6 +67,7 @@ import Hamburger from '@/components/Hamburger'
 export default {
   data() {
     return {
+      activeIndex: '1',
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
       username: this.$store.state.user.name,
     }
@@ -62,6 +83,9 @@ export default {
     ])
   },
   methods: {
+    handleSelect(key, keyPath) {
+      console.log(key, keyPath);
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
@@ -163,6 +187,17 @@ export default {
         }
       }
     }
+  }
+}
+/deep/ .el-menu--horizontal {
+
+  .el-menu-item {
+    height: 50px;
+    line-height: 50px;
+  }
+  .el-submenu .el-submenu__title {
+    height: 50px;
+    line-height: 50px;
   }
 }
 </style>
