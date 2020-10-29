@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+const qs = require('qs')
 
 export default {
   categories(params) {
@@ -36,11 +37,14 @@ export default {
       data
     })
   },
-  delete(name) {
+  delete(params) {
     return request({
       url: 'category/delete',
       method: 'delete',
-      params: {name}
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
     })
   }
 }

@@ -19,7 +19,7 @@
         </el-form-item>
         <el-form-item>
           <!--<el-button @click="dialogVisible = false">取 消</el-button>-->
-          <el-button native-type="submit" type="primary" @click.native.prevent="onSave('managerForm')">保 存</el-button>
+          <el-button native-type="submit" type="primary" :loading="userUpdateLoading" @click.native.prevent="onSave('managerForm')">保 存</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -82,7 +82,6 @@
 
 <script>
   import { getInfo, userUpdate, addUser, delUser, resetPass, userList} from '@/api/user'
-  import { formatSize } from '@/utils/number'
   import CropperDialog from '@/components/Cropper/dialog'
 
   export default {
