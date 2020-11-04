@@ -37,6 +37,13 @@ export default {
       data
     })
   },
+  setDefault(params) {
+    return request({
+      url: 'category/setDefault',
+      method: 'put',
+      params
+    })
+  },
   delete(params) {
     return request({
       url: 'category/delete',

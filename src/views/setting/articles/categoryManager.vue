@@ -1,16 +1,17 @@
 <template>
   <div class="container" v-wechat-title="title">
     <el-dialog class="dialog-cm" :title="dialogTitle" :visible.sync="dialogVisible">
-      <el-form ref="managerForm" :model="form" :rules="rules" label-width="120px">
+      <el-form ref="managerForm" :model="form" label-position="left" :rules="rules" label-width="85px">
         <el-form-item label="分类名称" prop="name">
-          <el-input v-model="form.name"/>
+          <el-input v-model="form.name" style="width: 100%;"/>
         </el-form-item>
         <el-form-item label="分类缩略名" prop="thumbnailName">
-          <el-input v-model="form.thumbnailName"/>
+          <el-input v-model="form.thumbnailName" style="width: 100%;" placeholder="分类缩略名用于创建友好的链接形式."/>
         </el-form-item>
         <el-form-item label="父级分类" prop="parentCategoryId">
           <el-cascader
             v-model="form.parentCategoryId"
+            placeholder="不选择"
             :options="categories"
             :show-all-levels="false"
             :props="{ checkStrictly: true }"
@@ -48,6 +49,8 @@
         :data="categoryList"
         stripe
         @selection-change="handleSelectionChange"
+        @cell-mouse-enter="cellMouseEnter"
+        @cell-mouse-leave="cellMouseLeave"
       >
         <el-table-column
           type="selection"
@@ -73,6 +76,10 @@
         <el-table-column
           prop="quota"
           label="默认">
+          <template slot-scope="scope">
+            <span v-if="scope.row.isDefault">默认</span>
+            <a v-if="!scope.row.isDefault && scope.row.id === cellMouseIndexId" @click="setDefault(scope.row)">默认</a>
+          </template>
         </el-table-column>
         <el-table-column
           prop="quota"
@@ -116,7 +123,8 @@ export default {
         ]
       },
       editMove: 1,// 1添加,2修改
-      multipleSelection: []
+      multipleSelection: [],
+      cellMouseIndexId: ''
     }
   },
   computed: {},
@@ -190,6 +198,19 @@ export default {
       }
       return data
     },
+    // 设为默认
+    setDefault(row) {
+      categoryApi.setDefault({categoryId: row.id}).then(() => {
+        this.getCategories()
+        this.$message({
+          message: `${row.name} 已经被设为默认分类`,
+          type: 'success',
+          duration: 1500
+        })
+      }).catch(() => {
+
+      })
+    },
     // 保存
     onSave() {
       this.$refs.managerForm.validate((valid) => {
@@ -200,19 +221,19 @@ export default {
             this.addCategory(this.setFormData())
           }
           if (this.editMove === 2) {
-            this.userCategory(this.setFormData())
+            this.updateCategory(this.setFormData())
           }
         } else {
           return false;
         }
       });
     },
-    handleEdit(id) {
+    handleEdit() {
       this.editMove = 2
       this.dialogVisible = true
       this.dialogTitle = '修改分类'
       categoryApi.categoryInfo({
-        categoryId: id
+        categoryId: this.multipleSelection[0].id
       }).then(res => {
         this.form = res.data
       })
@@ -238,7 +259,7 @@ export default {
       })
     },
     // 修改分类
-    userCategory(data) {
+    updateCategory(data) {
       categoryApi.update(data).then(() => {
         this.onSuccess()
       }).catch(() => {
@@ -280,7 +301,15 @@ export default {
     },
     onError() {
       this.categoryUpdateLoading = false
-    }
+    },
+    // 单元格hover进入时事件
+    cellMouseEnter(row) {
+      this.cellMouseIndexId = row.id
+    },
+    // 单元格hover退出时事件
+    cellMouseLeave() {
+      this.cellMouseIndexId = ''
+    },
   }
 }
 </script>
