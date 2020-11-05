@@ -5,44 +5,20 @@
     </transition>
     <al-back-top></al-back-top>
     <div id="top" style="display: block;" class="animateIn">
-      <div class="navbar animated fadeIn fast delay-1s">
-        <div class="container-fluid">
-          <a class="navbar-brand text-brand" href="/articles">JMAL'S</a>
-          <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item dropdown"></li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav side-toolbar-list">
-              <li class="nav-item">
-                <a id="nav-side-toolbar-github" href="https://github.com/jamebal" title="Github" target="_blank">fff<i class="fa fa-github"></i></a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <ArticleTop :setting="userSetting"/>
       <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
     </div>
     <div class="cover-wrapper">
       <div class="cover half" style="position: relative; z-index: 0; background-image: none;">
         <div class="cover-body">
           <div class="a">
-            <p class="title">jmal</p>
-            <p class="subtitle">「清空你的杯子, 方能再行注满」</p>
+            <p class="title"><span id="article-title">{{ userSetting.backgroundTextSite }}</span><span class="typed-cursor">_</span></p >
+            <p class="subtitle">{{ userSetting.backgroundDescSite }}</p>
           </div>
         </div>
         <div class="backstretch">
-          <img class="blog-background" src="https://images.unsplash.com/photo-1603378991000-2dda90e8563a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3200&q=80"
-          onerror="this.src='~@/assets/img/widget-img1.jpg'">
+          <img class="blog-background" :src="userSetting.backgroundSite"
+          onerror="this.src='https://images.unsplash.com/photo-1603910062519-69a9616d34c7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80'">
         </div>
       </div>
     </div>
@@ -96,11 +72,14 @@
 </template>
 
 <script>
+import { getSetting } from '@/api/user'
   import AlBackTop from "@/components/backtop/AlBackTop";
   import AlLoading from "@/components/loading/AlLoading";
   import markdownApi from '@/api/markdown-api'
+  import ArticleTop from "@/views/public/article/ArticleTop";
+
   export default {
-    components: { AlBackTop, AlLoading },
+    components: { ArticleTop, AlBackTop, AlLoading },
     data() {
       return {
         imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
@@ -108,17 +87,39 @@
         pageTitle: "文章列表",
         articleList: [],
         backImageSrc: "~@/assets/img/widget-img1.jpg",
+        userSetting: {},
       }
     },
     mounted() {
+      this.getSetting()
       this.getMarkDown()
-
       const that = this
       window.onresize = function() {
-
       }
     },
     methods: {
+      getSetting() {
+        getSetting({userId: this.$store.state.user.userId}).then((res) => {
+          this.userSetting = res.data;
+          this.$nextTick(()=>{
+            this.dynamicTyping()
+          })
+        })
+      },
+      dynamicTyping() {
+        let divTyping = document.getElementById('article-title')
+        let i = 0,timer = 0,str = this.userSetting.backgroundTextSite
+        function typing () {
+          if (i <= str.length) {
+            divTyping.innerHTML = str.slice(0, i++)
+            timer = setTimeout(typing, 100)
+          } else {
+            // 结束打字
+            clearTimeout(timer)
+          }
+        }
+        typing()
+      },
       getCookie (name){
         var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
         if(arr=document.cookie.match(reg))
@@ -131,7 +132,6 @@
       getMarkDown() {
         markdownApi.getMarkdown().then((res) => {
           this.articleList = res.data
-          console.log(this.articleList)
           this.$nextTick(() => {
             this.isLoading = false
           })

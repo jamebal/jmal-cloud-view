@@ -1,7 +1,6 @@
 <template>
   <div class="navbar">
     <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-content">
@@ -15,12 +14,22 @@
           </el-menu-item>
           <el-submenu index="2">
             <template slot="title">管理</template>
-            <el-menu-item index="2-1"><i class="el-icon-menu"></i>
+            <el-menu-item index="2-0">
+              <router-link to="/setting/manager-blog">
+                <svg-icon icon-class="blogger"></svg-icon>
+                博客管理
+              </router-link>
+            </el-menu-item>
+            <el-menu-item index="2-1">
               <router-link to="/setting/manager-categories">
+                <svg-icon icon-class="leimupinleifenleileibie"></svg-icon>
                 分类管理
               </router-link>
             </el-menu-item>
-            <el-menu-item index="2-2">标签管理</el-menu-item>
+            <el-menu-item index="2-2">
+              <svg-icon icon-class="biaoqian"></svg-icon>
+              标签管理
+            </el-menu-item>
           </el-submenu>
         </el-menu>
       </div>
@@ -63,6 +72,7 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import Icon from '@/components/Icon/Icon.vue'
 
 export default {
   data() {
@@ -73,6 +83,7 @@ export default {
     }
   },
   components: {
+    Icon,
     Breadcrumb,
     Hamburger
   },
@@ -190,7 +201,7 @@ export default {
   }
 }
 /deep/ .el-menu--horizontal {
-
+  padding: 0 15px;
   .el-menu-item {
     height: 50px;
     line-height: 50px;

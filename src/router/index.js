@@ -227,6 +227,19 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/setting/manager-blog',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'manager-blog',
+        component: () => import('@/views/setting/articles/blogManager'),
+        meta: { title: '博客管理' }
+      }
+    ]
+  },
+  {
     path: '/setting/manager-cloud',
     component: Layout,
     hidden: true,

@@ -3,8 +3,39 @@
   padding: 20px;
 }
 /deep/.box-card {
+  margin: 0 auto;
   max-width: 1080px;
   min-width: 640px;
+  .clearfix {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.clearfix {
+  display: flex;
+}
+
+.card-button {
+  float: right;
+  margin-left: 25px;
+}
+
+.card-header {
+  line-height: 32px;
+}
+.card-header-back {
+  height: 32px;
+  line-height: 32px;
+  font-size: 15px;
+  font-weight: 600;
+  .header-back-title {
+    cursor: pointer;
+  }
+}
+.card-header-right {
+  float: right;
+  margin-top: -32px;
 }
 
 .img-dialog {
@@ -60,4 +91,10 @@
   margin-top: 10px;
   max-width: 300px;
 }
-
+.instruction {
+  color: #9a9a9a;
+  font-size: .8125rem;
+  a {
+    color: #1890ff;
+  }
+}

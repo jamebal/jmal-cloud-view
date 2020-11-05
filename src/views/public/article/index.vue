@@ -6,31 +6,7 @@
     <al-back-top></al-back-top>
 
     <div id="top" style="display: block;" class="animateIn">
-      <div class="navbar animated fadeIn fast delay-1s">
-        <div class="container-fluid">
-          <a class="navbar-brand text-brand" href="/articles">JMAL'S</a>
-          <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item dropdown"></li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档">归档</a>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav side-toolbar-list">
-              <li class="nav-item">
-                <a id="nav-side-toolbar-github" href="https://github.com/jamebal" title="Github" target="_blank">fff<i class="fa fa-github"></i></a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <ArticleTop :setting="userSetting"/>
       <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
     </div>
     <div class="article-header">
@@ -57,7 +33,7 @@
             />
           </el-main>
           <div v-show="titleList.length > 0" class="right-bj">
-            <a-affix class="sdf">
+            <a-affix>
               <div class="slimScrollDiv">
                 <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
                   <div class="toc-content">
@@ -78,13 +54,16 @@
 </template>
 
 <script>
-  import AlLoading from "@/components/loading/AlLoading";
-  import AlBackTop from "@/components/backtop/AlBackTop";
-  import markdownApi from '@/api/markdown-api'
-  import { addCodeBtn } from '@/assets/js/mavon-line'
-  import $ from 'jquery'
-  export default {
-    components: { AlBackTop, AlLoading },
+import AlLoading from "@/components/loading/AlLoading";
+import AlBackTop from "@/components/backtop/AlBackTop";
+import markdownApi from '@/api/markdown-api'
+import {addCodeBtn} from '@/assets/js/mavon-line'
+import $ from 'jquery'
+import ArticleTop from "@/views/public/article/ArticleTop";
+import { getSetting } from '@/api/user'
+
+export default {
+    components: {ArticleTop, AlBackTop, AlLoading },
     data() {
       return {
         file: {},
@@ -95,6 +74,7 @@
         toolbarsFlag: true,
         content:'',
         html:'',
+        userSetting: {},
         titleList: [],
         tocMaxHeight: 500,
         befterScrollTop: 0,
@@ -103,6 +83,7 @@
       }
     },
     mounted() {
+      this.getSetting()
       if(this.$route.query.mark){
         this.getMarkDown()
         this.showList = false
@@ -113,6 +94,14 @@
       }
     },
     methods: {
+      getSetting() {
+        getSetting({userId: this.$store.state.user.userId}).then((res) => {
+          this.userSetting = res.data;
+          this.$nextTick(()=>{
+            this.dynamicTyping()
+          })
+        })
+      },
       onScroll() {
         // let befterScrollTop = document.documentElement.scrollTop;
       },
@@ -265,8 +254,8 @@
   }
 </script>
 <style lang="scss" scoped>
-  @import "src/styles/index";
-  @import "src/styles/markdown";
-  @import "src/styles/articles";
-  @import "src/styles/article";
+   @import "src/styles/index";
+   @import "src/styles/markdown";
+   @import "src/styles/articles";
+   @import "src/styles/article";
 </style>

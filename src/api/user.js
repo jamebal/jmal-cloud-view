@@ -94,4 +94,20 @@ export function initialization(data) {
   })
 }
 
+export function getSetting(params) {
+  return request({
+    url: 'user/setting',
+    method: 'get',
+    params
+  })
+}
+
+export function updateSetting(data) {
+  return request({
+    url: 'user/setting/update',
+    method: 'put',
+    data
+  })
+}
+
 

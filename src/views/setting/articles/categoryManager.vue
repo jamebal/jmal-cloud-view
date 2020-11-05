@@ -340,29 +340,4 @@ a:hover {
   color: #40a9ff;
 }
 
-.clearfix {
-  display: flex;
-}
-
-.card-button {
-  float: right;
-  margin-left: 25px;
-}
-
-.card-header {
-  line-height: 32px;
-}
-.card-header-back {
-  height: 32px;
-  line-height: 32px;
-  font-size: 15px;
-  font-weight: 600;
-  .header-back-title {
-    cursor: pointer;
-  }
-}
-.card-header-right {
-  float: right;
-  margin-top: -32px;
-}
 </style>

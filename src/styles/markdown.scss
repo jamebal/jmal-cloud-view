@@ -44,13 +44,16 @@
   box-shadow: 4px -11px 20px #000;
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   backdrop-filter: saturate(180%) blur(20px);
-  background-color: #2f41544d;
+  background-color: #ffffffb3;
 
   .navbar {
     display: flex;
     a {
-      color: #f0f5ff;
+      color: #000000e6;
       font-family: 'Mirages Custom', 'Merriweather', 'Open Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', 'WenQuanYi Micro Hei', 'Segoe UI Emoji', 'Segoe UI Symbol', Helvetica, Arial, sans-serif;
+    }
+    a:hover {
+      color: #000000b3;
     }
     .container-fluid {
       display: -ms-flexbox;
@@ -72,6 +75,7 @@
       }
 
       .navbar-nav {
+        font-size: 1.1rem;
         display: -ms-flexbox;
         display: flex !important;
         flex-direction: row;
@@ -83,30 +87,48 @@
         flex-wrap: wrap;
         .nav-item {
           margin: 0 10px;
-        }
-        .side-toolbar-list {
-          text-align: center;
-          -webkit-flex-wrap: nowrap;
-          -ms-flex-wrap: nowrap;
-          flex-wrap: nowrap;
-          li a {
-            display: inline-block;
-            height: 2.5rem;
-            width: 2.5rem;
-            line-height: 2.5rem;
-            border-radius: 100%;
-            font-size: .75rem;
-            background: #2c2a2a;
-            color: #ccc;
-            vertical-align: middle;
-            -webkit-transition: 0.3s ease all;
-            -moz-transition: 0.3s ease all;
-            -ms-transition: 0.3s ease all;
-            -o-transition: 0.3s ease all;
-            transition: 0.3s ease all;
+          .nav-link-label {
+            margin-left: 0.25rem;
           }
         }
       }
+      .side-toolbar-list {
+        text-align: center;
+        -webkit-flex-wrap: nowrap;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        li {
+          position: relative;
+          display: inline-block;
+          margin: 0 .25rem;
+        }
+        li a {
+          display: inline-block;
+          height: 2.75rem;
+          width: 2.75rem;
+          line-height: 2.75rem;
+          border-radius: 100%;
+          font-size: 1rem;
+          background: #f0f0f0;
+          color: #333;
+          vertical-align: middle;
+          -webkit-transition: 0.3s ease all;
+          -moz-transition: 0.3s ease all;
+          -ms-transition: 0.3s ease all;
+          -o-transition: 0.3s ease all;
+          transition: 0.3s ease all;
+          svg {
+            width: 22px;
+            height: 22px;
+            margin-top: 10px;
+          }
+        }
+        li a:hover {
+          background: #333;
+          color: #fff;
+        }
+      }
+
 
       .navbar-collapse {
         display: flex !important;

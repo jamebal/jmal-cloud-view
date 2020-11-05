@@ -5,7 +5,7 @@
 
 import { Icon } from 'ant-design-vue'
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_2024484_dyz0zgvb9x.js'
+  scriptUrl: '//at.alicdn.com/t/font_2024484_1hgvlgamz9c.js'
 })
 
 export default {
