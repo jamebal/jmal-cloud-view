@@ -28,7 +28,7 @@
 
           <div class="config-itme-label">导航栏操作按钮：</div>
           <el-input  :autosize="{ minRows: 4, maxRows: 6}" type="textarea" width="100%" v-model="form.operatingButtons"></el-input>
-          <span class="instruction">一个操作按钮包含两个部分：<a href="https://fontawesome.com/icons?d=gallery">Font-awesome</a>图标标签和链接，使用'：'隔开。列如：{{example}}:https://github.com/jamebal</span>
+          <span class="instruction">一个操作按钮包含两个部分：<a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>图标标签和链接，使用'：'隔开。列如：{{example}}:https://github.com/jamebal</span>
         </el-collapse-item>
       </el-collapse>
     </el-card>

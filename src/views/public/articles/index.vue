@@ -4,70 +4,73 @@
       <al-loading v-if="isLoading"></al-loading>
     </transition>
     <al-back-top></al-back-top>
-    <div id="top" style="display: block;" class="animateIn">
-      <ArticleTop :setting="userSetting"/>
-      <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
-    </div>
-    <div class="cover-wrapper">
-      <div class="cover half" style="position: relative; z-index: 0; background-image: none;">
-        <div class="cover-body">
-          <div class="a">
-            <p class="title"><span id="article-title">{{ userSetting.backgroundTextSite }}</span><span class="typed-cursor">_</span></p >
-            <p class="subtitle">{{ userSetting.backgroundDescSite }}</p>
+
+    <SidebarNav/>
+
+    <div id="body">
+      <div id="top" class="animateIn">
+        <ArticleTop :setting="userSetting"/>
+      </div>
+      <div class="cover-wrapper">
+        <div class="cover half" style="position: relative; z-index: 0; background-image: none;">
+          <div class="cover-body">
+            <div class="a">
+              <p class="title"><span id="article-title">{{ userSetting.backgroundTextSite }}</span><span class="typed-cursor">_</span></p >
+              <p class="subtitle">{{ userSetting.backgroundDescSite }}</p>
+            </div>
+          </div>
+          <div class="backstretch">
+            <img class="blog-background" :src="userSetting.backgroundSite"
+                 onerror="this.src='https://images.unsplash.com/photo-1603910062519-69a9616d34c7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80'">
           </div>
         </div>
-        <div class="backstretch">
-          <img class="blog-background" :src="userSetting.backgroundSite"
-          onerror="this.src='https://images.unsplash.com/photo-1603910062519-69a9616d34c7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80'">
+      </div>
+      <div class="l_body">
+        <div class="body-wrapper articles_l_main">
+          <el-main class="l_main">
+            <section class="post-list">
+              <div v-for="article in articleList" class="post-wrapper">
+                <article  class="post white-box shadow reveal">
+                  <section class="meta">
+                    <div class="meta" id="header-meta">
+                      <h2 class="title">
+                        <a :href="$route.path+'/article?mark='+article.id">{{article.name}}</a>
+                      </h2>
+                      <div class="new-meta-box">
+                        <div class="new-meta-item author">
+                          <a href="http://www.jmal.top" rel="nofollow">
+                            <img :src="imageUrl+article.avatar" :data-original="imageUrl+article.avatar">
+                            <p>{{article.username}}</p>
+                          </a>
+                        </div>
+                        <div class="new-meta-item date">
+                          <a class="notlink">
+                            <svg-icon icon-class="release"></svg-icon>
+                            <p>发布于 {{article.uploadTime}}</p>
+                          </a>
+                        </div>
+                      </div>
+                      <hr>
+                    </div>
+                  </section>
+                  <section class="article typo">
+                    <a :href="$route.path+'/article?mark='+article.id">
+                      <div class="article-entry" itemprop="articleBody">
+                        <p><img class="blog-background articles-list" :src="article.cover" onerror="this.src='https://images.unsplash.com/photo-1582230587856-7fec01506148?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60'"/></p>
+                      </div>
+                    </a>
+                  </section>
+                </article>
+              </div>
+            </section>
+          </el-main>
         </div>
       </div>
+      <footer class="clearfix">
+        <br><br><br>
+        <div class="copyright"><p><a href="http://blog.jmal.top">Copyright © 2020 journey magical AL</a></p></div>
+      </footer>
     </div>
-    <div class="l_body">
-      <div class="body-wrapper articles_l_main">
-        <el-main class="l_main">
-          <section class="post-list">
-            <div v-for="article in articleList" class="post-wrapper">
-              <article  class="post white-box shadow reveal">
-                <section class="meta">
-                  <div class="meta" id="header-meta">
-                    <h2 class="title">
-                      <a :href="$route.path+'/article?mark='+article.id">{{article.name}}</a>
-                    </h2>
-                    <div class="new-meta-box">
-                      <div class="new-meta-item author">
-                        <a href="http://www.jmal.top" rel="nofollow">
-                          <img :src="imageUrl+article.avatar" :data-original="imageUrl+article.avatar">
-                          <p>{{article.username}}</p>
-                        </a>
-                      </div>
-                      <div class="new-meta-item date">
-                        <a class="notlink">
-                          <svg-icon icon-class="release"></svg-icon>
-                          <p>发布于 {{article.uploadTime}}</p>
-                        </a>
-                      </div>
-                    </div>
-                    <hr>
-                  </div>
-                </section>
-                <section class="article typo">
-                  <a :href="$route.path+'/article?mark='+article.id">
-                    <div class="article-entry" itemprop="articleBody">
-                      <p><img class="blog-background articles-list" :src="article.cover" onerror="this.src='https://images.unsplash.com/photo-1582230587856-7fec01506148?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60'"/></p>
-                      <!--<div class="button readmore"><a :href="$route.path+'/article?mark='+article.id">阅读全文 <i class="fas fa-chevron-right"></i></a></div>-->
-                    </div>
-                  </a>
-                </section>
-              </article>
-            </div>
-          </section>
-        </el-main>
-      </div>
-    </div>
-    <footer class="clearfix">
-      <br><br><br>
-      <div class="copyright"><p><a href="http://blog.jmal.top">Copyright © 2020 journey magical AL</a></p></div>
-    </footer>
   </div>
 </template>
 
@@ -77,9 +80,10 @@ import { getSetting } from '@/api/user'
   import AlLoading from "@/components/loading/AlLoading";
   import markdownApi from '@/api/markdown-api'
   import ArticleTop from "@/views/public/article/ArticleTop";
+  import SidebarNav from "@/views/public/article/SidebarNav"
 
   export default {
-    components: { ArticleTop, AlBackTop, AlLoading },
+    components: { SidebarNav, ArticleTop, AlBackTop, AlLoading },
     data() {
       return {
         imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',

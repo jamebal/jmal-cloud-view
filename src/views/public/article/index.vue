@@ -5,51 +5,56 @@
     </transition>
     <al-back-top></al-back-top>
 
-    <div id="top" style="display: block;" class="animateIn">
-      <ArticleTop :setting="userSetting"/>
-      <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
-    </div>
-    <div class="article-header">
-      <div class="article-background" :style="{backgroundImage: `url(${file.cover})`}"></div>
-      <div class="inner">
-        <div class="blog-title"><span id="article-title">{{pageTitle}}</span><span class="typed-cursor">_</span></div>
-        <div class="blog-description font-mono">
-          <a itemprop="name" href="https://www.jmal.top/author/1/" rel="author">{{file.username}}</a>
-          · {{file.uploadDate}}
+    <!--SideBar menu-->
+    <SidebarNav/>
+
+    <div id="body">
+      <div id="top" class="animateIn">
+        <ArticleTop :setting="userSetting"/>
+        <div class="scrollbar gradient-bg-rev" style="width: 0;"></div>
+      </div>
+      <div class="article-header">
+        <div class="article-background" :style="{backgroundImage: `url(${file.cover})`}"></div>
+        <div class="inner">
+          <div class="blog-title"><span id="article-title">{{pageTitle}}</span><span class="typed-cursor">_</span></div>
+          <div class="blog-description font-mono">
+            <a itemprop="name" href="https://www.jmal.top/author/1/" rel="author">{{file.username}}</a>
+            · {{file.uploadDate}}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="body-wrapper">
-          <el-main id="main_body" :content="titleList.length > 0?'show':'hide'" class="l_main article_l_main">
-            <mavon-editor
-              ref="md"
-              v-if="!showList"
-              v-model="content"
-              :subfield="false"
-              :boxShadow="true"
-              :toolbarsFlag="false"
-              codeStyle="atom-one-dark"
-              defaultOpen="preview"
-            />
-          </el-main>
-          <div v-show="titleList.length > 0" class="right-bj">
-            <a-affix>
-              <div class="slimScrollDiv">
-                <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
-                  <div class="toc-content">
-                    <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
-                  </div>
-                  <div class="j-titleList titleList">
-                    <div class="j-bj" style="height: 30px; top: 0;"></div>
-                  </div>
+      <div class="body-wrapper">
+        <el-main id="main_body" :content="titleList.length > 0?'show':'hide'" class="l_main article_l_main">
+          <mavon-editor
+            ref="md"
+            v-if="!showList"
+            v-model="content"
+            :subfield="false"
+            :boxShadow="true"
+            :toolbarsFlag="false"
+            codeStyle="atom-one-dark"
+            defaultOpen="preview"
+          />
+        </el-main>
+        <div v-show="titleList.length > 0" class="right-bj">
+          <a-affix>
+            <div class="slimScrollDiv">
+              <div class="right-menu" :style="{maxHeight:maxMenuHeight+'px'}">
+                <div class="toc-content">
+                  <header class="toc-header"><svg-icon icon-class="contents"></svg-icon><span>目录</span></header>
+                </div>
+                <div class="j-titleList titleList">
+                  <div class="j-bj" style="height: 30px; top: 0;"></div>
                 </div>
               </div>
-            </a-affix>
-          </div>
+            </div>
+          </a-affix>
+        </div>
+      </div>
+      <footer class="clearfix">
+        <div class="copyright"><p><a href="/articles">Copyright © 2020 jmal</a></p></div>
+      </footer>
     </div>
-    <footer class="clearfix">
-      <div class="copyright"><p><a href="/articles">Copyright © 2020 jmal</a></p></div>
-    </footer>
   </div>
 </template>
 
@@ -60,10 +65,11 @@ import markdownApi from '@/api/markdown-api'
 import {addCodeBtn} from '@/assets/js/mavon-line'
 import $ from 'jquery'
 import ArticleTop from "@/views/public/article/ArticleTop";
-import { getSetting } from '@/api/user'
+import {getSetting} from '@/api/user'
+import SidebarNav from "@/views/public/article/SidebarNav";
 
 export default {
-    components: {ArticleTop, AlBackTop, AlLoading },
+    components: {SidebarNav, ArticleTop, AlBackTop, AlLoading },
     data() {
       return {
         file: {},
@@ -242,8 +248,6 @@ export default {
               _this.isLoading = false
             },150)
           })
-          // const doc = document.querySelector(".v-show-content");
-
         })
       }
     },
@@ -252,10 +256,11 @@ export default {
       $('.j-titleList li').unbind("click");
     }
   }
+
 </script>
 <style lang="scss" scoped>
-   @import "src/styles/index";
-   @import "src/styles/markdown";
-   @import "src/styles/articles";
-   @import "src/styles/article";
+@import "src/styles/index";
+@import "src/styles/markdown";
+@import "src/styles/articles";
+@import "src/styles/article";
 </style>

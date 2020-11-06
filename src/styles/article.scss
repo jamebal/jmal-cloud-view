@@ -3,6 +3,7 @@
   backdrop-filter: saturate(180%) blur(1px);
   background-color: rgba(255,255,255,0.5);
   color: #272936;
+  z-index: 999;
 }
 .article-header {
   height: 70vh;
@@ -80,18 +81,27 @@
   }
 }
 
-@media screen and (max-width: 759px) {
+@media screen and (max-width: 768px) {
   .blog-title {
     font-size: 1.75rem;
     font-weight: 400;
     margin-bottom: .5rem;
   }
+
+  .cover-wrapper .cover .cover-body {
+    padding-bottom: 68px;
+    .title {
+      font-size: 2rem;
+      font-weight: 400;
+    }
+  }
+
+  .article-header .inner {
+    padding-bottom: 80px;
+  }
 }
 
 @media (min-width: 768px){
-  .article-header .inner {
-    padding-top: 3.75rem;
-  }
   .navbar>.container-fluid {
     max-width: 720px;
   }

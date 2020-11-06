@@ -28,6 +28,11 @@
   background: -webkit-linear-gradient(to right, #0052d4, #0ed2f7, #b2fefa) !important;
   background: linear-gradient(to right, #0052d4, #0ed2f7, #b2fefa) !important;
 }
+
+.nav-link-label {
+  margin-left: 0.25rem;
+}
+
 /deep/ #top {
   padding: .75rem 1rem;
   line-height: 2;
@@ -36,7 +41,6 @@
   position: fixed;
   top: 0;
   z-index: 891;
-  display: none;
   /* border-bottom: 1px solid #201c29; */
   -webkit-transition: all 350ms ease-in-out;
   transition: all 350ms ease-in-out;
@@ -87,9 +91,6 @@
         flex-wrap: wrap;
         .nav-item {
           margin: 0 10px;
-          .nav-link-label {
-            margin-left: 0.25rem;
-          }
         }
       }
       .side-toolbar-list {
@@ -660,9 +661,92 @@
 .pre-numbering {
 }
 
+#toggle-nav {
+  display: none;
+  position: fixed;
+  top: .625rem;
+  left: .625rem;
+  z-index: 891;
+  -webkit-transition: 0.5s ease all;
+  -moz-transition: 0.5s ease all;
+  -ms-transition: 0.5s ease all;
+  -o-transition: 0.5s ease all;
+  transition: 0.5s ease all;
+}
+
+#sidebar-nav {
+  width: 20rem;
+  height: 100%;
+  position: absolute;
+  left: -20rem;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 6.25rem;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  -webkit-transition: 0.5s ease all;
+  -moz-transition: 0.5s ease all;
+  -ms-transition: 0.5s ease all;
+  -o-transition: 0.5s ease all;
+  transition: 0.5s ease all;
+  .author {
+    text-align: center;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    min-width: 12.5rem;
+    img {
+      border-radius: 7rem;
+      width: 7rem;
+      height: 7rem;
+    }
+  }
+  .menu {
+    margin-top: 1.875rem;
+    li a {
+      color: #333;
+      padding: 0.375rem 1.75rem;
+      position: relative;
+      line-height: 2.25rem;
+      display: block;
+      font-size: 1.25rem;
+      text-align: center;
+      font-weight: 300;
+      -webkit-transition: color 0.2s linear;
+      -moz-transition: color 0.2s linear;
+      -ms-transition: color 0.2s linear;
+      -o-transition: color 0.2s linear;
+      transition: color 0.2s linear;
+    }
+    li a:hover{
+      background: #efefef;
+      color: #333;
+    }
+  }
+}
+
+#body {
+  overflow: hidden;
+  -webkit-transition: 0.5s ease all;
+  -moz-transition: 0.5s ease all;
+  -ms-transition: 0.5s ease all;
+  -o-transition: 0.5s ease all;
+  transition: 0.5s ease all;
+}
+
+
 @media screen and (max-width: 425px){
   .pre-numbering {
     display: none;
   }
 }
 
+@media (max-width: 767.98px) {
+  .animateIn {
+    transform: translateY(-100%);
+  }
+  #toggle-nav {
+    display: block;
+  }
+}
