@@ -114,7 +114,7 @@ import { getSetting } from '@/api/user'
         let divTyping = document.getElementById('article-title')
         let i = 0,timer = 0,str = this.userSetting.backgroundTextSite
         function typing () {
-          if (i <= str.length) {
+          if (str && i <= str.length) {
             divTyping.innerHTML = str.slice(0, i++)
             timer = setTimeout(typing, 100)
           } else {
