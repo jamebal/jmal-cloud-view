@@ -17,7 +17,6 @@
 
         <ul class="navbar-nav side-toolbar-list">
           <li v-for="operatingButton in operatingButtons">
-<!--            <a :href="operatingButton.url" :title="operatingButton.fontName" target="_blank"><i :class="'fab fa-'+operatingButton.fontName.toLowerCase()"></i></a>-->
             <a :href="operatingButton.url" :title="operatingButton.title" target="_blank">
               <dl v-html="operatingButton.fontHtml">
                 {{operatingButton.fontHtml}}

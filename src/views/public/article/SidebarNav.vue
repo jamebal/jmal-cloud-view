@@ -22,6 +22,14 @@
         <li class="menu-item">
           <a class="nav-link" href="https://www.jmal.top/archives.html" title="关于"><svg-icon icon-class="myself"></svg-icon><span class="nav-link-label">关于</span></a>
         </li>
+        <li class="menu-item" v-for="operatingButton in operatingButtons">
+          <a :href="operatingButton.url" :title="operatingButton.title" target="_blank">
+            <i v-html="operatingButton.fontHtml">
+              {{operatingButton.fontHtml}}
+            </i>
+            <span>{{operatingButton.title}}</span>
+          </a>
+        </li>
       </ul>
     </div>
   </div>
@@ -35,6 +43,29 @@ export default {
     Icon
   },
   props: {
+    setting: {
+      type: Object,
+      default: {}
+    }
+  },
+  data() {
+    return {
+      operatingButtons: []
+    }
+  },
+  watch: {
+    setting(setting){
+      if(setting.operatingButtons) {
+        setting.operatingButtons.split(/[\n]/).forEach(button => {
+          let operatingButton = {}
+          const splitIndex = button.indexOf(":")
+          operatingButton.fontHtml = button.substring(0, splitIndex)
+          operatingButton.url = button.substring(splitIndex + 1, button.length)
+          operatingButton.title = button.match(/fa-(\S*?)"/)[1]
+          this.operatingButtons.push(operatingButton)
+        })
+      }
+    }
   },
   methods: {
     toggle() {

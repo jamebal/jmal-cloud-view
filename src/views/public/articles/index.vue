@@ -5,7 +5,7 @@
     </transition>
     <al-back-top></al-back-top>
 
-    <SidebarNav/>
+    <SidebarNav  :setting="userSetting"/>
 
     <div id="body">
       <div id="top" class="animateIn">
