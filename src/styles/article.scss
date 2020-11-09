@@ -59,7 +59,7 @@
 @media not all, screen and (-webkit-min-device-pixel-ratio: 1.5), not all, not all {
   .blog-description.font-mono {
     font-family: Consolas,Menlo,Monaco,"lucida console","Liberation Mono","Courier New","andale mono",monospaceX,monospace,sans-serif;
-    font-size: 1.1125rem;
+    font-size: 1rem;
   }
 }
 
@@ -76,9 +76,7 @@
 }
 
 @media (min-width: 576px) {
-  .navbar>.container-fluid {
-    max-width: 540px;
-  }
+
 }
 
 @media screen and (max-width: 768px) {
@@ -87,6 +85,10 @@
     font-weight: 400;
     margin-bottom: .5rem;
   }
+
+  //.blog-description {
+  //  font-size: .8125rem;
+  //}
 
   .cover-wrapper .cover .cover-body {
     padding-bottom: 68px;
@@ -102,9 +104,7 @@
 }
 
 @media (min-width: 768px){
-  .navbar>.container-fluid {
-    max-width: 720px;
-  }
+
 }
 
 @media (min-width: 992px) {

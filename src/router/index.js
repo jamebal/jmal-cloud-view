@@ -200,6 +200,8 @@ export const constantRoutes = [
         path: '',
         name: 'article',
         component: () => import('@/views/public/article/index'),
+        hidden: true,
+        meta: { keepAlive: true }
       }
     ]
   },
@@ -209,7 +211,7 @@ export const constantRoutes = [
     children: [
       {
         path: `${document.location.protocol}//${window.location.host}/articles`,
-        meta: { title: '关联博客', icon: 'link' }
+        meta: { title: '关联博客', icon: 'link', keepAlive: true }
       }
     ]
   },
@@ -261,7 +263,7 @@ export const constantRoutes = [
         path: '',
         name: 'articles',
         component: () => import('@/views/public/articles/index'),
-        meta: { title: '文档列表', icon: 'md-list' }
+        meta: { title: '文档列表', icon: 'md-list', keepAlive: true }
       }
     ]
   },
@@ -330,7 +332,13 @@ export const dynamicRouters = [
 
 const createRouter = () => new Router({
   mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
+  // scrollBehavior (to, from, savedPosition) {
+  //   if (savedPosition) {
+  //     return savedPosition
+  //   } else {
+  //     return { x: 0, y: 0 }
+  //   }
+  // },
   routes: constantRoutes
 })
 

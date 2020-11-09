@@ -64,19 +64,19 @@
       this.throttledScrollHandler = throttle(300, this.onScroll);
       this.container.addEventListener('scroll', this.throttledScrollHandler);
 
-      window.onbeforeunload = function () {
-        let scrollPos;
-        if (typeof window.pageYOffset != 'undefined') {
-          scrollPos = window.pageYOffset;
-        }
-        else if (typeof document.compatMode != 'undefined' && document.compatMode !== 'BackCompat') {
-          scrollPos = document.documentElement.scrollTop;
-        }
-        else if (typeof document.body != 'undefined') {
-          scrollPos = document.body.scrollTop;
-        }
-        document.cookie = "scrollTop=" + scrollPos; //存储滚动条位置到cookies中
-      }
+      // window.onbeforeunload = function () {
+      //   let scrollPos;
+      //   if (typeof window.pageYOffset != 'undefined') {
+      //     scrollPos = window.pageYOffset;
+      //   }
+      //   else if (typeof document.compatMode != 'undefined' && document.compatMode !== 'BackCompat') {
+      //     scrollPos = document.documentElement.scrollTop;
+      //   }
+      //   else if (typeof document.body != 'undefined') {
+      //     scrollPos = document.body.scrollTop;
+      //   }
+      //   document.cookie = "scrollTop=" + scrollPos; //存储滚动条位置到cookies中
+      // }
 
     },
 
@@ -102,6 +102,9 @@
       handleClick(e) {
         this.scrollToTop();
         this.$emit('click', e);
+      },
+      nextPageScrollTop() {
+        this.el.scrollTop = document.body.clientHeight * 0.7 - 150
       },
       scrollToTop() {
         const el = this.el;

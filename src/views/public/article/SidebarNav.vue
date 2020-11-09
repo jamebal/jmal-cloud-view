@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="toggle-nav">
-      <el-button round @click="toggle">MENU</el-button>
+      <el-button class="nav-button" round size="small" @click="toggle">MENU</el-button>
     </div>
     <div id="sidebar-nav">
       <div class="author navbar-header">
@@ -59,9 +59,14 @@ export default {
         setting.operatingButtons.split(/[\n]/).forEach(button => {
           let operatingButton = {}
           const splitIndex = button.indexOf(":")
-          operatingButton.fontHtml = button.substring(0, splitIndex)
+          const ihtml = button.substring(0, splitIndex)
+          // 获取标签里的内容
+          let regLabel = /[^><]+(?=<\/i>)/img
+          const title = ihtml.match(regLabel)
+          operatingButton.title = title ? title[0] : ''
+          // 去掉标签里的内容
+          operatingButton.fontHtml = ihtml.replace(regLabel, '')
           operatingButton.url = button.substring(splitIndex + 1, button.length)
-          operatingButton.title = button.match(/fa-(\S*?)"/)[1]
           this.operatingButtons.push(operatingButton)
         })
       }
@@ -77,9 +82,9 @@ export default {
         toggleNav.style.transform = ''
         sidebarNav.style.transform = ''
       } else {
-        body.style.transform = 'translateX(20rem)'
-        toggleNav.style.transform = 'translateX(17.5rem)'
-        sidebarNav.style.transform = 'translateX(20rem)'
+        body.style.transform = 'translateX(17.5rem)'
+        toggleNav.style.transform = 'translateX(14.5rem)'
+        sidebarNav.style.transform = 'translateX(17.5rem)'
       }
     },
   }

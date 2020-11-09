@@ -6,7 +6,7 @@
     <al-back-top></al-back-top>
 
     <!--SideBar menu-->
-    <SidebarNav/>
+    <SidebarNav  :setting="userSetting"/>
 
     <div id="body">
       <div id="top" class="animateIn">
@@ -20,6 +20,9 @@
           <div class="blog-description font-mono">
             <a itemprop="name" href="https://www.jmal.top/author/1/" rel="author">{{file.username}}</a>
             · {{file.uploadDate}}
+            <span v-if="isEditor">
+              · <a :href="'/markdown/editor?id='+file.id" target="_blank">编辑</a>
+            </span>
           </div>
         </div>
       </div>
@@ -85,7 +88,8 @@ export default {
         tocMaxHeight: 500,
         befterScrollTop: 0,
         maxMenuHeight: document.documentElement.clientHeight - 155,
-        top: 70
+        top: 70,
+        isEditor : false,
       }
     },
     mounted() {
@@ -98,6 +102,17 @@ export default {
       window.onresize = function temp() {
         that.maxMenuHeight= document.documentElement.clientHeight - 155
       }
+    },
+    // beforeRouteLeave(to, from, next) {
+    //   to.meta.keepAlive = true;
+    //   next();
+    // },
+    activated() {
+      console.log('activated', 'article')
+    },
+    deactivated() {
+      console.log('deactivated')
+      // this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop
     },
     methods: {
       getSetting() {
@@ -130,6 +145,9 @@ export default {
           mark: this.$route.query.mark
         }).then((res) => {
           this.file = res.data
+          if(this.file.userId === this.$store.state.user.userId) {
+            this.isEditor = true
+          }
           const filename = res.data.name
           this.pageTitle = filename.substring(0,filename.length - res.data.suffix.length-1)
           this.content = res.data.contentText
@@ -156,6 +174,8 @@ export default {
                 a[i] = a[i].replace(/id="/g, 'href="#')
                 if (i ===0 && a[i].indexOf('h1') !== -1) {
                   a[i] = '<li first class="h-1">' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
+                }else if (a[i].indexOf('h1') !== -1) {
+                  a[i] = '<li first class="pl h-1">' + a[i].replace(/<h1>|<\/h1>/g, '') + '</li>'
                 }else if (a[i].indexOf('h2') !== -1) {
                   a[i] = '<li class="pl h-2">' + a[i].replace(/<h2>|<\/h2>/g, '') + '</li>'
                 }else if (a[i].indexOf('h3') !== -1) {
@@ -181,13 +201,27 @@ export default {
               let beforeScrollTop = document.documentElement.scrollTop;
               let fn = fn || function (direction) {
                 // 判断是上滑显示,下滑隐藏
+                const top = $('#top')
+                const toogleNav = $('#toggle-nav')
+
+                const body = document.getElementById("body")
+
                 if(direction === 'down'){
-                  $('#top').removeClass('animateIn')
-                  $('#top').addClass('animateOut')
+                  top.removeClass('animateIn')
+                  top.addClass('animateOut')
+                  toogleNav.removeClass('animateRight')
+                  toogleNav.addClass('animateLeft')
+                  if(body.style.transform.length > 0) {
+                    document.getElementById("sidebar-nav").style.transform = ''
+                    body.style.transform = ''
+                    document.getElementById("toggle-nav").style.transform = ''
+                  }
                 }
                 if(direction === 'up'){
-                  $('#top').removeClass('animateOut')
-                  $('#top').addClass('animateIn')
+                  top.removeClass('animateOut')
+                  top.addClass('animateIn')
+                  toogleNav.removeClass('animateLeft')
+                  toogleNav.addClass('animateRight')
                 }
               };
 

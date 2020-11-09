@@ -3,7 +3,7 @@
     <transition name="fade">
       <al-loading v-if="isLoading"></al-loading>
     </transition>
-    <al-back-top></al-back-top>
+    <al-back-top ref="alBackTop"></al-back-top>
 
     <SidebarNav  :setting="userSetting"/>
 
@@ -34,7 +34,7 @@
                   <section class="meta">
                     <div class="meta" id="header-meta">
                       <h2 class="title">
-                        <a :href="$route.path+'/article?mark='+article.id">{{article.name}}</a>
+                        <router-link :to="$route.path+'/article?mark='+article.id">{{article.name}}</router-link>
                       </h2>
                       <div class="new-meta-box">
                         <div class="new-meta-item author">
@@ -46,7 +46,7 @@
                         <div class="new-meta-item date">
                           <a class="notlink">
                             <svg-icon icon-class="release"></svg-icon>
-                            <p>发布于 {{article.uploadTime}}</p>
+                            <p>发布于 {{article.uploadDate}}</p>
                           </a>
                         </div>
                       </div>
@@ -54,15 +54,25 @@
                     </div>
                   </section>
                   <section class="article typo">
-                    <a :href="$route.path+'/article?mark='+article.id">
+                    <router-link :to="$route.path+'/article?mark='+article.id">
                       <div class="article-entry" itemprop="articleBody">
-                        <p><img class="blog-background articles-list" :src="article.cover" onerror="this.src='https://images.unsplash.com/photo-1582230587856-7fec01506148?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60'"/></p>
+                        <p><img v-if="article.cover" class="blog-background articles-list" :src="article.cover" onerror="this.src='https://images.unsplash.com/photo-1582230587856-7fec01506148?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60'"/></p>
                       </div>
-                    </a>
+                    </router-link>
                   </section>
                 </article>
               </div>
             </section>
+            <el-pagination
+              style="text-align: center"
+              :hide-on-single-page="true"
+              :current-page.sync="pagination.pageIndex"
+              :page-sizes="pagination.pageSizes"
+              :page-size="pagination.pageSize"
+              :total="pagination.total"
+              @current-change="currentChange"
+              layout="prev, pager, next">
+            </el-pagination>
           </el-main>
         </div>
       </div>
@@ -92,14 +102,40 @@ import { getSetting } from '@/api/user'
         articleList: [],
         backImageSrc: "~@/assets/img/widget-img1.jpg",
         userSetting: {},
+        pagination: {
+          pageIndex: this.$route.query.page ? parseInt(decodeURI(this.$route.query.page)) : 1,
+          pageSize: 10,
+          total: 0,
+        },
+        scrollTop: 0
       }
     },
     mounted() {
       this.getSetting()
       this.getMarkDown()
-      const that = this
-      window.onresize = function() {
-      }
+      console.log('mounted')
+    },
+    // beforeRouteEnter (to, from, next) {
+    //   console.log('beforeRouteEnter')
+    //   next(vm => {
+    //     console.log(vm.scrollTop)
+    //     document.body.scrollTop = vm.scrollTop
+    //   })
+    // },
+    // // beforeRouteUpdate (to, from, next) {
+    // //   console.log('beforeRouteUpdate')
+    // //   next()
+    // // },
+    // beforeRouteLeave(to, from, next) {
+    //   to.meta.keepAlive = false;
+    //   next();
+    // },
+    activated() {
+      console.log('activated',this.scrollTop)
+    },
+    deactivated() {
+      console.log('deactivated')
+      // this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop
     },
     methods: {
       getSetting() {
@@ -131,13 +167,18 @@ import { getSetting } from '@/api/user'
         else
           return null;
       },
-      onScroll() {
+      currentChange() {
+        this.$router.push(`?page=${this.pagination.pageIndex}`)
+        this.getMarkDown()
+        this.$refs.alBackTop.nextPageScrollTop()
       },
       getMarkDown() {
-        markdownApi.getMarkdown().then((res) => {
+        markdownApi.getMarkdown({pageIndex: this.pagination.pageIndex, pageSize: this.pagination.pageSize}).then((res) => {
           this.articleList = res.data
+          this.pagination.total = res.count
           this.$nextTick(() => {
             this.isLoading = false
+            this.pagination.pageIndex = parseInt(decodeURI(this.$route.query.page))
           })
         })
       },

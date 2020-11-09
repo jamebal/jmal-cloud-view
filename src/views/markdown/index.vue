@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-wechat-title="'编辑'+filename">
     <dir-tree ref="dirTree">
         <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
     </dir-tree>

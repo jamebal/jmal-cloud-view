@@ -218,6 +218,12 @@
   transform: translateY(-100%);
 }
 
+.animateLeft {
+  transform: translateX(-10rem);
+}
+.animateRight {
+  transform: translateX(0rem);
+}
 
 .body-wrapper {
   position: relative;
@@ -500,19 +506,19 @@
 /deep/ .right-menu > div.titleList {
   .h-1 {
     padding-left: 10px;
-    font-size: 1.3rem;
+    font-size: 1.125rem;
   }
   .h-2 {
     padding-left: 20px;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
   .h-3 {
     padding-left: 30px;
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
   .h-4 {
     padding-left: 40px;
-    font-size: 0.95rem;
+    font-size: 0.925rem;
   }
   .h-5 {
     padding-left: 50px;
@@ -663,10 +669,11 @@
 
 #toggle-nav {
   display: none;
-  position: fixed;
   top: .625rem;
   left: .625rem;
-  z-index: 891;
+  font-size: .75rem;
+  position: fixed;
+  z-index: 899;
   -webkit-transition: 0.5s ease all;
   -moz-transition: 0.5s ease all;
   -ms-transition: 0.5s ease all;
@@ -675,10 +682,10 @@
 }
 
 #sidebar-nav {
-  width: 20rem;
+  width: 17.5rem;
   height: 100%;
-  position: absolute;
-  left: -20rem;
+  position: fixed;
+  left: -17.5rem;
   top: 0;
   bottom: 0;
   overflow-y: auto;
@@ -748,5 +755,9 @@
   }
   #toggle-nav {
     display: block;
+    .nav-button {
+      backdrop-filter: saturate(180%) blur(20px);
+      background-color: #ffffffb3;
+    }
   }
 }

@@ -27,8 +27,14 @@
           <span class="instruction">配置网站的 Logo，该选项仅作用于顶部导航条</span>
 
           <div class="config-itme-label">导航栏操作按钮：</div>
-          <el-input  :autosize="{ minRows: 4, maxRows: 6}" type="textarea" width="100%" v-model="form.operatingButtons"></el-input>
-          <span class="instruction">一个操作按钮包含两个部分：<a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>图标标签和链接，使用'：'隔开。列如：{{example}}:https://github.com/jamebal</span>
+          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 4, maxRows: 6 }" ></el-input>
+          <span class="instruction">
+            一个操作按钮包含两个部分：
+            <a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>
+            图标标签和链接，使用'：'隔开(标签里的内容为该图标的简述)。
+            <br>
+            列如：{{example}}:https://github.com/jamebal (建议不超过5项)
+          </span>
         </el-collapse-item>
       </el-collapse>
     </el-card>
@@ -46,7 +52,7 @@ export default {
   data() {
     return {
       activeNames: ['1'],
-      example: '<i class="fab fa-github"></i>',
+      example: '<i class="fab fa-github">github</i>',
       form: {
         backgroundSite: '',
         backgroundTextSite: '',
