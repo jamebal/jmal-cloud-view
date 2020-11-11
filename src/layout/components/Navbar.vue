@@ -5,34 +5,34 @@
 
     <div class="right-content">
 
-      <div>
-        <el-menu class="el-menu-demo" mode="horizontal">
-          <el-menu-item index="1" href="/setting/manager-categories">
-            <router-link to="/setting/manager-cloud">
-              网盘管理
-            </router-link>
-          </el-menu-item>
-          <el-submenu index="2">
-            <template slot="title">管理</template>
-            <el-menu-item index="2-0">
-              <router-link to="/setting/manager-blog">
-                <svg-icon icon-class="blogger"></svg-icon>
-                博客管理
-              </router-link>
-            </el-menu-item>
-            <el-menu-item index="2-1">
-              <router-link to="/setting/manager-categories">
-                <svg-icon icon-class="leimupinleifenleileibie"></svg-icon>
-                分类管理
-              </router-link>
-            </el-menu-item>
-            <el-menu-item index="2-2">
-              <svg-icon icon-class="biaoqian"></svg-icon>
-              标签管理
-            </el-menu-item>
-          </el-submenu>
-        </el-menu>
-      </div>
+<!--      <div>-->
+<!--        <el-menu class="el-menu-demo" mode="horizontal">-->
+<!--          <el-menu-item index="1" href="/setting/manager-categories">-->
+<!--            <router-link to="/setting/manager-cloud">-->
+<!--              网盘管理-->
+<!--            </router-link>-->
+<!--          </el-menu-item>-->
+<!--          <el-submenu index="2">-->
+<!--            <template slot="title">管理</template>-->
+<!--            <el-menu-item index="2-0">-->
+<!--              <router-link to="/setting/manager-blog">-->
+<!--                <svg-icon icon-class="blogger"></svg-icon>-->
+<!--                博客管理-->
+<!--              </router-link>-->
+<!--            </el-menu-item>-->
+<!--            <el-menu-item index="2-1">-->
+<!--              <router-link to="/setting/manager-categories">-->
+<!--                <svg-icon icon-class="leimupinleifenleileibie"></svg-icon>-->
+<!--                分类管理-->
+<!--              </router-link>-->
+<!--            </el-menu-item>-->
+<!--            <el-menu-item index="2-2">-->
+<!--              <svg-icon icon-class="biaoqian"></svg-icon>-->
+<!--              标签管理-->
+<!--            </el-menu-item>-->
+<!--          </el-submenu>-->
+<!--        </el-menu>-->
+<!--      </div>-->
 
       <div class="right-username">{{username}}</div>
       <div class="right-menu">
@@ -45,7 +45,7 @@
           <el-dropdown-menu slot="dropdown" class="user-dropdown">
             <router-link to="/setting/user">
               <el-dropdown-item>
-                <i class="el-icon-setting" />个人信息
+                <i class="el-icon-setting" />设置
               </el-dropdown-item>
             </router-link>
             <!--<router-link to="/">-->

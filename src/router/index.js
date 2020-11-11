@@ -152,19 +152,19 @@ export const constantRoutes = [
     ]
   },
 
-  {
-    path: '/setting/user',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        name: 'setting-user',
-        component: () => import('@/views/setting/user/index'),
-        meta: { title: '设置' },
-        hidden: true
-      }
-    ]
-  },
+  // {
+  //   path: '/setting/user',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: '',
+  //       name: 'setting-user',
+  //       component: () => import('@/views/setting/user/index'),
+  //       meta: { title: '设置' },
+  //       hidden: true
+  //     }
+  //   ]
+  // },
 
   // {
   //   path: '/demo',
@@ -187,7 +187,7 @@ export const constantRoutes = [
         path: 'editor',
         name: 'markdown',
         component: () => import('@/views/markdown/index'),
-        // meta: { title: '创建文档', icon: 'md' }
+        meta: { title: '创建文档', icon: 'md' }
       }
     ]
   },
@@ -216,48 +216,56 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/setting/user',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'setting-user',
+        component: () => import('@/views/setting/user/index'),
+        meta: { title: '个人信息' , icon: 'UserSettings'}
+      }
+    ]
+  },
+  {
     path: '/setting/manager-categories',
     component: Layout,
-    hidden: true,
     children: [
       {
         path: '',
         name: 'manager-categories',
         component: () => import('@/views/setting/articles/categoryManager'),
-        meta: { title: '分类管理', icon: 'md-list' }
+        meta: { title: '分类管理', icon: 'leimupinleifenleileibie' }
       }
     ]
   },
   {
     path: '/setting/manager-blog',
     component: Layout,
-    hidden: true,
     children: [
       {
         path: '',
         name: 'manager-blog',
         component: () => import('@/views/setting/articles/blogManager'),
-        meta: { title: '博客管理' }
+        meta: { title: '博客管理' , icon: 'blogger'}
       }
     ]
   },
   {
     path: '/setting/manager-cloud',
     component: Layout,
-    hidden: true,
     children: [
       {
         path: '',
         name: 'manager-cloud',
         component: () => import('@/views/setting/cloudManager'),
-        meta: { title: '网盘管理', icon: 'md-list' }
+        meta: { title: '网盘管理', icon: 'yunshezhi' }
       }
     ]
   },
   {
     path: '/articles',
     component: Layout,
-    hidden: true,
     children: [
       {
         path: '',

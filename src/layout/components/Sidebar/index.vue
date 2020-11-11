@@ -31,7 +31,21 @@ export default {
       'sidebar'
     ]),
     routes() {
-      return this.$router.options.routes
+      let routes = []
+      if(this.$route.path.startsWith("/setting")){
+        this.$router.options.routes.forEach(route => {
+          if(route.path.startsWith("/setting")){
+            routes.push(route)
+          }
+        })
+      } else {
+        this.$router.options.routes.forEach(route => {
+          if(!route.path.startsWith("/setting")){
+            routes.push(route)
+          }
+        })
+      }
+      return routes
     },
     activeMenu() {
       const route = this.$route
