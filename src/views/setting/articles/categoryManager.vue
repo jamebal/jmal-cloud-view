@@ -93,13 +93,9 @@
 
 <script>
 import categoryApi from "@/api/category";
-import CropperDialog from '@/components/Cropper/dialog'
 
 export default {
   name: 'categoryManager',
-  components: {
-    CropperDialog
-  },
   data() {
     return {
       title: "分类管理",

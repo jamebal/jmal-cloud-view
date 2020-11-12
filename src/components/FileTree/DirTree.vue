@@ -4,6 +4,7 @@
     <el-dialog
       :title="selectTreeNode.showName"
       :visible.sync="visible"
+      :append-to-body="appendToBody"
       @close="clearTreeNode"
     >
       <el-tree
@@ -38,6 +39,10 @@ import api from "@/api/file-api";
 export default {
   name: "DirTree",
   props: {
+    appendToBody: {
+      type: Boolean,
+      default: false
+    },
     currentDir: {
       type: String,
       default: '/'

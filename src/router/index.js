@@ -151,21 +151,6 @@ export const constantRoutes = [
       }
     ]
   },
-
-  // {
-  //   path: '/setting/user',
-  //   component: Layout,
-  //   children: [
-  //     {
-  //       path: '',
-  //       name: 'setting-user',
-  //       component: () => import('@/views/setting/user/index'),
-  //       meta: { title: '设置' },
-  //       hidden: true
-  //     }
-  //   ]
-  // },
-
   // {
   //   path: '/demo',
   //   component: Layout,
@@ -182,6 +167,7 @@ export const constantRoutes = [
   {
     path: '/markdown',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'editor',
@@ -201,7 +187,7 @@ export const constantRoutes = [
         name: 'article',
         component: () => import('@/views/public/article/index'),
         hidden: true,
-        meta: { keepAlive: true }
+        meta: { keepAlive: false }
       }
     ]
   },
@@ -211,7 +197,7 @@ export const constantRoutes = [
     children: [
       {
         path: `${document.location.protocol}//${window.location.host}/articles`,
-        meta: { title: '关联博客', icon: 'link', keepAlive: true }
+        meta: { title: '关联博客', icon: 'link', keepAlive: false }
       }
     ]
   },
@@ -222,35 +208,61 @@ export const constantRoutes = [
       {
         path: '',
         name: 'setting-user',
-        component: () => import('@/views/setting/user/index'),
+        component: () => import('@/views/setting/user/tabs/cusomerInfo'),
         meta: { title: '个人信息' , icon: 'UserSettings'}
       }
     ]
   },
   {
-    path: '/setting/manager-categories',
+    path: '/setting/manager-users',
     component: Layout,
     children: [
       {
         path: '',
-        name: 'manager-categories',
-        component: () => import('@/views/setting/articles/categoryManager'),
-        meta: { title: '分类管理', icon: 'leimupinleifenleileibie' }
+        name: 'manager-users',
+        component: () => import('@/views/setting/user/tabs/cusomerManager'),
+        meta: { title: '用户管理' , icon: 'huaban'}
       }
     ]
   },
   {
-    path: '/setting/manager-blog',
+    path: '/setting/website',
     component: Layout,
+    name: 'website',
+    meta: { title: '网站管理', icon: 'wangzhan'},
     children: [
       {
-        path: '',
+        path: 'manager-articles',
+        name: 'manager-articles',
+        component: () => import('@/views/setting/articles/articleManager'),
+        meta: { title: '文章管理' , icon: 'guanlizhuanjiawenzhang'}
+      },
+      {
+        path: 'manager-blog',
         name: 'manager-blog',
         component: () => import('@/views/setting/articles/blogManager'),
-        meta: { title: '博客管理' , icon: 'blogger'}
+        meta: { title: '外观设置' , icon: 'pifu'}
+      },
+      {
+        path: 'manager-categories',
+        name: 'manager-categories',
+        component: () => import('@/views/setting/articles/categoryManager'),
+        meta: { title: '分类管理', icon: 'fenlei' }
       }
     ]
   },
+  // {
+  //   path: '/setting/manager-categories',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: '',
+  //       name: 'manager-categories',
+  //       component: () => import('@/views/setting/articles/categoryManager'),
+  //       meta: { title: '分类管理', icon: 'leimupinleifenleileibie' }
+  //     }
+  //   ]
+  // },
   {
     path: '/setting/manager-cloud',
     component: Layout,
@@ -266,12 +278,13 @@ export const constantRoutes = [
   {
     path: '/articles',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: '',
         name: 'articles',
         component: () => import('@/views/public/articles/index'),
-        meta: { title: '文档列表', icon: 'md-list', keepAlive: true }
+        meta: { title: '文档列表', icon: 'md-list', keepAlive: false }
       }
     ]
   },

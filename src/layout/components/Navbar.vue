@@ -5,47 +5,22 @@
 
     <div class="right-content">
 
-<!--      <div>-->
-<!--        <el-menu class="el-menu-demo" mode="horizontal">-->
-<!--          <el-menu-item index="1" href="/setting/manager-categories">-->
-<!--            <router-link to="/setting/manager-cloud">-->
-<!--              网盘管理-->
-<!--            </router-link>-->
-<!--          </el-menu-item>-->
-<!--          <el-submenu index="2">-->
-<!--            <template slot="title">管理</template>-->
-<!--            <el-menu-item index="2-0">-->
-<!--              <router-link to="/setting/manager-blog">-->
-<!--                <svg-icon icon-class="blogger"></svg-icon>-->
-<!--                博客管理-->
-<!--              </router-link>-->
-<!--            </el-menu-item>-->
-<!--            <el-menu-item index="2-1">-->
-<!--              <router-link to="/setting/manager-categories">-->
-<!--                <svg-icon icon-class="leimupinleifenleileibie"></svg-icon>-->
-<!--                分类管理-->
-<!--              </router-link>-->
-<!--            </el-menu-item>-->
-<!--            <el-menu-item index="2-2">-->
-<!--              <svg-icon icon-class="biaoqian"></svg-icon>-->
-<!--              标签管理-->
-<!--            </el-menu-item>-->
-<!--          </el-submenu>-->
-<!--        </el-menu>-->
-<!--      </div>-->
-
       <div class="right-username">{{username}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
           <div class="avatar-wrapper">
-            <!--<img :src="avatar" class="user-avatar">-->
             <el-avatar :src="imageUrl+avatar" icon="el-icon-user-solid"></el-avatar>
             <i class="el-icon-caret-bottom" />
           </div>
           <el-dropdown-menu slot="dropdown" class="user-dropdown">
             <router-link to="/setting/user">
               <el-dropdown-item>
-                <i class="el-icon-setting" />设置
+                <svg-icon icon-class="shezhi"></svg-icon>基本设置
+              </el-dropdown-item>
+            </router-link>
+            <router-link to="/setting/website/manager-blog">
+              <el-dropdown-item>
+                <svg-icon icon-class="wangzhan"></svg-icon>网站管理
               </el-dropdown-item>
             </router-link>
             <!--<router-link to="/">-->
@@ -57,7 +32,7 @@
             <!--<el-dropdown-item>Github</el-dropdown-item>-->
             <!--</a>-->
             <el-dropdown-item divided @click.native="logout">
-              <span style="display:block;">退出登录</span>
+              <svg-icon icon-class="tuichudenglu"></svg-icon>退出登录
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -151,7 +126,6 @@ export default {
   .right-menu {
     float: right;
     height: 100%;
-    line-height: 50px;
 
     &:focus {
       outline: none;
@@ -177,7 +151,7 @@ export default {
 
     .avatar-container {
       margin-right: 30px;
-
+      cursor: pointer;
       .avatar-wrapper {
         margin-top: 5px;
         position: relative;
@@ -190,7 +164,6 @@ export default {
         }
 
         .el-icon-caret-bottom {
-          cursor: pointer;
           position: absolute;
           right: -20px;
           top: 25px;
@@ -198,7 +171,13 @@ export default {
         }
       }
     }
+    .avatar-container:hover {
+      background-color: #00000006;
+    }
   }
+}
+/deep/ .user-dropdown {
+  top: 50px;
 }
 /deep/ .el-menu--horizontal {
   padding: 0 15px;
@@ -210,5 +189,8 @@ export default {
     height: 50px;
     line-height: 50px;
   }
+}
+.el-dropdown-menu__item svg {
+  margin-right: 5px;
 }
 </style>

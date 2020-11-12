@@ -212,16 +212,20 @@
   }
 }
 .animateIn {
-  transform: translateY(0px);
+  //-webkit-transform: translateY(0px);
+  //transform: translateY(0px);
 }
 .animateOut {
+  -webkit-transform: translateY(-100%);
   transform: translateY(-100%);
 }
 
 .animateLeft {
+  -webkit-transform: translateX(-10rem);
   transform: translateX(-10rem);
 }
 .animateRight {
+  -webkit-transform: translateX(0rem);
   transform: translateX(0rem);
 }
 
@@ -565,6 +569,13 @@
   word-wrap: break-word;
   padding: 0.1rem 0.3rem 0.2rem;
   border-radius: 8px;
+}
+
+.article-body {
+  padding: 20px 35px;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 12px 0px;
 }
 
 /deep/ .markdown-body {

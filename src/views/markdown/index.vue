@@ -1,37 +1,40 @@
 <template>
   <div v-wechat-title="'编辑'+filename">
-    <dir-tree ref="dirTree">
+    <dir-tree ref="dirTree" :append-to-body='true'>
         <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
     </dir-tree>
     <el-header>
       <div class="header-item">
         文章标题：
-        <el-input class="articles-title" placeholder="文章标题" v-model="filename"/>
-        <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" v-model="storageLocation" :readonly="true" @click="selectDir">
-          <el-button slot="prepend" @click="selectDir">选择位置</el-button>
+        <el-input class="articles-title" placeholder="文章标题" v-model="filename" size="small"/>
+        <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" size="small" v-model="storageLocation" :readonly="true" @focus="selectDir">
+          <el-button slot="prepend" size="small" @click="selectDir">保存位置</el-button>
         </el-input>
-        <el-button type="primary" @click="moreSetting = true">更多设置</el-button>
-        <el-button v-if="!editStatus" class="release-button" type="primary" @click="add" :loading="adding">发布文章</el-button>
-        <el-button v-if="editStatus" class="release-button" type="primary" @click="update" :loading="updating">更新文章</el-button>
+        <el-button type="primary" @click="moreSetting = true" size="small">更多设置</el-button>
+        <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="adding">发布文章</el-button>
+        <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>
+        <el-button v-if="!editStatus" class="release-button" type="warning" size="small" @click="add" :loading="adding">保存草稿</el-button>
       </div>
     </el-header>
     <el-main>
-      <mavon-editor
-        v-model="content"
-        ref="md"
-        @change="change"
-        codeStyle="atelier-dune-dark"
-        :style="{'height': clientHeight+'px'}"
-        :imageFilter="imageFilter"
-        @save="save"
-        @imgAdd="$imgAdd"
-        @imgDel="$imgDel"
-        @fullScreen="fullScreen"
-      />
+      <div id="vditor"></div>
+<!--      <mavon-editor-->
+<!--        v-model="content"-->
+<!--        ref="md"-->
+<!--        @change="change"-->
+<!--        codeStyle="atelier-dune-dark"-->
+<!--        :style="{'height': clientHeight+'px'}"-->
+<!--        :imageFilter="imageFilter"-->
+<!--        @save="save"-->
+<!--        @imgAdd="$imgAdd"-->
+<!--        @imgDel="$imgDel"-->
+<!--        @fullScreen="fullScreen"-->
+<!--      />-->
     </el-main>
 
     <el-drawer
       :visible.sync="moreSetting"
+      :append-to-body='true'
       :with-header="false">
       <div class="more-setting">
         <h2>更多设置</h2>
@@ -52,9 +55,58 @@
   import uploadApi from '@/api/file-api'
   import DirTree from"@/components/FileTree/DirTree"
   import fileConfig from '@/utils/file-config'
+
+  import Vditor from 'vditor'
+  import "vditor/src/assets/scss/index.scss"
+
+  let toolbar = [
+    'emoji',
+    'headings',
+    'bold',
+    'italic',
+    'strike',
+    'link',
+    '|',
+    'list',
+    'ordered-list',
+    'check',
+    'outdent',
+    'indent',
+    '|',
+    'quote',
+    'line',
+    'code',
+    'inline-code',
+    'insert-before',
+    'insert-after',
+    '|',
+    'upload',
+    'record',
+    'table',
+    '|',
+    'undo',
+    'redo',
+    '|',
+    'edit-mode',
+    'content-theme',
+    'code-theme',
+    'outline',
+    'preview',
+    {
+      name: 'more',
+      toolbar: [
+        'fullscreen',
+        'export',
+        'both',
+        'info',
+        'help',
+      ],
+    }]
+
   export default {
+    name: 'MarkdownEditor',
     components: {
-      DirTree
+      DirTree, Vditor
     },
     data() {
       return {
@@ -62,7 +114,7 @@
         content:"", // 输入的markdown
         html:'',    // 及时转的html
         filename: '新建文档',
-        clientHeight: document.documentElement.clientHeight - 135,
+        clientHeight: document.documentElement.clientHeight - 210,
         updating: false,
         adding: false,
         isFullScreen: false,
@@ -70,9 +122,30 @@
         selectLocationVisible: false,
         moreSetting: false,
         markdownCover: null,
+        contentEditor: '',
       }
     },
     mounted() {
+
+      this.contentEditor = new Vditor('vditor', {
+        height: this.clientHeight,
+        toolbar,
+        toolbarConfig: {
+          pin: true,
+        },
+        preview: {
+          mode: 'both',
+          hljs: {
+            lineNumber: true
+          }
+        },
+        cache: {
+          enable: false,
+        },
+        after: () => {
+          this.contentEditor.setValue(this.content)
+        },
+      })
       if(this.$route.query.id){
         this.editStatus = true
         markdownApi.getMarkdown({
@@ -134,7 +207,7 @@
         if(this.isFullScreen){
           this.clientHeight = document.documentElement.clientHeight
         }else{
-          this.clientHeight = document.documentElement.clientHeight - 135
+          this.clientHeight = document.documentElement.clientHeight - 210
         }
       },
       save(){
@@ -206,13 +279,13 @@
 </script>
 <style lang="scss" scoped>
   /deep/ .el-main {
-    padding: 5px 20px 20px 20px;
+    padding: 30px 20px 20px 20px;
     .v-note-wrapper {
       z-index: 200;
     }
   }
   /deep/ .el-header {
-    padding: 7.5px 20px 10px 20px;
+    height: 43px!important;
   }
   /deep/ .el-input-group {
     width: unset;

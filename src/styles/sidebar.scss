@@ -75,25 +75,24 @@
         margin: 2px 5px 2px 5px;
       }
     }
-
     .el-menu-item.is-active {
       color: #409EFF;
-      background-color: #d9d9d9 !important;
+      background-color: $menuHover !important;
       border-radius: 4px;
-      margin: 2px 5px 2px 5px;
   }
 
     .is-active>.el-submenu__title {
-      color: $subMenuActiveText !important;
+      //color: $subMenuActiveText !important;
     }
 
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
-      min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
-
+      margin: 2px 5px;
+      height: 42px;
+      line-height: 42px;
       &:hover {
         background-color: $subMenuHover !important;
+        border-radius: 4px;
       }
     }
   }

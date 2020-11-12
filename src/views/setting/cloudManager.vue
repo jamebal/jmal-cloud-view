@@ -1,8 +1,12 @@
 <template>
   <div class="app-container" v-wechat-title="title">
     <el-card class="box-card">
-      同步网盘
-      <el-button type="primary" :loading="syncLoading" @click="sync"><i class="el-icon-upload el-icon--right"></i></el-button>
+      <div class="box-card-header">
+        <div class="clearfix card-header-back">
+          <span>同步网盘</span>
+          <el-button class="card-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-upload el-icon--right"></i></el-button>
+        </div>
+      </div>
     </el-card>
   </div>
 </template>
@@ -32,6 +36,6 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+@import "src/styles/setting";
 </style>

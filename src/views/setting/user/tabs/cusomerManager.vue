@@ -24,9 +24,13 @@
       </el-form>
     </el-dialog>
     <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <span>用户列表</span>
-        <el-button class="card-button" type="text" @click="add">添加用户</el-button>
+      <div slot="header">
+        <div class="box-card-header">
+          <div class="clearfix card-header-back">
+            <span>用户列表</span>
+            <el-button class="card-button" size="mini" type="primary" @click="add()">添加用户</el-button>
+          </div>
+        </div>
       </div>
       <el-table
         :data="userList"
@@ -254,14 +258,6 @@
   }
 </script>
 
-<!--<style src="@styles/cropper.css"></style>-->
 <style lang="scss" scoped>
-  @import "src/styles/setting";
-  .card-button {
-    float: right;
-    padding: 3px 0;
-  }
-  .box-card {
-    max-width: 800px;
-  }
+@import "src/styles/setting";
 </style>
