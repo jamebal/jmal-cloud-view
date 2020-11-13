@@ -35,7 +35,6 @@
     "jshint": "^2.11.1",
     "less-loader": "^6.1.0",
     "lib-flexible": "^0.3.2",
-    "mavon-editor": "^2.7.7",
     "monaco-editor-vue": "^1.0.10",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "monaco-languages": "^1.10.0",

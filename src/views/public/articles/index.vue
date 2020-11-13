@@ -98,7 +98,7 @@ import { getSetting } from '@/api/user'
       return {
         imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
         isLoading: true,
-        pageTitle: "文章列表",
+        pageTitle: '',
         articleList: [],
         backImageSrc: "~@/assets/img/widget-img1.jpg",
         userSetting: {},
@@ -113,23 +113,7 @@ import { getSetting } from '@/api/user'
     mounted() {
       this.getSetting()
       this.getMarkDown()
-      console.log('mounted')
     },
-    // beforeRouteEnter (to, from, next) {
-    //   console.log('beforeRouteEnter')
-    //   next(vm => {
-    //     console.log(vm.scrollTop)
-    //     document.body.scrollTop = vm.scrollTop
-    //   })
-    // },
-    // // beforeRouteUpdate (to, from, next) {
-    // //   console.log('beforeRouteUpdate')
-    // //   next()
-    // // },
-    // beforeRouteLeave(to, from, next) {
-    //   to.meta.keepAlive = false;
-    //   next();
-    // },
     activated() {
       console.log('activated',this.scrollTop)
     },
@@ -141,6 +125,7 @@ import { getSetting } from '@/api/user'
       getSetting() {
         getSetting({userId: this.$store.state.user.userId}).then((res) => {
           this.userSetting = res.data;
+          this.pageTitle = this.userSetting.siteName
           this.$nextTick(()=>{
             this.dynamicTyping()
           })

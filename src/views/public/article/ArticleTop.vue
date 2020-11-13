@@ -8,7 +8,7 @@
             <a class="nav-link" href="https://www.jmal.top/archives.html" title="归档"><svg-icon icon-class="guidang"></svg-icon><span class="nav-link-label">归档</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://www.jmal.top/archives.html" title="分类"><svg-icon icon-class="leimupinleifenleileibie"></svg-icon><span class="nav-link-label">分类</span></a>
+            <a class="nav-link" href="https://www.jmal.top/archives.html" title="分类"><svg-icon icon-class="fenlei"></svg-icon><span class="nav-link-label">分类</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://www.jmal.top/archives.html" title="关于"><svg-icon icon-class="myself"></svg-icon><span class="nav-link-label">关于</span></a>

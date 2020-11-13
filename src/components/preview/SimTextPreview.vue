@@ -95,17 +95,11 @@
             >
               <span slot="label"><svg-icon class="tabs-icon-svg" :icon-class="findSvgClass(item.name)"></svg-icon> {{item.title}}</span>
               <div v-if="textPreviewVisible" class="editor">
-                <mavon-editor
-                  ref="simTextMd"
+                <vditor-preview
+                  class="content-body"
                   v-show="editableTabsValue.endsWith('.md') && previewMode"
-                  v-model="item.content"
+                  :content="item.content"
                   :style="{height: editorHieght+'px'}"
-                  :subfield="false"
-                  :boxShadow="true"
-                  :toolbarsFlag="true"
-                  :toolbars="toolbars"
-                  codeStyle="idea"
-                  defaultOpen="preview"
                 />
                 <MonacoEditor
                   v-show="editableTabsValue.endsWith('.md') ? !previewMode: true"
@@ -148,10 +142,12 @@
   import FilePathNav from '@/components/Breadcrumb/FilePathNav'
   import Icon from '@/components/Icon/Icon.vue'
 
+  import VditorPreview from "@/components/preview/VditorPreview";
+
   export default {
     name: "SimTextPreview",
     components: {
-      Icon,MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav
+      Icon,MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav,VditorPreview
     },
     props: {
       file: {
@@ -1263,5 +1259,10 @@
   }
   >>> .fancytree-expander {
     margin-top: 5px;
+  }
+  .content-body {
+    overflow-y: scroll;
+    padding: 20px 30px;
+    background-color: #ffffff;
   }
 </style>

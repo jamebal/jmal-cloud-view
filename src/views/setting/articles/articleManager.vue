@@ -1,6 +1,11 @@
 <template>
   <div class="container" v-wechat-title="title">
-    <el-dialog title="新增文章" :fullscreen="true" :visible.sync="newArticleDialogVisible">
+    <el-dialog
+      title="新增文章"
+      :fullscreen="true"
+      :visible.sync="newArticleDialogVisible"
+      @close="closeDialog"
+    >
       <markdown-editor></markdown-editor>
     </el-dialog>
     <el-card class="box-card">
@@ -31,14 +36,17 @@ export default {
   },
   computed: {},
   mounted() {
-    if(this.$route.query.markdown){
+    if(this.$route.query.operation){
       this.newArticleDialogVisible = true
     }
   },
   methods: {
     newArticle() {
       this.newArticleDialogVisible = true
-      this.$router.push({path:'/setting/website/manager-articles', query: {markdown: 'new'}})
+      this.$router.push({path: this.$route.path, query: {operation: 'new'}})
+    },
+    closeDialog(){
+      this.$router.replace({path: this.$route.path})
     }
   }
 }

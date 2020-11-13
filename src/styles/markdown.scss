@@ -241,14 +241,7 @@
   align-items: stretch;
 }
 
-/deep/ .v-note-wrapper {
-  position: unset;
-  .show {
-    border-radius: 1rem;
-  }
-  .v-note-panel {
-    border-radius: 1rem;
-  }
+/deep/ .article-body {
   .note-update-date {
     padding: 0.75rem;
     border-left: 0.35rem solid;
@@ -501,12 +494,12 @@
   font-size: 14px;
   color: #333;
 }
-/deep/ .right-menu > div.titleList li.active a {
-  color: #13C2C2;
-}
-/deep/ .right-menu > div.titleList li:hover a {
-  color: #13C2C2;
-}
+///deep/ .right-menu > div.titleList li.active a {
+//  color: #13C2C2;
+//}
+///deep/ .right-menu > div.titleList li:hover a {
+//  color: #13C2C2;
+//}
 /deep/ .right-menu > div.titleList {
   .h-1 {
     padding-left: 10px;
@@ -533,10 +526,6 @@
     font-size: .85em;
     color: #6a737d;
   }
-}
-/deep/ .right-menu > div.titleList .pl a {
-  font-size: 13px;
-  color: #777;
 }
 /deep/ .right-menu > div.titleList .j-bj {
   background: linear-gradient(to right, #5d9eea, #afcafd);

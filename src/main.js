@@ -26,10 +26,6 @@ import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
 Vue.use(contentmenu)
 
-// mavonEditor
-import mavonEditor from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
-
 import '@/icons' // icon
 import '@/permission' // permission control
 
@@ -91,8 +87,6 @@ Vue.use(Checkbox);
 Vue.use(CheckboxGroup);
 Vue.use(Grid);
 Vue.use(GridItem);
-
-Vue.use(mavonEditor);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)

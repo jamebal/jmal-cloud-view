@@ -1,36 +1,55 @@
 <template>
-  <div v-wechat-title="'编辑'+filename">
+  <div v-wechat-title="'编辑:'+filename">
     <dir-tree ref="dirTree" :append-to-body='true'>
         <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
     </dir-tree>
-    <el-header>
-      <div class="header-item">
-        文章标题：
-        <el-input class="articles-title" placeholder="文章标题" v-model="filename" size="small"/>
-        <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" size="small" v-model="storageLocation" :readonly="true" @focus="selectDir">
-          <el-button slot="prepend" size="small" @click="selectDir">保存位置</el-button>
-        </el-input>
-        <el-button type="primary" @click="moreSetting = true" size="small">更多设置</el-button>
-        <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="adding">发布文章</el-button>
-        <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>
-        <el-button v-if="!editStatus" class="release-button" type="warning" size="small" @click="add" :loading="adding">保存草稿</el-button>
+    <div class="article-editor">
+      <div class="editor-left">
+        <el-header>
+          <div class="header-item">
+            <span class="title-label">标题：</span>
+            <el-input class="articles-title" placeholder="文章标题" v-model="filename" />
+            <!--        <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" size="small" v-model="storageLocation" :readonly="true" @focus="selectDir">-->
+            <!--          <el-button slot="prepend" size="small" @click="selectDir">保存位置</el-button>-->
+            <!--        </el-input>-->
+            <!--        <el-button type="primary" @click="moreSetting = true" size="small">更多设置</el-button>-->
+            <!--        <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="adding">发布文章</el-button>-->
+            <!--        <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>-->
+            <!--        <el-button v-if="!editStatus" class="release-button" type="warning" size="small" @click="add" :loading="adding">保存草稿</el-button>-->
+          </div>
+        </el-header>
+        <el-main>
+          <div id="vditor"></div>
+        </el-main>
       </div>
-    </el-header>
-    <el-main>
-      <div id="vditor"></div>
-<!--      <mavon-editor-->
-<!--        v-model="content"-->
-<!--        ref="md"-->
-<!--        @change="change"-->
-<!--        codeStyle="atelier-dune-dark"-->
-<!--        :style="{'height': clientHeight+'px'}"-->
-<!--        :imageFilter="imageFilter"-->
-<!--        @save="save"-->
-<!--        @imgAdd="$imgAdd"-->
-<!--        @imgDel="$imgDel"-->
-<!--        @fullScreen="fullScreen"-->
-<!--      />-->
-    </el-main>
+      <div class="editor-right">
+        <div class="operation">
+          <el-button class="release-button" type="warning" size="small" @click="add" :loading="adding">保存草稿</el-button>
+          <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="adding">发布文章</el-button>
+          <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>
+        </div>
+        <div class="more-setting">
+          <p class="mark-setting-label">文章封面：</p>
+          <el-input
+            class="mark-setting-input"
+            type="textarea"
+            :autosize="{ minRows: 3, maxRows: 8}"
+            placeholder="输入图片URL"
+            v-model="file.cover">
+          </el-input>
+
+          <p class="mark-setting-label">分类：</p>
+          <el-cascader
+            class="mark-setting-input"
+            placeholder="不选择"
+            :options="categories"
+            :show-all-levels="false"
+            :props="{ checkStrictly: true }"
+            clearable></el-cascader>
+
+        </div>
+      </div>
+    </div>
 
     <el-drawer
       :visible.sync="moreSetting"
@@ -43,7 +62,7 @@
           type="textarea"
           :autosize="{ minRows: 3, maxRows: 8}"
           placeholder="输入图片URL"
-          v-model="markdownCover">
+          v-model="file.cover">
         </el-input>
       </div>
     </el-drawer>
@@ -58,6 +77,7 @@
 
   import Vditor from 'vditor'
   import "vditor/src/assets/scss/index.scss"
+  import categoryApi from "@/api/category";
 
   let toolbar = [
     'emoji',
@@ -110,10 +130,10 @@
     },
     data() {
       return {
+        file: {},
         editStatus: false,
-        content:"", // 输入的markdown
         html:'',    // 及时转的html
-        filename: '新建文档',
+        filename: '',
         clientHeight: document.documentElement.clientHeight - 210,
         updating: false,
         adding: false,
@@ -121,48 +141,65 @@
         storageLocation: '/',
         selectLocationVisible: false,
         moreSetting: false,
-        markdownCover: null,
         contentEditor: '',
+        categories: []
       }
     },
     mounted() {
-
-      this.contentEditor = new Vditor('vditor', {
-        height: this.clientHeight,
-        toolbar,
-        toolbarConfig: {
-          pin: true,
-        },
-        preview: {
-          mode: 'both',
-          hljs: {
-            lineNumber: true
-          }
-        },
-        cache: {
-          enable: false,
-        },
-        after: () => {
-          this.contentEditor.setValue(this.content)
-        },
-      })
-      if(this.$route.query.id){
-        this.editStatus = true
-        markdownApi.getMarkdown({
-          mark: this.$route.query.id
-        }).then((res) => {
-          this.content = res.data.contentText
-          this.filename = res.data.name.split('.md')[0]
-          this.markdownCover = res.data.cover
-          this.storageLocation = res.data.path
-        })
-      }
+      this.getMarkdown()
+      this.categoryTree()
       const that = this
       window.onresize = function temp() {
         that.reHeight()
       }
     },
+    destroyed() {
+      this.contentEditor.destroy()
+    },
     methods: {
+      getMarkdown(){
+        if(this.$route.query.id){
+          this.editStatus = true
+          markdownApi.getMarkdown({
+            mark: this.$route.query.id
+          }).then((res) => {
+            this.file = res.data
+            this.content = this.file.contentText
+            this.filename = this.file.name.split('.md')[0]
+            this.storageLocation = res.data.path
+            // 初始化编辑器
+            this.vditorInit(res.data.contentText)
+          })
+        } else {
+          this.vditorInit('')
+        }
+      },
+      categoryTree() {
+        categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
+          this.categories = res.data
+        })
+      },
+      vditorInit(content){
+        this.contentEditor = new Vditor('vditor', {
+          height: this.clientHeight,
+          toolbar,
+          toolbarConfig: {
+            pin: true,
+          },
+          preview: {
+            mode: 'both',
+            hljs: {
+              lineNumber: true
+            }
+          },
+          cache: {
+            enable: false,
+          },
+          after: () => {
+            this.contentEditor.setValue(content)
+          },
+        })
+      },
       $imgAdd(pos, $file) {
         const maxSize = 1024 * 1024 * 5
         if($file.size > maxSize){
@@ -231,7 +268,7 @@
             filename: filename,
             cover: this.markdownCover,
             currentDirectory: this.storageLocation,
-            contentText: this.content
+            contentText: this.contentEditor.getValue()
           }).then((res) => {
             this.adding = false
             this.$message({
@@ -255,7 +292,7 @@
             filename: filename,
             cover: this.markdownCover,
             currentDirectory: this.storageLocation,
-            contentText: this.content
+            contentText: this.contentEditor.getValue()
           }).then(() => {
             this.updating = false
             this.$message({
@@ -290,27 +327,65 @@
   /deep/ .el-input-group {
     width: unset;
   }
-  .header-item {
-    min-width: 800px;
+  /deep/ .header-item {
+    line-height: 40px;
     padding: 5px 0 5px 0;
     .release-button {
       float: right;
       margin-left: 10px;
     }
     .el-input {
-      width: 300px;
+      width: 90%;
+      input[type='text'] {
+        font-weight: 900;
+        color: #000000!important;
+        font-size: 16px;
+        border: none;
+        border-bottom: #ccc 1px solid;
+        border-radius: 0;
+      }
+    }
+    .title-label {
+      font-size: 16px;
+      font-weight: 500;
     }
   }
 
-  .more-setting {
-    padding: 15px;
+  /deep/ .more-setting {
+    .el-input {
+      width: 100%;
+    }
+    margin-top: 68px;
     .mark-setting-label {
       font-weight: 500;
+      margin-top: 10px!important;
+    }
+    .mark-setting-input {
+      width: 100%;
     }
     .mark-description {
       font-size: 12px;
       font-weight: 100;
     }
   }
+.article-editor {
+  min-width: 1160px;
+  margin: auto;
+  display: flex;
+  .editor-left {
+    width: 75%;
+  }
+  .editor-right {
+    width: 25%;
+    .operation {
+      float: right;
+    }
+  }
+}
 
+  @media (min-width: 1200px) {
+    .article-editor {
+      max-width: 1200px;
+    }
+  }
 </style>
