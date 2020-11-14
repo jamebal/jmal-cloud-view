@@ -1,5 +1,5 @@
 <template>
-  <div v-wechat-title="'编辑:'+filename">
+  <div>
     <dir-tree ref="dirTree" :append-to-body='true'>
         <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
     </dir-tree>
@@ -24,8 +24,8 @@
       </div>
       <div class="editor-right">
         <div class="operation">
-          <el-button class="release-button" type="warning" size="small" @click="add" :loading="adding">保存草稿</el-button>
-          <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="adding">发布文章</el-button>
+          <el-button class="release-button" type="warning" size="small" @click="add" :loading="updating">保存草稿</el-button>
+          <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="updating">发布文章</el-button>
           <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>
         </div>
         <div class="more-setting">
@@ -40,11 +40,13 @@
 
           <p class="mark-setting-label">分类：</p>
           <el-cascader
+            v-model="categoryIds"
             class="mark-setting-input"
             placeholder="不选择"
+            :collapse-tags="false"
             :options="categories"
             :show-all-levels="false"
-            :props="{ checkStrictly: true }"
+            :props="{ multiple: true, checkStrictly: true }"
             clearable></el-cascader>
 
         </div>
@@ -128,6 +130,12 @@
     components: {
       DirTree, Vditor
     },
+    props: {
+      hasChange: {
+        type: Boolean,
+        defalut: false
+      }
+    },
     data() {
       return {
         file: {},
@@ -136,16 +144,20 @@
         filename: '',
         clientHeight: document.documentElement.clientHeight - 210,
         updating: false,
-        adding: false,
         isFullScreen: false,
         storageLocation: '/',
         selectLocationVisible: false,
         moreSetting: false,
         contentEditor: '',
+        categoryIds: [],
         categories: []
       }
     },
+    created() {
+      console.log('created')
+    },
     mounted() {
+      console.log('mounted')
       this.getMarkdown()
       this.categoryTree()
       const that = this
@@ -154,9 +166,31 @@
       }
     },
     destroyed() {
-      this.contentEditor.destroy()
+      console.log('destroyed')
+    },
+    watch: {
+      file(){
+        console.log('filename is changed')
+        this.valueHasChanged()
+      },
+      filename(val){
+        console.log('filename is changed')
+        this.valueHasChanged()
+        this.$emit('onTitle', val)
+      },
+      categoryIds(){
+        console.log('categoryIds is changed')
+        this.valueHasChanged()
+      },
+      storageLocation(){
+        console.log('storageLocation is changed')
+        this.valueHasChanged()
+      }
     },
     methods: {
+      valueHasChanged(){
+        this.$emit('update:hasChange', true)
+      },
       getMarkdown(){
         if(this.$route.query.id){
           this.editStatus = true
@@ -167,6 +201,11 @@
             this.content = this.file.contentText
             this.filename = this.file.name.split('.md')[0]
             this.storageLocation = res.data.path
+            if(this.file.categoryIds){
+              this.file.categoryIds.forEach(categoryId => {
+                this.categoryIds.push(new Array(categoryId))
+              })
+            }
             // 初始化编辑器
             this.vditorInit(res.data.contentText)
           })
@@ -257,31 +296,56 @@
       imageFilter() {
         return true
       },
+      checkParam(){
+        if(!this.filename){
+          this.$message.warning("请输入文章标题")
+          return false
+        }
+        if(this.contentEditor.getValue().length < 2){
+          this.$message.warning("请输入文章内容")
+          return false
+        }
+        return true
+      },
       // add
       add(){
-        this.adding = true
-        if(this.filename){
-          const filename = this.filename + ".md"
-          markdownApi.addMarkdown({
-            userId: this.$store.state.user.userId,
-            username: this.$store.state.user.name,
-            filename: filename,
-            cover: this.markdownCover,
-            currentDirectory: this.storageLocation,
-            contentText: this.contentEditor.getValue()
-          }).then((res) => {
-            this.adding = false
-            this.$message({
-              message: "发布成功",
-              type: 'success',
-              duration : 1000
-            });
-            this.$router.push(`/`)
-          })
-        }
+        this.update()
+        // if(!this.checkParam()){
+        //   return
+        // }
+        // this.updating = true
+        // const filename = this.filename + ".md"
+        // markdownApi.addMarkdown({
+        //   userId: this.$store.state.user.userId,
+        //   username: this.$store.state.user.name,
+        //   filename: filename,
+        //   cover: this.file.cover,
+        //   categoryIds: this.getCategoryList(),
+        //   currentDirectory: this.storageLocation,
+        //   contentText: this.contentEditor.getValue()
+        // }).then(() => {
+        //   this.updating = false
+        //   this.$message({
+        //     message: "发布成功",
+        //     type: 'success',
+        //     duration : 1000
+        //   });
+        // }).catch(()=> {
+        //   this.updating = false
+        // })
+      },
+      getCategoryList(){
+        let categoryIdList = []
+        this.categoryIds.forEach(categoryIds => {
+          categoryIdList.push(categoryIds[0])
+        })
+        return categoryIdList
       },
       // update
       update(){
+        if(!this.checkParam()){
+          return
+        }
         this.updating = true
         if(this.filename){
           const filename = this.filename + ".md"
@@ -290,16 +354,19 @@
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             filename: filename,
-            cover: this.markdownCover,
+            cover: this.file.cover,
+            categoryIds: this.getCategoryList(),
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
           }).then(() => {
             this.updating = false
             this.$message({
-              message: "更新成功",
+              message: "发布成功",
               type: 'success',
               duration : 1000
             });
+          }).catch(()=> {
+            this.updating = false
           })
         }
       },

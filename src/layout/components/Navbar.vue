@@ -4,7 +4,10 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-content">
-
+      <div class="right-content-button">
+        <router-link target="_blank" to="/articles">
+          <svg-icon icon-class="WEBSITE"></svg-icon>网站
+      </router-link></div>
       <div class="right-username">{{username}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
@@ -190,7 +193,22 @@ export default {
     line-height: 50px;
   }
 }
-.el-dropdown-menu__item svg {
-  margin-right: 5px;
+
+.right-content-button {
+  line-height: 50px;
+  margin-right: 10px;
+  padding: 0 10px;
+  &:hover {
+    background-color: #00000006;
+  }
+  svg {
+    margin-right: 5px;
+  }
+}
+
+.el-dropdown-menu__item {
+  svg {
+    margin-right: 5px;
+  }
 }
 </style>

@@ -804,7 +804,7 @@ export default {
         this.$refs.fileListTable.clearSelection()
       }
     })
-
+    // 监听返回
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL);
       window.addEventListener('popstate', this.goBack, false);
@@ -1472,7 +1472,7 @@ export default {
     },
     // 新建文档
     newDocument() {
-      this.$router.push(`/markdown/editor`)
+      window.open(`/setting/website/manager-articles?operation=new`, "_blank");
     },
     newFolder() {
       this.newFolderName = this.getNewFileName(this.fileList, '新建文件夹')
@@ -2300,7 +2300,7 @@ export default {
           break
         case 'edit':
           // 编辑
-          this.$router.push(`/markdown/editor?id=${this.rowContextData.id}`)
+          this.$router.push(`/setting/website/manager-articles?operation=editor&id=${this.rowContextData.id}`)
           break
         case 'open':
           // 打开

@@ -194,6 +194,7 @@ export const constantRoutes = [
   {
     path: 'articles',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: `${document.location.protocol}//${window.location.host}/articles`,
@@ -229,7 +230,7 @@ export const constantRoutes = [
     path: '/setting/website',
     component: Layout,
     name: 'website',
-    meta: { title: '网站管理', icon: 'wangzhan'},
+    meta: { title: '网站管理', icon: 'wangzhanguanli'},
     children: [
       {
         path: 'manager-articles',
