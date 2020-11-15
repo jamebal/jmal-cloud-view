@@ -56,12 +56,16 @@
           </el-table-column>
           <el-table-column
             prop="name"
+            :show-overflow-tooltip="true"
+            min-width="250"
             label="标题">
             <template slot-scope="scope">
-              <router-link :title="'编辑 '+scope.row.name" :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}</router-link>
+              <router-link :title="'编辑 '+scope.row.name" :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></router-link>
+              <router-link :title="'浏览 '+scope.row.name" :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
             </template>
           </el-table-column>
           <el-table-column
+            width="100"
             label="状态">
             <template slot-scope="scope">
               <el-tag size="medium" type="success">{{ scope.row.release?'已发布':'未发布' }}</el-tag>
@@ -69,6 +73,7 @@
           </el-table-column>
           <el-table-column
             prop="username"
+            width="100"
             label="作者">
           </el-table-column>
           <el-table-column
@@ -237,5 +242,8 @@ export default {
 @import "src/styles/setting";
 .table-top-author {
   margin-left: 15px;
+}
+.wailian {
+  margin-left: 8px;
 }
 </style>
