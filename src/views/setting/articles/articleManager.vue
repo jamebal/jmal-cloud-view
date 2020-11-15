@@ -30,7 +30,7 @@
             <span class="table-top-author">作者:</span>
             <el-radio-group v-model="query.radioUser" size="mini">
               <el-radio-button label="">所有</el-radio-button>
-              <el-radio-button :label="$store.state.username">我的</el-radio-button>
+              <el-radio-button :label="$store.state.userId">我的</el-radio-button>
             </el-radio-group>
           </div>
           <div class="table-top-right">
@@ -60,8 +60,12 @@
             min-width="250"
             label="标题">
             <template slot-scope="scope">
-              <router-link :title="'编辑 '+scope.row.name" :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></router-link>
-              <router-link :title="'浏览 '+scope.row.name" :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
+              <el-tooltip :content="'编辑 '+scope.row.name" placement="top">
+                <router-link :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></router-link>
+              </el-tooltip>
+              <el-tooltip :content="'浏览 '+scope.row.name" placement="top">
+                <router-link :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
+              </el-tooltip>
             </template>
           </el-table-column>
           <el-table-column
@@ -75,6 +79,9 @@
             prop="username"
             width="100"
             label="作者">
+            <template slot-scope="scope">
+              <router-link :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</router-link>
+            </template>
           </el-table-column>
           <el-table-column
             prop="categories"
@@ -133,7 +140,7 @@ export default {
       categories: [],
       query: {
         radioStatus: 'release',
-        radioUser: this.$store.state.username,
+        radioUser: this.$store.state.userId,
         keyword: '',
       },
     }
