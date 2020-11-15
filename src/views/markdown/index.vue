@@ -25,8 +25,7 @@
       <div class="editor-right">
         <div class="operation">
           <el-button class="release-button" type="warning" size="small" @click="add" :loading="updating">保存草稿</el-button>
-          <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="updating">发布文章</el-button>
-          <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>
+          <el-button class="release-button" type="primary" size="small" @click="update" :loading="updating">{{ editStatus?'发布文章':'更新文章' }}</el-button>
         </div>
         <div class="more-setting">
           <p class="mark-setting-label">文章封面：</p>
@@ -237,6 +236,9 @@
           after: () => {
             this.contentEditor.setValue(content)
           },
+          input: (val) => {
+            this.valueHasChanged()
+          }
         })
       },
       $imgAdd(pos, $file) {
@@ -306,33 +308,6 @@
           return false
         }
         return true
-      },
-      // add
-      add(){
-        this.update()
-        // if(!this.checkParam()){
-        //   return
-        // }
-        // this.updating = true
-        // const filename = this.filename + ".md"
-        // markdownApi.addMarkdown({
-        //   userId: this.$store.state.user.userId,
-        //   username: this.$store.state.user.name,
-        //   filename: filename,
-        //   cover: this.file.cover,
-        //   categoryIds: this.getCategoryList(),
-        //   currentDirectory: this.storageLocation,
-        //   contentText: this.contentEditor.getValue()
-        // }).then(() => {
-        //   this.updating = false
-        //   this.$message({
-        //     message: "发布成功",
-        //     type: 'success',
-        //     duration : 1000
-        //   });
-        // }).catch(()=> {
-        //   this.updating = false
-        // })
       },
       getCategoryList(){
         let categoryIdList = []

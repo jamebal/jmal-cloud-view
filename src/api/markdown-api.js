@@ -10,14 +10,6 @@ export default {
       params
     })
   },
-  // 添加文档 /markdown/add
-  addMarkdown: function(data) {
-    return request({
-      url: '/markdown/add',
-      method: 'post',
-      data
-    })
-  },
   // 编辑文档 /markdown/edit
   editMarkdown: function(data) {
     return request({

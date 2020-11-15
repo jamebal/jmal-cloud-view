@@ -322,18 +322,4 @@ export default {
   line-height: 32px;
 }
 
-a {
-  color: #1890ff;
-  text-decoration: none;
-  background-color: transparent;
-  outline: none;
-  cursor: pointer;
-  -webkit-transition: color 0.3s;
-  transition: color 0.3s;
-}
-
-a:hover {
-  color: #40a9ff;
-}
-
 </style>

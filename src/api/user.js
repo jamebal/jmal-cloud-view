@@ -96,7 +96,7 @@ export function initialization(data) {
 
 export function getSetting(params) {
   return request({
-    url: 'user/setting',
+    url: '/public/website/setting',
     method: 'get',
     params
   })
@@ -104,7 +104,7 @@ export function getSetting(params) {
 
 export function updateSetting(data) {
   return request({
-    url: 'user/setting/update',
+    url: '/setting/update',
     method: 'put',
     data
   })

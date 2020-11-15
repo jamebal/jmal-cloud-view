@@ -2300,7 +2300,7 @@ export default {
           break
         case 'edit':
           // 编辑
-          this.$router.push(`/setting/website/manager-articles?operation=editor&id=${this.rowContextData.id}`)
+          window.open(`/setting/website/manager-articles?operation=editor&id=${this.rowContextData.id}`, '_blank')
           break
         case 'open':
           // 打开

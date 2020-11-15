@@ -1,4 +1,16 @@
+a {
+  color: #1890ff;
+  text-decoration: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+  -webkit-transition: color 0.3s;
+  transition: color 0.3s;
+}
 
+a:hover {
+  color: #40a9ff;
+}
 .container {
   padding: 20px;
 }
@@ -96,5 +108,11 @@
   font-size: .8125rem;
   a {
     color: #1890ff;
+  }
+}
+.table-top {
+  .table-top-right {
+    float: right;
+    margin-top: -28px;
   }
 }
