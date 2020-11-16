@@ -4,6 +4,9 @@ export default {
   previewUrl: function(username, file) {
     return `${this.baseUrl}/file/${username}${file.path}${file.name}`
   },
+  mardownPreviewUrl: function (path){
+    return `${this.baseUrl}${path}`
+  },
   publicPreviewUrl: function(fileIds) {
     return `${this.baseUrl}/public/preview/${fileIds}`
   },

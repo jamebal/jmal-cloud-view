@@ -57,19 +57,15 @@
           <el-table-column
             prop="name"
             :show-overflow-tooltip="true"
-            min-width="250"
+            min-width="200"
             label="标题">
             <template slot-scope="scope">
-              <el-tooltip :content="'编辑 '+scope.row.name" placement="top">
-                <router-link :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></router-link>
-              </el-tooltip>
-              <el-tooltip :content="'浏览 '+scope.row.name" placement="top">
-                <router-link :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
-              </el-tooltip>
+                <router-link :title="'编辑 '+scope.row.name" :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></router-link>
+                <router-link :title="'浏览 '+scope.row.name" :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
             </template>
           </el-table-column>
           <el-table-column
-            width="100"
+            width="150"
             label="状态">
             <template slot-scope="scope">
               <el-tag size="medium" type="success">{{ scope.row.release?'已发布':'未发布' }}</el-tag>
@@ -88,8 +84,8 @@
             label="分类">
             <template slot-scope="scope">
             <span v-for="(category,i) in scope.row.categories">
+              {{i>0?' ,':''}}
               <router-link to="#">{{category.name}}</router-link>
-              {{i===0?' ,':''}}
             </span>
             </template>
           </el-table-column>
@@ -133,8 +129,8 @@ export default {
       hasChange: false,
       articleList: [],
       pagination: {
-        pageIndex: 1,
-        pageSize: 15,
+        pageIndex: this.$route.query.page ? parseInt(decodeURI(this.$route.query.page)) : 1,
+        pageSize: 12,
         total: 0,
       },
       categories: [],
@@ -163,6 +159,8 @@ export default {
         window.onbeforeunload = function() {
           return "还有文件正在上传, 确定退出吗?"
         }
+      }else {
+        window.onbeforeunload = null
       }
     }
   },
@@ -173,7 +171,6 @@ export default {
     },
     goBack() {
       const operation = this.$route.query.operation
-      console.log(operation)
       if(operation){
         this.newArticleDialogVisible = true
         if(operation === 'new') {
@@ -192,16 +189,16 @@ export default {
         this.pagination.total = res.count
         this.$nextTick(() => {
           this.isLoading = false
-          this.pagination.pageIndex = parseInt(decodeURI(this.$route.query.page))
         })
       })
     },
     currentChange() {
-      this.getMarkDown()
+      this.$router.push({query: {page : this.pagination.pageIndex}})
+      this.getArticleList()
     },
     newArticle() {
       this.newArticleDialogVisible = true
-      this.$router.push({path: this.$route.path, query: {operation: 'new'}})
+      this.$router.push({query: {operation: 'new'}})
     },
     categoryTree() {
       categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
@@ -209,7 +206,6 @@ export default {
       })
     },
     handleClose(done) {
-      console.log(this.hasChange)
       if(this.hasChange){
         this.$confirm('还有未保存的内容，确定要离开吗？', '提示', {
           confirmButtonText: '确定',
@@ -233,10 +229,8 @@ export default {
     },
     openDialog() {
       this.pageTitle = '撰写新文章'
-      console.log('pageTitle')
     },
     closeDialog(){
-      console.log('closeDialog')
       this.$router.replace({path: this.$route.path})
       window.onbeforeunload = null
       this.pageTitle = '文章管理'
@@ -252,5 +246,8 @@ export default {
 }
 .wailian {
   margin-left: 8px;
+}
+/deep/.el-card__body {
+  min-width: 1080px;
 }
 </style>

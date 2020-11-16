@@ -567,7 +567,7 @@
   box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 12px 0px;
 }
 
-/deep/ .markdown-body {
+/deep/ .article-body {
   border-radius: 0.5rem;
   blockquote {
     padding: 0.8em 1em;
@@ -623,48 +623,15 @@
           }
         }
       }
-      i.code-copy{
-        position: absolute;
-        top:0;
-        right: 0;
-        background-color: #464d5e;
-        padding: 3px;
-        margin: 3px 3px 0 0;
-        font-size: 11px;
-        border-radius: inherit;
-        color: #f1f1f1;
-        cursor: pointer;
-        display: none;
-      }
-      &:hover i.code-copy{
-        display: block;
-      }
     }
   }
   code {
+    background-size: unset!important;
     background: linear-gradient(to right, #5d9eea, #afcafd);
-    color: #000;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    padding: 0.1rem 0.3rem 0.2rem;
-    border-radius: 8px;
-    opacity: 0.9;
   }
   pre code {
     background: unset;
-    color: unset;
-    opacity: unset;
-    padding: unset;
   }
-  .hljs code {
-    background: unset;
-    color: unset;
-    opacity: unset;
-    padding: unset;
-  }
-}
-
-.pre-numbering {
 }
 
 #toggle-nav {

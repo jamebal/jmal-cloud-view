@@ -1851,6 +1851,7 @@ footer .copyright {
 .l_body {
   position: relative;
   margin: 16px 16px 0 16px;
+  min-height: calc(100vh - 70vh);
 }
 
 .l_body.nocover {

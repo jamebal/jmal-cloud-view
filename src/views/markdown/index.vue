@@ -24,7 +24,7 @@
       </div>
       <div class="editor-right">
         <div class="operation">
-          <el-button class="release-button" type="warning" size="small" @click="add" :loading="updating">保存草稿</el-button>
+          <el-button class="release-button" type="warning" size="small" @click="update" :loading="updating">保存草稿</el-button>
           <el-button class="release-button" type="primary" size="small" @click="update" :loading="updating">{{ editStatus?'发布文章':'更新文章' }}</el-button>
         </div>
         <div class="more-setting">
@@ -238,44 +238,44 @@
           },
           input: (val) => {
             this.valueHasChanged()
-          }
+          },
+          upload: this.markdownImageUplaod()
         })
-      },
-      $imgAdd(pos, $file) {
-        const maxSize = 1024 * 1024 * 5
-        if($file.size > maxSize){
-          this.$message({
-            message: '请选择小于5M的图片！ 大于5M的图片将无法上传',
-            type: 'warning',
-            duration: 3000,
-          });
-          return
-        }
-        // 第一步.将图片上传到服务器.
-        let data = new FormData();
-        data.append('filename', this.filename)
-        data.append('username', this.$store.state.user.name)
-        data.append('userId', this.$store.state.user.userId);
-        data.append('file', $file);
-        uploadApi.uploadImage(data).then((res) => {
-          // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
-          /**
-           * $vm 指为mavonEditor实例，可以通过如下两种方式获取
-           * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
-           * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
-           */
-          // const url = process.env.VUE_APP_BASE_FILE_API + '/public/image/' + res.data
-          const url = fileConfig.publicPreviewUrl(res.data);
-          console.log(url)
-          this.$refs.md.$img2Url(pos, url);
-        })
-      },
-      $imgDel(pos, $file) {
       },
       // 所有操作都会被解析重新渲染
       change(value, render){
         // render 为 markdown 解析后的结果[html]
         this.html = render;
+      },
+      markdownImageUplaod(){
+        return {
+          accept: 'image/*,.mp3, .wav, .rar',
+          headers: {
+            'jmal-token': this.$store.state.user.token
+          },
+          url: '/api/upload-markdown-image',
+          extraData: {
+            'filename': this.filename,
+            'username': this.$store.state.user.name,
+            'userId': this.$store.state.user.userId
+          },
+          fieldName: 'files',
+          filename (name) {
+            return name.replace(/[^(a-zA-Z0-9\u4e00-\u9fa5\.)]/g, '').
+            replace(/[\?\\/:|<>\*\[\]\(\)\$%\{\}@~]/g, '').
+            replace('/\\s/g', '')
+          },
+          format(files, responseText) {
+            let response = JSON.parse(responseText)
+            let succMap = {}
+            response.data.forEach(map => {
+              succMap[map.filename] = fileConfig.mardownPreviewUrl(map.filepath)
+            })
+            response.data = {}
+            response.data['succMap'] = succMap
+            return JSON.stringify(response)
+          }
+        }
       },
       fullScreen(status) {
         this.isFullScreen = status
@@ -334,6 +334,7 @@
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
           }).then(() => {
+            this.$emit('update:hasChange', false)
             this.updating = false
             this.$message({
               message: "发布成功",
