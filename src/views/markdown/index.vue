@@ -36,7 +36,13 @@
             placeholder="输入图片URL"
             v-model="file.cover">
           </el-input>
-
+          <p class="mark-setting-label">缩略名：</p>
+          <el-input
+            class="mark-setting-input"
+            placeholder="缩略名"
+            v-model="file.slug">
+          </el-input>
+          <span class="instruction">本文连接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
           <p class="mark-setting-label">分类：</p>
           <el-cascader
             v-model="categoryIds"
@@ -149,11 +155,12 @@
         moreSetting: false,
         contentEditor: '',
         categoryIds: [],
-        categories: []
+        categories: [],
+        articleLink: `${window.origin}/artiles/`
       }
     },
     created() {
-      console.log('created')
+      console.log('created',window.origin)
     },
     mounted() {
       console.log('mounted')
@@ -330,6 +337,7 @@
             username: this.$store.state.user.name,
             filename: filename,
             cover: this.file.cover,
+            slug: this.file.slug,
             categoryIds: this.getCategoryList(),
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
@@ -358,6 +366,7 @@
   }
 </script>
 <style lang="scss" scoped>
+@import "src/styles/setting";
   /deep/ .el-main {
     padding: 30px 20px 20px 20px;
     .v-note-wrapper {
