@@ -45,13 +45,13 @@
           <span class="instruction">本文连接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
           <p class="mark-setting-label">分类：</p>
           <el-cascader
-            v-model="categoryIds"
+            v-model="file.categoryIds"
             class="mark-setting-input"
             placeholder="不选择"
             :collapse-tags="false"
             :options="categories"
             :show-all-levels="false"
-            :props="{ multiple: true, checkStrictly: true }"
+            :props="{ multiple: true, checkStrictly: false, emitPath: false, value: 'id', label: 'name' }"
             clearable></el-cascader>
 
         </div>
@@ -154,16 +154,11 @@
         selectLocationVisible: false,
         moreSetting: false,
         contentEditor: '',
-        categoryIds: [],
         categories: [],
         articleLink: `${window.origin}/artiles/`
       }
     },
-    created() {
-      console.log('created',window.origin)
-    },
     mounted() {
-      console.log('mounted')
       this.getMarkdown()
       this.categoryTree()
       const that = this
@@ -171,33 +166,26 @@
         that.reHeight()
       }
     },
-    destroyed() {
-      console.log('destroyed')
-    },
     watch: {
       file(){
-        console.log('filename is changed')
         this.valueHasChanged()
       },
       filename(val){
-        console.log('filename is changed')
         this.valueHasChanged()
         this.$emit('onTitle', val)
       },
-      categoryIds(){
-        console.log('categoryIds is changed')
-        this.valueHasChanged()
-      },
       storageLocation(){
-        console.log('storageLocation is changed')
         this.valueHasChanged()
       }
     },
     methods: {
+      reload() {
+        this.getMarkdown(true)
+      },
       valueHasChanged(){
         this.$emit('update:hasChange', true)
       },
-      getMarkdown(){
+      getMarkdown(isReload){
         if(this.$route.query.id){
           this.editStatus = true
           markdownApi.getMarkdown({
@@ -207,16 +195,24 @@
             this.content = this.file.contentText
             this.filename = this.file.name.split('.md')[0]
             this.storageLocation = res.data.path
-            if(this.file.categoryIds){
-              this.file.categoryIds.forEach(categoryId => {
-                this.categoryIds.push(new Array(categoryId))
-              })
-            }
             // 初始化编辑器
-            this.vditorInit(res.data.contentText)
+            if(isReload){
+              this.contentEditor.setValue(res.data.contentText)
+            } else {
+              this.vditorInit(res.data.contentText)
+            }
+          }).then(() => {
+            const that = this
+            setTimeout(function (){
+              that.$emit('update:hasChange', false)
+            }, 100)
           })
         } else {
-          this.vditorInit('')
+          if(isReload){
+            this.contentEditor.setValue('')
+          } else {
+            this.vditorInit('')
+          }
         }
       },
       categoryTree() {
@@ -316,13 +312,6 @@
         }
         return true
       },
-      getCategoryList(){
-        let categoryIdList = []
-        this.categoryIds.forEach(categoryIds => {
-          categoryIdList.push(categoryIds[0])
-        })
-        return categoryIdList
-      },
       // update
       update(){
         if(!this.checkParam()){
@@ -338,7 +327,7 @@
             filename: filename,
             cover: this.file.cover,
             slug: this.file.slug,
-            categoryIds: this.getCategoryList(),
+            categoryIds: this.file.categoryIds,
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
           }).then(() => {

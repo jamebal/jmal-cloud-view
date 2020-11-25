@@ -60,7 +60,7 @@
             min-width="200"
             label="标题">
             <template slot-scope="scope">
-                <router-link :title="'编辑 '+scope.row.name" :to="'/setting/website/manager-articles?operation=editor&id='+scope.row.id" target="_blank">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></router-link>
+                <a :title="'编辑 '+scope.row.name" @click="editArticle(scope.row.id)">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></a>
                 <router-link :title="'浏览 '+scope.row.name" :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
             </template>
           </el-table-column>
@@ -199,6 +199,13 @@ export default {
     newArticle() {
       this.newArticleDialogVisible = true
       this.$router.push({query: {operation: 'new'}})
+    },
+    editArticle(id) {
+      this.newArticleDialogVisible = true
+      this.$router.push({query: {operation: 'editor', id: id}})
+      if(this.$refs.editor){
+        this.$refs.editor.reload()
+      }
     },
     categoryTree() {
       categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {

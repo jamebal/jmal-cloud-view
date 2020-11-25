@@ -14,7 +14,7 @@
             placeholder="不选择"
             :options="categories"
             :show-all-levels="false"
-            :props="{ checkStrictly: true }"
+            :props="{ checkStrictly: true, value: 'id', label: 'name'}"
             clearable></el-cascader>
         </el-form-item>
         <el-form-item label="分类描述" prop="desc">
@@ -61,11 +61,10 @@
           label="名称">
         </el-table-column>
         <el-table-column
-          prop="subCategorySize"
           label="子分类">
           <template slot-scope="scope">
-            <a v-if="scope.row.subCategorySize > 0"
-               @click="subCategoryList(scope.row.id)">{{ scope.row.subCategorySize }}个分类</a>
+            <a v-if="scope.row.childre && scope.row.children.length > 0"
+               @click="subCategoryList(scope.row.id)">{{ scope.row.children.length }}个分类</a>
             <a v-else @click="add(scope.row.id)">新增</a>
           </template>
         </el-table-column>
@@ -84,6 +83,9 @@
         <el-table-column
           prop="quota"
           label="文章数">
+          <template slot-scope="scope">
+            <el-tag class="article-num">{{scope.row.articleNum}}</el-tag>
+          </template>
         </el-table-column>
       </el-table>
     </el-card>
@@ -321,5 +323,15 @@ export default {
   height: 32px;
   line-height: 32px;
 }
+.article-num {
 
+}
+.article-num:hover {
+  cursor: pointer;
+  background-color: #fbfdff;
+  color: #1d8cff;
+}
+.article-num:active {
+  background-color: #ecf5ff;
+}
 </style>
