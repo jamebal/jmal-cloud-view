@@ -35,17 +35,20 @@
             </el-radio-group>
           </div>
           <div class="table-top-right">
-            <el-input v-model="query.keyword" size="mini" placeholder="请输入关键字"></el-input>
+            <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
+            <el-input v-model="query.keyword" size="mini" placeholder="请输入关键字" @keyup.enter.native="getArticleList"></el-input>
             <el-cascader
-              v-model="query.parentCategoryId"
+              v-model="categoryIdsList"
               class="mark-setting-input"
               placeholder="不选择"
               size="mini"
               :collapse-tags="false"
               :options="categories"
               :show-all-levels="false"
-              :props="{ multiple: true, checkStrictly: false, emitPath: false, value: 'id', label: 'name' }"
-              clearable></el-cascader>
+              :props="{ multiple: true, checkStrictly: true, value: 'id', label: 'name' }"
+              clearable
+              @change="selectCategory"
+            ></el-cascader>
             <el-button type="primary" size="mini" @click="getArticleList">筛选</el-button>
           </div>
         </div>
@@ -90,7 +93,7 @@
             <template slot-scope="scope">
             <span v-for="(category,i) in scope.row.categories">
               {{i>0?' ,':''}}
-              <router-link to="#">{{category.name}}</router-link>
+              <a :href="'?categoryIds='+category.id">{{category.name}}</a>
             </span>
             </template>
           </el-table-column>
@@ -139,14 +142,27 @@ export default {
         total: 0,
       },
       categories: [],
+      categoryIdsList: [],
+      isFilter: false,
       query: {
         radioStatus: '',
         radioUser: 'my',
         keyword: '',
+        categoryIds: ''
       },
     }
   },
   computed: {},
+  created(){
+    if(this.$route.query.keyword){
+      this.query.keyword = this.$route.query.keyword
+      this.isFilter = true
+    }
+    if(this.$route.query.categoryIds){
+      this.query.categoryIds = this.$route.query.categoryIds
+      this.isFilter = true
+    }
+  },
   mounted() {
     this.getArticleList()
     this.categoryTree()
@@ -171,8 +187,7 @@ export default {
   },
   methods: {
     beforeunloadFn(){
-      console.log('beforeunloadFn')
-      return '是的发生'
+      return '确定要退出吗？'
     },
     goBack() {
       const operation = this.$route.query.operation
@@ -188,14 +203,35 @@ export default {
         this.newArticleDialogVisible = false
       }
     },
+    cancelFilter() {
+      this.$router.push({query: {}})
+      this.query.keyword = ''
+      this.categoryIdsList = []
+      this.getArticleList()
+    },
     getArticleList() {
+      this.query.categoryIds = ''
+      if(this.$route.query.categoryIds){
+        this.query.categoryIds = this.$route.query.categoryIds
+      }
+      if(this.categoryIdsList.length > 0){
+        this.categoryIdsList.forEach(categoryIdList => {
+          this.query.categoryIds += categoryIdList[categoryIdList.length - 1] + ','
+        })
+        this.query.categoryIds = this.query.categoryIds.substring(0, this.query.categoryIds.length - 1)
+      }
+      this.isFilter = this.query.keyword.length > 0 || this.query.categoryIds.length > 0;
+      if(this.isFilter){
+        this.$router.push({query: {keyword: this.query.keyword, categoryIds: this.query.categoryIds}})
+      }
       markdownApi.getMarkdown({
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
         userId: this.query.radioUser === 'my' ? this.$store.state.user.userId : null,
         isRelease: this.query.radioStatus === 'release',
         isDraft: this.query.radioStatus === 'draft',
-        keyword: this.query.keyword
+        keyword: this.query.keyword,
+        categoryIds: this.query.categoryIds
       }).then((res) => {
         this.articleList = res.data
         this.pagination.total = res.count
@@ -203,6 +239,36 @@ export default {
           this.isLoading = false
         })
       })
+    },
+    findCategoryIds(parentCategory, categories, categoryIds) {
+      if(!categoryIds){
+        return
+      }
+      categories.forEach(category => {
+        let ids = []
+        if(parentCategory && parentCategory.ids){
+          ids = parentCategory.ids
+        }
+        ids.push(category.id)
+        category['ids'] = ids
+        if(categoryIds.includes(category.id)){
+          let newIds = []
+          Object.assign(newIds , ids)
+          this.categoryIdsList.push(newIds)
+        }
+        if(category.children){
+          this.findCategoryIds(category, category.children, categoryIds)
+        }
+      })
+    },
+    selectCategory(val) {
+      console.log('selectCategory', val)
+      let categoryIds = ''
+      this.categoryIdsList.forEach(categoryIdList => {
+        categoryIds += categoryIdList[categoryIdList.length - 1] + ','
+      })
+      categoryIds = categoryIds.substring(0, categoryIds.length - 2)
+      console.log(categoryIds)
     },
     currentChange() {
       this.$router.push({query: {page : this.pagination.pageIndex}})
@@ -222,6 +288,13 @@ export default {
     categoryTree() {
       categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
         this.categories = res.data
+        if(this.$route.query.categoryIds){
+          this.query.categoryIds = this.$route.query.categoryIds
+          let categoryIds = this.query.categoryIds.split(",")
+          if(categoryIds){
+            this.findCategoryIds(null, this.categories, categoryIds)
+          }
+        }
       })
     },
     handleClose(done) {

@@ -84,7 +84,9 @@
           prop="quota"
           label="文章数">
           <template slot-scope="scope">
-            <el-tag class="article-num">{{scope.row.articleNum}}</el-tag>
+            <router-link :to="'/setting/website/manager-articles?categoryIds='+scope.row.id">
+              <el-tag class="article-num" >{{scope.row.articleNum}}</el-tag>
+            </router-link>
           </template>
         </el-table-column>
       </el-table>

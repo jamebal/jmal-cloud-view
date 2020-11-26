@@ -45,7 +45,7 @@
           <span class="instruction">本文链接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
           <p class="mark-setting-label">分类：</p>
           <el-cascader
-            v-model="categoryIds"
+            v-model="categoryIdsList"
             class="mark-setting-input"
             placeholder="不选择"
             :collapse-tags="false"
@@ -156,7 +156,7 @@
         moreSetting: false,
         contentEditor: '',
         categories: [],
-        categoryIds: [],
+        categoryIdsList: [],
         draft: false,
         articleLink: `${window.origin}/artiles/`
       }
@@ -184,6 +184,7 @@
     methods: {
       reload() {
         this.getMarkdown(true)
+        this.categoryTree()
       },
       valueHasChanged(){
         this.$emit('update:hasChange', true)
@@ -198,6 +199,9 @@
             this.content = this.file.contentText
             this.filename = this.file.name.split('.md')[0]
             this.storageLocation = res.data.path
+            if(this.categories && this.categories.length > 0){
+              this.findCategoryIds(null, this.categories, this.file.categoryIds)
+            }
             // 初始化编辑器
             if(isReload){
               this.contentEditor.setValue(res.data.contentText)
@@ -221,24 +225,30 @@
       categoryTree() {
         categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
           this.categories = res.data
-
-          let ss = ["5fbf6857aff038ad2c1d686d", "5fbf685eaff038ad2c1d686e", "5fbf6863aff038ad2c1d686f", "5fbf689baff038ad2c1d6874"]
-          this.findCategoryIds(this.categories, ss)
-          console.log(this.categoryIds)
+          if(this.file.categoryIds && this.file.categoryIds.length > 0){
+            this.findCategoryIds(null, this.categories, this.file.categoryIds)
+          }
         })
       },
-      findCategoryIds(categories, ss) {
+      findCategoryIds(parentCategory, categories, categoryIds) {
+        if(!categoryIds){
+          return
+        }
         categories.forEach(category => {
           let ids = []
-          if(category.ids){
-            ids = category.ids
+          if(parentCategory && parentCategory.ids){
+            ids = parentCategory.ids
           }
           ids.push(category.id)
           category['ids'] = ids
-          if(ss.includes(category.id)){
-            this.categoryIds.push(ids)
+          if(categoryIds.includes(category.id)){
+            let newIds = []
+            Object.assign(newIds , ids)
+            this.categoryIdsList.push(newIds)
           }
-          this.findCategoryIds(categories.children)
+          if(category.children){
+            this.findCategoryIds(category, category.children, categoryIds)
+          }
         })
       },
       vditorInit(content){
@@ -342,17 +352,11 @@
         this.update()
       },
       selectCategory(val){
-        console.log(val)
-        let categoryIds = []
-        this.categoryIds.forEach(categoryIdList => {
-          categoryIds.push(categoryIdList[categoryIdList.length - 1])
-        })
-        console.log(categoryIds)
       },
       // update
       update(message){
         let categoryIds = []
-        this.categoryIds.forEach(categoryIdList => {
+        this.categoryIdsList.forEach(categoryIdList => {
           categoryIds.push(categoryIdList[categoryIdList.length - 1])
         })
         if(!this.checkParam()){
