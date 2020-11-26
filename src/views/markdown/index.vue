@@ -24,8 +24,8 @@
       </div>
       <div class="editor-right">
         <div class="operation">
-          <el-button class="release-button" type="warning" size="small" @click="update" :loading="updating">保存草稿</el-button>
-          <el-button class="release-button" type="primary" size="small" @click="update" :loading="updating">{{ editStatus?'发布文章':'更新文章' }}</el-button>
+          <el-button class="release-button" type="warning" size="small" @click="saveDraft" :loading="updating">保存草稿</el-button>
+          <el-button class="release-button" type="primary" size="small" @click="release" :loading="updating">{{ editStatus?'发布文章':'更新文章' }}</el-button>
         </div>
         <div class="more-setting">
           <p class="mark-setting-label">文章封面：</p>
@@ -42,18 +42,19 @@
             placeholder="缩略名"
             v-model="file.slug">
           </el-input>
-          <span class="instruction">本文连接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
+          <span class="instruction">本文链接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
           <p class="mark-setting-label">分类：</p>
           <el-cascader
-            v-model="file.categoryIds"
+            v-model="categoryIds"
             class="mark-setting-input"
             placeholder="不选择"
             :collapse-tags="false"
             :options="categories"
             :show-all-levels="false"
-            :props="{ multiple: true, checkStrictly: false, emitPath: false, value: 'id', label: 'name' }"
-            clearable></el-cascader>
-
+            :props="{ multiple: true, checkStrictly: true, value: 'id', label: 'name' }"
+            clearable
+            @change="selectCategory"
+          ></el-cascader>
         </div>
       </div>
     </div>
@@ -155,6 +156,8 @@
         moreSetting: false,
         contentEditor: '',
         categories: [],
+        categoryIds: [],
+        draft: false,
         articleLink: `${window.origin}/artiles/`
       }
     },
@@ -218,6 +221,24 @@
       categoryTree() {
         categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
           this.categories = res.data
+
+          let ss = ["5fbf6857aff038ad2c1d686d", "5fbf685eaff038ad2c1d686e", "5fbf6863aff038ad2c1d686f", "5fbf689baff038ad2c1d6874"]
+          this.findCategoryIds(this.categories, ss)
+          console.log(this.categoryIds)
+        })
+      },
+      findCategoryIds(categories, ss) {
+        categories.forEach(category => {
+          let ids = []
+          if(category.ids){
+            ids = category.ids
+          }
+          ids.push(category.id)
+          category['ids'] = ids
+          if(ss.includes(category.id)){
+            this.categoryIds.push(ids)
+          }
+          this.findCategoryIds(categories.children)
         })
       },
       vditorInit(content){
@@ -312,8 +333,28 @@
         }
         return true
       },
+      saveDraft() {
+        this.draft = true
+        this.update('保存草稿成功')
+      },
+      release() {
+        this.draft = false
+        this.update()
+      },
+      selectCategory(val){
+        console.log(val)
+        let categoryIds = []
+        this.categoryIds.forEach(categoryIdList => {
+          categoryIds.push(categoryIdList[categoryIdList.length - 1])
+        })
+        console.log(categoryIds)
+      },
       // update
-      update(){
+      update(message){
+        let categoryIds = []
+        this.categoryIds.forEach(categoryIdList => {
+          categoryIds.push(categoryIdList[categoryIdList.length - 1])
+        })
         if(!this.checkParam()){
           return
         }
@@ -326,15 +367,16 @@
             username: this.$store.state.user.name,
             filename: filename,
             cover: this.file.cover,
-            slug: this.file.slug,
-            categoryIds: this.file.categoryIds,
+            isDraft: this.draft,
+            slug: this.file.slug ? this.file.slug : this.filename,
+            categoryIds: categoryIds,
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
           }).then(() => {
             this.$emit('update:hasChange', false)
             this.updating = false
             this.$message({
-              message: "发布成功",
+              message: message ? message : "发布成功",
               type: 'success',
               duration : 1000
             });

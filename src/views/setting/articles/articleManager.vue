@@ -23,27 +23,30 @@
       <div>
         <div class="table-top">
           <div class="table-top-left">
-            <el-radio-group v-model="query.radioStatus" size="mini">
-              <el-radio-button label="release">可用</el-radio-button>
+            <el-radio-group v-model="query.radioStatus" size="mini" @change="getArticleList">
+              <el-radio-button label="">可用</el-radio-button>
+              <el-radio-button label="release">已发布</el-radio-button>
               <el-radio-button label="draft">草稿</el-radio-button>
             </el-radio-group>
             <span class="table-top-author">作者:</span>
-            <el-radio-group v-model="query.radioUser" size="mini">
-              <el-radio-button label="">所有</el-radio-button>
-              <el-radio-button :label="$store.state.userId">我的</el-radio-button>
+            <el-radio-group v-model="query.radioUser" size="mini" @change="getArticleList">
+              <el-radio-button label="all">所有</el-radio-button>
+              <el-radio-button label="my">我的</el-radio-button>
             </el-radio-group>
           </div>
           <div class="table-top-right">
             <el-input v-model="query.keyword" size="mini" placeholder="请输入关键字"></el-input>
             <el-cascader
               v-model="query.parentCategoryId"
+              class="mark-setting-input"
               placeholder="不选择"
+              size="mini"
+              :collapse-tags="false"
               :options="categories"
               :show-all-levels="false"
-              size="mini"
-              :props="{ checkStrictly: true }"
+              :props="{ multiple: true, checkStrictly: false, emitPath: false, value: 'id', label: 'name' }"
               clearable></el-cascader>
-            <el-button type="primary" size="mini">筛选</el-button>
+            <el-button type="primary" size="mini" @click="getArticleList">筛选</el-button>
           </div>
         </div>
         <el-table
@@ -68,7 +71,9 @@
             width="150"
             label="状态">
             <template slot-scope="scope">
-              <el-tag size="medium" type="success">{{ scope.row.release?'已发布':'未发布' }}</el-tag>
+              <el-tag v-if="scope.row.draft" size="medium" type="warning">草稿</el-tag>
+              <el-tag v-if="scope.row.release" size="medium" type="success">已发布</el-tag>
+              <el-tag v-if="!scope.row.release" size="medium" type="info">未发布</el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -135,8 +140,8 @@ export default {
       },
       categories: [],
       query: {
-        radioStatus: 'release',
-        radioUser: this.$store.state.userId,
+        radioStatus: '',
+        radioUser: 'my',
         keyword: '',
       },
     }
@@ -184,7 +189,14 @@ export default {
       }
     },
     getArticleList() {
-      markdownApi.getMarkdown({pageIndex: this.pagination.pageIndex, pageSize: this.pagination.pageSize}).then((res) => {
+      markdownApi.getMarkdown({
+        pageIndex: this.pagination.pageIndex,
+        pageSize: this.pagination.pageSize,
+        userId: this.query.radioUser === 'my' ? this.$store.state.user.userId : null,
+        isRelease: this.query.radioStatus === 'release',
+        isDraft: this.query.radioStatus === 'draft',
+        keyword: this.query.keyword
+      }).then((res) => {
         this.articleList = res.data
         this.pagination.total = res.count
         this.$nextTick(() => {
@@ -242,6 +254,7 @@ export default {
       window.onbeforeunload = null
       this.pageTitle = '文章管理'
       this.hasChange = false
+      this.getArticleList()
     }
   }
 }

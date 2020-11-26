@@ -63,7 +63,7 @@
         <el-table-column
           label="子分类">
           <template slot-scope="scope">
-            <a v-if="scope.row.childre && scope.row.children.length > 0"
+            <a v-if="scope.row.children && scope.row.children.length > 0"
                @click="subCategoryList(scope.row.id)">{{ scope.row.children.length }}个分类</a>
             <a v-else @click="add(scope.row.id)">新增</a>
           </template>
@@ -243,7 +243,7 @@ export default {
       this.multipleSelection.forEach(category => {
         categoryIds.push(category.id)
       })
-      this.$confirm('所选分类下的所有内容都将被删除, 您确认要删除吗?', '提示', {
+      this.$confirm('所选分类下的所有内容(包括文章)都将被删除,\r\n 您确认要删除吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
