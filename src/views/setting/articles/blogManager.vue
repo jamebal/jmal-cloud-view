@@ -36,6 +36,11 @@
             列如：{{example}}:https://github.com/jamebal (建议不超过5项)
           </span>
         </el-collapse-item>
+        <el-collapse-item title="分类界面" name="3">
+          <div class="config-itme-label">分类界面背景大图：</div>
+          <el-input autosize type="textarea" width="100%" v-model="form.categoryBackground"></el-input>
+          <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
+        </el-collapse-item>
       </el-collapse>
     </el-card>
   </div>
@@ -51,7 +56,7 @@ export default {
   },
   data() {
     return {
-      activeNames: ['1'],
+      activeNames: ['1','2','3'],
       example: '<i class="fab fa-github">github</i>',
       form: {
         backgroundSite: '',
@@ -59,6 +64,7 @@ export default {
         backgroundDescSite: '',
         siteName: '',
         operatingButtons: '',
+        categoryBackground: '',
       }
     }
   },
