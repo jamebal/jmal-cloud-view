@@ -249,6 +249,12 @@ export const constantRoutes = [
         name: 'manager-categories',
         component: () => import('@/views/setting/articles/categoryManager'),
         meta: { title: '分类管理', icon: 'fenlei' }
+      },
+      {
+        path: 'manager-tags',
+        name: 'manager-tags',
+        component: () => import('@/views/setting/articles/tagManager'),
+        meta: { title: '标签管理', icon: 'biaoqian' }
       }
     ]
   },

@@ -6,7 +6,8 @@
           <el-input v-model="form.name" style="width: 100%;"/>
         </el-form-item>
         <el-form-item label="分类缩略名" prop="thumbnailName">
-          <el-input v-model="form.thumbnailName" style="width: 100%;" placeholder="分类缩略名用于创建友好的链接形式."/>
+          <el-input v-model="form.thumbnailName" style="width: 100%;"/>
+          <div class="instruction">分类缩略名用于创建友好的链接形式.</div>
         </el-form-item>
         <el-form-item label="父级分类" prop="parentCategoryId">
           <el-cascader
@@ -18,7 +19,12 @@
             clearable></el-cascader>
         </el-form-item>
         <el-form-item label="分类描述" prop="desc">
-          <el-input type="textarea" v-model="form.desc"/>
+          <el-input type="textarea" v-model="form.desc" :autosize="{ minRows: 2, maxRows: 6 }"/>
+          <div class="instruction">此文字用于描述分类, 在该分类首页中它会被显示.</div>
+        </el-form-item>
+        <el-form-item label="分类背景" prop="categoryBackground">
+          <el-input type="textarea" v-model="form.categoryBackground" :autosize="{ minRows: 2, maxRows: 6 }"/>
+          <div class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图.</div>
         </el-form-item>
         <el-form-item>
           <el-button native-type="submit" type="primary" :loading="categoryUpdateLoading"
@@ -115,7 +121,8 @@ export default {
         name: '',
         thumbnailName: '',
         parentCategoryId: '',
-        desc: ''
+        desc: '',
+        categoryBackground: ''
       },
       rules: {
         name: [
@@ -153,14 +160,13 @@ export default {
     },
     getCategories() {
       categoryApi.categories({
-        userId: this.$store.state.user.userId,
         parentCategoryId: this.$route.query.parent
       }).then(res => {
         this.categoryList = res.data
       })
     },
     categoryTree() {
-      categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
+      categoryApi.categoryTree().then(res => {
         this.categories = res.data
       })
     },
@@ -253,7 +259,6 @@ export default {
         categoryApi.delete({categoryIds: categoryIds}).then(() => {
           this.onDeleted()
         }).catch(() => {
-          console.log('sdf')
           this.onError()
         })
       })
@@ -268,9 +273,6 @@ export default {
     },
     // 添加分类
     addCategory(data) {
-      if (!this.form.hasOwnProperty('userId')) {
-        data.append('userId', this.$store.state.user.userId)
-      }
       categoryApi.add(data).then(() => {
         this.onSuccess()
       }).catch(() => {

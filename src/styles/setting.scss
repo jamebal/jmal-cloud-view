@@ -103,6 +103,14 @@ a:hover {
   margin-top: 10px;
   max-width: 300px;
 }
+.el-form-item__content {
+  .instruction {
+    font-size: 12px;
+    line-height: 1;
+    padding-top: 4px;
+    position: absolute;
+  }
+}
 .instruction {
   color: #9a9a9a;
   font-size: .8125rem;

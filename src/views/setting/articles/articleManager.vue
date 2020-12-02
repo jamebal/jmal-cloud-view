@@ -286,7 +286,7 @@ export default {
       }
     },
     categoryTree() {
-      categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
+      categoryApi.categoryTree().then(res => {
         this.categories = res.data
         if(this.$route.query.categoryIds){
           this.query.categoryIds = this.$route.query.categoryIds

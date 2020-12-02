@@ -19,13 +19,13 @@
           </div>
         </el-header>
         <el-main>
-          <div id="vditor"></div>
+          <div id="vditor" v-loading="vditorLoading"></div>
         </el-main>
       </div>
       <div class="editor-right">
         <div class="operation">
           <el-button class="release-button" type="warning" size="small" @click="saveDraft" :loading="updating">保存草稿</el-button>
-          <el-button class="release-button" type="primary" size="small" @click="release" :loading="updating">{{ editStatus?'发布文章':'更新文章' }}</el-button>
+          <el-button class="release-button" type="primary" size="small" @click="release" :loading="updating">{{ editStatus?'更新文章':'发布文章' }}</el-button>
         </div>
         <div class="more-setting">
           <p class="mark-setting-label">文章封面：</p>
@@ -55,6 +55,38 @@
             clearable
             @change="selectCategory"
           ></el-cascader>
+          <p class="mark-setting-label">标签：</p>
+          <el-tag
+            v-for="tag in dynamicTags"
+            :key="tag.id"
+            closable
+            :disable-transitions="false"
+            @close="handleClose(tag)">
+            {{tag}}
+          </el-tag>
+          <el-autocomplete
+            :class="[inputNewTagClass, inputValueExist?inputErrorClass:'']"
+            v-if="inputVisible"
+            v-model="inputValue"
+            ref="saveTagInput"
+            size="small"
+            :fetch-suggestions="querySearch"
+            @select="handleSelect"
+            placeholder="请输入内容"
+            @keyup.enter.native="handleInputConfirm"
+          ></el-autocomplete>
+<!--          <el-input-->
+<!--            :class="[inputNewTagClass, inputValueExist?inputErrorClass:'']"-->
+<!--            v-if="inputVisible"-->
+<!--            v-model="inputValue"-->
+<!--            ref="saveTagInput"-->
+<!--            size="small"-->
+<!--            @keyup.enter.native="handleInputConfirm"-->
+<!--            @blur="handleInputConfirm"-->
+<!--          >-->
+<!--          </el-input>-->
+          <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
+          <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
         </div>
       </div>
     </div>
@@ -86,6 +118,7 @@
   import Vditor from 'vditor'
   import "vditor/src/assets/scss/index.scss"
   import categoryApi from "@/api/category";
+  import tagApi from "@/api/tag";
 
   let toolbar = [
     'emoji',
@@ -158,12 +191,21 @@
         categories: [],
         categoryIdsList: [],
         draft: false,
-        articleLink: `${window.origin}/artiles/`
+        articleLink: `${window.origin}/artiles/`,
+        tags: [],
+        dynamicTags: [],
+        inputVisible: false,
+        inputValue: '',
+        inputValueExist: false,
+        inputNewTagClass: 'input-new-tag',
+        inputErrorClass: 'input-error',
+        vditorLoading: true,
       }
     },
     mounted() {
       this.getMarkdown()
       this.categoryTree()
+      this.getTags()
       const that = this
       window.onresize = function temp() {
         that.reHeight()
@@ -186,6 +228,20 @@
         this.getMarkdown(true)
         this.categoryTree()
       },
+      querySearch(queryString, cb) {
+        let tags = this.tags
+        let results = queryString ? tags.filter((tag) => {
+          return (tag.name.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }) : tags
+        // 调用 callback 返回建议列表的数据
+        results = results.map(res => {
+          return {value: res.name}
+        })
+        cb(results)
+      },
+      handleSelect(item){
+        this.handleInputConfirm()
+      },
       valueHasChanged(){
         this.$emit('update:hasChange', true)
       },
@@ -195,24 +251,29 @@
           markdownApi.getMarkdown({
             mark: this.$route.query.id
           }).then((res) => {
-            this.file = res.data
-            this.content = this.file.contentText
-            this.filename = this.file.name.split('.md')[0]
-            this.storageLocation = res.data.path
-            if(this.categories && this.categories.length > 0){
-              this.findCategoryIds(null, this.categories, this.file.categoryIds)
-            }
             // 初始化编辑器
             if(isReload){
               this.contentEditor.setValue(res.data.contentText)
             } else {
               this.vditorInit(res.data.contentText)
             }
+            this.file = res.data
+            this.content = this.file.contentText
+            this.filename = this.file.name.split('.md')[0]
+            this.storageLocation = res.data.path
+            // 加载分类
+            if(this.categories && this.categories.length > 0){
+              this.findCategoryIds(null, this.categories, this.file.categoryIds)
+            }
+            // 加载标签
+            if(this.tags && this.tags.length > 0) {
+              this.loadDynamicTags()
+            }
           }).then(() => {
             const that = this
             setTimeout(function (){
               that.$emit('update:hasChange', false)
-            }, 100)
+            }, 200)
           })
         } else {
           if(isReload){
@@ -223,12 +284,45 @@
         }
       },
       categoryTree() {
-        categoryApi.categoryTree({userId: this.$store.state.user.userId}).then(res => {
+        categoryApi.categoryTree().then(res => {
           this.categories = res.data
           if(this.file.categoryIds && this.file.categoryIds.length > 0){
             this.findCategoryIds(null, this.categories, this.file.categoryIds)
           }
         })
+      },
+      getTags() {
+        tagApi.tagList().then(res => {
+          this.tags = res.data
+          if(this.file.tagIds && this.file.tagIds.length > 0) {
+            this.loadDynamicTags()
+          }
+        })
+      },
+      loadDynamicTags() {
+        this.dynamicTags = this.tags.filter(tag => this.file.tagIds.includes(tag.id)).map(tag => tag.name)
+      },
+      handleClose(tag) {
+        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+      },
+      showInput() {
+        this.inputVisible = true
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus()
+        });
+      },
+      handleInputConfirm() {
+        let inputValue = this.inputValue
+        if (inputValue) {
+          if (this.dynamicTags.includes(inputValue)){
+            this.inputValueExist = true
+            return
+          }
+          this.dynamicTags.push(inputValue)
+        }
+        this.inputValueExist = false
+        this.inputVisible = false
+        this.inputValue = ''
       },
       findCategoryIds(parentCategory, categories, categoryIds) {
         if(!categoryIds){
@@ -269,6 +363,7 @@
           },
           after: () => {
             this.contentEditor.setValue(content)
+            console.log('sdf')
           },
           input: (val) => {
             this.valueHasChanged()
@@ -374,6 +469,7 @@
             isDraft: this.draft,
             slug: this.file.slug ? this.file.slug : this.filename,
             categoryIds: categoryIds,
+            tagNames: this.dynamicTags,
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
           }).then(() => {
@@ -469,7 +565,37 @@
     }
   }
 }
-
+/deep/ .el-tag {
+  margin-left: 8px;
+  margin-top: 8px;
+}
+/deep/ .button-new-tag {
+  margin-left: 8px;
+  margin-top: 8px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+/deep/ .input-new-tag {
+  margin-left: 8px;
+  margin-top: 8px;
+  max-width: 94px;
+  vertical-align: bottom;
+}
+/deep/ .input-error {
+  input {
+    border-color: #f56c6c;
+  }
+}
+.instruction-error {
+  color: #F56C6C;
+  font-size: 12px;
+  line-height: 1;
+  padding-top: 4px;
+  position: absolute;
+  margin-left: 8px;
+}
   @media (min-width: 1200px) {
     .article-editor {
       max-width: 1200px;
