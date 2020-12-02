@@ -71,22 +71,16 @@
             ref="saveTagInput"
             size="small"
             :fetch-suggestions="querySearch"
+            :popper-append-to-body="false"
             @select="handleSelect"
-            placeholder="请输入内容"
+            placeholder="请输入标签名"
             @keyup.enter.native="handleInputConfirm"
-          ></el-autocomplete>
-<!--          <el-input-->
-<!--            :class="[inputNewTagClass, inputValueExist?inputErrorClass:'']"-->
-<!--            v-if="inputVisible"-->
-<!--            v-model="inputValue"-->
-<!--            ref="saveTagInput"-->
-<!--            size="small"-->
-<!--            @keyup.enter.native="handleInputConfirm"-->
-<!--            @blur="handleInputConfirm"-->
-<!--          >-->
-<!--          </el-input>-->
+            @blur="handleInputConfirm"
+          >
+<!--            <div slot="suffix"fsd></div>-->
+          </el-autocomplete>
           <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
-          <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+          <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签 </el-button>
         </div>
       </div>
     </div>
@@ -582,6 +576,9 @@
   margin-top: 8px;
   max-width: 94px;
   vertical-align: bottom;
+  input {
+    padding: 0 5px;
+  }
 }
 /deep/ .input-error {
   input {
@@ -595,6 +592,25 @@
   padding-top: 4px;
   position: absolute;
   margin-left: 8px;
+}
+/deep/ .el-autocomplete-suggestion {
+  li {
+    background-color: #ecf5ff;
+    color: #409eff;
+    border: 1px solid #d9ecff;
+    border-radius: 4px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    margin: 2px 4px;
+    text-align: center;
+  }
+  li:hover {
+    background-color: #3f9eff;
+    color: #fafdff;
+  }
+}
+/deep/ .el-autocomplete-suggestion__wrap {
+  padding: 2px 0;
 }
   @media (min-width: 1200px) {
     .article-editor {
