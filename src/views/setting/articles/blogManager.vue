@@ -12,7 +12,12 @@
       <el-collapse v-model="activeNames">
         <el-collapse-item title="网站首页背景" name="1">
           <div class="config-itme-label">站点背景大图：</div>
-          <el-input autosize type="textarea" width="100%" v-model="form.backgroundSite"></el-input>
+          <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.categoryBackground || form.categoryBackground.length === 0">
+            <el-input autosize type="textarea" width="100%" v-model="form.backgroundSite"></el-input>
+            <div slot="content">
+              <el-image style="width: 150px;" :src="form.backgroundSite" fit="contain"></el-image>
+            </div>
+          </el-tooltip>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：</div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>
@@ -27,7 +32,7 @@
           <span class="instruction">配置网站的 Logo，该选项仅作用于顶部导航条</span>
 
           <div class="config-itme-label">导航栏操作按钮：</div>
-          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 4, maxRows: 6 }" ></el-input>
+          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 4, maxRows: 6 }" @input="preview"></el-input>
           <span class="instruction">
             一个操作按钮包含两个部分：
             <a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>
@@ -35,10 +40,28 @@
             <br>
             列如：{{example}}:https://github.com/jamebal (建议不超过5项)
           </span>
+          <div>
+            <el-divider content-position="center">预览</el-divider>
+            <ul class="navbar-nav side-toolbar-list">
+              <li v-for="operatingButton in operatingButtons">
+                <a :href="operatingButton.url" :title="operatingButton.title" target="_blank">
+                  <dl v-html="operatingButton.fontHtml">
+                    {{operatingButton.fontHtml}}
+                  </dl>
+                </a>
+              </li>
+            </ul>
+          </div>
+
         </el-collapse-item>
         <el-collapse-item title="分类界面" name="3">
           <div class="config-itme-label">分类界面背景大图：</div>
-          <el-input autosize type="textarea" width="100%" v-model="form.categoryBackground"></el-input>
+          <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.categoryBackground || form.categoryBackground.length === 0">
+            <el-input autosize type="textarea" width="100%" v-model="form.categoryBackground"></el-input>
+            <div slot="content">
+              <el-image style="width: 150px;" :src="form.categoryBackground" fit="contain"></el-image>
+            </div>
+          </el-tooltip>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
         </el-collapse-item>
       </el-collapse>
@@ -48,15 +71,18 @@
 
 <script>
 
-import { updateSetting, getSetting } from '@/api/user'
+import '../../../assets/fontawesome-free-5.11.2-web/css/all.min.css'
+import {getSetting, updateSetting} from '@/api/user'
+import JInput from "@/components/input/JInput";
 
 export default {
   name: 'blogManager',
   components: {
+    JInput,
   },
   data() {
     return {
-      activeNames: ['1','2','3'],
+      activeNames: ['2'],
       example: '<i class="fab fa-github">github</i>',
       form: {
         backgroundSite: '',
@@ -65,7 +91,8 @@ export default {
         siteName: '',
         operatingButtons: '',
         categoryBackground: '',
-      }
+      },
+      operatingButtons: []
     }
   },
   computed: {},
@@ -73,10 +100,29 @@ export default {
     this.getSetting()
   },
   methods: {
+    preview(){
+      this.operatingButtons = []
+      if(this.form.operatingButtons) {
+        this.form.operatingButtons.split(/[\n]/).forEach(button => {
+          let operatingButton = {}
+          const splitIndex = button.indexOf(":")
+          const ihtml = button.substring(0, splitIndex)
+          // 获取标签里的内容
+          let regLabel = /[^><]+(?=<\/i>)/img
+          const title = ihtml.match(regLabel)
+          operatingButton.title = title ? title[0] : ''
+          // 去掉标签里的内容
+          operatingButton.fontHtml = ihtml.replace(regLabel, '')
+          operatingButton.url = button.substring(splitIndex + 1, button.length)
+          this.operatingButtons.push(operatingButton)
+        })
+      }
+    },
     getSetting() {
       getSetting({userId: this.$store.state.user.userId}).then((res) => {
         if(res.data) {
           this.form = res.data;
+          this.preview()
         }
       }).catch(()=> {
 
@@ -95,6 +141,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "src/styles/setting";
+@import "src/styles/markdown";
 /deep/ .el-textarea {
   max-width: 1080px;
 }
@@ -121,6 +168,45 @@ export default {
     padding-top: 15px;
     font-size: 14px;
     font-weight: 500;
+  }
+}
+/deep/ .el-divider__text {
+  background-color: #fafafa;
+}
+.side-toolbar-list {
+  text-align: center;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  li {
+    position: relative;
+    display: inline-block;
+    margin: 0 .25rem;
+  }
+  li a {
+    display: inline-block;
+    height: 2.75rem;
+    width: 2.75rem;
+    line-height: 2.75rem;
+    border-radius: 100%;
+    font-size: 1rem;
+    background: #f0f0f0;
+    color: #333;
+    vertical-align: middle;
+    -webkit-transition: 0.3s ease all;
+    -moz-transition: 0.3s ease all;
+    -ms-transition: 0.3s ease all;
+    -o-transition: 0.3s ease all;
+    transition: 0.3s ease all;
+    svg {
+      width: 22px;
+      height: 22px;
+      margin-top: 10px;
+    }
+  }
+  li a:hover {
+    background: #333;
+    color: #fff;
   }
 }
 
