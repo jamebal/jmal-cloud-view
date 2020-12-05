@@ -236,25 +236,25 @@ export const constantRoutes = [
         path: 'manager-articles',
         name: 'manager-articles',
         component: () => import('@/views/setting/articles/articleManager'),
-        meta: { title: '文章管理' , icon: 'guanlizhuanjiawenzhang'}
+        meta: { title: '文章' , icon: 'guanlizhuanjiawenzhang'}
       },
       {
         path: 'manager-blog',
         name: 'manager-blog',
         component: () => import('@/views/setting/articles/blogManager'),
-        meta: { title: '外观设置' , icon: 'pifu'}
+        meta: { title: '外观' , icon: 'pifu'}
       },
       {
         path: 'manager-categories',
         name: 'manager-categories',
         component: () => import('@/views/setting/articles/categoryManager'),
-        meta: { title: '分类管理', icon: 'fenlei' }
+        meta: { title: '分类', icon: 'fenlei' }
       },
       {
         path: 'manager-tags',
         name: 'manager-tags',
         component: () => import('@/views/setting/articles/tagManager'),
-        meta: { title: '标签管理', icon: 'biaoqian' }
+        meta: { title: '标签', icon: 'biaoqian' }
       }
     ]
   },

@@ -9,13 +9,6 @@
           <div class="header-item">
             <span class="title-label">标题：</span>
             <el-input class="articles-title" placeholder="文章标题" v-model="filename" />
-            <!--        <el-input v-if="!editStatus" class="articles-storage" placeholder="存储位置" size="small" v-model="storageLocation" :readonly="true" @focus="selectDir">-->
-            <!--          <el-button slot="prepend" size="small" @click="selectDir">保存位置</el-button>-->
-            <!--        </el-input>-->
-            <!--        <el-button type="primary" @click="moreSetting = true" size="small">更多设置</el-button>-->
-            <!--        <el-button v-if="!editStatus" class="release-button" type="primary" size="small" @click="add" :loading="adding">发布文章</el-button>-->
-            <!--        <el-button v-if="editStatus" class="release-button" type="primary" size="small" @click="update" :loading="updating">更新文章</el-button>-->
-            <!--        <el-button v-if="!editStatus" class="release-button" type="warning" size="small" @click="add" :loading="adding">保存草稿</el-button>-->
           </div>
         </el-header>
         <el-main>
@@ -44,17 +37,22 @@
           </el-input>
           <span class="instruction">本文链接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
           <p class="mark-setting-label">分类：</p>
-          <el-cascader
-            v-model="categoryIdsList"
-            class="mark-setting-input"
-            placeholder="不选择"
-            :collapse-tags="false"
-            :options="categories"
-            :show-all-levels="false"
-            :props="{ multiple: true, checkStrictly: true, value: 'id', label: 'name' }"
-            clearable
-            @change="selectCategory"
-          ></el-cascader>
+          <el-tree
+            class="category-tree"
+            ref="categoryTree"
+            node-key="id"
+            :props="treeProps"
+            :data="categories"
+            icon-class="-"
+            :check-on-click-node="true"
+            :expand-on-click-node="false"
+            :check-strictly="true"
+            :default-expand-all="true"
+            :default-checked-keys="file.categoryIds"
+            show-checkbox
+            @check="selectCategory"
+          >
+          </el-tree>
           <p class="mark-setting-label">标签：</p>
           <el-tag
             v-for="tag in dynamicTags"
@@ -183,7 +181,6 @@
         moreSetting: false,
         contentEditor: '',
         categories: [],
-        categoryIdsList: [],
         draft: false,
         articleLink: `${window.origin}/artiles/`,
         tags: [],
@@ -194,6 +191,9 @@
         inputNewTagClass: 'input-new-tag',
         inputErrorClass: 'input-error',
         vditorLoading: true,
+        treeProps: {
+          label: 'name',
+        }
       }
     },
     mounted() {
@@ -255,10 +255,6 @@
             this.content = this.file.contentText
             this.filename = this.file.name.split('.md')[0]
             this.storageLocation = res.data.path
-            // 加载分类
-            if(this.categories && this.categories.length > 0){
-              this.findCategoryIds(null, this.categories, this.file.categoryIds)
-            }
             // 加载标签
             if(this.tags && this.tags.length > 0) {
               this.loadDynamicTags()
@@ -280,9 +276,6 @@
       categoryTree() {
         categoryApi.categoryTree().then(res => {
           this.categories = res.data
-          if(this.file.categoryIds && this.file.categoryIds.length > 0){
-            this.findCategoryIds(null, this.categories, this.file.categoryIds)
-          }
         })
       },
       getTags() {
@@ -318,27 +311,6 @@
         this.inputVisible = false
         this.inputValue = ''
       },
-      findCategoryIds(parentCategory, categories, categoryIds) {
-        if(!categoryIds){
-          return
-        }
-        categories.forEach(category => {
-          let ids = []
-          if(parentCategory && parentCategory.ids){
-            ids = parentCategory.ids
-          }
-          ids.push(category.id)
-          category['ids'] = ids
-          if(categoryIds.includes(category.id)){
-            let newIds = []
-            Object.assign(newIds , ids)
-            this.categoryIdsList.push(newIds)
-          }
-          if(category.children){
-            this.findCategoryIds(category, category.children, categoryIds)
-          }
-        })
-      },
       vditorInit(content){
         this.contentEditor = new Vditor('vditor', {
           height: this.clientHeight,
@@ -357,7 +329,6 @@
           },
           after: () => {
             this.contentEditor.setValue(content)
-            console.log('sdf')
           },
           input: (val) => {
             this.valueHasChanged()
@@ -440,14 +411,11 @@
         this.draft = false
         this.update()
       },
-      selectCategory(val){
+      selectCategory(props, data){
+        this.file.categoryIds = data.checkedKeys
       },
       // update
       update(message){
-        let categoryIds = []
-        this.categoryIdsList.forEach(categoryIdList => {
-          categoryIds.push(categoryIdList[categoryIdList.length - 1])
-        })
         if(!this.checkParam()){
           return
         }
@@ -462,7 +430,7 @@
             cover: this.file.cover,
             isDraft: this.draft,
             slug: this.file.slug ? this.file.slug : this.filename,
-            categoryIds: categoryIds,
+            categoryIds: this.file.categoryIds,
             tagNames: this.dynamicTags,
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue()
@@ -617,4 +585,17 @@
       max-width: 1200px;
     }
   }
+
+/deep/ .el-tree-node {
+  &:focus>.el-tree-node__content {
+    background-color: unset;
+  }
+  .el-tree-node__content:hover {
+    background-color: unset;
+  }
+}
+.category-tree {
+  max-height: 500px;
+  overflow: auto;
+}
 </style>
