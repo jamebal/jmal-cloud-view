@@ -10,9 +10,20 @@
             <span class="title-label">标题：</span>
             <el-input class="articles-title" placeholder="文章标题" v-model="filename" />
           </div>
+          <p class="url-slug"><span>{{ articleLink }}</span>
+            <el-input
+              class="mark-setting-input"
+              placeholder="缩略名"
+              v-model="file.slug"
+              autosize
+              size="mini"
+              :style="{width:text(file.slug)}"
+            >
+            </el-input>
+          </p>
         </el-header>
         <el-main>
-          <div id="vditor" v-loading="vditorLoading"></div>
+          <div id="vditor" :style="{maxHeight: clientHeight + 'px'}" v-loading="vditorLoading"></div>
         </el-main>
       </div>
       <div class="editor-right">
@@ -29,13 +40,6 @@
             placeholder="输入图片URL"
             v-model="file.cover">
           </el-input>
-          <p class="mark-setting-label">缩略名：</p>
-          <el-input
-            class="mark-setting-input"
-            placeholder="缩略名"
-            v-model="file.slug">
-          </el-input>
-          <span class="instruction">本文链接：<a>{{file.slug ? articleLink+file.slug : articleLink+file.id}}</a></span>
           <p class="mark-setting-label">分类：</p>
           <el-tree
             class="category-tree"
@@ -215,6 +219,17 @@
       },
       storageLocation(){
         this.valueHasChanged()
+      }
+    },
+    computed: {
+      text () {
+        return function (value) {
+          if (value === '' || value === 0) {
+            return '100%'
+          } else {
+            return String(value).length * 14 - 30 + 'px'
+          }
+        }
       }
     },
     methods: {
@@ -461,7 +476,7 @@
 <style lang="scss" scoped>
 @import "src/styles/setting";
   /deep/ .el-main {
-    padding: 30px 20px 20px 20px;
+    padding: 60px 20px 20px 20px;
     .v-note-wrapper {
       z-index: 200;
     }
@@ -597,5 +612,18 @@
 .category-tree {
   max-height: 500px;
   overflow: auto;
+}
+/deep/ .url-slug {
+  span {
+    color: #aaaaaa;
+  }
+  input {
+    font-size: 14px;
+    padding: 0;
+    background-color: #3f9eff2e;
+    border: 0;
+    height: 18px;
+    line-height: 18px;
+  }
 }
 </style>
