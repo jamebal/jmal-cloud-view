@@ -1,45 +1,39 @@
 <template>
-  <div>
-    <dir-tree ref="dirTree" :append-to-body='true'>
-        <el-button slot="footer" size="small" type="primary" @click="confirmSelectDir">确 定</el-button>
-    </dir-tree>
+  <div v-loading="vditorLoading">
     <div class="article-editor">
       <div class="editor-left">
         <el-header>
           <div class="header-item">
-            <span class="title-label">标题：</span>
-            <el-input class="articles-title" placeholder="文章标题" v-model="filename" />
+            <el-input class="articles-title" placeholder="标题" v-model="filename" />
           </div>
-          <p class="url-slug"><span>{{ articleLink }}</span>
-            <el-input
+          <div class="url-slug">
+            <div>{{ articleLink }}</div>
+            <edit-element
               class="mark-setting-input"
-              placeholder="缩略名"
               v-model="file.slug"
-              autosize
-              size="mini"
-              :style="{width:text(file.slug)}"
-            >
-            </el-input>
-          </p>
+              placeholder="缩略名"
+              can-edit
+            ></edit-element>
+          </div>
         </el-header>
         <el-main>
-          <div id="vditor" :style="{maxHeight: clientHeight + 'px'}" v-loading="vditorLoading"></div>
+          <div id="vditor" :style="{maxHeight: clientHeight + 'px'}"></div>
         </el-main>
       </div>
       <div class="editor-right">
         <div class="operation">
           <el-button class="release-button" type="warning" size="small" @click="saveDraft" :loading="updating">保存草稿</el-button>
-          <el-button class="release-button" type="primary" size="small" @click="release" :loading="updating">{{ editStatus?'更新文章':'发布文章' }}</el-button>
+          <el-button class="release-button" type="primary" size="small" @click="release" :loading="updating">发布文章</el-button>
         </div>
         <div class="more-setting">
-          <p class="mark-setting-label">文章封面：</p>
-          <el-input
-            class="mark-setting-input"
-            type="textarea"
-            :autosize="{ minRows: 3, maxRows: 8}"
-            placeholder="输入图片URL"
-            v-model="file.cover">
-          </el-input>
+          <p class="mark-setting-label">发布日期：</p>
+          <el-date-picker
+            v-model="file.uploadDate"
+            type="datetime"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            format="yyyy-MM-dd HH:mm:ss"
+            placeholder="____-__-__ __:__">
+          </el-date-picker>
           <p class="mark-setting-label">分类：</p>
           <el-tree
             class="category-tree"
@@ -79,10 +73,13 @@
             @keyup.enter.native="handleInputConfirm"
             @blur="handleInputConfirm"
           >
-<!--            <div slot="suffix"fsd></div>-->
           </el-autocomplete>
           <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
           <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签 </el-button>
+          <p class="mark-setting-label">
+            其他：
+          </p>
+          <el-button size="small" @click="moreSet">更多设置</el-button>
         </div>
       </div>
     </div>
@@ -94,12 +91,12 @@
       <div class="more-setting">
         <h2>更多设置</h2>
         <p class="mark-setting-label">文章封面：</p>
-        <el-input
-          type="textarea"
-          :autosize="{ minRows: 3, maxRows: 8}"
-          placeholder="输入图片URL"
-          v-model="file.cover">
-        </el-input>
+        <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!file.cover || file.cover.length === 0">
+          <el-input autosize type="textarea" width="100%" v-model="file.cover"></el-input>
+          <div slot="content">
+            <el-image style="width: 150px;" :src="file.cover" fit="contain"></el-image>
+          </div>
+        </el-tooltip>
       </div>
     </el-drawer>
   </div>
@@ -115,10 +112,10 @@
   import "vditor/src/assets/scss/index.scss"
   import categoryApi from "@/api/category";
   import tagApi from "@/api/tag";
+  import EditElement from "@/views/markdown/EditElement";
 
   let toolbar = [
     'emoji',
-    'headings',
     'bold',
     'italic',
     'strike',
@@ -130,10 +127,7 @@
     'outdent',
     'indent',
     '|',
-    'quote',
     'line',
-    'code',
-    'inline-code',
     'insert-before',
     'insert-after',
     '|',
@@ -145,14 +139,13 @@
     'redo',
     '|',
     'edit-mode',
-    'content-theme',
     'code-theme',
     'outline',
     'preview',
+    'fullscreen',
     {
       name: 'more',
       toolbar: [
-        'fullscreen',
         'export',
         'both',
         'info',
@@ -163,6 +156,7 @@
   export default {
     name: 'MarkdownEditor',
     components: {
+      EditElement,
       DirTree, Vditor
     },
     props: {
@@ -173,13 +167,13 @@
     },
     data() {
       return {
+        activeNames: ['1'],
         file: {},
         editStatus: false,
         html:'',    // 及时转的html
         filename: '',
-        clientHeight: document.documentElement.clientHeight - 210,
+        clientHeight: document.documentElement.clientHeight,
         updating: false,
-        isFullScreen: false,
         storageLocation: '/',
         selectLocationVisible: false,
         moreSetting: false,
@@ -197,17 +191,14 @@
         vditorLoading: true,
         treeProps: {
           label: 'name',
-        }
+        },
+        releaseTime: undefined
       }
     },
     mounted() {
       this.getMarkdown()
       this.categoryTree()
       this.getTags()
-      const that = this
-      window.onresize = function temp() {
-        that.reHeight()
-      }
     },
     watch: {
       file(){
@@ -222,15 +213,6 @@
       }
     },
     computed: {
-      text () {
-        return function (value) {
-          if (value === '' || value === 0) {
-            return '100%'
-          } else {
-            return String(value).length * 14 - 30 + 'px'
-          }
-        }
-      }
     },
     methods: {
       reload() {
@@ -288,6 +270,9 @@
           }
         }
       },
+      moreSet() {
+        this.moreSetting = true
+      },
       categoryTree() {
         categoryApi.categoryTree().then(res => {
           this.categories = res.data
@@ -314,22 +299,30 @@
         });
       },
       handleInputConfirm() {
-        let inputValue = this.inputValue
-        if (inputValue) {
-          if (this.dynamicTags.includes(inputValue)){
-            this.inputValueExist = true
-            return
+        const that = this
+        setTimeout(function (){
+          let inputValue = that.inputValue
+          if (inputValue) {
+            if (that.dynamicTags.includes(inputValue)){
+              that.inputValueExist = true
+              return
+            }
+            that.dynamicTags.push(inputValue)
           }
-          this.dynamicTags.push(inputValue)
-        }
-        this.inputValueExist = false
-        this.inputVisible = false
-        this.inputValue = ''
+          that.inputValueExist = false
+          that.inputVisible = false
+          that.inputValue = ''
+        },100)
       },
       vditorInit(content){
         this.contentEditor = new Vditor('vditor', {
           height: this.clientHeight,
-          toolbar,
+          resize: {
+            "enable": true
+          },
+          toolbar: [
+            ...toolbar
+          ],
           toolbarConfig: {
             pin: true,
           },
@@ -337,13 +330,14 @@
             mode: 'both',
             hljs: {
               lineNumber: true
-            }
+            },
           },
           cache: {
             enable: false,
           },
           after: () => {
             this.contentEditor.setValue(content)
+            this.vditorLoading = false
           },
           input: (val) => {
             this.valueHasChanged()
@@ -384,17 +378,6 @@
             response.data['succMap'] = succMap
             return JSON.stringify(response)
           }
-        }
-      },
-      fullScreen(status) {
-        this.isFullScreen = status
-        this.reHeight()
-      },
-      reHeight(){
-        if(this.isFullScreen){
-          this.clientHeight = document.documentElement.clientHeight
-        }else{
-          this.clientHeight = document.documentElement.clientHeight - 210
         }
       },
       save(){
@@ -444,11 +427,13 @@
             filename: filename,
             cover: this.file.cover,
             isDraft: this.draft,
+            isRelease: this.file.release,
             slug: this.file.slug ? this.file.slug : this.filename,
             categoryIds: this.file.categoryIds,
             tagNames: this.dynamicTags,
             currentDirectory: this.storageLocation,
-            contentText: this.contentEditor.getValue()
+            contentText: this.contentEditor.getValue(),
+            uploadDate: this.file.uploadDate,
           }).then(() => {
             this.$emit('update:hasChange', false)
             this.updating = false
@@ -476,7 +461,7 @@
 <style lang="scss" scoped>
 @import "src/styles/setting";
   /deep/ .el-main {
-    padding: 60px 20px 20px 20px;
+    padding: 35px 20px 20px 20px;
     .v-note-wrapper {
       z-index: 200;
     }
@@ -512,13 +497,15 @@
   }
 
   /deep/ .more-setting {
+    margin-top: 32px;
+    padding: 15px;
     .el-input {
       width: 100%;
     }
-    margin-top: 68px;
     .mark-setting-label {
-      font-weight: 500;
-      margin-top: 10px!important;
+      font-weight: bold;
+      margin-top: 10px !important;
+      margin-bottom: 5px;
     }
     .mark-setting-input {
       width: 100%;
@@ -614,16 +601,21 @@
   overflow: auto;
 }
 /deep/ .url-slug {
-  span {
-    color: #aaaaaa;
-  }
-  input {
+  display: flex;
+  color: #aaaaaa;
+  .mark-setting-input {
     font-size: 14px;
-    padding: 0;
-    background-color: #3f9eff2e;
-    border: 0;
-    height: 18px;
-    line-height: 18px;
+    padding: 0 2px;
+    border-radius: 2px;
+    color: #666;
+    width: fit-content;
+    background-color: #ecf5ff;
+    &:focus {
+      outline: none;
+    }
   }
+}
+/deep/ .vditor-toolbar--pin {
+  top: unset;
 }
 </style>

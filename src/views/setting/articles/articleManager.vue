@@ -18,6 +18,9 @@
             <span>文章管理</span>
             <el-button class="card-button" size="mini" type="primary" @click="newArticle">新建文章</el-button>
           </div>
+          <div class="card-header-right" v-show="this.multipleSelection.length > 0">
+            <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
+          </div>
         </div>
       </div>
       <div>
@@ -55,6 +58,7 @@
         <el-table
           :data="articleList"
           stripe
+          @selection-change="handleSelectionChange"
         >
           <el-table-column
             type="selection"
@@ -125,6 +129,7 @@
 import MarkdownEditor from '@/views/markdown/index'
 import markdownApi from "@/api/markdown-api";
 import categoryApi from "@/api/category";
+import api from "@/api/file-api";
 export default {
   name: 'articleManager',
   components: {
@@ -150,6 +155,7 @@ export default {
         keyword: '',
         categoryIds: ''
       },
+      multipleSelection: [],
     }
   },
   computed: {},
@@ -186,6 +192,36 @@ export default {
     }
   },
   methods: {
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    handleDelete() {
+      let fileIds = []
+      if (this.multipleSelection.length > 0) {
+        this.multipleSelection.forEach(value => {
+          fileIds.push(value.id)
+        })
+      }
+      this.$confirm('此操作将永久删除选中的文章, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        api.delete({
+          username: this.$store.state.user.name,
+          fileIds: fileIds
+        }).then(() => {
+          // 移除列表
+          this.getArticleList()
+        }).then(() => {
+          this.$notify({
+            title: '删除成功',
+            type: 'success',
+            duration: 1000
+          })
+        })
+      })
+    },
     beforeunloadFn(){
       return '确定要退出吗？'
     },
@@ -342,5 +378,8 @@ export default {
 }
 /deep/.el-card__body {
   min-width: 1080px;
+}
+/deep/ .el-dialog__body {
+  padding: 0 20px;
 }
 </style>
