@@ -2,6 +2,7 @@
   <div v-loading="vditorLoading">
     <div class="article-editor">
       <div class="editor-left">
+        <cite v-if="currentDarft">你正在编辑的是保存于 {{ file.updateDate }} 的草稿, 你也可以 <el-button type="text" style="color: #F56C6C" @click="deleteDraft">删除它</el-button></cite>
         <el-header>
           <div class="header-item">
             <el-input class="articles-title" placeholder="标题" v-model="filename" />
@@ -113,6 +114,7 @@
   import categoryApi from "@/api/category";
   import tagApi from "@/api/tag";
   import EditElement from "@/views/markdown/EditElement";
+  import api from "@/api/file-api";
 
   let toolbar = [
     'emoji',
@@ -180,6 +182,7 @@
         contentEditor: '',
         categories: [],
         draft: false,
+        currentDarft: false,
         articleLink: `${window.origin}/artiles/`,
         tags: [],
         dynamicTags: [],
@@ -242,16 +245,23 @@
           markdownApi.getMarkdown({
             mark: this.$route.query.id
           }).then((res) => {
+            if(res.data.draft) {
+              this.file = res.data.draft
+              if(res.data.release) {
+                this.currentDarft = true
+              }
+            } else {
+              this.file = res.data
+            }
             // 初始化编辑器
             if(isReload){
-              this.contentEditor.setValue(res.data.contentText)
+              this.contentEditor.setValue(this.file.contentText)
             } else {
-              this.vditorInit(res.data.contentText)
+              this.vditorInit(this.file.contentText)
             }
-            this.file = res.data
             this.content = this.file.contentText
             this.filename = this.file.name.split('.md')[0]
-            this.storageLocation = res.data.path
+            this.storageLocation = this.file.path
             // 加载标签
             if(this.tags && this.tags.length > 0) {
               this.loadDynamicTags()
@@ -404,6 +414,7 @@
       saveDraft() {
         this.draft = true
         this.update('保存草稿成功')
+        this.getMarkdown(true)
       },
       release() {
         this.draft = false
@@ -411,6 +422,25 @@
       },
       selectCategory(props, data){
         this.file.categoryIds = data.checkedKeys
+      },
+      deleteDraft() {
+        this.$confirm('您确定要删除这份草稿吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          markdownApi.deleteDraft({
+            fileId: this.$route.query.id,
+            username: this.$store.state.user.name
+          }).then(() => {
+            this.reload()
+            this.$message({
+              message: "草稿已被删除",
+              type: 'success',
+              duration : 1000
+            })
+          })
+        })
       },
       // update
       update(message){

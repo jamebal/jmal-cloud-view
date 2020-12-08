@@ -18,6 +18,14 @@ export default {
       data
     })
   },
+  // 删除草稿 /markdown/deleteDraft
+  deleteDraft: function(params) {
+    return request({
+      url: '/markdown/deleteDraft',
+      method: 'delete',
+      params
+    })
+  },
   // 编辑文档 /markdown/edit
   editMarkdownByPath: function(data) {
     return request({

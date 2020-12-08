@@ -26,11 +26,13 @@
       <div>
         <div class="table-top">
           <div class="table-top-left">
-            <el-radio-group v-model="query.radioStatus" size="mini" @change="getArticleList">
-              <el-radio-button label="">可用</el-radio-button>
-              <el-radio-button label="release">已发布</el-radio-button>
-              <el-radio-button label="draft">草稿</el-radio-button>
-            </el-radio-group>
+            <el-badge :hidden="draftNums === 0" :value="draftNums" class="item" type="primary">
+              <el-radio-group v-model="query.radioStatus" size="mini" @change="getArticleList">
+                <el-radio-button label="">可用</el-radio-button>
+                <el-radio-button label="release">已发布</el-radio-button>
+                <el-radio-button label="draft">草稿</el-radio-button>
+              </el-radio-group>
+            </el-badge>
             <span class="table-top-author">作者:</span>
             <el-radio-group v-model="query.radioUser" size="mini" @change="getArticleList">
               <el-radio-button label="all">所有</el-radio-button>
@@ -155,6 +157,7 @@ export default {
         keyword: '',
         categoryIds: ''
       },
+      draftNums: 0,
       multipleSelection: [],
     }
   },
@@ -274,6 +277,13 @@ export default {
         this.$nextTick(() => {
           this.isLoading = false
         })
+      })
+      markdownApi.getMarkdown({
+        pageIndex: this.pagination.pageIndex,
+        pageSize: this.pagination.pageSize,
+        isDraft: true
+      }).then((res) => {
+        this.draftNums = res.count
       })
     },
     findCategoryIds(parentCategory, categories, categoryIds) {
