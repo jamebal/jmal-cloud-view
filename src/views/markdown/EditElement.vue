@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-div"
+  <div id="edit-div"
        v-html="innerText"
        :contenteditable="canEdit"
        @focus="isLocked = true"
@@ -22,39 +22,41 @@ export default{
   },
   data(){
     return {
-      innerText: this.value,
-      isLocked: false
+      innerText: '',
+      isLocked: false,
     }
   },
   watch: {
-    'value'(){
+    value(value){
       if (!this.isLocked || !this.innerText) {
-        this.innerText = this.value;
+        console.log('value', value)
+        this.innerText = value
+        document.getElementById('edit-div').innerHTML = value
       }
     }
   },
   methods: {
     changeText(){
-      this.$emit('input', this.$el.innerHTML);
+      this.$emit('input', this.$el.innerHTML)
     }
   }
 }
 </script>
 <style lang="scss" rel="stylesheet/scss">
 .edit-div {
-  //overflow: auto;
-  //word-break: break-all;
-  //outline: none;
-  //user-select: text;
-  //white-space: pre-wrap;
-  //text-align: left;
-  //&[contenteditable=true]{
-  //  user-modify: read-write-plaintext-only;
-  //  &:empty:before {
-  //    content: attr(placeholder);
-  //    display: block;
-  //    color: #ccc;
-  //  }
-  //}
+  overflow: auto;
+  word-break: break-all;
+  outline: none;
+  user-select: text;
+  white-space: pre-wrap;
+  text-align: left;
+  &[contenteditable=true]{
+    user-modify: read-write-plaintext-only;
+    &:empty:before {
+      content: attr(placeholder);
+      display: block;
+      color: #ccc;
+    }
+  }
 }
 </style>

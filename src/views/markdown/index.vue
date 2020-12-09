@@ -10,6 +10,7 @@
           <div class="url-slug">
             <div>{{ articleLink }}</div>
             <edit-element
+              ref="editElement"
               class="mark-setting-input"
               v-model="file.slug"
               placeholder="缩略名"
@@ -31,9 +32,9 @@
           <el-date-picker
             v-model="file.uploadDate"
             type="datetime"
+            size="small"
             value-format="yyyy-MM-dd HH:mm:ss"
-            format="yyyy-MM-dd HH:mm:ss"
-            placeholder="____-__-__ __:__">
+            format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
           <p class="mark-setting-label">分类：</p>
           <el-tree
@@ -156,6 +157,7 @@
     }]
 
   export default {
+    inject: ['appReload'],
     name: 'MarkdownEditor',
     components: {
       EditElement,
@@ -195,7 +197,7 @@
         treeProps: {
           label: 'name',
         },
-        releaseTime: undefined
+        releaseTime: undefined,
       }
     },
     mounted() {
@@ -240,6 +242,7 @@
         this.$emit('update:hasChange', true)
       },
       getMarkdown(isReload){
+        this.draft = false
         if(this.$route.query.id){
           this.editStatus = true
           markdownApi.getMarkdown({
@@ -251,6 +254,7 @@
                 this.currentDarft = true
               }
             } else {
+              this.currentDarft = false
               this.file = res.data
             }
             // 初始化编辑器
@@ -414,7 +418,6 @@
       saveDraft() {
         this.draft = true
         this.update('保存草稿成功')
-        this.getMarkdown(true)
       },
       release() {
         this.draft = false
@@ -433,12 +436,12 @@
             fileId: this.$route.query.id,
             username: this.$store.state.user.name
           }).then(() => {
-            this.reload()
             this.$message({
               message: "草稿已被删除",
               type: 'success',
               duration : 1000
             })
+            this.reload()
           })
         })
       },
@@ -464,14 +467,21 @@
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue(),
             uploadDate: this.file.uploadDate,
-          }).then(() => {
+          }).then((res) => {
             this.$emit('update:hasChange', false)
             this.updating = false
             this.$message({
               message: message ? message : "发布成功",
               type: 'success',
               duration : 1000
-            });
+            })
+            if(this.draft){
+              this.$router.push({path: this.$route.path, query: {operation: 'editor', id: res.data}})
+              this.$emit('onTitle', this.filename)
+              this.reload()
+            } else {
+              this.$emit('onRelease')
+            }
           }).catch(()=> {
             this.updating = false
           })
@@ -639,6 +649,7 @@
     border-radius: 2px;
     color: #666;
     width: fit-content;
+    min-width: 35px;
     background-color: #ecf5ff;
     &:focus {
       outline: none;

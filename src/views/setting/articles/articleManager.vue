@@ -9,7 +9,7 @@
       @open="openDialog"
       @close="closeDialog"
     >
-      <markdown-editor ref="editor" :has-change.sync="hasChange" @onTitle="onTitle"></markdown-editor>
+      <markdown-editor ref="editor" :has-change.sync="hasChange" @onTitle="onTitle" @onRelease="onRelease"></markdown-editor>
     </el-dialog>
     <el-card class="box-card">
       <div slot="header">
@@ -367,6 +367,10 @@ export default {
     },
     openDialog() {
       this.pageTitle = '撰写新文章'
+    },
+    onRelease() {
+      this.newArticleDialogVisible = false
+      this.closeDialog()
     },
     closeDialog(){
       this.$router.replace({path: this.$route.path})
