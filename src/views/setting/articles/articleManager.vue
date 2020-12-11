@@ -1,7 +1,7 @@
 <template>
-  <div class="container" v-wechat-title="pageTitle">
+  <div>
     <el-dialog
-      :title="pageTitle"
+      :title="title"
       :fullscreen="true"
       :visible.sync="newArticleDialogVisible"
       :before-close="handleClose"
@@ -9,14 +9,14 @@
       @open="openDialog"
       @close="closeDialog"
     >
-      <markdown-editor ref="editor" :has-change.sync="hasChange" @onTitle="onTitle" @onRelease="onRelease"></markdown-editor>
+      <markdown-editor ref="editor" :has-change.sync="hasChange" :alone-page="alonePage" @onTitle="onTitle" @onRelease="onRelease"></markdown-editor>
     </el-dialog>
     <el-card class="box-card">
       <div slot="header">
         <div class="box-card-header">
           <div class="clearfix card-header-back">
-            <span>文章管理</span>
-            <el-button class="card-button" size="mini" type="primary" @click="newArticle">新建文章</el-button>
+            <span>{{ alonePage ? '管理独立页面':'管理文章' }}</span>
+            <el-button class="card-button" size="mini" type="primary" @click="newArticle">新建</el-button>
           </div>
           <div class="card-header-right" v-show="this.multipleSelection.length > 0">
             <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
@@ -29,7 +29,7 @@
             <el-badge :hidden="draftNums === 0" :value="draftNums" class="item" type="primary">
               <el-radio-group v-model="query.radioStatus" size="mini" @change="getArticleList">
                 <el-radio-button label="">可用</el-radio-button>
-                <el-radio-button label="release">已发布</el-radio-button>
+                <el-radio-button v-if="!alonePage" label="release">已发布</el-radio-button>
                 <el-radio-button label="draft">草稿</el-radio-button>
               </el-radio-group>
             </el-badge>
@@ -43,6 +43,7 @@
             <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
             <el-input v-model="query.keyword" size="mini" placeholder="请输入关键字" @keyup.enter.native="getArticleList"></el-input>
             <el-cascader
+              v-if="!alonePage"
               v-model="categoryIdsList"
               class="mark-setting-input"
               placeholder="不选择"
@@ -59,7 +60,8 @@
         </div>
         <el-table
           :data="articleList"
-          stripe
+          :class="{'el-table-alone-page': alonePage}"
+          row-key="id"
           @selection-change="handleSelectionChange"
         >
           <el-table-column
@@ -69,7 +71,6 @@
           <el-table-column
             prop="name"
             :show-overflow-tooltip="true"
-            min-width="200"
             label="标题">
             <template slot-scope="scope">
                 <a :title="'编辑 '+scope.row.name" @click="editArticle(scope.row.id)">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></a>
@@ -77,6 +78,7 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="!alonePage"
             width="150"
             label="状态">
             <template slot-scope="scope">
@@ -84,6 +86,11 @@
               <el-tag v-if="scope.row.release" size="medium" type="success">已发布</el-tag>
               <el-tag v-if="!scope.row.release" size="medium" type="info">未发布</el-tag>
             </template>
+          </el-table-column>
+          <el-table-column
+            v-if="alonePage"
+            prop="slug"
+            label="缩略名">
           </el-table-column>
           <el-table-column
             prop="username"
@@ -94,6 +101,7 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="!alonePage"
             prop="categories"
             label="分类">
             <template slot-scope="scope">
@@ -127,7 +135,7 @@
 </template>
 
 <script>
-
+import Sortable from 'sortablejs'
 import MarkdownEditor from '@/views/markdown/index'
 import markdownApi from "@/api/markdown-api";
 import categoryApi from "@/api/category";
@@ -137,10 +145,20 @@ export default {
   components: {
     MarkdownEditor
   },
+  props: {
+    pageTitle: {
+      type: String,
+      default: ''
+    },
+    alonePage: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       newArticleDialogVisible: false,
-      pageTitle: '文章管理',
+      title: this.pageTitle,
       hasChange: false,
       articleList: [],
       pagination: {
@@ -182,6 +200,13 @@ export default {
       window.addEventListener('popstate', this.goBack, false)
     }
     window.addEventListener('beforeunload', e => this.beforeunloadFn(e))
+
+    // 阻止默认行为
+    document.body.ondrop = function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    this.rowDrop()
   },
   watch: {
     hasChange(val){
@@ -195,6 +220,17 @@ export default {
     }
   },
   methods: {
+    //行拖拽
+    rowDrop() {
+      const tbody = document.querySelector('.el-table__body-wrapper tbody')
+      const _this = this
+      Sortable.create(tbody, {
+        onEnd({ newIndex, oldIndex }) {
+          const currRow = _this.articleList.splice(oldIndex, 1)[0]
+          _this.articleList.splice(newIndex, 0, currRow)
+        }
+      })
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
@@ -232,12 +268,6 @@ export default {
       const operation = this.$route.query.operation
       if(operation){
         this.newArticleDialogVisible = true
-        if(operation === 'new') {
-          this.pageTitle = '撰写新文章'
-        }
-        if(operation === 'editor') {
-          this.pageTitle = '编辑文章'
-        }
       } else {
         this.newArticleDialogVisible = false
       }
@@ -269,9 +299,11 @@ export default {
         userId: this.query.radioUser === 'my' ? this.$store.state.user.userId : null,
         isRelease: this.query.radioStatus === 'release',
         isDraft: this.query.radioStatus === 'draft',
+        isAlonePage: this.alonePage,
         keyword: this.query.keyword,
         categoryIds: this.query.categoryIds
       }).then((res) => {
+        console.log(res.data)
         this.articleList = res.data
         this.pagination.total = res.count
         this.$nextTick(() => {
@@ -281,6 +313,7 @@ export default {
       markdownApi.getMarkdown({
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
+        isAlonePage: this.alonePage,
         isDraft: true
       }).then((res) => {
         this.draftNums = res.count
@@ -359,14 +392,20 @@ export default {
     onTitle(val){
       const operation = this.$route.query.operation
       if(operation === 'new'){
-        this.pageTitle = '撰写新文章 ' + val
+        this.title = '撰写新文章 ' + val
+        if(this.alonePage){
+          this.title = '创建新页面 ' + val
+        }
       }
       if(operation === 'editor'){
-        this.pageTitle = '编辑：' + val
+        this.title = '编辑：' + val
       }
     },
     openDialog() {
-      this.pageTitle = '撰写新文章'
+      this.title = '撰写新文章'
+      if(this.alonePage){
+        this.title = '创建新页面'
+      }
     },
     onRelease() {
       this.newArticleDialogVisible = false
@@ -375,7 +414,6 @@ export default {
     closeDialog(){
       this.$router.replace({path: this.$route.path})
       window.onbeforeunload = null
-      this.pageTitle = '文章管理'
       this.hasChange = false
       this.getArticleList()
     }
@@ -395,5 +433,10 @@ export default {
 }
 /deep/ .el-dialog__body {
   padding: 0 20px;
+}
+/deep/ .el-table-alone-page {
+  tbody .el-table__row:hover {
+    cursor: move;
+  }
 }
 </style>

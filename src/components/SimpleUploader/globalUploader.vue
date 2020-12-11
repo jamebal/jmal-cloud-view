@@ -16,7 +16,7 @@
     >
       <uploader-unsupport></uploader-unsupport>
 
-      <uploader-drop v-if="dragover" class="uploader-drop">
+      <uploader-drop v-if="dragover && enableDragUplaod" class="uploader-drop">
         <span>上传文件到当前目录下</span>
       </uploader-drop>
 
@@ -157,6 +157,7 @@
         fileListScrollTop: 0,
         dragoverLoop: null,
         successMsg: null,
+        enableDragUplaod: false,// 是否启用拖拽上传
       }
     },
     computed: {
@@ -165,13 +166,22 @@
         return this.$refs.uploader.uploader
       }
     },
-    watch: {},
+    watch: {
+      $route(route) {
+        // 只有首页才启用拖拽上传
+        this.enableDragUplaod = route.path === '/'
+      }
+    },
     mounted() {
+      this.enableDragUplaod = this.$route.path === '/'
       let that = this
       let dropbox = document.body
 
       document.body.ondragstart = function(e){
-        return e.target.slot === 'jmal' && that.fileListScrollTop === 0;
+        if(that.enableDragUplaod) {
+          return e.target.slot === 'jmal' && that.fileListScrollTop === 0
+        }
+        return true
       }
 
       dropbox.addEventListener("dragenter", function(e){

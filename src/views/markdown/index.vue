@@ -36,48 +36,52 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
-          <p class="mark-setting-label">分类：</p>
-          <el-tree
-            class="category-tree"
-            ref="categoryTree"
-            node-key="id"
-            :props="treeProps"
-            :data="categories"
-            icon-class="-"
-            :check-on-click-node="true"
-            :expand-on-click-node="false"
-            :check-strictly="true"
-            :default-expand-all="true"
-            :default-checked-keys="file.categoryIds"
-            show-checkbox
-            @check="selectCategory"
-          >
-          </el-tree>
-          <p class="mark-setting-label">标签：</p>
-          <el-tag
-            v-for="tag in dynamicTags"
-            :key="tag.id"
-            closable
-            :disable-transitions="false"
-            @close="handleClose(tag)">
-            {{tag}}
-          </el-tag>
-          <el-autocomplete
-            :class="[inputNewTagClass, inputValueExist?inputErrorClass:'']"
-            v-if="inputVisible"
-            v-model="inputValue"
-            ref="saveTagInput"
-            size="small"
-            :fetch-suggestions="querySearch"
-            :popper-append-to-body="false"
-            @select="handleSelect"
-            placeholder="请输入标签名"
-            @keyup.enter.native="handleInputConfirm"
-            @blur="handleInputConfirm"
-          >
-          </el-autocomplete>
-          <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
-          <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签 </el-button>
+          <div v-if="!alonePage">
+            <p class="mark-setting-label">分类：</p>
+            <el-tree
+              class="category-tree"
+              ref="categoryTree"
+              node-key="id"
+              :props="treeProps"
+              :data="categories"
+              icon-class="-"
+              :check-on-click-node="true"
+              :expand-on-click-node="false"
+              :check-strictly="true"
+              :default-expand-all="true"
+              :default-checked-keys="file.categoryIds"
+              show-checkbox
+              @check="selectCategory"
+            >
+            </el-tree>
+          </div>
+          <div v-if="!alonePage">
+            <p class="mark-setting-label">标签：</p>
+            <el-tag
+              v-for="tag in dynamicTags"
+              :key="tag.id"
+              closable
+              :disable-transitions="false"
+              @close="handleClose(tag)">
+              {{tag}}
+            </el-tag>
+            <el-autocomplete
+              :class="[inputNewTagClass, inputValueExist?inputErrorClass:'']"
+              v-if="inputVisible"
+              v-model="inputValue"
+              ref="saveTagInput"
+              size="small"
+              :fetch-suggestions="querySearch"
+              :popper-append-to-body="false"
+              @select="handleSelect"
+              placeholder="请输入标签名"
+              @keyup.enter.native="handleInputConfirm"
+              @blur="handleInputConfirm"
+            >
+            </el-autocomplete>
+            <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
+            <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签 </el-button>
+          </div>
           <p class="mark-setting-label">
             其他：
           </p>
@@ -157,7 +161,6 @@
     }]
 
   export default {
-    inject: ['appReload'],
     name: 'MarkdownEditor',
     components: {
       EditElement,
@@ -167,6 +170,10 @@
       hasChange: {
         type: Boolean,
         defalut: false
+      },
+      alonePage: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -461,6 +468,7 @@
             cover: this.file.cover,
             isDraft: this.draft,
             isRelease: this.file.release,
+            isAlonePage: this.alonePage,
             slug: this.file.slug ? this.file.slug : this.filename,
             categoryIds: this.file.categoryIds,
             tagNames: this.dynamicTags,

@@ -1132,7 +1132,7 @@ export default {
     },
     // 行拖拽
     rowDrop() {
-      if (this.fileListScrollTop > 0) {
+      if (this.fileListScrollTop > 0 && this.$route.path !== '/') {
         return
       }
       // 目标元素的背景颜色
@@ -1365,6 +1365,9 @@ export default {
         }
       }
       let clearClass = function (node) {
+        if(!dragged) {
+          return
+        }
         if (node) {
           if (_this.grid) {
             node = node.children[0].children[0]
