@@ -18,6 +18,14 @@ export default {
       data
     })
   },
+  // 修改文档排序 /markdown/sort
+  sortMarkdown: function(data) {
+    return request({
+      url: '/markdown/sort',
+      method: 'post',
+      data
+    })
+  },
   // 删除草稿 /markdown/deleteDraft
   deleteDraft: function(params) {
     return request({

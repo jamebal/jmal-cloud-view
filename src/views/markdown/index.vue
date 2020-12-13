@@ -274,7 +274,7 @@
             this.filename = this.file.name.split('.md')[0]
             this.storageLocation = this.file.path
             // 加载标签
-            if(this.tags && this.tags.length > 0) {
+            if(this.file.tagIds && this.file.tagIds.length > 0 && this.tags && this.tags.length > 0) {
               this.loadDynamicTags()
             }
           }).then(() => {

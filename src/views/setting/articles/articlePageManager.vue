@@ -1,5 +1,5 @@
 <template>
-  <div className="container">
+  <div class="container">
     <article-manager :page-title="pageTitle"></article-manager>
   </div>
 </template>
@@ -27,4 +27,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "src/styles/setting";
 </style>

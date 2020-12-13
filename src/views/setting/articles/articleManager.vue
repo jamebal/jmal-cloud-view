@@ -71,15 +71,16 @@
           <el-table-column
             prop="name"
             :show-overflow-tooltip="true"
+            min-width="200"
             label="标题">
             <template slot-scope="scope">
                 <a :title="'编辑 '+scope.row.name" @click="editArticle(scope.row.id)">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></a>
-                <router-link :title="'浏览 '+scope.row.name" :to="'/articles/article?mark='+scope.row.id" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
+                <router-link :title="'浏览 '+scope.row.name" :to="'/articles/'+scope.row.slug" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
             </template>
           </el-table-column>
           <el-table-column
             v-if="!alonePage"
-            width="150"
+            min-width="100"
             label="状态">
             <template slot-scope="scope">
               <el-tag v-if="scope.row.draft" size="medium" type="warning">草稿</el-tag>
@@ -94,7 +95,6 @@
           </el-table-column>
           <el-table-column
             prop="username"
-            width="100"
             label="作者">
             <template slot-scope="scope">
               <router-link :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</router-link>
@@ -113,7 +113,8 @@
           </el-table-column>
           <el-table-column
             prop="updateDate"
-            label="日期">
+            label="日期"
+            width="160">
             <template slot-scope="scope">
               <span>{{scope.row.updateDate.substring(0, 16)}}</span>
             </template>
@@ -201,12 +202,14 @@ export default {
     }
     window.addEventListener('beforeunload', e => this.beforeunloadFn(e))
 
-    // 阻止默认行为
-    document.body.ondrop = function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    this.rowDrop()
+    if(this.alonePage){
+      // 阻止默认行为
+      document.body.ondrop = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      };
+      this.rowDrop()
+    }
   },
   watch: {
     hasChange(val){
@@ -228,6 +231,18 @@ export default {
         onEnd({ newIndex, oldIndex }) {
           const currRow = _this.articleList.splice(oldIndex, 1)[0]
           _this.articleList.splice(newIndex, 0, currRow)
+
+          let fileIdList = []
+          _this.articleList.forEach(article => {
+            fileIdList.push(article.id)
+          })
+          // 修改排序
+          console.log(fileIdList)
+          markdownApi.sortMarkdown(fileIdList).then(()=>{
+
+          }).catch(() => {
+
+          })
         }
       })
     },
@@ -266,11 +281,7 @@ export default {
     },
     goBack() {
       const operation = this.$route.query.operation
-      if(operation){
-        this.newArticleDialogVisible = true
-      } else {
-        this.newArticleDialogVisible = false
-      }
+      this.newArticleDialogVisible = !!operation;
     },
     cancelFilter() {
       this.$router.push({query: {}})
@@ -303,7 +314,6 @@ export default {
         keyword: this.query.keyword,
         categoryIds: this.query.categoryIds
       }).then((res) => {
-        console.log(res.data)
         this.articleList = res.data
         this.pagination.total = res.count
         this.$nextTick(() => {
