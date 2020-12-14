@@ -264,6 +264,7 @@
               this.currentDarft = false
               this.file = res.data
             }
+            console.log(this.file)
             // 初始化编辑器
             if(isReload){
               this.contentEditor.setValue(this.file.contentText)

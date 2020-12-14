@@ -75,7 +75,7 @@
             label="标题">
             <template slot-scope="scope">
                 <a :title="'编辑 '+scope.row.name" @click="editArticle(scope.row.id)">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></a>
-                <router-link :title="'浏览 '+scope.row.name" :to="'/articles/'+scope.row.slug" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
+                <router-link :title="'浏览 '+scope.row.name" :to="(alonePage?'/articles/o/':'/articles/s/')+scope.row.slug" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
             </template>
           </el-table-column>
           <el-table-column
@@ -97,7 +97,8 @@
             prop="username"
             label="作者">
             <template slot-scope="scope">
-              <router-link :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</router-link>
+              <router-link v-if="!alonePage" :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</router-link>
+              <span v-if="alonePage" :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -113,10 +114,10 @@
           </el-table-column>
           <el-table-column
             prop="updateDate"
-            label="日期"
+            label="发布日期"
             width="160">
             <template slot-scope="scope">
-              <span>{{scope.row.updateDate.substring(0, 16)}}</span>
+              <span>{{scope.row.uploadDate.substring(0, 16)}}</span>
             </template>
           </el-table-column>
         </el-table>

@@ -151,19 +151,6 @@ export const constantRoutes = [
       }
     ]
   },
-  // {
-  //   path: '/demo',
-  //   component: Layout,
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       name: 'demo',
-  //       component: () => import('@/views/demo/index'),
-  //       meta: { title: 'demo', icon: 'example' }
-  //     }
-  //   ]
-  // },
-
   {
     path: '/markdown',
     component: Layout,
@@ -174,31 +161,6 @@ export const constantRoutes = [
         name: 'markdown',
         component: () => import('@/views/markdown/index'),
         meta: { title: '创建文档', icon: 'md' }
-      }
-    ]
-  },
-
-  {
-    path: '/articles/article',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        name: 'article',
-        component: () => import('@/views/public/article/index'),
-        hidden: true,
-        meta: { keepAlive: false }
-      }
-    ]
-  },
-  {
-    path: 'articles',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: `${document.location.protocol}//${window.location.host}/articles`,
-        meta: { title: '关联博客', icon: 'link', keepAlive: false }
       }
     ]
   },
@@ -264,18 +226,6 @@ export const constantRoutes = [
       }
     ]
   },
-  // {
-  //   path: '/setting/manager-categories',
-  //   component: Layout,
-  //   children: [
-  //     {
-  //       path: '',
-  //       name: 'manager-categories',
-  //       component: () => import('@/views/setting/articles/categoryManager'),
-  //       meta: { title: '分类管理', icon: 'leimupinleifenleileibie' }
-  //     }
-  //   ]
-  // },
   {
     path: '/setting/manager-cloud',
     component: Layout,
@@ -285,19 +235,6 @@ export const constantRoutes = [
         name: 'manager-cloud',
         component: () => import('@/views/setting/cloudManager'),
         meta: { title: '网盘管理', icon: 'yunshezhi' }
-      }
-    ]
-  },
-  {
-    path: '/articles',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '',
-        name: 'articles',
-        component: () => import('@/views/public/articles/index'),
-        meta: { title: '文档列表', icon: 'md-list', keepAlive: false }
       }
     ]
   },
