@@ -144,13 +144,6 @@
       },
       // 忘记密码
       forget() {
-        // this.$confirm('请联系管理员重置密码', '提示', {
-        //   confirmButtonText: '确定',
-        //   cancelButtonText: '',
-        //   type: 'info'
-        // }).then(() => {
-        // })
-
         this.$alert('请联系管理员重置密码', '提示', {
           confirmButtonText: '确定',
         });
@@ -224,6 +217,7 @@
       },
       // 修改用户信息操作
       userUpdate(data, dataURL){
+        console.log('this.$store.state.user.avatar', this.$store.state.user.avatar)
         this.userUpdateLoading = true
         userUpdate(data).then((res) => {
           this.userUpdateLoading = false

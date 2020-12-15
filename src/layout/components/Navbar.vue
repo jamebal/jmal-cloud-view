@@ -4,10 +4,16 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-content">
-      <div class="right-content-button">
-        <router-link target="_blank" to="/articles">
-          <svg-icon icon-class="WEBSITE"></svg-icon>网站
-      </router-link></div>
+      <router-link to="/setting/website/manager-blog">
+        <div class="right-content-button">
+            <svg-icon icon-class="wangzhanguanli"></svg-icon>网站管理
+        </div>
+      </router-link>
+      <router-link target="_blank" to="/articles">
+        <div class="right-content-button">
+            <svg-icon icon-class="WEBSITE"></svg-icon>网站
+        </div>
+      </router-link>
       <div class="right-username">{{username}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
@@ -23,17 +29,9 @@
             </router-link>
             <router-link to="/setting/website/manager-blog">
               <el-dropdown-item>
-                <svg-icon icon-class="wangzhan"></svg-icon>网站管理
+                <svg-icon icon-class="wangzhanguanli"></svg-icon>网站管理
               </el-dropdown-item>
             </router-link>
-            <!--<router-link to="/">-->
-            <!--<el-dropdown-item>-->
-            <!--首页-->
-            <!--</el-dropdown-item>-->
-            <!--</router-link>-->
-            <!--<a target="_blank" href="https://github.com/jamebal/jmal-cloud-view/">-->
-            <!--<el-dropdown-item>Github</el-dropdown-item>-->
-            <!--</a>-->
             <el-dropdown-item divided @click.native="logout">
               <svg-icon icon-class="tuichudenglu"></svg-icon>退出登录
             </el-dropdown-item>
@@ -174,7 +172,7 @@ export default {
         }
       }
     }
-    .avatar-container:hover {
+    &:hover {
       background-color: #00000006;
     }
   }

@@ -1,19 +1,13 @@
 <template>
     <div>
       <div class="container">
-        <!--<img :src="sourceImg" style="width: 50px; height: 50px;">-->
         <div class="img-container" v-loading="loading">
           <div class="img-region">
             <img :src="sourceImg" ref="image" style="max-width: 100%;" alt="">
           </div>
           <div class="button-region">
-            <el-button type="primary" @click="sureSava">保存头像</el-button>
+            <el-button v-if="sourceImg.length > 0" type="primary" @click="sureSava">保存头像</el-button>
             <el-button @click="selectImg">重新选择</el-button>
-            <!--<el-upload-->
-              <!--action="https://jsonplaceholder.typicode.com/posts/"-->
-              <!--:auto-upload="false">-->
-              <!--<el-button ref="selectImg">选择</el-button>-->
-            <!--</el-upload>-->
             <input ref="selectImg" type="file" style="display: none;" accept="image/*" @change="changImg"></input>
           </div>
         </div>
@@ -42,7 +36,7 @@
       },
       src: {
         type: String,
-        default: '~@/assets/img/widget-img.jpeg'
+        default: ''
       }
     },
     data () {

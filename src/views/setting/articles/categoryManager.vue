@@ -47,7 +47,6 @@
           <el-button class="card-button" size="mini" type="primary" @click="add()">新增分类</el-button>
         </div>
         <div class="card-header-right" v-show="this.multipleSelection.length > 0">
-          <el-button v-show="this.multipleSelection.length === 1" size="small" @click="handleEdit()">编辑</el-button>
           <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
         </div>
       </div>
@@ -65,6 +64,9 @@
         <el-table-column
           prop="name"
           label="名称">
+          <template slot-scope="scope">
+            <a @click="handleEdit(scope.row.id)">{{scope.row.name}}</a>
+          </template>
         </el-table-column>
         <el-table-column
           label="子分类">
@@ -234,12 +236,12 @@ export default {
         }
       });
     },
-    handleEdit() {
+    handleEdit(id) {
       this.editMove = 2
       this.dialogVisible = true
       this.dialogTitle = '修改分类'
       categoryApi.categoryInfo({
-        categoryId: this.multipleSelection[0].id
+        categoryId: id
       }).then(res => {
         this.form = res.data
       })

@@ -204,7 +204,7 @@ export const constantRoutes = [
         path: 'manager-alone-page',
         name: 'manager-alone-page',
         component: () => import('@/views/setting/articles/alonePageManager'),
-        meta: { title: '独立页面' , icon: 'guanlizhuanjiawenzhang'}
+        meta: { title: '独立页面' , icon: 'yemianshezhi'}
       },
       {
         path: 'manager-blog',

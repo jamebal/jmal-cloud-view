@@ -185,7 +185,7 @@
         filename: '',
         clientHeight: document.documentElement.clientHeight,
         updating: false,
-        storageLocation: '/',
+        storageLocation: '',
         selectLocationVisible: false,
         moreSetting: false,
         contentEditor: '',
@@ -264,7 +264,6 @@
               this.currentDarft = false
               this.file = res.data
             }
-            console.log(this.file)
             // 初始化编辑器
             if(isReload){
               this.contentEditor.setValue(this.file.contentText)
@@ -273,7 +272,6 @@
             }
             this.content = this.file.contentText
             this.filename = this.file.name.split('.md')[0]
-            this.storageLocation = this.file.path
             // 加载标签
             if(this.file.tagIds && this.file.tagIds.length > 0 && this.tags && this.tags.length > 0) {
               this.loadDynamicTags()
@@ -376,11 +374,12 @@
         return {
           accept: 'image/*,.mp3, .wav, .rar',
           headers: {
-            'jmal-token': this.$store.state.user.token
+            'jmal-token': this.$store.state.user.token,
+            'username': this.$store.state.user.name,
+            'userId': this.$store.state.user.userId
           },
           url: '/api/upload-markdown-image',
           extraData: {
-            'filename': this.filename,
             'username': this.$store.state.user.name,
             'userId': this.$store.state.user.userId
           },
@@ -399,7 +398,16 @@
             response.data = {}
             response.data['succMap'] = succMap
             return JSON.stringify(response)
-          }
+          },
+          error(msg) {
+            console.log('error', msg)
+          },
+          linkToImgUrl: '/api/upload-markdown-link-image',
+          linkToImgFormat(responseText) {
+            let response = JSON.parse(responseText)
+            response.data['url'] = fileConfig.mardownPreviewUrl(response.data.url)
+            return JSON.stringify(response)
+          },
         }
       },
       save(){
@@ -475,6 +483,7 @@
             tagNames: this.dynamicTags,
             currentDirectory: this.storageLocation,
             contentText: this.contentEditor.getValue(),
+            html: this.contentEditor.getHTML(),
             uploadDate: this.file.uploadDate,
           }).then((res) => {
             this.$emit('update:hasChange', false)
