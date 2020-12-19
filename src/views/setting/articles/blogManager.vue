@@ -13,7 +13,7 @@
         <el-collapse-item title="网站首页背景" name="1">
           <div class="config-itme-label">站点背景大图：</div>
           <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.categoryBackground || form.categoryBackground.length === 0">
-            <el-input autosize type="textarea" width="100%" v-model="form.backgroundSite"></el-input>
+            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.backgroundSite"></el-input>
             <div slot="content">
               <el-image style="width: 150px;" :src="form.backgroundSite" fit="contain"></el-image>
             </div>
@@ -31,7 +31,7 @@
           <el-input autosize type="textarea" width="100%" v-model="form.siteName"></el-input>
           <span class="instruction">配置网站的 Logo，该选项仅作用于顶部导航条</span>
           <div class="config-itme-label">导航栏操作按钮：</div>
-          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 4, maxRows: 6 }" @input="preview"></el-input>
+          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 1, maxRows: 6 }" @input="preview"></el-input>
           <span class="instruction">
             一个操作按钮包含两个部分：
             <a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>
@@ -65,7 +65,7 @@
 
           <div class="config-itme-label">归档界面背景大图：</div>
           <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.archiveBackground || form.archiveBackground.length === 0">
-            <el-input autosize type="textarea" width="100%" v-model="form.archiveBackground"></el-input>
+            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.archiveBackground"></el-input>
             <div slot="content">
               <el-image style="width: 150px;" :src="form.archiveBackground" fit="contain"></el-image>
             </div>
@@ -73,7 +73,7 @@
           <span class="instruction">在这里填入图片的URL地址, 以在归档页面显示一个背景大图。</span>
           <div class="config-itme-label">分类界面背景大图：</div>
           <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.categoryBackground || form.categoryBackground.length === 0">
-            <el-input autosize type="textarea" width="100%" v-model="form.categoryBackground"></el-input>
+            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.categoryBackground"></el-input>
             <div slot="content">
               <el-image style="width: 150px;" :src="form.categoryBackground" fit="contain"></el-image>
             </div>
@@ -81,7 +81,7 @@
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
           <div class="config-itme-label">标签界面背景大图：</div>
           <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.tagBackground || form.tagBackground.length === 0">
-            <el-input autosize type="textarea" width="100%" v-model="form.tagBackground"></el-input>
+            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.tagBackground"></el-input>
             <div slot="content">
               <el-image style="width: 150px;" :src="form.tagBackground" fit="contain"></el-image>
             </div>
