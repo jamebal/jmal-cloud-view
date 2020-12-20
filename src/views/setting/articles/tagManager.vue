@@ -1,6 +1,6 @@
 <template>
   <div class="container" v-wechat-title="title">
-    <el-dialog class="dialog-cm" :title="dialogTitle" :visible.sync="dialogVisible">
+    <el-dialog class="dialog-cm" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
       <el-form ref="managerForm" :model="form" label-position="left" :rules="rules" label-width="85px">
         <el-form-item label="标签名称" prop="name">
           <el-input v-model="form.name" style="width: 100%;"/>

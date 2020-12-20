@@ -1,12 +1,12 @@
 <template>
   <div class="container" v-wechat-title="title">
-    <el-dialog class="dialog-cm" :title="dialogTitle" :visible.sync="dialogVisible">
+    <el-dialog class="dialog-cm" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
       <el-form ref="managerForm" :model="form" label-position="left" :rules="rules" label-width="85px">
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" style="width: 100%;"/>
         </el-form-item>
-        <el-form-item label="分类缩略名" prop="thumbnailName">
-          <el-input v-model="form.thumbnailName" style="width: 100%;"/>
+        <el-form-item label="分类缩略名" prop="slug">
+          <el-input v-model="form.slug" style="width: 100%;"/>
           <div class="instruction">分类缩略名用于创建友好的链接形式.</div>
         </el-form-item>
         <el-form-item label="父级分类" prop="parentCategoryId">
@@ -77,7 +77,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="thumbnailName"
+          prop="slug"
           label="缩略名">
         </el-table-column>
         <el-table-column
@@ -121,7 +121,7 @@ export default {
       parentCategoryId: undefined,
       form: {
         name: '',
-        thumbnailName: '',
+        slug: '',
         parentCategoryId: '',
         desc: '',
         categoryBackground: ''
