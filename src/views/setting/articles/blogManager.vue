@@ -88,6 +88,12 @@
           </el-tooltip>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
         </el-collapse-item>
+        <el-collapse-item title="网站页脚" name="4">
+          <div class="config-itme-label">版权信息：</div>
+          <el-input autosize type="textarea" width="100%" v-model="form.copyright"></el-input>
+          <div class="config-itme-label">备案许可号：</div>
+          <el-input autosize type="textarea" width="100%" v-model="form.recordPermissionNum"></el-input>
+        </el-collapse-item>
       </el-collapse>
     </el-card>
   </div>
@@ -117,7 +123,9 @@ export default {
         categoryBackground: '',
         archiveBackground: '',
         tagBackground: '',
-        alonePages: []
+        alonePages: [],
+        copyright: '',
+        recordPermissionNum: ''
       },
       operatingButtons: [],
     }
