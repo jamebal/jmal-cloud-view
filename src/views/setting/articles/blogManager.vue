@@ -11,13 +11,11 @@
       </a-affix>
       <el-collapse v-model="activeNames">
         <el-collapse-item title="网站首页背景" name="1">
-          <div class="config-itme-label">站点背景大图：</div>
-          <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.categoryBackground || form.categoryBackground.length === 0">
-            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.backgroundSite"></el-input>
-            <div slot="content">
-              <el-image style="width: 150px;" :src="form.backgroundSite" fit="contain"></el-image>
-            </div>
-          </el-tooltip>
+          <div class="config-itme-label">站点背景大图：
+          </div>
+          <upload-image-input
+            v-model="form.backgroundSite"
+          />
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：</div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>
@@ -103,12 +101,12 @@
 
 import '../../../assets/fontawesome-free-5.11.2-web/css/all.min.css'
 import {getSetting, updateSetting} from '@/api/setting-api'
-import JInput from "@/components/input/JInput";
+import UploadImageInput from "@/components/input/UploadImageInput";
 
 export default {
   name: 'blogManager',
   components: {
-    JInput,
+    UploadImageInput
   },
   data() {
     return {
@@ -136,7 +134,7 @@ export default {
     this.$nextTick(() => {
       const that = this
       setTimeout(function (){
-        that.activeNames = ['2']
+        that.activeNames = ['1']
       },50)
     })
   },
