@@ -401,7 +401,7 @@
           <span> {{ rowContextData.size }}字节 {{ rowContextData.size > 0 ? '(' + formatSize(rowContextData.size) + ')' : '' }}</span>
         </el-form-item>
         <el-form-item label="位置:" class="details-position">
-          <a :href="'?path='+rowContextData.path">{{ rowContextData.path }}</a>
+          <a :href="'/?path='+rowContextData.path">{{ rowContextData.path }}</a>
         </el-form-item>
         <el-form-item label="创建时间:">
           <span>{{ rowContextData.uploadDate }}</span>

@@ -102,7 +102,7 @@
 <script>
 
 import '../../../assets/fontawesome-free-5.11.2-web/css/all.min.css'
-import {getSetting, updateSetting} from '@/api/user'
+import {getSetting, updateSetting} from '@/api/setting-api'
 import JInput from "@/components/input/JInput";
 
 export default {
@@ -201,15 +201,6 @@ export default {
   background: rgba(235,235,235,0.3);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-}
-/deep/ .el-collapse-item__content {
-  background-color: #fafafa;
-  padding: 0 30px 20px;
-  .config-itme-label {
-    padding-top: 15px;
-    font-size: 14px;
-    font-weight: 500;
-  }
 }
 /deep/ .el-divider__text {
   background-color: #fafafa;

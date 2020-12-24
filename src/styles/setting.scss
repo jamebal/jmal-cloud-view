@@ -49,7 +49,15 @@ a:hover {
   float: right;
   margin-top: -32px;
 }
-
+/deep/ .el-collapse-item__content {
+  background-color: #fafafa;
+  padding: 0 30px 20px;
+}
+.config-itme-label {
+  padding-top: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
 .img-dialog {
 
 }

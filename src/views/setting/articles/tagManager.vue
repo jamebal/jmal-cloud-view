@@ -224,6 +224,7 @@ export default {
 }
 /deep/ .el-checkbox {
   margin-right: 0;
+  margin-bottom: 16px;
 }
 /deep/ .el-checkbox.is-bordered {
   background-color: #f4f4f5;

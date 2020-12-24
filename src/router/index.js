@@ -234,7 +234,7 @@ export const constantRoutes = [
         path: '',
         name: 'manager-cloud',
         component: () => import('@/views/setting/cloudManager'),
-        meta: { title: '网盘管理', icon: 'yunshezhi' }
+        meta: { title: '网盘设置', icon: 'yunshezhi' }
       }
     ]
   },
