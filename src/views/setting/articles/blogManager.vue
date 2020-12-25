@@ -13,9 +13,7 @@
         <el-collapse-item title="网站首页背景" name="1">
           <div class="config-itme-label">站点背景大图：
           </div>
-          <upload-image-input
-            v-model="form.backgroundSite"
-          />
+          <upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：</div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>

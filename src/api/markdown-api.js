@@ -42,4 +42,12 @@ export default {
       data
     })
   },
+  // 上传url形式图片
+  uploadLinkImage: function(params) {
+    return request({
+      url: '/upload-markdown-link-image',
+      method: 'post',
+      data: params
+    })
+  },
 }
