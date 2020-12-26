@@ -108,7 +108,7 @@ export default {
   },
   data() {
     return {
-      activeNames: [],
+      activeNames: ['1'],
       example: '<i class="fab fa-github">github</i>',
       form: {
         backgroundSite: '',
@@ -129,12 +129,6 @@ export default {
   computed: {},
   mounted() {
     this.getSetting()
-    this.$nextTick(() => {
-      const that = this
-      setTimeout(function (){
-        that.activeNames = ['1']
-      },50)
-    })
   },
   methods: {
     preview(){

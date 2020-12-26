@@ -1,21 +1,23 @@
 <template>
   <div>
     <el-upload
+      ref="uploadRef"
       action="/api/upload-markdown-image"
       :headers="headers"
       :data="extraData"
       name="files"
       accept="image/*"
-      :show-file-list="true"
+      :show-file-list="false"
       :file-list="fileList"
-      list-type="picture"
       :limit="1"
+      :before-upload="handleBeforeUpload"
       :on-success="handleSuccess"
+      :on-remove="handleFileListRemove"
     >
-      <el-button size="small" type="text">点击上传</el-button>或者输入图片的url
-      <div slot="tip">{{ uploadTip }}</div>
+      <el-button size="small" type="text">点击上传</el-button><span>或者输入图片的url</span>
+      <div v-if="uploadState > 0" slot="tip">{{ uploadState === 1 ? '图片上传中' : '图片上传成功' }} <i :class="{'el-icon-loading': uploadState === 1, 'el-icon-check': uploadState === 2}"></i></div>
     </el-upload>
-    <el-tooltip v-if="fileList.length === 0" class="item" effect="dark" placement="bottom">
+    <el-tooltip class="item" effect="dark" placement="bottom">
       <el-input :autosize="{ minRows: 1, maxRows: 4}" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
       <div slot="content">
         <el-image style="width: 150px;" :src="currentValue" fit="contain" @load="loadSuccess"></el-image>
@@ -50,6 +52,7 @@ export default {
       fileList: [],
       isLocked: false, // true表示输入框正在输入状态
       timer: null,
+      uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功
       uploadTip: ''
     }
   },
@@ -63,21 +66,28 @@ export default {
   methods: {
     change(value) {
       this.isLocked = false
-      console.log('change')
       this.$emit('input', value)
     },
     input(value) {
-      console.log('input')
+    },
+    handleBeforeUpload(file){
+      this.uploadState = 1
     },
     handleSuccess(response, file, fileList) {
       if(response.code === 0){
         if(response.data && response.data.length > 0){
-          this.currentValue = window.location.origin + fileConfig.mardownPreviewUrl(response.data[0].filepath) + "?o=thumbnail"
-          this.change(this.currentValue)
-          fileList[0].name = response.data[0].filename;
-          fileList[0].url = this.currentValue;
+          this.format(response.data[0].filepath, response.data[0].filename)
         }
       }
+      this.uploadState = 2
+      this.fileList = []
+    },
+    handleFileListRemove(file, fileList) {
+      this.fileList = fileList
+    },
+    format(filepath, filename){
+      this.currentValue = window.location.origin + fileConfig.mardownPreviewUrl(filepath)
+      this.change(this.currentValue)
     },
     loadSuccess() {
       if(this.timer == null){
@@ -85,16 +95,18 @@ export default {
           const that = this
           this.timer = setTimeout(function (){
             if(!that.currentValue.startsWith(window.location.origin)){
-              that.uploadTip = "图片加载成功，准备上传"
+              that.uploadState = 1
               markdownApi.uploadLinkImage({
                 username: that.$store.state.user.name,
                 userId: that.$store.state.user.userId,
                 url: that.currentValue
               }).then((res) => {
-
+                that.format(res.data.filepath, res.data.filename)
+                that.uploadState = 2
+                that.$refs.uploadRef.clearFiles()
               })
             }
-          }, 500)
+          }, 300)
         }
       } else {
         clearTimeout(this.timer)
