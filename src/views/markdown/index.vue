@@ -110,7 +110,6 @@
 
 <script>
   import markdownApi from '@/api/markdown-api'
-  import uploadApi from '@/api/file-api'
   import DirTree from"@/components/FileTree/DirTree"
   import fileConfig from '@/utils/file-config'
 
@@ -119,7 +118,6 @@
   import categoryApi from "@/api/category";
   import tagApi from "@/api/tag";
   import EditElement from "@/views/markdown/EditElement";
-  import api from "@/api/file-api";
 
   let toolbar = [
     'emoji',
@@ -200,7 +198,7 @@
         inputValueExist: false,
         inputNewTagClass: 'input-new-tag',
         inputErrorClass: 'input-error',
-        vditorLoading: true,
+        vditorLoading: false,
         treeProps: {
           label: 'name',
         },
@@ -242,13 +240,14 @@
         })
         cb(results)
       },
-      handleSelect(item){
+      handleSelect(){
         this.handleInputConfirm()
       },
       valueHasChanged(){
         this.$emit('update:hasChange', true)
       },
       getMarkdown(isReload){
+        this.vditorLoading = true
         this.draft = false
         if(this.$route.query.id){
           this.editStatus = true
@@ -267,6 +266,7 @@
             // 初始化编辑器
             if(isReload){
               this.contentEditor.setValue(this.file.contentText)
+              this.vditorLoading = false
             } else {
               this.vditorInit(this.file.contentText)
             }
@@ -359,7 +359,7 @@
             this.contentEditor.setValue(content)
             this.vditorLoading = false
           },
-          input: (val) => {
+          input: () => {
             this.valueHasChanged()
           },
           upload: this.markdownImageUplaod()
