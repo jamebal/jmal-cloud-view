@@ -1,24 +1,28 @@
 <template>
   <div>
-    <el-upload
-      ref="uploadRef"
-      action="/api/upload-markdown-image"
-      :headers="headers"
-      :data="extraData"
-      name="files"
-      accept="image/*"
-      :show-file-list="false"
-      :file-list="fileList"
-      :limit="1"
-      :before-upload="handleBeforeUpload"
-      :on-success="handleSuccess"
-      :on-remove="handleFileListRemove"
-    >
-      <el-button size="small" type="text">点击上传</el-button><span>或者输入图片的url</span>
-      <div v-if="uploadState > 0" slot="tip">{{ uploadState === 1 ? '图片上传中' : '图片上传成功' }} <i :class="{'el-icon-loading': uploadState === 1, 'el-icon-check': uploadState === 2}"></i></div>
-    </el-upload>
+    <div class="upload">
+      <div class="url-desc url-desc-first">输入图片的url 或</div>
+      <el-upload
+        class="upload"
+        ref="uploadRef"
+        action="/api/upload-markdown-image"
+        :headers="headers"
+        :data="extraData"
+        name="files"
+        accept="image/*"
+        :show-file-list="false"
+        :file-list="fileList"
+        :limit="1"
+        :before-upload="handleBeforeUpload"
+        :on-success="handleSuccess"
+        :on-remove="handleFileListRemove"
+      >
+        <el-button size="small" type="text">点击上传</el-button>
+        <div class="url-desc" v-if="uploadState > 0" slot="tip">{{ uploadState === 1 ? ' 图片上传中' : ' 图片上传成功' }} <i :class="{'el-icon-loading': uploadState === 1, 'el-icon-check': uploadState === 2}"></i></div>
+      </el-upload>
+    </div>
     <el-tooltip class="item" effect="dark" placement="bottom">
-      <el-input :autosize="{ minRows: 1, maxRows: 4}" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
+      <el-input :autosize="{ minRows: 1, maxRows: 6}" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
       <div slot="content">
         <el-image style="width: 150px;" :src="currentValue" fit="contain" @load="loadSuccess"></el-image>
       </div>
@@ -53,7 +57,7 @@ export default {
       isLocked: false, // true表示输入框正在输入状态
       timer: null,
       uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功
-      uploadTip: ''
+      uploadTip: '',
     }
   },
   watch: {
@@ -117,6 +121,23 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.upload {
+  display: flex;
+  .url-desc {
+    padding: 4px 10px;
+  }
+  .url-desc-first {
+    padding: 4px 10px 4px 0;
+  }
+}
+/deep/ .el-checkbox {
+  font-size: 13px;
+  padding: 0 10px;
+  .el-checkbox__label {
+    padding-left: 5px;
+    font-size: 13px;
+  }
+}
 /deep/ .el-upload-list--picture {
   .el-upload-list__item-thumbnail {
     width: unset;

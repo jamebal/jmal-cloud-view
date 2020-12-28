@@ -60,28 +60,13 @@
           <span class="instruction">选中项会显示在导航栏中</span>
 
           <div class="config-itme-label">归档界面背景大图：</div>
-          <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.archiveBackground || form.archiveBackground.length === 0">
-            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.archiveBackground"></el-input>
-            <div slot="content">
-              <el-image style="width: 150px;" :src="form.archiveBackground" fit="contain"></el-image>
-            </div>
-          </el-tooltip>
+          <upload-image-input v-model="form.archiveBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在归档页面显示一个背景大图。</span>
           <div class="config-itme-label">分类界面背景大图：</div>
-          <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.categoryBackground || form.categoryBackground.length === 0">
-            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.categoryBackground"></el-input>
-            <div slot="content">
-              <el-image style="width: 150px;" :src="form.categoryBackground" fit="contain"></el-image>
-            </div>
-          </el-tooltip>
+          <upload-image-input v-model="form.categoryBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
           <div class="config-itme-label">标签界面背景大图：</div>
-          <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!form.tagBackground || form.tagBackground.length === 0">
-            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" width="100%" v-model="form.tagBackground"></el-input>
-            <div slot="content">
-              <el-image style="width: 150px;" :src="form.tagBackground" fit="contain"></el-image>
-            </div>
-          </el-tooltip>
+          <upload-image-input v-model="form.tagBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
         </el-collapse-item>
         <el-collapse-item title="网站页脚" name="4">

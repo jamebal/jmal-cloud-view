@@ -97,12 +97,7 @@
       <div class="more-setting">
         <h2>更多设置</h2>
         <p class="mark-setting-label">文章封面：</p>
-        <el-tooltip class="item" effect="dark" placement="bottom" :disabled="!file.cover || file.cover.length === 0">
-          <el-input autosize type="textarea" width="100%" v-model="file.cover"></el-input>
-          <div slot="content">
-            <el-image style="width: 150px;" :src="file.cover" fit="contain"></el-image>
-          </div>
-        </el-tooltip>
+        <upload-image-input v-model="file.cover"/>
       </div>
     </el-drawer>
   </div>
@@ -118,6 +113,7 @@
   import categoryApi from "@/api/category";
   import tagApi from "@/api/tag";
   import EditElement from "@/views/markdown/EditElement";
+  import UploadImageInput from "@/components/input/UploadImageInput";
 
   let toolbar = [
     'emoji',
@@ -162,7 +158,7 @@
     name: 'MarkdownEditor',
     components: {
       EditElement,
-      DirTree, Vditor
+      DirTree, Vditor, UploadImageInput
     },
     props: {
       hasChange: {
