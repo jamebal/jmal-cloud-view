@@ -1,7 +1,7 @@
 <template>
   <div class="container" v-wechat-title="title">
     <el-dialog class="dialog-avatar" title="修改头像" :visible.sync="dialogAvatar">
-      <cropper-dialog :src="srcImage" @croppedCanvas="saveAvatar"></cropper-dialog>
+      <cropper-dialog ref="cropperDialog" :file-img="fileImg" :avatar="userInfo.avatar" :dialog-visible.sync="dialogAvatar" @croppedCanvas="saveAvatar"></cropper-dialog>
     </el-dialog>
     <el-dialog class="dialog-cm" :title="passwordFormTitle" :visible.sync="dialogChangePassword">
       <el-form ref="passwordForm" :model="passwordForm" :rules="rules" label-width="120px">
@@ -22,15 +22,21 @@
     </el-dialog>
     <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="120px">
       <el-form-item label="头像" class="form-item-avatar">
-        <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage" ></el-avatar>
-        <el-avatar class="avatar-overlay" shape="circle" :size="100" @click.native="dialogAvatar=true"> 修改头像 </el-avatar>
+        <div style="height: 100px; width: 100px;">
+          <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage"  ></el-avatar>
+        </div>
+        <div class="avatar-button">
+          <el-button type="primary" icon="el-icon-upload2" circle @click="uploadImg"></el-button>
+          <input ref="selectImg" type="file" style="display: none;" accept="image/*" @change="changImg"></input>
+        </div>
+<!--        <el-avatar class="avatar-overlay" shape="circle" :size="100" @click.native="dialogAvatar=true"> 修改头像 </el-avatar>-->
       </el-form-item>
       <el-form-item label="密码">
         <el-button size="mini" round @click="changePassword">修改密码</el-button>
       </el-form-item>
-      <!--<el-form-item label="用户名">-->
-        <!--<el-input readonly="readonly" v-model="cusomerInfoForm.username" />-->
-      <!--</el-form-item>-->
+      <el-form-item label="用户名">
+        <el-input readonly="readonly" v-model="cusomerInfoForm.username" />
+      </el-form-item>
       <el-form-item label="昵称">
         <el-input v-model="cusomerInfoForm.showName" />
       </el-form-item>
@@ -96,6 +102,7 @@
           checkPass: '',
         },
         srcImage: '',
+        fileImg: '',
         rules: {
           oldPassword: [
             { required: true, message: '请输入旧密码', trigger: 'blur' },
@@ -119,6 +126,24 @@
       this.getInfo()
     },
     methods: {
+      uploadImg() {
+        this.$refs.selectImg.click()
+      },
+      changImg(e) {
+        const files = e.target.files
+        console.log(files)
+        if(files.length > 0 && files[0].size/1024/1024 > 2){
+          console.log('sdfsd')
+          this.$message({
+            message: '选择的图片不能超过2M',
+            type: 'warning'
+          });
+          return
+          this.fileImg = files[0]
+          this.dialogAvatar = true
+          console.log(this.$refs.cropperDialog)
+        }
+      },
       getInfo(){
         getInfo({
           id: this.$store.state.user.userId,
@@ -130,7 +155,7 @@
           }
           await this.$nextTick()
           this.cusomerInfoForm = this.userInfo
-          this.srcImage = this.imageUrl + this.userInfo.avatar
+          this.srcImage = this.userInfo.avatar ? this.imageUrl + this.userInfo.avatar : require('../../../../assets/img/default-avatar.png')
         })
       },
       async changePassword() {
@@ -217,7 +242,6 @@
       },
       // 修改用户信息操作
       userUpdate(data, dataURL){
-        console.log('this.$store.state.user.avatar', this.$store.state.user.avatar)
         this.userUpdateLoading = true
         userUpdate(data).then((res) => {
           this.userUpdateLoading = false
@@ -248,5 +272,13 @@
     font-size: 12px;
     margin-left: 10px;
     color: #409eff;;
+  }
+  >>>.form-item-avatar {
+    .el-form-item__content {
+      display: flex;
+      .avatar-button {
+        padding: 30px 12px;
+      }
+    }
   }
 </style>

@@ -18,7 +18,7 @@
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
           <div class="avatar-wrapper">
-            <el-avatar :src="imageUrl+avatar" icon="el-icon-user-solid"></el-avatar>
+            <el-avatar :src="avatar ? imageUrl + avatar : defaultAvatar" icon="el-icon-user-solid"></el-avatar>
             <i class="el-icon-caret-bottom" />
           </div>
           <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -56,6 +56,7 @@ export default {
       activeIndex: '1',
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
       username: this.$store.state.user.name,
+      defaultAvatar: require('../../assets/img/default-avatar.png')
     }
   },
   components: {
@@ -71,7 +72,6 @@ export default {
   },
   methods: {
     handleSelect(key, keyPath) {
-      console.log(key, keyPath);
     },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')

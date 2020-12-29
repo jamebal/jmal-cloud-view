@@ -1,7 +1,7 @@
 <template>
   <div>
     <show-file
-      :defaultGrid="false"
+      :defaultGrid="true"
       :orderCustom="true"
       :contextMenus="contextMenus"
       :sortable="sortable">

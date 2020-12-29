@@ -45,6 +45,7 @@
         <div class="search-content">
           <div class="searchClass">
             <el-popover
+              v-show="showUploadButton"
               v-model="isShowNewFolder"
               placement="bottom"
               trigger="hover"
@@ -98,7 +99,7 @@
                              style="margin-right: 5px"></button-upload>
             </el-popover>
 
-            <el-input placeholder="搜索" v-model="searchFileName" :clearable="true"
+            <el-input v-show="showSearchButton" placeholder="搜索" v-model="searchFileName" :clearable="true"
                       @keyup.enter.native="searchFile(searchFileName)">
               <el-button slot="prepend" @click="searchFile(searchFileName)">
                 <svg-icon icon-class="search" style="font-size: 22px"/>
@@ -149,7 +150,7 @@
 
       <!--list布局-->
       <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
-      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight+'px'}">
+      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight + 8 +'px'}">
         <pl-table
           ref="fileListTable"
           v-show="!grid"
@@ -242,7 +243,7 @@
               </template>
             </pl-table-column>
             <!--分享-->
-            <pl-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center"
+            <pl-table-column v-if="index === 3 && showShareItem" :key="index" width="50" :index="index" align="center"
                              header-align="center" tooltip-effect="dark">
               <template slot-scope="scope">
                 <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享"
@@ -252,7 +253,7 @@
               </template>
             </pl-table-column>
             <!--更多-->
-            <pl-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label"
+            <pl-table-column v-if="index === 4 && showMoreItem" :key="index" width="50" :prop="item.name" :label="item.label"
                              :index="index" class="el-icon-more" align="center" header-align="center">
               <!-- 使用组件, 并传值到组件中 -->
               <template slot="header">
@@ -266,7 +267,7 @@
             </pl-table-column>
             <!--文件大小-->
             <pl-table-column
-              v-if="index === 5"
+              v-if="index === 5 && showSizeItem"
               :key="index"
               width="200"
               :prop="item.name"
@@ -284,7 +285,7 @@
             </pl-table-column>
             <!--修改时间-->
             <pl-table-column
-              v-if="index === 6"
+              v-if="index === 6 && showUpdateDateItem"
               :key="index"
               width="250"
               :prop="item.name"
@@ -345,7 +346,12 @@
               >
                 <div
                   class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                  :style="{'background': selectRowData.includes(item)?'#caeaf991':'','border': selectRowData.includes(item)?'solid 1px #7bd7ff':''}"
+                  :style="{
+                  'background': queryFileType === 'image' ? selectRowData.includes(item)?'#caeaf991':'url('+imageUrl+item.id+')' : selectRowData.includes(item)?'#caeaf991':'',
+                  'background-size': 'cover',
+                  'background-position': 'center',
+                  'border': selectRowData.includes(item)?'solid 1px #7bd7ff':'',
+                  }"
                   @mouseover="gridItemHover(item,index)"
                   @mouseout="gridItemOut(item,index)"
                   @click="gridItemClick(item)"
@@ -355,7 +361,7 @@
                                 class="grid-item-checkbox" :name="item"
                                 @click.stop="clickGridItemCheckBox(item,index)"/>
                   <div class="grid-item-icon">
-                    <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
+                    <icon-file :style="{'display': gridHoverItemIndex === index || selectRowData.includes(item) || queryFileType !== 'image' ? 'block': 'none'}" :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
                                :grid="true"></icon-file>
                   </div>
                   <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
@@ -549,6 +555,26 @@ export default {
     FileTree
   },
   props: {
+    lessClientHeight: {
+      type: Number,
+      default: 136,
+    },
+    showUploadButton: {
+      type: Boolean,
+      default: true,
+    },
+    showSearchButton: {
+      type: Boolean,
+      default: true
+    },
+    showShareItem: {
+      type: Boolean,
+      default: true
+    },
+    showMoreItem: {
+      type: Boolean,
+      default: true
+    },
     isCollectView: {
       type: Boolean,
       default: false
@@ -761,6 +787,8 @@ export default {
       openingFile: '',
       openCompressionVisible: false,
       stompClient: undefined,//websocket订阅集合
+      showUpdateDateItem: true,// 列表模式下是否显示修改时间
+      showSizeItem: true,// 列表模式下是否显示文件大小
     }
   },
   computed: {
@@ -833,11 +861,6 @@ export default {
       }
     })
 
-    const that = this
-    window.onresize = function temp() {
-      that.clientHeight = document.documentElement.clientHeight - 136
-    }
-
     // 加载布局
     if (this.$route.query.vmode) {
       this.vmode = this.$route.query.vmode
@@ -847,7 +870,6 @@ export default {
         this.grid = true
       }
     }
-
     // 加载url上的path
     if (this.$route.query.path !== '/') {
       const path = decodeURI(this.$route.query.path)
@@ -981,9 +1003,26 @@ export default {
         this.fileClick(row)
       }
     },
-    containerResize() {
-      let clientWidth = document.querySelector(".dashboard-container").clientWidth
-      this.gridColumnNum = clientWidth / 120 - 2
+    containerResize(ddd) {
+      const container = document.querySelector(".dashboard-container")
+      let clientWidth = container.clientWidth
+      console.log('this.lessClientHeight', this.lessClientHeight)
+      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
+      if(clientWidth > 1024){
+        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 7) : Math.round(clientWidth / 100 - 4)
+      } else {
+        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 3) : Math.round(clientWidth / 100 - 2)
+      }
+      if(clientWidth < 900){
+        this.showUpdateDateItem = false
+      } else {
+        this.showUpdateDateItem = true
+      }
+      if(clientWidth < 500){
+        this.showSizeItem = false
+      } else {
+        this.showSizeItem = true
+      }
       this.rowDrop()
     },
     // 画矩形选区
@@ -1689,7 +1728,7 @@ export default {
         this.finished = true;
       }
       this.tableLoading = false
-      this.clientHeight = document.documentElement.clientHeight - 136
+      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
       this.listModeSearch = false
       this.pagination['total'] = res.count
       this.$nextTick(() => {
@@ -2879,7 +2918,8 @@ export default {
 /*white-space: nowrap;*/
 /*text-overflow: ellipsis;*/
 .dashboard-container {
-  min-width: 900px;
+  min-width: 498px;
+  height: 100%;
 }
 
 /deep/ .app-wrapper {
@@ -3032,6 +3072,10 @@ export default {
       }
     }
   }
+}
+>>> .van-grid-item__content {
+  background-size: cover;
+  background-position: center;
 }
 </style>
 

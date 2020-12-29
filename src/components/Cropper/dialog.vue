@@ -1,18 +1,27 @@
 <template>
     <div>
+      <el-dialog
+        title="选择头像"
+        :visible.sync="dialogSelectFile"
+        top="7.5vh"
+        width="70%"
+        :append-to-body="true"
+      >
+        <select-file></select-file>
+      </el-dialog>
       <div class="container">
         <div class="img-container" v-loading="loading">
-          <div class="img-region">
+          <div class="img-region" v-show="avatar.length > 0 || fileImg.size">
             <img :src="sourceImg" ref="image" style="max-width: 100%;" alt="">
           </div>
           <div class="button-region">
-            <el-button v-if="sourceImg.length > 0" type="primary" @click="sureSava">保存头像</el-button>
-            <el-button @click="selectImg">重新选择</el-button>
-            <input ref="selectImg" type="file" style="display: none;" accept="image/*" @change="changImg"></input>
+            <el-button v-if="fileImg.size" type="primary" @click="sureSava">保存头像</el-button>
+<!--            <el-button @click="uploadImg">{{avatar.length === 0?'选择头像':'重新选择'}}</el-button>-->
+            <el-button @click="selectImg">选择头像</el-button>
           </div>
         </div>
-        <el-divider direction="vertical"></el-divider>
-        <div class="avatar-preview">
+        <el-divider v-show="avatar.length > 0 || fileImg.size" direction="vertical"></el-divider>
+        <div v-show="avatar.length > 0 || fileImg.size" class="avatar-preview">
           <h3>头像预览</h3>
           <div class="before big"></div>
           <span>大头像100*100</span>
@@ -26,34 +35,55 @@
 <script>
   import "@/assets/css/cropper.css"
   import Cropper from 'cropperjs'
+  import SelectFile from "@/components/ShowFile/SelectFile";
 
   export default {
     name: 'CropperDialog',
+    components: {SelectFile},
     props: {
+      fileImg: {
+        type: File,
+        default: null
+      },
       dialogVisible: {
         type: Boolean,
         default: false
       },
-      src: {
+      avatar: {
         type: String,
-        default: ''
+        defalut: ''
       }
     },
     data () {
       return {
         loading: true,
         cropper: null,
-        sourceImg: this.src,
-        fileImg: '',
+        sourceImg: '',
+        dialogSelectFile: false
       }
     },
     mounted() {
       this.$nextTick(()=>{
         this.initCropper()
         this.loading = false
+        this.changeDialog(this.dialogVisible)
+        this.changImg(this.fileImg)
       })
     },
+    watch: {
+      dialogVisible(val) {
+        this.changeDialog(val)
+      }
+    },
     methods: {
+      changeDialog(value){
+        if(value){
+          if(this.avatar.length === 0){
+            // 没有任何头像，直接代开文件选择框
+            this.selectImg()
+          }
+        }
+      },
       initCropper(){
         this.cropper = new Cropper(this.$refs.image, {
           responsive: true,
@@ -84,26 +114,17 @@
         });
       },
       selectImg() {
-        this.$refs.selectImg.click()
+        this.dialogSelectFile = true
       },
-      changImg(e) {
-        if(e.target.files[0].size/1024/1024 > 2){
-          this.$message({
-            message: '选择的图片不能超过2M',
-            type: 'warning'
-          });
-          return
-        }
+      changImg(file) {
         this.loading = true
         const that = this
         let reader = new FileReader();
-        this.fileImg = e.target.files[0]
-        reader.readAsDataURL( this.fileImg);
-        reader.onload = function()
-        {
+        reader.readAsDataURL(file);
+        reader.onload = function(){
           that.cropper.replace(reader.result)
           that.loading = false
-        };
+        }
       },
       sureSava(){
         let cro = this.cropper.getCroppedCanvas({
@@ -180,5 +201,11 @@
   /deep/.el-loading-spinner {
      top: 0;
      margin-top: 0;
+  }
+  >>>.el-dialog__body {
+    padding: 0;
+  }
+  >>>.el-dialog__header {
+    padding: 16px 20px 10px;
   }
 </style>
