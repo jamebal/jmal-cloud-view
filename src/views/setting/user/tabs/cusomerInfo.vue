@@ -1,7 +1,15 @@
 <template>
   <div class="container" v-wechat-title="title">
-    <el-dialog class="dialog-avatar" title="修改头像" :visible.sync="dialogAvatar">
-      <cropper-dialog ref="cropperDialog" :file-img="fileImg" :avatar="userInfo.avatar" :dialog-visible.sync="dialogAvatar" @croppedCanvas="saveAvatar"></cropper-dialog>
+    <select-file title="选择头像" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
+    <el-dialog class="dialog-avatar" title="修改头像" :visible.sync="dialogAvatar" @close="handleCloseDialogAvatar">
+      <cropper-dialog
+        ref="cropperDialog"
+        :file-img="fileImg"
+        :select-img="selectedImgRow"
+        :avatar="userInfo.avatar"
+        @noCropSave="saveNoCropAvatar"
+        @croppedCanvas="saveAvatar">
+      </cropper-dialog>
     </el-dialog>
     <el-dialog class="dialog-cm" :title="passwordFormTitle" :visible.sync="dialogChangePassword">
       <el-form ref="passwordForm" :model="passwordForm" :rules="rules" label-width="120px">
@@ -26,7 +34,8 @@
           <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage"  ></el-avatar>
         </div>
         <div class="avatar-button">
-          <el-button type="primary" icon="el-icon-upload2" circle @click="uploadImg"></el-button>
+          <el-button title="选择文件" type="primary" icon="el-icon-folder" circle @click="selectImg"></el-button>
+          <el-button title="上传" type="primary" icon="el-icon-upload2" circle @click="uploadImg"></el-button>
           <input ref="selectImg" type="file" style="display: none;" accept="image/*" @change="changImg"></input>
         </div>
 <!--        <el-avatar class="avatar-overlay" shape="circle" :size="100" @click.native="dialogAvatar=true"> 修改头像 </el-avatar>-->
@@ -60,11 +69,13 @@
   import { getInfo, userUpdate, validOldPass, updatePass} from '@/api/user'
   import { formatSize } from '@/utils/number'
   import CropperDialog from '@/components/Cropper/dialog'
+  import SelectFile from "@/components/ShowFile/SelectFile"
+  import fileConfig from "@/utils/file-config";
 
   export default {
     name: 'cusomerInfo',
     components: {
-      CropperDialog
+      CropperDialog, SelectFile
     },
     props: {
     },
@@ -102,7 +113,8 @@
           checkPass: '',
         },
         srcImage: '',
-        fileImg: '',
+        fileImg: new Blob(),
+        selectedImgRow: {},
         rules: {
           oldPassword: [
             { required: true, message: '请输入旧密码', trigger: 'blur' },
@@ -117,7 +129,8 @@
           ],
         },
         validOldPass: false,
-        passwordFormTitle: '旧密码'
+        passwordFormTitle: '旧密码',
+        dialogSelectFile: false,
       }
     },
     computed: {
@@ -129,19 +142,35 @@
       uploadImg() {
         this.$refs.selectImg.click()
       },
+      selectImg() {
+        this.dialogSelectFile = true
+      },
+      selectedFile(row) {
+        this.dialogAvatar = true
+        this.selectedImgRow = row
+        if(this.$refs.cropperDialog){
+          this.$refs.cropperDialog.setSelectImg(this.selectedImgRow)
+        }
+      },
+      handleCloseDialogAvatar() {
+        this.$refs.selectImg.value = ''
+      },
       changImg(e) {
         const files = e.target.files
-        console.log(files)
-        if(files.length > 0 && files[0].size/1024/1024 > 2){
-          console.log('sdfsd')
+        if(files.length < 1){
+          return
+        }
+        if(files[0].size/1024/1024 > 5){
           this.$message({
-            message: '选择的图片不能超过2M',
+            message: '选择的图片不能超过5M',
             type: 'warning'
           });
           return
-          this.fileImg = files[0]
-          this.dialogAvatar = true
-          console.log(this.$refs.cropperDialog)
+        }
+        this.fileImg = files[0]
+        this.dialogAvatar = true
+        if(this.$refs.cropperDialog){
+          this.$refs.cropperDialog.changImg(files[0])
         }
       },
       getInfo(){
@@ -240,6 +269,14 @@
         data.append('blobAvatar',blob)
         this.userUpdate(data,dataURL)
       },
+      // 保存不剪裁的头像
+      saveNoCropAvatar(fileId) {
+        this.dialogAvatar = false
+        let data = new FormData();
+        data.append('id', this.$store.state.user.userId)
+        data.append('avatar', fileId)
+        this.userUpdate(data)
+      },
       // 修改用户信息操作
       userUpdate(data, dataURL){
         this.userUpdateLoading = true
@@ -250,7 +287,7 @@
             type: 'success',
             duration: 1000
           })
-          if(dataURL){
+          if(dataURL || res.data){
             this.srcImage = this.imageUrl + res.data
             this.$store.state.user.avatar = res.data
           }

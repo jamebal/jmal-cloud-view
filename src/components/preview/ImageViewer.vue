@@ -85,7 +85,7 @@
         if(visible){
           this.images = []
           let viewIndex = 0
-          this.fileList.forEach(element => {
+          this.fileList.forEach((element,index) => {
             if(!element.isFolder && element.contentType.indexOf('image') > -1){
               let url = fileConfig.previewUrl(this.$store.state.user.name, element)
               if(this.shareId){

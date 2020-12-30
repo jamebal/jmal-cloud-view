@@ -1,27 +1,17 @@
 <template>
     <div>
-      <el-dialog
-        title="选择头像"
-        :visible.sync="dialogSelectFile"
-        top="7.5vh"
-        width="70%"
-        :append-to-body="true"
-      >
-        <select-file></select-file>
-      </el-dialog>
       <div class="container">
         <div class="img-container" v-loading="loading">
-          <div class="img-region" v-show="avatar.length > 0 || fileImg.size">
+          <div class="img-region">
             <img :src="sourceImg" ref="image" style="max-width: 100%;" alt="">
           </div>
           <div class="button-region">
-            <el-button v-if="fileImg.size" type="primary" @click="sureSava">保存头像</el-button>
-<!--            <el-button @click="uploadImg">{{avatar.length === 0?'选择头像':'重新选择'}}</el-button>-->
-            <el-button @click="selectImg">选择头像</el-button>
+            <el-button type="primary" @click="sureSava">保存头像</el-button>
+            <el-button v-show="selectImg.id" type="primary" @click="noCropSave(selectImg.id)">不剪裁保存</el-button>
           </div>
         </div>
-        <el-divider v-show="avatar.length > 0 || fileImg.size" direction="vertical"></el-divider>
-        <div v-show="avatar.length > 0 || fileImg.size" class="avatar-preview">
+        <el-divider direction="vertical"></el-divider>
+        <div class="avatar-preview">
           <h3>头像预览</h3>
           <div class="before big"></div>
           <span>大头像100*100</span>
@@ -35,19 +25,19 @@
 <script>
   import "@/assets/css/cropper.css"
   import Cropper from 'cropperjs'
-  import SelectFile from "@/components/ShowFile/SelectFile";
+  import fileConfig from "@/utils/file-config";
 
   export default {
     name: 'CropperDialog',
-    components: {SelectFile},
+    components: {},
     props: {
       fileImg: {
-        type: File,
-        default: null
+        type: Blob,
+        default: {}
       },
-      dialogVisible: {
-        type: Boolean,
-        default: false
+      selectImg: {
+        type: Object,
+        default: {}
       },
       avatar: {
         type: String,
@@ -58,32 +48,18 @@
       return {
         loading: true,
         cropper: null,
-        sourceImg: '',
-        dialogSelectFile: false
+        sourceImg: ''
       }
     },
     mounted() {
       this.$nextTick(()=>{
         this.initCropper()
         this.loading = false
-        this.changeDialog(this.dialogVisible)
         this.changImg(this.fileImg)
+        this.setSelectImg(this.selectImg)
       })
     },
-    watch: {
-      dialogVisible(val) {
-        this.changeDialog(val)
-      }
-    },
     methods: {
-      changeDialog(value){
-        if(value){
-          if(this.avatar.length === 0){
-            // 没有任何头像，直接代开文件选择框
-            this.selectImg()
-          }
-        }
-      },
       initCropper(){
         this.cropper = new Cropper(this.$refs.image, {
           responsive: true,
@@ -113,20 +89,30 @@
           // autoCropArea: 0.6,
         });
       },
-      selectImg() {
-        this.dialogSelectFile = true
-      },
-      changImg(file) {
-        this.loading = true
-        const that = this
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function(){
-          that.cropper.replace(reader.result)
-          that.loading = false
+      setSelectImg(selectImg) {
+        if(selectImg.id){
+          this.loading = true
+          this.cropper.reset()
+          let url = fileConfig.previewUrl(this.$store.state.user.name, selectImg) + '?o=crop&w=1024'
+          this.sourceImg = url
+          this.cropper.replace(url)
+          this.loading = false
         }
       },
-      sureSava(){
+      changImg(file) {
+        if(file.size > 0){
+          this.loading = true
+          this.cropper.reset()
+          const that = this
+          let reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = function(){
+            that.cropper.replace(reader.result)
+            that.loading = false
+          }
+        }
+      },
+      sureSava() {
         let cro = this.cropper.getCroppedCanvas({
           maxWidth: 1204 ,
           maxHeight: 1024,
@@ -138,6 +124,10 @@
         cro.toBlob((blob)=>{
           this.$emit('croppedCanvas', dataURL, blob)
         })
+      },
+      // 不剪裁保存
+      noCropSave(fileId) {
+        this.$emit('noCropSave', fileId)
       }
     },
   }
@@ -201,11 +191,5 @@
   /deep/.el-loading-spinner {
      top: 0;
      margin-top: 0;
-  }
-  >>>.el-dialog__body {
-    padding: 0;
-  }
-  >>>.el-dialog__header {
-    padding: 16px 20px 10px;
   }
 </style>

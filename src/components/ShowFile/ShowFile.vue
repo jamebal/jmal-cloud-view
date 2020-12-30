@@ -185,7 +185,7 @@
           <template v-for="(item,index) in tableHead">
             <!--索引-->
             <pl-table-column
-              v-if="index === 0"
+              v-if="index === 0 && !selectFile"
               :key="index"
               :index="index"
               type="selection"
@@ -313,7 +313,7 @@
              element-loading-text="文件加载中"
              element-loading-spinner="el-icon-loading"
              element-loading-background="#f6f7fa88">
-          <div class="checkbox-group-header">
+          <div class="checkbox-group-header" v-show="!selectFile">
             <div class="select-operation">
               <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">
                 {{ selectRowData.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}
@@ -347,25 +347,32 @@
                 <div
                   class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
                   :style="{
-                  'background': queryFileType === 'image' ? selectRowData.includes(item)?'#caeaf991':'url('+imageUrl+item.id+')' : selectRowData.includes(item)?'#caeaf991':'',
+                  'background': queryFileType === 'image' ? 'url('+imageUrl+item.id+')' : selectRowData.includes(item)?'#caeaf991':'',
                   'background-size': 'cover',
                   'background-position': 'center',
-                  'border': selectRowData.includes(item)?'solid 1px #7bd7ff':'',
+                  'border': selectRowData.includes(item)?'solid 1px #409eff':'',
                   }"
                   @mouseover="gridItemHover(item,index)"
                   @mouseout="gridItemOut(item,index)"
                   @click="gridItemClick(item)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
-                  <van-checkbox v-if="gridHoverItemIndex === index || selectRowData.includes(item)"
+                  <van-checkbox v-show="!selectFile" v-if="gridHoverItemIndex === index || selectRowData.includes(item)"
                                 class="grid-item-checkbox" :name="item"
                                 @click.stop="clickGridItemCheckBox(item,index)"/>
-                  <div class="grid-item-icon">
-                    <icon-file :style="{'display': gridHoverItemIndex === index || selectRowData.includes(item) || queryFileType !== 'image' ? 'block': 'none'}" :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
+                  <div :class="{'grid-item-icon':true, 'grid-item-icon-image': queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false}">
+                    <icon-file v-show="queryFileType !== 'image'" :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
                                :grid="true"></icon-file>
                   </div>
                   <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
-                  <span :title="item.name" class="grid-item-text">{{ item.name }}</span>
+<!--                  <div v-if="queryFileType === 'image'" :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">{{ item.name }}>-->
+<!--                    {{ item.w + ' x ' + item.h }}-->
+<!--                  </div>-->
+                  <div
+                    :title="item.name"
+                    v-show="queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : true"
+                    :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">{{ item.name }}
+                  </div>
                   <!--</el-tooltip>-->
                 </div>
               </van-grid-item>
@@ -402,6 +409,9 @@
         </el-form-item>
         <el-form-item label="类型:" class="details-name">
           <span>{{ rowContextData.isFolder ? '文件夹' : rowContextData.contentType }}</span>
+        </el-form-item>
+        <el-form-item v-show="rowContextData.w && rowContextData.h" label="分辨率:" class="details-resolution">
+          <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
         </el-form-item>
         <el-form-item label="大小:">
           <span> {{ rowContextData.size }}字节 {{ rowContextData.size > 0 ? '(' + formatSize(rowContextData.size) + ')' : '' }}</span>
@@ -555,6 +565,10 @@ export default {
     FileTree
   },
   props: {
+    selectFile: {
+      type: Boolean,
+      defalut: false
+    },
     lessClientHeight: {
       type: Number,
       default: 136,
@@ -1006,10 +1020,9 @@ export default {
     containerResize(ddd) {
       const container = document.querySelector(".dashboard-container")
       let clientWidth = container.clientWidth
-      console.log('this.lessClientHeight', this.lessClientHeight)
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
       if(clientWidth > 1024){
-        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 7) : Math.round(clientWidth / 100 - 4)
+        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 5) : Math.round(clientWidth / 100 - 4)
       } else {
         this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 3) : Math.round(clientWidth / 100 - 2)
       }
@@ -1027,6 +1040,9 @@ export default {
     },
     // 画矩形选区
     darwRectangle() {
+      if(this.selectFile){
+        return
+      }
       const _this = this
       let $$ = function (id) {
         return document.getElementById(id)
@@ -1171,6 +1187,9 @@ export default {
     },
     // 行拖拽
     rowDrop() {
+      if(this.selectFile){
+        return
+      }
       if (this.fileListScrollTop > 0 && this.$route.path !== '/') {
         return
       }
@@ -2078,13 +2097,16 @@ export default {
     },
     // 单元格点击事件
     cellClick(row, column) {
+      if(this.selectFile){
+        this.fileClick(row)
+        return
+      }
       clearTimeout(this.Loop);
       if (this.editingIndex === -1) {
         const columnIndex = column.index
         if (columnIndex === 2) {
           if (this.selectRowData.length < 1) {
             if (row.index !== this.editingIndex) {
-              // this.fileClick(row)
               this.editingIndex = -1
             }
           }
@@ -2203,6 +2225,9 @@ export default {
     },
     // 鼠标右击
     rowContextmenu(row) {
+      if(this.selectFile){
+        return
+      }
       if (this.$refs.fileListTable.tableSelectData.length > 1 && this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1) {
         this.menusIsMultiple = true
         this.menus = this.multipleRightMenus
@@ -2847,6 +2872,20 @@ export default {
           this.openDir(row)
         }
       } else {
+        if (this.selectFile){
+          let selectFile = row
+          const selectData = this.$refs.fileListTable.tableSelectData
+          if(selectData.length < 1 || selectData[0].id !== row.id){
+            this.$refs.fileListTable.clearSelection()
+            this.$refs.fileListTable.toggleRowSelection([{row: row}])
+            this.pinSelect(null, row)
+          } else {
+            this.$refs.fileListTable.clearSelection()
+            selectFile = {}
+          }
+          this.$emit("selectedFile", selectFile)
+          return
+        }
         if (row.contentType.indexOf('image') > -1) {
           // 图片
           this.imagePreviewVisible = true

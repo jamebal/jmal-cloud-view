@@ -293,6 +293,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/deep/ .grid-item-text-image {
+  position: absolute;
+  top: 80%;
+  color: #ffffff;
+}
 /deep/ .grid-item-text:hover {
   color: #19ACF9;
 }
@@ -312,9 +317,16 @@
     width: 84px;
     height: 84px;
   }
+  .grid-item-icon-image {
+    width: calc(100% + 16px);
+    height: 100%;
+    border-radius: 10px;
+    margin: 0;
+    backdrop-filter: contrast(0.5);
+  }
 }
 /deep/ .grid-time:hover {
-  background: #caeaf991!important;
+  border: solid 1px #409eff;
   cursor: pointer;
 }
  .checkbox-group-header {
