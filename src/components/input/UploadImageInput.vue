@@ -1,7 +1,9 @@
 <template>
   <div>
+    <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
     <div class="upload">
       <div class="url-desc url-desc-first">输入图片的url 或</div>
+      <el-button class="upload-select-btn" title="选择文件" type="primary" size="mini" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
       <el-upload
         class="upload"
         ref="uploadRef"
@@ -17,7 +19,8 @@
         :on-success="handleSuccess"
         :on-remove="handleFileListRemove"
       >
-        <el-button size="small" type="text">点击上传</el-button>
+<!--        <el-button size="small" type="text">点击上传</el-button>-->
+        <el-button title="上传" type="primary" size="mini" icon="el-icon-upload2" circle></el-button>
         <div class="url-desc" v-if="uploadState > 0" slot="tip">{{ uploadState === 1 ? ' 图片上传中' : ' 图片上传成功' }} <i :class="{'el-icon-loading': uploadState === 1, 'el-icon-check': uploadState === 2}"></i></div>
       </el-upload>
     </div>
@@ -32,9 +35,11 @@
 <script>
 import fileConfig from "@/utils/file-config";
 import markdownApi from "@/api/markdown-api.js";
+import SelectFile from "@/components/ShowFile/SelectFile";
 
 export default {
   name: 'UploadImageInput',
+  components: {SelectFile},
   props: {
     value: {
       type: String,
@@ -58,6 +63,7 @@ export default {
       timer: null,
       uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功
       uploadTip: '',
+      dialogSelectFile: false,
     }
   },
   watch: {
@@ -73,6 +79,10 @@ export default {
       this.$emit('input', value)
     },
     input(value) {
+    },
+    selectedFile(row) {
+      this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row)
+      this.change(this.currentValue)
     },
     handleBeforeUpload(file){
       this.uploadState = 1
@@ -122,7 +132,10 @@ export default {
 </script>
 <style lang="scss" scoped>
 .upload {
-  display: flex;
+  display: -webkit-box;
+  .upload-select-btn {
+    margin-right: 5px;
+  }
   .url-desc {
     padding: 4px 10px;
   }
