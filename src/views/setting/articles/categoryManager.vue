@@ -23,7 +23,7 @@
           <div class="instruction">此文字用于描述分类, 在该分类首页中它会被显示.</div>
         </el-form-item>
         <el-form-item label="分类背景" prop="categoryBackground">
-          <el-input type="textarea" v-model="form.categoryBackground" :autosize="{ minRows: 2, maxRows: 6 }"/>
+          <upload-image-input v-model="form.categoryBackground"/>
           <div class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图.</div>
         </el-form-item>
         <el-form-item>
@@ -105,9 +105,11 @@
 
 <script>
 import categoryApi from "@/api/category";
+import UploadImageInput from "@/components/input/UploadImageInput";
 
 export default {
   name: 'categoryManager',
+  components: {UploadImageInput},
   data() {
     return {
       title: "分类管理",

@@ -85,15 +85,18 @@
         if(visible){
           this.images = []
           let viewIndex = 0
+          const findIndex = this.fileList.findIndex(file => file.id === this.file.id)
           this.fileList.forEach((element,index) => {
-            if(!element.isFolder && element.contentType.indexOf('image') > -1){
-              let url = fileConfig.previewUrl(this.$store.state.user.name, element)
-              if(this.shareId){
-                url = fileConfig.publicPreviewUrl(element.id);
-              }
-              this.images.push(url)
-              if(this.file.id === element.id){
-                viewIndex = this.images.length-1
+            if(index < findIndex + 5 && index > findIndex - 5 ) {
+              if(!element.isFolder && element.contentType.indexOf('image') > -1){
+                let url = fileConfig.previewUrl(this.$store.state.user.name, element)
+                if(this.shareId){
+                  url = fileConfig.publicPreviewUrl(element.id);
+                }
+                this.images.push(url)
+                if(this.file.id === element.id){
+                  viewIndex = this.images.length-1
+                }
               }
             }
           });

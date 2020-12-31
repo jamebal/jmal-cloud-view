@@ -10,7 +10,7 @@
           <div class="instruction">标签缩略名用于创建友好的链接形式, 如果留空则默认使用标签名称.</div>
         </el-form-item>
         <el-form-item label="标签背景" prop="categoryBackground">
-          <el-input type="textarea" v-model="form.tagBackground" :autosize="{ minRows: 2, maxRows: 6 }"/>
+          <upload-image-input v-model="form.tagBackground"/>
           <div class="instruction">在这里填入图片的URL地址, 以在该标签页面显示一个背景大图.</div>
         </el-form-item>
         <el-form-item>
@@ -47,9 +47,11 @@
 <script>
 import tagApi from "@/api/tag";
 import categoryApi from "@/api/category";
+import UploadImageInput from "@/components/input/UploadImageInput";
 
 export default {
   name: 'tagManager',
+  components: {UploadImageInput},
   data() {
     return {
       title: "标签管理",
@@ -85,7 +87,6 @@ export default {
       })
     },
     handleCheckTagChange(value) {
-      console.log(value)
       let checkedCount = value.length;
       this.checkAll = checkedCount === this.tags.length;
       this.isIndeterminate = checkedCount > 0 && checkedCount < this.tags.length;
