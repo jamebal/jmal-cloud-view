@@ -365,14 +365,16 @@
                                :grid="true"></icon-file>
                   </div>
                   <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
-<!--                  <div v-if="queryFileType === 'image'" :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">{{ item.name }}>-->
-<!--                    {{ item.w + ' x ' + item.h }}-->
-<!--                  </div>-->
-                  <div
-                    :title="item.name"
-                    v-show="queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : true"
-                    :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">{{ item.name }}
-                  </div>
+                    <div v-show="item.w && item.h && queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false"
+                    :class="{'grid-item-text': true, 'grid-item-text-image-size': queryFileType === 'image'}">
+                      {{ item.w + ' x ' + item.h }}
+                    </div>
+                    <div
+                      :title="item.name"
+                      v-show="queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : true"
+                      :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">
+                      {{ item.name }}
+                    </div>
                   <!--</el-tooltip>-->
                 </div>
               </van-grid-item>
@@ -410,6 +412,17 @@
         <el-form-item label="类型:" class="details-name">
           <span>{{ rowContextData.isFolder ? '文件夹' : rowContextData.contentType }}</span>
         </el-form-item>
+        <div v-if="rowContextData.music">
+          <el-form-item label="🎵 歌手:">
+            <span>{{ rowContextData.music.singer }}</span>
+          </el-form-item>
+          <el-form-item label="🎵 专辑:">
+            <span>{{ '《'+rowContextData.music.album+'》' }}</span>
+          </el-form-item>
+          <el-form-item label="🎵 歌名:">
+            <span>{{ '《'+rowContextData.music.songName+'》' }}</span>
+          </el-form-item>
+        </div>
         <el-form-item v-show="rowContextData.w && rowContextData.h" label="分辨率:" class="details-resolution">
           <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
         </el-form-item>
@@ -571,7 +584,7 @@ export default {
     },
     lessClientHeight: {
       type: Number,
-      default: 136,
+      default: 150,
     },
     showUploadButton: {
       type: Boolean,
@@ -766,7 +779,7 @@ export default {
       positionX: 0,
       positionY: 0,
       grid: this.defaultGrid,
-      vmode: 'list',
+      vmode:  this.defaultGrid ? 'grid' : 'list',
       gridColumnNum: -1,
       gridHoverItemIndex: -1,
       gridHoverIntermediate: -1,
