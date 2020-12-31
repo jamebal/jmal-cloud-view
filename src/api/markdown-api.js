@@ -50,4 +50,12 @@ export default {
       data: params
     })
   },
+  // 上传blob格式的图片
+  uploadImage: function(data) {
+    return request({
+      url: '/upload-markdown-image',
+      method: 'post',
+      data: data
+    })
+  },
 }

@@ -5,8 +5,8 @@
       <div class="url-desc url-desc-first">输入图片的url 或</div>
       <el-button class="upload-select-btn" title="选择文件" type="primary" size="mini" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
       <el-upload
-        class="upload"
         ref="uploadRef"
+        class="upload"
         action="/api/upload-markdown-image"
         :headers="headers"
         :data="extraData"
@@ -15,9 +15,11 @@
         :show-file-list="false"
         :file-list="fileList"
         :limit="1"
+        :auto-upload="false"
         :before-upload="handleBeforeUpload"
         :on-success="handleSuccess"
         :on-remove="handleFileListRemove"
+        :on-change="handleChange"
       >
 <!--        <el-button size="small" type="text">点击上传</el-button>-->
         <el-button title="上传" type="primary" size="mini" icon="el-icon-upload2" circle></el-button>
@@ -84,6 +86,9 @@ export default {
       this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row)
       this.change(this.currentValue)
     },
+    handleChange(file, fileList) {
+      console.log('handleChange', file, fileList)
+    },
     handleBeforeUpload(file){
       this.uploadState = 1
     },
@@ -103,6 +108,21 @@ export default {
       this.currentValue = window.location.origin + fileConfig.mardownPreviewUrl(filepath)
       this.change(this.currentValue)
     },
+    // url转blob
+    urlToBlob(the_url, callback) {
+      const that = this
+      let xhr = new XMLHttpRequest();
+      xhr.open("get", the_url, true);
+      xhr.responseType = "blob";
+      xhr.onload = function() {
+        if (this.status == 200) {
+          if(callback){
+            callback(this.response)
+          }
+        }
+      };
+      xhr.send();
+    },
     loadSuccess() {
       if(this.timer == null){
         if(this.isLocked){
@@ -110,14 +130,21 @@ export default {
           this.timer = setTimeout(function (){
             if(!that.currentValue.startsWith(window.location.origin)){
               that.uploadState = 1
-              markdownApi.uploadLinkImage({
-                username: that.$store.state.user.name,
-                userId: that.$store.state.user.userId,
-                url: that.currentValue
-              }).then((res) => {
-                that.format(res.data.filepath, res.data.filename)
-                that.uploadState = 2
-                that.$refs.uploadRef.clearFiles()
+              that.urlToBlob(that.currentValue, response => {
+                const file = new window.File(
+                  [response],
+                  that.getFileNameByUrl(that.currentValue),
+                  { type: response.type }
+                );
+                let data = new FormData()
+                data.append("files", file)
+                data.append("username", that.$store.state.user.name)
+                data.append("userId", that.$store.state.user.userId)
+                markdownApi.uploadImage(data).then((res) => {
+                  that.format(res.data[0].filepath, res.data[0].filename)
+                  that.uploadState = 2
+                  that.$refs.uploadRef.clearFiles()
+                })
               })
             }
           }, 300)
@@ -125,6 +152,18 @@ export default {
       } else {
         clearTimeout(this.timer)
         this.timer = null
+      }
+    },
+    // 获取url中的文件名
+    getFileNameByUrl(url){
+      const urlRgx = /[a-zA-z]+:\/\/[^\s]*/
+      if(urlRgx.test(url)){
+        if(url.indexOf("-1") > -1){
+          url = url.split('?')[0]
+        }
+        console.log(url)
+        let arr = url.split('/')
+        return arr[arr.length - 1]
       }
     }
   }
