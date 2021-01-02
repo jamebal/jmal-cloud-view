@@ -474,7 +474,7 @@
       fileClick(row) {
         this.shareDialog = true
         this.shareFileName = row.fileName
-        this.shareLink = 'http://'+window.location.host+'/s?s='+row.id
+        this.shareLink = window.location.origin+'/s?s='+row.id
         this.generateShareLinkLoading = false
       },
       // 复制分享链接

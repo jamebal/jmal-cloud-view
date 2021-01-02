@@ -132,11 +132,11 @@ export function formatSize(size) {
   } else if (size < 1024) {
     return size + 'B'
   } else if (size < 1024 * 1024) {
-    return (size/1024).toFixed(2) + 'k'
+    return (size/1024).toFixed(1) + 'k'
   } else if (size < 1024 * 1024 * 1024) {
-    return (size/(1024 * 1024)).toFixed(2) + 'M'
+    return (size/(1024 * 1024)).toFixed(1) + 'M'
   } else {
-    return (size/(1024 * 1024 * 1024)).toFixed(2) + 'G'
+    return (size/(1024 * 1024 * 1024)).toFixed(1) + 'G'
   }
 }
 
@@ -146,14 +146,14 @@ export function formatSize(size) {
  */
 export function formatNetSpeed(size) {
   if (size === 0) {
-    return '0 B/s'
+    return '0B/s'
   } else if (size < 1024) {
-    return size + ' B/s'
+    return size + 'B/s'
   } else if (size < 1024 * 1024) {
-    return (size/1024).toFixed(2) + ' KB/s'
+    return (size/1024).toFixed(2) + 'KB/s'
   } else if (size < 1024 * 1024 * 1024) {
-    return (size/(1024 * 1024)).toFixed(2) + ' MB/s'
+    return (size/(1024 * 1024)).toFixed(2) + 'MB/s'
   } else {
-    return (size/(1024 * 1024 * 1024)).toFixed(2) + ' GB/s'
+    return (size/(1024 * 1024 * 1024)).toFixed(2) + 'GB/s'
   }
 }

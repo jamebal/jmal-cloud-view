@@ -2656,7 +2656,7 @@ export default {
         isFolder: row.isFolder
       }).then(res => {
         if (res.data) {
-          this.shareLink = 'http://' + window.location.host + '/s?s=' + res.data
+          this.shareLink = window.location.origin + '/s?s=' + res.data
           this.generateShareLinkLoading = false
         }
       })

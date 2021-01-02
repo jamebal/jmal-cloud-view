@@ -671,6 +671,7 @@
         .files-title {
           margin-left: 3%;
           font-size: 20px;
+          line-height: 3.5rem;
         }
         .operate {
           flex: 1;

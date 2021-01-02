@@ -24,7 +24,7 @@
         <div class="url-desc" v-if="uploadState > 0" slot="tip">
           <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
           <span v-show="uploadState === 2">图片上传成功</span>
-          <span v-show="uploadState === 3">该图片不支持自动上传，请下载后手动上传</span>
+          <span v-show="uploadState === 3">该图片不支持自动上传</span>
           <span v-show="uploadState === 4">图片加载中</span>
           <i :class="{
             'el-icon-loading': uploadState === 1 ||  uploadState === 4,

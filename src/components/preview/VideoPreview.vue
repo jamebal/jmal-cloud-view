@@ -2,9 +2,15 @@
 <div class="preview" v-if="show">
 <van-overlay :show="show">
   <div class="wrapper">
-    <div class="block" @mousemove="onmousemove" @mouseout="onmouseout" @mouseenter="onmouseenter" @mouseleave="onmouseleave">
-<!--      <div role="button" @click="close" class="viewer-button viewer-close" data-viewer-action="mix"></div>-->
-      <div v-show="pc?closeBarShow:true" class="close-bar" @click="close">
+    <div class="block"
+         @mousemove="onmousemove"
+         @mouseout="onmouseout"
+         @mouseenter="onmouseenter"
+         @mouseleave="onmouseleave"
+         @touchstart="onmouseenter"
+         @touchend="onmousemove"
+    >
+      <div v-show="closeBarShow" class="close-bar" @click="close">
         <svg-icon class="audio-player-close" icon-class="close"/>
       </div>
       <video-player class="video-player vjs-custom-skin"
@@ -150,7 +156,9 @@ export default {
         if(this.playing){
           if(!this.$pc){
             const closeBar = document.querySelector('.block .close-bar')
-            closeBar.style.display = "none"
+            if(closeBar){
+              closeBar.style.display = "none"
+            }
           }
           this.closeBarShow = false
         }
@@ -158,25 +166,16 @@ export default {
       },
       onmouseenter() {
         this.closeBarShow = true
-        let player = document.querySelector('.video-player.video-player.vjs-custom-skin')
-        // console.log('player',player)
-        // if(!player) return;
-        // this.onhover(function() {
-        //     console.log('124')
-        //   }, player, 2000);
       },
-      // onhover(fun, obj, time) {
-      //   var s;
-      //   obj.onmouseover = function() {
-      //       console.log('onmouseover')
-      //       s = setTimeout(fun, 1000);
-      //     };
-      //   obj.onmouseout = function() {
-      //     console.log('onmouseout')
-      //       if(!s) return;
-      //       clearTimeout(s);
-      //     };
-      // },
+      ontouchstart() {
+        console.log('ontouchstart', this.closeBarShow)
+        this.closeBarShow = true
+      },
+      ontouchsend() {
+        console.log('ontouchsend', this.closeBarShow)
+        this.closeBarShow = false
+        this.clearTimeout()
+      }
     }
 }
 </script>
