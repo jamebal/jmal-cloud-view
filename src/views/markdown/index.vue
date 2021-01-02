@@ -82,6 +82,8 @@
             <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
             <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签 </el-button>
           </div>
+          <p class="mark-setting-label">文章封面：</p>
+          <upload-image-input v-model="file.cover"/>
           <p class="mark-setting-label">
             其他：
           </p>
@@ -549,10 +551,14 @@
       font-weight: 500;
     }
   }
-
+/deep/ .el-drawer__body {
+  .more-setting {
+    padding: 15px;
+  }
+}
   /deep/ .more-setting {
     margin-top: 32px;
-    padding: 15px;
+    padding-top: 15px;
     .el-input {
       width: 100%;
     }

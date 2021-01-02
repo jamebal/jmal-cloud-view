@@ -15,28 +15,41 @@
         :show-file-list="false"
         :file-list="fileList"
         :limit="1"
-        :auto-upload="false"
         :before-upload="handleBeforeUpload"
         :on-success="handleSuccess"
         :on-remove="handleFileListRemove"
-        :on-change="handleChange"
+        :on-progress="handleProgress"
       >
-<!--        <el-button size="small" type="text">点击上传</el-button>-->
         <el-button title="上传" type="primary" size="mini" icon="el-icon-upload2" circle></el-button>
-        <div class="url-desc" v-if="uploadState > 0" slot="tip">{{ uploadState === 1 ? ' 图片上传中' : ' 图片上传成功' }} <i :class="{'el-icon-loading': uploadState === 1, 'el-icon-check': uploadState === 2}"></i></div>
+        <div class="url-desc" v-if="uploadState > 0" slot="tip">
+          <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
+          <span v-show="uploadState === 2">图片上传成功</span>
+          <span v-show="uploadState === 3">该图片不支持自动上传，请下载后手动上传</span>
+          <span v-show="uploadState === 4">图片加载中</span>
+          <i :class="{
+            'el-icon-loading': uploadState === 1 ||  uploadState === 4,
+            'el-icon-check': uploadState === 2,
+            'el-icon-warning-outline': uploadState === 3
+          }"></i>
+        </div>
       </el-upload>
     </div>
     <el-tooltip class="item" effect="dark" placement="bottom">
       <el-input :autosize="{ minRows: 1, maxRows: 6}" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
       <div slot="content">
-        <el-image style="width: 150px;" :src="currentValue" fit="contain" @load="loadSuccess"></el-image>
+        <el-image :style="{maxWidth: tipImageMaxWidth + 'px'}" :src="currentValue" fit="contain" @load="loadSuccess">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
       </div>
     </el-tooltip>
   </div>
 </template>
 <script>
+
+import axios from 'axios'
 import fileConfig from "@/utils/file-config";
-import markdownApi from "@/api/markdown-api.js";
 import SelectFile from "@/components/ShowFile/SelectFile";
 
 export default {
@@ -46,6 +59,10 @@ export default {
     value: {
       type: String,
       default: ''
+    },
+    tipImageMaxWidth: {
+      type: Number,
+      default: 250
     }
   },
   data() {
@@ -66,6 +83,7 @@ export default {
       uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功
       uploadTip: '',
       dialogSelectFile: false,
+      uploadPercentage: 0
     }
   },
   watch: {
@@ -86,25 +104,35 @@ export default {
       this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row)
       this.change(this.currentValue)
     },
-    handleChange(file, fileList) {
-      console.log('handleChange', file, fileList)
-    },
-    handleBeforeUpload(file){
+    handleBeforeUpload(){
       this.uploadState = 1
     },
-    handleSuccess(response, file, fileList) {
+    handleProgress(event, file){
+      this.onpregress(file.percentage | 0)
+    },
+    onpregress(percentage){
+      this.uploadPercentage = percentage
+    },
+    handleSuccess(response) {
       if(response.code === 0){
         if(response.data && response.data.length > 0){
           this.format(response.data[0].filepath, response.data[0].filename)
         }
       }
+      this.uploadSuccessAfter()
+    },
+    uploadSuccessAfter(){
       this.uploadState = 2
       this.fileList = []
+      const that = this
+      setTimeout(function (){
+        that.uploadState = 0
+      }, 3000)
     },
     handleFileListRemove(file, fileList) {
       this.fileList = fileList
     },
-    format(filepath, filename){
+    format(filepath){
       this.currentValue = window.location.origin + fileConfig.mardownPreviewUrl(filepath)
       this.change(this.currentValue)
     },
@@ -115,12 +143,16 @@ export default {
       xhr.open("get", the_url, true);
       xhr.responseType = "blob";
       xhr.onload = function() {
-        if (this.status == 200) {
+        if (this.status === 200) {
           if(callback){
             callback(this.response)
           }
         }
       };
+      xhr.onerror = function (){
+        that.uploadState = 3
+        console.log(this.status, this.response)
+      }
       xhr.send();
     },
     loadSuccess() {
@@ -129,8 +161,9 @@ export default {
           const that = this
           this.timer = setTimeout(function (){
             if(!that.currentValue.startsWith(window.location.origin)){
-              that.uploadState = 1
+              that.uploadState = 4
               that.urlToBlob(that.currentValue, response => {
+                that.uploadState = 1
                 const file = new window.File(
                   [response],
                   that.getFileNameByUrl(that.currentValue),
@@ -140,11 +173,7 @@ export default {
                 data.append("files", file)
                 data.append("username", that.$store.state.user.name)
                 data.append("userId", that.$store.state.user.userId)
-                markdownApi.uploadImage(data).then((res) => {
-                  that.format(res.data[0].filepath, res.data[0].filename)
-                  that.uploadState = 2
-                  that.$refs.uploadRef.clearFiles()
-                })
+                that.uploadImage(that, data)
               })
             }
           }, 300)
@@ -154,6 +183,22 @@ export default {
         this.timer = null
       }
     },
+    uploadImage(that, data){
+      axios.post('/api/upload-markdown-image', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'jmal-token': that.$store.state.user.token
+        },
+        onUploadProgress: progressEvent => {
+          that.onpregress((progressEvent.loaded / progressEvent.total * 100 | 0))
+        }
+      }).then((res) => {
+          const data = res.data.data[0]
+          that.format(data.filepath, data.filename)
+          that.uploadSuccessAfter()
+          that.$refs.uploadRef.clearFiles()
+        })
+    },
     // 获取url中的文件名
     getFileNameByUrl(url){
       const urlRgx = /[a-zA-z]+:\/\/[^\s]*/
@@ -161,7 +206,6 @@ export default {
         if(url.indexOf("-1") > -1){
           url = url.split('?')[0]
         }
-        console.log(url)
         let arr = url.split('/')
         return arr[arr.length - 1]
       }
@@ -198,7 +242,7 @@ export default {
   }
   .el-upload-list__item {
     margin-top: 0;
-    padding: 0px 0px 0px 80px;
+    padding: 0 0 0 80px;
   }
   .el-upload-list__item.is-success .el-upload-list__item-name {
     line-height: 90px;
