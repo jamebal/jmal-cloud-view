@@ -201,6 +201,18 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/setting/manager-menus',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'manager-menus',
+        component: () => import('@/views/setting/sys/menuManager'),
+        meta: { title: '菜单管理' , icon: 'menu'}
+      }
+    ]
+  },
+  {
     path: '/setting/website',
     component: Layout,
     name: 'website',

@@ -50,6 +50,7 @@
       </div>
       <table-list
         :tableData="dataList"
+        :loading="loading"
         :tableHeader="tableHeader"
         :pagination="pagination"
         @pageChange="pageChange"
@@ -63,14 +64,11 @@
 
 <script>
 import roleApi from '@/api/role'
-import CropperDialog from '@/components/Cropper/dialog'
 import TableList from "@/components/table/TableList";
 
 export default {
-    name: 'cusomerManager',
     components: {
-      TableList,
-      CropperDialog
+      TableList
     },
     props: {
     },
@@ -78,6 +76,7 @@ export default {
       return {
         title: "角色管理",
         dataList: [],
+        loading: false,
         dialogVisible: false,
         dialogTitle: '',
         updateLoading: false,
@@ -91,7 +90,7 @@ export default {
         pagination: {
           pageIndex: 1,
           pageSize: 15,
-          pageTotal: 60
+          pageTotal: 0
         },
         // 查询条件
         queryCondition: {
@@ -154,6 +153,7 @@ export default {
         this.getRoleList()
       },
       getRoleList(){
+        this.loading = true
         roleApi.roleList({
           page: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
@@ -161,6 +161,7 @@ export default {
         }).then(res => {
           this.dataList = res.data
           this.pagination.pageTotal = res.count
+          this.loading = false
         })
       },
       async add() {
