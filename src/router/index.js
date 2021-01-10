@@ -171,7 +171,7 @@ export const constantRoutes = [
       {
         path: '',
         name: 'setting-user',
-        component: () => import('@/views/setting/user/tabs/cusomerInfo'),
+        component: () => import('@/views/setting/sys/cusomerInfo'),
         meta: { title: '个人信息' , icon: 'UserSettings'}
       }
     ]
@@ -183,8 +183,20 @@ export const constantRoutes = [
       {
         path: '',
         name: 'manager-users',
-        component: () => import('@/views/setting/user/tabs/cusomerManager'),
+        component: () => import('@/views/setting/sys/cusomerManager'),
         meta: { title: '用户管理' , icon: 'huaban'}
+      }
+    ]
+  },
+  {
+    path: '/setting/manager-roles',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'manager-roles',
+        component: () => import('@/views/setting/sys/roleManager'),
+        meta: { title: '角色管理' , icon: 'role'}
       }
     ]
   },
