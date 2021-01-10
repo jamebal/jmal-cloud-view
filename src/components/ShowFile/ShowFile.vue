@@ -909,6 +909,10 @@ export default {
         }
       })
     }
+    let that = this
+    window.onresize = function (){
+      that.clientHeight = document.documentElement.clientHeight - that.lessClientHeight
+    }
 
     // 画矩形选区
     this.darwRectangle()

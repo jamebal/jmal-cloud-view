@@ -6,6 +6,7 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
+    showName: '',
     avatar: '',
     userId: getConsumerId(),
   }
@@ -22,6 +23,9 @@ const mutations = {
   },
   SET_NAME: (state, name) => {
     state.name = name
+  },
+  SET_SHOW_NAME: (state, showName) => {
+    state.showName = showName
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
@@ -66,9 +70,10 @@ const actions = {
           // reject('Verification failed, please Login again.')
         }
 
-        const { id, username, avatar } = data
+        const { id, username, showName, avatar } = data
 
         commit('SET_NAME', username)
+        commit('SET_SHOW_NAME', showName)
         commit('SET_AVATAR', avatar)
         commit('SET_USERID', id)
         sessionStorage.setItem('store', JSON.stringify(state))

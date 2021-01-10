@@ -14,7 +14,7 @@
             <svg-icon icon-class="WEBSITE"></svg-icon>网站
         </div>
       </router-link>
-      <div class="right-username">{{username}}</div>
+      <div class="right-username">{{showName}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
           <div class="avatar-wrapper">
@@ -55,7 +55,6 @@ export default {
     return {
       activeIndex: '1',
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-      username: this.$store.state.user.name,
       defaultAvatar: require('../../assets/img/default-avatar.png')
     }
   },
@@ -67,7 +66,8 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'avatar',
+      'showName'
     ])
   },
   methods: {

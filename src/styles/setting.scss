@@ -23,7 +23,18 @@ a:hover {
     font-weight: 600;
   }
 }
-
+.el-card {
+  .search-form {
+    .el-form-actions {
+      margin-bottom: 15px;
+    }
+  }
+}
+.table-search-header{
+  /deep/.el-card__header {
+    padding: 18px 20px 0;
+  }
+}
 .clearfix {
   display: flex;
 }
@@ -31,6 +42,11 @@ a:hover {
 .card-button {
   float: right;
   margin-left: 25px;
+}
+
+.card-btn-icon {
+  padding-left: 12px;
+  padding-right: 12px;
 }
 
 .card-header {
@@ -93,9 +109,23 @@ a:hover {
     margin-top: 5vh!important;
   }
 }
-.dialog-cm {
-  /deep/.el-dialog {
-    max-width: 500px;
+.dialog-form {
+  /deep/ .el-dialog__body {
+    padding-bottom: 0;
+    padding-top: 22px;
+  }
+}
+/deep/ .el-dialog {
+  border-radius: 4px;
+  max-width: calc(100vw - 30px);
+  .el-dialog__header {
+    padding-top: 14px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid #ededed;
+  }
+  .el-dialog__footer {
+    padding-bottom: 12px;
+    border-top: 1px solid #f4f4f4;
   }
 }
 /deep/.el-input {
@@ -133,3 +163,15 @@ a:hover {
     margin-top: -28px;
   }
 }
+.search-form .el-form-actions {
+  .el-button+.el-button {
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .search-form .el-form-actions {
+    text-align: right;
+  }
+}
+

@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+const qs = require('qs')
 
 export function login(data) {
   return request({
@@ -71,11 +72,14 @@ export function resetPass(id) {
   })
 }
 
-export function delUser(id) {
+export function delUser(params) {
   return request({
     url: 'user/delete',
     method: 'delete',
-    params: {id}
+    params,
+    paramsSerializer: function(params) {
+      return qs.stringify(params, { arrayFormat: 'repeat' })
+    }
   })
 }
 

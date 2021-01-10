@@ -11,22 +11,23 @@
         @croppedCanvas="saveAvatar">
       </cropper-dialog>
     </el-dialog>
-    <el-dialog class="dialog-cm" :title="passwordFormTitle" :visible.sync="dialogChangePassword">
-      <el-form ref="passwordForm" :model="passwordForm" :rules="rules" label-width="120px">
-        <el-form-item v-if="!validOldPass" label="旧密码" prop="oldPassword">
-          <el-input type="password" v-model="passwordForm.oldPassword"/>
+    <el-dialog class="dialog-cm" width="400px" :title="passwordFormTitle" :visible.sync="dialogChangePassword">
+      <el-form ref="passwordForm" size="medium" :model="passwordForm" :rules="rules" label-width="100px" @submit.native.prevent>
+        <el-form-item v-show="!validOldPass" label="旧密码" prop="oldPassword">
+          <el-input type="password" v-model="passwordForm.oldPassword" @keyup.enter.native="onSavePassword"/>
         </el-form-item>
-        <el-form-item v-if="validOldPass" label="新密码" prop="password">
-          <el-input type="password" v-model="passwordForm.password"/>
+        <el-form-item v-show="validOldPass" label="新密码" prop="password">
+          <el-input ref="newPasswordInput" type="password" v-model="passwordForm.password"/>
         </el-form-item>
-        <el-form-item v-if="validOldPass" label="确认新密码" prop="checkPass">
-          <el-input type="password" v-model="passwordForm.checkPass"/>
-        </el-form-item>
-        <el-form-item>
-          <el-button native-type="submit" :loading="userUpdateLoading" type="primary" @click.native.prevent="onSavePassword">确定</el-button>
-          <a class="forget-password" @click="forget">忘记密码?</a>
+        <el-form-item v-show="validOldPass" label="确认新密码" prop="checkPass">
+          <el-input type="password" v-model="passwordForm.checkPass" @keyup.enter.native="onSavePassword"/>
         </el-form-item>
       </el-form>
+      <div slot="footer" class="dialog-footer">
+        <a class="forget-password" @click="forget">忘记密码?</a>
+        <el-button size="small" @click="dialogChangePassword = false">取 消</el-button>
+        <el-button size="small" :loading="userUpdateLoading" type="primary" @click="onSavePassword">确 定</el-button>
+      </div>
     </el-dialog>
     <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="120px">
       <el-form-item label="头像" class="form-item-avatar">
@@ -38,15 +39,11 @@
           <el-button title="上传" type="primary" icon="el-icon-upload2" circle @click="uploadImg"></el-button>
           <input ref="selectImg" type="file" style="display: none;" accept="image/*" @change="changImg"></input>
         </div>
-<!--        <el-avatar class="avatar-overlay" shape="circle" :size="100" @click.native="dialogAvatar=true"> 修改头像 </el-avatar>-->
       </el-form-item>
       <el-form-item label="密码">
         <el-button size="mini" round @click="changePassword">修改密码</el-button>
       </el-form-item>
       <el-form-item label="用户名">
-        <el-input readonly="readonly" v-model="cusomerInfoForm.username" />
-      </el-form-item>
-      <el-form-item label="昵称">
         <el-input v-model="cusomerInfoForm.showName" />
       </el-form-item>
       <el-form-item label="标语">
@@ -59,7 +56,7 @@
         <el-progress class="quota-space" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :loading="userUpdateLoading" @click="onSubmit">保存</el-button>
+        <el-button type="primary" size="medium" :loading="userUpdateLoading" @click="onSubmit">保 存</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -125,11 +122,11 @@
             { min: 6, message: '密码不能小于6个字符', trigger: 'blur' }
           ],
           checkPass: [
-            { validator: validatePass, trigger: 'blur' }
+            { required: true, validator: validatePass, trigger: 'blur' }
           ],
         },
         validOldPass: false,
-        passwordFormTitle: '旧密码',
+        passwordFormTitle: '',
         dialogSelectFile: false,
       }
     },
@@ -184,13 +181,14 @@
           }
           await this.$nextTick()
           this.cusomerInfoForm = this.userInfo
-          this.srcImage = this.userInfo.avatar ? this.imageUrl + this.userInfo.avatar : require('../../../../assets/img/default-avatar.png')
+          this.srcImage = this.userInfo.avatar ? this.imageUrl + this.userInfo.avatar : require('../../../assets/img/default-avatar.png')
         })
       },
       async changePassword() {
         this.validOldPass = false
         this.dialogChangePassword = true
         await this.$nextTick()
+        this.passwordFormTitle = '旧密码'
         this.$refs.passwordForm.resetFields()
       },
       onSubmit() {
@@ -204,39 +202,46 @@
       },
       // 确认密码
       onSavePassword() {
-        this.$refs.passwordForm.validate((valid) => {
-          this.valid = valid
-          if (valid) {
-            if(this.validOldPass){
-              // 修改密码
-              this.userUpdateLoading = true
-              let data = new FormData()
-              data.append("id",this.$store.state.user.userId)
-              data.append("password",this.passwordForm.password)
-              updatePass(data).then(() => {
-                this.userUpdateLoading = false
-                this.dialogChangePassword = false
-              }).catch(()=>{
-                this.userUpdateLoading = false
-              })
-            }else{
-              // 验证旧密码
-              this.userUpdateLoading = true
-              validOldPass({
-                id: this.$store.state.user.userId,
-                password: this.passwordForm.oldPassword
-              }).then(() => {
-                this.userUpdateLoading = false
-                this.validOldPass = true
-                this.passwordFormTitle = '新密码'
-              }).catch(()=>{
-                this.userUpdateLoading = false
-              })
+        console.log('this.validOldPass', this.validOldPass)
+        if(this.validOldPass){
+          this.$refs.passwordForm.validate((valid) => {
+            this.valid = valid
+            if (valid) {
+              if(this.validOldPass){
+                // 修改密码
+                this.userUpdateLoading = true
+                let data = new FormData()
+                data.append("id",this.$store.state.user.userId)
+                data.append("password",this.passwordForm.password)
+                updatePass(data).then(() => {
+                  this.userUpdateLoading = false
+                  this.dialogChangePassword = false
+                }).catch(()=>{
+                  this.userUpdateLoading = false
+                })
+              }
+              return true
             }
-          } else {
-            return false;
-          }
-        });
+            return false
+          });
+        } else {
+          // 验证旧密码
+          this.userUpdateLoading = true
+          validOldPass({
+            id: this.$store.state.user.userId,
+            password: this.passwordForm.oldPassword
+          }).then(() => {
+            this.userUpdateLoading = false
+            this.validOldPass = true
+            this.passwordFormTitle = '新密码'
+            let that = this
+            setTimeout(function (){
+              that.$refs.newPasswordInput.focus()
+            })
+          }).catch(()=>{
+            this.userUpdateLoading = false
+          })
+        }
       },
       progressFormat() {
         const space = this.userInfo.takeUpSpace/1024/1024/1024
@@ -291,11 +296,11 @@
             this.srcImage = this.imageUrl + res.data
             this.$store.state.user.avatar = res.data
           }
+          if(data.get('showName') != null){
+            this.$store.state.user.showName = data.get('showName')
+          }
         }).catch(() => {
-          this.$message({
-            message: '保存失败!',
-            type: 'error'
-          })
+          this.userUpdateLoading = false
         })
       }
     }

@@ -21,8 +21,8 @@
 </template>
 
 <script>
-  import cusomerInfo from '@/views/setting/user/tabs/cusomerInfo'
-  import cusomerManager from '@/views/setting/user/tabs/cusomerManager'
+  import cusomerInfo from '@/views/setting/sys/cusomerInfo'
+  import cusomerManager from '@/views/setting/sys/cusomerManager'
   import categoryManager from '@/views/setting/articles/categoryManager'
 
   export default {

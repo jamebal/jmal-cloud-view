@@ -574,12 +574,12 @@
         this.$nextTick(() => {
           $(`<p class="myStatus_${id}"></p>`).appendTo(`.file_${id} .uploader-file-status`).css({
             'position': 'absolute',
-            'top': '-14px',
             'font-size': '13px',
             'left': '0',
             'right': '0',
             'bottom': '0',
             'zIndex': '1',
+            'marginBottom': '0',
             'backgroundColor': statusMap[status].bgc
           }).text(statusMap[status].text)
         })
