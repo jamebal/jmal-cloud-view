@@ -1,6 +1,5 @@
 import router from './router'
 import store from './store'
-import { Message } from 'element-ui'
 import NProgress from 'nprogress' // 进度条
 import 'nprogress/nprogress.css' // 进度条样式
 import { getToken } from '@/utils/auth' // 认证获取token
@@ -61,11 +60,13 @@ router.beforeEach(async(to, from, next) => {
 })
 
 function setMenuList(next, to){
-  console.log('menuList', to, store.getters.menuList)
-  if(store.getters.menuList.length == 0){
-    store.dispatch('user/setMenuList').then(res => {
-      console.log('res', res)
-      next({path:store.getters.menuList[0].path})
+  if(store.getters.menuList.length === 0){
+    store.dispatch('user/setMenuList').then(() => {
+      if(window.location.pathname === '/login'){
+        next({path: store.getters.menuList[0].path})
+      } else {
+        next({path: window.location.pathname})
+      }
     })
   } else {
     next(to)
