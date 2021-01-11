@@ -17,6 +17,21 @@
         <el-button size="small" type="primary" :loading="updateLoading" @click.native.prevent="onSave()">保 存</el-button>
       </div>
     </el-dialog>
+    <el-dialog width="400px" title="分配权限" :visible.sync="dialogAuthVisible">
+      <el-tree
+        ref="authTree"
+        :data="menuList"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        :default-checked-keys="menuCheckedList"
+        :props="{value: 'id', label: 'name'}">
+      </el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogAuthVisible = false">取 消</el-button>
+        <el-button size="small" type="primary" :loading="updateLoading" @click.native.prevent="saveAuth()">保 存</el-button>
+      </div>
+    </el-dialog>
     <el-card class="box-card table-search-header">
       <div slot="header">
         <div class="box-card-header">
@@ -64,6 +79,7 @@
 
 <script>
 import roleApi from '@/api/role'
+import menuApi from '@/api/menu'
 import TableList from "@/components/table/TableList";
 
 export default {
@@ -76,15 +92,20 @@ export default {
       return {
         title: "角色管理",
         dataList: [],
+        menuList: [],
+        menuCheckedList: [],
         loading: false,
         dialogVisible: false,
+        dialogAuthVisible: false,
         dialogTitle: '',
         updateLoading: false,
+        updateAuthLoading: false,
         valid: true,
         form: {
           name: '',
           code: '',
           remarks: '',
+          menuIds: []
         },
         // 分页信息
         pagination: {
@@ -107,7 +128,7 @@ export default {
           {prop: 'createTime',label: '创建时间',sortable: 'custom'},
           {label: '操作',active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id)},
-              {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete([row.id])},
+              {name: '分配权限', icon: 'el-icon-finished', handle: (row) => this.authorization(row.id)},
               ],
           },
         ],
@@ -127,6 +148,7 @@ export default {
     },
     mounted() {
       this.getRoleList()
+      this.getMenuTree()
       this.resize()
     },
     methods: {
@@ -164,6 +186,11 @@ export default {
           this.loading = false
         })
       },
+      getMenuTree() {
+        menuApi.menuTree().then(res => {
+          this.menuList = res.data
+        })
+      },
       async add() {
         this.dialogVisible = true
         this.dialogTitle = '添加角色'
@@ -198,6 +225,19 @@ export default {
             return false;
           }
         });
+      },
+      // 保存分配权限
+      saveAuth() {
+        this.form.menuIds = this.$refs.authTree.getCheckedKeys()
+        this.updateRole(this.setFormData())
+      },
+      // 分配权限
+      authorization(roleId) {
+        this.dialogAuthVisible = true
+        const findIndex = this.dataList.findIndex(data => data.id === roleId)
+        const role = this.dataList[findIndex]
+        this.form.id = role.id
+        this.menuCheckedList = role.menuIds
       },
       handleEdit(id) {
         this.editMove = 2
@@ -272,6 +312,7 @@ export default {
         }
         this.updateLoading = false
         this.dialogVisible = false
+        this.dialogAuthVisible = false
         this.$message({
           message: msg,
           type: 'success',
@@ -280,6 +321,7 @@ export default {
       },
       onError() {
         this.updateLoading = false
+        this.dialogAuthVisible = false
       }
     }
   }
