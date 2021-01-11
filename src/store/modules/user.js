@@ -2,7 +2,6 @@ import { login, logout, getInfo } from '@/api/user'
 import menuApi from '@/api/menu'
 import { getToken, setToken, getConsumerId, setConsumerId, removeToken, removeConsumerId , setRememberName, removeRememberName } from '@/utils/auth'
 import { resetRouter } from '@/router'
-import getters from "@/store/getters"
 import router from '@/router'
 import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
@@ -47,12 +46,11 @@ const mutations = {
 const actions = {
 
   async setMenuList({ commit, state }) {
-    let noeFound = [];
     return new Promise( (resolve,reject) => {
-      menuApi.menuTree({userId: getters.userId}).then((res) => {
+      menuApi.menuTree({userId: state.userId}).then((res) => {
         state.menuList = getMenuTree(res.data);
         commit('SET_MENU_LIST',state.menuList);
-        router.addRoutes(state.menuList)
+        resetRouter(state.menuList)
         router.options.routes = router.options.routes.concat(state.menuList);
         resolve(res)
       }).catch(error => {

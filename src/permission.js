@@ -61,16 +61,38 @@ router.beforeEach(async(to, from, next) => {
 
 function setMenuList(next, to){
   if(store.getters.menuList.length === 0){
-    store.dispatch('user/setMenuList').then(() => {
-      if(window.location.pathname === '/login'){
-        next({path: store.getters.menuList[0].path})
+    store.dispatch('user/setMenuList').then((res) => {
+      const to = window.location.pathname
+      if(findPath(res.data, to)){
+        next({path: to})
       } else {
-        next({path: window.location.pathname})
+        next({path: store.getters.menuList[0].path})
       }
     })
   } else {
     next(to)
   }
+}
+
+/***
+ * 查找菜单里有没有该路径
+ * @param menuList
+ * @param to 该路径(当前路径)
+ * @param parentPath
+ * @returns {boolean}
+ */
+function findPath(menuList, to, parentPath){
+  for( let i = 0; i < menuList.length - 1; i++) {
+    const menu = menuList[i]
+    if(menu.children && menu.children.length > 0){
+      return findPath(menu.children, to, menu.path)
+    }
+    if(parentPath){
+      menu.path = parentPath + '/' + menu.path
+    }
+    if(menu.path === to) return true
+  }
+  return false
 }
 
 router.afterEach(() => {

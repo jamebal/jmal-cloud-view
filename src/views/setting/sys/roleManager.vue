@@ -207,6 +207,7 @@ export default {
           }
         }
         data.delete("createTime")
+        data.delete("updateTime")
         return data
       },
       // 保存

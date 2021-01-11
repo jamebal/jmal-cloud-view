@@ -241,6 +241,8 @@ export default {
             data.append(formKey,this.form[formKey])
           }
         }
+        data.delete("createTime")
+        data.delete("updateTime")
         return data
       },
       // 保存
