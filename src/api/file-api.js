@@ -247,4 +247,12 @@ export default {
       params
     })
   },
+  // 是否允许下载
+  isAllowDownload: function(params) {
+    return request({
+      url: '/isAllowDownload',
+      method: 'get',
+      params
+    })
+  },
 }

@@ -149,7 +149,7 @@ export default {
       updateSetting(this.form).then((res)=> {
         this.$message.success("保存成功！")
       }).catch(()=> {
-        this.$message.error("保存失败！")
+
       })
     }
   }

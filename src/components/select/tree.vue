@@ -100,7 +100,6 @@ export default {
     handleNodeClick(node){
       this.valueTitle = node[this.props.label]
       this.valueId = node[this.props.value]
-      this.$emit('getValue',this.valueId)
       this.defaultExpandedKey = []
       this.$refs.treeSelect.blur()
       this.$emit('input', this.valueId)
@@ -111,7 +110,7 @@ export default {
       this.valueId = null
       this.defaultExpandedKey = []
       this.clearSelected()
-      this.$emit('getValue',null)
+      this.$emit('input', '')
     },
     /* 清空选中样式 */
     clearSelected(){

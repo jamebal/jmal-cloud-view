@@ -439,11 +439,8 @@ export default {
 .wailian {
   margin-left: 8px;
 }
-/deep/.el-card__body {
-  min-width: 1080px;
-}
 /deep/ .el-dialog__body {
-  padding: 0 20px;
+  padding: 0 15px;
 }
 /deep/ .el-table-alone-page {
   tbody .el-table__row:hover {

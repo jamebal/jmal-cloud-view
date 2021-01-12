@@ -18,15 +18,19 @@
       </div>
     </el-dialog>
     <el-dialog width="400px" title="分配权限" :visible.sync="dialogAuthVisible">
-      <el-tree
-        ref="authTree"
-        :data="menuList"
-        show-checkbox
-        node-key="id"
-        default-expand-all
-        :default-checked-keys="menuCheckedList"
-        :props="{value: 'id', label: 'name'}">
-      </el-tree>
+      <el-scrollbar>
+        <el-tree
+          style="max-height: 50vh"
+          ref="authTree"
+          :data="menuList"
+          :check-strictly="true"
+          show-checkbox
+          node-key="id"
+          default-expand-all
+          :default-checked-keys="menuCheckedList"
+          :props="{value: 'id', label: 'name'}">
+        </el-tree>
+      </el-scrollbar>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="dialogAuthVisible = false">取 消</el-button>
         <el-button size="small" type="primary" :loading="updateLoading" @click.native.prevent="saveAuth()">保 存</el-button>
@@ -64,6 +68,7 @@
         </div>
       </div>
       <table-list
+        :less-client-height="290"
         :tableData="dataList"
         :loading="loading"
         :tableHeader="tableHeader"
@@ -237,8 +242,12 @@ export default {
         this.dialogAuthVisible = true
         const findIndex = this.dataList.findIndex(data => data.id === roleId)
         const role = this.dataList[findIndex]
-        this.form.id = role.id
-        this.menuCheckedList = role.menuIds
+        this.form = role
+        if(this.$refs.authTree){
+          this.$refs.authTree.setCheckedKeys(role.menuIds)
+        } else {
+          this.menuCheckedList = role.menuIds
+        }
       },
       handleEdit(id) {
         this.editMove = 2
@@ -322,7 +331,6 @@ export default {
       },
       onError() {
         this.updateLoading = false
-        this.dialogAuthVisible = false
       }
     }
   }

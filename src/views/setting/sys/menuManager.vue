@@ -29,7 +29,19 @@
           </el-col>
           <el-col :sm="12">
             <el-form-item label="权限标识:" prop="authority">
-              <el-input placeholder="请输入权限标识" v-model="form.authority" />
+              <el-select
+                v-model="form.authority"
+                placeholder="请选择权限标识"
+                clearable
+                :popper-append-to-body="false"
+              >
+                <el-option
+                  v-for="item in authorityList"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
             </el-form-item>
             <el-form-item label="排序号:" prop="sortNumber">
               <el-input-number v-model="form.sortNumber" controls-position="right" :min="0"></el-input-number>
@@ -78,6 +90,7 @@
       <table-list
         :has-selection="false"
         :tableData="dataList"
+        :less-client-height="210"
         :loading="loading"
         :tableHeader="tableHeader"
         :pagination="pagination"
@@ -106,6 +119,7 @@ export default {
       return {
         title: "角色管理",
         dataList: [],
+        authorityList: [],
         loading: false,
         dialogVisible: false,
         dialogTitle: '',
@@ -183,6 +197,7 @@ export default {
     },
     mounted() {
       this.getMenuTree()
+      this.getAuthorityList()
       this.resize()
     },
     methods: {
@@ -205,6 +220,11 @@ export default {
       pageChange(data) {
         this.pagination = data.backData;
         this.getMenuTree()
+      },
+      getAuthorityList() {
+        menuApi.authorityList().then(res => {
+          this.authorityList = res.data
+        })
       },
       getMenuTree(){
         this.loading = true
@@ -352,5 +372,8 @@ export default {
 }
 /deep/ .el-select {
   width: 100%;
+}
+/deep/.box-card {
+  max-width: 1440px;
 }
 </style>

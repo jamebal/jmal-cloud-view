@@ -55,11 +55,15 @@ export default {
       this.syncLoading = true
       settingApi.sync({username: this.$store.state.user.name}).then(() => {
         this.syncLoading = false
+      }).catch(() => {
+        this.syncLoading = false
       })
     },
     webpChange(webpEnabled) {
       settingApi.disabledWebp({userId: this.$store.state.user.userId, disabled: !webpEnabled}).then(() => {
         webpEnabled ? this.$message.success('webp 以启用') : this.$message.warning('webp 以禁用')
+      }).catch(() => {
+        this.webpEnabled = !this.webpEnabled
       })
     }
   }

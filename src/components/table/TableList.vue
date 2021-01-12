@@ -3,6 +3,7 @@
   <div class="table-temp">
     <el-table
       :data="tableData"
+      :max-height="tableMaxHeight"
       row-key="id"
       border
       size="medium"
@@ -81,6 +82,10 @@ export default {
         return [];
       }
     },
+    lessClientHeight: {
+      type: Number,
+      default: 0
+    },
     tableHeader: {
       type: Array,
       default: function() {
@@ -106,6 +111,7 @@ export default {
   },
   data() {
     return {
+      tableMaxHeight: document.documentElement.clientHeight,
       multipleSelection: [],
       newPagination: {
         pageIndex: 0,
@@ -114,7 +120,17 @@ export default {
       }
     };
   },
+  mounted() {
+    this.setMaxHeight()
+    let that = this
+    window.onresize = function (){
+      that.setMaxHeight()
+    }
+  },
   methods: {
+    setMaxHeight(){
+      this.tableMaxHeight = document.documentElement.clientHeight - this.lessClientHeight
+    },
     // 多选操作
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -135,11 +151,11 @@ export default {
         }
       });
     },
-    //后端排序
+    // 后端排序
     sortChange(column) {
       //调用父组件方法
       this.$emit('sortChange', { backData: column });
-    }
+    },
   }
 }
 </script>

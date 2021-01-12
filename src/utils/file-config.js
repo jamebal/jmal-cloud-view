@@ -1,3 +1,5 @@
+import fileApi from '@/api/file-api'
+
 export default {
 
   baseUrl: '/api',
@@ -20,15 +22,19 @@ export default {
     window.open(url, '_blank')
   },
   download: function(username, file) {
-    let url = `${this.baseUrl}/file/${username}${file.path}${file.name}?o=download`
-    window.open(url, '_self')
+    fileApi.isAllowDownload().then(() => {
+      let url = `${this.baseUrl}/file/${username}${file.path}${file.name}?o=download`
+      window.open(url, '_self')
+    })
   },
   publicDownload: function(shareId, file) {
     let url = `${this.baseUrl}/public/s/download/${file.id}/${shareId}`
     window.open(url, '_self')
   },
   packageDownload: function(fileIds, token) {
-    window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}&jmal-token=${token}`, '_self')
+    fileApi.isAllowDownload().then(() => {
+      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}&jmal-token=${token}`, '_self')
+    })
   },
   publicPackageDownload: function(shareId, fileIds) {
     window.open(`${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}`, '_self')

@@ -36,7 +36,6 @@
       class="simtext-dialog"
       v-dialogDrag="{ dialogWidthPercent: dialogWidthPercent}">
       <div slot="title" class="simtext-header-title">
-        <!--<span class="title-name">{{file.name}}</span>-->
         <span><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
           <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
@@ -681,7 +680,9 @@
                 that.modifyMsg = undefined
               },1000)
             }
-          })
+          }).catch(() => {
+            this.updating = false
+        })
       },
       // 全屏
       fullScreen() {

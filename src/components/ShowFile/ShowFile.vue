@@ -1622,6 +1622,8 @@ export default {
               this.getFileList()
             }
           }
+        }).catch(() => {
+          this.newFolderLoading = false
         })
       } else {
         this.newFolderLoading = false
@@ -2221,6 +2223,9 @@ export default {
         }
       }).then(() => {
         this.$refs.fileListTable.clearSelection()
+      }).catch(() => {
+        this.renameLoading = false
+        this.editingIndex = -1
       })
     },
     // 更多操作(多选)
@@ -2652,17 +2657,20 @@ export default {
           row = this.$refs.fileListTable.tableSelectData[0]
         }
       }
-      this.shareDialog = true
       this.shareFileName = row.name
       api.generate({
         userId: row.userId,
         fileId: row.id,
         isFolder: row.isFolder
       }).then(res => {
+        this.shareDialog = true
         if (res.data) {
           this.shareLink = window.location.origin + '/s?s=' + res.data
           this.generateShareLinkLoading = false
         }
+      }).catch(() => {
+        this.shareDialog = false
+        this.generateShareLinkLoading = false
       })
     },
     // 复制分享链接
@@ -2733,6 +2741,8 @@ export default {
           // 移除列表
           this.removeSelectItme()
         }
+      }).catch(()=>{
+        this.rowContextData.isFavorite = !isFavorite
       })
     },
     // 删除

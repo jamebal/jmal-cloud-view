@@ -319,6 +319,15 @@
       },
       onFileSuccess(rootFile, file, response) {
         const res = JSON.parse(response)
+        if(!res.data){
+          this.$message({
+            message: res.message,
+            type: 'error'
+          })
+          this.uploader.cancel()
+          this.close()
+          return;
+        }
         const data = res.data
         // 服务器自定义的错误（即虽返回200，但是是错误的情况），这种错误是Uploader无法拦截的
         if (!data.upload) {

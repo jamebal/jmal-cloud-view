@@ -64,7 +64,7 @@ function setMenuList(next, to){
     store.dispatch('user/setMenuList').then((res) => {
       const to = window.location.pathname
       if(findPath(res.data, to)){
-        next({path: to})
+        next(window.location.pathname + window.location.search)
       } else {
         next({path: store.getters.menuList[0].path})
       }
@@ -82,10 +82,15 @@ function setMenuList(next, to){
  * @returns {boolean}
  */
 function findPath(menuList, to, parentPath){
-  for( let i = 0; i < menuList.length - 1; i++) {
+  for( let i = 0; i < menuList.length; i++) {
     const menu = menuList[i]
+    if(menu.menuType > 0){
+      continue
+    }
     if(menu.children && menu.children.length > 0){
-      return findPath(menu.children, to, menu.path)
+      if(findPath(menu.children, to, menu.path)){
+        return true
+      }
     }
     if(parentPath){
       menu.path = parentPath + '/' + menu.path

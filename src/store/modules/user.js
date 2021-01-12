@@ -49,7 +49,7 @@ const actions = {
     return new Promise( (resolve,reject) => {
       menuApi.menuTree({userId: state.userId}).then((res) => {
         state.menuList = getMenuTree(res.data);
-        commit('SET_MENU_LIST',state.menuList);
+        commit('SET_MENU_LIST', state.menuList);
         resetRouter(state.menuList)
         router.options.routes = router.options.routes.concat(state.menuList);
         resolve(res)
@@ -134,6 +134,7 @@ const actions = {
 }
 
 function getMenuTree(menuList) {
+  menuList = menuList.filter(menu => menu.menuType === 0)
   return menuList.map(menu => {
     let router = {}
     if(menu.children && menu.children.length){
@@ -158,6 +159,7 @@ function getMenuTree(menuList) {
 
 function findChildren(childrenMenu){
   let children = []
+  childrenMenu = childrenMenu.filter(menu => menu.menuType === 0)
   childrenMenu.forEach(menu => {
     let router = {
       path: menu.path,
