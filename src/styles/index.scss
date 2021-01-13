@@ -15,7 +15,7 @@ body {
 
 /deep/::-webkit-scrollbar {
   /*滚动条整体样式*/
-  width: 12px;
+  width: 10px;
   height: 10px;
 }
 /deep/::-webkit-scrollbar-thumb {
@@ -147,4 +147,15 @@ div:focus {
 }
 .al-card-border {
   border: 1px solid #ededed;
+}
+.al-select {
+  .el-scrollbar__wrap {
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
+  .el-scrollbar__bar.is-vertical{
+    width: 6px!important;
+  }
 }

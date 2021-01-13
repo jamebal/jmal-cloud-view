@@ -33,6 +33,7 @@
           <el-col :sm="12">
             <el-form-item label="权限标识:" prop="authority">
               <el-select
+                class="al-select"
                 v-model="form.authority"
                 placeholder="请选择权限标识"
                 clearable
@@ -157,6 +158,7 @@ export default {
         },
         tableHeader: [
           {prop: 'name', label: '菜单名称', noScope: true, align: 'left'},
+          {prop: 'icon', label: '图标', icon: true, formatData: (icon)=> {return icon}, width: 50},
           {prop: 'path', label: '路由地址'},
           {prop: 'component', label: '组件路径'},
           {prop: 'authority', label: '权限标识'},

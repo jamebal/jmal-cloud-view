@@ -1,5 +1,5 @@
 <template>
-  <el-scrollbar style="height: 280px">
+  <el-scrollbar style="height: 280px;">
     <el-row>
       <el-col :span="4" v-for="(item, index) in iconList" :key="index">
         <el-card shadow="hover" class="al-card-border" :title="item">

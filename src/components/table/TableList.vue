@@ -51,6 +51,9 @@
               <div v-if="item.tag">
                 <el-tag size="mini" v-for="tagname in item.formatData(scope.row[item.prop])" :key="tagname">{{tagname}}</el-tag>
               </div>
+              <div v-else-if="item.icon">
+                <svg-icon :icon-class="item.formatData(scope.row[item.prop])"></svg-icon>
+              </div>
               <div v-else>
                 <span else>{{ item.formatData(scope.row[item.prop]) || scope.row[item.prop]}}</span>
               </div>

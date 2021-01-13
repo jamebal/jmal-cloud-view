@@ -10,13 +10,10 @@
   >
     <el-tabs v-model="activeName" @tab-click="handleTabClick">
       <el-tab-pane label="本地" name="first" >
-        <icon-list :icon-list="iconList" :select="select"></icon-list>
+        <icon-list ref="local" :icon-list="iconList" @select="select"></icon-list>
       </el-tab-pane>
       <el-tab-pane label="iconfont" name="second">
-        <icon-list :icon-list="iconfontList" :select="select"></icon-list>
-      </el-tab-pane>
-      <el-tab-pane label="其他" name="third">
-
+        <icon-list ref="iconfont" :icon-list="iconfontList" @select="select"></icon-list>
       </el-tab-pane>
     </el-tabs>
     <div slot="reference" :class="{'al-icon-picker': true, 'al-icon-picker-open': pickerOpen}"
@@ -86,6 +83,7 @@ export default {
       this.pickerOpen = false
     },
     select(icon){
+      console.log('6789')
       this.currentValue = icon
       this.$emit('input', icon)
       this.$refs.popover.doClose()
