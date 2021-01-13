@@ -102,3 +102,49 @@ div:focus {
 .fade-leave-active {
   transition: opacity 0.5s;
 }
+.al-icon-picker-popper.el-popover {
+  max-width: 100%;
+  padding: 4px 3px 15px 15px;
+}
+.al-icon-picker-popper {
+  .popper__arrow {
+    left: 35px!important;
+  }
+  .el-card {
+    margin: 10px 12px 0 0;
+  }
+  .el-scrollbar__wrap {
+    overflow-x: hidden;
+    margin-right: 0!important;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
+  .el-scrollbar__bar.is-vertical{
+    width: 6px!important;
+  }
+  .el-tabs .el-tabs__header {
+    margin: 0;
+  }
+  .el-card__body {
+    padding: 0;
+  }
+  .el-tabs .el-tabs__item {
+    padding: 0 12px!important;
+  }
+  .al-icon-picker-item {
+    display: block;
+    padding: 8px 0;
+    font-size: 20px;
+    text-align: center;
+    transition: transform .1s;
+    cursor: pointer;
+  }
+  .al-icon-picker-item:hover {
+    transform: scale(1.5);
+  }
+}
+.al-card-border {
+  border: 1px solid #ededed;
+}

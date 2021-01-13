@@ -234,11 +234,18 @@ export default {
       },
       // 保存分配权限
       saveAuth() {
+
+        const nodeArray = Array.from(document.querySelectorAll('.block-icon-list .icon-item .icon-code.icon-code-show'));
+        const names = nodeArray.map(item => item.outerText)
+        console.log(names)
+
         this.form.menuIds = this.$refs.authTree.getCheckedKeys()
         this.updateRole(this.setFormData())
       },
       // 分配权限
       authorization(roleId) {
+        const req = require.context('@/icons/svg', false, /\.svg$/)
+        console.log(req)
         this.dialogAuthVisible = true
         const findIndex = this.dataList.findIndex(data => data.id === roleId)
         const role = this.dataList[findIndex]

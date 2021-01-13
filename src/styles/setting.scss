@@ -31,6 +31,9 @@ a:hover {
     }
   }
 }
+/deep/.el-dialog__headerbtn {
+  top: unset;
+}
 /deep/.el-card__body {
   padding: 15px;
 }

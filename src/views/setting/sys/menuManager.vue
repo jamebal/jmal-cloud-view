@@ -17,8 +17,11 @@
             <el-form-item label="菜单名称:" prop="name">
               <el-input placeholder="请输入菜单名称" v-model="form.name" />
             </el-form-item>
-            <el-form-item label="菜单图片:" prop="icon">
-              <el-input placeholder="请输入菜单图片" v-model="form.icon" />
+<!--            <el-form-item label="菜单图标:" prop="icon">-->
+<!--              <el-input placeholder="请输入菜单图标" v-model="form.icon" />-->
+<!--            </el-form-item>-->
+            <el-form-item label="菜单图标:" prop="icon">
+              <icon-select v-model="form.icon"></icon-select>
             </el-form-item>
             <el-form-item label="路由地址:" prop="path">
               <el-input placeholder="请输入路由地址" v-model="form.path" />
@@ -107,9 +110,11 @@
 import menuApi from '@/api/menu'
 import TableList from "@/components/table/TableList";
 import TreeSelect from "@/components/select/tree";
+import IconSelect from "@/components/select/icon";
 
 export default {
     components: {
+      IconSelect,
       TreeSelect,
       TableList
     },
