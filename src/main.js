@@ -104,6 +104,13 @@ new Vue({
   store,
   render: h => h(App),
 })
+import config from '../package.json'
+console.log(
+  `%c jmal-cloud-view %c v${config.version} %c`,
+  'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',
+  'background:#409eff ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff',
+  'background:transparent'
+)
 
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
   Vue.prototype.$pc = false

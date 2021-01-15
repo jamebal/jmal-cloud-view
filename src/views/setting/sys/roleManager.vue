@@ -245,7 +245,6 @@ export default {
       // 分配权限
       authorization(roleId) {
         const req = require.context('@/icons/svg', false, /\.svg$/)
-        console.log(req)
         this.dialogAuthVisible = true
         const findIndex = this.dataList.findIndex(data => data.id === roleId)
         const role = this.dataList[findIndex]

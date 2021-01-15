@@ -159,3 +159,16 @@ div:focus {
     width: 6px!important;
   }
 }
+.al-file-sort-item {
+  .al-file-sort-item-icon {
+    font-weight: 600;
+  }
+}
+.al-file-sort-item.active {
+  color: #40a9ff;
+}
+
+.al-file-sort-item:not(.active) .al-file-sort-item-icon {
+  visibility: hidden;
+}
+

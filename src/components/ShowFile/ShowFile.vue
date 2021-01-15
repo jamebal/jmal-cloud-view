@@ -43,7 +43,7 @@
           </el-breadcrumb-item>
         </transition-group>
         <div class="search-content">
-          <div class="searchClass">
+          <div class="search-class">
             <el-popover
               v-show="showUploadButton"
               v-model="isShowNewFolder"
@@ -69,7 +69,7 @@
                   <li v-if="singleFileType === ''" @click.prevent="newDocument">
                     <a href="#" class="menuitem">
                       <svg-icon icon-class="md"/>
-                      <span class="menuitem text">新建文档</span>
+                      <span class="menuitem text">写文章</span>
                     </a>
                   </li>
                   <li v-if="singleFileType === ''" @click.prevent="newFolder">
@@ -105,8 +105,33 @@
                 <svg-icon icon-class="search" style="font-size: 22px"/>
               </el-button>
             </el-input>
-            <el-button class="vmode" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'"/>
+              <el-dropdown size="medium" style="height: 40px;" @command="contextmenuClick">
+                <el-button type="text" class="sort">
+                  <svg-icon icon-class="sort"/>
+                </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="orderName">
+                  <span :class="{'al-file-sort-item': true, 'active': sortable.prop === 'name'}">
+                    <i :class="{'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
+                    <span>名称</span>
+                  </span>
+                </el-dropdown-item>
+                <el-dropdown-item command="orderSize">
+                  <span :class="{'al-file-sort-item': true, 'active': sortable.prop === 'size'}">
+                    <i :class="{'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
+                    <span>大小</span>
+                  </span>
+                </el-dropdown-item>
+                <el-dropdown-item command="orderUpdateDate">
+                  <span :class="{'al-file-sort-item': true, 'active': sortable.prop === 'updateDate'}">
+                    <i :class="{'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
+                    <span>日期</span>
+                  </span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <el-button type="text" class="vmode" @click="changeVmode">
+              <svg-icon :icon-class="grid ? 'list' : 'grid'"/>
             </el-button>
           </div>
         </div>
@@ -1670,7 +1695,7 @@ export default {
             that.newTextFileDialog = false
           }, 200)
         }).catch(() => {
-
+          this.createTextFileLoading = false
         })
 
       }
@@ -1736,6 +1761,8 @@ export default {
           }
         })
       }
+      // 加载顶部的排序下拉框
+
     },
     // 请求之前的准备
     beforeLoadData(onLoad) {
@@ -1948,8 +1975,10 @@ export default {
       }
     },
     addClass(el, className) {
-      const str = el.className
-      el.className = el.className + " " + className
+      if(el){
+        const str = el.className
+        el.className = el.className + " " + className
+      }
     },
     getSummaries(param) {
       // 合计
@@ -2358,7 +2387,7 @@ export default {
           this.sortChangeOfMenu('size', 5)
           break
         case 'orderUpdateDate':
-          this.sortChangeOfMenu('update', 6)
+          this.sortChangeOfMenu('updateDate', 6)
           break
         case 'refresh':
           this.getFileList()

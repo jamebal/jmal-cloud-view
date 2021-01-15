@@ -191,7 +191,7 @@
   color: "#19ACF9"
 }
 
-.searchClass{
+.search-class{
   float: right;
   width: 40%;
   display: flex;
@@ -199,9 +199,13 @@
   .el-input {
     width: 235px;
   }
-  .vmode{
+  .sort{
     padding: 5px 10px;
     margin-left: 5px;
+  }
+  .vmode{
+    padding: 5px 10px;
+    margin-left: -5px;
   }
 }
 
