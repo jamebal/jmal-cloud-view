@@ -322,5 +322,16 @@
         padding: 30px 12px;
       }
     }
+    .el-button+.el-button {
+      margin-left: 0;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    /deep/ .el-divider--vertical {
+      display: none;
+    }
+    .avatar-preview {
+      display: none;
+    }
   }
 </style>

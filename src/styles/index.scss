@@ -13,11 +13,11 @@ body {
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;;
 }
 
-/deep/::-webkit-scrollbar {
-  /*滚动条整体样式*/
-  width: 10px;
-  height: 10px;
-}
+///deep/::-webkit-scrollbar {
+//  /*滚动条整体样式*/
+//  width: 10px;
+//  height: 10px;
+//}
 /deep/::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
   height: 30px;
@@ -107,9 +107,6 @@ div:focus {
   padding: 4px 3px 15px 15px;
 }
 .al-icon-picker-popper {
-  .popper__arrow {
-    left: 35px!important;
-  }
   .el-card {
     margin: 10px 12px 0 0;
   }
@@ -162,6 +159,7 @@ div:focus {
 .al-file-sort-item {
   .al-file-sort-item-icon {
     font-weight: 600;
+    margin-right: 0;
   }
 }
 .al-file-sort-item.active {

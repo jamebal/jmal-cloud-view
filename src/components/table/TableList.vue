@@ -2,6 +2,7 @@
 <template>
   <div class="table-temp">
     <el-table
+      ref="tableData"
       :data="tableData"
       :max-height="tableMaxHeight"
       row-key="id"
@@ -9,7 +10,7 @@
       size="medium"
       fit
       highlight-current-row
-      default-expand-all
+      :default-expand-all="isExpand"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       v-loading="loading"
       @selection-change="handleSelectionChange"
@@ -27,7 +28,7 @@
         :label="item.label"
         :fixed="item.fixed"
         :width="item.width"
-        :min-widitem="item.minWidth"
+        :min-width="item.minWidth"
         :align="item.align || 'center'"
         :sort-orders="['ascending', 'descending']"
         :sortable="item.sortable"
@@ -103,6 +104,10 @@ export default {
       type: Boolean,
       default: true
     },
+    isExpand: {
+      type: Boolean,
+      default: true
+    },
     pagination: {
       type: Object,
       default: {
@@ -120,7 +125,7 @@ export default {
         pageIndex: 0,
         pageSize: 15,
         pageTotal: 0
-      }
+      },
     };
   },
   mounted() {
@@ -159,6 +164,22 @@ export default {
       //调用父组件方法
       this.$emit('sortChange', { backData: column });
     },
+    // 是否展开table(展开与折叠切换)
+    handleExpand() {
+      this.$nextTick(() => {
+        this.forArr(this.tableData, this.isExpand)
+      })
+    },
+    // 遍历
+    forArr(arr, isExpand) {
+      arr.forEach(i => {
+        // toggleRowExpansion(i, isExpand)用于多选表格，切换某一行的选中状态，如果使用了第二个参数，则是设置这一行选中与否（selected 为 true 则选中）
+        this.$refs.tableData.toggleRowExpansion(i, isExpand)
+        if (i.children) {
+          this.forArr(i.children, isExpand)
+        }
+      })
+    },
   }
 }
 </script>
@@ -186,6 +207,12 @@ export default {
     }
     .el-button {
       padding: 0;
+    }
+    .el-table__body-wrapper{
+      //&::-webkit-scrollbar {
+      //  width: 10px;
+      //  height: 10px;
+      //}
     }
   }
   /deep/.el-pagination {

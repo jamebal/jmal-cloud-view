@@ -67,8 +67,8 @@ export default {
       if(!ws.isConnected){
         toConnection(this.$store.state.user.name,this.$store.state.user.token);
       }
-      if(this.$route.path.startsWith('/articles')){
-        this.isShow = false
+      if(this.$route.path.startsWith('/setting')){
+        this.isShow = true
       }
     }else{
       this.isShow = false

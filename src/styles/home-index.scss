@@ -385,3 +385,11 @@
     padding: 10px;
   }
 }
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    min-width: 100px !important;
+  }
+  .info-statistics {
+    width: 100% !important;
+  }
+}

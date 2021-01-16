@@ -9,9 +9,10 @@
         </div>
       </div>
       <div>
-        <div class="config-itme-label">网盘同步：</div>
+        <div class="config-itme-label">网盘同步：
+          <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
+        </div>
         <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
-        <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
         <div class="config-itme-label">启用webp：
           <el-switch
             v-model="webpEnabled"
@@ -22,7 +23,7 @@
           </el-switch>
         </div>
         <span class="instruction">
-          在不降低图片质量的情况下，极大降低图片文件的体积，建议开启.
+          将图片转换为webp格式存储，在不降低图片质量的情况下，极大降低图片文件的体积，建议开启.
           <a href="https://baike.baidu.com/item/webp%E6%A0%BC%E5%BC%8F" target="_blank">什么是webp?</a>
         </span>
       </div>

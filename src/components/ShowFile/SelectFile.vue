@@ -95,4 +95,9 @@ export default {
     background: linear-gradient(rgba(255,255,255,0), #fff);
   }
 }
+@media screen and (max-width: 768px) {
+  /deep/ .el-dialog {
+    width: 100% !important;
+  }
+}
 </style>

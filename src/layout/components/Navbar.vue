@@ -4,16 +4,16 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-content">
-      <router-link to="/setting/website/manager-blog">
-        <div class="right-content-button">
+        <router-link v-if="isShow" to="/setting/website/manager-blog">
+          <div class="right-content-button">
             <svg-icon icon-class="wangzhanguanli"></svg-icon>网站管理
-        </div>
-      </router-link>
-      <router-link target="_blank" to="/articles">
-        <div class="right-content-button">
+          </div>
+        </router-link>
+        <router-link v-if="isShow" target="_blank" to="/articles">
+          <div class="right-content-button">
             <svg-icon icon-class="WEBSITE"></svg-icon>网站
-        </div>
-      </router-link>
+          </div>
+        </router-link>
       <div class="right-username">{{showName}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
@@ -53,6 +53,7 @@ import Icon from '@/components/Icon/Icon.vue'
 export default {
   data() {
     return {
+      isShow: true,
       activeIndex: '1',
       imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
       defaultAvatar: require('../../assets/img/default-avatar.png')
@@ -69,6 +70,9 @@ export default {
       'avatar',
       'showName'
     ])
+  },
+  mounted() {
+    this.isShow = this.$pc;
   },
   methods: {
     handleSelect(key, keyPath) {
@@ -119,7 +123,7 @@ export default {
 
     .right-username {
       line-height: 50px;
-      margin-right: 10px;
+      margin: 0 10px;
     }
 
   }
@@ -194,7 +198,6 @@ export default {
 
 .right-content-button {
   line-height: 50px;
-  margin-right: 10px;
   padding: 0 10px;
   &:hover {
     background-color: #00000006;

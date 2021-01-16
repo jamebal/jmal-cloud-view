@@ -17,9 +17,6 @@
             <el-form-item label="菜单名称:" prop="name">
               <el-input placeholder="请输入菜单名称" v-model="form.name" />
             </el-form-item>
-<!--            <el-form-item label="菜单图标:" prop="icon">-->
-<!--              <el-input placeholder="请输入菜单图标" v-model="form.icon" />-->
-<!--            </el-form-item>-->
             <el-form-item label="菜单图标:" prop="icon">
               <icon-select v-model="form.icon"></icon-select>
             </el-form-item>
@@ -85,6 +82,7 @@
                 <div class="el-form-actions">
                   <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getMenuTree()">查询</el-button>
                   <el-button class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
+                  <el-button class="card-btn-icon" size="medium" :icon="isExpand ? 'el-icon-remove-outline': 'el-icon-circle-plus-outline'" type="primary" @click="handleExpand()">{{isExpand ? "折叠" : "展开"}}</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -92,12 +90,14 @@
         </div>
       </div>
       <table-list
+        ref="tableMenu"
         :has-selection="false"
         :tableData="dataList"
         :less-client-height="210"
         :loading="loading"
         :tableHeader="tableHeader"
         :pagination="pagination"
+        :is-expand.sync="isExpand"
         @pageChange="pageChange"
         @selectFun="selectFun"
         @sortChange="sortChange"
@@ -131,6 +131,7 @@ export default {
         dialogTitle: '',
         updateLoading: false,
         valid: true,
+        isExpand: true,
         form: {
           name: '',
           parentId: '',
@@ -182,7 +183,7 @@ export default {
             }
           },
           {prop: 'createTime', label: '创建时间'},
-          {label: '操作',active: [
+          {label: '操作', minWidth: 130, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id)},
               {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete([row.id])},
               ],
@@ -252,6 +253,11 @@ export default {
         await this.$nextTick()
         this.$refs.managerForm.resetFields()
         this.$refs.selectTree.clearHandle()
+      },
+      // 展开与折叠table
+      handleExpand() {
+        this.isExpand = !this.isExpand
+        this.$refs.tableMenu.handleExpand()
       },
       // 设置formData
       setFormData() {

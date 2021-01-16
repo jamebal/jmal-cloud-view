@@ -1067,6 +1067,9 @@ export default {
         this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 5) : Math.round(clientWidth / 100 - 4)
       } else {
         this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 3) : Math.round(clientWidth / 100 - 2)
+        if(clientWidth < 768){
+          this.gridColumnNum = 2
+        }
       }
       if(clientWidth < 900){
         this.showUpdateDateItem = false

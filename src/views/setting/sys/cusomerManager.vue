@@ -135,9 +135,9 @@ export default {
           sortOrder: ''
         },
         tableHeader: [
-          {prop: 'username',label: '用户账号',sortable: 'custom'},
-          {prop: 'showName',label: '用户名',sortable: 'custom'},
-          {prop: 'roles',label: '角色', tag: true,
+          {prop: 'username', minWidth: 110, label: '用户账号',sortable: 'custom'},
+          {prop: 'showName', minWidth: 100, label: '用户名',sortable: 'custom'},
+          {prop: 'roles', minWidth: 120, label: '角色', tag: true,
             formatData: (roles)=> {
                 if(roles){
                   let tagNames = this.roleList.map(role => {
@@ -152,7 +152,7 @@ export default {
           },
           {prop: 'quota',label: '配额(G)',sortable: 'custom'},
           {prop: 'createTime',label: '创建时间',sortable: 'custom'},
-          {label: '操作',active: [
+          {label: '操作', minWidth: 130, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id,row.username)},
               {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete([row.id])},
               ],
@@ -188,7 +188,6 @@ export default {
       resize(){
         let clientWidth = document.querySelector(".container").clientWidth
         const monbile = clientWidth <= 768;
-        this.tableHeader[2].disabled = monbile
         this.tableHeader[3].disabled = monbile
         this.tableHeader[4].disabled = monbile
       },

@@ -18,7 +18,6 @@ a:hover {
 /deep/.box-card {
   margin: 0 auto;
   max-width: 1240px;
-  min-width: 640px;
   .clearfix {
     font-size: 16px;
     font-weight: 600;
@@ -179,6 +178,21 @@ a:hover {
 @media screen and (max-width: 768px) {
   .search-form .el-form-actions {
     text-align: right;
+  }
+  /deep/ .el-dialog {
+    margin-top: 10vh!important;
+  }
+  .dialog-avatar {
+    /deep/.el-dialog {
+      min-width: 100px;
+      width: 100%;
+      .container {
+        display: block;
+        .img-container {
+          width: unset;
+        }
+      }
+    }
   }
 }
 
