@@ -1068,6 +1068,9 @@ export default {
       } else {
         this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 3) : Math.round(clientWidth / 100 - 2)
         if(clientWidth < 768){
+          this.gridColumnNum = 3
+        }
+        if(clientWidth < 450){
           this.gridColumnNum = 2
         }
       }

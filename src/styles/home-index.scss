@@ -335,7 +335,7 @@
   }
 }
 /deep/ .grid-time:hover {
-  border: solid 1px #409eff;
+  border: solid 1px #c8c9cc;
   cursor: pointer;
 }
  .checkbox-group-header {
@@ -383,6 +383,7 @@
   .select-operation-button {
     margin-top: 5px;
     padding: 10px;
+    margin-left: 0;
   }
 }
 @media screen and (max-width: 768px) {

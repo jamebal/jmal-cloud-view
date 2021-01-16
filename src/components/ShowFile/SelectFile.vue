@@ -95,6 +95,9 @@ export default {
     background: linear-gradient(rgba(255,255,255,0), #fff);
   }
 }
+/deep/ .share-empty {
+  padding-bottom: 20%;
+}
 @media screen and (max-width: 768px) {
   /deep/ .el-dialog {
     width: 100% !important;

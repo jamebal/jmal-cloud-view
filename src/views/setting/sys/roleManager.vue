@@ -234,11 +234,6 @@ export default {
       },
       // 保存分配权限
       saveAuth() {
-
-        const nodeArray = Array.from(document.querySelectorAll('.block-icon-list .icon-item .icon-code.icon-code-show'));
-        const names = nodeArray.map(item => item.outerText)
-        console.log(names)
-
         this.form.menuIds = this.$refs.authTree.getCheckedKeys()
         this.updateRole(this.setFormData())
       },
