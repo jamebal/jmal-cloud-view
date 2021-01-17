@@ -52,7 +52,7 @@
       <el-form-item label="个人简介">
         <el-input type="textarea" v-model="cusomerInfoForm.introduction"></el-input>
       </el-form-item>
-      <el-form-item label="使用情况">
+      <el-form-item v-show="percentage > 0" label="使用情况">
         <el-progress class="quota-space" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
       </el-form-item>
       <el-form-item>
