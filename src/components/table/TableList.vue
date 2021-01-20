@@ -6,7 +6,7 @@
       :data="tableData"
       :max-height="tableMaxHeight"
       row-key="id"
-      border
+      :border="border"
       size="medium"
       fit
       highlight-current-row
@@ -95,6 +95,10 @@ export default {
       default: function() {
         return [];
       }
+    },
+    border: {
+      type: Boolean,
+      default: true
     },
     loading: {
       type: Boolean,

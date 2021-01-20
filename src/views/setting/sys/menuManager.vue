@@ -183,7 +183,7 @@ export default {
             }
           },
           {prop: 'createTime', label: '创建时间'},
-          {label: '操作', minWidth: 130, active: [
+          {label: '操作', minWidth: this.$pc ? 0 : 130, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id)},
               {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete([row.id])},
               ],

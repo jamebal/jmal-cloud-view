@@ -16,7 +16,7 @@
         <div class="box-card-header">
           <div class="clearfix card-header-back">
             <span>{{ alonePage ? '管理独立页面':'管理文章' }}</span>
-            <el-button class="card-button" size="mini" type="primary" @click="newArticle">新建</el-button>
+            <el-button class="card-button" size="mini" type="primary" @click="newArticle">写文章</el-button>
           </div>
           <div class="card-header-right" v-show="this.multipleSelection.length > 0">
             <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
@@ -42,19 +42,34 @@
           <div class="table-top-right">
             <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
             <el-input v-model="query.keyword" size="mini" placeholder="请输入关键字" @keyup.enter.native="getArticleList"></el-input>
-            <el-cascader
-              v-if="!alonePage"
-              v-model="categoryIdsList"
-              class="mark-setting-input"
-              placeholder="不选择"
-              size="mini"
-              :collapse-tags="false"
-              :options="categories"
-              :show-all-levels="false"
-              :props="{ multiple: true, checkStrictly: true, value: 'id', label: 'name' }"
-              clearable
-              @change="selectCategory"
-            ></el-cascader>
+<!--            <el-cascader-->
+<!--              v-if="!alonePage"-->
+<!--              v-model="categoryIdsList"-->
+<!--              class="mark-setting-input"-->
+<!--              placeholder="不选择"-->
+<!--              size="mini"-->
+<!--              :collapse-tags="false"-->
+<!--              :options="categories"-->
+<!--              :show-all-levels="false"-->
+<!--              :props="{ multiple: true, checkStrictly: true, value: 'id', label: 'name' }"-->
+<!--              clearable-->
+<!--              @change="selectCategory"-->
+<!--            ></el-cascader>-->
+<!--            <tree-select-->
+<!--                ref="selectTree"-->
+<!--                placeholder="请选择上级菜单"-->
+<!--                :props="{value: 'id', label: 'name'}"-->
+<!--                :options="dataList"-->
+<!--                v-model="form.parentId"-->
+<!--                clearable-->
+<!--            />-->
+            <multiple-tree-select
+                ref="selectTree"
+                placeholder="请选择分类"
+                :options="categories"
+                v-model="categoryIdsList"
+            >
+            </multiple-tree-select>
             <el-button type="primary" size="mini" @click="getArticleList">筛选</el-button>
           </div>
         </div>
@@ -124,14 +139,25 @@
       </div>
       <el-pagination
         style="text-align: center"
+        background
         :hide-on-single-page="true"
         :current-page.sync="pagination.pageIndex"
         :page-sizes="pagination.pageSizes"
         :page-size="pagination.pageSize"
         :total="pagination.total"
         @current-change="currentChange"
-        layout="prev, pager, next">
+        layout="total, prev, pager, next">
       </el-pagination>
+
+<!--      <el-pagination-->
+<!--          hide-on-single-page-->
+<!--          background-->
+<!--          layout="total, prev, pager, next"-->
+<!--          :current-page.sync="pagination.pageIndex"-->
+<!--          :page-size="pagination.pageSize"-->
+<!--          :total="pagination.pageTotal"-->
+<!--          @current-change="currentChange"-->
+<!--      ></el-pagination>-->
     </el-card>
   </div>
 </template>
@@ -142,9 +168,11 @@ import MarkdownEditor from '@/views/markdown/index'
 import markdownApi from "@/api/markdown-api";
 import categoryApi from "@/api/category";
 import api from "@/api/file-api";
+import MultipleTreeSelect from "@/components/select/MultipleTree";
 export default {
   name: 'articleManager',
   components: {
+    MultipleTreeSelect,
     MarkdownEditor
   },
   props: {
@@ -295,12 +323,14 @@ export default {
       if(this.$route.query.categoryIds){
         this.query.categoryIds = this.$route.query.categoryIds
       }
+      console.log('this.categoryIdsList', this.categoryIdsList)
       if(this.categoryIdsList.length > 0){
-        this.categoryIdsList.forEach(categoryIdList => {
-          this.query.categoryIds += categoryIdList[categoryIdList.length - 1] + ','
+        this.categoryIdsList.forEach(categoryId => {
+          this.query.categoryIds += categoryId + ','
         })
         this.query.categoryIds = this.query.categoryIds.substring(0, this.query.categoryIds.length - 1)
       }
+      console.log('this.query.categoryIds', this.query.categoryIds)
       this.isFilter = this.query.keyword.length > 0 || this.query.categoryIds.length > 0;
       if(this.isFilter){
         this.$router.push({query: {keyword: this.query.keyword, categoryIds: this.query.categoryIds}})
@@ -446,5 +476,8 @@ export default {
   tbody .el-table__row:hover {
     cursor: move;
   }
+}
+/deep/.el-pagination{
+  padding: 15px 5px 0;
 }
 </style>

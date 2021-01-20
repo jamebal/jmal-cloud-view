@@ -130,8 +130,8 @@ export default {
           {prop: 'name',label: '角色名称', minWidth: 110, sortable: 'custom'},
           {prop: 'code',label: '角色标识', minWidth: 110, sortable: 'custom'},
           {prop: 'remarks',label: '备注', minWidth: 110, sortable: 'custom'},
-          {prop: 'createTime',label: '创建时间',sortable: 'custom'},
-          {label: '操作', minWidth: 160, active: [
+          {prop: 'createTime',label: '创建时间', minWidth: 110, sortable: 'custom'},
+          {label: '操作', minWidth: this.$pc ? 0 : 160, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id)},
               {name: '分配权限', icon: 'el-icon-finished', handle: (row) => this.authorization(row.id)},
               ],
