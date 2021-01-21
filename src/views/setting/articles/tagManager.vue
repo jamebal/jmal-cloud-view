@@ -22,15 +22,19 @@
     </el-dialog>
     <el-card class="box-card">
       <div slot="header">
-        <div class="clearfix">
-          <div class="card-header content-title"><span>{{ title }}</span> </div>
-          <el-button class="card-button" size="mini" type="primary" @click="add()">新增标签</el-button>
-        </div>
-        <div class="card-header-right">
-          <el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="selectAll">全选</el-checkbox>
-          <el-button :disabled="this.multipleSelection.length !== 1" size="small" @click="handleEdit()">编辑</el-button>
-          <el-button :disabled="this.multipleSelection.length === 0" size="small" type="danger" @click="handleDelete()">删除</el-button>
-        </div>
+        <el-row>
+          <el-col :sm="12" class="query-item">
+            <div class="clearfix">
+              <div class="card-header content-title"><span>{{ title }}</span> </div>
+              <el-button class="card-button" size="mini" type="primary" @click="add()">新增标签</el-button>
+            </div>
+          </el-col>
+          <el-col :sm="12" class="text-align-right">
+            <el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="selectAll">全选</el-checkbox>
+            <el-button :disabled="this.multipleSelection.length !== 1" size="small" @click="handleEdit()">编辑</el-button>
+            <el-button :disabled="this.multipleSelection.length === 0" size="small" type="danger" @click="handleDelete()">删除</el-button>
+          </el-col>
+        </el-row>
       </div>
       <div>
         <el-checkbox-group v-model="multipleSelection" size="small" @change="handleCheckTagChange">
@@ -242,5 +246,16 @@ export default {
 }
 .check-all {
   margin-right: 20px;
+}
+/deep/ .el-card__header {
+  /deep/ .el-checkbox {
+    margin: 0;
+  }
+  /deep/.el-button+.el-button {
+    margin-left: 0;
+  }
+}
+/deep/ .el-form-item__content {
+  line-height: 1.5;
 }
 </style>

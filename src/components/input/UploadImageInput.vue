@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="upload-input-image">
     <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
     <div class="upload">
       <div class="url-desc url-desc-first">输入图片的url 或</div>
-      <el-button class="upload-select-btn" title="选择文件" type="primary" size="mini" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
+      <el-button class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
       <el-upload
         ref="uploadRef"
         class="upload"
@@ -20,7 +20,7 @@
         :on-remove="handleFileListRemove"
         :on-progress="handleProgress"
       >
-        <el-button title="上传" type="primary" size="mini" icon="el-icon-upload2" circle></el-button>
+        <el-button title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
         <div class="url-desc" v-if="uploadState > 0" slot="tip">
           <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
           <span v-show="uploadState === 2">图片上传成功</span>
@@ -35,7 +35,7 @@
       </el-upload>
     </div>
     <el-tooltip class="item" effect="dark" placement="bottom">
-      <el-input :autosize="{ minRows: 1, maxRows: 6}" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
+      <el-input :autosize="intputAutosize" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
       <div slot="content">
         <el-image :style="{maxWidth: tipImageMaxWidth + 'px'}" :src="currentValue" fit="contain" @load="loadSuccess">
           <div slot="error" class="image-slot">
@@ -63,6 +63,10 @@ export default {
     tipImageMaxWidth: {
       type: Number,
       default: 250
+    },
+    intputAutosize: {
+      type: Object,
+      default: ()=>{ return { minRows: 1, maxRows: 6} }
     }
   },
   data() {

@@ -27,7 +27,7 @@
           <div class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图.</div>
         </el-form-item>
         <el-form-item>
-          <el-button native-type="submit" type="primary" :loading="categoryUpdateLoading"
+          <el-button native-type="submit" type="primary" size="small" :loading="categoryUpdateLoading"
                      @click.native.prevent="onSave('managerForm')">保 存
           </el-button>
         </el-form-item>
@@ -341,5 +341,8 @@ export default {
 }
 .article-num:active {
   background-color: #ecf5ff;
+}
+/deep/ .el-form-item__content {
+  line-height: 1.5;
 }
 </style>

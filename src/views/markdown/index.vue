@@ -32,30 +32,25 @@
           <el-date-picker
             v-model="file.uploadDate"
             type="datetime"
-            size="small"
+            size="medium"
             value-format="yyyy-MM-dd HH:mm:ss"
             format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
+          <p class="mark-setting-label">文章封面：</p>
+          <upload-image-input v-model="file.cover" :intput-autosize="{ minRows: 2, maxRows: 6}"/>
           <div v-if="!alonePage">
             <p class="mark-setting-label">分类：</p>
-            <el-tree
-              class="category-tree"
-              ref="categoryTree"
-              node-key="id"
-              :props="treeProps"
-              :data="categories"
-              icon-class="-"
-              :check-on-click-node="true"
-              :expand-on-click-node="false"
-              :check-strictly="true"
-              :default-expand-all="true"
-              :default-checked-keys="file.categoryIds"
-              show-checkbox
-              @check="selectCategory"
+            <multiple-tree-select
+              ref="selectTree"
+              style="width: 100%"
+              size="medium"
+              placeholder="请选择分类"
+              :options="categories"
+              v-model="file.categoryIds"
             >
-            </el-tree>
+            </multiple-tree-select>
           </div>
-          <div v-if="!alonePage">
+          <div v-if="!alonePage" class="setting-tags">
             <p class="mark-setting-label">标签：</p>
             <el-tag
               v-for="tag in dynamicTags"
@@ -82,12 +77,10 @@
             <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
             <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签 </el-button>
           </div>
-          <p class="mark-setting-label">文章封面：</p>
-          <upload-image-input v-model="file.cover"/>
-          <p class="mark-setting-label">
-            其他：
-          </p>
-          <el-button size="small" @click="moreSet">更多设置</el-button>
+<!--          <p class="mark-setting-label">-->
+<!--            其他：-->
+<!--          </p>-->
+<!--          <el-button size="small" @click="moreSet">更多设置</el-button>-->
         </div>
       </div>
     </div>
@@ -116,6 +109,7 @@
   import tagApi from "@/api/tag";
   import EditElement from "@/views/markdown/EditElement";
   import UploadImageInput from "@/components/input/UploadImageInput";
+  import MultipleTreeSelect from "@/components/select/MultipleTree";
 
   let toolbar = [
     'emoji',
@@ -159,6 +153,7 @@
   export default {
     name: 'MarkdownEditor',
     components: {
+      MultipleTreeSelect,
       EditElement,
       DirTree, Vditor, UploadImageInput
     },
@@ -179,7 +174,7 @@
         editStatus: false,
         html:'',    // 及时转的html
         filename: '',
-        clientHeight: document.documentElement.clientHeight,
+        clientHeight: document.documentElement.clientHeight - 150,
         updating: false,
         storageLocation: '',
         selectLocationVisible: false,
@@ -197,9 +192,6 @@
         inputNewTagClass: 'input-new-tag',
         inputErrorClass: 'input-error',
         vditorLoading: false,
-        treeProps: {
-          label: 'name',
-        },
         releaseTime: undefined,
       }
     },
@@ -437,9 +429,6 @@
         this.draft = false
         this.update()
       },
-      selectCategory(props, data){
-        this.file.categoryIds = data.checkedKeys
-      },
       deleteDraft() {
         this.$confirm('您确定要删除这份草稿吗?', '提示', {
           confirmButtonText: '确定',
@@ -583,31 +572,34 @@
     width: 75%;
   }
   .editor-right {
+    margin-top: 15px;
     width: 25%;
     .operation {
       float: right;
     }
   }
 }
-/deep/ .el-tag {
-  margin-left: 8px;
-  margin-top: 8px;
-}
-/deep/ .button-new-tag {
-  margin-left: 8px;
-  margin-top: 8px;
-  height: 32px;
-  line-height: 30px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-/deep/ .input-new-tag {
-  margin-left: 8px;
-  margin-top: 8px;
-  max-width: 94px;
-  vertical-align: bottom;
-  input {
-    padding: 0 5px;
+.setting-tags {
+  /deep/ .el-tag {
+    margin-left: 8px;
+    margin-top: 8px;
+  }
+  /deep/ .button-new-tag {
+    margin-left: 8px;
+    margin-top: 8px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  /deep/ .input-new-tag {
+    margin-left: 8px;
+    margin-top: 8px;
+    max-width: 94px;
+    vertical-align: bottom;
+    input {
+      padding: 0 5px;
+    }
   }
 }
 /deep/ .input-error {

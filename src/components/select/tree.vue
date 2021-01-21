@@ -9,6 +9,7 @@
     :filter-method="filterMethod"
   >
     <el-option :value="valueTitle" :label="valueTitle" class="options">
+    </el-option>
       <el-tree  id="tree-option"
                 ref="selectTree"
                 :accordion="accordion"
@@ -23,7 +24,6 @@
                 :filter-node-method="filterNode"
                 @node-click="handleNodeClick">
       </el-tree>
-    </el-option>
   </el-select>
 </template>
 
@@ -85,16 +85,6 @@ export default {
         this.$refs.selectTree.setCurrentKey(this.valueId)       // 设置默认选中
         this.defaultExpandedKey = [this.valueId]      // 设置默认展开
       }
-      this.initScroll()
-    },
-    // 初始化滚动条
-    initScroll(){
-      this.$nextTick(()=>{
-        let scrollWrap = document.querySelectorAll('.el-scrollbar .el-select-dropdown__wrap')[0]
-        let scrollBar = document.querySelectorAll('.el-scrollbar .el-scrollbar__bar')
-        scrollWrap.style.cssText = 'margin: 0px; max-height: none; overflow: hidden;'
-        scrollBar.forEach(ele => ele.style.width = 0)
-      })
     },
     // 切换选项
     handleNodeClick(node){
@@ -134,17 +124,9 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .el-scrollbar .el-scrollbar__view .el-select-dropdown__item{
-  height: auto;
-  max-height: 274px;
-  padding: 0;
-  overflow: hidden;
-  overflow-y: auto;
-}
-.el-select-dropdown__item.selected{
-  font-weight: normal;
+  display: none;
 }
 ul li >>>.el-tree .el-tree-node__content{
   height:auto;

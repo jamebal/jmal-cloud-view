@@ -1,11 +1,11 @@
 <template>
   <el-select
     ref="treeSelect"
-    size="mini"
-    :value="valueTitles"
+    :size="size"
+    v-model="valueTitles"
     :clearable="clearable"
     multiple
-    collapse-tags
+    :collapse-tags="collapseTags"
     :placeholder="placeholder"
     @clear="clearHandle"
     @remove-tag="removeTag"
@@ -27,7 +27,7 @@
         :expand-on-click-node="false"
         :check-strictly="true"
         :highlight-current="false"
-        :default-expand-all="true"
+        default-expand-all
         :default-checked-keys="value"
         show-checkbox
         @check="selectNode"
@@ -74,7 +74,15 @@ export default {
     placeholder:{
       type:String,
       default:()=>{return "请选择"}
-    }
+    },
+    size: {
+      type: String,
+      default: 'small'
+    },
+    collapseTags: {
+      type:Boolean,
+      default:()=>{ return false }
+    },
   },
   data() {
     return {
@@ -92,27 +100,19 @@ export default {
       if(this.valueIds){
         this.$nextTick(() => {
           this.$refs.selectTree.setCheckedKeys(this.valueIds)
-          if(this.valueIds.length > 0){
-            this.valueTitles = this.$refs.selectTree.getCheckedNodes().map(node => node.name)
-          } else {
-            this.valueTitles = []
-          }
+          const that = this
+          setTimeout(function (){
+            if(that.valueIds.length > 0){
+              that.valueTitles = that.$refs.selectTree.getCheckedNodes().map(node => node.name)
+            } else {
+              that.valueTitles = []
+            }
+          }, 100)
         })
       }
-      this.initScroll()
-    },
-    // 初始化滚动条
-    initScroll(){
-      this.$nextTick(()=>{
-        let scrollWrap = document.querySelectorAll('.el-scrollbar .el-select-dropdown__wrap')[0]
-        let scrollBar = document.querySelectorAll('.el-scrollbar .el-scrollbar__bar')
-        scrollWrap.style.cssText = 'margin: 0px; max-height: none; overflow: hidden;'
-        scrollBar.forEach(ele => ele.style.width = 0)
-      })
     },
     selectNode(props, data){
       this.valueIds = data.checkedKeys
-      this.valueTitles = data.checkedNodes.map(node => node.name)
       this.$emit('input', this.valueIds)
     },
     // 移除选中项
@@ -144,13 +144,6 @@ export default {
 
 <style scoped>
 .el-scrollbar .el-scrollbar__view .el-select-dropdown__item{
-  height: auto;
-  max-height: 274px;
-  padding: 0;
-  overflow: hidden;
-  overflow-y: auto;
-}
-.el-select-dropdown__item.selected{
-  font-weight: normal;
+  display: none;
 }
 </style>

@@ -3098,6 +3098,7 @@ export default {
 }
 
 /deep/ .el-table td {
+  padding: 0;
   height: 50px !important;
 }
 

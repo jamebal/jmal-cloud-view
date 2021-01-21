@@ -25,56 +25,54 @@
       </div>
       <div>
         <div class="table-top">
-          <div class="table-top-left">
-            <el-badge :hidden="draftNums === 0" :value="draftNums" class="item" type="primary">
-              <el-radio-group v-model="query.radioStatus" size="mini" @change="getArticleList">
-                <el-radio-button label="">可用</el-radio-button>
-                <el-radio-button v-if="!alonePage" label="release">已发布</el-radio-button>
-                <el-radio-button label="draft">草稿</el-radio-button>
-              </el-radio-group>
-            </el-badge>
-            <span class="table-top-author">作者:</span>
-            <el-radio-group v-model="query.radioUser" size="mini" @change="getArticleList">
-              <el-radio-button label="all">所有</el-radio-button>
-              <el-radio-button label="my">我的</el-radio-button>
-            </el-radio-group>
-          </div>
-          <div class="table-top-right">
-            <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
-            <el-input v-model="query.keyword" size="mini" placeholder="请输入关键字" @keyup.enter.native="getArticleList"></el-input>
-<!--            <el-cascader-->
-<!--              v-if="!alonePage"-->
-<!--              v-model="categoryIdsList"-->
-<!--              class="mark-setting-input"-->
-<!--              placeholder="不选择"-->
-<!--              size="mini"-->
-<!--              :collapse-tags="false"-->
-<!--              :options="categories"-->
-<!--              :show-all-levels="false"-->
-<!--              :props="{ multiple: true, checkStrictly: true, value: 'id', label: 'name' }"-->
-<!--              clearable-->
-<!--              @change="selectCategory"-->
-<!--            ></el-cascader>-->
-<!--            <tree-select-->
-<!--                ref="selectTree"-->
-<!--                placeholder="请选择上级菜单"-->
-<!--                :props="{value: 'id', label: 'name'}"-->
-<!--                :options="dataList"-->
-<!--                v-model="form.parentId"-->
-<!--                clearable-->
-<!--            />-->
-            <multiple-tree-select
-                ref="selectTree"
-                placeholder="请选择分类"
-                :options="categories"
-                v-model="categoryIdsList"
-            >
-            </multiple-tree-select>
-            <el-button type="primary" size="mini" @click="getArticleList">筛选</el-button>
-          </div>
+          <el-row>
+            <el-col :xs="24" :sm="5">
+              <div class="query-item">
+                <el-badge :hidden="draftNums === 0" :value="draftNums" type="primary">
+                  <el-radio-group v-model="query.radioStatus" size="mini" @change="getArticleList">
+                    <el-radio-button label="">可用</el-radio-button>
+                    <el-radio-button v-if="!alonePage" label="release">已发布</el-radio-button>
+                    <el-radio-button label="draft">草稿</el-radio-button>
+                  </el-radio-group>
+                </el-badge>
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="5">
+              <div class="query-item">
+                <span class="table-top-author">作者:</span>
+                <el-radio-group v-model="query.radioUser" size="mini" @change="getArticleList">
+                  <el-radio-button label="all">所有</el-radio-button>
+                  <el-radio-button label="my">我的</el-radio-button>
+                </el-radio-group>
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="14">
+              <el-input
+                  v-model="query.keyword"
+                  class="query-item"
+                  clearable
+                  size="mini"
+                  placeholder="请输入关键字"
+                  @keyup.enter.native="getArticleList">
+              </el-input>
+              <multiple-tree-select
+                  ref="selectTree"
+                  class="query-item"
+                  placeholder="请选择分类"
+                  size="mini"
+                  collapse-tags
+                  :options="categories"
+                  v-model="categoryIdsList"
+              >
+              </multiple-tree-select>
+              <el-button type="primary" size="mini" @click="theFilter">筛选</el-button>
+              <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
+            </el-col>
+          </el-row>
         </div>
         <el-table
           :data="articleList"
+          :max-height="tableMaxHeight"
           :class="{'el-table-alone-page': alonePage}"
           row-key="id"
           @selection-change="handleSelectionChange"
@@ -112,8 +110,8 @@
             prop="username"
             label="作者">
             <template slot-scope="scope">
-              <router-link v-if="!alonePage" :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</router-link>
-              <span v-if="alonePage" :to="$route.path+'?uid='+scope.row.userId">{{scope.row.username}}</span>
+              <a v-if="!alonePage" @click="theFilterUserId(scope.row.userId)">{{scope.row.username}}</a>
+              <span v-if="alonePage">{{scope.row.username}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -122,8 +120,8 @@
             label="分类">
             <template slot-scope="scope">
             <span v-for="(category,i) in scope.row.categories">
-              {{i>0?' ,':''}}
-              <a :href="'?categoryIds='+category.id">{{category.name}}</a>
+              {{i>0?',':''}}
+              <a @click="theFilterCategoty(category.id)">{{category.name}}</a>
             </span>
             </template>
           </el-table-column>
@@ -148,16 +146,6 @@
         @current-change="currentChange"
         layout="total, prev, pager, next">
       </el-pagination>
-
-<!--      <el-pagination-->
-<!--          hide-on-single-page-->
-<!--          background-->
-<!--          layout="total, prev, pager, next"-->
-<!--          :current-page.sync="pagination.pageIndex"-->
-<!--          :page-size="pagination.pageSize"-->
-<!--          :total="pagination.pageTotal"-->
-<!--          @current-change="currentChange"-->
-<!--      ></el-pagination>-->
     </el-card>
   </div>
 </template>
@@ -187,6 +175,7 @@ export default {
   },
   data() {
     return {
+      tableMaxHeight: document.documentElement.clientHeight,
       newArticleDialogVisible: false,
       title: this.pageTitle,
       hasChange: false,
@@ -202,8 +191,9 @@ export default {
       query: {
         radioStatus: '',
         radioUser: 'my',
-        keyword: '',
-        categoryIds: ''
+        userId: undefined,
+        keyword: undefined,
+        categoryIds: undefined
       },
       draftNums: 0,
       multipleSelection: [],
@@ -239,6 +229,11 @@ export default {
       };
       this.rowDrop()
     }
+    this.setMaxHeight()
+    let that = this
+    window.onresize = function (){
+      that.setMaxHeight()
+    }
   },
   watch: {
     hasChange(val){
@@ -252,6 +247,9 @@ export default {
     }
   },
   methods: {
+    setMaxHeight(){
+      this.tableMaxHeight = document.documentElement.clientHeight - 285
+    },
     //行拖拽
     rowDrop() {
       const tbody = document.querySelector('.el-table__body-wrapper tbody')
@@ -312,33 +310,60 @@ export default {
       const operation = this.$route.query.operation
       this.newArticleDialogVisible = !!operation;
     },
+    // 取消筛选
     cancelFilter() {
-      this.$router.push({query: {}})
+      this.query.userId = ''
       this.query.keyword = ''
       this.categoryIdsList = []
-      this.getArticleList()
+      this.theFilter()
     },
-    getArticleList() {
+    // 筛选
+    theFilter() {
       this.query.categoryIds = ''
-      if(this.$route.query.categoryIds){
-        this.query.categoryIds = this.$route.query.categoryIds
-      }
-      console.log('this.categoryIdsList', this.categoryIdsList)
       if(this.categoryIdsList.length > 0){
         this.categoryIdsList.forEach(categoryId => {
           this.query.categoryIds += categoryId + ','
         })
         this.query.categoryIds = this.query.categoryIds.substring(0, this.query.categoryIds.length - 1)
       }
-      console.log('this.query.categoryIds', this.query.categoryIds)
-      this.isFilter = this.query.keyword.length > 0 || this.query.categoryIds.length > 0;
-      if(this.isFilter){
-        this.$router.push({query: {keyword: this.query.keyword, categoryIds: this.query.categoryIds}})
+      this.getArticleList()
+    },
+    theFilterUserId(userId) {
+      this.query.userId = userId
+      this.theFilter()
+    },
+    theFilterCategoty(categoryId) {
+      this.categoryIdsList = [categoryId]
+      this.theFilter()
+    },
+    // 查询条件
+    filterQuery(){
+      this.isFilter = false
+      if(!this.query.keyword || this.query.keyword.length === 0){
+        this.query.keyword = undefined
+      } else {
+        this.isFilter = true
       }
+      if(!this.query.categoryIds || this.query.categoryIds.length === 0){
+        this.query.categoryIds = undefined
+      } else {
+        this.isFilter = true
+      }
+      if(!this.query.userId || this.query.userId.length === 0){
+        this.query.userId = undefined
+      } else {
+        this.isFilter = true
+      }
+      if(!this.$route.query.operation){
+        this.$router.push({query: {uid: this.query.userId, keyword: this.query.keyword, categoryIds: this.query.categoryIds}})
+      }
+    },
+    getArticleList() {
+      this.filterQuery()
       markdownApi.getMarkdown({
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
-        userId: this.query.radioUser === 'my' ? this.$store.state.user.userId : null,
+        userId: this.query.radioUser === 'my' ? this.$store.state.user.userId : this.query.userId ? this.query.userId : null,
         isRelease: this.query.radioStatus === 'release',
         isDraft: this.query.radioStatus === 'draft',
         isAlonePage: this.alonePage,
@@ -360,36 +385,6 @@ export default {
         this.draftNums = res.count
       })
     },
-    findCategoryIds(parentCategory, categories, categoryIds) {
-      if(!categoryIds){
-        return
-      }
-      categories.forEach(category => {
-        let ids = []
-        if(parentCategory && parentCategory.ids){
-          ids = parentCategory.ids
-        }
-        ids.push(category.id)
-        category['ids'] = ids
-        if(categoryIds.includes(category.id)){
-          let newIds = []
-          Object.assign(newIds , ids)
-          this.categoryIdsList.push(newIds)
-        }
-        if(category.children){
-          this.findCategoryIds(category, category.children, categoryIds)
-        }
-      })
-    },
-    selectCategory(val) {
-      console.log('selectCategory', val)
-      let categoryIds = ''
-      this.categoryIdsList.forEach(categoryIdList => {
-        categoryIds += categoryIdList[categoryIdList.length - 1] + ','
-      })
-      categoryIds = categoryIds.substring(0, categoryIds.length - 2)
-      console.log(categoryIds)
-    },
     currentChange() {
       this.$router.push({query: {page : this.pagination.pageIndex}})
       this.getArticleList()
@@ -410,10 +405,7 @@ export default {
         this.categories = res.data
         if(this.$route.query.categoryIds){
           this.query.categoryIds = this.$route.query.categoryIds
-          let categoryIds = this.query.categoryIds.split(",")
-          if(categoryIds){
-            this.findCategoryIds(null, this.categories, categoryIds)
-          }
+          this.categoryIdsList = this.query.categoryIds.split(",")
         }
       })
     },
@@ -468,6 +460,9 @@ export default {
 }
 .wailian {
   margin-left: 8px;
+}
+/deep/ .el-dialog {
+  max-width: 100vw !important;
 }
 /deep/ .el-dialog__body {
   padding: 0 15px;

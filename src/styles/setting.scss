@@ -174,18 +174,23 @@ a:hover {
     margin-left: 0;
   }
 }
-
+.text-align-right {
+  text-align: right;
+}
 @media screen and (max-width: 768px) {
+  .query-item {
+    margin-bottom: 10px;
+  }
   .search-form .el-form-actions {
     text-align: right;
   }
   /deep/ .el-dialog {
+    min-width: 100px;
+    width: 100%;
     margin-top: 10vh!important;
   }
   .dialog-avatar {
     /deep/.el-dialog {
-      min-width: 100px;
-      width: 100%;
       .container {
         display: block;
         .img-container {
