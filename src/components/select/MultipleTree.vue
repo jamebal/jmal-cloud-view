@@ -109,6 +109,8 @@ export default {
             }
           }, 100)
         })
+      } else {
+        this.valueTitles = []
       }
     },
     selectNode(props, data){

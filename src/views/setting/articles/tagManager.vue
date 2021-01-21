@@ -1,24 +1,24 @@
 <template>
   <div class="container" v-wechat-title="title">
-    <el-dialog class="dialog-cm" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
-      <el-form ref="managerForm" :model="form" label-position="left" :rules="rules" label-width="85px">
-        <el-form-item label="标签名称" prop="name">
-          <el-input v-model="form.name" style="width: 100%;"/>
+    <el-dialog class="dialog-cm" width="500px" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
+      <el-form ref="managerForm" size="medium" :model="form" label-position="left" :rules="rules" label-width="95px">
+        <el-form-item label="标签名称:" prop="name">
+          <el-input v-model="form.name" placeholder="请输入标签名称"/>
         </el-form-item>
-        <el-form-item label="标签缩略名" prop="slug">
-          <el-input v-model="form.slug" style="width: 100%;"/>
-          <div class="instruction">标签缩略名用于创建友好的链接形式, 如果留空则默认使用标签名称.</div>
+        <el-form-item label="标签缩略名:" prop="slug">
+          <el-input v-model="form.slug" placeholder="请输入标签缩略名"/>
         </el-form-item>
-        <el-form-item label="标签背景" prop="categoryBackground">
+        <el-form-item label="标签背景:" prop="categoryBackground">
           <upload-image-input v-model="form.tagBackground"/>
           <div class="instruction">在这里填入图片的URL地址, 以在该标签页面显示一个背景大图.</div>
         </el-form-item>
-        <el-form-item>
-          <el-button native-type="submit" type="primary" :loading="tagUpdateLoading"
-                     @click.native.prevent="onSave('managerForm')">保 存
-          </el-button>
-        </el-form-item>
       </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button size="small" native-type="submit" type="primary" :loading="tagUpdateLoading"
+                   @click.native.prevent="onSave('managerForm')">保 存
+        </el-button>
+      </div>
     </el-dialog>
     <el-card class="box-card">
       <div slot="header">
@@ -38,9 +38,24 @@
       </div>
       <div>
         <el-checkbox-group v-model="multipleSelection" size="small" @change="handleCheckTagChange">
-          <el-checkbox v-for="tag in tags" :key="tag.id" class="tag-checkbox" :label="tag.id" border>
-            {{tag.name}}
-          </el-checkbox>
+          <span v-for="tag in tags"
+                class="tag-checkbox"
+               :key="tag.id"
+               @mouseover.prevent="hoverEditId = tag.id"
+               @mouseleave.prevent="hoverEditId = ''">
+            <el-checkbox
+              :label="tag.id"
+              border
+            >
+              {{tag.name}}
+              <i
+                :style="{marginLeft: '-5px',visibility: hoverEditId === tag.id ? 'visible' : 'hidden'}"
+                class="el-tag__close el-icon-edit"
+                @click.prevent="handleEdit(tag.id)"
+              >
+              </i>
+            </el-checkbox>
+          </span>
         </el-checkbox-group>
       </div>
     </el-card>
@@ -50,7 +65,6 @@
 
 <script>
 import tagApi from "@/api/tag";
-import categoryApi from "@/api/category";
 import UploadImageInput from "@/components/input/UploadImageInput";
 
 export default {
@@ -62,6 +76,7 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       tagUpdateLoading: false,
+      hoverEditId: '',
       form: {
         name: '',
         slug: '',
@@ -90,6 +105,9 @@ export default {
         this.tags = res.data
       })
     },
+    mouseover(id) {
+      console.log(6789)
+    },
     handleCheckTagChange(value) {
       let checkedCount = value.length;
       this.checkAll = checkedCount === this.tags.length;
@@ -105,12 +123,16 @@ export default {
       }
       this.isIndeterminate = false
     },
-    handleEdit() {
+    handleEdit(id) {
+      let tagId = this.multipleSelection[0]
+      if(id){
+        tagId = id
+      }
       this.editMove = 2
       this.dialogVisible = true
       this.dialogTitle = '修改标签'
        tagApi.tagInfo({
-        tagId: this.multipleSelection[0]
+        tagId: tagId
       }).then(res => {
         this.form = res.data
       })
@@ -220,6 +242,7 @@ export default {
   line-height: 32px;
 }
 /deep/ .tag-checkbox {
+  padding-left: 8px;
   .el-checkbox__inner {
     display: none;
   }
@@ -235,6 +258,8 @@ export default {
   background-color: #f4f4f5;
   border-color: #e9e9eb;
   color: #909399;
+  font-weight: 400;
+  padding: 5px 5px 5px 10px;
 }
 /deep/ .el-checkbox.is-bordered.is-checked {
   background-color: #ecf5ff;

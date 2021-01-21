@@ -1,37 +1,37 @@
 <template>
   <div class="container" v-wechat-title="title">
-    <el-dialog class="dialog-cm" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
-      <el-form ref="managerForm" :model="form" label-position="left" :rules="rules" label-width="85px">
-        <el-form-item label="分类名称" prop="name">
-          <el-input v-model="form.name" style="width: 100%;"/>
+    <el-dialog class="dialog-cm" width="500px" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
+      <el-form ref="managerForm" size="medium" :model="form" label-position="left" :rules="rules" label-width="95px">
+        <el-form-item label="分类名称:" prop="name">
+          <el-input v-model="form.name" placeholder="请输入分类名称"/>
         </el-form-item>
-        <el-form-item label="分类缩略名" prop="slug">
-          <el-input v-model="form.slug" style="width: 100%;"/>
-          <div class="instruction">分类缩略名用于创建友好的链接形式.</div>
+        <el-form-item label="分类缩略名:" prop="slug">
+          <el-input v-model="form.slug" placeholder="分类缩略名用于创建友好的链接形式"/>
         </el-form-item>
-        <el-form-item label="父级分类" prop="parentCategoryId">
-          <el-cascader
+        <el-form-item label="父级分类:" prop="parentCategoryId">
+          <tree-select
+            style="width: 100%;"
             v-model="form.parentCategoryId"
             placeholder="不选择"
             :options="categories"
-            :show-all-levels="false"
             :props="{ checkStrictly: true, value: 'id', label: 'name'}"
-            clearable></el-cascader>
+          >
+          </tree-select>
         </el-form-item>
-        <el-form-item label="分类描述" prop="desc">
-          <el-input type="textarea" v-model="form.desc" :autosize="{ minRows: 2, maxRows: 6 }"/>
-          <div class="instruction">此文字用于描述分类, 在该分类首页中它会被显示.</div>
+        <el-form-item label="分类描述:" prop="desc">
+          <el-input type="textarea" placeholder="此文字用于描述分类, 在该分类首页中它会被显示" v-model="form.desc" :autosize="{ minRows: 2, maxRows: 6 }"/>
         </el-form-item>
-        <el-form-item label="分类背景" prop="categoryBackground">
+        <el-form-item label="分类背景:" prop="categoryBackground">
           <upload-image-input v-model="form.categoryBackground"/>
           <div class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图.</div>
         </el-form-item>
-        <el-form-item>
-          <el-button native-type="submit" type="primary" size="small" :loading="categoryUpdateLoading"
-                     @click.native.prevent="onSave('managerForm')">保 存
-          </el-button>
-        </el-form-item>
       </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button native-type="submit" type="primary" size="small" :loading="categoryUpdateLoading"
+                   @click.native.prevent="onSave('managerForm')">保 存
+        </el-button>
+      </div>
     </el-dialog>
     <el-card class="box-card">
       <div slot="header">
@@ -106,10 +106,11 @@
 <script>
 import categoryApi from "@/api/category";
 import UploadImageInput from "@/components/input/UploadImageInput";
+import TreeSelect from "@/components/select/tree";
 
 export default {
   name: 'categoryManager',
-  components: {UploadImageInput},
+  components: {TreeSelect, UploadImageInput},
   data() {
     return {
       title: "分类管理",

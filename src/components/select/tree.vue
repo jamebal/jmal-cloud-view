@@ -81,9 +81,19 @@ export default {
     // 初始化值
     initHandle(){
       if(this.valueId){
-        this.valueTitle = this.$refs.selectTree.getNode(this.valueId).data[this.props.label]     // 初始化显示
-        this.$refs.selectTree.setCurrentKey(this.valueId)       // 设置默认选中
-        this.defaultExpandedKey = [this.valueId]      // 设置默认展开
+        this.$nextTick(() => {
+          // 设置默认选中
+          this.$refs.selectTree.setCurrentKey(this.valueId)
+          const that = this
+          setTimeout(function (){
+            // 初始化显示
+            that.valueTitle = that.$refs.selectTree.getNode(that.valueId).data[that.props.label]
+          }, 100)
+          // 设置默认展开
+          this.defaultExpandedKey = [this.valueId]
+        })
+      } else {
+        this.valueTitle = ''
       }
     },
     // 切换选项

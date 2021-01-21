@@ -158,9 +158,6 @@ export default {
 <style lang="scss" scoped>
 @import "src/styles/setting";
 @import "src/styles/markdown";
-/deep/ .el-textarea {
-  max-width: 1080px;
-}
 /deep/ .el-collapse-item__header {
   font-size: 16px;
   padding-left: 20px;

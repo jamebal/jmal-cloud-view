@@ -1,49 +1,64 @@
 <template>
   <div class="upload-input-image">
-    <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
-    <div class="upload">
-      <div class="url-desc url-desc-first">输入图片的url 或</div>
-      <el-button class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
-      <el-upload
-        ref="uploadRef"
-        class="upload"
-        action="/api/upload-markdown-image"
-        :headers="headers"
-        :data="extraData"
-        name="files"
-        accept="image/*"
-        :show-file-list="false"
-        :file-list="fileList"
-        :limit="1"
-        :before-upload="handleBeforeUpload"
-        :on-success="handleSuccess"
-        :on-remove="handleFileListRemove"
-        :on-progress="handleProgress"
-      >
-        <el-button title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
-        <div class="url-desc" v-if="uploadState > 0" slot="tip">
-          <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
-          <span v-show="uploadState === 2">图片上传成功</span>
-          <span v-show="uploadState === 3">该图片不支持自动上传</span>
-          <span v-show="uploadState === 4">图片加载中</span>
-          <i :class="{
+    <el-row>
+      <el-col :xs="24">
+        <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
+        <div class="upload">
+          <!--      <div class="url-desc url-desc-first">输入图片的url 或</div>-->
+          <el-button class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
+          <el-upload
+            ref="uploadRef"
+            class="upload"
+            action="/api/upload-markdown-image"
+            :headers="headers"
+            :data="extraData"
+            name="files"
+            accept="image/*"
+            :show-file-list="false"
+            :file-list="fileList"
+            :limit="1"
+            :before-upload="handleBeforeUpload"
+            :on-success="handleSuccess"
+            :on-remove="handleFileListRemove"
+            :on-progress="handleProgress"
+          >
+            <el-button title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
+            <div class="url-desc" v-if="uploadState > 0" slot="tip">
+              <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
+              <span v-show="uploadState === 2">图片上传成功</span>
+              <span v-show="uploadState === 3">该图片不支持自动上传</span>
+              <span v-show="uploadState === 4">图片加载中</span>
+              <i :class="{
             'el-icon-loading': uploadState === 1 ||  uploadState === 4,
             'el-icon-check': uploadState === 2,
             'el-icon-warning-outline': uploadState === 3
           }"></i>
+            </div>
+          </el-upload>
         </div>
-      </el-upload>
-    </div>
-    <el-tooltip class="item" effect="dark" placement="bottom">
-      <el-input :autosize="intputAutosize" type="textarea" width="100%" v-model="currentValue" @change="change" @input="input" @focus="isLocked = true"></el-input>
-      <div slot="content">
-        <el-image :style="{maxWidth: tipImageMaxWidth + 'px'}" :src="currentValue" fit="contain" @load="loadSuccess">
-          <div slot="error" class="image-slot">
-            <i class="el-icon-picture-outline"></i>
+      </el-col>
+      <el-col :xs="24">
+        <el-tooltip class="item" effect="dark" placement="bottom">
+          <el-input
+            :autosize="intputAutosize"
+            placeholder="请输入图片的url 或 上传"
+            type="textarea"
+            width="100%"
+            v-model="currentValue"
+            @change="change"
+            @input="input"
+            @focus="isLocked = true">
+          </el-input>
+          <div slot="content">
+            <el-image :style="{maxWidth: tipImageMaxWidth + 'px'}" :src="currentValue" fit="contain" @load="loadSuccess">
+              <div slot="error" class="image-slot">
+                <i class="el-icon-picture-outline"></i>
+              </div>
+            </el-image>
           </div>
-        </el-image>
-      </div>
-    </el-tooltip>
+        </el-tooltip>
+      </el-col>
+    </el-row>
   </div>
 </template>
 <script>
@@ -219,6 +234,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .upload {
+  margin-bottom: 1px;
   display: -webkit-box;
   .upload-select-btn {
     margin-right: 5px;

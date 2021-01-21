@@ -46,9 +46,11 @@
                 </el-radio-group>
               </div>
             </el-col>
-            <el-col :xs="24" :sm="14">
+            <el-col :xs="24" :sm="14" class="text-align-right">
+              <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
               <el-input
                   v-model="query.keyword"
+                  style="width:unset;"
                   class="query-item"
                   clearable
                   size="mini"
@@ -66,7 +68,6 @@
               >
               </multiple-tree-select>
               <el-button type="primary" size="mini" @click="theFilter">筛选</el-button>
-              <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
             </el-col>
           </el-row>
         </div>
