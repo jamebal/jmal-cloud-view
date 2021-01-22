@@ -249,7 +249,7 @@ export default {
   },
   methods: {
     setMaxHeight(){
-      this.tableMaxHeight = document.documentElement.clientHeight - 285
+      this.tableMaxHeight = document.documentElement.clientHeight - 265
     },
     //行拖拽
     rowDrop() {

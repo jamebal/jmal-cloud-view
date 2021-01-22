@@ -71,7 +71,7 @@ a:hover {
   float: right;
   margin-top: -32px;
 }
-/deep/ .el-collapse-item__content {
+/deep/ .el-collapse-item__content, /deep/.el-tab-pane {
   background-color: #fafafa;
   padding: 0 30px 20px;
 }
@@ -170,6 +170,9 @@ a:hover {
 }
 .text-align-right {
   text-align: right;
+}
+.input-none-width {
+  width: unset;
 }
 @media screen and (max-width: 768px) {
   .query-item {

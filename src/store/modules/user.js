@@ -134,12 +134,14 @@ const actions = {
 }
 
 function getMenuTree(menuList) {
-  menuList = menuList.filter(menu => menu.menuType === 0)
+  menuList = menuList.filter(menu => menu.menuType !== 1)
   return menuList.map(menu => {
     let router = {}
     if(menu.children && menu.children.length){
-      router.meta = {title: menu.name, icon: menu.icon}
+      router.meta = {title: menu.name, icon: menu.icon, menuType: menu.menuType}
+      router.hidden = menu.hide
       router.children = findChildren(menu.children)
+      router.menuType = menu.menuType
     }
     if(menu.component && menu.component.length > 0) {
       router.children = [
@@ -147,25 +149,29 @@ function getMenuTree(menuList) {
           path: '',
           name: menu.name,
           component: loadView(menu.component),
-          meta: {title: menu.name, icon: menu.icon}
+          meta: {title: menu.name, icon: menu.icon, menuType: menu.menuType},
+          hidden: menu.hide
         }
       ]
     }
     router.path = menu.path
     router.component = Layout
+    router.menuType = menu.menuType
     return router
   })
 }
 
 function findChildren(childrenMenu){
   let children = []
-  childrenMenu = childrenMenu.filter(menu => menu.menuType === 0)
+  childrenMenu = childrenMenu.filter(menu => menu.menuType !== 1)
   childrenMenu.forEach(menu => {
     let router = {
       path: menu.path,
       name: menu.name,
       component: !menu.component || menu.component.length === 0 ? ParentView : loadView(menu.component),
-      meta: {title: menu.name, icon: menu.icon}
+      meta: {title: menu.name, icon: menu.icon, menuType: menu.menuType},
+      hidden: menu.hide,
+      menuType: menu.menuType
     }
     if(menu.children && menu.children.length){
       if(!menu.component || menu.component.length === 0){

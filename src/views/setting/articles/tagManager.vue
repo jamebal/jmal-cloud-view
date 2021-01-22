@@ -257,9 +257,9 @@ export default {
 /deep/ .el-checkbox.is-bordered {
   background-color: #f4f4f5;
   border-color: #e9e9eb;
-  color: #909399;
+  color: #646568;
   font-weight: 400;
-  padding: 5px 5px 5px 10px;
+  padding: 6px 5px 5px 10px;
 }
 /deep/ .el-checkbox.is-bordered.is-checked {
   background-color: #ecf5ff;

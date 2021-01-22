@@ -32,15 +32,15 @@ export default {
     ]),
     routes() {
       let routes = []
-      if(this.$route.path.startsWith("/setting")){
+      if(this.$route.meta.menuType === 0){
         this.$router.options.routes.forEach(route => {
-          if(route.path.startsWith("/setting")){
+          if(route.menuType === 0){
             routes.push(route)
           }
         })
       } else {
         this.$router.options.routes.forEach(route => {
-          if(!route.path.startsWith("/setting")){
+          if(route.menuType === 2){
             routes.push(route)
           }
         })

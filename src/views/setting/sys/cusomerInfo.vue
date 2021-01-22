@@ -29,7 +29,7 @@
         <el-button size="small" :loading="userUpdateLoading" type="primary" @click="onSavePassword">确 定</el-button>
       </div>
     </el-dialog>
-    <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="120px">
+    <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="80px">
       <el-form-item label="头像" class="form-item-avatar">
         <div style="height: 100px; width: 100px;">
           <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage"  ></el-avatar>
@@ -44,13 +44,13 @@
         <el-button size="mini" round @click="changePassword">修改密码</el-button>
       </el-form-item>
       <el-form-item label="用户名">
-        <el-input v-model="cusomerInfoForm.showName" />
+        <el-input v-model="cusomerInfoForm.showName" class="input-none-width"/>
       </el-form-item>
       <el-form-item label="标语">
         <el-input class="form-slogan" v-model="cusomerInfoForm.slogan" />
       </el-form-item>
       <el-form-item label="个人简介">
-        <el-input type="textarea" v-model="cusomerInfoForm.introduction"></el-input>
+        <el-input class="form-slogan" type="textarea" v-model="cusomerInfoForm.introduction"></el-input>
       </el-form-item>
       <el-form-item v-show="percentage > 0" label="使用情况">
         <el-progress class="quota-space" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
@@ -262,6 +262,8 @@
             }
           }
         }
+        data.delete("createTime")
+        data.delete("updateTime")
         return data
       },
       // 保存头像

@@ -172,7 +172,6 @@
         activeNames: ['1'],
         file: {},
         editStatus: false,
-        html:'',    // 及时转的html
         filename: '',
         clientHeight: document.documentElement.clientHeight - 150,
         updating: false,
@@ -354,11 +353,6 @@
           },
           upload: this.markdownImageUplaod()
         })
-      },
-      // 所有操作都会被解析重新渲染
-      change(value, render){
-        // render 为 markdown 解析后的结果[html]
-        this.html = render;
       },
       markdownImageUplaod(){
         return {

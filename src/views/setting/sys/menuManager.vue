@@ -47,13 +47,20 @@
             <el-form-item label="排序号:" prop="sortNumber">
               <el-input-number v-model="form.sortNumber" controls-position="right" :min="0"></el-input-number>
             </el-form-item>
+            <el-form-item label="是否隐藏:" prop="hide">
+              <el-radio v-model="form.hide" :label="false">显示</el-radio>
+              <el-radio v-model="form.hide" :label="true">隐藏</el-radio>
+            </el-form-item>
             <el-form-item label="菜单类型:" prop="menuType">
               <el-radio v-model="form.menuType" :label="0">菜单</el-radio>
               <el-radio v-model="form.menuType" :label="1">按钮</el-radio>
             </el-form-item>
-            <el-form-item label="是否隐藏:" prop="hide">
-              <el-radio v-model="form.hide" :label="false">显示</el-radio>
-              <el-radio v-model="form.hide" :label="true">影藏</el-radio>
+            <el-form-item v-if="form.menuType !== 1" label="菜单位置:" prop="menuType">
+              <el-radio-group v-model="form.menuType" size="mini">
+                <el-radio-button :label="2">设置</el-radio-button>
+                <el-radio-button :label="3">顶部</el-radio-button>
+                <el-radio-button :label="4">右上</el-radio-button>
+              </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
@@ -131,7 +138,7 @@ export default {
         dialogTitle: '',
         updateLoading: false,
         valid: true,
-        isExpand: true,
+        isExpand: false,
         form: {
           name: '',
           parentId: '',
@@ -173,16 +180,23 @@ export default {
               }
             }
           },
-          {prop: 'menuType', label: '类型', width: 75, tag: true,
+          {prop: 'menuType', label: '类型', width: 100, tag: true,
             formatData: (menuType)=> {
-              if(menuType === 0){
-                return ['菜单']
-              }else{
-                return ['按钮']
+              switch (menuType) {
+                  case 0:
+                   return ['首页菜单']
+                  case 1:
+                    return ['按钮']
+                  case 2:
+                    return ['设置菜单']
+                  case 3:
+                    return ['顶部菜单']
+                  case 4:
+                    return ['右上角菜单']
               }
             }
           },
-          {prop: 'createTime', label: '创建时间'},
+          // {prop: 'createTime', label: '创建时间'},
           {label: '操作', minWidth: this.$pc ? 0 : 130, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id)},
               {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete([row.id])},

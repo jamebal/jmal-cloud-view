@@ -84,7 +84,7 @@ function setMenuList(next, to){
 function findPath(menuList, to, parentPath){
   for( let i = 0; i < menuList.length; i++) {
     const menu = menuList[i]
-    if(menu.menuType > 0){
+    if(menu.menuType === 1){
       continue
     }
     if(menu.children && menu.children.length > 0){

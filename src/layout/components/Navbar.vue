@@ -4,16 +4,17 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-content">
-        <router-link v-if="isShow" to="/setting/website/manager-blog">
-          <div class="right-content-button">
-            <svg-icon icon-class="wangzhanguanli"></svg-icon>网站管理
-          </div>
-        </router-link>
-        <router-link v-if="isShow" target="_blank" to="/articles">
-          <div class="right-content-button">
-            <svg-icon icon-class="WEBSITE"></svg-icon>网站
-          </div>
-        </router-link>
+      <app-link
+       v-for="route in routes.topRouters"
+       :key="route.path"
+       :to="resolvePath(route.path)"
+       v-if="!route.children[0].hidden"
+      >
+        <div class="right-content-button">
+          <svg-icon :icon-class="route.children[0].meta.icon"></svg-icon>
+          {{route.children[0].name}}
+        </div>
+      </app-link>
       <div class="right-username">{{showName}}</div>
       <div class="right-menu">
         <el-dropdown class="avatar-container" trigger="click">
@@ -22,16 +23,16 @@
             <i class="el-icon-caret-bottom" />
           </div>
           <el-dropdown-menu slot="dropdown" class="user-dropdown">
-            <router-link to="/setting/user">
+            <app-link
+              v-for="route in routes.rightTopRoutes"
+              :key="route.path"
+              :to="resolvePath(route.path)"
+            >
               <el-dropdown-item>
-                <svg-icon icon-class="shezhi"></svg-icon>基本设置
+                <svg-icon :icon-class="route.children[0].meta.icon"></svg-icon>
+                {{route.children[0].name}}
               </el-dropdown-item>
-            </router-link>
-            <router-link to="/setting/website/manager-blog">
-              <el-dropdown-item>
-                <svg-icon icon-class="wangzhanguanli"></svg-icon>网站管理
-              </el-dropdown-item>
-            </router-link>
+            </app-link>
             <el-dropdown-item divided @click.native="logout">
               <svg-icon icon-class="tuichudenglu"></svg-icon>退出登录
             </el-dropdown-item>
@@ -49,6 +50,10 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import Icon from '@/components/Icon/Icon.vue'
+import AppLink from './Sidebar/Link'
+import store from "@/store"
+import {isExternal} from "@/utils/validate";
+import path from "path";
 
 export default {
   data() {
@@ -62,14 +67,31 @@ export default {
   components: {
     Icon,
     Breadcrumb,
-    Hamburger
+    Hamburger,
+    AppLink
   },
   computed: {
     ...mapGetters([
       'sidebar',
       'avatar',
       'showName'
-    ])
+    ]),
+    routes() {
+      let routes = {}
+      let topRouters = []
+      let rightTopRoutes = []
+      this.$router.options.routes.forEach(route => {
+        if(route.menuType === 3){
+          topRouters.push(route)
+        }
+        if(route.menuType === 4){
+          rightTopRoutes.push(route)
+        }
+      })
+      routes.topRouters = topRouters
+      routes.rightTopRoutes = rightTopRoutes
+      return routes
+    },
   },
   mounted() {
     this.isShow = this.$pc;
@@ -83,6 +105,15 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    resolvePath(routePath) {
+      if (isExternal(routePath)) {
+        return routePath
+      }
+      if (isExternal(this.basePath)) {
+        return this.basePath
+      }
+      return path.resolve(this.basePath, routePath)
     }
   }
 }

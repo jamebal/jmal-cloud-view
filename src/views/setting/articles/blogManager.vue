@@ -9,8 +9,9 @@
           </div>
         </div>
       </a-affix>
-      <el-collapse v-model="activeNames">
-        <el-collapse-item title="网站首页背景" name="1">
+
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="网站首页背景" name="1">
           <div class="config-itme-label">站点背景大图：
           </div>
           <upload-image-input v-model="form.backgroundSite"/>
@@ -21,8 +22,8 @@
           <div class="config-itme-label">首页大图内描述：</div>
           <el-input autosize type="textarea" v-model="form.backgroundDescSite"></el-input>
           <span class="instruction">显示在博客首页大图内的描述。</span>
-        </el-collapse-item>
-        <el-collapse-item title="导航栏" name="2">
+        </el-tab-pane>
+        <el-tab-pane label="导航栏" name="2">
           <div class="config-itme-label">导航栏顶部 - 网站 Logo / 站点名称：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteName"></el-input>
           <span class="instruction">配置网站的 Logo，该选项仅作用于顶部导航条</span>
@@ -47,10 +48,8 @@
               </li>
             </ul>
           </div>
-
-        </el-collapse-item>
-        <el-collapse-item title="归档、分类、标签" name="3">
-
+        </el-tab-pane>
+        <el-tab-pane label="归档、分类、标签" name="3">
           <div class="config-itme-label">页面显示与否：</div>
           <el-checkbox-group v-model="form.alonePages">
             <el-checkbox label="archives">归档</el-checkbox>
@@ -68,14 +67,14 @@
           <div class="config-itme-label">标签界面背景大图：</div>
           <upload-image-input v-model="form.tagBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
-        </el-collapse-item>
-        <el-collapse-item title="网站页脚" name="4">
+        </el-tab-pane>
+        <el-tab-pane label="网站页脚" name="4">
           <div class="config-itme-label">版权信息：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.copyright"></el-input>
           <div class="config-itme-label">备案许可号：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.recordPermissionNum"></el-input>
-        </el-collapse-item>
-      </el-collapse>
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -93,7 +92,7 @@ export default {
   },
   data() {
     return {
-      activeNames: ['1'],
+      activeName: '1',
       example: '<i class="fab fa-github">github</i>',
       form: {
         backgroundSite: '',
@@ -114,8 +113,14 @@ export default {
   computed: {},
   mounted() {
     this.getSetting()
+    if(this.$route.query.tab){
+      this.activeName = this.$route.query.tab
+    }
   },
   methods: {
+    handleClick(tab, event) {
+      this.$router.push({query: {tab: tab.name}})
+    },
     preview(){
       this.operatingButtons = []
       if(this.form.operatingButtons) {
@@ -213,5 +218,15 @@ export default {
     color: #fff;
   }
 }
-
+/deep/ .el-tabs__header {
+  margin: 0;
+  @media screen and (min-width: 768px) {
+    .el-tabs__nav {
+      padding: 0 20px;
+    }
+    .el-tabs__active-bar {
+      left: 20px;
+    }
+  }
+}
 </style>

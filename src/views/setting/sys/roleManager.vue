@@ -51,12 +51,12 @@
                   <el-input clearable placeholder="请输入" v-model="queryCondition.code" />
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="6">
-                <el-form-item label="备注:">
+              <el-col :sm="12" :md="5" :xl="6">
+                <el-form-item label="备注:" label-width="50px">
                   <el-input clearable placeholder="请输入" v-model="queryCondition.remarks" />
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="6">
+              <el-col :sm="12" :md="7" :xl="6">
                 <div class="el-form-actions">
                   <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getRoleList()">查询</el-button>
                   <el-button class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
@@ -68,7 +68,7 @@
         </div>
       </div>
       <table-list
-        :less-client-height="290"
+        :less-client-height="280"
         :tableData="dataList"
         :loading="loading"
         :tableHeader="tableHeader"
