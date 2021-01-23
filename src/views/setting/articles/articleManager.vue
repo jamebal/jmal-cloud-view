@@ -76,6 +76,7 @@
           :max-height="tableMaxHeight"
           :class="{'el-table-alone-page': alonePage}"
           row-key="id"
+          size="medium"
           @selection-change="handleSelectionChange"
         >
           <el-table-column

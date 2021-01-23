@@ -53,6 +53,9 @@
       <el-table
         :data="categoryList"
         stripe
+        row-key="id"
+        :expand-row-keys="expandRowKeys"
+        size="medium"
         @selection-change="handleSelectionChange"
         @cell-mouse-enter="cellMouseEnter"
         @cell-mouse-leave="cellMouseLeave"
@@ -92,9 +95,10 @@
           prop="quota"
           label="文章数">
           <template slot-scope="scope">
-            <router-link :to="'/setting/website/manager-articles?categoryIds='+scope.row.id">
+            <router-link v-if="scope.row.articleNum > 0" :to="'/setting/website/manager-articles?categoryIds='+scope.row.id">
               <el-tag class="article-num" >{{scope.row.articleNum}}</el-tag>
             </router-link>
+            <span v-else><el-tag class="article-num" >{{scope.row.articleNum}}</el-tag></span>
           </template>
         </el-table-column>
       </el-table>
@@ -115,6 +119,7 @@ export default {
     return {
       title: "分类管理",
       categoryList: [],
+      expandRowKeys: [],
       dialogVisible: false,
       dialogTitle: '',
       categoryUpdateLoading: false,
@@ -168,6 +173,11 @@ export default {
         parentCategoryId: this.$route.query.parent
       }).then(res => {
         this.categoryList = res.data
+        this.categoryList.forEach(category => {
+          if(category.children){
+            this.expandRowKeys.push(category.id)
+          }
+        })
       })
     },
     categoryTree() {

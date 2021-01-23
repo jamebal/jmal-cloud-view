@@ -233,9 +233,6 @@ export default {
   &:hover {
     background-color: #00000006;
   }
-  svg {
-    margin-right: 5px;
-  }
 }
 
 .el-dropdown-menu__item {

@@ -11,7 +11,7 @@
               <el-input placeholder="请输入账号" v-model="form.showName" />
             </el-form-item>
             <el-form-item label="角色:" prop="roles">
-              <el-select v-model="form.roles" multiple placeholder="请选择角色">
+              <el-select ref="selectRole" v-model="form.roles" multiple placeholder="请选择角色" @change="changeRole">
                 <el-option
                   v-for="item in roleList"
                   :key="item.id"
@@ -280,6 +280,9 @@ export default {
             this.form.roles = roleIds
           }
         })
+      },
+      changeRole() {
+        this.$refs.selectRole.blur()
       },
       resetPassword() {
         this.$confirm('确定重置该用户密码吗, 是否继续?', '提示', {
