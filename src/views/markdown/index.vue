@@ -37,15 +37,16 @@
             format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
           <p class="mark-setting-label">文章封面：</p>
-          <upload-image-input v-model="file.cover" :intput-autosize="{ minRows: 2, maxRows: 6}"/>
+          <upload-image-input v-model="file.cover" placeholder="请输入文章封面大图的url" :intput-autosize="{ minRows: 2, maxRows: 6}"/>
           <div v-if="!alonePage">
             <p class="mark-setting-label">分类：</p>
             <multiple-tree-select
               ref="selectTree"
-              style="width: 100%"
+              style="width: 100%;"
               size="medium"
               placeholder="请选择分类"
               :options="categories"
+              select-pack-up
               v-model="file.categoryIds"
             >
             </multiple-tree-select>
@@ -222,7 +223,7 @@
         let tags = this.tags
         let results = queryString ? tags.filter((tag) => {
           return (tag.name.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
-        }) : tags
+        }) : []
         // 调用 callback 返回建议列表的数据
         results = results.map(res => {
           return {value: res.name}
@@ -611,6 +612,7 @@
 }
 /deep/ .el-autocomplete-suggestion {
   li {
+    padding: 0;
     background-color: #ecf5ff;
     color: #409eff;
     border: 1px solid #d9ecff;
@@ -664,5 +666,11 @@
 }
 /deep/ .vditor-toolbar--pin {
   top: unset;
+}
+/deep/.el-scrollbar__wrap {
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 }
 </style>

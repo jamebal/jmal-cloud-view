@@ -83,6 +83,11 @@ export default {
       type:Boolean,
       default:()=>{ return false }
     },
+    // 选择后收起下拉框
+    selectPackUp: {
+      type:Boolean,
+      default:()=>{ return false }
+    }
   },
   data() {
     return {
@@ -116,6 +121,9 @@ export default {
     selectNode(props, data){
       this.valueIds = data.checkedKeys
       this.$emit('input', this.valueIds)
+      if(this.selectPackUp){
+        this.$refs.treeSelect.blur()
+      }
     },
     // 移除选中项
     removeTag(name) {

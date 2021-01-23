@@ -41,7 +41,7 @@
         <el-tooltip class="item" effect="dark" placement="bottom">
           <el-input
             :autosize="intputAutosize"
-            placeholder="请输入图片的url 或 上传"
+            :placeholder="placeholder"
             type="textarea"
             width="100%"
             v-model="currentValue"
@@ -78,6 +78,10 @@ export default {
     tipImageMaxWidth: {
       type: Number,
       default: 250
+    },
+    placeholder: {
+      type: String,
+      default: '请输入图片的url 或 点击上传'
     },
     intputAutosize: {
       type: Object,
