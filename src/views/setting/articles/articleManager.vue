@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-wechat-title="title">
     <el-dialog
       :title="title"
       :fullscreen="true"
@@ -447,6 +447,7 @@ export default {
       this.closeDialog()
     },
     closeDialog(){
+      this.title = this.pageTitle
       this.$router.replace({path: this.$route.path})
       window.onbeforeunload = null
       this.hasChange = false

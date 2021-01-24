@@ -44,13 +44,12 @@
 
 <script>
 import icons from './requireIcons'
-import {icon} from '@/utils/iconfont-find'
-import NewComponent from "@/components/select/iconList";
+import {iconFonts} from '@/components/Icon/Icon'
 import IconList from "@/components/select/iconList";
 
 export default {
   name: 'IconSelect',
-  components: {IconList, NewComponent},
+  components: {IconList},
   props: {
     value: {
       type: String,
@@ -60,7 +59,7 @@ export default {
   data() {
     return {
       iconList: icons,
-      iconfontList: icon.list,
+      iconfontList: iconFonts.list,
       currentValue: this.value,
       hasValue: true,
       pickerOpen: false,

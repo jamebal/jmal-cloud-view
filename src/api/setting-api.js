@@ -21,7 +21,28 @@ export default {
       method: 'put',
       params
     })
-  }
+  },
+  getAccessTokenList(params) {
+    return request({
+      url: '/user/setting/accessTokenList',
+      method: 'get',
+      params
+    })
+  },
+  generateAccessToken(params) {
+    return request({
+      url: '/user/setting/generateAccessToken',
+      method: 'put',
+      params
+    })
+  },
+  deleteAccessToken(params) {
+    return request({
+      url: '/user/setting/deleteAccessToken',
+      method: 'delete',
+      params
+    })
+  },
 }
 
 export function getSetting(params) {
