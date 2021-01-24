@@ -43,6 +43,12 @@ export default {
       params
     })
   },
+  resetMenuAndRole() {
+    return request({
+      url: '/user/setting/resetMenuAndRole',
+      method: 'put',
+    })
+  }
 }
 
 export function getSetting(params) {

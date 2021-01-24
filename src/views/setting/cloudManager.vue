@@ -26,6 +26,10 @@
           <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
         </div>
         <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
+        <div class="config-itme-label">重置角色、菜单：
+          <el-button class="sync-button" size="mini" :loading="syncLoading" type="danger" @click="resetMenuAndRole()"><i class="el-icon-refresh-left"></i></el-button>
+        </div>
+        <span class="instruction">一般用于初始化角色、菜单数据</span>
       </div>
     </el-card>
   </div>
@@ -58,6 +62,18 @@ export default {
         this.syncLoading = false
       }).catch(() => {
         this.syncLoading = false
+      })
+    },
+    // 重置角色菜单
+    resetMenuAndRole(){
+      this.$confirm('您确定要删除此角色、菜单吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        settingApi.resetMenuAndRole().then(() => {
+          this.$message.success("重置完成")
+        })
       })
     },
     webpChange(webpEnabled) {
