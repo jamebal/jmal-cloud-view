@@ -20,19 +20,20 @@
           </el-breadcrumb-item>
         </transition-group>
         <div class="search-content">
-          <div class="searchClass">
-            <el-button v-if="indexList.length > 0" type="primary" @click="downloadFile">
-            下载
+          <div class="search-class">
+<!--            <el-button v-if="indexList.length > 0" type="text" @click="downloadFile">-->
+<!--            下载-->
+<!--            </el-button>-->
+            <el-button v-if="indexList.length > 0" type="text" @click="downloadFile" class="sort" title="下载">
+              <svg-icon icon-class="menu-download"/>
             </el-button>
-            <el-button class="vmode" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'menu-list' : 'menu-grid'" />
+            <el-button type="text" class="vmode" @click="changeVmode">
+              <svg-icon :icon-class="grid ? 'list' : 'grid'"/>
             </el-button>
           </div>
         </div>
       </el-breadcrumb>
     </div>
-    <!--<el-divider class="header-location"></el-divider>-->
-
     <!--右键菜单-->
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
@@ -55,14 +56,11 @@
       </ul>
     </e-vue-contextmenu>
 
-    <!--<div class="dashboard-text">path: {{ path }}</div>-->
-
     <!--list布局-->
     <el-table
       v-show="!grid && !linkFailed"
       ref="fileListTable"
       v-loading="tableLoading"
-      :max-height="clientHeight"
       style="width: 100%;margin: 20px 0 0 0;"
       empty-text="无文件"
       :data="fileList"
@@ -135,13 +133,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-if="index === 3" :key="index" width="50" :index="index" align="center" header-align="center">
+        <el-table-column v-if="index === 3  && showUpdateDateItem" :key="index" width="50" :index="index" align="center" header-align="center">
           <!--<template slot-scope="scope">-->
             <!--<svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />-->
           <!--</template>-->
         </el-table-column>
 
-        <el-table-column v-if="index === 4" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
+        <el-table-column v-if="index === 4 && showUpdateDateItem" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
           <!-- 使用组件, 并传值到组件中 -->
           <template slot="header">
             <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)" />
@@ -152,7 +150,7 @@
         </el-table-column>
 
         <el-table-column
-          v-if="index === 5"
+          v-if="index === 5 && showSizeItem"
           :key="index"
           width="200"
           :prop="item.name"
@@ -169,7 +167,7 @@
         </el-table-column>
 
         <el-table-column
-          v-if="index === 6"
+          v-if="index === 6 && showUpdateDateItem"
           :key="index"
           width="300"
           :prop="item.name"
@@ -198,7 +196,7 @@
       </div>
 
       <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-        <van-grid square :column-num="gridColumnNum" :gutter="20" :border="false">
+        <van-grid square :column-num="gridColumnNum" :gutter="10" :border="false">
           <van-grid-item v-for="(item,index) in fileList" ref="gridItem"  :key="item.id"
           >
             <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
@@ -215,7 +213,6 @@
           </van-grid-item>
         </van-grid>
       </van-checkbox-group>
-      <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     </div>
     <div v-if="linkFailed" class="share-header">
       <p v-if="prompt !== ''">温馨提示：</p>
@@ -225,7 +222,7 @@
     <sim-text-preview :file.sync="textPreviewRow" :shareId="shareId" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
-
+    <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     <el-pagination
       background
       layout="prev, pager, next"
@@ -284,7 +281,7 @@
         pagination: {
           fileId: false,
           pageIndex: 1,
-          pageSize: 25,
+          pageSize: 256,
           total: 0,
           pageSizes: [10,20,30,40,50]
         },
@@ -373,6 +370,8 @@
         videoPreviewVisible: false,
         audioPreviewRow: {},
         audioPreviewVisible: false,
+        showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
+        showSizeItem: this.$pc,// 列表模式下是否显示文件大小
       }
     },
     computed: {
@@ -490,7 +489,14 @@
       },
       containerResize(f) {
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
-        this.gridColumnNum = clientWidth/120 -2
+        if(clientWidth > 1024){
+          this.gridColumnNum = Math.round(clientWidth / 100 - 4)
+        } else {
+          this.gridColumnNum = Math.round(clientWidth / 100 - 2)
+          if(clientWidth < 500){
+            this.gridColumnNum = 3
+          }
+        }
       },
       // 格式化最近时间
       formatTime(time) {
@@ -605,37 +611,23 @@
       },
       getSummaries(param) {
         // 合计
-        const { columns, data } = param
         const sums = []
-        columns.forEach((column, index) => {
-          const values = data.map(item => Number(item[column.property]))
-          if (index === 5) {
-            sums[2] = values.reduce((prev, curr) => {
-              const value = Number(curr)
-              if (!isNaN(value)) {
-                return prev + curr
-              } else {
-                return prev
-              }
-            }, 0)
-          }
-        })
-        const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
-        const sizeSum = this.getShowSumSize(sums[2])
-        sums[2] = sumFileAndFolder + sizeSum
+        sums[2] = this.getShowSumFileAndFolder(this.fileList)
         this.summaries = sums[2]
         return sums
       },
-      // 统计文件和文件夹
+      // 统计文件和文件夹大小
       getShowSumFileAndFolder(fileList) {
         let folderSize = 0
         let fileSize = 0
+        let totalSize = 0
         fileList.forEach((fileInfo) => {
           if (fileInfo.isFolder) {
             folderSize += 1
           } else {
             fileSize += 1
           }
+          totalSize += fileInfo.size
         })
         let folderSum = ''
         if (folderSize > 0) {
@@ -645,7 +637,7 @@
         if (fileSize > 0) {
           fileSum = fileSize + '个文件'
         }
-        return folderSum + ' ' + fileSum
+        return folderSum + ' ' + fileSum + this.getShowSumSize(totalSize)
       },
       // 计算总大小
       getShowSumSize(totalSize) {
@@ -694,6 +686,7 @@
           item_date.label = ''
           item_date.sortable = false
           this.menusIsMultiple = true
+          this.rowContextData = row[0]
         } else {
           item_name.label = '名称'
           item_name.sortable = true
@@ -716,7 +709,7 @@
         }
         for (let i = 0; i < this.indexList.length; i++) {
           if (rowIndex === this.indexList[i]) {
-            return { backgroundColor: '#EBEEF5', color: '#b7b5b6', cursor: 'default' }
+            return { backgroundColor: '#f5f7fa', color: '#b7b5b6', cursor: 'default' }
           }
         }
       },
@@ -932,6 +925,7 @@
     /*margin: 50px;*/
   .dashboard-container {
     min-width: 1024px;
+    margin: 10px 0;
   }
   .header-location {
     display: block;
@@ -940,7 +934,7 @@
     margin: 0px 0;
   }
 
-  .searchClass[data-v-92fa2b3e] {
+  .search-class {
     padding: 3px;
   }
   .share-h {
@@ -971,7 +965,24 @@
     }
     .share-header-content:hover {
       cursor: pointer;
-      color: #a4d0fd;
+    }
+  }
+  /deep/.el-table{
+    &::before {
+      width: auto;
+    }
+    .el-table__footer-wrapper {
+      display: none;
+    }
+  }
+  .grid-divider {
+    height: 0;
+    text-align: center;
+    width: auto;
+    /deep/.el-divider__text {
+    }
+    /deep/.el-divider__text.is-center {
+      position: relative;
     }
   }
 </style>

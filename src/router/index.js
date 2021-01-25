@@ -297,7 +297,7 @@ export const dynamicRouters = [
       {
         path: '',
         name: 's_m',
-        component: () => import('@/views/public/share/shareList_m'),
+        component: () => import('@/views/public/share/shareList'),
       }
     ]
   },

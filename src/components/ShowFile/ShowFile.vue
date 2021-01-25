@@ -2064,6 +2064,7 @@ export default {
         if (this.selectPin) {
           return
         }
+        this.rowContextData = rows[0]
       }
       this.$refs.fileListTable.tableSelectData = rows
       this.selectRowData = rows
@@ -3178,6 +3179,10 @@ export default {
 >>> .van-grid-item__content {
   background-size: cover;
   background-position: center;
+}
+.vmode{
+  padding: 5px 10px;
+  margin-left: -5px;
 }
 </style>
 

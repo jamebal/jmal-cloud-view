@@ -82,7 +82,6 @@ export default {
       this.pickerOpen = false
     },
     select(icon){
-      console.log('6789')
       this.currentValue = icon
       this.$emit('input', icon)
       this.$refs.popover.doClose()

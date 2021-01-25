@@ -106,7 +106,6 @@ export default {
       })
     },
     mouseover(id) {
-      console.log(6789)
     },
     handleCheckTagChange(value) {
       let checkedCount = value.length;

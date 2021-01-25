@@ -66,7 +66,11 @@ function setMenuList(next, to){
       if(findPath(res.data, to)){
         next(window.location.pathname + window.location.search)
       } else {
-        next({path: store.getters.menuList[0].path})
+        if(to.path !== '/s'){
+          next(window.location.pathname + window.location.search)
+        } else {
+          next({path: store.getters.menuList[0].path})
+        }
       }
     })
   } else {
