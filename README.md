@@ -66,7 +66,7 @@ server {
 }
 ```
 
-#### 4.下载网盘服务程序
+#### 3.下载网盘服务程序
 
 去[这里](https://github.com/jamebal/jmal-cloud-server/releases)最新的jar包
 
@@ -76,7 +76,7 @@ server {
 
  其中`file.rrootDir`为网盘文件真实的存储的位置
 
-#### 5.访问
+#### 4.访问
 在浏览器里直接输入你的IP或域名即可
 
 
