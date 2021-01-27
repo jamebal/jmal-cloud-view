@@ -1,20 +1,22 @@
+### web网盘应用
+
 ### 线上预览地址: https://www.jmal.top , 用户名:amdin,密码:jmalcloud
 
 部分截图:
 ![image](https://www.jmal.top/api/file/admin/%E6%88%AA%E5%B1%8F%20133.png.webp)
 
-# jmal-cloud-view
+### jmal-cloud-view
 网盘前端界面
 
 基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
-## 开始
+### 使用
 
 ### 1.运行nginx服务器，需要安装[mod_zip](https://github.com/evanmiller/mod_zip) 的nginx插件 
 
 nginx配置 [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)
 
-### 2.运行web服务器 [jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server)
+#### 2.运行web服务器 [jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server)
 
 下载最新的 [clouddisk-x.x.x-exec.jar](https://github.com/jamebal/jmal-cloud-server/releases)
 
