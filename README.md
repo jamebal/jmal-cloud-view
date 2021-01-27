@@ -1,5 +1,5 @@
 # JmalCloud 个人网盘
-是一款开源免费的私有云存储网盘项目
+JmalCloud 是一款私有云存储网盘项目
 
 ### 线上预览地址: https://www.jmal.top , 用户名:amdin,密码:jmalcloud
 
@@ -11,27 +11,72 @@
 
 基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
-### 使用
+### 部署
 
-### 1.运行nginx服务器，需要安装[mod_zip](https://github.com/evanmiller/mod_zip) 的nginx插件 
+#### 1.环境准备
 
-nginx配置 [nignx.conf](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)
+- nginx 1.18+
+- mongodb 4.0+
+- jdk 1.8+
 
-#### 2.运行web服务器 [jmal-cloud-server](https://github.com/jamebal/jmal-cloud-server)
+#### 2.下载网盘界面程序，并配置nginx
+去[这里](https://github.com/jamebal/jmal-cloud-view/releases)下载最新的版本，选择dist.tar下载
+下载后解压到某个地方
+nginx配置如下:
+```nginx
+server {
+        listen 80;
+        server_name localhost;
+        # 这里为dist.tar解压后的路径
+        root xxx/xxx/xxx/dist;
 
-下载最新的 [clouddisk-x.x.x-exec.jar](https://github.com/jamebal/jmal-cloud-server/releases)
+        client_body_temp_path /Users/jmal/temp/filetest/rootpath;
+        client_max_body_size 100m;
+        client_body_buffer_size 100m;
 
-启动(需要提前安装jdk环境)
-```bash
-java -jar clouddisk-1.0-exec.jar --file.rrootDir=/home/jmal/file/
-# file.rrootDir表示文件保存的目录
+        location /api {
+                proxy_pass   http://localhost:8088/;
+                proxy_set_header Host $proxy_host;
+        }
+
+        location / {
+                try_files $uri $uri/ /index.html;
+                index index.html index.htm;
+        }
+
+        location /mq {
+                proxy_pass   http://localhost:8088/mq/;
+                #websocket额外配置开始
+                                  proxy_http_version 1.1;
+                                  proxy_set_header Upgrade $http_upgrade;
+                                  proxy_set_header Connection "upgrade";
+                                  proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
+                      proxy_read_timeout 500s;#读超时时间
+                      proxy_send_timeout 500s;#写超时时间
+                #websocket额外配置结束
+        }
+
+        location /articles {
+                proxy_pass   http://localhost:8088/articles;
+                proxy_set_header Host $proxy_host;
+        }
+
+        location ~ \.(eot|otf|ttf|woff|woff2|svg)$ {
+                add_header  Access-Control-Allow-Origin *;
+        }
+}
 ```
+
+#### 4.下载网盘服务程序
+去[这里](https://github.com/jamebal/jmal-cloud-server/releases)最新的jar包
+
+启动(需要提前安装jdk,mongodb环境)
+# file.rrootDir表示网盘文件真实的存储的目录
+`java -jar clouddisk-2.0-exec.jar --spring.profiles.active=prod --file.rootDir=/home/jmal/file/`
 或者克隆下来自己编译
 ```bash
 git clone https://github.com/jamebal/jmal-cloud-server.git
 ```
-
-### 3. 配置前端界面
 
 #### 开发模式
 ```bash
