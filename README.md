@@ -1,7 +1,7 @@
-### DEMO: www.jmal.cloud , 用户名:amdin,密码:123456
+### 线上预览地址: www.jmal.top , 用户名:amdin,密码:jmalcloud
 
 部分截图:
-![image](https://raw.githubusercontent.com/jamebal/jmal-cloud-view/master/doc/demo.png)
+![image](https://www.jmal.top/api/file/admin/%E6%88%AA%E5%B1%8F%20133.png.webp)
 
 # jmal-cloud-view
 网盘前端界面
