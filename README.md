@@ -94,7 +94,7 @@ server {
 - [ ] Android APP
 - [ ] PC
 
-### License
+### 许可
 
 [MIT](https://github.com/jamebal/jmal-cloud-view/blob/master/LICENSE) license.
 
