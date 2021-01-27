@@ -21,8 +21,11 @@ JmalCloud 是一款私有云存储网盘项目
 
 #### 2.下载网盘界面程序，并配置nginx
 去[这里](https://github.com/jamebal/jmal-cloud-view/releases)下载最新的版本，选择dist.tar下载
+
 下载后解压到某个地方
+
 nginx配置如下:
+
 只需要修改两个地方
 ```nginx
 server {
