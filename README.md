@@ -87,10 +87,12 @@ server {
 | --------- | --------- | --------- | --------- |
 | IE10, IE11, Edge| last 2 versions| last 2 versions| last 2 versions
 
-### 感谢🙏
+### 后续更新
 
-- 感谢 PanJiaChen 提供的[vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
-- 感谢 Vanessa219 提供的(https://github.com/Vanessa219)提供的[Vidtor](https://github.com/Vanessa219/vditor)
+- [ ] webDAV
+- [ ] iOS APP
+- [ ] Android APP
+- [ ] PC
 
 ### License
 
