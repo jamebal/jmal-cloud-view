@@ -1,4 +1,5 @@
-### web网盘应用
+# JmalCloud 个人网盘
+是一款开源免费的私有云存储网盘项目
 
 ### 线上预览地址: https://www.jmal.top , 用户名:amdin,密码:jmalcloud
 
