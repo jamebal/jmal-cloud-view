@@ -23,12 +23,14 @@ JmalCloud 是一款私有云存储网盘项目
 去[这里](https://github.com/jamebal/jmal-cloud-view/releases)下载最新的版本，选择dist.tar下载
 下载后解压到某个地方
 nginx配置如下:
+只需要修改两个地方
 ```nginx
 server {
         listen 80;
-        server_name localhost;
-        # 这里为dist.tar解压后的路径
-        root xxx/xxx/xxx/dist;
+        # 1.这里填写你的ip地址，或域名
+        server_name xxx;
+        # 2.这填写为dist.tar解压后的路径
+        root xxx;
 
         client_body_temp_path /Users/jmal/temp/filetest/rootpath;
         client_max_body_size 100m;
