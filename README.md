@@ -6,10 +6,6 @@ JmalCloud 是一款私有云存储网盘项目
 部分截图:
 ![image](https://www.jmal.top/api/file/admin/%E6%88%AA%E5%B1%8F%20133.png.webp)
 
-### jmal-cloud-view
-网盘前端界面
-
-基于 [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
 ### 部署
 
@@ -85,13 +81,17 @@ server {
 
 
 
-## 浏览器支持
+### 浏览器支持
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
 | --------- | --------- | --------- | --------- |
 | IE10, IE11, Edge| last 2 versions| last 2 versions| last 2 versions
 
-## License
+### 感谢🙏
+
+- 感谢[PanJiaChen]提供的[vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+
+### License
 
 [MIT](https://github.com/jamebal/jmal-cloud-view/blob/master/LICENSE) license.
 
