@@ -46,14 +46,12 @@ server {
 
         location /mq {
                 proxy_pass   http://localhost:8088/mq/;
-                #websocket额外配置开始
-                                  proxy_http_version 1.1;
-                                  proxy_set_header Upgrade $http_upgrade;
-                                  proxy_set_header Connection "upgrade";
-                                  proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
-                      proxy_read_timeout 500s;#读超时时间
-                      proxy_send_timeout 500s;#写超时时间
-                #websocket额外配置结束
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_connect_timeout 60s;
+                proxy_read_timeout 500s;
+                proxy_send_timeout 500s;
         }
 
         location /articles {
