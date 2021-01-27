@@ -20,13 +20,13 @@ JmalCloud 是一款私有云存储网盘项目
 - jdk 1.8+
 
 #### 2.下载网盘界面程序，并配置nginx
+
 去[这里](https://github.com/jamebal/jmal-cloud-view/releases)下载最新的版本，选择dist.tar下载
 
 下载后解压到某个地方
 
-nginx配置如下:
+nginx配置如下: （只需要修改两个地方）
 
-只需要修改两个地方
 ```nginx
 server {
         listen 80;
@@ -71,39 +71,19 @@ server {
 ```
 
 #### 4.下载网盘服务程序
+
 去[这里](https://github.com/jamebal/jmal-cloud-server/releases)最新的jar包
 
 启动(需要提前安装jdk,mongodb环境)
-# file.rrootDir表示网盘文件真实的存储的目录
-`java -jar clouddisk-2.0-exec.jar --spring.profiles.active=prod --file.rootDir=/home/jmal/file/`
-或者克隆下来自己编译
-```bash
-git clone https://github.com/jamebal/jmal-cloud-server.git
-```
 
-#### 开发模式
-```bash
-git clone https://github.com/jamebal/jmal-cloud-view.git
+`java -jar clouddisk-2.0-exec.jar --spring.profiles.active=prod --file.rootDir=xxx`
 
-cd jmal-cloud-view
+ 其中`file.rrootDir`为网盘文件真实的存储的位置
 
-npm install
+#### 5.访问
+http://你的IP或域名
 
-npm run dev
-```
-然后打开 http://localhost:9528
 
-#### 或者构建
-```bash
-# 为生产环境构建
-npm run build:prod
-```
-
-将生成的dist目录配置到[nginx](https://github.com/jamebal/jmal-cloud-server/blob/master/src/main/resources/nginx.conf)中
-
-也可在[这里](https://github.com/jamebal/jmal-cloud-server/releases)下载最新的 dist目录
-
-然后访问 http://localhost 即可
 
 ## 浏览器支持
 
