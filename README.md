@@ -89,7 +89,8 @@ server {
 
 ### 感谢🙏
 
-- 感谢[PanJiaChen]提供的[vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+- 感谢[PanJiaChen](https://github.com/PanJiaChen)提供的[vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+- 感谢[Vanessa219](https://github.com/Vanessa219)提供的[Vidtor](https://github.com/Vanessa219/vditor)
 
 ### License
 
