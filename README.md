@@ -74,7 +74,7 @@ server {
 
 `java -jar clouddisk-2.0-exec.jar --spring.profiles.active=prod --file.rootDir=xxx`
 
- 其中`file.rrootDir`为网盘文件真实的存储的位置
+ 其中`file.rootDir`为网盘文件真实的存储的位置
 
 #### 4.访问
 在浏览器里直接输入你的IP或域名即可
