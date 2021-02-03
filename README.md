@@ -51,11 +51,6 @@ server {
                 proxy_send_timeout 500s;
         }
 
-        location /articles {
-                proxy_pass   http://localhost:8088/articles;
-                proxy_set_header Host $proxy_host;
-        }
-
         location ~ \.(eot|otf|ttf|woff|woff2|svg)$ {
                 add_header  Access-Control-Allow-Origin *;
         }
