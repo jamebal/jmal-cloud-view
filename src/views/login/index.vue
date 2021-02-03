@@ -5,7 +5,6 @@
     <div id='stars2'></div>
     <div id='stars3'></div>
 
-    <!--<img src="http://localhost:9528/file/public/s/preview/login-bg.png?fileIds=5eca6fe63c9ae7058035e99b">-->
     <el-card class="box-card">
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
@@ -93,6 +92,7 @@
 <script>
 import { hasUser, initialization } from '@/api/user'
 import { getRememberName } from '@/utils/auth'
+import store from "@/store";
 
 export default {
   name: 'Login',
@@ -148,6 +148,9 @@ export default {
     $route: {
       handler: function(route) {
         this.redirect = route.query && route.query.redirect
+        if(route.query.path){
+          this.redirect += `&path=${route.query.path}`
+        }
       },
       immediate: true
     }
@@ -192,8 +195,13 @@ export default {
             // 登录
             this.loading = true
             this.$store.dispatch('user/login', this.loginForm).then(() => {
-              this.$router.push({ path: this.redirect || '/' })
-              this.loading = false
+              this.$store.dispatch('user/setMenuList').then((res) => {
+                console.log(this.redirect)
+                this.$router.push({ path: this.redirect || '/' })
+                this.loading = false
+              }).catch(() => {
+                this.loading = false
+              })
             }).catch(() => {
               this.loading = false
             })

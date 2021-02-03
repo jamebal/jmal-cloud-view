@@ -12,7 +12,6 @@ const whiteList = ['/login','/s','/s_m','/share'] // 白名单
 router.beforeEach(async(to, from, next) => {
   // 开始进度条
   NProgress.start()
-
   // 设置页面标题
   document.title = getPageTitle(to.meta.title)
 
@@ -53,7 +52,7 @@ router.beforeEach(async(to, from, next) => {
       next()
     } else {
       // 其他没有token重定向到登录页面。
-      next(`/login?redirect=${to.path}`)
+      next(`/login?redirect=${window.location.pathname}`)
       NProgress.done()
     }
   }
