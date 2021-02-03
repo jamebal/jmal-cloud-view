@@ -21,7 +21,7 @@ JmalCloud 是一款私有云存储网盘项目
 
 下载后解压到某个地方
 
-nginx配置如下: （只需要修改两个地方）
+nginx配置如下: （只需要修改三个地方）
 
 ```nginx
 server {
@@ -30,7 +30,7 @@ server {
         server_name xxx;
         # 2.这填写为dist.tar解压后的路径
         root xxx;
-        
+        # 3.为承载客户端请求的临时目录
         client_body_temp_path xxx;	
         client_max_body_size 100m;	
         client_body_buffer_size 100m;
