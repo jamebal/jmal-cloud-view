@@ -30,6 +30,10 @@ server {
         server_name xxx;
         # 2.这填写为dist.tar解压后的路径
         root xxx;
+        
+        client_body_temp_path xxx;	
+        client_max_body_size 100m;	
+        client_body_buffer_size 100m;
 
         location /api {
                 proxy_pass   http://localhost:8088/;
