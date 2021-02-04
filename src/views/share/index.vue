@@ -480,6 +480,7 @@
       // 复制分享链接
       copyShareLink() {
         var clipboard = new Clipboard('.tag-share-link')
+        console.log(clipboard)
         clipboard.on('success', e => {
           this.$message({
             message: '复制成功',

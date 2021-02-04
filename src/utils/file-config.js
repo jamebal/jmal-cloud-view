@@ -28,8 +28,7 @@ export default {
     })
   },
   publicDownload: function(shareId, file) {
-    let url = `${this.baseUrl}/public/s/download/${file.id}/${shareId}`
-    window.open(url, '_self')
+    window.open(this.publicDownloadUrl(shareId, file), '_self')
   },
   packageDownload: function(fileIds, token) {
     fileApi.isAllowDownload().then(() => {
@@ -37,6 +36,12 @@ export default {
     })
   },
   publicPackageDownload: function(shareId, fileIds) {
-    window.open(`${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}`, '_self')
+    window.open(this.publicPackageDownloadUrl(shareId, fileIds), '_self')
+  },
+  publicDownloadUrl: function(shareId, file) {
+    return window.location.origin + `${this.baseUrl}/public/s/download/${file.id}/${shareId}`
+  },
+  publicPackageDownloadUrl: function(shareId, fileIds) {
+    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}`
   },
 }

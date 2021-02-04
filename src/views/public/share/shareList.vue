@@ -3,6 +3,7 @@
     <transition name="fade">
       <al-loading v-if="isLoading"></al-loading>
     </transition>
+<!--    <el-button ref="downloadLink" style="display: block" type="primary" class="download-link" @click="copyDownloadLink" :data-clipboard-text="downloadLink">复制链接</el-button>-->
     <div class="share-h">
       <div class="share-header">
         <a href="">
@@ -38,21 +39,10 @@
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
       <ul v-for="item in menus" :key="item.label">
-        <li
-          v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
-          @click="menusOperations(item.operation)"
-        >
+        <li class="menu-option" @click="menusOperations(item.operation)">
           <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
           </label>
         </li>
-        <li
-          v-else
-          @click="menusOperations(item.operation)"
-        >
-          <label class="menuitem"><svg-icon :icon-class="item.iconClass" /><span class="menuitem text">{{ item.label }}</span>
-          </label>
-        </li>
-
       </ul>
     </e-vue-contextmenu>
 
@@ -258,7 +248,7 @@
   import VideoPreview from "@/components/preview/VideoPreview";
   import AudioPreview from "@/components/preview/AudioPreview";
   import fileConfig from "@/utils/file-config";
-
+  import Clipboard from "clipboard";
   export default {
     components: { IconFile, BreadcrumbFilePath,AlLoading,
       AudioPreview, VideoPreview, ImageViewer, SimTextPreview
@@ -317,10 +307,12 @@
         singleMenus: [
           { iconClass: 'menu-open', label: '打开', operation: 'open' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-fuzhi', label: '复制下载连接', operation: 'copyDownloadUrl' },
         ],
         singleMenusEdit: [
           { iconClass: 'menu-open', label: '打开', operation: 'open' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
+          { iconClass: 'menu-fuzhi', label: '复制下载连接', operation: 'copyDownloadUrl' },
         ],
         multipleMenus: [
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
@@ -840,10 +832,13 @@
           case 'download':
             this.downloadFile()
             break
+          case 'copyDownloadUrl':
+            this.downloadFile(true)
+            break
         }
         this.$refs.contextShow.hideMenu()
       },
-      downloadFile() {
+      downloadFile(copy) {
         let totalSize = 0
         if(this.indexList.length > 0){
           this.selectRowData.forEach(item => {
@@ -862,16 +857,42 @@
             fileIds.push(this.rowContextData.id)
           }
           if (fileIds.length > 1 || this.rowContextData.isFolder){
-            fileConfig.publicPackageDownload(this.shareId, fileIds, this.$store.state.user.token)
+            if(copy){
+              this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds))
+            } else {
+              fileConfig.publicPackageDownload(this.shareId, fileIds)
+            }
             return
           }
-          fileConfig.publicDownload( this.shareId, this.rowContextData)
+          if(copy){
+            this.copyDownloadLink(fileConfig.publicDownloadUrl( this.shareId, this.rowContextData))
+          } else {
+            fileConfig.publicDownload( this.shareId, this.rowContextData)
+          }
         } else {
           this.$message({
             message: '所选文件为空',
             type: 'warning'
           });
         }
+      },
+      // 复制下载连接
+      copyDownloadLink(url) {
+        let clipboard = new Clipboard('.menu-option', {
+          text: function (){
+            return url
+          }
+        })
+        clipboard.on('success', e => {
+          this.$message({message: '复制成功',type: 'success',duration: 1000});
+          // 释放内存
+          clipboard.destroy()
+        })
+        clipboard.on('error', e => {
+          // 不支持复制
+          this.$message({message: '该浏览器不支持自动复制',type: 'warning',duration: 1000});
+          clipboard.destroy()
+        })
       },
       // 点击文件或文件夹
       fileClick(row) {
@@ -984,6 +1005,9 @@
     /deep/.el-divider__text.is-center {
       position: relative;
     }
+  }
+  .newFileMenu li>.menuitem>.text {
+    margin-left: 10px;
   }
 </style>
 
