@@ -34,7 +34,7 @@
       <svg-icon v-else icon-class="audio"/>
     </div>
     <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
-    <div v-else-if="item.contentType.indexOf('image') > -1" v-on:mousedown="noDrag($event)">
+    <div v-else-if="item.contentType.startsWith('image')" v-on:mousedown="noDrag($event)">
       <el-image v-if="grid || grid === 'details'" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
           <svg-icon icon-class="loading-image-error"/>

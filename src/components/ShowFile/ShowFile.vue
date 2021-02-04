@@ -2949,7 +2949,7 @@ export default {
           this.$emit("selectedFile", selectFile)
           return
         }
-        if (row.contentType.indexOf('image') > -1) {
+        if (row.contentType.startsWith('image')) {
           // 图片
           this.imagePreviewVisible = true
           this.imagePreviewRow = row

@@ -886,7 +886,7 @@
           this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
           this.accessShareOpenDir(row.id)
         } else {
-          if(row.contentType.indexOf('image') > -1){
+          if(row.contentType.startsWith('image')){
             // 图片
             this.imagePreviewVisible = true
             this.imagePreviewRow = row
