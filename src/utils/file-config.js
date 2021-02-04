@@ -7,7 +7,7 @@ export default {
     return `${this.baseUrl}/file/${username}${file.path}${file.name}`
   },
   mardownPreviewUrl: function (path){
-    return `${this.baseUrl}${path}`
+    return window.location.origin + `${this.baseUrl}${path}`
   },
   publicPreviewUrl: function(fileIds) {
     return `${this.baseUrl}/public/preview/${fileIds}`

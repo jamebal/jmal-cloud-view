@@ -459,7 +459,7 @@
         if(file.contentType.indexOf('video') > -1){
           return 'video'
         }
-        if(file.contentType.indexOf('image') > -1){
+        if(file.contentType.contentType.startsWith('image')){
           return 'image'
         }
         if(file.contentType.indexOf('audio') > -1){
