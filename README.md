@@ -30,10 +30,8 @@ server {
         server_name xxx;
         # 2.这填写为dist.tar解压后的路径
         root xxx;
-
-        client_body_temp_path /Users/jmal/temp/filetest/rootpath;
-        client_max_body_size 100m;
-        client_body_buffer_size 100m;
+        client_max_body_size 50m;	
+        client_body_buffer_size 512k;
 
         location /api {
                 proxy_pass   http://localhost:8088/;
@@ -55,11 +53,6 @@ server {
                 proxy_send_timeout 500s;
         }
 
-        location /articles {
-                proxy_pass   http://localhost:8088/articles;
-                proxy_set_header Host $proxy_host;
-        }
-
         location ~ \.(eot|otf|ttf|woff|woff2|svg)$ {
                 add_header  Access-Control-Allow-Origin *;
         }
@@ -74,7 +67,7 @@ server {
 
 `java -jar clouddisk-2.0-exec.jar --spring.profiles.active=prod --file.rootDir=xxx`
 
- 其中`file.rrootDir`为网盘文件真实的存储的位置
+ 其中`file.rootDir`为网盘文件真实的存储的位置
 
 #### 4.访问
 在浏览器里直接输入你的IP或域名即可
