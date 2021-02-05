@@ -11,6 +11,7 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     showName: '',
+    userInfo: {},
     avatar: '',
     userId: getConsumerId(),
     menuList: []
@@ -40,6 +41,9 @@ const mutations = {
   },
   SET_MENU_LIST:(state,menuList) => {
     state.menuList = menuList;
+  },
+  SET_USER_INFO:(state,userInfo) => {
+    state.userInfo = userInfo;
   }
 }
 
@@ -99,6 +103,7 @@ const actions = {
         commit('SET_SHOW_NAME', showName)
         commit('SET_AVATAR', avatar)
         commit('SET_USERID', id)
+        commit('SET_USER_INFO', data)
         sessionStorage.setItem('store', JSON.stringify(state))
         resolve(data)
       }).catch(error => {

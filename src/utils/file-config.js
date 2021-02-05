@@ -3,6 +3,9 @@ import fileApi from '@/api/file-api'
 export default {
 
   baseUrl: '/api',
+  webDAVUrl: function(username) {
+    return window.location.origin + `${this.baseUrl}/webDAV/${username}`
+  },
   previewUrl: function(username, file) {
     return `${this.baseUrl}/file/${username}${file.path}${file.name}`
   },

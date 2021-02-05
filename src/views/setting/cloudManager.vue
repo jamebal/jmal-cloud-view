@@ -78,7 +78,7 @@ export default {
     },
     webpChange(webpEnabled) {
       settingApi.disabledWebp({userId: this.$store.state.user.userId, disabled: !webpEnabled}).then(() => {
-        webpEnabled ? this.$message.success('webp 以启用') : this.$message.warning('webp 以禁用')
+        webpEnabled ? this.$message.success('webp 已启用') : this.$message.warning('webp 已禁用')
       }).catch(() => {
         this.webpEnabled = !this.webpEnabled
       })
