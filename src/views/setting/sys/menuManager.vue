@@ -184,15 +184,15 @@ export default {
             formatData: (menuType)=> {
               switch (menuType) {
                   case 0:
-                   return ['首页菜单']
+                   return [{name: '首页菜单'}]
                   case 1:
-                    return ['按钮']
+                    return [{name: '按钮'}]
                   case 2:
-                    return ['设置菜单']
+                    return [{name: '设置菜单'}]
                   case 3:
-                    return ['顶部菜单']
+                    return [{name: '顶部菜单'}]
                   case 4:
-                    return ['右上角菜单']
+                    return [{name: '右上角菜单'}]
               }
             }
           },

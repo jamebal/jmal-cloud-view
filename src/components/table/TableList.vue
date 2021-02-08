@@ -50,7 +50,7 @@
             </div>
             <div v-if="item.formatData">
               <div v-if="item.tag">
-                <el-tag size="mini" v-for="tagname in item.formatData(scope.row[item.prop])" :key="tagname">{{tagname}}</el-tag>
+                <el-tag size="mini" v-for="tag in item.formatData(scope.row[item.prop])" :type="tag.type" :key="tag.name">{{tag.name}}</el-tag>
               </div>
               <div v-else-if="item.icon">
                 <svg-icon :icon-class="item.formatData(scope.row[item.prop])"></svg-icon>

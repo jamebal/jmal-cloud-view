@@ -140,13 +140,13 @@ export default {
           {prop: 'roles', minWidth: 120, label: '角色', tag: true,
             formatData: (roles)=> {
                 if(roles){
-                  let tagNames = this.roleList.map(role => {
+                  let tags = this.roleList.map(role => {
                     if (roles.includes(role.id)) {
-                      return role.name
+                      return {name : role.name}
                     }
                   })
-                  tagNames = tagNames.filter(tagName => tagName !== undefined)
-                  return tagNames
+                  tags = tags.filter(tag => tag !== undefined)
+                  return tags
                 }
             }
           },
