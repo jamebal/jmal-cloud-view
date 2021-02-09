@@ -3,14 +3,28 @@
     <el-card class="box-card table-search-header">
       <div slot="header">
         <div class="box-card-header">
-          <el-form size="medium" class="search-form" ref="queryForm" label-width="77px"  :model="queryCondition" @submit.native.prevent>
+          <el-form size="medium" class="search-form" ref="queryForm" label-width="77px" :model="queryCondition"
+                   @submit.native.prevent>
             <el-row :gutter="10">
-              <el-col :sm="12" :md="8">
-                <el-form-item label="账号:">
-                  <el-input clearable placeholder="请输入" v-model="queryCondition.username" />
+              <el-col :sm="12" :md="5">
+                <el-form-item label="日志类型:">
+                  <el-select v-model="typeValue" placeholder="请选择日志类型" @change="selectType">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      >
+                    </el-option>
+                  </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="9">
+              <el-col :sm="12" :md="6">
+                <el-form-item label="账号:">
+                  <el-input clearable placeholder="请输入" v-model="queryCondition.username"/>
+                </el-form-item>
+              </el-col>
+              <el-col :sm="12" :md="6">
                 <el-form-item label="时间:" prop="logTime">
                   <el-date-picker
                     v-model="pickerValue"
@@ -24,9 +38,11 @@
                   </el-date-picker>
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="7">
+              <el-col :sm="12" :md="6">
                 <div class="el-form-actions">
-                  <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getLogList()">查询</el-button>
+                  <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary"
+                             @click="getLogList()">查询
+                  </el-button>
                 </div>
               </el-col>
             </el-row>
@@ -77,6 +93,23 @@ export default {
         pageSize: 12,
         pageTotal: 0
       },
+      options: this.type === 'LOGIN' ? [{
+        value: 'LOGIN',
+        label: '登录'
+      }] : [{
+        value: 'LOGIN',
+        label: '登录'
+      }, {
+        value: 'OPERATION',
+        label: '操作'
+      }, {
+        value: 'ARTICLE',
+        label: '文章'
+      }, {
+        value: 'WEBDAV',
+        label: 'WebDAV'
+      }],
+      typeValue: this.type,
       // 查询条件
       queryCondition: {
         username: undefined,
@@ -130,8 +163,23 @@ export default {
       this.pagination = data.backData;
       this.getLogList()
     },
-    getLogList(){
-      if (this.pickerValue.length > 0){
+    selectType() {
+      this.queryCondition.type = this.typeValue
+      if (this.typeValue === 'ARTICLE') {
+        this.tableHeader[0].disabled = true
+        this.tableHeader[1].disabled = true
+        this.tableHeader[3].disabled = true
+        this.tableHeader[5].minWidth = 200
+      } else {
+        this.tableHeader[0].disabled = false
+        this.tableHeader[1].disabled = false
+        this.tableHeader[3].disabled = false
+        this.tableHeader[5].minWidth = 105
+      }
+      this.getLogList()
+    },
+    getLogList() {
+      if (this.pickerValue != null && this.pickerValue.length > 0) {
         this.queryCondition.startTime = this.pickerValue[0].getTime()
         this.queryCondition.endTime = this.pickerValue[1].getTime()
       }
@@ -152,10 +200,12 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
+
 .box-card {
   max-width: 1440px;
 }
-/deep/.el-range-editor--medium {
-    width: 100%;
+
+/deep/ .el-range-editor--medium {
+  width: 100%;
 }
 </style>

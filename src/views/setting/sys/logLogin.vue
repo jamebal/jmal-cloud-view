@@ -30,7 +30,7 @@ export default {
           }
         },
         {prop: 'remarks',label: '备注', sortable: 'custom'},
-        {prop: 'createTime',label: '创建时间', minWidth: 110, sortable: 'custom'},
+        {prop: 'createTime',label: '创建时间', minWidth: 150, sortable: 'custom'},
       ],
     }
   }

@@ -5,7 +5,7 @@ export default {
   // 获取markdown内容
   getMarkdown: function(params) {
     return request({
-      url: 'public/p',
+      url: '/markdown/p',
       method: 'get',
       params
     })

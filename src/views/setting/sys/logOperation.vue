@@ -90,7 +90,7 @@ export default {
             return time + 'ms'
           }
         },
-        {prop: 'createTime',label: '创建时间', minWidth: 110, sortable: 'custom'},
+        {prop: 'createTime',label: '创建时间', minWidth: 150, sortable: 'custom'},
         {label: '操作', minWidth: 75, active: [
             {name: '详情', icon: 'el-icon-view', handle: (row) => this.details(row)},
           ],
@@ -112,6 +112,9 @@ export default {
 @import "src/styles/setting";
 /deep/ .box-card {
   max-width: 1440px;
+  /deep/ .el-form-item {
+    margin-bottom: 20px;
+  }
 }
 /deep/ .el-form-item {
   margin-bottom: 0px;

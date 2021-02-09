@@ -53,7 +53,7 @@ export default {
 
 export function getSetting(params) {
   return request({
-    url: '/public/website/setting',
+    url: '/website/setting',
     method: 'get',
     params
   })
