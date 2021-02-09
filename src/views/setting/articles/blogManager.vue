@@ -12,8 +12,10 @@
 
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="网站首页背景" name="1">
-          <div class="config-itme-label">站点背景大图：
-          </div>
+          <div class="config-itme-label">站点地址：</div>
+          <el-input autosize type="textarea" width="100%" v-model="form.siteUrl"></el-input>
+          <span class="instruction">在这里填入站点的地址或域名。例如：<a href="https://blog.jmal.top" target="_blank">https://blog.jmal.top</a></span>
+          <div class="config-itme-label">站点背景大图：</div>
           <upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：</div>
@@ -95,6 +97,7 @@ export default {
       activeName: '1',
       example: '<i class="fab fa-github">github</i>',
       form: {
+        siteUrl: '',
         backgroundSite: '',
         backgroundTextSite: '',
         backgroundDescSite: '',

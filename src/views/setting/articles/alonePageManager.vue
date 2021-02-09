@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <article-manager :page-title="pageTitle" alone-page></article-manager>
+    <article-manager :page-title="pageTitle" :new-article-text="newArticleText" alone-page></article-manager>
   </div>
 </template>
 
@@ -14,6 +14,7 @@ export default {
   data() {
     return {
       pageTitle: '管理独立页面',
+      newArticleText: '新增页面'
     }
   },
   computed: {},

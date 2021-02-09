@@ -9,14 +9,14 @@
       @open="openDialog"
       @close="closeDialog"
     >
-      <markdown-editor ref="editor" :has-change.sync="hasChange" :alone-page="alonePage" @onTitle="onTitle" @onRelease="onRelease"></markdown-editor>
+      <markdown-editor ref="editor" :has-change.sync="hasChange" :alone-page="alonePage" :site-url="siteUrl" :is-edit="isEdit" @onTitle="onTitle" @onRelease="onRelease"></markdown-editor>
     </el-dialog>
     <el-card class="box-card">
       <div slot="header">
         <div class="box-card-header">
           <div class="clearfix card-header-back">
             <span>{{ alonePage ? '管理独立页面':'管理文章' }}</span>
-            <el-button class="card-button" size="mini" type="primary" @click="newArticle">写文章</el-button>
+            <el-button class="card-button" size="mini" type="primary" @click="newArticle">{{newArticleText}}</el-button>
           </div>
           <div class="card-header-right" v-show="this.multipleSelection.length > 0">
             <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
@@ -90,7 +90,7 @@
             label="标题">
             <template slot-scope="scope">
                 <a :title="'编辑 '+scope.row.name" @click="editArticle(scope.row.id)">{{scope.row.name}}<svg-icon icon-class="bianji-"></svg-icon></a>
-                <router-link :title="'浏览 '+scope.row.name" :to="(alonePage?'/articles/o/':'/articles/s/')+scope.row.slug" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></router-link>
+                <a :title="'浏览 '+scope.row.name" :href="(alonePage?siteUrl+'/o/':siteUrl+'/s/')+scope.row.slug" target="_blank"><svg-icon class="wailian" icon-class="wailian"></svg-icon></a>
             </template>
           </el-table-column>
           <el-table-column
@@ -158,6 +158,7 @@ import MarkdownEditor from '@/views/markdown/index'
 import markdownApi from "@/api/markdown-api";
 import categoryApi from "@/api/category";
 import api from "@/api/file-api";
+import {getSetting} from '@/api/setting-api'
 import MultipleTreeSelect from "@/components/select/MultipleTree";
 export default {
   name: 'articleManager',
@@ -173,6 +174,10 @@ export default {
     alonePage: {
       type: Boolean,
       default: false
+    },
+    newArticleText: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -199,6 +204,8 @@ export default {
       },
       draftNums: 0,
       multipleSelection: [],
+      siteUrl: `${window.location.origin}/articles`,
+      isEdit: false,
     }
   },
   computed: {},
@@ -215,6 +222,7 @@ export default {
   mounted() {
     this.getArticleList()
     this.categoryTree()
+    this.getWebsiteSetting()
     this.newArticleDialogVisible = !!this.$route.query.operation
     // 监听返回
     if (window.history && window.history.pushState) {
@@ -312,6 +320,14 @@ export default {
       const operation = this.$route.query.operation
       this.newArticleDialogVisible = !!operation;
     },
+    // 获取网站设置
+    getWebsiteSetting() {
+      getSetting({userId: this.$store.state.user.userId}).then((res) => {
+        if(res.data) {
+          this.siteUrl = res.data.siteUrl
+        }
+      })
+    },
     // 取消筛选
     cancelFilter() {
       this.query.userId = ''
@@ -394,8 +410,10 @@ export default {
     newArticle() {
       this.newArticleDialogVisible = true
       this.$router.push({query: {operation: 'new'}})
+      this.isEdit = false
     },
     editArticle(id) {
+      this.isEdit = true
       this.newArticleDialogVisible = true
       this.$router.push({query: {operation: 'editor', id: id}})
       if(this.$refs.editor){
@@ -431,9 +449,11 @@ export default {
         if(this.alonePage){
           this.title = '创建新页面 ' + val
         }
+        this.isEdit = false
       }
       if(operation === 'editor'){
         this.title = '编辑：' + val
+        this.isEdit = true
       }
     },
     openDialog() {

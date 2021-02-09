@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <article-manager :page-title="pageTitle"></article-manager>
+    <article-manager :page-title="pageTitle" :new-article-text="newArticleText"></article-manager>
   </div>
 </template>
 
@@ -15,6 +15,7 @@ export default {
   data() {
     return {
       pageTitle: '管理文章',
+      newArticleText: '写文章'
     }
   },
   computed: {},
