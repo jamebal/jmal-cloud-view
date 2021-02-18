@@ -197,7 +197,6 @@ export default {
                   fileName,
                   { type: response.type }
                 );
-                console.log(file)
                 let data = new FormData()
                 data.append("files", file)
                 data.append("username", that.$store.state.user.name)

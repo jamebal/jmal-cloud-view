@@ -102,6 +102,9 @@ export default {
         value: 'LOGIN',
         label: '登录'
       }, {
+        value: 'BROWSE',
+        label: '足迹👣'
+      }, {
         value: 'OPERATION',
         label: '操作'
       }, {

@@ -21,12 +21,12 @@ router.beforeEach(async(to, from, next) => {
   if (hasToken) {
     // 已登录的情况
     if (to.path === '/login') {
-      // 登陆页面
+      // 登录页面
       // 如果已登录，则重定向到主页
       setMenuList(next, { path: '/' })
       NProgress.done()
     } else {
-      // 非登陆页面
+      // 非登录页面
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo) {
         // 存在用户信息
@@ -46,7 +46,7 @@ router.beforeEach(async(to, from, next) => {
       }
     }
   } else {
-    // 没有登陆的情况
+    // 没有登录的情况
     if (whiteList.indexOf(to.path) !== -1) {
       //  没有token但是在白名单中，直接进入
       next()

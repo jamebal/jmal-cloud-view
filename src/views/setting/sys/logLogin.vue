@@ -23,9 +23,9 @@ export default {
         {prop: 'status', minWidth: 80, label: '状态', tag: true,
           formatData: (status)=> {
             if(status === 0) {
-              return [{name: '登陆成功', type: 'success'}]
+              return [{name: '登录成功', type: 'success'}]
             } else {
-              return [{name: '登陆失败', type: 'danger'}]
+              return [{name: '登录失败', type: 'danger'}]
             }
           }
         },

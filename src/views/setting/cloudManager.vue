@@ -44,7 +44,7 @@ export default {
     return {
       title: '网盘管理',
       syncLoading: false,
-      webpEnabled: true
+      webpEnabled: false
     }
   },
   mounted() {
