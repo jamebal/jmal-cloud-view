@@ -2755,7 +2755,7 @@ export default {
           fileConfig.packageDownload(fileIds, this.$store.state.user.token)
           return
         }
-        fileConfig.download(this.$store.state.user.name, this.rowContextData)
+        fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.getters.token)
       } else {
         this.$message({
           message: '所选文件为空',
@@ -2980,7 +2980,7 @@ export default {
           if (window.location.port.length > 0) {
             host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
           }
-          fileConfig.preview(this.$store.state.user.name, row)
+          fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
           return
         }
         if (suffix.compressedFile.includes(row.suffix)) {
@@ -3007,7 +3007,7 @@ export default {
       this.notPreviewDialogVisible = false
     },
     downLaod(file) {
-      fileConfig.download(this.$store.state.user.name, file)
+      fileConfig.download(this.$store.state.user.name, file, this.$store.getters.token)
     },
   }
 }

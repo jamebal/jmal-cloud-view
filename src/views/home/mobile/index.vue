@@ -986,7 +986,7 @@
               this.$router.push(`/public/articles/article?mark=${row.id}`)
             }else{
               // 打开文件
-              fileConfig.preview(this.$store.state.user.token, row)
+              fileConfig.preview(this.$store.state.user.token, row, this.$store.getters.token)
             }
           }
         }

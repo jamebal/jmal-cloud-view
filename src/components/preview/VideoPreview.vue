@@ -99,7 +99,7 @@ export default {
     watch: {
       status: function(visible){
         if(visible){
-          let url = fileConfig.previewUrl(this.$store.state.user.name, this.file)
+          let url = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
           if(this.shareId){
             url = fileConfig.publicPreviewUrl(this.file.id);
           }

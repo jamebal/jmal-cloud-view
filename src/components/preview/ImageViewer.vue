@@ -89,7 +89,7 @@
           this.fileList.forEach((element,index) => {
             if(index < findIndex + 5 && index > findIndex - 5 ) {
               if(!element.isFolder && element.contentType.startsWith('image')){
-                let url = fileConfig.previewUrl(this.$store.state.user.name, element)
+                let url = fileConfig.previewUrl(this.$store.state.user.name, element, this.$store.getters.token)
                 if(this.shareId){
                   url = fileConfig.publicPreviewUrl(element.id);
                 }

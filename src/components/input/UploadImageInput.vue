@@ -124,7 +124,7 @@ export default {
     input(value) {
     },
     selectedFile(row) {
-      this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row)
+      this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row, this.$store.getters.token)
       this.change(this.currentValue)
     },
     handleBeforeUpload(){

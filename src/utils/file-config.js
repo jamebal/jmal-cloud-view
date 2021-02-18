@@ -6,27 +6,26 @@ export default {
   webDAVUrl: function(username) {
     return window.location.origin + `${this.baseUrl}/webDAV/${username}`
   },
-  previewUrl: function(username, file) {
-    return `${this.baseUrl}/file/${username}${file.path}${file.name}`
+  previewUrl: function(username, file, token) {
+    return `${this.baseUrl}/file/${username}${file.path}${file.name}?jmal-token=${token}`
   },
   mardownPreviewUrl: function (path){
     return window.location.origin + `${this.baseUrl}${path}`
   },
-  publicPreviewUrl: function(fileIds) {
-    return `${this.baseUrl}/public/preview/${fileIds}`
+  publicPreviewUrl: function(fileId) {
+    return `${this.baseUrl}/public/preview/${fileId}`
   },
-  preview: function(username, file) {
-    const url = this.previewUrl(username, file)
-    console.log(url)
+  preview: function(username, file, token) {
+    const url = this.previewUrl(username, file, token)
     window.open(url, '_blank')
   },
   publicPreview: function(fileIds) {
     const url = this.publicPreviewUrl(fileIds)
     window.open(url, '_blank')
   },
-  download: function(username, file) {
+  download: function(username, file, token) {
     fileApi.isAllowDownload().then(() => {
-      let url = `${this.baseUrl}/file/${username}${file.path}${file.name}?o=download`
+      let url = `${this.baseUrl}/file/${username}${file.path}${file.name}?jmal-token=${token}&o=download`
       window.open(url, '_self')
     })
   },

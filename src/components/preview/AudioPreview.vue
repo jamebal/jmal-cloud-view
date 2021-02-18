@@ -49,7 +49,7 @@ export default {
       pic.addEventListener('click', this.onPicClick);
       Bus.$on('onAddAudio',(newFile, audioCoverUrl) => {
         this.show = true
-        let url = fileConfig.previewUrl(this.$store.state.user.name, newFile)
+        let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
         console.log(url)
         if(!this.$store.state.user.token){
           url = fileConfig.publicPreviewUrl(newFile.id);
