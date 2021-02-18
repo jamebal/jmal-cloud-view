@@ -103,7 +103,7 @@ export default {
       fileList: [],
       isLocked: false, // true表示输入框正在输入状态
       timer: null,
-      uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功
+      uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功, 3 不支持自动上传, 4 加载中
       uploadTip: '',
       dialogSelectFile: false,
       uploadPercentage: 0
@@ -187,11 +187,17 @@ export default {
               that.uploadState = 4
               that.urlToBlob(that.currentValue, response => {
                 that.uploadState = 1
+                let fileName = that.getFileNameByUrl(that.currentValue)
+                if (response.type.startsWith("image") && fileName.indexOf(".")) {
+                  let suffix = response.type.replace("image/",".")
+                  fileName += suffix
+                }
                 const file = new window.File(
                   [response],
-                  that.getFileNameByUrl(that.currentValue),
+                  fileName,
                   { type: response.type }
                 );
+                console.log(file)
                 let data = new FormData()
                 data.append("files", file)
                 data.append("username", that.$store.state.user.name)

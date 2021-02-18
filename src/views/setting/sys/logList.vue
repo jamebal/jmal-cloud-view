@@ -6,9 +6,9 @@
           <el-form size="medium" class="search-form" ref="queryForm" label-width="77px" :model="queryCondition"
                    @submit.native.prevent>
             <el-row :gutter="10">
-              <el-col :sm="12" :md="5">
+              <el-col v-if="!isLoginType" :sm="12" :md="isLoginType ? 8 : 4">
                 <el-form-item label="日志类型:">
-                  <el-select v-model="typeValue" placeholder="请选择日志类型" @change="selectType">
+                  <el-select v-model="typeValue" style="width: 100%" :disabled="isLoginType" placeholder="请选择日志类型" @change="selectType">
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -19,12 +19,17 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="6">
+              <el-col :sm="12" :md="isLoginType ? 8 : 5">
                 <el-form-item label="账号:">
                   <el-input clearable placeholder="请输入" v-model="queryCondition.username"/>
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="6">
+              <el-col v-if="!isLoginType" :sm="12" :md="isLoginType ? 8 : 5">
+                <el-form-item label="操作模块:">
+                  <el-input clearable placeholder="请输入" v-model="queryCondition.operationModule"/>
+                </el-form-item>
+              </el-col>
+              <el-col :sm="12" :md="isLoginType ? 8 : 5">
                 <el-form-item label="时间:" prop="logTime">
                   <el-date-picker
                     v-model="pickerValue"
@@ -38,7 +43,7 @@
                   </el-date-picker>
                 </el-form-item>
               </el-col>
-              <el-col :sm="12" :md="6">
+              <el-col :sm="12" :md="isLoginType ? 8 : 5">
                 <div class="el-form-actions">
                   <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary"
                              @click="getLogList()">查询
@@ -93,10 +98,7 @@ export default {
         pageSize: 12,
         pageTotal: 0
       },
-      options: this.type === 'LOGIN' ? [{
-        value: 'LOGIN',
-        label: '登录'
-      }] : [{
+      options: [{
         value: 'LOGIN',
         label: '登录'
       }, {
@@ -110,9 +112,11 @@ export default {
         label: 'WebDAV'
       }],
       typeValue: this.type,
+      isLoginType: this.type === 'LOGIN',
       // 查询条件
       queryCondition: {
         username: undefined,
+        operationModule: undefined,
         type: this.type,
         startTime: undefined,
         endTime: undefined
