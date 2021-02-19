@@ -64,8 +64,9 @@
 <script>
 
 import axios from 'axios'
-import fileConfig from "@/utils/file-config";
-import SelectFile from "@/components/ShowFile/SelectFile";
+import fileApi from '@/api/file-api'
+import fileConfig from "@/utils/file-config"
+import SelectFile from "@/components/ShowFile/SelectFile"
 
 export default {
   name: 'UploadImageInput',
@@ -124,8 +125,10 @@ export default {
     input(value) {
     },
     selectedFile(row) {
-      this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row, this.$store.getters.token)
-      this.change(this.currentValue)
+      fileApi.setPublic({fileId: row.id}).then(() => {
+        this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row, undefined)
+        this.change(this.currentValue)
+      })
     },
     handleBeforeUpload(){
       this.uploadState = 1

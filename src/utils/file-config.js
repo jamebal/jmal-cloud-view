@@ -7,7 +7,11 @@ export default {
     return window.location.origin + `${this.baseUrl}/webDAV/${username}`
   },
   previewUrl: function(username, file, token) {
-    return `${this.baseUrl}/file/${username}${file.path}${file.name}?jmal-token=${token}`
+    if (token) {
+      return `${this.baseUrl}/file/${username}${file.path}${file.name}?jmal-token=${token}`
+    } else {
+      return `${this.baseUrl}/file/${username}${file.path}${file.name}`
+    }
   },
   mardownPreviewUrl: function (path){
     return window.location.origin + `${this.baseUrl}${path}`

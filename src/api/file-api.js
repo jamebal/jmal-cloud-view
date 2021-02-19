@@ -64,6 +64,14 @@ export default {
       })
     }
   },
+  // 将文件设为公共文件
+  setPublic: function(params) {
+    return request({
+      url: 'setPublic',
+      method: 'put',
+      params
+    })
+  },
   // 删除
   delete: function(params) {
     return request({
