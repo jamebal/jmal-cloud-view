@@ -14,6 +14,7 @@
             <edit-element
               ref="editElement"
               class="mark-setting-input"
+              :style="{minWidth: file.slug && file.slug.length > 0 ? '0px' : '35px'}"
               v-model="file.slug"
               placeholder="缩略名"
               can-edit

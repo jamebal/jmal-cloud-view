@@ -28,7 +28,7 @@ export default{
   },
   watch: {
     value(value){
-      if (!this.isLocked || !this.innerText) {
+      if (!this.isLocked) {
         this.innerText = value
         document.getElementById('edit-div').innerHTML = value
       }
