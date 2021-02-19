@@ -19,7 +19,7 @@
               placeholder="缩略名"
               can-edit
             ></edit-element>
-            <a v-if="isEdit" class="view-icon" :title="'预览 '+filename" :href="siteUrl + (alonePage ? '/o/':'/s/')+file.slug" target="_blank">
+            <a v-if="isEdit" class="view-icon" :title="'预览 '+filename" :href="siteUrl + (alonePage ? '/o/':'/s/')+(file.slug ? file.slug : file.id)" target="_blank">
               <svg-icon class="wailian" icon-class="eye-open"></svg-icon>预览
             </a>
           </div>
