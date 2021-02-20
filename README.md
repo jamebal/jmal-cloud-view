@@ -1,4 +1,4 @@
-# JmalCloud 个人网盘 ｜ [English](https://github.com/jamebal/jmal-cloud-view/edit/master/README_en_US.md)
+# JmalCloud 个人网盘 ｜ [English](https://github.com/jamebal/jmal-cloud-view/master/README_en_US.md)
 JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的云端文件
 
 ✅ 支持图片,音频,视频等文件的在线预览
