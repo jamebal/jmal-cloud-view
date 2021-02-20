@@ -790,6 +790,8 @@
       border: unset!important;
       background-color: #c1c1c1 !important;
       border-radius: unset!important;
+      outline: unset;
+      outline-offset: unset;
     }
     &::-webkit-scrollbar-track-piece {
       border: unset!important;
