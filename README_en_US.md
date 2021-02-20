@@ -12,7 +12,7 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 ### Online Preview Address: https://www.jmal.top , username:amdin, password:jmalcloud
 
 Some screenshots:
-![image](https://www.jmal.top/api/file/admin/%E6%88%AA%E5%B1%8F%20133.png.webp)
+![image](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20139.png?shareKey=601b697575858bec45c457a3&o=preview)
 
 
 ### Deployment
