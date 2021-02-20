@@ -36,6 +36,7 @@ server {
         location /api {
                 proxy_pass   http://localhost:8088/;
                 proxy_set_header Host $proxy_host;
+                proxy_set_header X-real-ip $remote_addr;
         }
 
         location / {
