@@ -70,7 +70,7 @@ server {
 
 #### 3.Download the netdisk service program
 
-Go to[here](https://github.com/jamebal/jmal-cloud-server/releases)The latest jar packages
+Go to[here](https://github.com/jamebal/jmal-cloud-server/releases)Download the latest jar packages
 
 Start (need to install jdk, mongodb environment in advance)
 
