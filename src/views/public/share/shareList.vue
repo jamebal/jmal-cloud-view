@@ -896,6 +896,7 @@
       },
       // 点击文件或文件夹
       fileClick(row) {
+        window.shareId = this.shareId
         if (row.isFolder) {
           // 打开文件夹
           const item = {}
@@ -933,7 +934,7 @@
             return
           }
           // 打开文件
-          fileConfig.publicPreview(row.id)
+          fileConfig.publicPreview(row.id, this.shareId)
         }
       }
     }

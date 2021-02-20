@@ -91,7 +91,7 @@
               if(!element.isFolder && element.contentType.startsWith('image')){
                 let url = fileConfig.previewUrl(this.$store.state.user.name, element, this.$store.getters.token)
                 if(this.shareId){
-                  url = fileConfig.publicPreviewUrl(element.id);
+                  url = fileConfig.publicPreviewUrl(element.id, window.shareId);
                 }
                 this.images.push(url)
                 if(this.file.id === element.id){
