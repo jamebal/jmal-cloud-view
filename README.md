@@ -70,7 +70,7 @@ server {
 
 #### 3.下载网盘服务程序
 
-去[这里](https://github.com/jamebal/jmal-cloud-server/releases)最新的jar包
+去[这里](https://github.com/jamebal/jmal-cloud-server/releases)下载最新的jar包
 
 启动(需要提前安装jdk,mongodb环境)
 
