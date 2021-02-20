@@ -1,6 +1,10 @@
 # JmalCloud 个人网盘
 JmalCloud 是一款私有云存储网盘项目
 
+✅ 像操作文件管理器一样操作云端文件
+✅ 支持大文件上传，断点续传
+✅ 支持webDAV
+
 ### 线上预览地址: https://www.jmal.top , 用户名:amdin,密码:jmalcloud
 
 部分截图:
@@ -83,7 +87,6 @@ server {
 
 ### 后续更新
 
-✅ webDAV
 - [ ] iOS APP
 - [ ] Android APP
 - [ ] PC
