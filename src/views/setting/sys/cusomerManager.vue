@@ -72,6 +72,7 @@
         :tableHeader="tableHeader"
         :pagination="pagination"
         @pageChange="pageChange"
+        @sizeChange="pageChange"
         @selectFun="selectFun"
         @sortChange="sortChange"
       ></table-list>

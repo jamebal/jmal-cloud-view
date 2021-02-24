@@ -66,10 +66,12 @@
       <el-pagination
         hide-on-single-page
         background
-        layout="total, prev, pager, next"
+        layout="total,sizes, prev, pager, next, jumper"
         :current-page="pagination.pageIndex"
+        :page-sizes="[20, 30, 50, 100]"
         :page-size="pagination.pageSize"
         :total="pagination.pageTotal"
+        @size-change="handleSizeChange"
         @current-change="handlePageChange"
       ></el-pagination>
     </div>
@@ -124,29 +126,34 @@ export default {
   data() {
     return {
       tableMaxHeight: document.documentElement.clientHeight,
-      multipleSelection: [],
-      newPagination: {
-        pageIndex: 0,
-        pageSize: 15,
-        pageTotal: 0
-      },
+      multipleSelection: []
     };
   },
   mounted() {
-    this.setMaxHeight()
+    this.setMaxHeight(true)
     let that = this
     window.onresize = function (){
       that.setMaxHeight()
     }
   },
   methods: {
-    setMaxHeight(){
+    setMaxHeight(init) {
       this.tableMaxHeight = document.documentElement.clientHeight - this.lessClientHeight
+      if (init) {
+        this.$set(this.pagination, 'pageSize', 10 + Math.round((this.tableMaxHeight - 500) / 45));
+      }
     },
     // 多选操作
     handleSelectionChange(val) {
       this.multipleSelection = val;
       this.$emit('selectFun', { backData: this.multipleSelection });
+    },
+    initPageIndex() {
+      this.$set(this.pagination, 'pageIndex', 1);
+    },
+    handleSizeChange(val) {
+      this.$set(this.pagination, 'pageSize', val);
+      this.$emit('sizeChange', { backData: this.pagination});
     },
     // 分页导航
     handlePageChange(val) {

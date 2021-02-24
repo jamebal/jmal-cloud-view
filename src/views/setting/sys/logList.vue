@@ -25,8 +25,8 @@
                 </el-form-item>
               </el-col>
               <el-col v-if="!isLoginType" :sm="12" :md="isLoginType ? 8 : 5">
-                <el-form-item label="操作模块:">
-                  <el-input clearable placeholder="请输入" v-model="queryCondition.operationModule"/>
+                <el-form-item label="ip:">
+                  <el-input clearable placeholder="请输入" v-model="queryCondition.ip"/>
                 </el-form-item>
               </el-col>
               <el-col :sm="12" :md="isLoginType ? 8 : 5">
@@ -45,8 +45,12 @@
               </el-col>
               <el-col :sm="12" :md="isLoginType ? 8 : 5">
                 <div class="el-form-actions">
+                  <el-radio-group v-model="queryCondition.excludeUsername" size="medium" @change="queryLogList">
+                    <el-radio-button :label="undefined">所有人</el-radio-button>
+                    <el-radio-button label="other">其他人</el-radio-button>
+                  </el-radio-group>
                   <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary"
-                             @click="getLogList()">查询
+                             @click="queryLogList">查询
                   </el-button>
                 </div>
               </el-col>
@@ -55,13 +59,16 @@
         </div>
       </div>
       <table-list
-        :less-client-height="280"
+        ref="tableList"
+        :less-client-height="245"
         :tableData="dataList"
         :loading="loading"
         :hasSelection="false"
         :tableHeader="tableHeader"
+        :page-index="pageIndex"
         :pagination="pagination"
         @pageChange="pageChange"
+        @sizeChange="pageChange"
         @sortChange="sortChange"
       ></table-list>
     </el-card>
@@ -93,9 +100,10 @@ export default {
       dataList: [],
       loading: false,
       // 分页信息
+      pageIndex: 1,
       pagination: {
         pageIndex: 1,
-        pageSize: 12,
+        pageSize: 10,
         pageTotal: 0
       },
       options: [{
@@ -118,8 +126,9 @@ export default {
       isLoginType: this.type === 'LOGIN',
       // 查询条件
       queryCondition: {
+        excludeUsername: 'other',
         username: undefined,
-        operationModule: undefined,
+        ip: undefined,
         type: this.type,
         startTime: undefined,
         endTime: undefined
@@ -163,7 +172,7 @@ export default {
       let column = data.backData;
       this.queryCondition.sortProp = column.prop
       this.queryCondition.sortOrder = column.order
-      this.getLogList()
+      this.queryLogList()
     },
     //分页导航
     pageChange(data) {
@@ -183,6 +192,10 @@ export default {
         this.tableHeader[3].disabled = false
         this.tableHeader[5].minWidth = 105
       }
+      this.queryLogList()
+    },
+    queryLogList() {
+      this.$refs.tableList.initPageIndex()
       this.getLogList()
     },
     getLogList() {
