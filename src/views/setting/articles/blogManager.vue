@@ -4,13 +4,23 @@
       <a-affix>
         <div class="box-card-header">
           <div class="clearfix card-header-back">
-            <span>外观设置</span>
-            <el-button class="card-button" size="mini" type="primary" @click="save()">保存设置</el-button>
+            <div v-if="!subpage">
+              <span>外观设置</span>
+              <el-button class="card-button" size="mini" type="primary" @click="save()">保存设置</el-button>
+            </div>
+            <div v-if="subpage">
+              <div class="card-header-back">
+                <span class="header-back-title" @click="backParent">
+                  <i class="el-icon-back"></i>
+                  <span>返回</span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </a-affix>
 
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-if="!subpage" v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="网站首页背景" name="1">
           <div class="config-itme-label">站点地址：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteUrl"></el-input>
@@ -18,7 +28,9 @@
           <div class="config-itme-label">站点背景大图：</div>
           <upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
-          <div class="config-itme-label">首页大图内文字：</div>
+          <div class="config-itme-label">首页大图内文字：
+            <el-button type="text" @click="heartwings">历史记录</el-button>
+          </div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>
           <span class="instruction">显示在博客首页大图内的描述。</span>
           <div class="config-itme-label">首页大图内描述：</div>
@@ -30,13 +42,14 @@
           <el-input autosize type="textarea" width="100%" v-model="form.siteName"></el-input>
           <span class="instruction">配置网站的 Logo，该选项仅作用于顶部导航条</span>
           <div class="config-itme-label">导航栏操作按钮：</div>
-          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 1, maxRows: 6 }" @input="preview"></el-input>
+          <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 1, maxRows: 6 }"
+                    @input="preview"></el-input>
           <span class="instruction">
             一个操作按钮包含两个部分：
             <a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>
             图标标签和链接，使用'：'隔开(标签里的内容为该图标的简述)。
             <br>
-            列如：{{example}}:https://github.com/jamebal (建议不超过5项)
+            列如：{{ example }}:https://github.com/jamebal (建议不超过5项)
           </span>
           <div>
             <el-divider content-position="center">预览</el-divider>
@@ -44,7 +57,7 @@
               <li v-for="operatingButton in operatingButtons">
                 <a :href="operatingButton.url" :title="operatingButton.title" target="_blank">
                   <dl v-html="operatingButton.fontHtml">
-                    {{operatingButton.fontHtml}}
+                    {{ operatingButton.fontHtml }}
                   </dl>
                 </a>
               </li>
@@ -59,7 +72,6 @@
             <el-checkbox label="tags">标签</el-checkbox>
           </el-checkbox-group>
           <span class="instruction">选中项会显示在导航栏中</span>
-
           <div class="config-itme-label">归档界面背景大图：</div>
           <upload-image-input v-model="form.archiveBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在归档页面显示一个背景大图。</span>
@@ -77,6 +89,20 @@
           <el-input autosize type="textarea" width="100%" v-model="form.recordPermissionNum"></el-input>
         </el-tab-pane>
       </el-tabs>
+      <div v-if="subpage" class="list-body">
+        <table-list
+          ref="tableList"
+          :less-client-height="280"
+          :tableData="dataList"
+          :loading="heartwingsLoading"
+          :hasSelection="false"
+          :tableHeader="tableHeader"
+          :pagination="pagination"
+          @pageChange="pageChange"
+          @sizeChange="pageChange"
+          @sortChange="sortChange"
+        ></table-list>
+      </div>
     </el-card>
   </div>
 </template>
@@ -84,16 +110,19 @@
 <script>
 
 import '../../../assets/fontawesome-free-5.11.2-web/css/all.min.css'
-import {getSetting, updateSetting} from '@/api/setting-api'
-import UploadImageInput from "@/components/input/UploadImageInput";
+import {getSetting, getHeartwings, updateSetting} from '@/api/setting-api'
+import UploadImageInput from "@/components/input/UploadImageInput"
+import TableList from "@/components/table/TableList"
 
 export default {
   name: 'blogManager',
   components: {
-    UploadImageInput
+    UploadImageInput,
+    TableList
   },
   data() {
     return {
+      subpage: false,
       activeName: '1',
       example: '<i class="fab fa-github">github</i>',
       form: {
@@ -111,22 +140,69 @@ export default {
         recordPermissionNum: ''
       },
       operatingButtons: [],
+      dataList: [],
+      heartwingsLoading: false,
+      tableHeader: [
+        {prop: 'heartwings',label: '心语', minWidth: 450},
+        {prop: 'username',label: '账号', minWidth: 110},
+        {prop: 'createTime',label: '创建时间', minWidth: 110, sortable: 'custom'},
+      ],
+      queryCondition: {
+        sortProp: '',
+        sortOrder: ''
+      },
+      pagination: {
+        pageIndex: 1,
+        pageSize: 15,
+        pageTotal: 0
+      },
     }
   },
   computed: {},
   mounted() {
     this.getSetting()
-    if(this.$route.query.tab){
+    if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab
     }
   },
   methods: {
+    backParent() {
+      this.subpage = false
+    },
+    heartwings() {
+      this.subpage = true
+      this.heartwingsLoading = true
+      this.getHeartwingsList()
+    },
+    getHeartwingsList() {
+      getHeartwings({
+        page: this.pagination.pageIndex,
+        pageSize: this.pagination.pageSize,
+        order: this.queryCondition.sortOrder
+      }).then((res) => {
+        this.dataList = res.data
+        this.heartwingsLoading = false
+        this.pagination.pageTotal = res.count
+      }).catch(() => {
+        this.heartwingsLoading = false
+      })
+    },
+    pageChange(data) {
+      this.pagination = data.backData;
+      this.getHeartwingsList()
+    },
+    sortChange(data) {
+      let column = data.backData;
+      this.queryCondition.sortProp = column.prop
+      this.queryCondition.sortOrder = column.order
+      this.getHeartwingsList()
+    },
     handleClick(tab, event) {
       this.$router.push({query: {tab: tab.name}})
     },
-    preview(){
+    preview() {
       this.operatingButtons = []
-      if(this.form.operatingButtons) {
+      if (this.form.operatingButtons) {
         this.form.operatingButtons.split(/[\n]/).forEach(button => {
           let operatingButton = {}
           const splitIndex = button.indexOf(":")
@@ -144,19 +220,19 @@ export default {
     },
     getSetting() {
       getSetting({userId: this.$store.state.user.userId}).then((res) => {
-        if(res.data) {
+        if (res.data) {
           this.form = res.data;
           this.preview()
         }
-      }).catch(()=> {
+      }).catch(() => {
 
       })
     },
     save() {
       this.form.userId = this.$store.state.user.userId
-      updateSetting(this.form).then((res)=> {
+      updateSetting(this.form).then((res) => {
         this.$message.success("保存成功！")
-      }).catch(()=> {
+      }).catch(() => {
 
       })
     }
@@ -166,35 +242,44 @@ export default {
 <style lang="scss" scoped>
 @import "src/styles/setting";
 @import "src/styles/markdown";
+
 /deep/ .el-collapse-item__header {
   font-size: 16px;
   padding-left: 20px;
 }
+.list-body {
+  padding-bottom: 15px;
+}
 /deep/ .el-card__body {
   padding: 0;
 }
+
 .box-card-header {
   padding: 15px 20px;
   border-bottom: 1px solid #EBEEF5;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  background: rgba(235,235,235,0.3);
+  background: rgba(235, 235, 235, 0.3);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
+
 /deep/ .el-divider__text {
   background-color: #fafafa;
 }
+
 .side-toolbar-list {
   text-align: center;
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
+
   li {
     position: relative;
     display: inline-block;
     margin: 0 .25rem;
   }
+
   li a {
     display: inline-block;
     height: 2.75rem;
@@ -210,17 +295,20 @@ export default {
     -ms-transition: 0.3s ease all;
     -o-transition: 0.3s ease all;
     transition: 0.3s ease all;
+
     svg {
       width: 22px;
       height: 22px;
       margin-top: 10px;
     }
   }
+
   li a:hover {
     background: #333;
     color: #fff;
   }
 }
+
 /deep/ .el-tabs__header {
   margin: 0;
   @media screen and (min-width: 768px) {

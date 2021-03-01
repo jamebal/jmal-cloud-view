@@ -66,3 +66,11 @@ export function updateSetting(data) {
     data
   })
 }
+
+export function getHeartwings(params) {
+  return request({
+    url: '/website/heartwings',
+    method: 'get',
+    params
+  })
+}
