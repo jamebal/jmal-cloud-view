@@ -4,8 +4,7 @@
       <el-col :xs="24">
         <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
         <div class="upload">
-          <!--      <div class="url-desc url-desc-first">输入图片的url 或</div>-->
-          <el-button class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
+          <el-button v-if="enableSelect" class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
           <el-upload
             ref="uploadRef"
             class="upload"
@@ -13,7 +12,7 @@
             :headers="headers"
             :data="extraData"
             name="files"
-            accept="image/*"
+            :accept="accept"
             :show-file-list="false"
             :file-list="fileList"
             :limit="1"
@@ -23,6 +22,7 @@
             :on-progress="handleProgress"
           >
             <el-button title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
+            <span v-if="desc.length > 0">{{desc}}</span>
             <div class="url-desc" v-if="uploadState > 0" slot="tip">
               <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
               <span v-show="uploadState === 2">图片上传成功</span>
@@ -41,7 +41,7 @@
         <el-tooltip class="item" effect="dark" placement="bottom">
           <el-input
             :autosize="intputAutosize"
-            :placeholder="placeholder"
+            :placeholder="(enableUrl ? '请输入图片的url 或 ': '') + placeholder"
             type="textarea"
             width="100%"
             v-model="currentValue"
@@ -76,17 +76,33 @@ export default {
       type: String,
       default: ''
     },
+    accept: {
+      type: String,
+      default: 'image/*'
+    },
     tipImageMaxWidth: {
       type: Number,
       default: 250
     },
     placeholder: {
       type: String,
-      default: '请输入图片的url 或 点击上传'
+      default: '点击上传'
     },
     intputAutosize: {
       type: Object,
       default: ()=>{ return { minRows: 1, maxRows: 6} }
+    },
+    enableSelect: {
+      type: Boolean,
+      default: true
+    },
+    enableUrl: {
+      type: Boolean,
+      default: true
+    },
+    desc: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -182,7 +198,7 @@ export default {
       xhr.send();
     },
     loadSuccess() {
-      if(this.timer == null){
+      if(this.timer == null && this.enableUrl){
         if(this.isLocked){
           const that = this
           this.timer = setTimeout(function (){
