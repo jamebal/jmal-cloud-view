@@ -16,7 +16,7 @@
       </el-menu>
     </el-scrollbar>
     <div class="quota-space">
-      <el-progress :class="{'collapse': isCollapse}" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
+      <el-progress v-show="percentage > 0" :class="{'collapse': isCollapse}" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
     </div>
     <div class="webdav">
       <div :class="{'normal': true, 'collapse': isCollapse}" @mousemove="showCopyBtn = true" @mouseleave="showCopyBtn = false">
@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import Bus from '@/assets/js/bus'
 import { mapGetters } from 'vuex'
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
@@ -52,7 +53,8 @@ export default {
         {color: '#1989fa', percentage: 40},
         {color: '#6f7ad3', percentage: 20}
       ],
-      showCopyBtn: false
+      showCopyBtn: false,
+      takeUpSpace: 0,
     }
   },
   computed: {
@@ -102,10 +104,20 @@ export default {
   },
   watch: {
     isCollapse(val){
-      this.progressFormat()
     }
   },
+  mounted() {
+    Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
+  },
   methods: {
+    onmessage(msg) {
+      const takeUpSpace = msg.headers.space
+      if (takeUpSpace) {
+        this.takeUpSpace = takeUpSpace
+        const space = takeUpSpace/1024/1024/1024
+        this.percentage = Number((space/this.userInfo.quota * 100).toFixed(1))
+      }
+    },
     copyWebDAVLink(className) {
       let clipboard = new Clipboard(className)
       clipboard.on('success', e => {
@@ -120,23 +132,24 @@ export default {
       })
     },
     mouseleave() {
-      console.log('mouseleave')
     },
     onmousemove() {
-      console.log('onmousemove')
     },
     progressFormat() {
-      const space = this.userInfo.takeUpSpace/1024/1024/1024
+      if (this.takeUpSpace === 0) {
+        this.takeUpSpace = this.userInfo.takeUpSpace
+      }
       const quota = this.userInfo.quota
+      const space = this.takeUpSpace/1024/1024/1024
       if(space && quota > 0){
         this.percentage = Number((space/quota * 100).toFixed(1))
         if(this.isCollapse){
-          return `${formatSize(this.userInfo.takeUpSpace)}`
+          return `${formatSize(this.takeUpSpace)}`
         } else {
-          return `${formatSize(this.userInfo.takeUpSpace)}/${quota}GB`
+          return `${formatSize(this.takeUpSpace)}/${quota}GB`
         }
       }
-    },
+    }
   }
 }
 </script>

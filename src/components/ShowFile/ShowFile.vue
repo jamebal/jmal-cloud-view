@@ -588,8 +588,6 @@ import '@/utils/directives.js'
 
 import 'pl-table/themes/index.css';
 import {PlTable, PlTableColumn} from 'pl-table';
-
-import ws from '@/websocket/websocket_config';
 import fileConfig from '@/utils/file-config'
 
 var rowStyleExecuting = false
@@ -942,17 +940,7 @@ export default {
     // 画矩形选区
     this.darwRectangle()
 
-    // 监听websocket
-    if (ws.isConnected) {
-      this.onmessage()
-    } else {
-      const that = this
-      setTimeout(function () {
-        if (ws.isConnected) {
-          that.onmessage()
-        }
-      }, 3000)
-    }
+    Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
   destroyed() {
     window.removeEventListener('popstate', this.goBack, false);
@@ -990,32 +978,29 @@ export default {
     }
   },
   methods: {
-    onmessage() {
-      // 订阅消息
-      this.stompClient = ws.stompClient.subscribe('/user/queue/update', (msg) => {
-        let fileDoc = JSON.parse(msg.body)
-        const url = msg.headers.url
-        let index = this.fileList.findIndex(file => file.id === fileDoc.id)
-        if ('updateFile' === url) {
-          if (index > -1) {
-            this.fileList[index].size = fileDoc.size
-            this.fileList[index].agoTime = 1
-          }
+    onmessage(msg) {
+      let fileDoc = JSON.parse(msg.body)
+      const url = msg.headers.url
+      let index = this.fileList.findIndex(file => file.id === fileDoc.id)
+      if ('updateFile' === url) {
+        if (index > -1) {
+          this.fileList[index].size = fileDoc.size
+          this.fileList[index].agoTime = 1
         }
-        if ('deleteFile' === url) {
-          if (index > -1) {
-            this.fileList.splice(index, 1)
-          }
+      }
+      if ('deleteFile' === url) {
+        if (index > -1) {
+          this.fileList.splice(index, 1)
         }
-        if ('createFile' === url) {
-          if (!this.path) {
-            this.path = ''
-          }
-          if (this.path + '/' === fileDoc.$set.path) {
-            this.getFileList()
-          }
+      }
+      if ('createFile' === url) {
+        if (!this.path) {
+          this.path = ''
         }
-      }, ws.headers);
+        if (this.path + '/' === fileDoc.$set.path) {
+          this.getFileList()
+        }
+      }
     },
     load() {
       this.getFileList(true)
@@ -2849,6 +2834,8 @@ export default {
         for (let i = 0; i < removeFileIndexList.length; i++) {
           that.fileList.splice(removeFileIndexList[i], 1)
         }
+        // 改变拖拽目标
+        that.rowDrop()
       }, 300)
     },
     // 预览压缩文件

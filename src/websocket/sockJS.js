@@ -1,6 +1,7 @@
 import SockJS from  'sockjs-client';
 import  Stomp from './stomp-index';
 import ws from './websocket_config';
+import Bus from '@/assets/js/bus'
 
 export function toConnection(username,token) {
   connect(username,token);
@@ -30,10 +31,13 @@ function connect(username,token){
   // 向服务器发起websocket连接
   ws.stompClient.connect(ws.headers,() => {
     ws.isConnected = true;
+    // 订阅消息
+    ws.stompClient.subscribe('/user/queue/update', (msg) => {
+      Bus.$emit('msg/file/change', msg)
+    }, ws.headers);
   }, (err) => {
     ws.isConnected = false;
     // 连接发生错误时的处理函数
-    console.log(err);
   });
 
 }
