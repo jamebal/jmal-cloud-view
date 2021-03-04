@@ -9,7 +9,9 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 
 ✅ 支持webDAV
 
-### 线上预览地址: https://www.jmal.top , 用户名:amdin,密码:jmalcloud
+### 线上预览地址: 
+地址1: https://www.jmal.top , 用户名:amdin,密码:jmalcloud (部分权限)
+地址2: https://cloud1.jmal.top , 用户名:amdin,密码:jmalcloud (所有权限)
 
 部分截图:
 ![image](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20139.png?shareKey=601b697575858bec45c457a3&o=preview)
