@@ -11,6 +11,7 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 
 ### Online preview address: 
 Address 1: https://www.jmal.top , Username:amdin,Password:jmalcloud (partial access)
+
 Address 2: https://cloud1.jmal.top , Username:amdin,Password:jmalcloud (all permissions)
 
 Some screenshots:
