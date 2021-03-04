@@ -247,9 +247,9 @@
         const space = this.userInfo.takeUpSpace/1024/1024/1024
         const quota = this.userInfo.quota
         if(space && quota > 0){
-          this.percentage = Number((space/quota * 100).toFixed(1))
+          const percentage = Number((space/quota * 100).toFixed(1))
+          this.percentage = percentage > 100 ? 100 : percentage
           return `${this.percentage}% (${formatSize(this.userInfo.takeUpSpace)}/${quota}GB)`;
-          // return `${this.percentage}%`;
         }
       },
       // 设置formData

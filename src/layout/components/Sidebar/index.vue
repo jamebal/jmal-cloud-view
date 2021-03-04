@@ -47,6 +47,7 @@ export default {
     return {
       percentage: 0,
       customColors: [
+        {color: '#f56c6c', percentage: 150},
         {color: '#f56c6c', percentage: 100},
         {color: '#e6a23c', percentage: 80},
         {color: '#5cb87a', percentage: 60},
@@ -115,7 +116,8 @@ export default {
       if (takeUpSpace) {
         this.takeUpSpace = takeUpSpace
         const space = takeUpSpace/1024/1024/1024
-        this.percentage = Number((space/this.userInfo.quota * 100).toFixed(1))
+        const percentage = Number((space/this.userInfo.quota * 100).toFixed(1))
+        this.percentage = percentage > 100 ? 100 : percentage
       }
     },
     copyWebDAVLink(className) {
@@ -142,7 +144,8 @@ export default {
       const quota = this.userInfo.quota
       const space = this.takeUpSpace/1024/1024/1024
       if(space && quota > 0){
-        this.percentage = Number((space/quota * 100).toFixed(1))
+        const percentage = Number((space/quota * 100).toFixed(1))
+        this.percentage = percentage > 100 ? 100 : percentage
         if(this.isCollapse){
           return `${formatSize(this.takeUpSpace)}`
         } else {

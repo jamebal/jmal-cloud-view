@@ -40,6 +40,9 @@ router.beforeEach(async(to, from, next) => {
         } catch {
           // 删除token，然后转到登录页面重新登录
           await store.dispatch('user/resetToken')
+          if (to.path === '/404') {
+            to.path = '/'
+          }
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
@@ -52,6 +55,9 @@ router.beforeEach(async(to, from, next) => {
       next()
     } else {
       // 其他没有token重定向到登录页面。
+      if (window.location.pathname === '/404') {
+        window.location.pathname = '/'
+      }
       next(`/login?redirect=${window.location.pathname}`)
       NProgress.done()
     }

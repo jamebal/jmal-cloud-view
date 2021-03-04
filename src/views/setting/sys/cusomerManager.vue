@@ -28,8 +28,8 @@
             <el-form-item v-if="editMove===1" label="确认密码:" prop="checkPass">
               <el-input type="password" v-model="form.checkPass"/>
             </el-form-item>
-            <el-form-item label="配额:">
-              <el-input v-model="form.quota"/>
+            <el-form-item label="配额(GB):">
+              <el-input-number v-model="form.quota" controls-position="right" :min="1" :max="100"></el-input-number>
             </el-form-item>
           </el-col>
         </el-row>
@@ -151,7 +151,7 @@ export default {
                 }
             }
           },
-          {prop: 'quota',label: '配额(G)',sortable: 'custom'},
+          {prop: 'quota',label: '配额(GB)',sortable: 'custom'},
           {prop: 'createTime',label: '创建时间',sortable: 'custom'},
           {label: '操作', minWidth: 130, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id,row.username)},
