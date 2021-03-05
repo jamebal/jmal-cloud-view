@@ -48,6 +48,7 @@
       return {
         loading: true,
         cropper: null,
+        filename: '',
         sourceImg: ''
       }
     },
@@ -100,6 +101,8 @@
         }
       },
       changImg(file) {
+        console.log(file)
+        this.filename = file.name
         if(file.size > 0){
           this.loading = true
           this.cropper.reset()
@@ -122,6 +125,7 @@
         })
         let dataURL = cro.toDataURL('image/jpeg');
         cro.toBlob((blob)=>{
+          blob.name = this.filename
           this.$emit('croppedCanvas', dataURL, blob)
         })
       },

@@ -166,6 +166,7 @@
         }
         this.fileImg = files[0]
         this.dialogAvatar = true
+        this.selectedImgRow = {}
         if(this.$refs.cropperDialog){
           this.$refs.cropperDialog.changImg(files[0])
         }
@@ -267,14 +268,22 @@
         return data
       },
       // 保存头像
-      saveAvatar(dataURL,blob) {
+      saveAvatar(dataURL, blob) {
         this.dialogAvatar = false
         this.srcImage = dataURL
         let data = new FormData();
         data.append('id', this.$store.state.user.userId)
-        data.append('avatar', dataURL)
+        // data.append('avatar', dataURL)
+        console.log(this.blobToFile(blob))
         data.append('blobAvatar',blob)
         this.userUpdate(data,dataURL)
+      },
+      blobToFile(blob){
+        return new window.File(
+          [blob],
+          blob.name,
+          { type: blob.type }
+        )
       },
       // 保存不剪裁的头像
       saveNoCropAvatar(fileId) {

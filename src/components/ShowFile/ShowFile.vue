@@ -1767,6 +1767,9 @@ export default {
     },
     // 填充数据
     loadData(res, onLoad) {
+      if (!this.$refs.fileListTable) {
+        return
+      }
       if (onLoad) {
         res.data.forEach((file, number) => {
           file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
