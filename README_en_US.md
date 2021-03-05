@@ -19,6 +19,25 @@ Some screenshots:
 
 
 ### Deployment
+Choose one of the following two ways
+### Deployment method one: [docker deployment](https://blog.jmal.top/s/docker-jmalcloud) (recommended)
+#### 1. Pull image
+`docker pull registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest`
+#### 2. Run
+`docker run --restart=always --name jmalcloud -p 7070:80 -p 7071:8080 -p 7072:8088 -v /Users/jmal/temp/jmalcloud-docker/files/:/ jmalcloud/files/ -v /Users/jmal/temp/jmalcloud-docker/db/:/data/db/ -d registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud: latest`
+```
+Start parameters description : 
+Expose port : 
+`80` : Web portal
+`8080` : Blog entry
+`8088` : Netdisk service entry
+Disk mapping :
+`/jmalcloud/files/` : Netdisk file storage directory
+`/data/db/` : mongodb data storage directory
+```
+#### 3. Visit port 7070 and try it. The interface of creating administrator appears to indicate successful deployment
+
+### Deployment method 2
 
 #### 1.Environmental Preparation
 

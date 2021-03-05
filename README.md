@@ -17,8 +17,26 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 部分截图:
 ![image](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20139.png?shareKey=601b697575858bec45c457a3&o=preview)
 
-
 ### 部署
+下面两种方式二选一
+### 部署方式一：[docker部署](https://blog.jmal.top/s/docker-jmalcloud) (推荐)
+#### 1.拉取镜像
+`docker pull registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest`
+#### 2.运行
+`docker run --restart=always --name jmalcloud -p 7070:80 -p 7071:8080 -p 7072:8088 -v /Users/jmal/temp/jmalcloud-docker/files/:/jmalcloud/files/ -v /Users/jmal/temp/jmalcloud-docker/db/:/data/db/ -d registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest`
+```
+启动参数说明 : 
+暴露端口 : 
+`80` : 网盘入口
+`8080` : 博客入口
+`8088` : 网盘服务入口
+磁盘映射 :
+`/jmalcloud/files/` : 网盘文件存储目录
+`/data/db/` : mongodb数据存储目录
+```
+#### 3.访问 7070 端口试试看 出现创建管理员的界面说明部署成功
+
+### 部署方式二
 
 #### 1.环境准备
 
