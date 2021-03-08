@@ -8,18 +8,14 @@
     >
       <template slot-scope="scope">
         <div v-for="src in scope.images"  :key="src">
-          <!-- <video v-if="src.contentType === 'video'" :src="src.url"> -->
-          <!-- <video v-if="src.contentType === 'video'" controls="" name="media"><source :src="src.url" type="video/mp4"></video> -->
           <img :src="src">
         </div>
       </template>
     </viewer>
-    <!-- <button type="button" @click="show">Show</button> -->
 </div>
 </template>
 <script>
   import fileConfig from '@/utils/file-config'
-  import 'viewerjs/dist/viewer.css';
   import Bus from '@/assets/js/bus'
   export default {
     name: "ImageViewer",

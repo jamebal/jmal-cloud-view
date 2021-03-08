@@ -229,10 +229,6 @@
 </template>
 
 <script>
-  import 'vant/lib/grid/style';
-  import 'vant/lib/grid-item/style';
-  import 'vant/lib/checkbox/style';
-  import 'vant/lib/checkbox-group/style';
   import { mapGetters } from 'vuex'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import Bus from '@/assets/js/bus'

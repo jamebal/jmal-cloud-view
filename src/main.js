@@ -1,10 +1,4 @@
-// import Vue from 'vue'
-
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
-
-// import ElementUI from 'element-ui'
-// import 'element-ui/lib/theme-chalk/index.css'
-// import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
 import uploader from 'vue-simple-uploader'
@@ -13,9 +7,6 @@ import App from './App'
 import store from './store'
 import router from './router'
 import VueWechatTitle from 'vue-wechat-title'
-// import WeVue from 'we-vue'
-// import 'we-vue/lib/style.css'
-import { Popup,Search, Button, Cell, CellGroup, Image, List, PullRefresh, SwipeCell, Col, Row, Divider, Sticky, NavBar, Icon, Tabbar, TabbarItem, ActionSheet, Field, Overlay, Checkbox, CheckboxGroup, Grid, GridItem} from 'vant';
 
 
 // ant-design-vue
@@ -29,67 +20,27 @@ Vue.use(contentmenu)
 import '@/icons' // icon
 import '@/permission' // permission control
 
-import VueTouch from"vue-touch";
+import VueTouch from "vue-touch";
 import Viewer from 'v-viewer'
 
-import APlayer from '@moefe/vue-aplayer';
-Vue.use(APlayer, {
-  defaultCover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60', // 设置播放器默认封面图片
-  productionTip: false, // 是否在控制台输出版本信息
-});
+// import APlayer from 'vue-aplayer';
+// Vue.use(APlayer, {
+//   defaultCover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60', // 设置播放器默认封面图片
+//   productionTip: false, // 是否在控制台输出版本信息
+// });
 
 Vue.use(Viewer)
 Vue.use(VueTouch, {name:'v-touch'})
 
-/**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
- */
-// if (process.env.NODE_ENV === 'production') {
-//   const { mockXHR } = require('../mock')
-//   mockXHR()
-// }
-
-// set ElementUI lang to EN
-// Vue.use(ElementUI, { locale })
-// 如果想要中文版 element-ui，按如下方式声明
-// Vue.use(ELEMENT)
-// Vue.use(WeVue)
 
 Vue.use(VueWechatTitle)
 
-// 有赞的移动UI
-Vue.use(Popup);
-Vue.use(Search);
-Vue.use(Button);
-Vue.use(Cell);
-Vue.use(CellGroup);
-Vue.use(Image);
-Vue.use(List);
-Vue.use(PullRefresh);
-Vue.use(SwipeCell);
-Vue.use(Col);
-Vue.use(Row);
-Vue.use(Divider);
-Vue.use(Sticky);
-Vue.use(NavBar);
-Vue.use(Icon);
-Vue.use(Tabbar);
-Vue.use(TabbarItem);
-Vue.use(ActionSheet);
-Vue.use(Field);
-Vue.use(Overlay);
-Vue.use(Checkbox);
-Vue.use(CheckboxGroup);
-Vue.use(Grid);
-Vue.use(GridItem);
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
+
+Vue.component('Aplayer', VueAPlayer)
+VueAPlayer.disableVersionBadge = true
 
 Vue.config.productionTip = false
 
@@ -100,7 +51,6 @@ new Vue({
   render: h => h(App),
 })
 import config from '../package.json'
-// import {ElementUIComponent} from "element-ui/types/component";
 console.log(
   `%c jmal-cloud-view %c v${config.version} %c`,
   'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',

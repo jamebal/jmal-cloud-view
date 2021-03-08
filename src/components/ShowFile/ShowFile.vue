@@ -562,10 +562,6 @@
 </template>
 
 <script>
-import 'vant/lib/grid/style';
-import 'vant/lib/grid-item/style';
-import 'vant/lib/checkbox/style';
-import 'vant/lib/checkbox-group/style';
 import {mapGetters} from 'vuex'
 import {formatSize, formatTime} from '@/utils/number'
 import {suffix} from '@/utils/file-type'
@@ -586,8 +582,6 @@ import FileTree from "@/components/FileTree"
 
 import '@/utils/directives.js'
 
-import 'pl-table/themes/index.css';
-import {PlTable, PlTableColumn} from 'pl-table';
 import fileConfig from '@/utils/file-config'
 
 var rowStyleExecuting = false
@@ -595,8 +589,6 @@ export default {
   name: 'ShowFile',
   components: {
     MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
-    PlTable,
-    PlTableColumn,
     ButtonUpload,
     FileTree
   },

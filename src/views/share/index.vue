@@ -161,14 +161,8 @@
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import api from '@/api/file-api'
   import Clipboard from 'clipboard';
-  import 'pl-table/themes/index.css';
-  // import 'pl-table/themes/plTableStyle.css';
-  import { PlTable, PlTableColumn } from 'pl-table';
   export default {
-    components: { ShowFile, EmptyFile, IconFile,
-      PlTable,
-      PlTableColumn,
-    },
+    components: { ShowFile, EmptyFile, IconFile},
     props: {
       emptyStatus: {
         'type': String,

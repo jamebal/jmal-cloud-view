@@ -234,43 +234,18 @@
   </div>
 </template>
 <script>
-  import 'vant/lib/button/style';
-  import 'vant/lib/cell/style';
-  import 'vant/lib/cell-group/style'
-  import 'vant/lib/image/style';
-  import 'vant/lib/list/style';
-  import 'vant/lib/pull-refresh/style';
-  import 'vant/lib/swipe-cell/style';
-  import 'vant/lib/col/style';
-  import 'vant/lib/row/style';
-  import 'vant/lib/divider/style';
-  import 'vant/lib/sticky/style';
-  import 'vant/lib/nav-bar/style';
-  import 'vant/lib/icon/style';
-  import 'vant/lib/tabbar/style';
-  import 'vant/lib/tabbar-item/style';
-  import 'vant/lib/dialog/style';
-  import 'vant/lib/field/style';
-  import 'vant/lib/toast/style';
-  import 'vant/lib/overlay/style';
-  import 'vant/lib/notify/style';
-  import 'vant/lib/checkbox/style';
-  import 'vant/lib/checkbox-group/style';
-  import 'vant/lib/popup/style';
-  import 'vant/lib/search/style';
 
   import { mapGetters } from 'vuex'
   import {formatSize, formatTime, strlen, substring10} from '@/utils/number'
   import api from '@/api/file-api'
   import IconFile from "../../../components/Icon/IconFile";
   import Bus from '@/assets/js/bus'
-  import {Dialog, Notify, Toast} from 'vant';
   import {getPath, getPathList, removePath, setPath} from '@/utils/path'
   import fileConfig from "@/utils/file-config";
   let pinyin = require("pinyin");
 
   export default {
-    components: {IconFile,[Dialog.Component.name]: Dialog.Component},
+    components: {IconFile},
     computed: {
       ...mapGetters([
         'name',

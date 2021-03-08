@@ -1,19 +1,19 @@
 <template>
-<div ref="audioPreview" v-show="show">
+  <div ref="audioPreview" v-if="show">
   <div class="audio-player"
     v-aplayerDrag="{ x: transformX, y: transformY }"
     @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false">
-<!-- <div class="audio-player">  -->
-  <aplayer
-    ref="audioPlayer"
-    autoplay
-    listFolded
-    loop.sync="all"
-    order.sync="list"
-    :mini.sync="mini"
-    :audio="audio"
-    :lrc-type="0">
-  </aplayer>
+    <aplayer
+      ref="audioPlayer"
+      autoplay
+      listFolded
+      loop.sync="all"
+      order.sync="list"
+      :mini.sync="mini"
+      :music.sync="music"
+      :list="list"
+      :lrc-type="0">
+    </aplayer>
   <div v-show="closeBarShow" class="close-bar" @click="close">
     <svg-icon class="audio-player-close" icon-class="close"/>
   </div>
@@ -39,60 +39,66 @@ export default {
         transformY: 0,
         show: false,
         closeBarShow: false,
-        audio: [],
+        music: {
+          id: '',
+          src: '', // 音频文件的 URL
+          title: '', // 歌曲名称
+          artist: '', // 演唱者
+          pic: '', // 封面图片 URL
+          lrc: '', // LRC 歌词或者歌词文件的 URL
+          theme: '', // 歌曲的主题色，会覆盖播放器的主题色
+        },
+        list: [],
         mini: false,
+        audioPlayerDoc: undefined
+      }
+    },
+    watch: {
+      show(val) {
+        if (val && !this.audioPlayerDoc) {
+          this.$nextTick(() => {
+            this.audioPlayerDoc = document.querySelector('.audio-player')
+          })
+        }
       }
     },
     mounted() {
-      this.onPicClick = this.onPicClick.bind(this);
-      let pic = document.querySelector('.aplayer-pic')
-      pic.addEventListener('click', this.onPicClick);
       Bus.$on('onAddAudio',(newFile, audioCoverUrl) => {
         this.show = true
         let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
-        console.log(url)
         if(!this.$store.state.user.token){
           url = fileConfig.publicPreviewUrl(newFile.id, window.shareId);
         }
         let music = newFile.music
         let fileName = newFile.name.substring(0,newFile.name.length - newFile.suffix.length-1)
-        let musicOperation = {
+        this.music = {
           id: newFile.id,
-          name: music.songName ? music.songName : fileName,
+          src: url,
+          title: music.songName ? music.songName : fileName,
           artist: music.songName ? music.singer : fileName,
-          url: url,
-          type: newFile.contentType,
-          cover: music.songName ? audioCoverUrl+newFile.id :'',
+          pic: music.songName ? audioCoverUrl+newFile.id :'',
+          lrc: '',
+          theme: 'pic'
         }
-        let musicIndex = this.audio.findIndex(item => item.id===newFile.id)
+        let musicIndex = this.list.findIndex(item => item.id === newFile.id)
         if(musicIndex < 0){
-          if(this.audio.length === 1){
-            let loop = document.querySelector('.aplayer-icon.aplayer-icon-loop');
-            loop.style.display = 'inline'
-            let order = document.querySelector('.aplayer-icon.aplayer-icon-order');
-            order.style.display = 'inline'
-          }
-          this.audio.push(musicOperation)
+          this.list.push(this.music)
           this.$nextTick(()=>{
-            this.$refs.audioPlayer.switch(this.audio.length-1)
+            this.$refs.audioPlayer.play()
           })
-        }else{
-          this.$refs.audioPlayer.switch(musicIndex)
+        } else {
+          let listMusic = this.audioPlayerDoc.querySelectorAll('.aplayer-list ol li')[musicIndex]
+          listMusic.click()
         }
       })
-    },
-    watch: {
     },
     methods: {
       close(){
         this.show = false
-        this.$refs.audioPlayer.pause();
-        this.audio.splice(0,this.audio.length)
-      },
-      onPicClick() {
-        // this.mini = !this.mini
-        // console.log(this.$refs.audioPlayer)
-      },
+        this.audioPlayerDoc = undefined
+        this.$refs.audioPlayer.pause()
+        this.list.splice(0, this.list.length)
+      }
     },
     destroyed() {
       Bus.$off('onAddAudio')
