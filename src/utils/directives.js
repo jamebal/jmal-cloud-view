@@ -1,5 +1,5 @@
 
-import Vue from 'vue'
+// import Vue from 'vue'
 
 // v-draw-rectangle 画矩形选区
 Vue.directive('drawRectangle',{

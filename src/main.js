@@ -1,9 +1,9 @@
-import Vue from 'vue'
+// import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+// import ElementUI from 'element-ui'
+// import 'element-ui/lib/theme-chalk/index.css'
 // import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
@@ -57,7 +57,7 @@ Vue.use(VueTouch, {name:'v-touch'})
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-Vue.use(ElementUI)
+// Vue.use(ELEMENT)
 // Vue.use(WeVue)
 
 Vue.use(VueWechatTitle)
@@ -100,6 +100,7 @@ new Vue({
   render: h => h(App),
 })
 import config from '../package.json'
+// import {ElementUIComponent} from "element-ui/types/component";
 console.log(
   `%c jmal-cloud-view %c v${config.version} %c`,
   'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',

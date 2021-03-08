@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+// import Vue from 'vue'
+// import Router from 'vue-router'
 
-Vue.use(Router)
+Vue.use(VueRouter)
 
 /* Layout */
 import Layout from '@/layout'
@@ -325,7 +325,7 @@ export const dynamicRouters = [
   },
 ]
 
-const createRouter = () => new Router({
+const createRouter = () => new VueRouter({
   mode: 'history', // require service support
   // scrollBehavior (to, from, savedPosition) {
   //   if (savedPosition) {
