@@ -115,7 +115,6 @@
 
 <script>
 
-import '../../../assets/fontawesome-free-5.11.2-web/css/all.min.css'
 import {getSetting, getHeartwings, updateSetting} from '@/api/setting-api'
 import UploadImageInput from "@/components/input/UploadImageInput"
 import TableList from "@/components/table/TableList"
