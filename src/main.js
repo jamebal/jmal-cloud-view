@@ -20,7 +20,6 @@ Vue.use(contentmenu)
 import '@/icons' // icon
 import '@/permission' // permission control
 
-import VueTouch from "vue-touch";
 import Viewer from 'v-viewer'
 
 // import APlayer from 'vue-aplayer';
@@ -30,8 +29,6 @@ import Viewer from 'v-viewer'
 // });
 
 Vue.use(Viewer)
-Vue.use(VueTouch, {name:'v-touch'})
-
 
 Vue.use(VueWechatTitle)
 
