@@ -230,7 +230,8 @@
         <van-checkbox v-if="selectStatus" v-model="isShowCheckContext" slot="right-icon" :name="rowContextData"></van-checkbox>
       </van-cell>
     </van-overlay>
-
+    <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
+    <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
   </div>
 </template>
 <script>
@@ -242,10 +243,11 @@
   import Bus from '@/assets/js/bus'
   import {getPath, getPathList, removePath, setPath} from '@/utils/path'
   import fileConfig from "@/utils/file-config";
+  import ImageViewer from "@/components/preview/ImageViewer";
   let pinyin = require("pinyin");
 
   export default {
-    components: {IconFile},
+    components: {ImageViewer, IconFile},
     computed: {
       ...mapGetters([
         'name',
@@ -323,7 +325,9 @@
         sortableProp: null,
         order: null,
         grid: false,
-        vmode: 'list'
+        vmode: 'list',
+        imagePreviewRow: {},
+        imagePreviewVisible: false,
       };
     },
     mounted(){
@@ -957,12 +961,14 @@
             setPath(this.path, this.pathList)
             this.getFileList()
           } else {
-            if(row.contentType.includes('text')){
-              this.$router.push(`/public/articles/article?mark=${row.id}`)
-            }else{
-              // 打开文件
-              fileConfig.preview(this.$store.state.user.token, row, this.$store.getters.token)
+            if (row.contentType.startsWith('image')) {
+              // 图片
+              this.imagePreviewVisible = true
+              this.imagePreviewRow = row
+              return
             }
+            // 通用打开文件的方法
+            fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
           }
         }
       },
