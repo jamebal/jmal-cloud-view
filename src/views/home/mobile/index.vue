@@ -232,6 +232,7 @@
     </van-overlay>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
+    <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
   </div>
 </template>
 <script>
@@ -244,10 +245,12 @@
   import {getPath, getPathList, removePath, setPath} from '@/utils/path'
   import fileConfig from "@/utils/file-config";
   import ImageViewer from "@/components/preview/ImageViewer";
+  import VideoPreview from "@/components/preview/VideoPreview";
   let pinyin = require("pinyin");
 
   export default {
     components: {
+      VideoPreview,
       ImageViewer, IconFile,
     },
     computed: {
@@ -330,6 +333,8 @@
         vmode: 'list',
         imagePreviewRow: {},
         imagePreviewVisible: false,
+        videoPreviewRow: {},
+        videoPreviewVisible: false,
       };
     },
     mounted(){
@@ -968,6 +973,12 @@
               this.imagePreviewRow = row
               return
             }
+            if (row.contentType.indexOf('video') > -1) {
+              // 视频文件
+              this.videoPreviewVisible = true
+              this.videoPreviewRow = row
+              return
+            }
             // 通用打开文件的方法
             fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
           }
@@ -1184,6 +1195,12 @@
       background: wheat;
     }
 
+  }
+  /deep/ .block {
+    .audio-player-close {
+      width: 1em;
+      height: 1em;
+    }
   }
   /deep/ .svg-icon {
     width: 2.5em;
