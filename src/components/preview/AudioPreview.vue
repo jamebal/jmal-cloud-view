@@ -2,7 +2,7 @@
   <div ref="audioPreview" v-if="show">
   <div class="audio-player"
     v-aplayerDrag="{ x: transformX, y: transformY }"
-    @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false">
+    @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false" @touchmove="closeBarShow = true" @touchend="touchend">
     <aplayer
       ref="audioPlayer"
       autoplay
@@ -35,7 +35,8 @@ export default {
     },
     data() {
       return {
-        transformX: (document.body.clientWidth-500)/2,
+        pc: this.$pc,
+        transformX: !this.$pc ? 20: (document.body.clientWidth-500)/2,
         transformY: 0,
         show: false,
         closeBarShow: false,
@@ -49,7 +50,7 @@ export default {
           theme: '', // 歌曲的主题色，会覆盖播放器的主题色
         },
         list: [],
-        mini: false,
+        mini: !this.$pc,
         audioPlayerDoc: undefined
       }
     },
@@ -98,6 +99,12 @@ export default {
         this.audioPlayerDoc = undefined
         this.$refs.audioPlayer.pause()
         this.list.splice(0, this.list.length)
+      },
+      touchend() {
+        const that = this
+        setTimeout(function (){
+          that.closeBarShow = false
+        }, 2500)
       }
     },
     destroyed() {
@@ -167,5 +174,26 @@ export default {
     position: absolute;
     top: -8px;
     right: 13px;
+}
+@media screen and (max-width: 768px) {
+  /deep/.aplayer {
+    z-index: 2;
+  }
+  .close-bar {
+    top: -34px;
+    right: -34px;
+    border-radius: 36px;
+    border-width: 20px;
+    z-index: 1;
+    transform: rotate(135deg);
+    border-color: #ff000075;
+    /deep/.audio-player-close {
+      top: -7px;
+      right: -7px;
+    }
+  }
+  .close-bar:hover {
+    border-color: #ff0000eb;
+  }
 }
 </style>

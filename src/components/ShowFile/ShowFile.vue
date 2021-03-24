@@ -2951,8 +2951,6 @@ export default {
         }
         if (row.contentType.indexOf('audio') > -1) {
           // 音频文件
-          // this.audioPreviewVisible = true
-          // this.audioPreviewRow = row
           Bus.$emit('onAddAudio', row, this.audioCoverUrl)
           return
         }

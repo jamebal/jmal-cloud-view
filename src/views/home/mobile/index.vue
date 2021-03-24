@@ -979,6 +979,11 @@
               this.videoPreviewRow = row
               return
             }
+            if (row.contentType.indexOf('audio') > -1) {
+              // 音频文件
+              Bus.$emit('onAddAudio', row, this.audioCoverUrl)
+              return
+            }
             // 通用打开文件的方法
             fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
           }
