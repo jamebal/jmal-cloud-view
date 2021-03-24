@@ -36,7 +36,7 @@
       class="simtext-dialog"
       v-dialogDrag="{ dialogWidthPercent: dialogWidthPercent}">
       <div slot="title" class="simtext-header-title">
-        <span><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
+        <span v-show="!moblie"><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
           <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
           <el-button
@@ -63,7 +63,7 @@
         </div>
       </div>
       <div class="content" :style="{height: editorHieght+26+'px'}">
-        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: options.readOnly?`-${contentsWidth}px`:`0px`}">
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: options.readOnly || moblie ?`-${contentsWidth}px`:`0px`}">
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
@@ -80,9 +80,9 @@
             </fancy-tree>
           </div>
         </div>
-        <div class="editor-resize" :style="{marginLeft: options.readOnly?`0px`:`${contentsWidth}px`,transition: transition}">
+        <div class="editor-resize" :style="{marginLeft: options.readOnly || moblie ?`0px`:`${contentsWidth}px`,transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i v-show="!options.readOnly" class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
+          <i v-show="!options.readOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
@@ -176,6 +176,7 @@
         contentsHide: false,
         defalutLanguage: 'redis',
         lineWrapping: false,
+        moblie: false,
         options: {
           fontSize: 14,
           contextmenu: true,
@@ -254,6 +255,7 @@
           return
         }
         this.editableTabs = []
+        this.checkMobile()
         this.checkReadOnly(file.userId)
         this.loadEditorSize()
         this.loading = this.$message({
@@ -541,13 +543,23 @@
       containerResize() {
         this.loadEditorSize()
       },
+      checkMobile() {
+        if (!this.$pc) {
+          this.moblie = true
+        } else {
+          this.moblie = false
+        }
+      },
       checkReadOnly(fileUserId){
         if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
           this.options.readOnly = false
         }
-        if(this.options.readOnly){
-          this.editorWidth += this.contentsWidth
-          this.contentsHide = true
+        console.log(this.options.readOnly, this.moblie)
+        if(this.options.readOnly || this.moblie){
+          this.$nextTick(()=> {
+            this.editorWidth += this.contentsWidth
+            this.contentsHide = true
+          })
         }
       },
       loadEditorSize(){
@@ -863,6 +875,7 @@
 
     .el-dialog__header {
       padding: 5px 20px 5px;
+      overflow: hidden;
 
       .el-dialog__headerbtn {
         top: 12px;

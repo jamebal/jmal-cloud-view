@@ -231,6 +231,7 @@
       </van-cell>
     </van-overlay>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
+    <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
   </div>
@@ -246,10 +247,13 @@
   import fileConfig from "@/utils/file-config";
   import ImageViewer from "@/components/preview/ImageViewer";
   import VideoPreview from "@/components/preview/VideoPreview";
+  import SimTextPreview from "@/components/preview/SimTextPreview";
+  import {suffix} from "@/utils/file-type";
   let pinyin = require("pinyin");
 
   export default {
     components: {
+      SimTextPreview,
       VideoPreview,
       ImageViewer, IconFile,
     },
@@ -335,6 +339,8 @@
         imagePreviewVisible: false,
         videoPreviewRow: {},
         videoPreviewVisible: false,
+        textPreviewVisible: false,
+        textPreviewRow: {},
       };
     },
     mounted(){
@@ -973,6 +979,12 @@
               this.imagePreviewRow = row
               return
             }
+            if (suffix.simText.includes(row.suffix)) {
+              // 文本文件
+              this.textPreviewRow = row
+              this.textPreviewVisible = true
+              return
+            }
             if (row.contentType.indexOf('video') > -1) {
               // 视频文件
               this.videoPreviewVisible = true
@@ -1126,7 +1138,6 @@
   }
 </script>
 <style lang="scss" scoped>
-
   * {
     -webkit-touch-callout:none;  /*系统默认菜单被禁用*/
     -webkit-user-select:none; /*webkit浏览器*/
@@ -1207,10 +1218,6 @@
       height: 1em;
     }
   }
-  /deep/ .svg-icon {
-    width: 2.5em;
-    height: 2.5em;
-  }
   /*.van-divider {*/
   /*margin: 5px 15px 0px 15px;*/
   /*}*/
@@ -1233,6 +1240,11 @@
 
     .list-item-content {
       margin-left: 5px;
+    }
+
+    /deep/ .svg-icon {
+      width: 2.5em;
+      height: 2.5em;
     }
   }
   .overlay-content-class {
