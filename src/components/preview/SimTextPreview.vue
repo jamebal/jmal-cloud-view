@@ -554,7 +554,6 @@
         if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
           this.options.readOnly = false
         }
-        console.log(this.options.readOnly, this.moblie)
         if(this.options.readOnly || this.moblie){
           this.$nextTick(()=> {
             this.editorWidth += this.contentsWidth
