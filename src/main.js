@@ -32,9 +32,10 @@ Vue.use(Viewer)
 
 Vue.use(VueWechatTitle)
 
-
 Vue.use(uploader)
 Vue.use(EVueContextmenu)
+
+Vue.use(vant.ImagePreview)
 
 Vue.component('Aplayer', VueAPlayer)
 VueAPlayer.disableVersionBadge = true

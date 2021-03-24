@@ -247,7 +247,9 @@
   let pinyin = require("pinyin");
 
   export default {
-    components: {ImageViewer, IconFile},
+    components: {
+      ImageViewer, IconFile,
+    },
     computed: {
       ...mapGetters([
         'name',
@@ -962,7 +964,6 @@
             this.getFileList()
           } else {
             if (row.contentType.startsWith('image')) {
-              // 图片
               this.imagePreviewVisible = true
               this.imagePreviewRow = row
               return
