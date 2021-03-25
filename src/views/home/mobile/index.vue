@@ -22,6 +22,7 @@
           <van-cell title="图片" icon="photo-o" @click="clickFileType('image',{isFolder: false})"/>
           <van-cell title="视频" icon="video-o" @click="clickFileType('video',{isFolder: false})"/>
           <van-cell title="音乐" icon="music-o" @click="clickFileType('audio',{isFolder: false})"/>
+          <van-cell title="文件传输" icon="upgrade" @click="uploadList"/>
         </div>
 
         <div class="logout">
@@ -46,7 +47,7 @@
               title="浏览"
               right-arrow
               @click-right="checkboxAll"
-              :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
+              :right-text="this.selectRowData.length !== this.fileList.length ? '选择44' : '取消'"
               @click-left="leftMenu"
               left-arrow>
               <div class="header-button" slot="left">
@@ -63,7 +64,7 @@
             </van-nav-bar>
             <van-nav-bar
               :style="vanNavBarClass"
-              v-if="pathList.length < 3 && selectStatus"
+              v-if="selectStatus"
               :title="selectRowData.length === 0 ? '选择项目' : selectRowData.length+'项'"
               right-arrow
               :left-text="this.selectRowData.length !== this.fileList.length ? '全选' : '取消全选'"
@@ -72,13 +73,13 @@
               right-text="完成"
             >
             </van-nav-bar>
-
             <van-nav-bar
               :style="vanNavBarClass"
-              v-if="pathList.length >= 3"
+              v-if="pathList.length >= 3 && !selectStatus"
               :title="pathList[pathList.length-2].folder"
-              right-text="选择"
+              :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
               left-arrow
+              @click-right="checkboxAll"
               @click-left="clickBack">
               <div class="header-button" slot="left">
                 <van-icon name="arrow-left" />
@@ -207,7 +208,7 @@
     </e-vue-contextmenu>
 
     <van-overlay ref="overlayShow" :show="overlayShow" duration="0.3" @click="overlayClick">
-      <van-cell v-if="rowContextData.name!=null" :style="overlayContentClass" class="list-item overlay-content-class" center @click="fileClick(rowContextData)" :is-link="rowContextData.isFolder">
+      <van-cell v-if="rowContextData.name!=null" :style="overlayContentClass" class="list-item overlay-content-class" center @click="fileClick(rowContextData,rowContextData.index)" :is-link="rowContextData.isFolder">
         <!--<div :style="overlayContentClass">-->
         <div>
           <van-row class="row-file">
@@ -344,23 +345,38 @@
       };
     },
     mounted(){
-      // 加载路径
-      const pathList = getPathList()
-      if (pathList && pathList !== 'undefined') {
-        const res = JSON.parse(pathList)
-        const list = []
-        res.forEach(function(element) {
-          const item0 = {}
-          item0['folder'] = element.folder + ''
-          item0['index'] = element.index
-          list.push(item0)
+      // // 加载路径
+      // const pathList = getPathList()
+      // if (pathList && pathList !== 'undefined') {
+      //   const res = JSON.parse(pathList)
+      //   const list = []
+      //   res.forEach(function(element) {
+      //     const item0 = {}
+      //     item0['folder'] = element.folder + ''
+      //     item0['index'] = element.index
+      //     list.push(item0)
+      //   })
+      //   this.pathList = list
+      // }
+
+      // 加载url上的path
+      if (this.$route.query.path !== '/') {
+        const path = decodeURI(this.$route.query.path)
+        this.pathList.splice(1, 1)
+        path.split('/').forEach((pathName, index) => {
+          if (index > 0) {
+            const item = {}
+            item['folder'] = pathName
+            item['index'] = index
+            this.pathList.push(item)
+          }
         })
-        this.pathList = list
       }
+      console.log(this.pathList)
 
       if (window.history && window.history.pushState) {
-        history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', this.goBack, false);
+        history.pushState(null, null, document.URL)
+        window.addEventListener('popstate', this.goBack, false)
       }
     },
     destroyed(){
@@ -406,7 +422,6 @@
       },
       // 长按事件
       rowContextmenu(row, target, touchClientX) {
-
         // 改变菜单
         if(this.selectStatus && this.selectIndexList.includes(row.index)){
           if(this.selectIndexList.includes(row.index)){
@@ -446,7 +461,7 @@
             this.favoriteOperating(true)
             break
           case 'open':
-            this.fileClick(this.rowContextData)
+            this.fileClick(this.rowContextData, this.rowContextData.index)
             break
           case 'unselect':
             const index = this.rowContextData.index
@@ -458,8 +473,8 @@
           case 'select':
             this.selectStatus = true
             this.selectIndexList.push(this.rowContextData.index)
-            setTimeout(function () {
-              that.$refs.checkboxes[that.rowContextData.index].toggle();
+            setTimeout(() => {
+              this.$refs.checkboxes[that.rowContextData.index].toggle()
             },0)
             break
           case 'rename':
@@ -470,7 +485,7 @@
             },0)
             break
           case 'copy':
-            Toast('暂不支持移动');
+            vant.Toast('暂不支持移动');
             break
           case 'download':
             this.downloadFile()
@@ -552,7 +567,7 @@
             fileConfig.packageDownload(fileIds, this.$store.state.user.token)
             return
           }
-          fileConfig.publicDownload(this.rowContextData)
+          fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.state.user.token)
         } else {
           this.$message({
             message: '所选文件夹为空',
@@ -563,11 +578,10 @@
       // 收藏/取消收藏
       favoriteOperating(isFavorite) {
         this.rowContextData.isFavorite = isFavorite
-
         this.highlightFavorite(isFavorite, true)
         api.favoriteUrl({
           token: this.$store.state.user.token,
-          id: this.rowContextData.id,
+          fileIds: this.rowContextData.id,
           isFavorite: isFavorite
         }).then(res => {
         })
@@ -587,7 +601,7 @@
         }
         const str = this.getShowSumFileAndFolder(fileList)
 
-        Dialog.confirm({
+        vant.Dialog.confirm({
           title: '提示',
           message: '此操作将永久删除' + str + ', 是否继续?'
         }).then(() => {
@@ -601,9 +615,8 @@
             } else {
               this.getFileList()
             }
-            Toast.setDefaultOptions({ duration: 500 });
-            Toast.success('删除成功');
-            this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
+            vant.Toast.setDefaultOptions({ duration: 800 });
+            vant.Toast.success('删除成功');
             this.selectRowData = []
           })
         })
@@ -674,12 +687,12 @@
       },
       // 浏览器的返回事件
       goBack(){
-        const linkIndex = this.pathList.length-3
+        const linkIndex = this.pathList.length - 2
         this.handleLink(this.pathList[linkIndex],linkIndex)
       },
       // 点击返回按钮(标题)
       clickBack() {
-        const linkIndex = this.pathList.length-3
+        const linkIndex = this.pathList.length - 2
         this.handleLink(this.pathList[linkIndex], linkIndex, true)
       },
       //菜单键
@@ -784,7 +797,6 @@
           if(isPushLink){
             this.$router.push(`/_m?path=${encodeURIComponent(this.path)}`)
           }
-          setPath(this.path, this.pathList)
           this.getFileList()
         }
       },
@@ -853,12 +865,15 @@
       // 填充数据
       loadData(res,onLoad){
         if(onLoad){
-          res.data.forEach((file,number) => {
-            file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
+          res.data.forEach((file,index) => {
+            file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + index
             this.fileList.push(file)
-          });
+          })
         }else{
           this.fileList = res.data
+          this.fileList.map((file,index) => {
+            file['index'] = index
+          })
         }
         // 加载状态结束
         this.loading = false
@@ -876,6 +891,9 @@
         this.queryFileType = queryFileType
         this.getFileList()
         this.leftMenuShow = false
+      },
+      uploadList() {
+        this.$router.push(`/upload/index_m`)
       },
       // 统计
       statistics() {
@@ -962,16 +980,11 @@
             } else {
               this.path = '/' + row.name
             }
-            const itemFirst = {}
-            itemFirst['folder'] = row.name
-            itemFirst['index'] = this.pathList.length - 1
-            const itemSecond = {}
-            itemSecond['folder'] = '+'
-            itemSecond['index'] = this.pathList.length
-            this.pathList[this.pathList.length - 1] = itemFirst
-            this.pathList.push(itemSecond)
+            const item = {}
+            item['folder'] = row.name
+            item['index'] = this.pathList.length - 1
+            this.pathList.push(item)
             this.$router.push(`/_m?path=${encodeURIComponent(this.path)}`)
-            setPath(this.path, this.pathList)
             this.getFileList()
           } else {
             if (row.contentType.startsWith('image')) {
