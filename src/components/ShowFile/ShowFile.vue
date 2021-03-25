@@ -1553,7 +1553,6 @@ export default {
           this.pagination.pageIndex = 1
           this.getFileList()
         }
-        // setPath(this.path, this.pathList)
       }
     },
     // 新建文档
