@@ -30,10 +30,7 @@ import "vditor/src/assets/scss/index.scss"
     },
     watch: {
       content(val){
-        if(!this.vditorPreviewShow){
-          this.vditorPreviewInit(val)
-          this.vditorPreviewShow = true
-        }
+        this.setContent(val)
       }
     },
     mounted() {
@@ -43,6 +40,12 @@ import "vditor/src/assets/scss/index.scss"
       }
     },
     methods:{
+      setContent(val) {
+        if(!this.vditorPreviewShow){
+          this.vditorPreviewInit(val)
+          this.vditorPreviewShow = true
+        }
+      },
       vditorPreviewInit(content){
         const that = this
         vditor.preview(document.getElementById('vditor'),

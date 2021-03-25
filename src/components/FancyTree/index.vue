@@ -26,7 +26,6 @@
           <el-input placeholder="请输入内容" size="small">
             <el-button slot="append" size="small" icon="el-icon-search"></el-button>
           </el-input>
-          <el-button slot="reference" :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-search">搜索</el-button>
         </el-popover>
 
       </el-button-group>
@@ -135,7 +134,7 @@
               let input = data.node.span.querySelector('.fancytree-title .fancytree-edit-input')
               let width = input.style.width.substring(0,input.style.width.length-2)
               input.style.width = parseInt(width)+50+'px'
-              if(input.value.length -1 > data.node.data.suffix.length){
+              if(input.value && input.value.length -1 > data.node.data.suffix.length){
                 input.selectionStart = 0
                 input.selectionEnd = input.value.length - 1 - data.node.data.suffix.length
               }
@@ -246,6 +245,7 @@
             username: this.$store.state.user.name,
             path: data.path
           }).then(()=>{
+            this.$emit('removeFile', data.path)
             let node = this.tree.getActiveNode()
             node.remove()
             this.$message.success("删除成功！")
