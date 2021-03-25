@@ -76,6 +76,7 @@
               @treeNodeClick="treeNodeClick"
               @onLoadTreePath="onLoadTreePath"
               @onRename="onRename"
+              @removeFile="removeFile"
             >
             </fancy-tree>
           </div>
@@ -85,7 +86,7 @@
           <i v-show="!options.readOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
-          <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
+          <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab">
             <el-tab-pane
               v-for="(item,index) in editableTabs"
               :key="item.name"
@@ -95,21 +96,20 @@
               <span slot="label"><svg-icon class="tabs-icon-svg" :icon-class="findSvgClass(item.name)"></svg-icon> {{item.title}}</span>
               <div v-if="textPreviewVisible" class="editor">
                 <vditor-preview
+                  :ref="'vditor'+index"
                   class="content-body"
                   v-show="editableTabsValue.endsWith('.md') && previewMode"
-                  :content="item.content"
                   :style="{height: editorHieght+'px'}"
                 />
                 <MonacoEditor
                   v-show="editableTabsValue.endsWith('.md') ? !previewMode: true"
-                  ref="monacoEditor"
+                  :ref="'monacoEditor'+index"
                   :width="editorWidth"
                   :height="editorHieght"
                   :theme="lightTheme?'vs':'vs-dark'"
                   :language="item.language"
                   :diffEditor="diffEditor"
                   original="..."
-                  :value="item.content"
                   :options="options"
                   @change="change($event,index)"
                   @save="save($event,index)"
@@ -182,6 +182,7 @@
           contextmenu: true,
           codeLens: true,
           readOnly: true,
+          lineNumbers: this.$pc,
           minimap: {
             enabled: this.$pc
           },
@@ -217,7 +218,9 @@
         },
         directoryTreeData: {},
         editableTabsValue: '1',
+        nextActiveName: '',
         editableTabs: [],
+        editableValueMap: new Map(),
         filePathNav: '',
         toolbars: {
           readmodel: true, // 沉浸式阅读
@@ -306,9 +309,9 @@
             copyTitle: res.data.name,
             language: this.getEditorLanguage(res.data.suffix),
             status: undefined,//标签状态
-            name: pathname,
-            content: res.data.contentText
+            name: pathname
           })
+          this.setEditMap(0, res.data.contentText)
           this.editableTabsValue = pathname
           // 界面的渲染后的初始化工作
           this.$nextTick(()=>{
@@ -479,6 +482,12 @@
       onLoadTreePath(path){
         this.filePathNav = path
       },
+      removeFile(filepath) {
+        let findIndex = this.editableTabs.findIndex(editable => editable.name === filepath)
+        if(findIndex > -1){
+          this.editableTabs.splice(findIndex, 1)
+        }
+      },
       treeNodeClick(row) {
         if(row.isFolder){
           return
@@ -519,17 +528,19 @@
               copyTitle:row.name,
               status: undefined,
               language: this.getEditorLanguage(row.suffix),
-              name:row.path,
-              content:res.data.contentText
+              name:row.path
             }
             if(row.isAddTab){
               this.editableTabs.push(tab)
+              this.setEditMap(this.editableTabs.length -1, res.data.contentText)
             }else{
               let thisTabIndex = this.editableTabs.findIndex(tab=> tab.status===undefined)
               if(thisTabIndex > -1){
                 this.editableTabs[thisTabIndex] = tab
+                this.setEditMap(thisTabIndex, res.data.contentText)
               }else{
                 this.editableTabs.push(tab)
+                this.setEditMap(this.editableTabs.length - 1, res.data.contentText)
               }
             }
             this.editableTabsValue = row.path
@@ -538,7 +549,18 @@
           })
         }else{
           this.editableTabsValue = row.path
+          this.clickTab()
         }
+      },
+      setEditMap(index, text) {
+        this.editableValueMap.set(index, text)
+        this.$nextTick(()=> {
+          let ref = 'monacoEditor' + index
+          this.$refs[ref][0]._setValue(text)
+          if (!this.$pc && this.dialogWidthPercent < 1) {
+            this.fullScreen()
+          }
+        })
       },
       containerResize() {
         this.loadEditorSize()
@@ -553,6 +575,9 @@
       checkReadOnly(fileUserId){
         if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
           this.options.readOnly = false
+        }
+        if (!this.$pc) {
+          this.options.readOnly = true
         }
         if(this.options.readOnly || this.moblie){
           this.$nextTick(()=> {
@@ -597,9 +622,15 @@
         this.isSaveDialogVisible = false
         this.isShowUpdateBtn = false
       },
+      // 放弃修改
       closeTabDialog(){
         this.isTabSaveDialogVisible = false
+        this.editableTabsValue = this.nextActiveName
         this.editableTabs.splice(this.removeIndex,1)
+        let modifyingIndex = this.editableTabs.findIndex(editable => editable.status === 'Modifying')
+        if (modifyingIndex < 0){
+          this.isShowUpdateBtn = false
+        }
       },
       closeDialog() {
         this.textPreviewVisible = false
@@ -609,7 +640,7 @@
         this.closeAllTabs()
       },
       change(value,index) {
-        if(value === this.editableTabs[index].content){
+        if(value === this.editableValueMap.get(index)){
           if(this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
             this.editableTabs[index].title = this.editableTabs[index].copyTitle
             this.editableTabs[index].status = 'Modified'
@@ -758,7 +789,17 @@
         }
       },
       changePreviewMode() {
+        let currentIndex = this.editableTabs.findIndex(editable => editable.name === this.editableTabsValue)
+        if (currentIndex > -1){
+          let ref = 'vditor' + currentIndex
+          this.$refs[ref][0].setContent(this.editableValueMap.get(currentIndex))
+        }
         this.previewMode = !this.previewMode
+        this.clickTab()
+      },
+      clickTab() {
+        this.editorWidth += 0.001
+        this.editorHieght += 0.001
       },
       removeTab(targetName) {
         let tabs = this.editableTabs;
@@ -775,6 +816,7 @@
             }
           });
         }
+        this.nextActiveName = activeName
         if(this.editableTabs[removeIndex].status !== 'Modifying'){
           this.editableTabsValue = activeName;
           this.editableTabs = tabs.filter(tab => tab.name !== targetName);

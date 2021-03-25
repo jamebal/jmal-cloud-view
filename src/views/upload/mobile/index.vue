@@ -16,7 +16,10 @@
         <li v-for="file in fileList" :key="file.id">
           <uploader-file ref="files" :class="'file_' + file.id" :file="file" :list="true"></uploader-file>
         </li>
-        <div v-if="!fileList.length" class="no-file"><i class="iconfont icon-empty-file"></i> 暂无待上传文件</div>
+        <div v-if="!fileList.length" class="no-file">
+          <van-empty description="暂无待上传文件" />
+          </van-button>
+        </div>
       </ul>
     </van-list>
   </div>
@@ -34,10 +37,12 @@
       };
     },
     mounted(){
-      this.fileList = window.uploader.fileList
+      if (window.uploader) {
+        this.fileList = window.uploader.fileList
+      }
     },
     destroyed(){
-      window.removeEventListener('popstate', this.goBack, false);
+      window.removeEventListener('popstate', this.goBack, false)
     },
     methods: {
       onClickLeft() {
@@ -76,6 +81,13 @@
     span {
       padding: 10px;
       margin-right: 16px;
+    }
+  }
+  .no-file {
+    .plus {
+      position: absolute;
+      bottom: 1rem;
+      right: 2rem;
     }
   }
 </style>
