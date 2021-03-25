@@ -18,7 +18,7 @@
     props: {
       emptyImgUrl: {
         type: String,
-        default: '~@/assets/img/widget-img.jpeg'
+        default: '~@/assets/img/emptyfile_intro.jpeg'
       },
       emptyStatus:{
         type: String,
@@ -38,7 +38,7 @@
     },
     methods: {
       sourceImg(){
-        return '~@/assets/img/widget-img.jpeg'
+        return '~@/assets/img/emptyfile_intro.jpeg'
       }
     }
   }
