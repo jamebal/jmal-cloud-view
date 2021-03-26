@@ -325,10 +325,12 @@
             return doc
           })
           if(reLoad){
-            this.tree.reload(this.convert(data))
-            if(activeNodeData){
-              this.$emit('treeNodeClick', activeNodeData)
-            }
+            this.$nextTick(() => {
+              this.tree.reload(this.convert(data))
+              if(activeNodeData){
+                this.$emit('treeNodeClick', activeNodeData)
+              }
+            })
           }else{
             this.initTree(this.convert(data))
           }

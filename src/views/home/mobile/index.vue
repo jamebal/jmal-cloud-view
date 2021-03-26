@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <!-- <van-pull-refresh v-model="refreshing" @refresh="onRefresh"> -->
-
     <!--左侧菜单-->
     <van-popup v-model="leftMenuShow" get-container="body" position="left" :style="{ height: '100%', width: '35%'}">
       <div class="left-menu">
@@ -43,11 +42,11 @@
             <!-- <div>{{test}} {{diffTabbarTop}} {{lastTabbarOffsetTop}}</div> -->
             <van-nav-bar
               :style="vanNavBarClass"
-              v-if="pathList.length < 3 && !selectStatus"
+              v-if="pathList.length < 2 && !selectStatus"
               title="浏览"
               right-arrow
               @click-right="checkboxAll"
-              :right-text="this.selectRowData.length !== this.fileList.length ? '选择44' : '取消'"
+              :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
               @click-left="leftMenu"
               left-arrow>
               <div class="header-button" slot="left">
@@ -75,8 +74,8 @@
             </van-nav-bar>
             <van-nav-bar
               :style="vanNavBarClass"
-              v-if="pathList.length >= 3 && !selectStatus"
-              :title="pathList[pathList.length-2].folder"
+              v-if="pathList.length >= 2 && !selectStatus"
+              :title="pathList[pathList.length-1].folder"
               :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
               left-arrow
               @click-right="checkboxAll"
@@ -345,20 +344,6 @@
       };
     },
     mounted(){
-      // // 加载路径
-      // const pathList = getPathList()
-      // if (pathList && pathList !== 'undefined') {
-      //   const res = JSON.parse(pathList)
-      //   const list = []
-      //   res.forEach(function(element) {
-      //     const item0 = {}
-      //     item0['folder'] = element.folder + ''
-      //     item0['index'] = element.index
-      //     list.push(item0)
-      //   })
-      //   this.pathList = list
-      // }
-
       // 加载url上的path
       if (this.$route.query.path !== '/') {
         const path = decodeURI(this.$route.query.path)
@@ -372,7 +357,6 @@
           }
         })
       }
-      console.log(this.pathList)
 
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL)
@@ -609,15 +593,13 @@
             username: this.$store.state.user.name,
             fileIds: fileIds
           }).then(() => {
-            // 移除列表
-            if (this.selectRowData.length === 1) {
-              this.fileList.splice(this.rowContextData.index, 1)
-            } else {
-              this.getFileList()
-            }
+            // 刷新列表
+            this.getFileList()
             vant.Toast.setDefaultOptions({ duration: 800 });
             vant.Toast.success('删除成功');
-            this.selectRowData = []
+            if (this.selectRowData.length > 1){
+              this.selectRowData = []
+            }
           })
         })
       },
@@ -687,13 +669,17 @@
       },
       // 浏览器的返回事件
       goBack(){
-        const linkIndex = this.pathList.length - 2
+        if (this.pathList.length === 2) {
+          this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+          return
+        }
+
+        const linkIndex = this.pathList.length - 3
         this.handleLink(this.pathList[linkIndex],linkIndex)
       },
-      // 点击返回按钮(标题)
+      // 点击返回按钮(标题), 返回上一级
       clickBack() {
-        const linkIndex = this.pathList.length - 2
-        this.handleLink(this.pathList[linkIndex], linkIndex, true)
+        this.handleLink(this.pathList[this.pathList.length - 2], this.pathList.length - 2)
       },
       //菜单键
       leftMenu(){
@@ -772,32 +758,35 @@
           this.actionsMenus.push(menuItem)
         }
       },
-      handleLink(item, index, isPushLink) {
-        if (!this.$route.query.path){
-          this.$router.push(`/_m`)
-        }
-
-        if(item.search){
-          if(item.searchKey){
+      handleLink(item, index, unPushLink, unRefresh) {
+        if (item && item.search) {
+          if (item.searchKey) {
             this.searchFileByKeyWord(item.searchKey)
-          } else if(item.row){
+          } else if (item.row) {
             this.searchFileAndOpenDir(item.row)
           }
-          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+          this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
         } else {
-          this.pathList.splice(this.pathList.findIndex(v => v.index === index + 2), this.pathList.length - (index + 2))
+          this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
           this.pathList.forEach((p, number) => {
             if (number === 0) {
               this.path = ''
-            } else if (number === this.pathList.length - 1) {
+            } else if (number === this.pathList.length) {
             } else {
               this.path += '/' + this.pathList[number].folder
             }
           })
-          if(isPushLink){
-            this.$router.push(`/_m?path=${encodeURIComponent(this.path)}`)
+          if (!unPushLink) {
+            if (!this.$route.query.path) {
+              this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+            } else {
+              this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+            }
           }
-          this.getFileList()
+          if (!unRefresh) {
+            this.pagination.pageIndex = 1
+            this.getFileList()
+          }
         }
       },
       // 格式化最近时间
