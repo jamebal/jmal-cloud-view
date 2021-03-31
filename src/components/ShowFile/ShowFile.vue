@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="dashboard-container" v-resize="containerResize">
+    <div class="dashboard-container" v-resize="containerResize" @click="containerClick">
       <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
         <div v-for="item of contextMenus" :key="item.operation">
           <!-- 一级菜单 -->
@@ -338,36 +338,38 @@
              element-loading-text="文件加载中"
              element-loading-spinner="el-icon-loading"
              element-loading-background="#f6f7fa88">
-          <div class="checkbox-group-header" v-show="!selectFile">
-            <div class="select-operation">
-              <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">
-                {{ selectRowData.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}
-              </van-checkbox>
-              <div>
-                <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0"
-                           @click="downloadFile">
-                  下载
-                </el-button>
-                <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1"
-                           @click="share">
-                  分享
-                </el-button>
-                <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0"
-                           @click="moveOrCopy">
-                  移动或复制
-                </el-button>
-                <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0"
-                           type="danger" @click="deleteFile">
-                </el-button>
-              </div>
-            </div>
-            <el-divider style="transform: scaleY(0.5);"></el-divider>
-          </div>
+<!--          <div class="checkbox-group-header" v-show="!selectFile">-->
+<!--            <div class="select-operation">-->
+<!--              <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">-->
+<!--                {{ selectRowData.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}-->
+<!--              </van-checkbox>-->
+<!--              <div>-->
+<!--                <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0"-->
+<!--                           @click="downloadFile">-->
+<!--                  下载-->
+<!--                </el-button>-->
+<!--                <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1"-->
+<!--                           @click="share">-->
+<!--                  分享-->
+<!--                </el-button>-->
+<!--                <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0"-->
+<!--                           @click="moveOrCopy">-->
+<!--                  移动或复制-->
+<!--                </el-button>-->
+<!--                <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0"-->
+<!--                           type="danger" @click="deleteFile">-->
+<!--                </el-button>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <el-divider style="transform: scaleY(0.5);"></el-divider>-->
+<!--          </div>-->
 
           <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
             <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false"
                       :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
               <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
+                             @click="gridItemClick(item)"
+                             @dblclick="fileClick(item)"
               >
                 <div
                   class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
@@ -379,12 +381,11 @@
                   }"
                   @mouseover="gridItemHover(item,index)"
                   @mouseout="gridItemOut(item,index)"
-                  @click="gridItemClick(item)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
-                  <van-checkbox v-show="!selectFile" v-if="gridHoverItemIndex === index || selectRowData.includes(item)"
-                                class="grid-item-checkbox" :name="item"
-                                @click.stop="clickGridItemCheckBox(item,index)"/>
+<!--                  <van-checkbox v-show="!selectFile" v-if="gridHoverItemIndex === index || selectRowData.includes(item)"-->
+<!--                                class="grid-item-checkbox" :name="item"-->
+<!--                                @click.stop.prevent="clickGridItemCheckBox(item,index)"/>-->
                   <div :class="{'grid-item-icon':true, 'grid-item-icon-image': queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false}">
                     <icon-file v-show="queryFileType !== 'image'" :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
                                :grid="true"></icon-file>
@@ -928,7 +929,6 @@ export default {
     window.onresize = function (){
       that.clientHeight = document.documentElement.clientHeight - that.lessClientHeight
     }
-
     // 画矩形选区
     this.darwRectangle()
 
@@ -1033,10 +1033,16 @@ export default {
         return
       }
       if (!this.drawFlag) {
-        this.fileClick(row)
+        // this.fileClick(row)
       }
+      this.$refs.fileListTable.clearSelection()
+      this.$refs.fileListTable.toggleRowSelection([{row: row}])
+      this.pinSelect(null, row)
     },
-    containerResize(ddd) {
+    containerClick() {
+
+    },
+    containerResize() {
       const container = document.querySelector(".dashboard-container")
       let clientWidth = container.clientWidth
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
@@ -1078,7 +1084,9 @@ export default {
       let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
       _this.drawFlag = false
       let itemClassName = 'el-table__row'
+      draw.onmousedown = null
       draw.onmousedown = function (e) {
+        console.log('draw', onmousedown)
         if (_this.fileListScrollTop > 0) {
           return
         }
@@ -1192,9 +1200,7 @@ export default {
             _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[element.rowIndex], selected: false}])
           }
         })
-        setTimeout(function () {
-          drawSelecting = false
-        }, 150)
+        setTimeout(() => drawSelecting = false, 10)
       }
       //检查两个DIV是否有接触
       let checkTouch = function (item, draw) {
@@ -1279,6 +1285,7 @@ export default {
           }
 
           child.ondragstart = function (e) {
+            console.log('child.ondragstart')
             if (_this.fileListScrollTop === 0) {
               let count = _this.selectRowData.length
               if (_this.selectRowData.length >= 99) {
@@ -1312,11 +1319,7 @@ export default {
             // 清除上次进入的容器的状态
             const last = target.children[dragIndex];
             clearClass(last)
-            if (_this.grid) {
-              dragged.style.cursor = 'pointer'
-            } else {
-              dragged.style.cursor = 'default'
-            }
+            dragged.style.cursor = 'default'
           }
         }
       }, 0)
@@ -1514,12 +1517,11 @@ export default {
     },
     // 浏览器的返回事件
     goBack() {
-      if (this.pathList.length === 2) {
+      if (this.pathList.length <= 1) {
         this.$router.push(`/?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
         return
       }
-      const linkIndex = this.pathList.length - 3
-      this.handleLink(this.pathList[linkIndex], linkIndex)
+      this.lastLink()
     },
     lastLink() {
       this.handleLink(this.pathList[this.pathList.length - 2], this.pathList.length - 2)
@@ -2127,12 +2129,12 @@ export default {
     },
     //双击
     dblclick(row) {
-      // this.fileClick(row)
+      this.fileClick(row)
     },
     // 单元格点击事件
     cellClick(row, column) {
       if(this.selectFile){
-        this.fileClick(row)
+        // this.fileClick(row)
         return
       }
       clearTimeout(this.Loop);
@@ -2955,10 +2957,6 @@ export default {
         }
         if (row.suffix === 'pdf') {
           // pdf文件
-          let host = window.location.host
-          if (window.location.port.length > 0) {
-            host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
-          }
           fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
           return
         }
@@ -2968,7 +2966,6 @@ export default {
           return
         }
         // 其他文件
-        let fileIds = [row.id]
         this.notPreviewDialogVisible = true
       }
     },
@@ -3065,6 +3062,7 @@ export default {
 
 .table-file-name:hover {
   color: #19ACF9;
+  cursor: pointer;
 }
 
 /deep/ .plTableBox .el-table .el-table__header {

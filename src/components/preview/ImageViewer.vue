@@ -190,7 +190,6 @@ export default {
       this.vantImagePreview = vant.ImagePreview({
         images: imageUrls,
         startPosition: viewIndex,
-        closeable: true,
         onClose() {
           Bus.$emit('updateImageViewerStatus', false)
         },

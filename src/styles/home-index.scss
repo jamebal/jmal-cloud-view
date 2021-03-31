@@ -313,6 +313,7 @@
 /deep/ .grid-time {
   border-radius: 10px;
   padding: 0 8px;
+  border: solid 1px #ccc0;
   .grid-item-checkbox {
     position: absolute;
     top: 10px;
@@ -336,7 +337,6 @@
 }
 /deep/ .grid-time:hover {
   border: solid 1px #c8c9cc;
-  cursor: pointer;
 }
  .checkbox-group-header {
   margin: 10px 0 0;

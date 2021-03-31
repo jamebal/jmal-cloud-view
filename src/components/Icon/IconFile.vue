@@ -2,15 +2,15 @@
   <span>
       <div v-if="item.isFavorite && !public">
       <div v-if="pc">
-        <svg-icon v-if="!grid" icon-class="menu-favorite-hover"
+        <svg-icon v-if="!grid" class="favorite" icon-class="menu-favorite-hover"
                   style="font-size: 1rem;float: right;margin-left: 1rem;position: absolute;"/>
-        <svg-icon v-if="grid" icon-class="menu-favorite-hover"
+        <svg-icon v-if="grid" class="favorite" icon-class="menu-favorite-hover"
                   style="font-size: 1.5rem;right: 0;top: -1rem;position: absolute;z-index: 1;"/>
       </div>
       <div v-else>
-        <svg-icon v-if="!grid" icon-class="menu-favorite-hover"
+        <svg-icon v-if="!grid" class="favorite" icon-class="menu-favorite-hover"
                   style="font-size: 0.5rem;float: right;margin-left: 0.5rem;position: absolute;"/>
-        <svg-icon v-if="grid" icon-class="menu-favorite-hover"
+        <svg-icon v-if="grid" class="favorite" icon-class="menu-favorite-hover"
                   style="font-size: 1rem;right: 0;top: -1rem;position: absolute;z-index: 1;"/>
       </div>
     </div>
