@@ -369,7 +369,6 @@
                       :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
               <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
                              @click="gridItemClick(item)"
-                             @dblclick="fileClick(item)"
               >
                 <div
                   class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
@@ -379,6 +378,7 @@
                   'background-position': 'center',
                   'border': selectRowData.includes(item)?'solid 1px #409eff':'',
                   }"
+                  @dblclick="fileClick(item)"
                   @mouseover="gridItemHover(item,index)"
                   @mouseout="gridItemOut(item,index)"
                   @contextmenu.prevent="rowContextmenu(item)"
@@ -565,6 +565,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import {formatSize, formatTime} from '@/utils/number'
+import {getElementToPageLeft, getElementToPageTop} from '@/utils/dom'
 import {suffix} from '@/utils/file-type'
 import Bus from '@/assets/js/bus'
 import api from '@/api/file-api'
@@ -1046,16 +1047,10 @@ export default {
       const container = document.querySelector(".dashboard-container")
       let clientWidth = container.clientWidth
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
-      if(clientWidth > 1024){
-        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 5) : Math.round(clientWidth / 100 - 4)
+      if (this.queryFileType === 'image') {
+        this.gridColumnNum = Math.round((clientWidth-10)/145)
       } else {
-        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 3) : Math.round(clientWidth / 100 - 2)
-        if(clientWidth < 768){
-          this.gridColumnNum = 3
-        }
-        if(clientWidth < 450){
-          this.gridColumnNum = 2
-        }
+        this.gridColumnNum = Math.round((clientWidth-10)/135)
       }
       if(clientWidth < 900){
         this.showUpdateDateItem = false
@@ -1086,7 +1081,6 @@ export default {
       let itemClassName = 'el-table__row'
       draw.onmousedown = null
       draw.onmousedown = function (e) {
-        console.log('draw', onmousedown)
         if (_this.fileListScrollTop > 0) {
           return
         }
@@ -1105,24 +1099,32 @@ export default {
         if (evt.button !== 0) {
           return
         }
+        _this.dragElementList.forEach(element => {
+          _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[element.rowIndex], selected: false}])
+        })
+        const drawOffsetTop = getElementToPageTop(draw)
+        const drawOffsetLeft = getElementToPageLeft(draw)
         let scrollTop = draw.scrollTop || draw.scrollTop
         let scrollLeft = draw.scrollLeft || draw.scrollLeft
         startX = evt.clientX + scrollLeft
         startY = evt.clientY + scrollTop
-        let div = document.createElement("div")
-        div.id = wId
-        div.className = "draw-rectangle"
-        div.style.left = startX + "px"
-        div.style.top = startY + "px"
-        div.style.position = 'fixed'
-        div.style.border = '1px dashed #2898ff'
-        div.style.width = '0px'
-        div.style.height = '0px'
-        div.style.left = '0px'
-        div.style.top = '0px'
-        div.style.overflow = 'hidden'
-        draw.appendChild(div)
+        let moveCount = 0
         document.onmousemove = function (e) {
+          if (moveCount == 0){
+            let div = document.createElement("div")
+            div.id = wId
+            div.className = "draw-rectangle"
+            div.style.left = startX + "px"
+            div.style.top = startY + "px"
+            div.style.position = 'fixed'
+            div.style.border = '1px dashed #2898ff'
+            div.style.width = '0px'
+            div.style.height = '0px'
+            div.style.left = '0px'
+            div.style.top = '0px'
+            div.style.overflow = 'hidden'
+            draw.appendChild(div)
+          }
           let evt = window.event || e
           let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
           let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
@@ -1130,10 +1132,13 @@ export default {
           retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
           retcHeight = Math.abs(startY - evt.clientY - scrollTop)
           retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
+          _this.drawFlag = true
+          if ((retcHeight + retcWidth) < 4) {
+            return
+          }
           const drawRectangle = $$(wId)
-          if (drawRectangle) {
+          if (drawRectangle && retcTop >= drawOffsetTop) {
             noScroll()
-            _this.drawFlag = true
             drawRectangle.style.left = retcLeft + 'px'
             drawRectangle.style.top = retcTop + 'px'
             drawRectangle.style.width = retcWidth + 'px'
@@ -1145,6 +1150,7 @@ export default {
               drawSelect({x: retcLeft, y: retcTop, w: retcWidth, h: retcHeight})
             }
           }
+          moveCount++
         }
         document.onmouseup = function (e) {
           document.onmousemove = null;
@@ -1285,7 +1291,13 @@ export default {
           }
 
           child.ondragstart = function (e) {
-            console.log('child.ondragstart')
+            if (_this.drawFlag) {
+              // _this.$refs.fileListTable.clearSelection()
+              // _this.$refs.fileListTable.toggleRowSelection([{row: this.fileList[e.path[0].rowIndex], selected: true}])
+              e.preventDefault()
+              e.stopPropagation()
+              return
+            }
             if (_this.fileListScrollTop === 0) {
               let count = _this.selectRowData.length
               if (_this.selectRowData.length >= 99) {
@@ -2588,7 +2600,6 @@ export default {
         if (this.rowContextData.isFolder) {
           this.$refs.directoryTree.append(this.rowContextData, to)
         }
-
         if (operating === 'move') {
           // 移除列表
           if (this.$refs.fileListTable.tableSelectData.length === 1) {
@@ -2599,7 +2610,6 @@ export default {
           this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
           this.$refs.fileListTable.tableSelectData = []
         }
-
         setTimeout(function () {
           copying.close()
         }, 1000)

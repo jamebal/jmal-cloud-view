@@ -274,6 +274,7 @@
 
 import {mapGetters} from 'vuex'
 import {formatSize, formatTime} from '@/utils/number'
+import {getElementToPageLeft, getElementToPageTop} from '@/utils/dom'
 import api from '@/api/file-api'
 import IconFile from "../../../components/Icon/IconFile";
 import Bus from '@/assets/js/bus'
@@ -484,14 +485,14 @@ export default {
 
       this.preliminaryRowData(row)
       // 长按选择的数据
-      const offsetTop = this.getElementToPageTop(target) - row.scrollY
+      const offsetTop = getElementToPageTop(target) - row.scrollY
       const e = {}
       if ((offsetTop + (target.offsetHeight / 2)) > document.body.offsetHeight / 2) {
         e.pageX = touchClientX
-        e.pageY = this.getElementToPageTop(target) - this.menus.length * 47 + 5
+        e.pageY = getElementToPageTop(target) - this.menus.length * 47 + 5
       } else {
         e.pageX = touchClientX
-        e.pageY = this.getElementToPageTop(target) + target.offsetHeight + 5
+        e.pageY = getElementToPageTop(target) + target.offsetHeight + 5
       }
       this.$refs.contextShow.showMenu(e)
     },
@@ -720,44 +721,24 @@ export default {
     longPressDisplayLayer(item, offsetParent, touchClientX) {
       const background = this.selectIndexList.includes(this.rowContextData.index) ? '#90c2fcb5' : ''
       this.overlayContentClass = {
-        'top': (this.getElementToPageTop(offsetParent) - item.scrollY) + 'px',
+        'top': (getElementToPageTop(offsetParent) - item.scrollY) + 'px',
         'height': offsetParent.offsetHeight + 'px',
         'width': offsetParent.offsetWidth + 'px',
-        'left': this.getElementToPageLeft(offsetParent) + 'px',
+        'left': getElementToPageLeft(offsetParent) + 'px',
         'border-radius': '0px',
         'background': background
       }
       setTimeout(() => {
         this.overlayContentClass = {
-          'top': (this.getElementToPageTop(offsetParent) - item.scrollY) + 'px',
+          'top': (getElementToPageTop(offsetParent) - item.scrollY) + 'px',
           'height': offsetParent.offsetHeight + 'px',
           'width': (offsetParent.offsetWidth - (this.grid ? 0 : 10)) + 'px',
-          'left': (this.getElementToPageLeft(offsetParent) + (this.grid ? 0 : 5)) + 'px',
+          'left': (getElementToPageLeft(offsetParent) + (this.grid ? 0 : 5)) + 'px',
           'border-radius': '20px',
           'background': background
         }
       }, 0)
       this.rowContextmenu(item, offsetParent, touchClientX)
-    },
-    // 获取DOM元素到页面顶部的距离
-    getElementToPageTop(el) {
-      if (el.className.indexOf('parent-grid-item') > -1) {
-        return el.offsetTop
-      }
-      if (el.parentElement) {
-        return this.getElementToPageTop(el.parentElement) + el.offsetTop
-      }
-      return el.offsetTop
-    },
-    // 获取DOM元素到页面左边的距离
-    getElementToPageLeft(el) {
-      if (el.className.indexOf('parent-grid-item') > -1) {
-        return el.offsetLeft
-      }
-      if (el.offsetParent) {
-        return this.getElementToPageLeft(el.offsetParent) + el.offsetLeft
-      }
-      return el.offsetLeft
     },
     // 浏览器的返回事件
     goBack() {
