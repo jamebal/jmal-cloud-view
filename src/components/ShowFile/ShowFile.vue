@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="dashboard-container" v-resize="containerResize" @click="containerClick">
+    <div class="dashboard-container" v-resize="containerResize">
       <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
         <div v-for="item of contextMenus" :key="item.operation">
           <!-- 一级菜单 -->
@@ -94,7 +94,6 @@
                   </div>
                 </ul>
               </div>
-              <!--<el-button slot="reference" icon="el-icon-plus add-file-button" circle />-->
               <button-upload slot="reference" :name="''" @click.native="upload"
                              style="margin-right: 5px"></button-upload>
             </el-popover>
@@ -170,11 +169,7 @@
           </li>
         </ul>
       </e-vue-contextmenu>
-
-      <!--<div class="dashboard-text">path: {{ path }}</div>-->
-
       <!--list布局-->
-      <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
       <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight + 8 +'px'}">
         <pl-table
           ref="fileListTable"
@@ -208,16 +203,6 @@
           @select="pinSelect"
         >
           <template v-for="(item,index) in tableHead">
-            <!--索引-->
-<!--            <pl-table-column-->
-<!--              v-if="index === 0 && !selectFile"-->
-<!--              :key="index"-->
-<!--              :index="index"-->
-<!--              type="selection"-->
-<!--              min-width="50"-->
-<!--            >-->
-<!--            </pl-table-column>-->
-            <!--图标-->
             <pl-table-column
               v-if="index === 1"
               :key="index"
@@ -377,6 +362,7 @@
       </empty-file>
       <img id="dragImage" draggable="false" style="position: fixed;top: -100px;z-index: 99999"
            src="~@/assets/img/move-file.png">
+      <div id="dragDiv" draggable="false" style="position: fixed;top: -100px;z-index: 99999"></div>
     </div>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
@@ -1192,11 +1178,15 @@ export default {
       let gridItemClassName = 'van-grid-item van-grid-item--square'
       let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
 
+      // 正在拖动的元素
+      let dragingDiv = null
+
       // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody')
       if (this.grid) {
         target = document.querySelector('.van-checkbox-group .van-grid')
       }
+      let draw = document.getElementById('v-draw-rectangle')
       let rows = 0;//行数
       setTimeout(function () {
         rows = target.childElementCount
@@ -1228,18 +1218,27 @@ export default {
           if (childOfImg) {
             childOfImg.draggable = false
           }
-
           child.ondragstart = function (e) {
             if (_this.drawFlag) {
               e.preventDefault()
               e.stopPropagation()
               return
             }
+            // document.onmousemove = function (e) {
+            //   console.log(e.clientX, e.clientY)
+            // }
             if (_this.fileListScrollTop === 0) {
               let count = _this.selectRowData.length
               if (_this.selectRowData.length >= 99) {
                 count = 99
               }
+
+              dragingDiv = child.cloneNode(true)
+              dragingDiv.id = 'sdfsdfsdf'
+              dragingDiv.style.width = child.offsetWidth
+              dragingDiv.style.heigth = child.offsetHeight
+              draw.appendChild(dragingDiv)
+
               let dragImage = document.getElementById('dragImage');
               dragImage.src = require(`@/assets/img/move-file/move-file${count}.png`)
 
@@ -1353,8 +1352,17 @@ export default {
         }
       }
 
-      target.ondragover = function (e) {
-        // console.log('目标元素中拖拽...');
+      draw.ondragover = function (e) {
+
+        const drawRectangle = document.getElementById('sdfsdfsdf')
+        if (drawRectangle) {
+          console.log('drawRectangle')
+          // drawRectangle.style.left = retcLeft + 'px'
+          // drawRectangle.style.top = retcTop + 'px'
+          // drawRectangle.style.width = retcWidth + 'px'
+          // drawRectangle.style.height = retcHeight + 'px'
+          // drawRectangle.style.backgroundColor = '#f2f5fa55'
+        }
         e.preventDefault();
         leaveIndex = -1
       }
