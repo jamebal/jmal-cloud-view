@@ -19,7 +19,7 @@
     <div v-else-if="item.contentType.indexOf('audio') > -1" v-on:mousedown="noDrag($event)">
       <div v-if="item.music !== undefined">
         <div v-if="item.music.name !== null">
-          <el-image v-if="grid" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
+          <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain" :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
           <div slot="error" class="image-slot">
             <svg-icon class="avatar-default-image" icon-class="audio"/>
           </div>
@@ -35,7 +35,7 @@
     </div>
     <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
     <div v-else-if="item.contentType.startsWith('image')" v-on:mousedown="noDrag($event)">
-      <el-image v-if="grid || grid === 'details'" :style="{'width':details?'110px':'80px','height':details?'110px':'80px'}" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
+      <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
           <svg-icon icon-class="loading-image-error"/>
         </div>
@@ -66,6 +66,10 @@
       grid: {
         type: Boolean,
         default: false
+      },
+      gridWidth: {
+        type: Number,
+        default: 120
       },
       details: {
         type: Boolean,

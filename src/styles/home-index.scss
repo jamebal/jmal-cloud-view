@@ -1,7 +1,7 @@
 .dashboard {
   &-container {
     min-width: 500px;
-    margin: 10px 10px 10px 15px;
+    margin: 10px 0px 0px 0px;
   }
   &-text {
     font-size: 30px;
@@ -285,7 +285,7 @@
 }
 
 /deep/ .van-grid-item__content .svg-icon{
-  font-size: 4rem;
+  font-size: 5rem;
 }
 /deep/ .grid-item-text {
   text-align: center;
@@ -296,6 +296,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  position: absolute;
+  padding: 0 5px 0 5px;
+  bottom: 5px;
 }
 /deep/ .grid-item-text-image {
   position: absolute;
@@ -307,11 +310,8 @@
   top: 70%;
   color: #ffffff;
 }
-/deep/ .grid-item-text:hover {
-  color: #19ACF9;
-}
 /deep/ .grid-time {
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 0 8px;
   border: solid 1px #ccc0;
   .grid-item-checkbox {
@@ -322,16 +322,19 @@
   }
   .grid-item-icon{
     text-align: center;
-    position: relative;
-    margin: 9px auto 0;
-    width: 84px;
-    height: 84px;
+    position: absolute;
+    top: 5px;
+    //margin: 9px auto 0;
+    //width: 84px;
+    //height: 84px;
   }
   .grid-item-icon-image {
-    width: calc(100% + 16px);
+    width: 100%;
     height: 100%;
-    border-radius: 10px;
+    top: 0px;
+    border-radius: 5px;
     margin: 0;
+    -webkit-backdrop-filter: contrast(0.5);
     backdrop-filter: contrast(0.5);
   }
 }

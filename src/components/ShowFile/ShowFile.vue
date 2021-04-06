@@ -30,7 +30,7 @@
             <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级"
                         placement="top">
               <a @click.prevent="lastLink()">
-                <svg-icon icon-class="back" style="font-size: 24px;"/>&nbsp;</a>
+                <svg-icon icon-class="back" style="font-size: 24px;margin-left: 20px;"/>&nbsp;</a>
             </el-tooltip>
             <el-tooltip v-if="index===0 && pathList.length > 2" class="item" effect="dark" content="根目录"
                         placement="top">
@@ -209,20 +209,22 @@
         >
           <template v-for="(item,index) in tableHead">
             <!--索引-->
-            <pl-table-column
-              v-if="index === 0 && !selectFile"
-              :key="index"
-              :index="index"
-              type="selection"
-              min-width="50"
-            >
-            </pl-table-column>
+<!--            <pl-table-column-->
+<!--              v-if="index === 0 && !selectFile"-->
+<!--              :key="index"-->
+<!--              :index="index"-->
+<!--              type="selection"-->
+<!--              min-width="50"-->
+<!--            >-->
+<!--            </pl-table-column>-->
             <!--图标-->
             <pl-table-column
               v-if="index === 1"
               :key="index"
               :index="index"
-              width="50"
+              align="center"
+              header-align="center"
+              width="80"
             >
               <template slot-scope="scope">
                 <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
@@ -338,75 +340,35 @@
              element-loading-text="文件加载中"
              element-loading-spinner="el-icon-loading"
              element-loading-background="#f6f7fa88">
-<!--          <div class="checkbox-group-header" v-show="!selectFile">-->
-<!--            <div class="select-operation">-->
-<!--              <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">-->
-<!--                {{ selectRowData.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}-->
-<!--              </van-checkbox>-->
-<!--              <div>-->
-<!--                <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0"-->
-<!--                           @click="downloadFile">-->
-<!--                  下载-->
-<!--                </el-button>-->
-<!--                <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1"-->
-<!--                           @click="share">-->
-<!--                  分享-->
-<!--                </el-button>-->
-<!--                <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0"-->
-<!--                           @click="moveOrCopy">-->
-<!--                  移动或复制-->
-<!--                </el-button>-->
-<!--                <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0"-->
-<!--                           type="danger" @click="deleteFile">-->
-<!--                </el-button>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <el-divider style="transform: scaleY(0.5);"></el-divider>-->
-<!--          </div>-->
 
           <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
             <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false"
                       :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
               <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
-                             @click="gridItemClick(item)"
+                             :title="'大小：'+formatSize(item.size)+'\r\n'+(item.w && item.h ? '分辨率：'+item.w + 'x' + item.h +'\r\n' : '')+'名称：'+item.name+'\r\n'+'创建时间：'+item.uploadDate+'\r\n'+'修改时间：'+item.updateDate+'\r\n'+'路径：'+item.path"
               >
                 <div
                   class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
                   :style="{
-                  'background': queryFileType === 'image' ? 'url('+imageUrl+item.id+')' : selectRowData.includes(item)?'#caeaf991':'',
+                  'background': selectRowData.includes(item)?'#caeaf991':'',
                   'background-size': 'cover',
                   'background-position': 'center',
                   'border': selectRowData.includes(item)?'solid 1px #409eff':'',
                   }"
+                  @click="gridItemClick(item)"
                   @dblclick="fileClick(item)"
                   @mouseover="gridItemHover(item,index)"
                   @mouseout="gridItemOut(item,index)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
-<!--                  <van-checkbox v-show="!selectFile" v-if="gridHoverItemIndex === index || selectRowData.includes(item)"-->
-<!--                                class="grid-item-checkbox" :name="item"-->
-<!--                                @click.stop.prevent="clickGridItemCheckBox(item,index)"/>-->
-                  <div :class="{'grid-item-icon':true, 'grid-item-icon-image': queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false}">
-                    <icon-file v-show="queryFileType !== 'image'" :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
-                               :grid="true"></icon-file>
+                  <div class="grid-item-icon">
+                    <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true" :grid-width="gridColumnWidth"></icon-file>
                   </div>
-                  <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
-                    <div v-show="item.w && item.h && queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false"
-                    :class="{'grid-item-text': true, 'grid-item-text-image-size': queryFileType === 'image'}">
-                      {{ item.w + ' x ' + item.h }}
-                    </div>
-                    <div
-                      :title="item.name"
-                      v-show="queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : true"
-                      :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">
-                      {{ item.name }}
-                    </div>
-                  <!--</el-tooltip>-->
+                    <div class="grid-item-text">{{ item.name }}</div>
                 </div>
               </van-grid-item>
             </van-grid>
           </van-checkbox-group>
-          <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
         </div>
       </div>
 
@@ -798,6 +760,7 @@ export default {
       grid: this.defaultGrid,
       vmode:  this.defaultGrid ? 'grid' : 'list',
       gridColumnNum: -1,
+      gridColumnWidth: 120,
       gridHoverItemIndex: -1,
       gridHoverIntermediate: -1,
       allChecked: false,
@@ -823,7 +786,8 @@ export default {
       selectOrgin: -1,// 选择起点(主要用于按住shift键多选)
       selectEnd: -1,// 选择终点
       selectPin: false,// 默认false,不按住
-      isCmd: false,// 是否按住了command键
+      isCmd: false,// 是否按住了command(control)键
+      isCmdA: false, // 是否按住了command(control) + A 键
       dragElementList: [],
       drawFlag: false,
       fileListScrollTop: 0,
@@ -883,27 +847,8 @@ export default {
     }
 
     // 获取键盘事件
-    window.addEventListener('keydown', event => {
-      const isMac = navigator.platform.startsWith('Mac');
-      const {key, c, keyCode, ctrlKey, metaKey} = event;
-      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
-      // 按住shift建
-      if (event.keyCode === 16 && event.shiftKey) {
-        this.selectPin = true
-      }
-    })
-
-    window.addEventListener('keyup', event => {
-
-      const isMac = navigator.platform.startsWith('Mac');
-      const {key, c, keyCode, ctrlKey, metaKey} = event;
-      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
-
-      // 松开shift建
-      if (event.keyCode === 16) {
-        this.selectPin = false
-      }
-    })
+    window.addEventListener('keydown', event => this.keydown(event))
+    window.addEventListener('keyup', event => this.keyup(event))
 
     // 加载布局
     if (this.$route.query.vmode) {
@@ -936,7 +881,9 @@ export default {
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
   destroyed() {
-    window.removeEventListener('popstate', this.goBack, false);
+    window.removeEventListener('keydown', this.keydown, false)
+    window.removeEventListener('keyup', this.keydown, false)
+    window.removeEventListener('popstate', this.goBack, false)
     if (this.stompClient) {
       this.stompClient.unsubscribe()
     }
@@ -971,6 +918,33 @@ export default {
     }
   },
   methods: {
+    keydown(event) {
+      const isMac = navigator.platform.startsWith('Mac');
+      const {key, c, keyCode, ctrlKey, metaKey} = event;
+      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+      // 按住shift建
+      if (event.keyCode === 16 && event.shiftKey) {
+        this.selectPin = true
+      }
+      if(this.isCmd && keyCode == 65) {
+        this.$nextTick(() => {
+          if(this.$refs.fileListTable) {
+            this.$refs.fileListTable.toggleAllSelection()
+          }
+        })
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    },
+    keyup(event) {
+      const isMac = navigator.platform.startsWith('Mac');
+      const {key, c, keyCode, ctrlKey, metaKey} = event;
+      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+      // 松开shift建
+      if (event.keyCode === 16) {
+        this.selectPin = false
+      }
+    },
     onmessage(msg) {
       let fileDoc = JSON.parse(msg.body)
       const url = msg.headers.url
@@ -1048,10 +1022,11 @@ export default {
       let clientWidth = container.clientWidth
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
       if (this.queryFileType === 'image') {
-        this.gridColumnNum = Math.round((clientWidth-10)/145)
+        this.gridColumnNum = Math.round((clientWidth-10)/165)
       } else {
         this.gridColumnNum = Math.round((clientWidth-10)/135)
       }
+      this.gridColumnWidth = (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5
       if(clientWidth < 900){
         this.showUpdateDateItem = false
       } else {
@@ -1086,9 +1061,11 @@ export default {
         }
         let evt = window.event || e
         if (_this.grid) {
-          itemClassName = 'van-grid-item van-grid-item--square'
+          itemClassName = 'van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
         }
-        let throughRow = e.path.find(path => {
+        console.log(e)
+        const elPath = e.path || (e.composedPath && e.composedPath())
+        let throughRow = elPath.find(path => {
           if (path.className === itemClassName) {
             return path
           }
@@ -1099,11 +1076,19 @@ export default {
         if (evt.button !== 0) {
           return
         }
-        _this.dragElementList.forEach(element => {
-          _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[element.rowIndex], selected: false}])
-        })
-        const drawOffsetTop = getElementToPageTop(draw)
-        const drawOffsetLeft = getElementToPageLeft(draw)
+        if (!_this.isCmd && !_this.selectPin) {
+          let index = -1
+          if (_this.grid) {
+            index = elPath.findIndex(el => el.className === 'van-grid-item__content van-grid-item__content--center van-grid-item__content--square')
+          } else {
+            index = elPath.findIndex(el => el.className === 'plTableBox')
+          }
+          if(index < 0){
+            _this.dragElementList.forEach(element => {
+              _this.$refs.fileListTable.clearSelection()
+            })
+          }
+        }
         let scrollTop = draw.scrollTop || draw.scrollTop
         let scrollLeft = draw.scrollLeft || draw.scrollLeft
         startX = evt.clientX + scrollLeft
@@ -1137,7 +1122,7 @@ export default {
             return
           }
           const drawRectangle = $$(wId)
-          if (drawRectangle && retcTop >= drawOffsetTop) {
+          if (drawRectangle) {
             noScroll()
             drawRectangle.style.left = retcLeft + 'px'
             drawRectangle.style.top = retcTop + 'px'
@@ -1315,9 +1300,9 @@ export default {
               if (rectangle) {
                 document.getElementById('v-draw-rectangle').removeChild(rectangle)
               }
-
-              dragged = e.path[0]
-              draggedIndex = e.path[0].rowIndex
+              const elPath = e.path || (e.composedPath && e.composedPath())
+              dragged = elPath[0]
+              draggedIndex = elPath[0].rowIndex
               // 只有选中的才能拖拽
               _this.cellMouseIndex = -1
               // dragged.style.cursor = 'grabbing'
@@ -1342,12 +1327,13 @@ export default {
       // 判断经过了那个元素
       let judgThroughDom = function (e, d) {
         let throughRow = null
+        const elPath = e.path || (e.composedPath && e.composedPath())
         if (_this.grid) {
-          if (e.path[0].className === gridItemChildenClassName) {
+          if (elPath[0].className === gridItemChildenClassName) {
             // throughRow 表示被拖动的元素正在哪一行上
             return throughRow
           } else {
-            throughRow = e.path.find(path => {
+            throughRow = elPath.find(path => {
               if (path.className === gridItemChildenClassName) {
                 return path
               }
@@ -1377,9 +1363,9 @@ export default {
           }
           return throughRow
         } else {
-          if (e.path[0].tagName === 'TD') {
+          if (elPath[0].tagName === 'TD') {
             // throughRow 表示被拖动的元素正在哪一行上
-            throughRow = e.path.find(path => {
+            throughRow = elPath.find(path => {
               if (path.className === 'el-table__row') {
                 return path
               }
@@ -3095,7 +3081,7 @@ export default {
 }
 
 .info-statistics {
-  padding: 5px 0;
+  padding: 5px 15px;
   float: right;
   width: 30%;
   display: -webkit-box;
@@ -3166,6 +3152,7 @@ export default {
 >>> .van-grid-item__content {
   background-size: cover;
   background-position: center;
+  padding: 0;
 }
 .vmode{
   padding: 5px 10px;
