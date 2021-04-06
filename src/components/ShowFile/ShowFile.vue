@@ -1061,9 +1061,8 @@ export default {
         }
         let evt = window.event || e
         if (_this.grid) {
-          itemClassName = 'van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+          itemClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
         }
-        console.log(e)
         const elPath = e.path || (e.composedPath && e.composedPath())
         let throughRow = elPath.find(path => {
           if (path.className === itemClassName) {
@@ -1079,7 +1078,7 @@ export default {
         if (!_this.isCmd && !_this.selectPin) {
           let index = -1
           if (_this.grid) {
-            index = elPath.findIndex(el => el.className === 'van-grid-item__content van-grid-item__content--center van-grid-item__content--square')
+            index = elPath.findIndex(el => el.className === 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square')
           } else {
             index = elPath.findIndex(el => el.className === 'plTableBox')
           }
@@ -1231,19 +1230,10 @@ export default {
 
       // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody')
-
       if (this.grid) {
         target = document.querySelector('.van-checkbox-group .van-grid')
       }
-
       let rows = 0;//行数
-
-      // let images = {}
-      // for (let i = 1; i <= 9; i++) {
-      //   let img = new Image()
-      //   img.src = require(`@/assets/img/move-file${i}.png`)
-      //   images[i] = img
-      // }
       setTimeout(function () {
         rows = target.childElementCount
         _this.dragElementList = []
