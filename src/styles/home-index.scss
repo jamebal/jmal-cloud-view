@@ -310,16 +310,16 @@
   top: 70%;
   color: #ffffff;
 }
+/deep/ .grid-item-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+}
 /deep/ .grid-time {
   border-radius: 5px;
   padding: 0 8px;
   border: solid 1px #ccc0;
-  .grid-item-checkbox {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1;
-  }
   .grid-item-icon{
     text-align: center;
     position: absolute;

@@ -357,8 +357,6 @@
                   }"
                   @click="gridItemClick(item)"
                   @dblclick="fileClick(item)"
-                  @mouseover="gridItemHover(item,index)"
-                  @mouseout="gridItemOut(item,index)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
                   <div class="grid-item-icon">
@@ -761,8 +759,6 @@ export default {
       vmode:  this.defaultGrid ? 'grid' : 'list',
       gridColumnNum: -1,
       gridColumnWidth: 120,
-      gridHoverItemIndex: -1,
-      gridHoverIntermediate: -1,
       allChecked: false,
       summaries: '',
       shareDialog: false,
@@ -972,35 +968,6 @@ export default {
     load() {
       this.getFileList(true)
     },
-    gridItemHover(item, index) {
-      this.gridHoverItemIndex = index;
-      this.gridHoverIntermediate = index;
-    },
-    gridItemOut(item, index) {
-      this.gridHoverIntermediate = -1
-      const _this = this
-      setTimeout(function () {
-        if (_this.gridHoverIntermediate !== _this.gridHoverItemIndex) {
-          _this.gridHoverItemIndex = -1;
-        }
-      }, 10)
-    },
-    clickGridItemCheckBox(row, index) {
-      // 同步列表的checkbox
-      if (this.selectRowData.includes(row)) {
-        this.$refs.fileListTable.toggleRowSelection([{row: row, selected: false}])
-      } else {
-        this.$refs.fileListTable.toggleRowSelection([{row: row, selected: true}])
-      }
-      this.pinSelect(null, row)
-    },
-    clickGridAllCheckBox() {
-      if (this.selectRowData.length !== this.fileList.length) {
-        this.$refs.fileListTable.toggleAllSelection()
-      } else {
-        this.$refs.fileListTable.clearSelection();
-      }
-    },
     gridItemClick(row) {
       if (this.isCmd) {
         this.pinSelect(null, row)
@@ -1013,9 +980,6 @@ export default {
       this.$refs.fileListTable.clearSelection()
       this.$refs.fileListTable.toggleRowSelection([{row: row}])
       this.pinSelect(null, row)
-    },
-    containerClick() {
-
     },
     containerResize() {
       const container = document.querySelector(".dashboard-container")
