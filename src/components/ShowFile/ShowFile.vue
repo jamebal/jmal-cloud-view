@@ -1277,8 +1277,6 @@ export default {
 
           child.ondragstart = function (e) {
             if (_this.drawFlag) {
-              // _this.$refs.fileListTable.clearSelection()
-              // _this.$refs.fileListTable.toggleRowSelection([{row: this.fileList[e.path[0].rowIndex], selected: true}])
               e.preventDefault()
               e.stopPropagation()
               return
