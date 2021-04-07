@@ -362,13 +362,13 @@
       </empty-file>
       <img id="dragImage" draggable="false" style="position: fixed;opacity: 0" src="~@/assets/img/hide.png">
       <div id="numberFiles" class="number-files">
-        <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: block"/>
-        <div class="number" style="display: none">1个文件</div>
-        <div class="operate" style="display: block">
+        <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: none"/>
+        <div class="number" style="display: inline">1个文件</div>
+        <div class="operate" style="display: none;white-space: nowrap;">
           移动到：
         </div>
-        <div>
-          <span class="target" style="display: block">document</span>
+        <div class="target">
+          <span class="folder" style="display: none;white-space: nowrap;">document</span>
         </div>
       </div>
     </div>
@@ -1197,6 +1197,8 @@ export default {
       let draw = document.getElementById('v-draw-rectangle')
       let rows = 0//行数
 
+      let drawOffsetLeft = getElementToPageLeft(draw)
+
       let firstOver = 0 // 是否刚开始拖动
       let moveTitle = ''
       setTimeout(function () {
@@ -1212,11 +1214,8 @@ export default {
           }
           // 为画矩形选取准备数据
           let pos = getObjPos(child)
-          pos.w = child.offsetWidth
-          pos.h = child.offsetHeight
-
           child.w = child.offsetWidth
-          child.h = child.offsetWidth
+          child.h = child.offsetHeight
           child.x = pos.x
           child.y = pos.y
           pos.rowIndex = child.rowIndex
@@ -1276,6 +1275,7 @@ export default {
               dragIndex = -1
             }
           }
+          console.log(throughRow)
           return throughRow
         } else {
           if (elPath[0].tagName === 'TD') {
@@ -1327,13 +1327,12 @@ export default {
               dragingDiv.classList.add('dragingDiv')
               dragingDiv.style.transition = 'all 0.3s'
               dragingDiv.style.zIndex = -1
-              dragingDiv.style.positon = 'absolute'
-              dragingDiv.style.width = element.offsetWidth + 'px'
-              dragingDiv.style.height = element.offsetHeight + 'px'
-              dragingDiv.rowIndex = rowIndex
+              dragingDiv.style.position = 'absolute'
               const pos = _this.dragElementList[rowIndex]
+              dragingDiv.style.width = pos.w + 'px'
+              dragingDiv.style.height = pos.h + 'px'
               dragingDiv.style.top = pos.y - pos.h/2 + 10 + 'px'
-              dragingDiv.style.left = pos.x - pos.w/2 + 6 + 'px'
+              dragingDiv.style.left = pos.x - drawOffsetLeft + 'px'
               dragingDiv.original = {top: dragingDiv.style.top, left: dragingDiv.style.left}
               if (index === 0){
                 let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
@@ -1341,7 +1340,6 @@ export default {
                 numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
                 dragingDiv.appendChild(numberFilesCopy)
               }
-
               draw.appendChild(dragingDiv)
             })
             firstOver = 0
@@ -1358,7 +1356,7 @@ export default {
             draggedIndex = dragged.rowIndex
             // 只有选中的才能拖拽
             _this.cellMouseIndex = -1
-            dragged.style.cursor = 'not-allowed'
+            // dragged.style.cursor = 'not-allowed'
             dragBackCorlor = dragged.style.backgroundColor
           }
       }
@@ -1381,9 +1379,14 @@ export default {
               dragged.style.cursor = 'copy'
 
               let numberFilesCopy = document.getElementById('numberFilesCopy')
-              console.log('numberFilesCopy', numberFilesCopy, numberFilesCopy.querySelector('.number'), numberFilesCopy.querySelector('.operate'))
+              numberFilesCopy.style.backgroundColor = '#40a9ffc9'
               numberFilesCopy.querySelector('.number').style.display = 'none'
-              // numberFilesCopy.querySelector('.targer').style.display = 'block'
+              numberFilesCopy.querySelector('.icon').style.display = 'inline'
+              numberFilesCopy.querySelector('.operate').style.display = 'inline'
+              let targetFolder = numberFilesCopy.querySelector('.target .folder')
+              targetFolder.style.display = 'inline'
+              targetFolder.innerHTML = _this.fileList[throughRow.rowIndex].name
+
               dragEnterBackCorlor = throughRow.style.backgroundColor
               throughRow.style.backgroundColor = '#9fcdfc99'
             }
@@ -1394,12 +1397,12 @@ export default {
       }
 
       container.ondragover = function (e) {
-        // console.log('draw.ondragover')
         _this.selectRowData.forEach((row,index) => {
           const drawRectangle = document.getElementById('dragingDiv'+row.index)
           if (drawRectangle) {
-            drawRectangle.style.left = e.clientX - 50 + index*3 + 'px'
+            drawRectangle.style.left = e.clientX - drawOffsetLeft + index*3 + 'px'
             drawRectangle.style.top = e.clientY - 50 + index*3 + 'px'
+            console.log(drawRectangle.style.top)
             if (firstOver === 0){
               drawRectangle.style.zIndex = 999
               setTimeout(()=>{
@@ -1473,6 +1476,15 @@ export default {
             }
           }
           dragged.style.cursor = 'default'
+
+          let numberFilesCopy = document.getElementById('numberFilesCopy')
+          if (numberFilesCopy) {
+            numberFilesCopy.style.backgroundColor = '#d2eefa66'
+            numberFilesCopy.querySelector('.number').style.display = 'inline'
+            numberFilesCopy.querySelector('.icon').style.display = 'none'
+            numberFilesCopy.querySelector('.operate').style.display = 'none'
+            numberFilesCopy.querySelector('.target .folder').style.display = 'none'
+          }
         }
         dragged.style.backgroundColor = dragBackCorlor
       }
@@ -3179,6 +3191,7 @@ export default {
   display: flex;
   .icon {
     padding: 5px;
+    width: 40px;
   }
   span {
     font-weight: 500;
@@ -3187,9 +3200,13 @@ export default {
     padding: 0 15px 0 15px;
   }
   .target {
-    background-color: #1d8cff;
-    color: #f0f0f0;
-    padding: 8px;
+    .folder {
+      background-color: #1d8cff;
+      color: #f0f0f0;
+      padding: 8px;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
   }
 }
 </style>

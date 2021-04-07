@@ -1,6 +1,6 @@
 // 获取DOM元素到页面顶部的距离
 export function getElementToPageTop(el) {
-  if (el.className.indexOf('parent-grid-item') > -1) {
+  if (el.className && el.className.indexOf('parent-grid-item') > -1 || el.className.indexOf('van-grid-item van-grid-item--square') > -1) {
     return el.offsetTop
   }
   if (el.parentElement) {
@@ -10,7 +10,7 @@ export function getElementToPageTop(el) {
 }
 // 获取DOM元素到页面左边的距离
 export function getElementToPageLeft(el) {
-  if (el.className.indexOf('parent-grid-item') > -1) {
+  if (el.className && el.className.indexOf('parent-grid-item') > -1) {
     return el.offsetLeft
   }
   if (el.offsetParent) {

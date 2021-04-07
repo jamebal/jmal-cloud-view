@@ -90,8 +90,8 @@ export default {
   >>>.el-dialog__footer {
     position: absolute;
     width: 100%;
-    bottom: 0px;
-    padding: 0px 20px 20px;
+    bottom: 0;
+    padding: 0 20px 20px;
     background: linear-gradient(rgba(255,255,255,0), #fff);
   }
 }
