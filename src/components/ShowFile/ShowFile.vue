@@ -360,9 +360,17 @@
         :emptyStatus="emptyStatus"
       >
       </empty-file>
-      <img id="dragImage" draggable="false" style="position: fixed;top: -100px;z-index: 99999"
-           src="~@/assets/img/move-file.png">
-      <div id="dragDiv" draggable="false" style="position: fixed;top: -100px;z-index: 99999"></div>
+      <img id="dragImage" draggable="false" style="position: fixed;opacity: 0" src="~@/assets/img/hide.png">
+      <div id="numberFiles" class="number-files">
+        <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: block"/>
+        <div class="number" style="display: none">1个文件</div>
+        <div class="operate" style="display: block">
+          移动到：
+        </div>
+        <div>
+          <span class="target" style="display: block">document</span>
+        </div>
+      </div>
     </div>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
@@ -1033,32 +1041,28 @@ export default {
             index = elPath.findIndex(el => el.className === 'plTableBox')
           }
           if(index < 0){
-            _this.dragElementList.forEach(element => {
-              _this.$refs.fileListTable.clearSelection()
-            })
+            _this.$refs.fileListTable.clearSelection()
           }
         }
         let scrollTop = draw.scrollTop || draw.scrollTop
         let scrollLeft = draw.scrollLeft || draw.scrollLeft
         startX = evt.clientX + scrollLeft
         startY = evt.clientY + scrollTop
-        let moveCount = 0
+
+        let div = document.createElement("div")
+        div.id = wId
+        div.className = "draw-rectangle"
+        div.style.left = startX + "px"
+        div.style.top = startY + "px"
+        div.style.position = 'fixed'
+        div.style.border = '1px dashed #2898ff'
+        div.style.width = '0px'
+        div.style.height = '0px'
+        div.style.left = '0px'
+        div.style.top = '0px'
+        div.style.overflow = 'hidden'
+        draw.appendChild(div)
         document.onmousemove = function (e) {
-          if (moveCount == 0){
-            let div = document.createElement("div")
-            div.id = wId
-            div.className = "draw-rectangle"
-            div.style.left = startX + "px"
-            div.style.top = startY + "px"
-            div.style.position = 'fixed'
-            div.style.border = '1px dashed #2898ff'
-            div.style.width = '0px'
-            div.style.height = '0px'
-            div.style.left = '0px'
-            div.style.top = '0px'
-            div.style.overflow = 'hidden'
-            draw.appendChild(div)
-          }
           let evt = window.event || e
           let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
           let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
@@ -1070,7 +1074,7 @@ export default {
           if ((retcHeight + retcWidth) < 4) {
             return
           }
-          const drawRectangle = $$(wId)
+          const drawRectangle = document.getElementById(wId)
           if (drawRectangle) {
             noScroll()
             drawRectangle.style.left = retcLeft + 'px'
@@ -1084,7 +1088,6 @@ export default {
               drawSelect({x: retcLeft, y: retcTop, w: retcWidth, h: retcHeight})
             }
           }
-          moveCount++
         }
         document.onmouseup = function (e) {
           document.onmousemove = null;
@@ -1093,9 +1096,12 @@ export default {
             restoreScroll()
             _this.drawFlag = false
           }, 50)
-          if ($$(wId)) {
-            draw.removeChild($$(wId))
+          const rectangle = document.getElementById(wId)
+          if (rectangle) {
+            draw.removeChild(rectangle)
           }
+          const dragingDivs = Array.prototype.slice.call(draw.getElementsByClassName('dragingDiv'))
+          dragingDivs.forEach(el => draw.removeChild(el))
         }
       }
 
@@ -1169,7 +1175,7 @@ export default {
       // 被拖拽元素的背景色
       let dragBackCorlor = null
       const _this = this
-      // 被拖动的元素的索引
+      // 被拖动的元素
       let dragged = null;
       // 被拖动的元素的索引
       let draggedIndex = -1;
@@ -1181,13 +1187,18 @@ export default {
       // 正在拖动的元素
       let dragingDiv = null
 
+      let container = document.querySelector('.dashboard-container')
+
       // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody')
       if (this.grid) {
         target = document.querySelector('.van-checkbox-group .van-grid')
       }
       let draw = document.getElementById('v-draw-rectangle')
-      let rows = 0;//行数
+      let rows = 0//行数
+
+      let firstOver = 0 // 是否刚开始拖动
+      let moveTitle = ''
       setTimeout(function () {
         rows = target.childElementCount
         _this.dragElementList = []
@@ -1203,14 +1214,18 @@ export default {
           let pos = getObjPos(child)
           pos.w = child.offsetWidth
           pos.h = child.offsetHeight
+
+          child.w = child.offsetWidth
+          child.h = child.offsetWidth
+          child.x = pos.x
+          child.y = pos.y
           pos.rowIndex = child.rowIndex
-          _this.dragElementList.push(pos)
+          _this.dragElementList.push(child)
 
           // 使元素可拖动
           child.draggable = true
           // 给能拖动的元素加上标识,只有加上此标识才能被拖动,否则即使draggable = true,也无法拖动(在全局的ondragstart里拦截)
           child.slot = 'jmal'
-
           let childOfImg = child.querySelector('.el-avatar > img')
           if (_this.grid) {
             childOfImg = child.querySelector('.el-image > img')
@@ -1218,59 +1233,8 @@ export default {
           if (childOfImg) {
             childOfImg.draggable = false
           }
-          child.ondragstart = function (e) {
-            if (_this.drawFlag) {
-              e.preventDefault()
-              e.stopPropagation()
-              return
-            }
-            // document.onmousemove = function (e) {
-            //   console.log(e.clientX, e.clientY)
-            // }
-            if (_this.fileListScrollTop === 0) {
-              let count = _this.selectRowData.length
-              if (_this.selectRowData.length >= 99) {
-                count = 99
-              }
-
-              dragingDiv = child.cloneNode(true)
-              dragingDiv.id = 'sdfsdfsdf'
-              dragingDiv.style.width = child.offsetWidth
-              dragingDiv.style.heigth = child.offsetHeight
-              draw.appendChild(dragingDiv)
-
-              let dragImage = document.getElementById('dragImage');
-              dragImage.src = require(`@/assets/img/move-file/move-file${count}.png`)
-
-              e.dataTransfer.setDragImage(dragImage, 10, 10);
-
-              Bus.$emit('onDragStart', true)
-              // 避免和画矩形选区冲突
-              _this.drawFlag = false
-              let rectangle = document.getElementById('rectangle1')
-              if (rectangle) {
-                document.getElementById('v-draw-rectangle').removeChild(rectangle)
-              }
-              const elPath = e.path || (e.composedPath && e.composedPath())
-              dragged = elPath[0]
-              draggedIndex = elPath[0].rowIndex
-              // 只有选中的才能拖拽
-              _this.cellMouseIndex = -1
-              // dragged.style.cursor = 'grabbing'
-              dragged.style.borderRadius = '10px'
-              dragBackCorlor = dragged.style.backgroundColor
-            }
-          }
-          child.ondragend = function () {
-            Bus.$emit('onDragStart', false)
-            // console.log('child'+i+'拖拽结束');
-            // 清除上次进入的容器的状态
-            const last = target.children[dragIndex];
-            clearClass(last)
-            dragged.style.cursor = 'default'
-          }
         }
-      }, 0)
+      }, 300)
 
       // 被拖动的元素正在那个容器里
       let dragIndex = -1
@@ -1326,8 +1290,80 @@ export default {
         }
       }
 
-      target.ondragenter = function (e) {
-        // console.log(e,e.toElement)
+      container.ondragend = function (e) {
+        Bus.$emit('onDragStart', false)
+        // console.log('child'+dragIndex+'拖拽结束');
+        // 清除上次进入的容器的状态
+        const last = target.children[dragIndex];
+        clearClass(last)
+        dragged.style.cursor = 'default'
+        e.target.parentNode.parentNode.title = moveTitle
+        _this.selectRowData.forEach(row => {
+          let dragingDiv = document.getElementById('dragingDiv' + row.index)
+          dragingDiv.style.transition = 'all 0.3s'
+          dragingDiv.style.top = dragingDiv.original.top
+          dragingDiv.style.left = dragingDiv.original.left
+        })
+        // setTimeout(()=> {
+        //   _this.selectRowData.forEach(row => {
+        //     draw.removeChild(document.getElementById('dragingDiv' + row.index))
+        //   })
+        // }, 300)
+      }
+      container.ondragstart = (e) => {
+          if (_this.drawFlag) {
+            e.preventDefault()
+            e.stopPropagation()
+            return
+          }
+          if (_this.fileListScrollTop === 0) {
+            moveTitle = e.target.parentNode.parentNode.title
+            e.target.parentNode.parentNode.title = ''
+            _this.selectRowData.forEach((row,index) => {
+              const element = _this.dragElementList[row.index]
+              const rowIndex = element.rowIndex
+              dragingDiv = element.cloneNode(true)
+              dragingDiv.id = 'dragingDiv'+rowIndex
+              dragingDiv.classList.add('dragingDiv')
+              dragingDiv.style.transition = 'all 0.3s'
+              dragingDiv.style.zIndex = -1
+              dragingDiv.style.positon = 'absolute'
+              dragingDiv.style.width = element.offsetWidth + 'px'
+              dragingDiv.style.height = element.offsetHeight + 'px'
+              dragingDiv.rowIndex = rowIndex
+              const pos = _this.dragElementList[rowIndex]
+              dragingDiv.style.top = pos.y - pos.h/2 + 10 + 'px'
+              dragingDiv.style.left = pos.x - pos.w/2 + 6 + 'px'
+              dragingDiv.original = {top: dragingDiv.style.top, left: dragingDiv.style.left}
+              if (index === 0){
+                let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
+                numberFilesCopy.id = 'numberFilesCopy'
+                numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
+                dragingDiv.appendChild(numberFilesCopy)
+              }
+
+              draw.appendChild(dragingDiv)
+            })
+            firstOver = 0
+            let dragImage = document.getElementById('dragImage');
+            e.dataTransfer.setDragImage(dragImage, 10, 10)
+            Bus.$emit('onDragStart', true)
+            // 避免和画矩形选区冲突
+            _this.drawFlag = false
+            let rectangle = document.getElementById('rectangle1')
+            if (rectangle) {
+              document.getElementById('v-draw-rectangle').removeChild(rectangle)
+            }
+            dragged = e.target
+            draggedIndex = dragged.rowIndex
+            // 只有选中的才能拖拽
+            _this.cellMouseIndex = -1
+            dragged.style.cursor = 'not-allowed'
+            dragBackCorlor = dragged.style.backgroundColor
+          }
+      }
+      container.ondragenter = function (e) {
+        // console.log('ondragenter')
         clearTimeout(loop)
         // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
         let throughRow = judgThroughDom(e, 'enter')
@@ -1343,6 +1379,11 @@ export default {
             if (draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder && _this.selectRowData.findIndex(item => item.index === throughRow.rowIndex) === -1) {
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
+
+              let numberFilesCopy = document.getElementById('numberFilesCopy')
+              console.log('numberFilesCopy', numberFilesCopy, numberFilesCopy.querySelector('.number'), numberFilesCopy.querySelector('.operate'))
+              numberFilesCopy.querySelector('.number').style.display = 'none'
+              // numberFilesCopy.querySelector('.targer').style.display = 'block'
               dragEnterBackCorlor = throughRow.style.backgroundColor
               throughRow.style.backgroundColor = '#9fcdfc99'
             }
@@ -1352,25 +1393,30 @@ export default {
         }
       }
 
-      draw.ondragover = function (e) {
-
-        const drawRectangle = document.getElementById('sdfsdfsdf')
-        if (drawRectangle) {
-          console.log('drawRectangle')
-          // drawRectangle.style.left = retcLeft + 'px'
-          // drawRectangle.style.top = retcTop + 'px'
-          // drawRectangle.style.width = retcWidth + 'px'
-          // drawRectangle.style.height = retcHeight + 'px'
-          // drawRectangle.style.backgroundColor = '#f2f5fa55'
-        }
-        e.preventDefault();
+      container.ondragover = function (e) {
+        // console.log('draw.ondragover')
+        _this.selectRowData.forEach((row,index) => {
+          const drawRectangle = document.getElementById('dragingDiv'+row.index)
+          if (drawRectangle) {
+            drawRectangle.style.left = e.clientX - 50 + index*3 + 'px'
+            drawRectangle.style.top = e.clientY - 50 + index*3 + 'px'
+            if (firstOver === 0){
+              drawRectangle.style.zIndex = 999
+              setTimeout(()=>{
+                drawRectangle.style.transition = ''
+              },300)
+            }
+          }
+        })
+        e.preventDefault()
         leaveIndex = -1
+        firstOver++
       }
 
       let loop = null
       let leaveIndex = -1 // 是否拖出了整个table, -1表示还在table内
 
-      target.ondragleave = function (e) {
+      container.ondragleave = function (e) {
         clearTimeout(loop)
         let throughRow = judgThroughDom(e, 'leave')
         if (throughRow) {
@@ -1389,8 +1435,9 @@ export default {
           }
         }
       }
-      target.ondrop = function () {
+      container.ondrop = function () {
         // console.log('放下了'+draggedIndex);
+
         const form = _this.fileList[draggedIndex]
         const to = _this.fileList[dragIndex]
         if (form && to && form.id !== to.id && to.isFolder && !_this.selectRowData.includes(to)) {
@@ -1425,7 +1472,7 @@ export default {
               node.style.backgroundColor = null
             }
           }
-          dragged.style.cursor = 'grabbing'
+          dragged.style.cursor = 'default'
         }
         dragged.style.backgroundColor = dragBackCorlor
       }
@@ -3113,10 +3160,37 @@ export default {
   background-size: cover;
   background-position: center;
   padding: 0;
+  border-radius: 5px!important;
 }
 .vmode{
   padding: 5px 10px;
   margin-left: -5px;
+}
+.number-files {
+  position: absolute;
+  top: -42px;
+  left: 0;
+  height: 40px;
+  line-height: 40px;
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  background: #d2eefa66;
+  border-radius: 5px;
+  display: flex;
+  .icon {
+    padding: 5px;
+  }
+  span {
+    font-weight: 500;
+  }
+  .number {
+    padding: 0 15px 0 15px;
+  }
+  .target {
+    background-color: #1d8cff;
+    color: #f0f0f0;
+    padding: 8px;
+  }
 }
 </style>
 
