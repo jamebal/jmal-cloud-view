@@ -170,7 +170,7 @@
         </ul>
       </e-vue-contextmenu>
       <!--list布局-->
-      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight + 8 +'px'}">
+      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight +'px'}">
         <pl-table
           ref="fileListTable"
           v-show="!grid"
@@ -180,17 +180,17 @@
           :highlight-current-row="false"
           empty-text="无文件"
           :use-virtual="true"
-          :row-height="50"
+          :row-height="51.5"
           :border="false"
           :excess-rows="10"
           :pagination-show="false"
           style="width: 100%;margin: 20px 0 0 0;"
-          :row-style="rowStyle"
+          stripe
+          :cell-style="rowStyle"
           :height-change="false"
-          :summary-method="getSummaries"
           :row-class-name="tableRowClassName"
           element-loading-text="文件加载中"
-          element-loading-spinner="el-icon-loading"
+          element-loading-spinner="el-icon-loading"collapse
           element-loading-background="#f6f7fa88"
           @selection-change="handleSelectionChange"
           @row-contextmenu="rowContextmenu"
@@ -353,6 +353,7 @@
             </van-grid>
           </van-checkbox-group>
         </div>
+        <table class="drag-table" id="drag-table"></table>
       </div>
 
       <empty-file
@@ -1023,7 +1024,7 @@ export default {
         }
         const elPath = e.path || (e.composedPath && e.composedPath())
         let throughRow = elPath.find(path => {
-          if (path.className === itemClassName) {
+          if (path.className === itemClassName || path.className === 'el-table__row el-table__row--striped') {
             return path
           }
         })
@@ -1099,6 +1100,9 @@ export default {
           const rectangle = document.getElementById(wId)
           if (rectangle) {
             draw.removeChild(rectangle)
+          }
+          if(!_this.grid) {
+            draw = document.getElementById('drag-table')
           }
           const dragingDivs = Array.prototype.slice.call(draw.getElementsByClassName('dragingDiv'))
           dragingDivs.forEach(el => draw.removeChild(el))
@@ -1195,6 +1199,9 @@ export default {
         target = document.querySelector('.van-checkbox-group .van-grid')
       }
       let draw = document.getElementById('v-draw-rectangle')
+      if (!this.grid) {
+        draw = document.getElementById('drag-table')
+      }
       let rows = 0//行数
 
       let drawOffsetLeft = getElementToPageLeft(draw)
@@ -1208,7 +1215,9 @@ export default {
           let child = target.children[i]
           // 设置索引,表格自带rowIndex,这里我们设置grid的
           if (_this.grid) {
-            child.rowIndex = i
+            if(child.rowIndex !== i) {
+              child.rowIndex = i
+            }
             child.children[0].children[0].rowIndex = i
             child = child.children[0].children[0]
           }
@@ -1275,13 +1284,12 @@ export default {
               dragIndex = -1
             }
           }
-          console.log(throughRow)
           return throughRow
         } else {
           if (elPath[0].tagName === 'TD') {
             // throughRow 表示被拖动的元素正在哪一行上
             throughRow = elPath.find(path => {
-              if (path.className === 'el-table__row') {
+              if (path.className === 'el-table__row el-table__row--striped' || path.className === 'el-table__row') {
                 return path
               }
             })
@@ -1310,36 +1318,63 @@ export default {
         //   })
         // }, 300)
       }
+      // 开始拖拽
       container.ondragstart = (e) => {
-          if (_this.drawFlag) {
-            e.preventDefault()
-            e.stopPropagation()
-            return
+          // 正在选区时禁止拖拽
+          // if (_this.drawFlag) {
+          //   e.preventDefault()
+          //   e.stopPropagation()
+          //   return
+          // }
+          // 判断被拖拽dom是否有slot属性并且等于'jmal'
+          if (e.target.slot && e.target.slot !== 'jmal'){
+            return true
           }
+          // 当滚动条滚动后禁止拖拽
           if (_this.fileListScrollTop === 0) {
+            // 复制被拖拽dom的title, 拖拽过程中移除, 拖拽完后还原
             moveTitle = e.target.parentNode.parentNode.title
             e.target.parentNode.parentNode.title = ''
+            // 创建拖拽时的dom, 克隆自被拖拽dom
             _this.selectRowData.forEach((row,index) => {
               const element = _this.dragElementList[row.index]
               const rowIndex = element.rowIndex
               dragingDiv = element.cloneNode(true)
               dragingDiv.id = 'dragingDiv'+rowIndex
               dragingDiv.classList.add('dragingDiv')
+              dragingDiv.classList.remove('el-table_row')
               dragingDiv.style.transition = 'all 0.3s'
               dragingDiv.style.zIndex = -1
               dragingDiv.style.position = 'absolute'
               const pos = _this.dragElementList[rowIndex]
               dragingDiv.style.width = pos.w + 'px'
               dragingDiv.style.height = pos.h + 'px'
-              dragingDiv.style.top = pos.y - pos.h/2 + 10 + 'px'
               dragingDiv.style.left = pos.x - drawOffsetLeft + 'px'
-              dragingDiv.original = {top: dragingDiv.style.top, left: dragingDiv.style.left}
+              if (!_this.grid) {
+                dragingDiv.firstChild.style.textAlign = 'center'
+                let tds = Array.prototype.slice.call(dragingDiv.childNodes)
+                tds.forEach((node,index) => {
+                  if (index === 4) {
+                    node.style.borderRadius = '0 3px 3px 0'
+                    node.style.borderRight = '1px solid #409eff'
+                    node.firstChild.style.width = '80px'
+                    return true
+                  }
+                  if (index !== 0 && index !== 1) {
+                    dragingDiv.removeChild(node)
+                  }
+                })
+                dragingDiv.style.top = pos.y - 51.5 + 'px'
+              } else {
+                dragingDiv.style.top = pos.y - pos.h/2 + 10 + 'px'
+              }
               if (index === 0){
                 let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
                 numberFilesCopy.id = 'numberFilesCopy'
                 numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
                 dragingDiv.appendChild(numberFilesCopy)
               }
+              dragingDiv.original = {top: dragingDiv.style.top, left: dragingDiv.style.left}
               draw.appendChild(dragingDiv)
             })
             firstOver = 0
@@ -1373,7 +1408,7 @@ export default {
               clearClass(last)
             }
             // console.log('拖动进入目标元素'+throughRow.rowIndex,'dragIndex:',dragIndex);
-            // 不是自己或未文件夹时才改变状态
+            // 不是自己或为文件夹时才改变状态
             if (draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder && _this.selectRowData.findIndex(item => item.index === throughRow.rowIndex) === -1) {
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
@@ -1388,7 +1423,13 @@ export default {
               targetFolder.innerHTML = _this.fileList[throughRow.rowIndex].name
 
               dragEnterBackCorlor = throughRow.style.backgroundColor
-              throughRow.style.backgroundColor = '#9fcdfc99'
+              // 当拖拽文件夹上时，文件夹当背景色
+              const color = '#9fcdfc99'
+              if (_this.grid){
+                throughRow.style.backgroundColor = color
+              } else {
+                throughRow.childNodes.forEach(node => node.style.backgroundColor = color)
+              }
             }
             dragIndex = throughRow.rowIndex
           }
@@ -1400,9 +1441,8 @@ export default {
         _this.selectRowData.forEach((row,index) => {
           const drawRectangle = document.getElementById('dragingDiv'+row.index)
           if (drawRectangle) {
-            drawRectangle.style.left = e.clientX - drawOffsetLeft + index*3 + 'px'
-            drawRectangle.style.top = e.clientY - 50 + index*3 + 'px'
-            console.log(drawRectangle.style.top)
+            drawRectangle.style.left = e.clientX - drawOffsetLeft + index*3 + 10 + 'px'
+            drawRectangle.style.top = e.clientY - 50 + index*3 + 10 + 'px'
             if (firstOver === 0){
               drawRectangle.style.zIndex = 999
               setTimeout(()=>{
@@ -1458,6 +1498,7 @@ export default {
           }).catch()
         }
       }
+      // 清除之前的样式
       let clearClass = function (node) {
         if(!dragged) {
           return
@@ -1465,14 +1506,16 @@ export default {
         if (node) {
           if (_this.grid) {
             node = node.children[0].children[0]
-            if (node.style.backgroundColor !== 'rgba(202, 234, 249, 0.57)') {
+            // #9fcdfc99
+            if (node.style.backgroundColor === 'rgba(159, 205, 252, 0.6)') {
               node.style.backgroundColor = null
             }
           } else {
-            node.style.height = 'unset'
-            //#F5F7FA
-            if (node.style.backgroundColor !== 'rgb(245, 247, 250)') {
-              node.style.backgroundColor = null
+            // #9fcdfc99
+            if (node.firstChild.style.backgroundColor === 'rgba(159, 205, 252, 0.6)') {
+              node.childNodes.forEach(node => {
+                node.style.backgroundColor = null
+              })
             }
           }
           dragged.style.cursor = 'default'
@@ -1984,29 +2027,6 @@ export default {
         el.className = el.className + " " + className
       }
     },
-    getSummaries(param) {
-      // 合计
-      const {columns, data} = param
-      const sums = []
-      columns.forEach((column, index) => {
-        const values = data.map(item => Number(item[column.property]))
-        if (index === 5) {
-          sums[2] = values.reduce((prev, curr) => {
-            const value = Number(curr)
-            if (!isNaN(value)) {
-              return prev + curr
-            } else {
-              return prev
-            }
-          }, 0)
-        }
-      })
-      const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
-      const sizeSum = this.getShowSumSize(sums[2])
-      sums[2] = sumFileAndFolder + sizeSum
-      this.summaries = sums[2]
-      return sums
-    },
     // 统计文件和文件夹
     getShowSumFileAndFolder(fileList) {
       let folderSize = 0
@@ -2103,16 +2123,22 @@ export default {
       }
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
-    rowStyle({row, rowIndex}) {
-      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1) {
-        return {backgroundColor: '#F5F7FA'}
+    rowStyle({row, column, rowIndex, columnIndex}) {
+      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === rowIndex) > -1) {
+        if (columnIndex === 0){
+          return {backgroundColor: '#e0f3fc !important', borderRadius:'3px 0 0 3px', borderLeft: '1px solid #409eff', borderTop: '1px solid #409eff', borderBottom: '1px solid #409eff'}
+        }
+        if (columnIndex === 5){
+          return {backgroundColor: '#e0f3fc !important', borderRadius:'0 3px 3px 0', borderRight: '1px solid #409eff', borderTop: '1px solid #409eff', borderBottom: '1px solid #409eff'}
+        }
+        return {backgroundColor: '#e0f3fc !important', borderTop: '1px solid #409eff', borderBottom: '1px solid #409eff'}
       }
     },
     // 动态添加index到row里面去
     tableRowClassName({row, rowIndex}) {
       // row.index = rowIndex
     },
-    // 选择某行预备数据
+    // 选择某行预备数据#e0f3fc !important;
     preliminaryRowData(row) {
       if (row) {
         // this.$refs.fileListTable.tableSelectData[0] = row
@@ -3086,13 +3112,19 @@ export default {
   }
 
   .is-sortable:hover {
-    background-color: #f5f7fa;
+    background-color: #e0f3fc;
   }
+}
+
+/deep/ table {
+  border-collapse: separate;
+  border-spacing: 0 1px;
 }
 
 /deep/ .el-table td {
   padding: 0;
   height: 50px !important;
+  border: 0;
 }
 
 .home-link:hover {
@@ -3202,12 +3234,23 @@ export default {
   .target {
     .folder {
       background-color: #1d8cff;
-      color: #f0f0f0;
+      color: #ffffff;
       padding: 8px;
       border-radius: 2px;
       margin-right: 5px;
+      font-weight: 600;
     }
   }
+}
+
+/deep/.el-table--enable-row-hover {
+  .el-table__body tr:hover>td{
+    background-color: #e0f3fc !important;
+  }
+}
+
+/deep/ .el-table::before {
+  height: 0;
 }
 </style>
 
