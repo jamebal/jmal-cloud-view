@@ -786,6 +786,7 @@ export default {
       stompClient: undefined,//websocket订阅集合
       showUpdateDateItem: true,// 列表模式下是否显示修改时间
       showSizeItem: true,// 列表模式下是否显示文件大小
+      stopSortChange: false
     }
   },
   computed: {
@@ -967,8 +968,6 @@ export default {
         this.$refs.fileListTable.toggleRowSelection([{row: row}])
         return
       }
-      this.$refs.fileListTable.clearSelection()
-      this.$refs.fileListTable.toggleRowSelection([{row: row}])
       this.pinSelect(null, row)
     },
     containerResize() {
@@ -1019,6 +1018,17 @@ export default {
         }
         let evt = window.event || e
         const elPath = e.path || (e.composedPath && e.composedPath())
+        // 列表模式下点击表头，阻止点击事件
+        if (!_this.grid && _this.selectRowData.length > 0) {
+          const findIndex = elPath.findIndex(path => {
+            if (path.className === 'el-table__header-wrapper') {
+              return path
+            }
+          })
+          if (findIndex > -1){
+            _this.stopSortChange = true
+          }
+        }
         // 点击的区域是否为文件, throughRow 不为空就证明点到了文件
         let throughRow = elPath.find(path => {
           if (path.className === itemClassName || path.className === 'el-table__row el-table__row--striped') {
@@ -1032,7 +1042,6 @@ export default {
               _this.$refs.fileListTable.clearSelection()
               _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[throughRow.rowIndex], selected: true}])
             }
-
           }
           return
         }
@@ -1093,6 +1102,12 @@ export default {
         document.onmouseup = function (e) {
           document.onmousemove = null;
           document.onmouseup = null;
+          if (_this.stopSortChange) {
+            _this.stopSortChange = false
+            setTimeout(()=>{
+              _this.changeSelectedStyle(_this.selectRowData)
+            },200)
+          }
           setTimeout(function () {
             restoreScroll()
             _this.drawFlag = false
@@ -1168,10 +1183,6 @@ export default {
     },
     // 行拖拽
     rowDrop() {
-      setTimeout(() => {
-        this.$refs.fileListTable.doLayout()
-        console.log('doLayout')
-      }, 500)
       if(this.selectFile){
         return
       }
@@ -1873,6 +1884,9 @@ export default {
           item.index = index
         })
         this.$refs.fileListTable.reloadData(this.fileList)
+        setTimeout(() => {
+          this.$refs.fileListTable.reloadData(this.fileList)
+        }, 0)
       }
       // 数据全部加载完成
       if (this.fileList.length >= res.count) {
@@ -2125,6 +2139,9 @@ export default {
       this.changeSelectedStyle(rows)
     },
     changeSelectedStyle(rows) {
+      if (this.stopSortChange){
+        return
+      }
       let selectTotalSize = 0
       rows.forEach(item => {
         selectTotalSize += item.size
@@ -2231,14 +2248,7 @@ export default {
           this.$refs.fileListTable.toggleRowSelection([{row: row}])
           return
         }
-        if (columnIndex === 0) {
-          this.pinSelect(null, row)
-          this.$refs.fileListTable.toggleRowSelection([{row: row}])
-        } else {
-          this.$refs.fileListTable.clearSelection()
-          this.$refs.fileListTable.toggleRowSelection([{row: row}])
-          this.pinSelect(null, row)
-        }
+        this.pinSelect(null, row)
       }
     },
     // 选取输入框部分内容
@@ -2901,14 +2911,13 @@ export default {
       this.$refs.fileListTable.tableSelectData = []
       // 倒序
       removeFileIndexList = removeFileIndexList.sort((a, b) => b - a)
-      const that = this
-      setTimeout(function () {
+      setTimeout(() => {
         // 再执行移除
         for (let i = 0; i < removeFileIndexList.length; i++) {
-          that.fileList.splice(removeFileIndexList[i], 1)
+          this.splice(removeFileIndexList[i], 1)
         }
         // 改变拖拽目标
-        // that.rowDrop()
+        this.rowDrop()
       }, 300)
     },
     // 预览压缩文件
