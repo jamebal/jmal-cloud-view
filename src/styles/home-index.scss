@@ -187,8 +187,8 @@
 }
 
 /deep/ .el-table__row /deep/.table-file-name:hover {
-  cursor: 'pointer';
-  color: "#19ACF9"
+  cursor: pointer;
+  color: #19ACF9
 }
 
 .search-class{
@@ -288,6 +288,7 @@
   font-size: 5rem;
 }
 /deep/ .grid-item-text {
+  cursor: default;
   text-align: center;
   color: #606266;
   font-size: smaller;

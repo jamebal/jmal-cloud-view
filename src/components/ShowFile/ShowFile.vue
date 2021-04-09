@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="dashboard-container" v-resize="containerResize">
+    <div class="dashboard-container" v-resize="containerResize" onselectstart="return false">
       <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
         <div v-for="item of contextMenus" :key="item.operation">
           <!-- 一级菜单 -->
@@ -190,7 +190,7 @@
           :height-change="false"
           :row-class-name="tableRowClassName"
           element-loading-text="文件加载中"
-          element-loading-spinner="el-icon-loading"collapse
+          element-loading-spinner="el-icon-loading"
           element-loading-background="#f6f7fa88"
           @selection-change="handleSelectionChange"
           @row-contextmenu="rowContextmenu"
@@ -249,9 +249,7 @@
                   >
                   </el-button>
                 </el-col>
-                <a v-else @click.stop="fileClick(scope.row)" class="table-file-name"><span>{{
-                    scope.row.name
-                  }}</span></a>
+                <span v-else class="table-file-name">{{scope.row.name}}</span>
               </template>
             </pl-table-column>
             <!--分享-->
@@ -969,9 +967,6 @@ export default {
         this.$refs.fileListTable.toggleRowSelection([{row: row}])
         return
       }
-      if (!this.drawFlag) {
-        // this.fileClick(row)
-      }
       this.$refs.fileListTable.clearSelection()
       this.$refs.fileListTable.toggleRowSelection([{row: row}])
       this.pinSelect(null, row)
@@ -996,6 +991,7 @@ export default {
       } else {
         this.showSizeItem = true
       }
+      // 使列表可拖拽
       this.rowDrop()
     },
     // 画矩形选区
@@ -1013,34 +1009,38 @@ export default {
       let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
       _this.drawFlag = false
       let itemClassName = 'el-table__row'
+      if (_this.grid) {
+        itemClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+      }
       draw.onmousedown = null
       draw.onmousedown = function (e) {
         if (_this.fileListScrollTop > 0) {
           return
         }
         let evt = window.event || e
-        if (_this.grid) {
-          itemClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
-        }
         const elPath = e.path || (e.composedPath && e.composedPath())
+        // 点击的区域是否为文件, throughRow 不为空就证明点到了文件
         let throughRow = elPath.find(path => {
           if (path.className === itemClassName || path.className === 'el-table__row el-table__row--striped') {
             return path
           }
         })
-        if (throughRow && _this.selectRowData.includes(_this.fileList[throughRow.rowIndex])) {
+        if (throughRow) {
+          // 鼠标按下时就选中文件
+          if (!_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])){
+            if (!_this.isCmd && !_this.selectPin) {
+              _this.$refs.fileListTable.clearSelection()
+              _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[throughRow.rowIndex], selected: true}])
+            }
+
+          }
           return
         }
         if (evt.button !== 0) {
           return
         }
         if (!_this.isCmd && !_this.selectPin) {
-          let index = -1
-          if (_this.grid) {
-            index = elPath.findIndex(el => el.className === 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square')
-          } else {
-            index = elPath.findIndex(el => el.className === 'plTableBox')
-          }
+          const index = elPath.findIndex(el => el.className === itemClassName || el.className === 'el-table__row el-table__row--striped')
           if(index < 0){
             _this.$refs.fileListTable.clearSelection()
           }
@@ -1168,6 +1168,10 @@ export default {
     },
     // 行拖拽
     rowDrop() {
+      setTimeout(() => {
+        this.$refs.fileListTable.doLayout()
+        console.log('doLayout')
+      }, 500)
       if(this.selectFile){
         return
       }
@@ -1185,8 +1189,12 @@ export default {
       let draggedIndex = -1;
 
       let parentClassName = 'van-grid'
-      let gridItemClassName = 'van-grid-item van-grid-item--square'
+      let itemClassName = 'van-grid-item van-grid-item--square'
       let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+      if (!_this.grid) {
+        itemClassName = 'el-table__row'
+        parentClassName = 'el-table__body'
+      }
 
       // 正在拖动的元素
       let dragingDiv = null
@@ -1249,8 +1257,47 @@ export default {
 
       // 判断经过了那个元素
       let judgThroughDom = function (e, d) {
-        let throughRow = null
         const elPath = e.path || (e.composedPath && e.composedPath())
+        if (d === 'enter') {
+          // 这里进入其他容器后 清除上次进入的容器的状态
+          let node = null
+          const className = e.toElement.className
+          if (_this.grid){
+            if (e.toElement.className === itemClassName) {
+              node = e.toElement
+            }
+            if (e.toElement.className === parentClassName) {
+              node = e.fromElement
+            }
+          } else {
+            // 列表模式
+            if (elPath[0].id === 'v-draw-rectangle' || elPath[0].className === 'el-table__virtual-wrapper') {
+              // 超出列表底部
+              node = e.toElement
+            } else {
+              // 超出列表顶部
+              node = elPath.find(path => {
+                if (path.className === 'el-table__header-wrapper') {
+                  return path
+                }
+              })
+            }
+          }
+          if (node) {
+            // console.log(d,e,node,node.rowIndex)
+            if (dragIndex > -1) {
+              // 清除上次进入的容器的状态
+              const last = target.children[dragIndex];
+              clearClass(last)
+            }
+            // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
+            // leaveIndex = node.rowIndex
+            // const leave = target.children[leaveIndex];
+            // clearClass(leave)
+            dragIndex = -1
+          }
+        }
+        let throughRow = null
         if (_this.grid) {
           if (elPath[0].className === gridItemChildenClassName) {
             // throughRow 表示被拖动的元素正在哪一行上
@@ -1261,28 +1308,6 @@ export default {
                 return path
               }
             })
-          }
-          if (d === 'enter') {
-            let node = null
-            if (e.toElement.className === gridItemClassName) {
-              node = e.toElement
-            }
-            if (e.toElement.className === parentClassName) {
-              node = e.fromElement
-            }
-            if (node) {
-              // console.log(d,e,node,node.rowIndex)
-              leaveIndex = node.rowIndex
-              if (dragIndex > -1) {
-                // 清除上次进入的容器的状态
-                const last = target.children[dragIndex];
-                clearClass(last)
-              }
-              // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
-              const leave = target.children[leaveIndex];
-              clearClass(leave)
-              dragIndex = -1
-            }
           }
           return throughRow
         } else {
@@ -1298,6 +1323,27 @@ export default {
         }
       }
 
+      // 复原拖拽的dom
+      let recover = function (animation) {
+        if (animation) {
+          _this.selectRowData.forEach(row => {
+            let dragingDiv = document.getElementById('dragingDiv' + row.index)
+            dragingDiv.style.transition = 'all 0.3s'
+            dragingDiv.style.top = dragingDiv.original.top
+            dragingDiv.style.left = dragingDiv.original.left
+          })
+          setTimeout(()=> {
+            _this.selectRowData.forEach(row => {
+              draw.removeChild(document.getElementById('dragingDiv' + row.index))
+            })
+          }, 300)
+        } else {
+          _this.selectRowData.forEach(row => {
+            draw.removeChild(document.getElementById('dragingDiv' + row.index))
+          })
+        }
+      }
+
       container.ondragend = function (e) {
         Bus.$emit('onDragStart', false)
         // console.log('child'+dragIndex+'拖拽结束');
@@ -1306,28 +1352,17 @@ export default {
         clearClass(last)
         dragged.style.cursor = 'default'
         e.target.parentNode.parentNode.title = moveTitle
-        _this.selectRowData.forEach(row => {
-          let dragingDiv = document.getElementById('dragingDiv' + row.index)
-          dragingDiv.style.transition = 'all 0.3s'
-          dragingDiv.style.top = dragingDiv.original.top
-          dragingDiv.style.left = dragingDiv.original.left
-        })
-        // setTimeout(()=> {
-        //   _this.selectRowData.forEach(row => {
-        //     draw.removeChild(document.getElementById('dragingDiv' + row.index))
-        //   })
-        // }, 300)
       }
       // 开始拖拽
       container.ondragstart = (e) => {
-          // 正在选区时禁止拖拽
-          // if (_this.drawFlag) {
-          //   e.preventDefault()
-          //   e.stopPropagation()
-          //   return
-          // }
+          // 正在选区获取按住关键键时禁止拖拽
+          if (_this.drawFlag || _this.isCmd || _this.selectPin) {
+            e.preventDefault()
+            e.stopPropagation()
+            return
+          }
           // 判断被拖拽dom是否有slot属性并且等于'jmal'
-          if (e.target.slot && e.target.slot !== 'jmal'){
+          if (!e.target.slot || e.target.slot !== 'jmal'){
             return true
           }
           // 当滚动条滚动后禁止拖拽
@@ -1396,9 +1431,9 @@ export default {
           }
       }
       container.ondragenter = function (e) {
-        // console.log('ondragenter')
+        // console.log('ondragenter', e.target)
         clearTimeout(loop)
-        // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
+        // 由于被拖动的元素 经过区域内中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
         let throughRow = judgThroughDom(e, 'enter')
         if (throughRow) {
           if (dragIndex !== throughRow.rowIndex) {
@@ -1480,7 +1515,6 @@ export default {
       }
       container.ondrop = function () {
         // console.log('放下了'+draggedIndex);
-
         const form = _this.fileList[draggedIndex]
         const to = _this.fileList[dragIndex]
         if (form && to && form.id !== to.id && to.isFolder && !_this.selectRowData.includes(to)) {
@@ -1495,7 +1529,12 @@ export default {
             type: 'info'
           }).then(() => {
             _this.copyOrMoveApi('move', forms, to.id)
-          }).catch()
+            recover(false)
+          }).catch(() => {
+            recover(true)
+          })
+        } else {
+          recover(true)
         }
       }
       // 清除之前的样式
@@ -1847,8 +1886,6 @@ export default {
         this.containerResize()
         this.tableLoading = false
       })
-      // 使列表可拖拽
-      this.rowDrop()
       // 加载菜单状态
       this.loadContextMenus()
       // 使列表滑到顶部
@@ -2003,7 +2040,6 @@ export default {
     },
     sortChange(column) {
       let {prop, order} = column
-      this.rowDrop()
       if (this.orderCustom || this.listModeSearch) {
         this.sortable.prop = prop
         this.sortable.order = order
@@ -2872,7 +2908,7 @@ export default {
           that.fileList.splice(removeFileIndexList[i], 1)
         }
         // 改变拖拽目标
-        that.rowDrop()
+        // that.rowDrop()
       }, 300)
     },
     // 预览压缩文件
@@ -3102,8 +3138,7 @@ export default {
 }
 
 .table-file-name:hover {
-  color: #19ACF9;
-  cursor: pointer;
+  cursor: default;
 }
 
 /deep/ .plTableBox .el-table .el-table__header {
@@ -3251,6 +3286,12 @@ export default {
 
 /deep/ .el-table::before {
   height: 0;
+}
+
+/deep/.el-table {
+  th.gutter{
+    display: table-cell!important;
+  }
 }
 </style>
 
