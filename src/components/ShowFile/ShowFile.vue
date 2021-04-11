@@ -1077,7 +1077,6 @@ export default {
         div.style.overflow = 'hidden'
         draw.appendChild(div)
         document.onmousemove = function (e) {
-          console.log('onmousemove')
           let evt = window.event || e
           let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
           let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
@@ -1365,6 +1364,7 @@ export default {
 
       container.ondragend = function (e) {
         Bus.$emit('onDragStart', false)
+        e.dataTransfer.effectAllowed = 'none'
         // console.log('child'+dragIndex+'拖拽结束');
         // 清除上次进入的容器的状态
         const last = target.children[dragIndex];
@@ -1374,6 +1374,7 @@ export default {
       }
       // 开始拖拽
       container.ondragstart = (e) => {
+          e.target.style.cursor = 'no-drop'
           // 正在选区获取按住关键键时禁止拖拽
           if (_this.drawFlag || _this.isCmd || _this.selectPin) {
             e.preventDefault()
@@ -1449,7 +1450,6 @@ export default {
             draggedIndex = dragged.rowIndex
             // 只有选中的才能拖拽
             _this.cellMouseIndex = -1
-            // dragged.style.cursor = 'not-allowed'
             dragBackCorlor = dragged.style.backgroundColor
           }
       }
