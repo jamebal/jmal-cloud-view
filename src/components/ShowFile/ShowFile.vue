@@ -2994,6 +2994,9 @@ export default {
     },
     // 点击文件或文件夹
     fileClick(row) {
+      if (this.editingIndex === row.index){
+        return
+      }
       this.openingFile = row
       if (row.isFolder) {
         this.editingIndex = -1
