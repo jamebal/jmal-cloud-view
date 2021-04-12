@@ -62,7 +62,7 @@ server {
         client_max_body_size 50m;	
         client_body_buffer_size 512k;
 
-        location /api {
+        location /api/ {
                 proxy_pass   http://localhost:8088/;
                 proxy_set_header Host $proxy_host;
                 proxy_set_header X-real-ip $remote_addr;
@@ -73,7 +73,7 @@ server {
                 index index.html index.htm;
         }
 
-        location /mq {
+        location /mq/ {
                 proxy_pass   http://localhost:8088/mq/;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
