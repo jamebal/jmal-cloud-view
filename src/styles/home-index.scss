@@ -86,7 +86,7 @@
 /deep/ .cell {
   .el-button {
     padding: 6px 10px;
-    margin-left: 20px;
+    margin-left: 10px;
   }
 }
 /deep/ .el-checkbox {
@@ -300,6 +300,10 @@
   position: absolute;
   padding: 0 5px 0 5px;
   bottom: 5px;
+  textarea {
+    overflow: hidden;
+    resize:none;
+  }
 }
 /deep/ .grid-item-text-image {
   position: absolute;

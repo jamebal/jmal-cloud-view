@@ -228,28 +228,12 @@
               :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
             >
               <template slot-scope="scope">
-                <el-col v-if="scope.row.index === editingIndex" :span="10">
-                  <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true"
+                  <el-input v-if="scope.row.index === editingIndex" :span="10"
+                            v-focus v-model="renameFileName" placeholder="" size="small"
                             @focus="renameInputFocus($event,scope.row.suffix)"
                             @keyup.enter.native="rowRename(renameFileName, scope.row)">
                   </el-input>
-                  <el-button
-                    v-loading="renameLoading"
-                    element-loading-spinner="el-icon-loading"
-                    element-loading-background="#f6f7fa88"
-                    class="el-icon-check"
-                    @click="rowRename(renameFileName, scope.row)"
-                  >
-                  </el-button>
-                  <el-button
-                    element-loading-spinner="el-icon-loading"
-                    element-loading-background="#f6f7fa88"
-                    class="el-icon-close"
-                    @click="editingIndex = -1"
-                  >
-                  </el-button>
-                </el-col>
-                <span v-else class="table-file-name">{{scope.row.name}}</span>
+                  <span v-else class="table-file-name">{{scope.row.name}}</span>
               </template>
             </pl-table-column>
             <!--分享-->
@@ -345,7 +329,18 @@
                   <div class="grid-item-icon">
                     <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true" :grid-width="gridColumnWidth"></icon-file>
                   </div>
-                    <div class="grid-item-text">{{ item.name }}</div>
+                  <el-input v-if="item.index === editingIndex"
+                            v-focus
+                            v-model="renameFileName"
+                            class="grid-item-text"
+                            placeholder=""
+                            type="textarea"
+                            autosize
+                            size="small"
+                            @focus="renameInputFocus($event, item.suffix)"
+                            @keyup.enter.native="rowRename(renameFileName, item)">
+                  </el-input>
+                  <div v-else class="grid-item-text">{{ item.name }}</div>
                 </div>
               </van-grid-item>
             </van-grid>
@@ -538,17 +533,19 @@ import FileTree from "@/components/FileTree"
 import '@/utils/directives.js'
 
 import fileConfig from '@/utils/file-config'
+import EditElement from "@/views/markdown/EditElement";
 
 var rowStyleExecuting = false
 export default {
   name: 'ShowFile',
   components: {
+    EditElement,
     MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
     ButtonUpload,
     FileTree
   },
   props: {
-    selectFile: {
+    selectFile: { // 是否为选择文件模式
       type: Boolean,
       defalut: false
     },
@@ -884,7 +881,11 @@ export default {
       // 指令的定义
       inserted: function (el) {
         // 聚焦元素
-        el.querySelector('input').focus()
+        let input = el.querySelector('input')
+        if (!input){
+          input = el.querySelector('textarea')
+        }
+        input.focus()
       }
     },
     resize: { // 指令的名称
@@ -1038,12 +1039,15 @@ export default {
         if (throughRow) {
           // 鼠标按下时就选中文件
           if (!_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])){
+            _this.editingIndex = -1
             if (!_this.isCmd && !_this.selectPin) {
               _this.$refs.fileListTable.clearSelection()
               _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[throughRow.rowIndex], selected: true}])
             }
           }
           return
+        } else {
+          _this.editingIndex = -1
         }
         if (evt.button !== 0) {
           return
@@ -1334,8 +1338,11 @@ export default {
         }
       }
 
-      // 复原拖拽的dom
-      let recover = function (animation) {
+      /***
+       * 复原拖拽的dom
+       * @param animation 是否显示动画
+       */
+      let recoverDragDom = function (animation) {
         if (animation) {
           _this.selectRowData.forEach(row => {
             let dragingDiv = document.getElementById('dragingDiv' + row.index)
@@ -1357,6 +1364,7 @@ export default {
 
       container.ondragend = function (e) {
         Bus.$emit('onDragStart', false)
+        e.dataTransfer.effectAllowed = 'none'
         // console.log('child'+dragIndex+'拖拽结束');
         // 清除上次进入的容器的状态
         const last = target.children[dragIndex];
@@ -1366,6 +1374,7 @@ export default {
       }
       // 开始拖拽
       container.ondragstart = (e) => {
+          e.target.style.cursor = 'no-drop'
           // 正在选区获取按住关键键时禁止拖拽
           if (_this.drawFlag || _this.isCmd || _this.selectPin) {
             e.preventDefault()
@@ -1375,6 +1384,10 @@ export default {
           // 判断被拖拽dom是否有slot属性并且等于'jmal'
           if (!e.target.slot || e.target.slot !== 'jmal'){
             return true
+          }
+          // 该文件正在重命名
+          if (e.target.rowIndex === _this.editingIndex){
+            return
           }
           // 当滚动条滚动后禁止拖拽
           if (_this.fileListScrollTop === 0) {
@@ -1437,7 +1450,6 @@ export default {
             draggedIndex = dragged.rowIndex
             // 只有选中的才能拖拽
             _this.cellMouseIndex = -1
-            // dragged.style.cursor = 'not-allowed'
             dragBackCorlor = dragged.style.backgroundColor
           }
       }
@@ -1540,12 +1552,12 @@ export default {
             type: 'info'
           }).then(() => {
             _this.copyOrMoveApi('move', forms, to.id)
-            recover(false)
+            recoverDragDom(false)
           }).catch(() => {
-            recover(true)
+            recoverDragDom(true)
           })
         } else {
-          recover(true)
+          recoverDragDom(true)
         }
       }
       // 清除之前的样式
@@ -1809,6 +1821,7 @@ export default {
       if (!this.path) {
         this.path = ''
       }
+      this.editingIndex = -1
       this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
       // 改变拖拽目标
       this.rowDrop()
@@ -2254,7 +2267,10 @@ export default {
     // 选取输入框部分内容
     renameInputFocus(event, suffix) {
       event.currentTarget.selectionStart = 0
-      event.currentTarget.selectionEnd = event.currentTarget.value.length - suffix.length === 0 ? 0 : suffix.length - 1
+      event.currentTarget.selectionEnd = event.currentTarget.value.length
+      if (suffix){
+        event.currentTarget.selectionEnd -= suffix.length + 1
+      }
     },
     // 重命名
     rowRename(newFileName, row) {
@@ -2329,6 +2345,7 @@ export default {
         }
       }).then(() => {
         this.$refs.fileListTable.clearSelection()
+        this.$message.success("重命名成功")
       }).catch(() => {
         this.renameLoading = false
         this.editingIndex = -1
@@ -2977,6 +2994,9 @@ export default {
     },
     // 点击文件或文件夹
     fileClick(row) {
+      if (this.editingIndex === row.index){
+        return
+      }
       this.openingFile = row
       if (row.isFolder) {
         this.editingIndex = -1
