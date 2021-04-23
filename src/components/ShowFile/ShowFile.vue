@@ -2274,6 +2274,9 @@ export default {
     },
     // 重命名
     rowRename(newFileName, row) {
+      //去掉回车换行
+      newFileName = newFileName.replace(/[\r\n]/g,"");
+      console.log('newFileName', newFileName)
       if (newFileName) {
         if (/[\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
@@ -2931,7 +2934,7 @@ export default {
       setTimeout(() => {
         // 再执行移除
         for (let i = 0; i < removeFileIndexList.length; i++) {
-          this.splice(removeFileIndexList[i], 1)
+          this.fileList.splice(removeFileIndexList[i], 1)
         }
         // 改变拖拽目标
         this.rowDrop()
