@@ -1374,7 +1374,6 @@ export default {
       }
       // 开始拖拽
       container.ondragstart = (e) => {
-          e.target.style.cursor = 'no-drop'
           // 正在选区获取按住关键键时禁止拖拽
           if (_this.drawFlag || _this.isCmd || _this.selectPin) {
             e.preventDefault()
@@ -1387,8 +1386,11 @@ export default {
           }
           // 该文件正在重命名
           if (e.target.rowIndex === _this.editingIndex){
+            e.preventDefault()
+            e.stopPropagation()
             return
           }
+          e.target.style.cursor = 'no-drop'
           // 当滚动条滚动后禁止拖拽
           if (_this.fileListScrollTop === 0) {
             // 复制被拖拽dom的title, 拖拽过程中移除, 拖拽完后还原
