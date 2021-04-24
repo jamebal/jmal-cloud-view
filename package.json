@@ -15,6 +15,7 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
+    "@moefe/vue-aplayer": "^2.0.0-beta.5",
     "ant-design-vue": "^1.6.5",
     "clipboard": "^2.0.6",
     "cropperjs": "^1.5.6",
