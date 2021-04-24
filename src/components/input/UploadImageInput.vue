@@ -63,7 +63,6 @@
 </template>
 <script>
 
-import axios from 'axios'
 import fileApi from '@/api/file-api'
 import fileConfig from "@/utils/file-config"
 import SelectFile from "@/components/ShowFile/SelectFile"

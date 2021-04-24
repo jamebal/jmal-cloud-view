@@ -1,19 +1,19 @@
 <template>
-<div ref="audioPreview" v-show="show">
+  <div ref="audioPreview" v-if="show">
   <div class="audio-player"
-    v-aplayerDrag="{ x: transformX, y: transformY }"
-    @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false">
-<!-- <div class="audio-player">  -->
-  <aplayer
-    ref="audioPlayer"
-    autoplay
-    listFolded
-    loop.sync="all"
-    order.sync="list"
-    :mini.sync="mini"
-    :audio="audio"
-    :lrc-type="0">
-  </aplayer>
+       v-aplayerDrag="{ x: transformX, y: transformY }"
+    @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false" @touchmove="closeBarShow = true" @touchend="touchend">
+    <a-player
+      ref="audioPlayer"
+      autoplay
+      listFolded
+      loop.sync="all"
+      order.sync="list"
+      :mini.sync="mini"
+      :audio="list"
+      :lrc-type="0"
+    >
+    </a-player>
   <div v-show="closeBarShow" class="close-bar" @click="close">
     <svg-icon class="audio-player-close" icon-class="close"/>
   </div>
@@ -35,22 +35,33 @@ export default {
     },
     data() {
       return {
-        transformX: (document.body.clientWidth-500)/2,
-        transformY: 0,
+        pc: this.$pc,
+        transformX: !this.$pc ? document.body.clientWidth - 100: (document.body.clientWidth-500)/2,
+        transformY: !this.$pc ? document.body.clientHeight/2 - 100 : 0,
         show: false,
         closeBarShow: false,
-        audio: [],
-        mini: false,
+        // api ==>  https://aplayer.netlify.app/docs/guide/options.html#volume
+        audios: [],
+        list: [],
+        mini: !this.$pc,
+        audioPlayerDoc: undefined
+      }
+    },
+    watch: {
+      show(val) {
+        if (val && !this.audioPlayerDoc) {
+          this.$nextTick(() => {
+            this.audioPlayerDoc = document.querySelector('.audio-player')
+          })
+        }
       }
     },
     mounted() {
-      this.onPicClick = this.onPicClick.bind(this);
-      let pic = document.querySelector('.aplayer-pic')
-      pic.addEventListener('click', this.onPicClick);
       Bus.$on('onAddAudio',(newFile, audioCoverUrl) => {
-        this.show = true
+        if (!this.show) {
+          this.show = true
+        }
         let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
-        console.log(url)
         if(!this.$store.state.user.token){
           url = fileConfig.publicPreviewUrl(newFile.id, window.shareId);
         }
@@ -58,41 +69,45 @@ export default {
         let fileName = newFile.name.substring(0,newFile.name.length - newFile.suffix.length-1)
         let musicOperation = {
           id: newFile.id,
+          url: url,
           name: music.songName ? music.songName : fileName,
           artist: music.songName ? music.singer : fileName,
-          url: url,
-          type: newFile.contentType,
           cover: music.songName ? audioCoverUrl+newFile.id :'',
+          type: newFile.contentType
         }
-        let musicIndex = this.audio.findIndex(item => item.id===newFile.id)
+        let musicIndex = this.audios.findIndex(item => item.id === newFile.id)
         if(musicIndex < 0){
-          if(this.audio.length === 1){
+          if(this.audios.length === 1){
             let loop = document.querySelector('.aplayer-icon.aplayer-icon-loop');
             loop.style.display = 'inline'
             let order = document.querySelector('.aplayer-icon.aplayer-icon-order');
             order.style.display = 'inline'
           }
-          this.audio.push(musicOperation)
-          this.$nextTick(()=>{
-            this.$refs.audioPlayer.switch(this.audio.length-1)
-          })
-        }else{
+          this.audios.push(musicOperation)
+          setTimeout(() => {
+            this.list = this.audios
+            setTimeout(() => {
+              this.$refs.audioPlayer.switch(this.audios.length - 1)
+            }, 0)
+          }, 0)
+        } else {
           this.$refs.audioPlayer.switch(musicIndex)
         }
       })
     },
-    watch: {
-    },
     methods: {
       close(){
         this.show = false
-        this.$refs.audioPlayer.pause();
-        this.audio.splice(0,this.audio.length)
+        this.audioPlayerDoc = undefined
+        this.$refs.audioPlayer.pause()
+        this.audios.splice(0, this.audios.length)
       },
-      onPicClick() {
-        // this.mini = !this.mini
-        // console.log(this.$refs.audioPlayer)
-      },
+      touchend() {
+        const that = this
+        setTimeout(function (){
+          that.closeBarShow = false
+        }, 2500)
+      }
     },
     destroyed() {
       Bus.$off('onAddAudio')
@@ -161,5 +176,26 @@ export default {
     position: absolute;
     top: -8px;
     right: 13px;
+}
+@media screen and (max-width: 768px) {
+  /deep/.aplayer {
+    z-index: 2;
+  }
+  .close-bar {
+    top: -34px;
+    right: -34px;
+    border-radius: 36px;
+    border-width: 20px;
+    z-index: 1;
+    transform: rotate(135deg);
+    border-color: #ff000075;
+    /deep/.audio-player-close {
+      top: -7px;
+      right: -7px;
+    }
+  }
+  .close-bar:hover {
+    border-color: #ff0000eb;
+  }
 }
 </style>

@@ -24,7 +24,7 @@
         <el-tab-pane label="网站首页" name="1">
           <div class="config-itme-label">网站图标：</div>
           <upload-image-input v-model="form.siteIco" desc="只支持ico格式" :enable-select="false" :enable-url="false" accept="image/vnd.microsoft.icon"/>
-          <span class="instruction"><a href="http://www.ico51.cn" target="_blank">在线制作ico</a></span>
+          <span class="instruction"><a href="http://www.favicon-icon-generator.com/" target="_blank">在线制作ico</a></span>
           <div class="config-itme-label">站点名称：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteName"></el-input>
           <span class="instruction">给您的网站取一个响亮的名字。</span>
@@ -115,7 +115,6 @@
 
 <script>
 
-import '../../../assets/fontawesome-free-5.11.2-web/css/all.min.css'
 import {getSetting, getHeartwings, updateSetting} from '@/api/setting-api'
 import UploadImageInput from "@/components/input/UploadImageInput"
 import TableList from "@/components/table/TableList"

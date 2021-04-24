@@ -3,14 +3,16 @@
     <transition name="fade">
       <al-loading v-if="isLoading"></al-loading>
     </transition>
-<!--    <el-button ref="downloadLink" style="display: block" type="primary" class="download-link" @click="copyDownloadLink" :data-clipboard-text="downloadLink">复制链接</el-button>-->
     <div class="share-h">
       <div class="share-header">
-        <a href="">
-          <div class="share-header-content">
-            <svg-icon icon-class="jmal-cloud"/><span>jmal Cloud</span>
+          <div class="share-header-content logo">
+              <svg-icon icon-class="jmal-cloud"/>
+              <span>jmalcloud</span>
           </div>
-        </a>
+        <div class="share-header-content sharer">
+          <span><span class="user">{{sharer.showName}}</span>的分享</span>
+          <el-avatar :src="sharer.avatar"></el-avatar>
+        </div>
       </div>
       <el-divider class="header-location"></el-divider>
       <el-breadcrumb class="app-breadcrumb" separator="" v-if="!linkFailed">
@@ -22,10 +24,7 @@
         </transition-group>
         <div class="search-content">
           <div class="search-class">
-<!--            <el-button v-if="indexList.length > 0" type="text" @click="downloadFile">-->
-<!--            下载-->
-<!--            </el-button>-->
-            <el-button v-if="indexList.length > 0" type="text" @click="downloadFile" class="sort" title="下载">
+            <el-button v-if="indexList.length > 0" type="text" @click="downloadFile(false)" class="sort" title="下载">
               <svg-icon icon-class="menu-download"/>
             </el-button>
             <el-button type="text" class="vmode" @click="changeVmode">
@@ -124,9 +123,6 @@
         </el-table-column>
 
         <el-table-column v-if="index === 3  && showUpdateDateItem" :key="index" width="50" :index="index" align="center" header-align="center">
-          <!--<template slot-scope="scope">-->
-            <!--<svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="share" />-->
-          <!--</template>-->
         </el-table-column>
 
         <el-table-column v-if="index === 4 && showUpdateDateItem" :key="index" width="50" :prop="item.name" :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
@@ -193,11 +189,11 @@
                  :style="{'background': indexList.includes(index)?'#baebff91':'','cursor':indexList.length>0?'default':'pointer'}"
                  @mouseover="gridItemHover(item,index)"
                  @mouseout="gridItemOut(item,index)"
-                 @click="gridItemClick(item)"
+                 @click="gridItemClick(item,$event)"
                  @contextmenu.prevent="rowContextmenu(item)"
             >
               <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)" class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
-              <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true" :public="true"></icon-file></div>
+              <div class="grid-item-icon"><icon-file :item="item" :image-url="imageUrl" :grid="true" :grid-width="gridColumnWidth" :public="true"></icon-file></div>
               <span class="grid-item-text">{{item.name}}</span>
             </div>
           </van-grid-item>
@@ -229,10 +225,6 @@
 </template>
 
 <script>
-  import 'vant/lib/grid/style';
-  import 'vant/lib/grid-item/style';
-  import 'vant/lib/checkbox/style';
-  import 'vant/lib/checkbox-group/style';
   import { mapGetters } from 'vuex'
   import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import Bus from '@/assets/js/bus'
@@ -343,6 +335,7 @@
         grid: false,
         vmode: 'list',
         gridColumnNum: -1,
+        gridColumnWidth: 120,
         gridHoverItemIndex: -1,
         gridHoverIntermediate: -1,
         allChecked: false,
@@ -364,6 +357,7 @@
         audioPreviewVisible: false,
         showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
         showSizeItem: this.$pc,// 列表模式下是否显示文件大小
+        sharer: {},//分享者信息
       }
     },
     computed: {
@@ -454,7 +448,7 @@
       clickGridItemCheckBox(item,index) {
         // 同步列表的checkbox
         if(this.indexList.includes(index)){
-          this.$refs.fileListTable.toggleRowSelection(item,false)
+          this.$refs.fileListTable.toggleRowSelection(item, true)
         }
       },
       clickGridAllCheckBox() {
@@ -465,7 +459,12 @@
           this.$refs.fileListTable.clearSelection();
         }
       },
-      gridItemClick(row) {
+      gridItemClick(row, e) {
+        const elPath = e.path || (e.composedPath && e.composedPath())
+        let findIndex = elPath.findIndex(el => el.className === 'grid-item-checkbox van-checkbox')
+        if (findIndex > -1){
+          return
+        }
         if (this.indexList.length < 1) {
           if (row.index !== this.editingIndex) {
             this.fileClick(row)
@@ -479,16 +478,10 @@
           }
         }
       },
-      containerResize(f) {
+      containerResize() {
         let clientWidth = document.querySelector(".dashboard-container").clientWidth
-        if(clientWidth > 1024){
-          this.gridColumnNum = Math.round(clientWidth / 100 - 4)
-        } else {
-          this.gridColumnNum = Math.round(clientWidth / 100 - 2)
-          if(clientWidth < 500){
-            this.gridColumnNum = 3
-          }
-        }
+        this.gridColumnNum = Math.round((clientWidth-10)/135)
+        this.gridColumnWidth = (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5
       },
       // 格式化最近时间
       formatTime(time) {
@@ -560,6 +553,11 @@
             this.fileList.map((item,index) => {
               item.index = index
             })
+            if(this.fileList.length > 0) {
+              api.getSharer({userId: this.fileList[0].userId}).then(res => {
+                this.sharer = res.data
+              })
+            }
             this.loadClientHeight()
             this.listModeSearch = false
             this.listModeSearchOpenDir = false
@@ -701,7 +699,7 @@
         }
         for (let i = 0; i < this.indexList.length; i++) {
           if (rowIndex === this.indexList[i]) {
-            return { backgroundColor: '#f5f7fa', color: '#b7b5b6', cursor: 'default' }
+            return { backgroundColor: '#baebff91', cursor: 'default' }
           }
         }
       },
@@ -839,6 +837,7 @@
         this.$refs.contextShow.hideMenu()
       },
       downloadFile(copy) {
+        console.log('downloadFile', copy)
         let totalSize = 0
         if(this.indexList.length > 0){
           this.selectRowData.forEach(item => {
@@ -963,30 +962,31 @@
     padding: 0 15px;
   }
   .share-header {
-    height: 50px;
-    text-align: center;
-    margin-bottom: 10px;
-
-    -webkit-display:flex;
-    display:flex;
-    -webkit-align-items:center;
-    align-items:center;
-    -webkit-justify-content:center;
-    justify-content:center;
-
+    height: 45px;
+    .logo {
+      font-size: 20px;
+    }
     .share-header-content {
       display: flex;
       align-items: center;
       svg {
-        font-size: 50px;
+        font-size: 2rem;
       }
       span {
         margin-left: 10px;
-        font-size: 30px;
       }
     }
-    .share-header-content:hover {
-      cursor: pointer;
+    .sharer {
+      font-size: 14px;
+      float: right;
+      top: 10px;
+      margin-top: -34px;
+      /deep/.el-avatar {
+        margin: 0 0 0 10px;
+      }
+      .user {
+        font-weight: 600;
+      }
     }
   }
   /deep/.el-table{

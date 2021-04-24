@@ -1,5 +1,4 @@
-import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+// import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
@@ -44,7 +43,7 @@ service.interceptors.response.use(
     const res = response.data
     if (res.code !== 0) {
       if (res.code === -2) {
-        Message({
+        Vue.prototype.$message({
           message: res.message || '服务器开小差了...',
           type: 'warning',
           duration: 2 * 1000
@@ -54,7 +53,7 @@ service.interceptors.response.use(
         setTimeout(function () {
           const hasToken = getToken()
           if(hasToken){
-            MessageBox.confirm('登录已失效，请重新登录', '确认登出', {
+            Vue.prototype.$confirm('登录已失效，请重新登录', '确认登出', {
               confirmButtonText: '重新登录',
               cancelButtonText: '取消',
               type: 'warning'
@@ -66,7 +65,7 @@ service.interceptors.response.use(
           }
         },200)
       } else {
-        Message({
+        Vue.prototype.$message({
           message: res.message || '服务器开小差了...',
           type: 'error',
           duration: 3 * 1000
@@ -79,7 +78,7 @@ service.interceptors.response.use(
         message = res.message.toString()
       }
       if(message !== 'true'){
-        Message({
+        Vue.prototype.$message({
           message: res.message,
           type: 'success',
           duration: 1000
@@ -89,7 +88,7 @@ service.interceptors.response.use(
     }
   },
   error => {
-    Message({
+    Vue.prototype.$message({
       message: '哎呀！服务器出错了，请稍后再试！',
       type: 'error',
       duration: 5 * 1000

@@ -179,6 +179,9 @@
 
       document.body.ondragstart = function(e){
         if(that.enableDragUplaod) {
+          if(e.target.slot === 'jmal') {
+            that.isDragStart = true
+          }
           return e.target.slot === 'jmal' && that.fileListScrollTop === 0
         }
         return true

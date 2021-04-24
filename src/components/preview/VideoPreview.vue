@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import 'vant/lib/overlay/style';
 import 'vue-video-player/src/custom-theme.css'
 import 'video.js/dist/video-js.css'
 import { videoPlayer } from 'vue-video-player'

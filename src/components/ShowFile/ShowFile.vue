@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="dashboard-container" v-resize="containerResize">
+    <div class="dashboard-container" v-resize="containerResize" onselectstart="return false">
       <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
         <div v-for="item of contextMenus" :key="item.operation">
           <!-- 一级菜单 -->
@@ -30,7 +30,7 @@
             <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级"
                         placement="top">
               <a @click.prevent="lastLink()">
-                <svg-icon icon-class="back" style="font-size: 24px;"/>&nbsp;</a>
+                <svg-icon icon-class="back" style="font-size: 24px;margin-left: 20px;"/>&nbsp;</a>
             </el-tooltip>
             <el-tooltip v-if="index===0 && pathList.length > 2" class="item" effect="dark" content="根目录"
                         placement="top">
@@ -94,7 +94,6 @@
                   </div>
                 </ul>
               </div>
-              <!--<el-button slot="reference" icon="el-icon-plus add-file-button" circle />-->
               <button-upload slot="reference" :name="''" @click.native="upload"
                              style="margin-right: 5px"></button-upload>
             </el-popover>
@@ -170,12 +169,8 @@
           </li>
         </ul>
       </e-vue-contextmenu>
-
-      <!--<div class="dashboard-text">path: {{ path }}</div>-->
-
       <!--list布局-->
-      <!--<div v-show="!grid && fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">-->
-      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight + 8 +'px'}">
+      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight +'px'}">
         <pl-table
           ref="fileListTable"
           v-show="!grid"
@@ -185,14 +180,14 @@
           :highlight-current-row="false"
           empty-text="无文件"
           :use-virtual="true"
-          :row-height="50"
+          :row-height="51.5"
           :border="false"
           :excess-rows="10"
           :pagination-show="false"
           style="width: 100%;margin: 20px 0 0 0;"
-          :row-style="rowStyle"
+          stripe
+          :cell-style="rowStyle"
           :height-change="false"
-          :summary-method="getSummaries"
           :row-class-name="tableRowClassName"
           element-loading-text="文件加载中"
           element-loading-spinner="el-icon-loading"
@@ -208,21 +203,13 @@
           @select="pinSelect"
         >
           <template v-for="(item,index) in tableHead">
-            <!--索引-->
-            <pl-table-column
-              v-if="index === 0 && !selectFile"
-              :key="index"
-              :index="index"
-              type="selection"
-              min-width="50"
-            >
-            </pl-table-column>
-            <!--图标-->
             <pl-table-column
               v-if="index === 1"
               :key="index"
               :index="index"
-              width="50"
+              align="center"
+              header-align="center"
+              width="80"
             >
               <template slot-scope="scope">
                 <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
@@ -241,30 +228,12 @@
               :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
             >
               <template slot-scope="scope">
-                <el-col v-if="scope.row.index === editingIndex" :span="10">
-                  <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true"
+                  <el-input v-if="scope.row.index === editingIndex" :span="10"
+                            v-focus v-model="renameFileName" placeholder="" size="small"
                             @focus="renameInputFocus($event,scope.row.suffix)"
                             @keyup.enter.native="rowRename(renameFileName, scope.row)">
                   </el-input>
-                  <el-button
-                    v-loading="renameLoading"
-                    element-loading-spinner="el-icon-loading"
-                    element-loading-background="#f6f7fa88"
-                    class="el-icon-check"
-                    @click="rowRename(renameFileName, scope.row)"
-                  >
-                  </el-button>
-                  <el-button
-                    element-loading-spinner="el-icon-loading"
-                    element-loading-background="#f6f7fa88"
-                    class="el-icon-close"
-                    @click="editingIndex = -1"
-                  >
-                  </el-button>
-                </el-col>
-                <a v-else @click.stop="fileClick(scope.row)" class="table-file-name"><span>{{
-                    scope.row.name
-                  }}</span></a>
+                  <span v-else class="table-file-name">{{scope.row.name}}</span>
               </template>
             </pl-table-column>
             <!--分享-->
@@ -338,75 +307,46 @@
              element-loading-text="文件加载中"
              element-loading-spinner="el-icon-loading"
              element-loading-background="#f6f7fa88">
-          <div class="checkbox-group-header" v-show="!selectFile">
-            <div class="select-operation">
-              <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox" v-model="allChecked">
-                {{ selectRowData.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}
-              </van-checkbox>
-              <div>
-                <el-button class="select-operation-button" icon="el-icon-download" v-if="selectRowData.length > 0"
-                           @click="downloadFile">
-                  下载
-                </el-button>
-                <el-button class="select-operation-button" icon="el-icon-share" v-if="selectRowData.length === 1"
-                           @click="share">
-                  分享
-                </el-button>
-                <el-button class="select-operation-button" icon="el-icon-document-copy" v-if="selectRowData.length > 0"
-                           @click="moveOrCopy">
-                  移动或复制
-                </el-button>
-                <el-button class="select-operation-button" icon="el-icon-delete" v-if="selectRowData.length > 0"
-                           type="danger" @click="deleteFile">
-                </el-button>
-              </div>
-            </div>
-            <el-divider style="transform: scaleY(0.5);"></el-divider>
-          </div>
 
           <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
             <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false"
                       :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
               <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
+                             :title="'大小：'+formatSize(item.size)+'\r\n'+(item.w && item.h ? '分辨率：'+item.w + 'x' + item.h +'\r\n' : '')+'名称：'+item.name+'\r\n'+'创建时间：'+item.uploadDate+'\r\n'+'修改时间：'+item.updateDate+'\r\n'+'路径：'+item.path"
               >
                 <div
                   class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
                   :style="{
-                  'background': queryFileType === 'image' ? 'url('+imageUrl+item.id+')' : selectRowData.includes(item)?'#caeaf991':'',
+                  'background': selectRowData.includes(item)?'#caeaf991':'',
                   'background-size': 'cover',
                   'background-position': 'center',
                   'border': selectRowData.includes(item)?'solid 1px #409eff':'',
                   }"
-                  @mouseover="gridItemHover(item,index)"
-                  @mouseout="gridItemOut(item,index)"
                   @click="gridItemClick(item)"
+                  @dblclick="fileClick(item)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
-                  <van-checkbox v-show="!selectFile" v-if="gridHoverItemIndex === index || selectRowData.includes(item)"
-                                class="grid-item-checkbox" :name="item"
-                                @click.stop="clickGridItemCheckBox(item,index)"/>
-                  <div :class="{'grid-item-icon':true, 'grid-item-icon-image': queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false}">
-                    <icon-file v-show="queryFileType !== 'image'" :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"
-                               :grid="true"></icon-file>
+                  <div class="grid-item-icon">
+                    <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true" :grid-width="gridColumnWidth"></icon-file>
                   </div>
-                  <!--<el-tooltip effect="light" :content="item.name" placement="top">-->
-                    <div v-show="item.w && item.h && queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : false"
-                    :class="{'grid-item-text': true, 'grid-item-text-image-size': queryFileType === 'image'}">
-                      {{ item.w + ' x ' + item.h }}
-                    </div>
-                    <div
-                      :title="item.name"
-                      v-show="queryFileType === 'image' ? gridHoverItemIndex === index || selectRowData.includes(item) : true"
-                      :class="{'grid-item-text': true, 'grid-item-text-image': queryFileType === 'image'}">
-                      {{ item.name }}
-                    </div>
-                  <!--</el-tooltip>-->
+                  <el-input v-if="item.index === editingIndex"
+                            v-focus
+                            v-model="renameFileName"
+                            class="grid-item-text"
+                            placeholder=""
+                            type="textarea"
+                            autosize
+                            size="small"
+                            @focus="renameInputFocus($event, item.suffix)"
+                            @keyup.enter.native="rowRename(renameFileName, item)">
+                  </el-input>
+                  <div v-else class="grid-item-text">{{ item.name }}</div>
                 </div>
               </van-grid-item>
             </van-grid>
           </van-checkbox-group>
-          <!--<el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>-->
         </div>
+        <table class="drag-table" id="drag-table"></table>
       </div>
 
       <empty-file
@@ -414,8 +354,17 @@
         :emptyStatus="emptyStatus"
       >
       </empty-file>
-      <img id="dragImage" draggable="false" style="position: fixed;top: -100px;z-index: 99999"
-           src="~@/assets/img/move-file.png">
+      <img id="dragImage" draggable="false" style="position: fixed;opacity: 0" src="~@/assets/img/hide.png">
+      <div id="numberFiles" class="number-files">
+        <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: none"/>
+        <div class="number" style="display: inline">1个文件</div>
+        <div class="operate" style="display: none;white-space: nowrap;">
+          移动到：
+        </div>
+        <div class="target">
+          <span class="folder" style="display: none;white-space: nowrap;">document</span>
+        </div>
+      </div>
     </div>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
@@ -562,12 +511,9 @@
 </template>
 
 <script>
-import 'vant/lib/grid/style';
-import 'vant/lib/grid-item/style';
-import 'vant/lib/checkbox/style';
-import 'vant/lib/checkbox-group/style';
 import {mapGetters} from 'vuex'
 import {formatSize, formatTime} from '@/utils/number'
+import {getElementToPageLeft, getElementToPageTop} from '@/utils/dom'
 import {suffix} from '@/utils/file-type'
 import Bus from '@/assets/js/bus'
 import api from '@/api/file-api'
@@ -586,22 +532,20 @@ import FileTree from "@/components/FileTree"
 
 import '@/utils/directives.js'
 
-import 'pl-table/themes/index.css';
-import {PlTable, PlTableColumn} from 'pl-table';
 import fileConfig from '@/utils/file-config'
+import EditElement from "@/views/markdown/EditElement";
 
 var rowStyleExecuting = false
 export default {
   name: 'ShowFile',
   components: {
+    EditElement,
     MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
-    PlTable,
-    PlTableColumn,
     ButtonUpload,
     FileTree
   },
   props: {
-    selectFile: {
+    selectFile: { // 是否为选择文件模式
       type: Boolean,
       defalut: false
     },
@@ -804,8 +748,7 @@ export default {
       grid: this.defaultGrid,
       vmode:  this.defaultGrid ? 'grid' : 'list',
       gridColumnNum: -1,
-      gridHoverItemIndex: -1,
-      gridHoverIntermediate: -1,
+      gridColumnWidth: 120,
       allChecked: false,
       summaries: '',
       shareDialog: false,
@@ -829,7 +772,8 @@ export default {
       selectOrgin: -1,// 选择起点(主要用于按住shift键多选)
       selectEnd: -1,// 选择终点
       selectPin: false,// 默认false,不按住
-      isCmd: false,// 是否按住了command键
+      isCmd: false,// 是否按住了command(control)键
+      isCmdA: false, // 是否按住了command(control) + A 键
       dragElementList: [],
       drawFlag: false,
       fileListScrollTop: 0,
@@ -839,6 +783,7 @@ export default {
       stompClient: undefined,//websocket订阅集合
       showUpdateDateItem: true,// 列表模式下是否显示修改时间
       showSizeItem: true,// 列表模式下是否显示文件大小
+      stopSortChange: false
     }
   },
   computed: {
@@ -889,27 +834,8 @@ export default {
     }
 
     // 获取键盘事件
-    window.addEventListener('keydown', event => {
-      const isMac = navigator.platform.startsWith('Mac');
-      const {key, c, keyCode, ctrlKey, metaKey} = event;
-      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
-      // 按住shift建
-      if (event.keyCode === 16 && event.shiftKey) {
-        this.selectPin = true
-      }
-    })
-
-    window.addEventListener('keyup', event => {
-
-      const isMac = navigator.platform.startsWith('Mac');
-      const {key, c, keyCode, ctrlKey, metaKey} = event;
-      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
-
-      // 松开shift建
-      if (event.keyCode === 16) {
-        this.selectPin = false
-      }
-    })
+    window.addEventListener('keydown', event => this.keydown(event))
+    window.addEventListener('keyup', event => this.keyup(event))
 
     // 加载布局
     if (this.$route.query.vmode) {
@@ -936,14 +862,15 @@ export default {
     window.onresize = function (){
       that.clientHeight = document.documentElement.clientHeight - that.lessClientHeight
     }
-
     // 画矩形选区
     this.darwRectangle()
 
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
   destroyed() {
-    window.removeEventListener('popstate', this.goBack, false);
+    window.removeEventListener('keydown', this.keydown, false)
+    window.removeEventListener('keyup', this.keydown, false)
+    window.removeEventListener('popstate', this.goBack, false)
     if (this.stompClient) {
       this.stompClient.unsubscribe()
     }
@@ -954,7 +881,11 @@ export default {
       // 指令的定义
       inserted: function (el) {
         // 聚焦元素
-        el.querySelector('input').focus()
+        let input = el.querySelector('input')
+        if (!input){
+          input = el.querySelector('textarea')
+        }
+        input.focus()
       }
     },
     resize: { // 指令的名称
@@ -978,6 +909,33 @@ export default {
     }
   },
   methods: {
+    keydown(event) {
+      const isMac = navigator.platform.startsWith('Mac');
+      const {key, c, keyCode, ctrlKey, metaKey} = event;
+      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+      // 按住shift建
+      if (event.keyCode === 16 && event.shiftKey) {
+        this.selectPin = true
+      }
+      if(this.isCmd && keyCode == 65) {
+        this.$nextTick(() => {
+          if(this.$refs.fileListTable) {
+            this.$refs.fileListTable.toggleAllSelection()
+          }
+        })
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    },
+    keyup(event) {
+      const isMac = navigator.platform.startsWith('Mac');
+      const {key, c, keyCode, ctrlKey, metaKey} = event;
+      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+      // 松开shift建
+      if (event.keyCode === 16) {
+        this.selectPin = false
+      }
+    },
     onmessage(msg) {
       let fileDoc = JSON.parse(msg.body)
       const url = msg.headers.url
@@ -1005,60 +963,24 @@ export default {
     load() {
       this.getFileList(true)
     },
-    gridItemHover(item, index) {
-      this.gridHoverItemIndex = index;
-      this.gridHoverIntermediate = index;
-    },
-    gridItemOut(item, index) {
-      this.gridHoverIntermediate = -1
-      const _this = this
-      setTimeout(function () {
-        if (_this.gridHoverIntermediate !== _this.gridHoverItemIndex) {
-          _this.gridHoverItemIndex = -1;
-        }
-      }, 10)
-    },
-    clickGridItemCheckBox(row, index) {
-      // 同步列表的checkbox
-      if (this.selectRowData.includes(row)) {
-        this.$refs.fileListTable.toggleRowSelection([{row: row, selected: false}])
-      } else {
-        this.$refs.fileListTable.toggleRowSelection([{row: row, selected: true}])
-      }
-      this.pinSelect(null, row)
-    },
-    clickGridAllCheckBox() {
-      if (this.selectRowData.length !== this.fileList.length) {
-        this.$refs.fileListTable.toggleAllSelection()
-      } else {
-        this.$refs.fileListTable.clearSelection();
-      }
-    },
     gridItemClick(row) {
       if (this.isCmd) {
         this.pinSelect(null, row)
         this.$refs.fileListTable.toggleRowSelection([{row: row}])
         return
       }
-      if (!this.drawFlag) {
-        this.fileClick(row)
-      }
+      this.pinSelect(null, row)
     },
-    containerResize(ddd) {
+    containerResize() {
       const container = document.querySelector(".dashboard-container")
       let clientWidth = container.clientWidth
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
-      if(clientWidth > 1024){
-        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 5) : Math.round(clientWidth / 100 - 4)
+      if (this.queryFileType === 'image') {
+        this.gridColumnNum = Math.round((clientWidth-10)/165)
       } else {
-        this.gridColumnNum = this.queryFileType === 'image' ? Math.round(clientWidth / 100 - 3) : Math.round(clientWidth / 100 - 2)
-        if(clientWidth < 768){
-          this.gridColumnNum = 3
-        }
-        if(clientWidth < 450){
-          this.gridColumnNum = 2
-        }
+        this.gridColumnNum = Math.round((clientWidth-10)/135)
       }
+      this.gridColumnWidth = (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5
       if(clientWidth < 900){
         this.showUpdateDateItem = false
       } else {
@@ -1069,6 +991,7 @@ export default {
       } else {
         this.showSizeItem = true
       }
+      // 使列表可拖拽
       this.rowDrop()
     },
     // 画矩形选区
@@ -1086,29 +1009,60 @@ export default {
       let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
       _this.drawFlag = false
       let itemClassName = 'el-table__row'
+      if (_this.grid) {
+        itemClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+      }
+      draw.onmousedown = null
       draw.onmousedown = function (e) {
         if (_this.fileListScrollTop > 0) {
           return
         }
         let evt = window.event || e
-        if (_this.grid) {
-          itemClassName = 'van-grid-item van-grid-item--square'
+        const elPath = e.path || (e.composedPath && e.composedPath())
+        // 列表模式下点击表头，阻止点击事件
+        if (!_this.grid && _this.selectRowData.length > 0) {
+          const findIndex = elPath.findIndex(path => {
+            if (path.className === 'el-table__header-wrapper') {
+              return path
+            }
+          })
+          if (findIndex > -1){
+            _this.stopSortChange = true
+          }
         }
-        let throughRow = e.path.find(path => {
-          if (path.className === itemClassName) {
+        // 点击的区域是否为文件, throughRow 不为空就证明点到了文件
+        let throughRow = elPath.find(path => {
+          if (path.className === itemClassName || path.className === 'el-table__row el-table__row--striped') {
             return path
           }
         })
-        if (throughRow && _this.selectRowData.includes(_this.fileList[throughRow.rowIndex])) {
+        if (throughRow) {
+          // 鼠标按下时就选中文件
+          if (!_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])){
+            _this.editingIndex = -1
+            if (!_this.isCmd && !_this.selectPin) {
+              _this.$refs.fileListTable.clearSelection()
+              _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[throughRow.rowIndex], selected: true}])
+            }
+          }
           return
+        } else {
+          _this.editingIndex = -1
         }
         if (evt.button !== 0) {
           return
+        }
+        if (!_this.isCmd && !_this.selectPin) {
+          const index = elPath.findIndex(el => el.className === itemClassName || el.className === 'el-table__row el-table__row--striped')
+          if(index < 0){
+            _this.$refs.fileListTable.clearSelection()
+          }
         }
         let scrollTop = draw.scrollTop || draw.scrollTop
         let scrollLeft = draw.scrollLeft || draw.scrollLeft
         startX = evt.clientX + scrollLeft
         startY = evt.clientY + scrollTop
+
         let div = document.createElement("div")
         div.id = wId
         div.className = "draw-rectangle"
@@ -1130,10 +1084,13 @@ export default {
           retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
           retcHeight = Math.abs(startY - evt.clientY - scrollTop)
           retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
-          const drawRectangle = $$(wId)
+          _this.drawFlag = true
+          if ((retcHeight + retcWidth) < 4) {
+            return
+          }
+          const drawRectangle = document.getElementById(wId)
           if (drawRectangle) {
             noScroll()
-            _this.drawFlag = true
             drawRectangle.style.left = retcLeft + 'px'
             drawRectangle.style.top = retcTop + 'px'
             drawRectangle.style.width = retcWidth + 'px'
@@ -1149,13 +1106,25 @@ export default {
         document.onmouseup = function (e) {
           document.onmousemove = null;
           document.onmouseup = null;
+          if (_this.stopSortChange) {
+            _this.stopSortChange = false
+            setTimeout(()=>{
+              _this.changeSelectedStyle(_this.selectRowData)
+            },200)
+          }
           setTimeout(function () {
             restoreScroll()
             _this.drawFlag = false
           }, 50)
-          if ($$(wId)) {
-            draw.removeChild($$(wId))
+          const rectangle = document.getElementById(wId)
+          if (rectangle) {
+            draw.removeChild(rectangle)
           }
+          if(!_this.grid) {
+            draw = document.getElementById('drag-table')
+          }
+          const dragingDivs = Array.prototype.slice.call(draw.getElementsByClassName('dragingDiv'))
+          dragingDivs.forEach(el => draw.removeChild(el))
         }
       }
 
@@ -1200,9 +1169,7 @@ export default {
             _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[element.rowIndex], selected: false}])
           }
         })
-        setTimeout(function () {
-          drawSelecting = false
-        }, 150)
+        setTimeout(() => drawSelecting = false, 10)
       }
       //检查两个DIV是否有接触
       let checkTouch = function (item, draw) {
@@ -1231,30 +1198,39 @@ export default {
       // 被拖拽元素的背景色
       let dragBackCorlor = null
       const _this = this
-      // 被拖动的元素的索引
+      // 被拖动的元素
       let dragged = null;
       // 被拖动的元素的索引
       let draggedIndex = -1;
 
       let parentClassName = 'van-grid'
-      let gridItemClassName = 'van-grid-item van-grid-item--square'
+      let itemClassName = 'van-grid-item van-grid-item--square'
       let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+      if (!_this.grid) {
+        itemClassName = 'el-table__row'
+        parentClassName = 'el-table__body'
+      }
+
+      // 正在拖动的元素
+      let dragingDiv = null
+
+      let container = document.querySelector('.dashboard-container')
 
       // 目标元素
       let target = document.querySelector('.el-table__body-wrapper tbody')
-
       if (this.grid) {
         target = document.querySelector('.van-checkbox-group .van-grid')
       }
+      let draw = document.getElementById('v-draw-rectangle')
+      if (!this.grid) {
+        draw = document.getElementById('drag-table')
+      }
+      let rows = 0//行数
 
-      let rows = 0;//行数
+      let drawOffsetLeft = getElementToPageLeft(draw)
 
-      // let images = {}
-      // for (let i = 1; i <= 9; i++) {
-      //   let img = new Image()
-      //   img.src = require(`@/assets/img/move-file${i}.png`)
-      //   images[i] = img
-      // }
+      let firstOver = 0 // 是否刚开始拖动
+      let moveTitle = ''
       setTimeout(function () {
         rows = target.childElementCount
         _this.dragElementList = []
@@ -1262,22 +1238,25 @@ export default {
           let child = target.children[i]
           // 设置索引,表格自带rowIndex,这里我们设置grid的
           if (_this.grid) {
-            child.rowIndex = i
+            if(child.rowIndex !== i) {
+              child.rowIndex = i
+            }
             child.children[0].children[0].rowIndex = i
             child = child.children[0].children[0]
           }
           // 为画矩形选取准备数据
           let pos = getObjPos(child)
-          pos.w = child.offsetWidth
-          pos.h = child.offsetHeight
+          child.w = child.offsetWidth
+          child.h = child.offsetHeight
+          child.x = pos.x
+          child.y = pos.y
           pos.rowIndex = child.rowIndex
-          _this.dragElementList.push(pos)
+          _this.dragElementList.push(child)
 
           // 使元素可拖动
           child.draggable = true
           // 给能拖动的元素加上标识,只有加上此标识才能被拖动,否则即使draggable = true,也无法拖动(在全局的ondragstart里拦截)
           child.slot = 'jmal'
-
           let childOfImg = child.querySelector('.el-avatar > img')
           if (_this.grid) {
             childOfImg = child.querySelector('.el-image > img')
@@ -1285,95 +1264,72 @@ export default {
           if (childOfImg) {
             childOfImg.draggable = false
           }
-
-          child.ondragstart = function (e) {
-            if (_this.fileListScrollTop === 0) {
-              let count = _this.selectRowData.length
-              if (_this.selectRowData.length >= 99) {
-                count = 99
-              }
-              let dragImage = document.getElementById('dragImage');
-              dragImage.src = require(`@/assets/img/move-file/move-file${count}.png`)
-
-              e.dataTransfer.setDragImage(dragImage, 10, 10);
-
-              Bus.$emit('onDragStart', true)
-              // 避免和画矩形选区冲突
-              _this.drawFlag = false
-              let rectangle = document.getElementById('rectangle1')
-              if (rectangle) {
-                document.getElementById('v-draw-rectangle').removeChild(rectangle)
-              }
-
-              dragged = e.path[0]
-              draggedIndex = e.path[0].rowIndex
-              // 只有选中的才能拖拽
-              _this.cellMouseIndex = -1
-              // dragged.style.cursor = 'grabbing'
-              dragged.style.borderRadius = '10px'
-              dragBackCorlor = dragged.style.backgroundColor
-            }
-          }
-          child.ondragend = function () {
-            Bus.$emit('onDragStart', false)
-            // console.log('child'+i+'拖拽结束');
-            // 清除上次进入的容器的状态
-            const last = target.children[dragIndex];
-            clearClass(last)
-            if (_this.grid) {
-              dragged.style.cursor = 'pointer'
-            } else {
-              dragged.style.cursor = 'default'
-            }
-          }
         }
-      }, 0)
+      }, 300)
 
       // 被拖动的元素正在那个容器里
       let dragIndex = -1
 
       // 判断经过了那个元素
       let judgThroughDom = function (e, d) {
-        let throughRow = null
-        if (_this.grid) {
-          if (e.path[0].className === gridItemChildenClassName) {
-            // throughRow 表示被拖动的元素正在哪一行上
-            return throughRow
-          } else {
-            throughRow = e.path.find(path => {
-              if (path.className === gridItemChildenClassName) {
-                return path
-              }
-            })
-          }
-          if (d === 'enter') {
-            let node = null
-            if (e.toElement.className === gridItemClassName) {
+        const elPath = e.path || (e.composedPath && e.composedPath())
+        if (d === 'enter') {
+          // 这里进入其他容器后 清除上次进入的容器的状态
+          let node = null
+          const className = e.toElement.className
+          if (_this.grid){
+            if (e.toElement.className === itemClassName) {
               node = e.toElement
             }
             if (e.toElement.className === parentClassName) {
               node = e.fromElement
             }
-            if (node) {
-              // console.log(d,e,node,node.rowIndex)
-              leaveIndex = node.rowIndex
-              if (dragIndex > -1) {
-                // 清除上次进入的容器的状态
-                const last = target.children[dragIndex];
-                clearClass(last)
-              }
-              // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
-              const leave = target.children[leaveIndex];
-              clearClass(leave)
-              dragIndex = -1
+          } else {
+            // 列表模式
+            if (elPath[0].id === 'v-draw-rectangle' || elPath[0].className === 'el-table__virtual-wrapper') {
+              // 超出列表底部
+              node = e.toElement
+            } else {
+              // 超出列表顶部
+              node = elPath.find(path => {
+                if (path.className === 'el-table__header-wrapper') {
+                  return path
+                }
+              })
             }
+          }
+          if (node) {
+            // console.log(d,e,node,node.rowIndex)
+            if (dragIndex > -1) {
+              // 清除上次进入的容器的状态
+              const last = target.children[dragIndex];
+              clearClass(last)
+            }
+            // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
+            // leaveIndex = node.rowIndex
+            // const leave = target.children[leaveIndex];
+            // clearClass(leave)
+            dragIndex = -1
+          }
+        }
+        let throughRow = null
+        if (_this.grid) {
+          if (elPath[0].className === gridItemChildenClassName) {
+            // throughRow 表示被拖动的元素正在哪一行上
+            return throughRow
+          } else {
+            throughRow = elPath.find(path => {
+              if (path.className === gridItemChildenClassName) {
+                return path
+              }
+            })
           }
           return throughRow
         } else {
-          if (e.path[0].tagName === 'TD') {
+          if (elPath[0].tagName === 'TD') {
             // throughRow 表示被拖动的元素正在哪一行上
-            throughRow = e.path.find(path => {
-              if (path.className === 'el-table__row') {
+            throughRow = elPath.find(path => {
+              if (path.className === 'el-table__row el-table__row--striped' || path.className === 'el-table__row') {
                 return path
               }
             })
@@ -1382,10 +1338,127 @@ export default {
         }
       }
 
-      target.ondragenter = function (e) {
-        // console.log(e,e.toElement)
+      /***
+       * 复原拖拽的dom
+       * @param animation 是否显示动画
+       */
+      let recoverDragDom = function (animation) {
+        if (animation) {
+          _this.selectRowData.forEach(row => {
+            let dragingDiv = document.getElementById('dragingDiv' + row.index)
+            dragingDiv.style.transition = 'all 0.3s'
+            dragingDiv.style.top = dragingDiv.original.top
+            dragingDiv.style.left = dragingDiv.original.left
+          })
+          setTimeout(()=> {
+            _this.selectRowData.forEach(row => {
+              draw.removeChild(document.getElementById('dragingDiv' + row.index))
+            })
+          }, 300)
+        } else {
+          _this.selectRowData.forEach(row => {
+            draw.removeChild(document.getElementById('dragingDiv' + row.index))
+          })
+        }
+      }
+
+      container.ondragend = function (e) {
+        Bus.$emit('onDragStart', false)
+        e.dataTransfer.effectAllowed = 'none'
+        // console.log('child'+dragIndex+'拖拽结束');
+        // 清除上次进入的容器的状态
+        const last = target.children[dragIndex];
+        clearClass(last)
+        dragged.style.cursor = 'default'
+        e.target.parentNode.parentNode.title = moveTitle
+      }
+      // 开始拖拽
+      container.ondragstart = (e) => {
+          // 正在选区获取按住关键键时禁止拖拽
+          if (_this.drawFlag || _this.isCmd || _this.selectPin) {
+            e.preventDefault()
+            e.stopPropagation()
+            return
+          }
+          // 判断被拖拽dom是否有slot属性并且等于'jmal'
+          if (!e.target.slot || e.target.slot !== 'jmal'){
+            return true
+          }
+          // 该文件正在重命名
+          if (e.target.rowIndex === _this.editingIndex){
+            e.preventDefault()
+            e.stopPropagation()
+            return
+          }
+          e.target.style.cursor = 'no-drop'
+          // 当滚动条滚动后禁止拖拽
+          if (_this.fileListScrollTop === 0) {
+            // 复制被拖拽dom的title, 拖拽过程中移除, 拖拽完后还原
+            moveTitle = e.target.parentNode.parentNode.title
+            e.target.parentNode.parentNode.title = ''
+            // 创建拖拽时的dom, 克隆自被拖拽dom
+            _this.selectRowData.forEach((row,index) => {
+              const element = _this.dragElementList[row.index]
+              const rowIndex = element.rowIndex
+              dragingDiv = element.cloneNode(true)
+              dragingDiv.id = 'dragingDiv'+rowIndex
+              dragingDiv.classList.add('dragingDiv')
+              dragingDiv.classList.remove('el-table_row')
+              dragingDiv.style.transition = 'all 0.3s'
+              dragingDiv.style.zIndex = -1
+              dragingDiv.style.position = 'absolute'
+              const pos = _this.dragElementList[rowIndex]
+              dragingDiv.style.width = pos.w + 'px'
+              dragingDiv.style.height = pos.h + 'px'
+              dragingDiv.style.left = pos.x - drawOffsetLeft + 'px'
+              if (!_this.grid) {
+                dragingDiv.firstChild.style.textAlign = 'center'
+                let tds = Array.prototype.slice.call(dragingDiv.childNodes)
+                tds.forEach((node,index) => {
+                  if (index === 4) {
+                    node.style.borderRadius = '0 3px 3px 0'
+                    node.style.borderRight = '1px solid #409eff'
+                    node.firstChild.style.width = '80px'
+                    return true
+                  }
+                  if (index !== 0 && index !== 1) {
+                    dragingDiv.removeChild(node)
+                  }
+                })
+                dragingDiv.style.top = pos.y - 51.5 + 'px'
+              } else {
+                dragingDiv.style.top = pos.y - pos.h/2 + 10 + 'px'
+              }
+              if (index === 0){
+                let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
+                numberFilesCopy.id = 'numberFilesCopy'
+                numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
+                dragingDiv.appendChild(numberFilesCopy)
+              }
+              dragingDiv.original = {top: dragingDiv.style.top, left: dragingDiv.style.left}
+              draw.appendChild(dragingDiv)
+            })
+            firstOver = 0
+            let dragImage = document.getElementById('dragImage');
+            e.dataTransfer.setDragImage(dragImage, 10, 10)
+            Bus.$emit('onDragStart', true)
+            // 避免和画矩形选区冲突
+            _this.drawFlag = false
+            let rectangle = document.getElementById('rectangle1')
+            if (rectangle) {
+              document.getElementById('v-draw-rectangle').removeChild(rectangle)
+            }
+            dragged = e.target
+            draggedIndex = dragged.rowIndex
+            // 只有选中的才能拖拽
+            _this.cellMouseIndex = -1
+            dragBackCorlor = dragged.style.backgroundColor
+          }
+      }
+      container.ondragenter = function (e) {
+        // console.log('ondragenter', e.target)
         clearTimeout(loop)
-        // 由于被拖动的元素 经过tbody中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
+        // 由于被拖动的元素 经过区域内中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
         let throughRow = judgThroughDom(e, 'enter')
         if (throughRow) {
           if (dragIndex !== throughRow.rowIndex) {
@@ -1395,12 +1468,28 @@ export default {
               clearClass(last)
             }
             // console.log('拖动进入目标元素'+throughRow.rowIndex,'dragIndex:',dragIndex);
-            // 不是自己或未文件夹时才改变状态
+            // 不是自己或为文件夹时才改变状态
             if (draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder && _this.selectRowData.findIndex(item => item.index === throughRow.rowIndex) === -1) {
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
+
+              let numberFilesCopy = document.getElementById('numberFilesCopy')
+              numberFilesCopy.style.backgroundColor = '#40a9ffc9'
+              numberFilesCopy.querySelector('.number').style.display = 'none'
+              numberFilesCopy.querySelector('.icon').style.display = 'inline'
+              numberFilesCopy.querySelector('.operate').style.display = 'inline'
+              let targetFolder = numberFilesCopy.querySelector('.target .folder')
+              targetFolder.style.display = 'inline'
+              targetFolder.innerHTML = _this.fileList[throughRow.rowIndex].name
+
               dragEnterBackCorlor = throughRow.style.backgroundColor
-              throughRow.style.backgroundColor = '#9fcdfc99'
+              // 当拖拽文件夹上时，文件夹当背景色
+              const color = '#9fcdfc99'
+              if (_this.grid){
+                throughRow.style.backgroundColor = color
+              } else {
+                throughRow.childNodes.forEach(node => node.style.backgroundColor = color)
+              }
             }
             dragIndex = throughRow.rowIndex
           }
@@ -1408,16 +1497,29 @@ export default {
         }
       }
 
-      target.ondragover = function (e) {
-        // console.log('目标元素中拖拽...');
-        e.preventDefault();
+      container.ondragover = function (e) {
+        _this.selectRowData.forEach((row,index) => {
+          const drawRectangle = document.getElementById('dragingDiv'+row.index)
+          if (drawRectangle) {
+            drawRectangle.style.left = e.clientX - drawOffsetLeft + index*3 + 10 + 'px'
+            drawRectangle.style.top = e.clientY - 50 + index*3 + 10 + 'px'
+            if (firstOver === 0){
+              drawRectangle.style.zIndex = 999
+              setTimeout(()=>{
+                drawRectangle.style.transition = ''
+              },300)
+            }
+          }
+        })
+        e.preventDefault()
         leaveIndex = -1
+        firstOver++
       }
 
       let loop = null
       let leaveIndex = -1 // 是否拖出了整个table, -1表示还在table内
 
-      target.ondragleave = function (e) {
+      container.ondragleave = function (e) {
         clearTimeout(loop)
         let throughRow = judgThroughDom(e, 'leave')
         if (throughRow) {
@@ -1436,7 +1538,7 @@ export default {
           }
         }
       }
-      target.ondrop = function () {
+      container.ondrop = function () {
         // console.log('放下了'+draggedIndex);
         const form = _this.fileList[draggedIndex]
         const to = _this.fileList[dragIndex]
@@ -1452,9 +1554,15 @@ export default {
             type: 'info'
           }).then(() => {
             _this.copyOrMoveApi('move', forms, to.id)
-          }).catch()
+            recoverDragDom(false)
+          }).catch(() => {
+            recoverDragDom(true)
+          })
+        } else {
+          recoverDragDom(true)
         }
       }
+      // 清除之前的样式
       let clearClass = function (node) {
         if(!dragged) {
           return
@@ -1462,17 +1570,28 @@ export default {
         if (node) {
           if (_this.grid) {
             node = node.children[0].children[0]
-            if (node.style.backgroundColor !== 'rgba(202, 234, 249, 0.57)') {
+            // #9fcdfc99
+            if (node.style.backgroundColor === 'rgba(159, 205, 252, 0.6)') {
               node.style.backgroundColor = null
             }
           } else {
-            node.style.height = 'unset'
-            //#F5F7FA
-            if (node.style.backgroundColor !== 'rgb(245, 247, 250)') {
-              node.style.backgroundColor = null
+            // #9fcdfc99
+            if (node.firstChild.style.backgroundColor === 'rgba(159, 205, 252, 0.6)') {
+              node.childNodes.forEach(node => {
+                node.style.backgroundColor = null
+              })
             }
           }
-          dragged.style.cursor = 'grabbing'
+          dragged.style.cursor = 'default'
+
+          let numberFilesCopy = document.getElementById('numberFilesCopy')
+          if (numberFilesCopy) {
+            numberFilesCopy.style.backgroundColor = '#d2eefa66'
+            numberFilesCopy.querySelector('.number').style.display = 'inline'
+            numberFilesCopy.querySelector('.icon').style.display = 'none'
+            numberFilesCopy.querySelector('.operate').style.display = 'none'
+            numberFilesCopy.querySelector('.target .folder').style.display = 'none'
+          }
         }
         dragged.style.backgroundColor = dragBackCorlor
       }
@@ -1522,12 +1641,11 @@ export default {
     },
     // 浏览器的返回事件
     goBack() {
-      if (this.pathList.length === 2) {
+      if (this.pathList.length <= 1) {
         this.$router.push(`/?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
         return
       }
-      const linkIndex = this.pathList.length - 3
-      this.handleLink(this.pathList[linkIndex], linkIndex)
+      this.lastLink()
     },
     lastLink() {
       this.handleLink(this.pathList[this.pathList.length - 2], this.pathList.length - 2)
@@ -1561,7 +1679,6 @@ export default {
           this.pagination.pageIndex = 1
           this.getFileList()
         }
-        // setPath(this.path, this.pathList)
       }
     },
     // 新建文档
@@ -1706,6 +1823,7 @@ export default {
       if (!this.path) {
         this.path = ''
       }
+      this.editingIndex = -1
       this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
       // 改变拖拽目标
       this.rowDrop()
@@ -1781,6 +1899,9 @@ export default {
           item.index = index
         })
         this.$refs.fileListTable.reloadData(this.fileList)
+        setTimeout(() => {
+          this.$refs.fileListTable.reloadData(this.fileList)
+        }, 0)
       }
       // 数据全部加载完成
       if (this.fileList.length >= res.count) {
@@ -1794,8 +1915,6 @@ export default {
         this.containerResize()
         this.tableLoading = false
       })
-      // 使列表可拖拽
-      this.rowDrop()
       // 加载菜单状态
       this.loadContextMenus()
       // 使列表滑到顶部
@@ -1950,7 +2069,6 @@ export default {
     },
     sortChange(column) {
       let {prop, order} = column
-      this.rowDrop()
       if (this.orderCustom || this.listModeSearch) {
         this.sortable.prop = prop
         this.sortable.order = order
@@ -1973,29 +2091,6 @@ export default {
         const str = el.className
         el.className = el.className + " " + className
       }
-    },
-    getSummaries(param) {
-      // 合计
-      const {columns, data} = param
-      const sums = []
-      columns.forEach((column, index) => {
-        const values = data.map(item => Number(item[column.property]))
-        if (index === 5) {
-          sums[2] = values.reduce((prev, curr) => {
-            const value = Number(curr)
-            if (!isNaN(value)) {
-              return prev + curr
-            } else {
-              return prev
-            }
-          }, 0)
-        }
-      })
-      const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
-      const sizeSum = this.getShowSumSize(sums[2])
-      sums[2] = sumFileAndFolder + sizeSum
-      this.summaries = sums[2]
-      return sums
     },
     // 统计文件和文件夹
     getShowSumFileAndFolder(fileList) {
@@ -2059,6 +2154,9 @@ export default {
       this.changeSelectedStyle(rows)
     },
     changeSelectedStyle(rows) {
+      if (this.stopSortChange){
+        return
+      }
       let selectTotalSize = 0
       rows.forEach(item => {
         selectTotalSize += item.size
@@ -2093,16 +2191,22 @@ export default {
       }
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
-    rowStyle({row, rowIndex}) {
-      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1) {
-        return {backgroundColor: '#F5F7FA'}
+    rowStyle({row, column, rowIndex, columnIndex}) {
+      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === rowIndex) > -1) {
+        if (columnIndex === 0){
+          return {backgroundColor: '#e0f3fc !important', borderRadius:'3px 0 0 3px', borderLeft: '1px solid #409eff', borderTop: '1px solid #409eff', borderBottom: '1px solid #409eff'}
+        }
+        if (columnIndex === 5){
+          return {backgroundColor: '#e0f3fc !important', borderRadius:'0 3px 3px 0', borderRight: '1px solid #409eff', borderTop: '1px solid #409eff', borderBottom: '1px solid #409eff'}
+        }
+        return {backgroundColor: '#e0f3fc !important', borderTop: '1px solid #409eff', borderBottom: '1px solid #409eff'}
       }
     },
     // 动态添加index到row里面去
     tableRowClassName({row, rowIndex}) {
       // row.index = rowIndex
     },
-    // 选择某行预备数据
+    // 选择某行预备数据#e0f3fc !important;
     preliminaryRowData(row) {
       if (row) {
         // this.$refs.fileListTable.tableSelectData[0] = row
@@ -2136,12 +2240,12 @@ export default {
     },
     //双击
     dblclick(row) {
-      // this.fileClick(row)
+      this.fileClick(row)
     },
     // 单元格点击事件
     cellClick(row, column) {
       if(this.selectFile){
-        this.fileClick(row)
+        // this.fileClick(row)
         return
       }
       clearTimeout(this.Loop);
@@ -2159,23 +2263,22 @@ export default {
           this.$refs.fileListTable.toggleRowSelection([{row: row}])
           return
         }
-        if (columnIndex === 0) {
-          this.pinSelect(null, row)
-          this.$refs.fileListTable.toggleRowSelection([{row: row}])
-        } else {
-          this.$refs.fileListTable.clearSelection()
-          this.$refs.fileListTable.toggleRowSelection([{row: row}])
-          this.pinSelect(null, row)
-        }
+        this.pinSelect(null, row)
       }
     },
     // 选取输入框部分内容
     renameInputFocus(event, suffix) {
       event.currentTarget.selectionStart = 0
-      event.currentTarget.selectionEnd = event.currentTarget.value.length - suffix.length === 0 ? 0 : suffix.length - 1
+      event.currentTarget.selectionEnd = event.currentTarget.value.length
+      if (suffix){
+        event.currentTarget.selectionEnd -= suffix.length + 1
+      }
     },
     // 重命名
     rowRename(newFileName, row) {
+      //去掉回车换行
+      newFileName = newFileName.replace(/[\r\n]/g,"");
+      console.log('newFileName', newFileName)
       if (newFileName) {
         if (/[\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
@@ -2247,6 +2350,7 @@ export default {
         }
       }).then(() => {
         this.$refs.fileListTable.clearSelection()
+        this.$message.success("重命名成功")
       }).catch(() => {
         this.renameLoading = false
         this.editingIndex = -1
@@ -2595,7 +2699,6 @@ export default {
         if (this.rowContextData.isFolder) {
           this.$refs.directoryTree.append(this.rowContextData, to)
         }
-
         if (operating === 'move') {
           // 移除列表
           if (this.$refs.fileListTable.tableSelectData.length === 1) {
@@ -2606,7 +2709,6 @@ export default {
           this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
           this.$refs.fileListTable.tableSelectData = []
         }
-
         setTimeout(function () {
           copying.close()
         }, 1000)
@@ -2831,14 +2933,13 @@ export default {
       this.$refs.fileListTable.tableSelectData = []
       // 倒序
       removeFileIndexList = removeFileIndexList.sort((a, b) => b - a)
-      const that = this
-      setTimeout(function () {
+      setTimeout(() => {
         // 再执行移除
         for (let i = 0; i < removeFileIndexList.length; i++) {
-          that.fileList.splice(removeFileIndexList[i], 1)
+          this.fileList.splice(removeFileIndexList[i], 1)
         }
         // 改变拖拽目标
-        that.rowDrop()
+        this.rowDrop()
       }, 300)
     },
     // 预览压缩文件
@@ -2898,6 +2999,9 @@ export default {
     },
     // 点击文件或文件夹
     fileClick(row) {
+      if (this.editingIndex === row.index){
+        return
+      }
       this.openingFile = row
       if (row.isFolder) {
         this.editingIndex = -1
@@ -2959,17 +3063,11 @@ export default {
         }
         if (row.contentType.indexOf('audio') > -1) {
           // 音频文件
-          // this.audioPreviewVisible = true
-          // this.audioPreviewRow = row
           Bus.$emit('onAddAudio', row, this.audioCoverUrl)
           return
         }
         if (row.suffix === 'pdf') {
           // pdf文件
-          let host = window.location.host
-          if (window.location.port.length > 0) {
-            host = window.location.host.substring(0, window.location.host.length - window.location.port.length - 1)
-          }
           fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
           return
         }
@@ -2979,7 +3077,6 @@ export default {
           return
         }
         // 其他文件
-        let fileIds = [row.id]
         this.notPreviewDialogVisible = true
       }
     },
@@ -3075,7 +3172,7 @@ export default {
 }
 
 .table-file-name:hover {
-  color: #19ACF9;
+  cursor: default;
 }
 
 /deep/ .plTableBox .el-table .el-table__header {
@@ -3084,13 +3181,19 @@ export default {
   }
 
   .is-sortable:hover {
-    background-color: #f5f7fa;
+    background-color: #e0f3fc;
   }
+}
+
+/deep/ table {
+  border-collapse: separate;
+  border-spacing: 0 1px;
 }
 
 /deep/ .el-table td {
   padding: 0;
   height: 50px !important;
+  border: 0;
 }
 
 .home-link:hover {
@@ -3098,7 +3201,7 @@ export default {
 }
 
 .info-statistics {
-  padding: 5px 0;
+  padding: 5px 15px;
   float: right;
   width: 30%;
   display: -webkit-box;
@@ -3169,10 +3272,60 @@ export default {
 >>> .van-grid-item__content {
   background-size: cover;
   background-position: center;
+  padding: 0;
+  border-radius: 5px!important;
 }
 .vmode{
   padding: 5px 10px;
   margin-left: -5px;
+}
+.number-files {
+  position: absolute;
+  top: -42px;
+  left: 0;
+  height: 40px;
+  line-height: 40px;
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  background: #d2eefa66;
+  border-radius: 5px;
+  display: flex;
+  .icon {
+    padding: 5px;
+    width: 40px;
+  }
+  span {
+    font-weight: 500;
+  }
+  .number {
+    padding: 0 15px 0 15px;
+  }
+  .target {
+    .folder {
+      background-color: #1d8cff;
+      color: #ffffff;
+      padding: 8px;
+      border-radius: 2px;
+      margin-right: 5px;
+      font-weight: 600;
+    }
+  }
+}
+
+/deep/.el-table--enable-row-hover {
+  .el-table__body tr:hover>td{
+    background-color: #e0f3fc !important;
+  }
+}
+
+/deep/ .el-table::before {
+  height: 0;
+}
+
+/deep/.el-table {
+  th.gutter{
+    display: table-cell!important;
+  }
 }
 </style>
 

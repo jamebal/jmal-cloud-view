@@ -1,5 +1,5 @@
 
-import Vue from 'vue'
+// import Vue from 'vue'
 
 // v-draw-rectangle 画矩形选区
 Vue.directive('drawRectangle',{
@@ -74,6 +74,49 @@ Vue.directive('aplayerDrag', {
     dialogHeaderEl.style.cursor = 'move';
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null);
     const sty = dragDom.currentStyle || window.getComputedStyle(dragDom, null);
+    // 鼠标按下事件
+    dragDom.addEventListener('touchstart', touchstart, false);
+    dragDom.addEventListener('touchmove', touchmove, false);
+    let disX,disY,styL,styT;
+    function touchstart(e) {
+      // 鼠标按下，计算当前元素距离可视区的距离 (鼠标点击位置距离可视窗口的距离)
+      disX = e.touches[0].clientX - dialogHeaderEl.offsetLeft;
+      disY = e.touches[0].clientY - dialogHeaderEl.offsetTop;
+      // 获取到的值带px 正则匹配替换
+      // 注意在ie中 第一次获取到的值为组件自带50% 移动之后赋值为px
+      if (sty.left.includes('%')) {
+        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100) + binding.value.x;
+        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100) + binding.value.y;
+      } else {
+        styL = +sty.left.replace(/\px/g, '') + binding.value.x;
+        styT = +sty.top.replace(/\px/g, '') + binding.value.y;
+      }
+    }
+    // 鼠标拖拽事件
+    function touchmove(e) {
+      e.preventDefault()
+      // 通过事件委托，计算移动的距离 （开始拖拽至结束拖拽的距离）
+      const l = e.touches[0].clientX - disX;
+      const t = e.touches[0].clientY - disY;
+      let finallyL = l + styL;
+      let finallyT = t + styT;
+      // 边界值判定 注意clientWidth scrollWidth区别 要减去之前的top left值
+      if (finallyL < 0) {//// 左边
+        finallyL = 0
+      } else if (finallyL > document.body.clientWidth - dragDom.clientWidth) {///右边
+        finallyL = document.body.clientWidth - dragDom.clientWidth
+      }
+
+      if (finallyT < 0) {////顶部
+        finallyT = 0
+      } else if (finallyT > document.body.clientHeight - dragDom.clientHeight) (///底部
+        finallyT = document.body.clientHeight - dragDom.clientHeight
+      )
+      dragDom.style.transform = "translate(" + finallyL + "px," + finallyT + "px)";
+      //将此时的位置传出去
+      binding.value.x = finallyL;
+      binding.value.y = finallyT;
+    }
     // 鼠标按下事件
     dialogHeaderEl.onmousedown = (e) => {
       // 鼠标按下，计算当前元素距离可视区的距离 (鼠标点击位置距离可视窗口的距离)
@@ -212,6 +255,31 @@ Vue.directive('dialogDragWidth', {
         document.onmouseup = null
       }
     }
+  }
+})
+
+// 除某元素外的点击事件
+Vue.directive('clickoutside', { // 初始化指令
+  bind(el, binding, vnode) {
+    function documentHandler(e) {
+      // 这里判断点击的元素是否是本身，是本身，则返回
+      if (el.contains(e.target)) {
+        return false;
+      }
+      // 判断指令中是否绑定了函数
+      if (binding.expression) {
+        // 如果绑定了函数 则调用那个函数，此处binding.value就是handleClose方法
+        binding.value(e);
+      }
+    }
+    // 给当前元素绑定个私有变量，方便在unbind中可以解除事件监听
+    el.__vueClickOutside__ = documentHandler;
+    document.addEventListener('click', documentHandler);
+  },
+  update() {},
+  unbind(el, binding) { // 解除事件监听
+    document.removeEventListener('click', el.__vueClickOutside__);
+    delete el.__vueClickOutside__;
   }
 })
 
