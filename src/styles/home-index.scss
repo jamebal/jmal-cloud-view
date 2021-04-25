@@ -10,7 +10,7 @@
 }
 
 >>>.svg-icon {
-   margin-top: 0.05em;
+  margin-top: 0.05em;
   // vertical-align: unset;
 }
 
@@ -70,7 +70,6 @@
 .newFileMenu li > .menuitem > .text {
   cursor: pointer;
   font-weight: normal;
-  margin-left: 15px;
 }
 .newFileMenu li > .menuitem > .svg-icon {
   cursor: pointer;
@@ -294,6 +293,7 @@
   color: #606266;
   font-size: smaller;
   word-wrap: break-word;
+  width: -webkit-fill-available;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -336,7 +336,7 @@
   .grid-item-icon-image {
     width: 100%;
     height: 100%;
-    top: 0;
+    top: 0px;
     border-radius: 5px;
     margin: 0;
     -webkit-backdrop-filter: contrast(0.5);
@@ -346,21 +346,21 @@
 /deep/ .grid-time:hover {
   background-color: #e0f3fc;
 }
- .checkbox-group-header {
+.checkbox-group-header {
   margin: 10px 0 0;
-   .grid-all-checkbox {
-     height: 50px;
-     width: fit-content;
-     margin-left: 25px;
-     font-size: 14px;
-     padding: 10px;
-   }
-   .el-divider--horizontal {
-     display: block;
-     height: 1px;
-     width: 100%;
-     margin: 0;
-   }
+  .grid-all-checkbox {
+    height: 50px;
+    width: fit-content;
+    margin-left: 25px;
+    font-size: 14px;
+    padding: 10px;
+  }
+  .el-divider--horizontal {
+    display: block;
+    height: 1px;
+    width: 100%;
+    margin: 0;
+  }
 }
 /deep/ .grid-divider {
   display: block;

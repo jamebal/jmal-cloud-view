@@ -1,19 +1,19 @@
 <template>
   <div ref="audioPreview" v-if="show">
   <div class="audio-player"
-    v-aplayerDrag="{ x: transformX, y: transformY }"
+       v-aplayerDrag="{ x: transformX, y: transformY }"
     @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false" @touchmove="closeBarShow = true" @touchend="touchend">
-    <aplayer
+    <a-player
       ref="audioPlayer"
       autoplay
       listFolded
       loop.sync="all"
       order.sync="list"
       :mini.sync="mini"
-      :music.sync="music"
-      :list="list"
-      :lrc-type="0">
-    </aplayer>
+      :audio="list"
+      :lrc-type="0"
+    >
+    </a-player>
   <div v-show="closeBarShow" class="close-bar" @click="close">
     <svg-icon class="audio-player-close" icon-class="close"/>
   </div>
@@ -36,19 +36,12 @@ export default {
     data() {
       return {
         pc: this.$pc,
-        transformX: !this.$pc ? 20: (document.body.clientWidth-500)/2,
-        transformY: 0,
+        transformX: !this.$pc ? document.body.clientWidth - 100: (document.body.clientWidth-500)/2,
+        transformY: !this.$pc ? document.body.clientHeight/2 - 100 : 0,
         show: false,
         closeBarShow: false,
-        music: {
-          id: '',
-          src: '', // 音频文件的 URL
-          title: '', // 歌曲名称
-          artist: '', // 演唱者
-          pic: '', // 封面图片 URL
-          lrc: '', // LRC 歌词或者歌词文件的 URL
-          theme: '', // 歌曲的主题色，会覆盖播放器的主题色
-        },
+        // api ==>  https://aplayer.netlify.app/docs/guide/options.html#volume
+        audios: [],
         list: [],
         mini: !this.$pc,
         audioPlayerDoc: undefined
@@ -65,31 +58,40 @@ export default {
     },
     mounted() {
       Bus.$on('onAddAudio',(newFile, audioCoverUrl) => {
-        this.show = true
+        if (!this.show) {
+          this.show = true
+        }
         let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
         if(!this.$store.state.user.token){
           url = fileConfig.publicPreviewUrl(newFile.id, window.shareId);
         }
         let music = newFile.music
         let fileName = newFile.name.substring(0,newFile.name.length - newFile.suffix.length-1)
-        this.music = {
+        let musicOperation = {
           id: newFile.id,
-          src: url,
-          title: music.songName ? music.songName : fileName,
+          url: url,
+          name: music.songName ? music.songName : fileName,
           artist: music.songName ? music.singer : fileName,
-          pic: music.songName ? audioCoverUrl+newFile.id :'',
-          lrc: '',
-          theme: 'pic'
+          cover: music.songName ? audioCoverUrl+newFile.id :'',
+          type: newFile.contentType
         }
-        let musicIndex = this.list.findIndex(item => item.id === newFile.id)
+        let musicIndex = this.audios.findIndex(item => item.id === newFile.id)
         if(musicIndex < 0){
-          this.list.push(this.music)
-          this.$nextTick(()=>{
-            this.$refs.audioPlayer.play()
-          })
+          if(this.audios.length === 1){
+            let loop = document.querySelector('.aplayer-icon.aplayer-icon-loop');
+            loop.style.display = 'inline'
+            let order = document.querySelector('.aplayer-icon.aplayer-icon-order');
+            order.style.display = 'inline'
+          }
+          this.audios.push(musicOperation)
+          setTimeout(() => {
+            this.list = this.audios
+            setTimeout(() => {
+              this.$refs.audioPlayer.switch(this.audios.length - 1)
+            }, 0)
+          }, 0)
         } else {
-          let listMusic = this.audioPlayerDoc.querySelectorAll('.aplayer-list ol li')[musicIndex]
-          listMusic.click()
+          this.$refs.audioPlayer.switch(musicIndex)
         }
       })
     },
@@ -98,7 +100,7 @@ export default {
         this.show = false
         this.audioPlayerDoc = undefined
         this.$refs.audioPlayer.pause()
-        this.list.splice(0, this.list.length)
+        this.audios.splice(0, this.audios.length)
       },
       touchend() {
         const that = this
