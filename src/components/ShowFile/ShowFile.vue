@@ -355,7 +355,7 @@
       >
       </empty-file>
       <img id="dragImage" draggable="false" style="position: fixed;opacity: 0" src="~@/assets/img/hide.png">
-      <div id="numberFiles" class="number-files">
+      <div id="numberFiles" class="number-files" v-if="!selectFile">
         <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: none"/>
         <div class="number" style="display: inline">1个文件</div>
         <div class="operate" style="display: none;white-space: nowrap;">
@@ -534,6 +534,7 @@ import '@/utils/directives.js'
 
 import fileConfig from '@/utils/file-config'
 import EditElement from "@/views/markdown/EditElement";
+import SelectFile from "@/components/ShowFile/SelectFile";
 
 var rowStyleExecuting = false
 export default {
@@ -964,6 +965,9 @@ export default {
       this.getFileList(true)
     },
     gridItemClick(row) {
+      if (this.selectFile) {
+        this.fileClick(row)
+      }
       if (this.isCmd) {
         this.pinSelect(null, row)
         this.$refs.fileListTable.toggleRowSelection([{row: row}])
@@ -996,6 +1000,16 @@ export default {
     },
     // 画矩形选区
     darwRectangle() {
+
+      let scrollDiv = document.querySelector('.el-table__body-wrapper')
+      if (this.grid) {
+        // 添加grid视图的scroll事件
+        document.querySelector('.van-grid').onscroll = (e) => {
+          this.tableBodyScroll(null, e)
+        }
+        scrollDiv = document.querySelector('.van-grid')
+      }
+
       if(this.selectFile){
         return
       }
@@ -1126,15 +1140,6 @@ export default {
           const dragingDivs = Array.prototype.slice.call(draw.getElementsByClassName('dragingDiv'))
           dragingDivs.forEach(el => draw.removeChild(el))
         }
-      }
-
-      let scrollDiv = document.querySelector('.el-table__body-wrapper')
-      if (_this.grid) {
-        // 添加grid视图的scroll事件
-        document.querySelector('.van-grid').onscroll = function (e) {
-          _this.tableBodyScroll(null, e)
-        }
-        scrollDiv = document.querySelector('.van-grid')
       }
       // 禁止滚动
       let noScroll = function () {
@@ -2245,7 +2250,7 @@ export default {
     // 单元格点击事件
     cellClick(row, column) {
       if(this.selectFile){
-        // this.fileClick(row)
+        this.fileClick(row)
         return
       }
       clearTimeout(this.Loop);
