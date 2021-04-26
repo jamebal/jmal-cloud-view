@@ -31,9 +31,9 @@
 </template>
 
 <script>
-import ShowFile from "@/components/ShowFile/ShowFile";
 
 export default {
+  components: { ShowFile: () => import("@/components/ShowFile/ShowFile"), },
   name: 'SelectFile',
   props: {
     visible: {
@@ -45,7 +45,6 @@ export default {
       default: '选择文件'
     }
   },
-  components: { ShowFile },
   data() {
     return {
       dialogVisible: false,
