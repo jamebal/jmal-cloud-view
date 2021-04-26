@@ -101,7 +101,6 @@
         }
       },
       changImg(file) {
-        console.log(file)
         this.filename = file.name
         if(file.size > 0){
           this.loading = true
