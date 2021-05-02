@@ -347,8 +347,8 @@
           // 文件状态设为“合并中”
           this.statusSet(file.id, 'merging')
           api.mergeSimpleUpload({
-            filename: file.name,
-            relativePath: file.relativePath,
+            filename: encodeURIComponent(file.name),
+            relativePath: encodeURIComponent(file.relativePath),
             identifier: file.uniqueIdentifier,
             currentDirectory: this.params.currentDirectory,
             username: this.params.username,

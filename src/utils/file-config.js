@@ -10,9 +10,9 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token) {
     if (token) {
-      return `${this.baseUrl}/file/${username}${file.path}${file.name}?jmal-token=${token}`
+      return `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}?jmal-token=${token}`
     } else {
-      return `${this.baseUrl}/file/${username}${file.path}${file.name}`
+      return `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}`
     }
   },
   // mardown里上传图片后的图片预览地址
@@ -27,7 +27,7 @@ export default {
   // 下载文件
   download: function(username, file, token) {
     fileApi.isAllowDownload().then(() => {
-      let url = `${this.baseUrl}/file/${username}${file.path}${file.name}?jmal-token=${token}&o=download`
+      let url = `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}?jmal-token=${token}&o=download`
       window.open(url, '_self')
     })
   },
