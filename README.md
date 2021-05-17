@@ -15,7 +15,8 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 地址2: https://cloud1.jmal.top , 用户名:amdin,密码:jmalcloud (所有权限)
 
 部分截图:
-![image](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20139.png?shareKey=601b697575858bec45c457a3&o=preview)
+![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20139.png?shareKey=601b697575858bec45c457a3&o=preview)
+![image1](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20191.png?shareKey=601b697575858bec45c457a3&o=preview)
 
 ### 部署
 下面两种方式二选一
