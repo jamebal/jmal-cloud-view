@@ -15,7 +15,8 @@ Address 1: https://www.jmal.top , Username:amdin,Password:jmalcloud (partial acc
 Address 2: https://cloud1.jmal.top , Username:amdin,Password:jmalcloud (all permissions)
 
 Some screenshots:
-![image](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20139.png?shareKey=601b697575858bec45c457a3&o=preview)
+![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png?shareKey=601b697575858bec45c457a3&o=preview)
+![image1](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20191.png?shareKey=601b697575858bec45c457a3&o=preview)
 
 
 ### Deployment
