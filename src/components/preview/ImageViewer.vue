@@ -49,6 +49,7 @@ export default {
   data() {
     return {
       imageThumbnailUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
+      publicImageThumbnailUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
       currentSrc: '',
       images: [],
       imagesFristIndex: -1,
@@ -67,11 +68,10 @@ export default {
         },
         hide: function (e) {
         },
-        hidden: function (e) {
+        hidden: function () {
           Bus.$emit('updateImageViewerStatus', false)
         },
         view: function (e) {
-          Bus.$emit('imageViewerCurrentIndex', e.detail.index)
         },
         viewed: function (e) {
         },
@@ -89,10 +89,9 @@ export default {
         this.images = []
         let viewIndex = 0
         this.imageFiles = this.fileList.filter(element => !element.isFolder && element.contentType.startsWith('image'))
-        const findIndex = this.imageFiles.findIndex(file => file.id === this.file.id)
-        this.imageFiles.forEach((element, index) => {
+        this.imageFiles.forEach((element) => {
           this.images.push({
-            thumbnail: this.imageThumbnailUrl + element.id,
+            thumbnail: this.getImageUrlbyThumbnail(element.id),
             source: this.getImageUrl(element)
           })
           if (this.file.id === element.id) {
@@ -109,47 +108,6 @@ export default {
       this.imagesLastIndex = -1
       this.$emit('update:status', false)
     })
-    Bus.$on('imageViewerCurrentIndex', (index) => {
-      // this.$nextTick(() => {
-      //   let img = document.querySelector('.viewer-container .viewer-canvas > img')
-      //   let url = this.getImageUrlbyThumbnail(this.images[index])
-      //   console.log(img, 'url', url)
-      //   img.src = url
-      // })
-      // const findIndex = this.imageFiles.findIndex(file => file.id === this.file.id)
-      // if(this.imagesFristIndex === -1) {
-      //   const centerIndex = (this.images.length - 1) / 2
-      //   if (findIndex >= centerIndex) {
-      //     this.imagesFristIndex = findIndex - centerIndex
-      //   } else {
-      //     this.imagesFristIndex = 0
-      //   }
-      //   this.imagesLastIndex += this.images.length
-      // }
-      // console.log('imagesFristIndex', this.imagesFristIndex, 'imagesLastIndex', this.imagesLastIndex, 'index', index)
-      // if (index <= 2 && this.imagesFristIndex > 0) {
-      //   let end = this.imagesFristIndex
-      //   let begin = 0
-      //   if (end >= 3) {
-      //     begin = end - 3
-      //   }
-      //   console.log('begin', begin, 'end', end)
-      //   let unshifts = this.imageFiles.slice(begin, end).reverse()
-      //   unshifts.forEach((element, index) => {
-      //     this.images.unshift(this.getImageUrl(element))
-      //     this.imagesFristIndex--
-      //   })
-      //   console.log('index', index , 'unshifts.length', unshifts.length)
-      //   // const that = this
-      //   // setTimeout(function (){
-      //   //   that.vantImagePreview.startPosition = index - unshifts.length
-      //   // }, 200)
-      // }
-      // if (index >= (this.images.length - 1) && this.imagesLastIndex < (this.imageFiles.length - 1)) {
-      //   let begin = this.imagesLastIndex + 1
-      //   let end = begin + 1
-      // }
-    })
   },
   methods: {
     inited(viewer) {
@@ -162,13 +120,12 @@ export default {
       }
       return url
     },
-    getImageUrlbyThumbnail(url) {
-      let id = url.split('&id=')[1]
-      if (id) {
-        const findIndex = this.imageFiles.findIndex(file => file.id === id)
-        return this.getImageUrl(this.imageFiles[findIndex])
+    getImageUrlbyThumbnail(fileId) {
+      if (this.$store.getters.token){
+        return this.imageThumbnailUrl + fileId
+      } else {
+        return this.publicImageThumbnailUrl + fileId
       }
-      return url
     },
     show(viewIndex) {
       let index = 0
@@ -192,9 +149,6 @@ export default {
         startPosition: viewIndex,
         onClose() {
           Bus.$emit('updateImageViewerStatus', false)
-        },
-        onChange(index) {
-          Bus.$emit('imageViewerCurrentIndex', index)
         }
       })
     }
