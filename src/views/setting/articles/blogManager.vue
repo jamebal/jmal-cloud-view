@@ -156,7 +156,7 @@ export default {
       ],
       queryCondition: {
         sortProp: '',
-        sortOrder: ''
+        sortOrder: 'descending'
       },
       pagination: {
         pageIndex: 1,
@@ -204,7 +204,7 @@ export default {
       this.queryCondition.sortOrder = column.order
       this.getHeartwingsList()
     },
-    handleClick(tab, event) {
+    handleClick(tab) {
       this.$router.push({query: {tab: tab.name}})
     },
     preview() {
@@ -237,7 +237,7 @@ export default {
     },
     save() {
       this.form.userId = this.$store.state.user.userId
-      updateSetting(this.form).then((res) => {
+      updateSetting(this.form).then(() => {
         this.$message.success("保存成功！")
       }).catch(() => {
 
@@ -329,7 +329,7 @@ export default {
 }
 .config-itme-label {
   >>> .el-button {
-    padding: 0px 0px;
+    padding: 0 0;
   }
 }
 </style>
