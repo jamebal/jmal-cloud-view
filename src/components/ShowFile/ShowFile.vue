@@ -844,8 +844,8 @@ export default {
     }
 
     // 获取键盘事件
-    window.addEventListener('keydown', event => this.keydown(event))
-    window.addEventListener('keyup', event => this.keyup(event))
+    window.addEventListener('keydown',  this.keydown)
+    window.addEventListener('keyup',  this.keyup)
 
     // 加载布局
     if (this.$route.query.vmode) {
@@ -877,9 +877,10 @@ export default {
 
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
-  destroyed() {
+  beforeDestroy() {
+    console.log('beforeDestroy')
     window.removeEventListener('keydown', this.keydown, false)
-    window.removeEventListener('keyup', this.keydown, false)
+    window.removeEventListener('keyup', this.keyup, false)
     window.removeEventListener('popstate', this.goBack, false)
     if (this.stompClient) {
       this.stompClient.unsubscribe()
@@ -920,7 +921,6 @@ export default {
   },
   methods: {
     keydown(event) {
-      console.log('keydown', event)
       const isMac = navigator.platform.startsWith('Mac');
       const {key, c, keyCode, ctrlKey, metaKey} = event;
       this.isCmd = isMac && metaKey || !isMac && ctrlKey;
