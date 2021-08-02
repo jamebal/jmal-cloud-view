@@ -85,11 +85,19 @@
 
       </el-form>
     </el-card>
-
+    <footer id="footer" class="clearfix">
+      <br><br><br>
+      <div class="copyright">
+        <p><span>{{ webstieRecord.copyright }}</span></p>
+        <p><a href="http://beian.miit.gov.cn" target="_blank">{{ webstieRecord.recordPermissionNum }}</a></p>
+      </div>
+      <br>
+    </footer>
   </div>
 </template>
 
 <script>
+import { getWebstieRecord } from "@/api/setting-api";
 import { hasUser, initialization } from '@/api/user'
 import { getRememberName } from '@/utils/auth'
 import store from "@/store";
@@ -121,6 +129,10 @@ export default {
       }
     }
     return {
+      webstieRecord: {
+        copyright: 'Copyright © 2020 Journey Magical AL',
+        recordPermissionNum: '"鄂 ICP 备 2020021454 号 - 1"'
+      },
       loginForm: {
         username: '',
         password: '',
@@ -167,6 +179,10 @@ export default {
       this.loginForm.username = rememberName
       this.loginForm.rememberMe = true
     }
+
+    getWebstieRecord().then((res) => {
+      this.webstieRecord = res.data
+    })
   },
   methods: {
     showPwd() {
@@ -366,6 +382,20 @@ $light_gray:#eee;
   }
 }
 
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  color: #ffffff;
+  margin: 0 auto;
+  overflow: hidden;
+  text-align: center;
+  -webkit-transition: 0.5s ease all;
+  transition: 0.5s ease all;
+}
 
+footer, footer p {
+  font-size: .8125rem;
+}
 
 </style>

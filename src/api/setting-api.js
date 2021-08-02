@@ -51,6 +51,14 @@ export default {
   }
 }
 
+export function getWebstieRecord(params) {
+  return request({
+    url: '/public/website/record',
+    method: 'get',
+    params
+  })
+}
+
 export function getSetting(params) {
   return request({
     url: '/website/setting',
