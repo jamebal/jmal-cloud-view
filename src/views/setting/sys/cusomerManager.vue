@@ -29,7 +29,7 @@
               <el-input type="password" v-model="form.checkPass"/>
             </el-form-item>
             <el-form-item label="配额(GB):">
-              <el-input-number v-model="form.quota" controls-position="right" :min="1" :max="100"></el-input-number>
+              <el-input-number v-model="form.quota" controls-position="right" :min="1" :max="1073741824"></el-input-number>
             </el-form-item>
           </el-col>
         </el-row>
