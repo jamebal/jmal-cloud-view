@@ -27,6 +27,7 @@ export default {
   // 下载文件
   download: function(username, file, token) {
     fileApi.isAllowDownload().then(() => {
+      encodeURI()
       let url = `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}?jmal-token=${token}&o=download`
       window.open(url, '_self')
     })
