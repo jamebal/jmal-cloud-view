@@ -158,7 +158,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar-container.has-logo {
-  /deep/.el-scrollbar {
+  >>>.el-scrollbar {
     height: calc(100% - 132px) !important;
   }
 }
@@ -166,20 +166,20 @@ export default {
   font-size: 14px;
   height: 32px;
   line-height: 32px;
-  /deep/.el-progress-bar {
+  >>>.el-progress-bar {
     padding-right: 40px;
     margin-left: 20px;
   }
-  /deep/.el-progress__text {
+  >>>.el-progress__text {
     margin-left: 20px;
     font-size: 12px!important;
   }
   .collapse {
-    /deep/.el-progress-bar {
+    >>>.el-progress-bar {
       padding-right: 4px;
       margin-left: 2px;
     }
-    /deep/.el-progress__text {
+    >>>.el-progress__text {
       margin-left: 5px;
       display: block;
     }

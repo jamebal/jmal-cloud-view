@@ -250,14 +250,14 @@ export default {
 @import "src/styles/setting";
 @import "src/styles/markdown";
 
-/deep/ .el-collapse-item__header {
+>>> .el-collapse-item__header {
   font-size: 16px;
   padding-left: 20px;
 }
 .list-body {
   padding-bottom: 15px;
 }
-/deep/ .el-card__body {
+>>> .el-card__body {
   padding: 0;
 }
 
@@ -271,7 +271,7 @@ export default {
   backdrop-filter: blur(20px);
 }
 
-/deep/ .el-divider__text {
+>>> .el-divider__text {
   background-color: #fafafa;
 }
 
@@ -316,7 +316,7 @@ export default {
   }
 }
 
-/deep/ .el-tabs__header {
+>>> .el-tabs__header {
   margin: 0;
   @media screen and (min-width: 768px) {
     .el-tabs__nav {

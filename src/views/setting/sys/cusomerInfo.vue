@@ -338,7 +338,7 @@
     }
   }
   @media screen and (max-width: 768px) {
-    /deep/ .el-divider--vertical {
+    >>> .el-divider--vertical {
       display: none;
     }
     .avatar-preview {

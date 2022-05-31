@@ -178,7 +178,7 @@ export default {
     right: 13px;
 }
 @media screen and (max-width: 768px) {
-  /deep/.aplayer {
+  >>>.aplayer {
     z-index: 2;
   }
   .close-bar {
@@ -189,7 +189,7 @@ export default {
     z-index: 1;
     transform: rotate(135deg);
     border-color: #ff000075;
-    /deep/.audio-player-close {
+    >>>.audio-player-close {
       top: -7px;
       right: -7px;
     }

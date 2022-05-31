@@ -111,7 +111,7 @@ export default {
     cursor: pointer;
     font-size: 20px;
   }
-   /deep/ .el-popover {
+   >>> .el-popover {
     padding: 0;
   }
 </style>

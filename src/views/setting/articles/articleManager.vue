@@ -484,18 +484,18 @@ export default {
 .wailian {
   margin-left: 8px;
 }
-/deep/ .el-dialog {
+>>> .el-dialog {
   max-width: 100vw !important;
 }
-/deep/ .el-dialog__body {
+>>> .el-dialog__body {
   padding: 0 15px;
 }
-/deep/ .el-table-alone-page {
+>>> .el-table-alone-page {
   tbody .el-table__row:hover {
     cursor: move;
   }
 }
-/deep/.el-pagination{
+>>>.el-pagination{
   padding: 15px 5px 0;
 }
 </style>

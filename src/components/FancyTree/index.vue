@@ -540,10 +540,10 @@
       margin-left: 0;
     }
   }
-  /deep/ul.fancytree-container {
+  >>>ul.fancytree-container {
     border: unset;
   }
-  /deep/.tree-icon{
+  >>>.tree-icon{
     position: relative;
     width: 20px;
     height: 20px;

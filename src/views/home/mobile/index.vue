@@ -1332,7 +1332,7 @@ input {
 
 }
 
-/deep/ .block {
+>>> .block {
   .audio-player-close {
     width: 1em;
     height: 1em;
@@ -1364,7 +1364,7 @@ input {
     margin-left: 5px;
   }
 
-  /deep/ .svg-icon {
+  >>> .svg-icon {
     width: 2.5em;
     height: 2.5em;
   }
@@ -1381,7 +1381,7 @@ input {
   background-color: #bfcbd930;
 }
 
-/deep/ .van-sticky {
+>>> .van-sticky {
   background: inherit;
   -webkit-backdrop-filter: saturate(180%) blur(10px);
   backdrop-filter: saturate(180%) blur(10px);
@@ -1393,7 +1393,7 @@ input {
   border: 0 solid rgba(255, 255, 255, 0.72);
 }
 
-/deep/ .van-sticky--fixed {
+>>> .van-sticky--fixed {
   z-index: 1;
 }
 
@@ -1455,7 +1455,7 @@ input {
   text-overflow: ellipsis;
 }
 
-.new-folder-input /deep/ .van-field__body {
+.new-folder-input >>> .van-field__body {
   height: 40px;
 }
 
@@ -1472,7 +1472,7 @@ input {
   padding: 1px 0;
 }
 
-/deep/ .menu-background::after {
+>>> .menu-background::after {
   background: inherit;
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   backdrop-filter: saturate(180%) blur(20px);
@@ -1531,7 +1531,7 @@ input {
   height: 1rem;
 }
 
-/deep/ .ctx-menu-container {
+>>> .ctx-menu-container {
   top: unset;
   border: 1px solid rgba(0, 0, 0, .15);
   border-radius: 1rem;
@@ -1568,7 +1568,7 @@ input {
 .classification {
   padding: 1rem 0 0 0;
 
-  /deep/ .van-cell:active {
+  >>> .van-cell:active {
     background-color: #f8f8f8;
   }
 }
@@ -1641,7 +1641,7 @@ input {
   }
 }
 
-/deep/ .grid-item-text {
+>>> .grid-item-text {
   text-align: center;
   color: #606266;
   font-size: smaller;
@@ -1652,7 +1652,7 @@ input {
   white-space: nowrap;
 }
 
-/deep/ .van-grid-item__content {
+>>> .van-grid-item__content {
   padding: 0px;
 
   .grid-item-icon {

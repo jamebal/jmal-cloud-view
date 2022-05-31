@@ -53,13 +53,13 @@
   }
 </script>
 <style lang="scss" scoped>
-  /deep/ .uploader-file-info {
+  >>> .uploader-file-info {
     font-size: 14px;
   }
-  /deep/ .uploader-file-name {
+  >>> .uploader-file-name {
     width: 50%;
   }
-  /deep/ .uploader-file-status {
+  >>> .uploader-file-status {
     width: 30%;
     span {
       span {
@@ -70,13 +70,13 @@
       }
     }
   }
-  /deep/ .uploader-file-size {
+  >>> .uploader-file-size {
     display: none;
   }
-  /deep/ .uploader-file-meta {
+  >>> .uploader-file-meta {
     display: none;
   }
-  /deep/ .uploader-file-actions {
+  >>> .uploader-file-actions {
     width: 20%;
     span {
       padding: 10px;

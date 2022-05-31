@@ -197,7 +197,7 @@ export default {
 
 <style lang="scss" scoped>
 .table-temp {
-  /deep/.el-table {
+  >>>.el-table {
     thead {
       color: #262626;
     }
@@ -226,7 +226,7 @@ export default {
       //}
     }
   }
-  /deep/.el-pagination {
+  >>>.el-pagination {
     margin-top: 15px;
     text-align: center;
   }

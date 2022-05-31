@@ -887,7 +887,7 @@
     }
   }
 
-  /deep/.el-dialog {
+  >>>.el-dialog {
     /*width: 1035px;*/
     margin: 0 !important;
     overflow: hidden;

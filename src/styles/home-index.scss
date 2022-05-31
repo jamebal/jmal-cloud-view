@@ -23,7 +23,7 @@
   margin-right: 10px;
 }
 
-/deep/ .el-breadcrumb__separator {
+>>> .el-breadcrumb__separator {
   margin: 0 0;
   font-weight: 700;
   color: #C0C4CC;
@@ -75,67 +75,67 @@
   cursor: pointer;
   font-size: 20px;
 }
-/deep/ .el-input-group__append /deep/ .el-loading-spinner {
+>>> .el-input-group__append >>> .el-loading-spinner {
   top: 0;
   margin-top: 0.75rem;
 }
-/deep/ .cell /deep/ .el-loading-spinner {
+>>> .cell >>> .el-loading-spinner {
   top: 0;
   margin-top: 0.54rem;
 }
-/deep/ .cell {
+>>> .cell {
   .el-button {
     padding: 6px 10px;
     margin-left: 10px;
   }
 }
-/deep/ .el-checkbox {
+>>> .el-checkbox {
   cursor: default;
 }
-/deep/ .el-checkbox__input {
+>>> .el-checkbox__input {
   cursor: default;
 }
 .el-button.is-circle {
   border-radius: 50%;
   padding: 9px;
 }
-/deep/.svg-icon {
+>>>.svg-icon {
   font-size: 28px;
 }
-/deep/.el-table thead {
+>>>.el-table thead {
   color: #4f4f50;
 }
-/deep/ .el-table thead .el-table-column--selection .cell {
+>>> .el-table thead .el-table-column--selection .cell {
   padding-left: 15px;
 }
-/deep/.el-table .cell {
+>>>.el-table .cell {
   padding-right: 5px;
 }
-/deep/.el-table th {
+>>>.el-table th {
   padding: 0 0;
 }
-/deep/.el-table td{
+>>>.el-table td{
   padding: 1px 0;
   height: 50px;
 }
-/deep/.el-table__header tr, .el-table__header th {
+>>>.el-table__header tr, .el-table__header th {
   height: 40px;
 }
-/deep/.el-avatar>img {
+>>>.el-avatar>img {
   display: inherit;
   vertical-align: inherit;
 }
-/deep/.el-avatar {
+>>>.el-avatar {
   background: #ffffff;
   margin: 7px 0 0 0;
 }
-/deep/.el-avatar {
+>>>.el-avatar {
   width: 35px;
   height: 35px;
   line-height: 35px;
 }
 
-/deep/ .ctx-menu-container {
+>>> .ctx-menu-container {
   border: 0 solid rgba(0, 0, 0, 0);
 }
 
@@ -181,12 +181,12 @@
   box-shadow: -1px -1px 1px #cccccc73;
 }
 /*解决合计不显示的问题*/
-/deep/
+>>>
 .el-table__footer-wrapper{
   position: fixed;
 }
 
-/deep/ .el-table__row /deep/.table-file-name:hover {
+>>> .el-table__row >>>.table-file-name:hover {
   cursor: pointer;
   color: #19ACF9
 }
@@ -218,25 +218,25 @@
   margin-top: 50px;
 }
 
-/deep/ .el-dialog__header {
+>>> .el-dialog__header {
   padding: 20px 20px 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/deep/ .el-dialog__title {
+>>> .el-dialog__title {
   font-size: 16px;
 }
-/deep/ .el-dialog__body {
+>>> .el-dialog__body {
   padding: 0 20px 0 20px;
 }
-/deep/ .el-tree-node__content {
+>>> .el-tree-node__content {
   height: 35px;
   /*border-bottom: 1px solid #ccc;*/
   position: relative;
 }
 
-/deep/ .custom-tree-node {
+>>> .custom-tree-node {
   flex: 1;
   display: flex;
   align-items: center;
@@ -244,12 +244,12 @@
   padding-right: 8px;
 }
 
-/deep/ .el-tree-node.is-expanded>.el-tree-node__children {
+>>> .el-tree-node.is-expanded>.el-tree-node__children {
   max-height: 500px;
   overflow: auto;
 }
 
-/deep/ .drag-parent-class {
+>>> .drag-parent-class {
   z-index: 999;
   position: fixed;
   right: 0;
@@ -261,15 +261,15 @@
   /*transition: all .1s ease-in-out 0s;*/
 }
 
-/deep/ .drag-parent-class .el-table {
+>>> .drag-parent-class .el-table {
   background-color: #66cc66;
 }
 
-/deep/ .drag-parent-class .el-table tr {
+>>> .drag-parent-class .el-table tr {
   background-color: #66cc66;
 }
 
-/deep/.van-grid-item__text {
+>>>.van-grid-item__text {
   text-align: center;
   color: #646566;
   font-size: 12px;
@@ -280,14 +280,14 @@
   white-space: nowrap;
 }
 
-/deep/ .van-grid {
+>>> .van-grid {
   padding: 20px 0 0 20px;
 }
 
-/deep/ .van-grid-item__content .svg-icon{
+>>> .van-grid-item__content .svg-icon{
   font-size: 5rem;
 }
-/deep/ .grid-item-text {
+>>> .grid-item-text {
   cursor: default;
   text-align: center;
   color: #606266;
@@ -305,23 +305,23 @@
     resize:none;
   }
 }
-/deep/ .grid-item-text-image {
+>>> .grid-item-text-image {
   position: absolute;
   top: 80%;
   color: #ffffff;
 }
-/deep/ .grid-item-text-image-size {
+>>> .grid-item-text-image-size {
   position: absolute;
   top: 70%;
   color: #ffffff;
 }
-/deep/ .grid-item-checkbox {
+>>> .grid-item-checkbox {
   position: absolute;
   top: 10px;
   left: 10px;
   z-index: 1;
 }
-/deep/ .grid-time {
+>>> .grid-time {
   border-radius: 5px;
   padding: 0 8px;
   border: solid 1px #ccc0;
@@ -343,7 +343,7 @@
     backdrop-filter: contrast(0.5);
   }
 }
-/deep/ .grid-time:hover {
+>>> .grid-time:hover {
   background-color: #e0f3fc;
 }
 .checkbox-group-header {
@@ -362,7 +362,7 @@
     margin: 0;
   }
 }
-/deep/ .grid-divider {
+>>> .grid-divider {
   display: block;
   height: 1px;
   width: 500px;

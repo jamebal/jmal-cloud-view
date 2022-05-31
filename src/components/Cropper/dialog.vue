@@ -187,11 +187,11 @@
       margin-top: 15px;
     }
   }
-  /deep/.el-divider--vertical {
+  >>>.el-divider--vertical {
     height: 450px;
     margin: 0 20px;
   }
-  /deep/.el-loading-spinner {
+  >>>.el-loading-spinner {
      top: 0;
      margin-top: 0;
   }

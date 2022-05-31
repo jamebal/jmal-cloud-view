@@ -144,10 +144,10 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
-/deep/.el-divider--horizontal {
+>>>.el-divider--horizontal {
   margin: 0;
 }
-/deep/.el-alert {
+>>>.el-alert {
   margin-bottom: 15px;
   .el-alert__content {
     padding: 5px 8px;

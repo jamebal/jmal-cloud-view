@@ -366,10 +366,10 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
-/deep/ .el-input {
+>>> .el-input {
   width: 100%;
 }
-/deep/ .el-select {
+>>> .el-select {
   width: 100%;
 }
 </style>

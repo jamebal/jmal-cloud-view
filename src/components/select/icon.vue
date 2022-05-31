@@ -99,20 +99,20 @@ export default {
 
 <style lang="scss" scoped>
 .al-icon-picker {
-  /deep/ .el-input:not(.is-disabled) {
+  >>> .el-input:not(.is-disabled) {
     cursor: pointer;
     .el-input__inner {
       cursor: pointer;
     }
   }
-  /deep/ .el-input__suffix {
+  >>> .el-input__suffix {
     .el-icon-arrow-down {
       transition: transform .3s;
     }
   }
 }
 .al-icon-picker-open {
-  /deep/ .el-input__suffix {
+  >>> .el-input__suffix {
     .el-icon-arrow-down {
       transform: rotate(-180deg);
     }

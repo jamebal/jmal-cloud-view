@@ -1,4 +1,4 @@
-/deep/:root {
+>>>:root {
   --font-color: #000;
   --night-font-color: #ddd;
   --primary: #b2fefa;
@@ -33,7 +33,7 @@
   margin-left: 0.25rem;
 }
 
-/deep/ #top {
+>>> #top {
   padding: .75rem 1rem;
   line-height: 2;
   text-align: center;
@@ -241,7 +241,7 @@
   align-items: stretch;
 }
 
-/deep/ .article-body {
+>>> .article-body {
   .note-update-date {
     padding: 0.75rem;
     border-left: 0.35rem solid;
@@ -284,7 +284,7 @@
 }
 
 
-/deep/ .right-bj {
+>>> .right-bj {
   //top: 70px;
   //background: rgba(255, 255, 255, 0.8);
   //z-index: 1;
@@ -298,7 +298,7 @@
   flex-direction: column;
 }
 
-/deep/ .slimScrollDiv {
+>>> .slimScrollDiv {
   border-right: 1px solid #e8e8e8;
   -webkit-transition: all .5s;
   transition: all .5s;
@@ -332,10 +332,10 @@
 
 
 @media only screen and (max-width: 768px){
-  /deep/ .right-bj {
+  >>> .right-bj {
     width: 240px;
   }
-  /deep/ .slimScrollDiv {
+  >>> .slimScrollDiv {
     position: fixed;
     max-height: 1000px;
     width: calc(100% - 2 * 16px);
@@ -348,94 +348,94 @@
 }
 
 @media only screen and (min-width: 768px){
-  /deep/ .right-bj {
+  >>> .right-bj {
     width: 240px;
   }
-  /deep/ .slimScrollDiv {
+  >>> .slimScrollDiv {
     width: 240px;
   }
 }
 
 @media only screen and (min-width: 992px){
-  /deep/ .right-bj {
+  >>> .right-bj {
     width: 240px;
   }
-  /deep/ .slimScrollDiv {
+  >>> .slimScrollDiv {
     width: 240px;
   }
 }
 
 @media only screen and (min-width: 1200px){
-  /deep/ .right-bj {
+  >>> .right-bj {
     width: 240px;
   }
-  /deep/ .slimScrollDiv {
+  >>> .slimScrollDiv {
     width: 240px;
   }
-  /deep/ .slimScrollDiv,.l_side {
+  >>> .slimScrollDiv,.l_side {
     transform: translateX(50px);
   }
-  /deep/ .article_l_main[content=show] {
+  >>> .article_l_main[content=show] {
     transform: translateX(50px);
   }
 }
 
 @media only screen and (min-width: 1240px){
-  /deep/ .slimScrollDiv,.l_side {
+  >>> .slimScrollDiv,.l_side {
     transform: translateX(80px);
   }
-  /deep/ .article_l_main[content=show] {
+  >>> .article_l_main[content=show] {
     transform: translateX(80px);
   }
 }
 
 @media only screen and (min-width: 1400px){
-  /deep/ .slimScrollDiv,.l_side {
+  >>> .slimScrollDiv,.l_side {
     transform: translateX(120px);
   }
-  /deep/ .article_l_main[content=show] {
+  >>> .article_l_main[content=show] {
     transform: translateX(120px);
   }
 }
 
 @media only screen and (min-width: 1920px){
-  /deep/ .right-bj {
+  >>> .right-bj {
     width: 240px;
   }
-  /deep/ .slimScrollDiv {
+  >>> .slimScrollDiv {
     width: 240px;
   }
 }
 
-/deep/ li {
+>>> li {
   list-style: none;
 }
 
-/deep/ .slimScrollBar {
+>>> .slimScrollBar {
   background: rgba(0, 0, 0, 0.3) !important;
 }
-/deep/ .right-menu {
+>>> .right-menu {
   width: 100%!important;
   display: flex;
   flex-direction: column;
 }
-/deep/ .right-menu .toc-header {
+>>> .right-menu .toc-header {
   padding: calc(11px - 2px);
   color: #2196f3;
   font-size: 1rem;
 }
-/deep/ .right-menu .toc-header span{
+>>> .right-menu .toc-header span{
   margin-left: 10px;
 }
 
-/deep/ .right-menu > div {
+>>> .right-menu > div {
   display: block;
   border-bottom: 1px dashed #cccccc;
 }
-/deep/ .right-menu > div ul {
+>>> .right-menu > div ul {
   display: block;
 }
-/deep/ .right-menu > div .menu li {
+>>> .right-menu > div .menu li {
   line-height: 40px;
   padding-left: 40px;
   margin-top: 4px;
@@ -444,23 +444,23 @@
   color: #777;
   position: relative;
 }
-/deep/ .right-menu > div .menu li a {
+>>> .right-menu > div .menu li a {
   color: #777;
   display: block;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
-/deep/ .right-menu > div .menu li:hover a {
+>>> .right-menu > div .menu li:hover a {
   color: #13C2C2;
 }
-/deep/ .right-menu > div .menu li.current-menu-item {
+>>> .right-menu > div .menu li.current-menu-item {
   background: #e6f7ff;
 }
-/deep/ .right-menu > div .menu li.current-menu-item a {
+>>> .right-menu > div .menu li.current-menu-item a {
   color: #13C2C2;
 }
-/deep/ .right-menu > div .menu li.current-menu-item:before {
+>>> .right-menu > div .menu li.current-menu-item:before {
   content: "";
   position: absolute;
   right: 0;
@@ -469,10 +469,10 @@
   background: #13C2C2;
   height: 100%;
 }
-/deep/ .right-menu > div.titleList {
+>>> .right-menu > div.titleList {
   position: relative;
 }
-/deep/ .right-menu > div.titleList li {
+>>> .right-menu > div.titleList li {
   margin-bottom: 4px;
   cursor: pointer;
   padding-right: 16px;
@@ -485,7 +485,7 @@
   position: relative;
   transition: all 0.2s;
 }
-/deep/ .right-menu > div.titleList li a {
+>>> .right-menu > div.titleList li a {
   display: block;
   transition: all 0.2s;
   text-overflow: ellipsis;
@@ -494,13 +494,13 @@
   font-size: 14px;
   color: #333;
 }
-///deep/ .right-menu > div.titleList li.active a {
+//>>> .right-menu > div.titleList li.active a {
 //  color: #13C2C2;
 //}
-///deep/ .right-menu > div.titleList li:hover a {
+//>>> .right-menu > div.titleList li:hover a {
 //  color: #13C2C2;
 //}
-/deep/ .right-menu > div.titleList {
+>>> .right-menu > div.titleList {
   .h-1 {
     padding-left: 10px;
     font-size: 1.125rem;
@@ -527,7 +527,7 @@
     color: #6a737d;
   }
 }
-/deep/ .right-menu > div.titleList .j-bj {
+>>> .right-menu > div.titleList .j-bj {
   background: linear-gradient(to right, #5d9eea, #afcafd);
   position: absolute;
   left: 0;
@@ -537,7 +537,7 @@
   z-index: -1;
   transition: all 0.2s;
 }
-/deep/ .right-menu > div.titleList .j-bj:before {
+>>> .right-menu > div.titleList .j-bj:before {
   content: "";
   position: absolute;
   left: 0;
@@ -546,12 +546,12 @@
   background: #0070fd;
   height: 100%;
 }
-/deep/ .right-menu > div a {
+>>> .right-menu > div a {
   color: #444;
   font-size: 15px;
 }
 
-/deep/ mark {
+>>> mark {
   background: linear-gradient(to right, #FFEB3B, #ff0101a3);
   color: #000;
   overflow-wrap: break-word;
@@ -567,7 +567,7 @@
   box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 12px 0px;
 }
 
-/deep/ .article-body {
+>>> .article-body {
   border-radius: 0.5rem;
   blockquote {
     padding: 0.8em 1em;

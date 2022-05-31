@@ -128,19 +128,19 @@ export default {
 <style lang="scss" scoped>
 @import "src/styles/setting";
 
-/deep/ .box-card {
+>>> .box-card {
   max-width: 1440px;
 
-  /deep/ .el-form-item {
+  >>> .el-form-item {
     margin-bottom: 20px;
   }
 }
 
-/deep/ .el-form-item {
+>>> .el-form-item {
   margin-bottom: 0px;
 }
 
-/deep/ .el-divider--horizontal {
+>>> .el-divider--horizontal {
   margin: 10px 0;
 }
 </style>

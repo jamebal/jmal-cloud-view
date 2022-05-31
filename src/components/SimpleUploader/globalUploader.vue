@@ -725,7 +725,7 @@
       font-size: 16px;
     }
 
-    /deep/.uploader-file-icon {
+    >>>.uploader-file-icon {
       &:before {
         content: '' !important;
       }
@@ -747,19 +747,19 @@
       }
     }
 
-    /deep/.uploader-file-actions > span {
+    >>>.uploader-file-actions > span {
       margin-right: 6px;
     }
   }
 
-  /deep/.uploader-file-status {
+  >>>.uploader-file-status {
     width: 32%;
     text-indent: 20px;
   }
-  /deep/.uploader-file-meta {
+  >>>.uploader-file-meta {
     width: 0;
   }
-  /deep/.uploader-file-icon {
+  >>>.uploader-file-icon {
     width: 32px;
     height: 32px;
     display: inline-block;
@@ -767,7 +767,7 @@
     margin-top: 8px;
     margin-right: 8px;
   }
-  /deep/.uploader-file-actions>span {
+  >>>.uploader-file-actions>span {
     margin-right: 6px;
     margin-left: 8px;
   }

@@ -338,7 +338,7 @@ export default {
   font-size: 16px;
   font-weight: 600;
 }
-/deep/ .el-page-header {
+>>> .el-page-header {
   height: 32px;
   line-height: 32px;
 }
@@ -353,7 +353,7 @@ export default {
 .article-num:active {
   background-color: #ecf5ff;
 }
-/deep/ .el-form-item__content {
+>>> .el-form-item__content {
   line-height: 1.5;
 }
 </style>

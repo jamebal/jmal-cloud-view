@@ -3154,15 +3154,15 @@ export default {
   height: 100%;
 }
 
-/deep/ .app-wrapper {
+>>> .app-wrapper {
   overflow-y: hidden;
 }
 
-/deep/ :focus {
+>>> :focus {
   outline: 0;
 }
 
-/deep/ .el-drawer__header {
+>>> .el-drawer__header {
   color: #000000;
 
   span {
@@ -3175,17 +3175,17 @@ export default {
 .details-form {
   margin: 20px 10px 0 20px;
 
-  /deep/ .el-form-item__content {
+  >>> .el-form-item__content {
     white-space: normal;
     word-break: break-all;
     word-wrap: break-word;
   }
 
-  /deep/ .el-form-item {
+  >>> .el-form-item {
     margin-bottom: 0;
   }
 
-  /deep/ .details-position {
+  >>> .details-position {
     margin: 10px 0;
 
     .el-form-item__content {
@@ -3206,7 +3206,7 @@ export default {
   text-align: center;
 }
 
-.drawer-icon-font /deep/ .svg-icon {
+.drawer-icon-font >>> .svg-icon {
   font-size: 8rem;
 }
 
@@ -3218,7 +3218,7 @@ export default {
   cursor: default;
 }
 
-/deep/ .plTableBox .el-table .el-table__header {
+>>> .plTableBox .el-table .el-table__header {
   th {
     background-color: #FFFFFF;
   }
@@ -3228,12 +3228,12 @@ export default {
   }
 }
 
-/deep/ table {
+>>> table {
   border-collapse: separate;
   border-spacing: 0 1px;
 }
 
-/deep/ .el-table td {
+>>> .el-table td {
   padding: 0;
   height: 50px !important;
   border: 0;
@@ -3261,11 +3261,11 @@ export default {
   }
 }
 
-/deep/ .el-input-tree {
+>>> .el-input-tree {
   width: 50% !important;
 }
 
-/deep/ .el-input-tree-button {
+>>> .el-input-tree-button {
   margin-left: 5px !important;
 }
 
@@ -3362,17 +3362,17 @@ export default {
   }
 }
 
-/deep/ .el-table--enable-row-hover {
+>>> .el-table--enable-row-hover {
   .el-table__body tr:hover > td {
     background-color: #e0f3fc !important;
   }
 }
 
-/deep/ .el-table::before {
+>>> .el-table::before {
   height: 0;
 }
 
-/deep/ .el-table {
+>>> .el-table {
   th.gutter {
     display: table-cell !important;
   }

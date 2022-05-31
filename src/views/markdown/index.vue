@@ -514,7 +514,7 @@ export default {
 <style lang="scss" scoped>
 @import "src/styles/setting";
 
-/deep/ .el-main {
+>>> .el-main {
   padding: 35px 20px 20px 20px;
 
   .v-note-wrapper {
@@ -522,15 +522,15 @@ export default {
   }
 }
 
-/deep/ .el-header {
+>>> .el-header {
   height: 43px !important;
 }
 
-/deep/ .el-input-group {
+>>> .el-input-group {
   width: unset;
 }
 
-/deep/ .header-item {
+>>> .header-item {
   line-height: 40px;
   padding: 5px 0 5px 0;
 
@@ -558,13 +558,13 @@ export default {
   }
 }
 
-/deep/ .el-drawer__body {
+>>> .el-drawer__body {
   .more-setting {
     padding: 15px;
   }
 }
 
-/deep/ .more-setting {
+>>> .more-setting {
   margin-top: 32px;
   padding-top: 15px;
 
@@ -608,12 +608,12 @@ export default {
 }
 
 .setting-tags {
-  /deep/ .el-tag {
+  >>> .el-tag {
     margin-left: 8px;
     margin-top: 8px;
   }
 
-  /deep/ .button-new-tag {
+  >>> .button-new-tag {
     margin-left: 8px;
     margin-top: 8px;
     height: 32px;
@@ -622,7 +622,7 @@ export default {
     padding-bottom: 0;
   }
 
-  /deep/ .input-new-tag {
+  >>> .input-new-tag {
     margin-left: 8px;
     margin-top: 8px;
     max-width: 94px;
@@ -634,7 +634,7 @@ export default {
   }
 }
 
-/deep/ .input-error {
+>>> .input-error {
   input {
     border-color: #f56c6c;
   }
@@ -649,7 +649,7 @@ export default {
   margin-left: 8px;
 }
 
-/deep/ .el-autocomplete-suggestion {
+>>> .el-autocomplete-suggestion {
   li {
     padding: 0;
     background-color: #ecf5ff;
@@ -668,7 +668,7 @@ export default {
   }
 }
 
-/deep/ .el-autocomplete-suggestion__wrap {
+>>> .el-autocomplete-suggestion__wrap {
   padding: 2px 0;
 }
 
@@ -678,7 +678,7 @@ export default {
   }
 }
 
-/deep/ .el-tree-node {
+>>> .el-tree-node {
   &:focus > .el-tree-node__content {
     background-color: unset;
   }
@@ -693,7 +693,7 @@ export default {
   overflow: auto;
 }
 
-/deep/ .url-slug {
+>>> .url-slug {
   display: flex;
   color: #aaaaaa;
 
@@ -712,11 +712,11 @@ export default {
   }
 }
 
-/deep/ .vditor-toolbar--pin {
+>>> .vditor-toolbar--pin {
   top: unset;
 }
 
-/deep/ .el-scrollbar__wrap {
+>>> .el-scrollbar__wrap {
   &::-webkit-scrollbar {
     width: 0;
     height: 0;
@@ -724,7 +724,7 @@ export default {
 }
 .view-icon {
   margin-left: 10px;
-  /deep/.svg-icon{
+  >>>.svg-icon{
     margin-right: 2px;
   }
 }

@@ -102,7 +102,7 @@
     margin-right: 10px;
   }
 
-  /deep/ .el-breadcrumb__separator {
+  >>> .el-breadcrumb__separator {
     margin: 0 0;
     font-weight: 700;
     color: #C0C4CC;

@@ -15,7 +15,7 @@ a:hover {
 .container {
   padding: 20px;
 }
-/deep/.box-card {
+>>>.box-card {
   margin: 0 auto;
   max-width: 1240px;
   .clearfix {
@@ -30,14 +30,14 @@ a:hover {
     }
   }
 }
-/deep/.el-dialog__headerbtn {
+>>>.el-dialog__headerbtn {
   top: unset;
 }
-/deep/.el-card__body {
+>>>.el-card__body {
   padding: 15px;
 }
 .table-search-header{
-  /deep/.el-card__header {
+  >>>.el-card__header {
     padding: 18px 20px 0;
   }
 }
@@ -71,7 +71,7 @@ a:hover {
   float: right;
   margin-top: -32px;
 }
-/deep/ .el-collapse-item__content, /deep/.el-tab-pane {
+>>> .el-collapse-item__content, >>>.el-tab-pane {
   background-color: #fafafa;
   padding: 0 30px 20px;
 }
@@ -88,7 +88,7 @@ a:hover {
   .avatar-value{
     position: absolute;
     z-index: 1;
-    /deep/.el-icon-user-solid{
+    >>>.el-icon-user-solid{
       font-size: 50px;
       padding: 25px;
     }
@@ -106,22 +106,22 @@ a:hover {
     background: #2f2f2fa8;
   }
 }
-.form-item-avatar /deep/ .el-form-item__label{
+.form-item-avatar >>> .el-form-item__label{
   padding: 30px 12px;
 }
 .dialog-avatar {
-  /deep/.el-dialog {
+  >>>.el-dialog {
     min-width: 800px;
     margin-top: 5vh!important;
   }
 }
 .dialog-form {
-  /deep/ .el-dialog__body {
+  >>> .el-dialog__body {
     padding-bottom: 0;
     padding-top: 22px;
   }
 }
-/deep/ .el-dialog {
+>>> .el-dialog {
   border-radius: 4px;
   max-width: calc(100vw - 30px);
   .el-dialog__header {
@@ -181,13 +181,13 @@ a:hover {
   .search-form .el-form-actions {
     text-align: right;
   }
-  /deep/ .el-dialog {
+  >>> .el-dialog {
     min-width: 100px;
     width: 100%;
     margin-top: 10vh!important;
   }
   .dialog-avatar {
-    /deep/.el-dialog {
+    >>>.el-dialog {
       .container {
         display: block;
         .img-container {

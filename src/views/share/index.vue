@@ -515,29 +515,29 @@
     font-size: 14px;
     font-weight: 500;
   }
-  /deep/.el-icon-my-export{
+  >>>.el-icon-my-export{
     background: url('~@/assets/img/cancel-share.png') center no-repeat;
     background-size: cover;
   }
-  /deep/.el-icon-my-export:before{
+  >>>.el-icon-my-export:before{
     content: "替";
     font-size: 16px;
     visibility: hidden;
   }
   //如果直接使用字体图片
   //直接在before属性设置对应的content就行
-  /deep/.el-icon-my-export{
+  >>>.el-icon-my-export{
     font-size: 16px;
   }
-  /deep/.el-icon-my-export:before{
+  >>>.el-icon-my-export:before{
     content: "\66ff";
     font-size: 16px;
     visibility: hidden;
   }
-  /deep/.plTableBox .el-table .el-table__header th {
+  >>>.plTableBox .el-table .el-table__header th {
     background-color: #FFFFFF;
   }
-  /deep/.el-table td {
+  >>>.el-table td {
     height: 50px!important;
   }
 </style>

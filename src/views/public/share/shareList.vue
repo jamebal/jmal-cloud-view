@@ -981,7 +981,7 @@
       float: right;
       top: 10px;
       margin-top: -34px;
-      /deep/.el-avatar {
+      >>>.el-avatar {
         margin: 0 0 0 10px;
       }
       .user {
@@ -989,7 +989,7 @@
       }
     }
   }
-  /deep/.el-table{
+  >>>.el-table{
     &::before {
       width: auto;
     }
@@ -1001,9 +1001,9 @@
     height: 0;
     text-align: center;
     width: auto;
-    /deep/.el-divider__text {
+    >>>.el-divider__text {
     }
-    /deep/.el-divider__text.is-center {
+    >>>.el-divider__text.is-center {
       position: relative;
     }
   }

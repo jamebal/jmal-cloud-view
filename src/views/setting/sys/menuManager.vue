@@ -392,16 +392,16 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
-/deep/ .el-input {
+>>> .el-input {
   width: 100%;
 }
-/deep/ .el-input-number {
+>>> .el-input-number {
   width: unset;
 }
-/deep/ .el-select {
+>>> .el-select {
   width: 100%;
 }
-/deep/.box-card {
+>>>.box-card {
   max-width: 1440px;
 }
 </style>

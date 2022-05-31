@@ -273,7 +273,7 @@ export default {
     padding: 4px 10px 4px 0;
   }
 }
-/deep/ .el-checkbox {
+>>> .el-checkbox {
   font-size: 13px;
   padding: 0 10px;
   .el-checkbox__label {
@@ -281,7 +281,7 @@ export default {
     font-size: 13px;
   }
 }
-/deep/ .el-upload-list--picture {
+>>> .el-upload-list--picture {
   .el-upload-list__item-thumbnail {
     width: unset;
     height: 90px;
@@ -295,7 +295,7 @@ export default {
     line-height: 90px;
   }
 }
-/deep/ .el-upload-list__item-name {
+>>> .el-upload-list__item-name {
   margin-right: 10px;
 }
 </style>

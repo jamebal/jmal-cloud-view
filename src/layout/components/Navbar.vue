@@ -212,10 +212,10 @@ export default {
     }
   }
 }
-/deep/ .user-dropdown {
+>>> .user-dropdown {
   top: 50px;
 }
-/deep/ .el-menu--horizontal {
+>>> .el-menu--horizontal {
   padding: 0 15px;
   .el-menu-item {
     height: 50px;

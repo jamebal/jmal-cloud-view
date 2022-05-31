@@ -225,7 +225,7 @@ export default {
   max-width: 1440px;
 }
 
-/deep/ .el-range-editor--medium {
+>>> .el-range-editor--medium {
   width: 100%;
 }
 </style>

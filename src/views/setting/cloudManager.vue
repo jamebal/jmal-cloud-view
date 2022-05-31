@@ -89,7 +89,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
-/deep/ .el-textarea {
+>>> .el-textarea {
   max-width: 1080px;
 }
 </style>

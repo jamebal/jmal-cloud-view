@@ -236,11 +236,11 @@ export default {
   font-size: 16px;
   font-weight: 600;
 }
-/deep/ .el-page-header {
+>>> .el-page-header {
   height: 32px;
   line-height: 32px;
 }
-/deep/ .tag-checkbox {
+>>> .tag-checkbox {
   padding-left: 8px;
   .el-checkbox__inner {
     display: none;
@@ -249,37 +249,37 @@ export default {
     padding-left: 5px;
   }
 }
-/deep/ .el-checkbox {
+>>> .el-checkbox {
   margin-right: 0;
   margin-bottom: 16px;
 }
-/deep/ .el-checkbox.is-bordered {
+>>> .el-checkbox.is-bordered {
   background-color: #f4f4f5;
   border-color: #e9e9eb;
   color: #646568;
   font-weight: 400;
   padding: 6px 5px 5px 10px;
 }
-/deep/ .el-checkbox.is-bordered.is-checked {
+>>> .el-checkbox.is-bordered.is-checked {
   background-color: #ecf5ff;
   border-color: #40a9ff;
   color: #d9ecff;
 }
-/deep/ .el-icon-edit:hover {
+>>> .el-icon-edit:hover {
   color: #40a9ff;
 }
 .check-all {
   margin-right: 20px;
 }
-/deep/ .el-card__header {
-  /deep/ .el-checkbox {
+>>> .el-card__header {
+  >>> .el-checkbox {
     margin: 0;
   }
-  /deep/.el-button+.el-button {
+  >>>.el-button+.el-button {
     margin-left: 0;
   }
 }
-/deep/ .el-form-item__content {
+>>> .el-form-item__content {
   line-height: 1.5;
 }
 </style>
