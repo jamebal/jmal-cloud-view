@@ -5,7 +5,7 @@
 </template>
 <script>
 import vditor from 'vditor/dist/method.min'
-import "vditor/src/assets/scss/index.scss"
+import "vditor/src/assets/less/index.less"
   export default {
     name: "VidtorPreview",
     components: {

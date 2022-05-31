@@ -114,7 +114,7 @@ import DirTree from "@/components/FileTree/DirTree"
 import fileConfig from '@/utils/file-config'
 
 import Vditor from 'vditor'
-import "vditor/src/assets/scss/index.scss"
+import "vditor/src/assets/less/index.less"
 import categoryApi from "@/api/category";
 import tagApi from "@/api/tag";
 import EditElement from "@/views/markdown/EditElement";
