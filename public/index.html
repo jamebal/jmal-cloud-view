@@ -11,28 +11,31 @@
     <!--vue.js 开发环境版本，包含了有帮助的命令行警告-->
 <!--    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
     <!-- 生产环境版本，优化了尺寸和速度 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/vue@2.6.14.js"></script>
     <!--vue-roter.js-->
-    <script src="https://cdn.bootcss.com/vue-router/3.0.6/vue-router.js"></script>
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/vue-router@3.0.6.js"></script>
     <!--axios.js-->
-    <script src="https://cdn.bootcss.com/axios/0.21.1/axios.min.js"></script>
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/axios@0.21.1.js"></script>
     <!--vant.js-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.12/lib/index.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/vant@2.12/lib/vant.js"></script>
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.path %>/resource/vant@2.12.css"/>
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/vant@2.12.js"></script>
     <!--element-ui.js-->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
-    <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.path %>/resource/element-ui@2.13.0.css">
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/element-ui@2.13.0.js"></script>
     <!--pl-table.js-->
-    <link rel="stylesheet" href="https://unpkg.com/pl-table@2.7.5/themes/index.css">
-    <script src="https://unpkg.com/pl-table@2.7.5/lib/index.js"></script>
+<!--    <link rel="stylesheet" href="https://unpkg.com/pl-table@2.7.5/themes/index.css">-->
+<!--    <script src="https://unpkg.com/pl-table@2.7.5/lib/index.js"></script>-->
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.path %>/resource/pl-table@2.7.5/themes/index.css">
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/pl-table@2.7.5/lib/index.js"></script>
     <!--viewer css-->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/viewerjs/1.7.1/viewer.min.css">
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.path %>/resource/viewerjs@1.7.1.css">
     <!--vue-aplayer-theme-->
-    <script src="https://cdn.jsdelivr.net/npm/colorthief@2.0.2/src/color-thief.js"></script>
+    <script src="<%= htmlWebpackPlugin.options.path %>/resource/colorthief@2.0.2.js"></script>
 
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= webpackConfig.name %></title>
-    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/5.13.0/css/all.min.css">
+<!--    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/5.13.0/css/all.min.css">-->
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.path %>/resource/font-awesome/5.13.0/css/all.min.css">
 
   </head>
   <body>
