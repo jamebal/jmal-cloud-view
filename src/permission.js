@@ -41,9 +41,10 @@ router.beforeEach(async(to, from, next) => {
           // 删除token，然后转到登录页面重新登录
           await store.dispatch('user/resetToken')
           if (to.path === '/404') {
-            to.path = '/'
+            next(`/login`)
+          } else {
+            next(`/login?redirect=${to.path}`)
           }
-          next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
       }
@@ -102,6 +103,7 @@ function findPath(menuList, to, parentPath){
       }
     }
     if(parentPath){
+      console.log("parentPath", parentPath)
       menu.path = parentPath + '/' + menu.path
     }
     if(menu.path === to) return true
