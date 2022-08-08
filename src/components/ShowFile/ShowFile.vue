@@ -1745,9 +1745,9 @@ export default {
     // 新建文件夹
     newFolderNameClick() {
       if (this.newFolderName) {
-        if (/[\/\\"<>\?\*]/gi.test(this.newFolderName)) {
+        if (/[\[\]\/\\"<>\?\*]/gi.test(this.newFolderName)) {
           this.$message({
-            message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+            message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
             type: 'warning'
           });
           return;
@@ -1795,9 +1795,9 @@ export default {
     // 新建文本文件
     createTextFile(newFileName) {
       if (newFileName) {
-        if (/[\/\\"<>\?\*]/gi.test(newFileName)) {
+        if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
-            message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+            message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
             type: 'warning'
           })
           return
@@ -2323,9 +2323,9 @@ export default {
       newFileName = newFileName.replace(/[\r\n]/g, "");
       console.log('newFileName', newFileName)
       if (newFileName) {
-        if (/[\/\\"<>\?\*]/gi.test(newFileName)) {
+        if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
-            message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+            message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
             type: 'warning'
           });
           return;

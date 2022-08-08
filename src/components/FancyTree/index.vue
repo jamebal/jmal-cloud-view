@@ -369,9 +369,9 @@
           if(newFileName === row.name){
             return true
           }
-          if(/[\/\\"<>\?\*]/gi.test(newFileName)){
+          if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)){
             this.$message({
-              message: '文件名不能包含以下字字符:<,>,|,*,?,,/',
+              message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
               type: 'warning'
             });
             return false
