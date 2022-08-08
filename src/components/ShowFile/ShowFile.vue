@@ -1756,7 +1756,7 @@ export default {
         api.uploadFolder({
           isFolder: true,
           filename: this.newFolderName,
-          currentDirectory: this.path,
+          currentDirectory: encodeURIComponent(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         }).then((res) => {
@@ -1967,7 +1967,7 @@ export default {
           keyword: key,
           sortableProp: this.sortable.prop,
           order: this.sortable.order,
-          currentDirectory: this.$route.query.path,
+          currentDirectory: encodeURIComponent(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
@@ -1983,7 +1983,7 @@ export default {
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
         id: row.id,
-        currentDirectory: this.$route.query.path,
+        currentDirectory: encodeURIComponent(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -1998,7 +1998,7 @@ export default {
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
         id: row.id,
-        currentDirectory: this.$route.query.path,
+        currentDirectory: encodeURIComponent(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -2011,7 +2011,7 @@ export default {
       api.fileList({
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
-        currentDirectory: this.$route.query.path,
+        currentDirectory: encodeURIComponent(this.$route.query.path),
         queryFileType: this.queryFileType,
         sortableProp: this.sortable.prop,
         order: this.sortable.order,
@@ -2028,7 +2028,7 @@ export default {
       this.beforeLoadData(onLoad)
       api.fileList({
         userId: this.$store.state.user.userId,
-        currentDirectory: this.path,
+        currentDirectory: encodeURIComponent(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -2777,7 +2777,7 @@ export default {
               api.newFolder({
                 isFolder: true,
                 filename: data.name,
-                currentDirectory: path,
+                currentDirectory: encodeURIComponent(this.$route.query.path),
                 username: this.$store.state.user.name,
                 userId: this.$store.state.user.userId
               }).then((res) => {

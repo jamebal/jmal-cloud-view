@@ -10,9 +10,14 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token) {
     if (token) {
-      return `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}?jmal-token=${token}`
+      let path = "/"
+      if (file.path.length > 1) {
+        path = encodeURIComponent(file.path.substr(1, file.path.length - 2))
+      }
+      const filename = encodeURIComponent(file.name);
+      return `${this.baseUrl}/file/${username}/${path}/${filename}?jmal-token=${token}`
     } else {
-      return `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}`
+      return `${this.baseUrl}/file/${username}/${path}/${filename}`
     }
   },
   // mardown里上传图片后的图片预览地址
