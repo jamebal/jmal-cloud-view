@@ -19,17 +19,6 @@ const port = process.env.port || process.env.npm_config_port || 9528 // dev port
 
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
-// let monacoLanguages = []
-// const modulesFiles = require.context("monaco-languages/release/dev/", true, /\.js$/)
-// modulesFiles.keys().reduce((modules, modulePath) => {
-//   const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, "$1");
-//   if(moduleName.indexOf('contribution') === -1){
-//     monacoLanguages.push(moduleName.replace(/([/][^/]+)$/, ""))
-//   }
-//   // const value = modulesFiles(modulePath);
-//   // modules[moduleName] = value.default;
-//   // return modules;
-// }, {});
 
 module.exports = {
 

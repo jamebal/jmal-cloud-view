@@ -19,92 +19,66 @@ Some screenshots:
 ![image1](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20191.png?shareKey=601b697575858bec45c457a3&o=preview)
 
 
-### Deployment
-Choose one of the following two ways
-### Deployment method one: [docker deployment](https://blog.jmal.top/s/docker-jmalcloud) (recommended)
-#### 1. Pull image
-`docker pull registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest`
-#### 2. Run
-`docker run --restart=always --name jmalcloud -p 7070:80 -p 7071:8080 -p 7072:8088 -v /Users/jmal/temp/jmalcloud-docker/files/:/ jmalcloud/files/ -v /Users/jmal/temp/jmalcloud-docker/db/:/data/db/ -d registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud: latest`
+### deploy
+**Either of the following two startup methods is recommended[docker-compose](https://docs.docker.com/compose//)**
+
+> docker run
+
+```shell
+docker run \
+--restart=always \
+--name jmalcloud \
+-p 7070:80 \
+-p 7071:8080 \
+-p 7072:8088 \
+-p 27018:27017 \
+-v /Users/jmal/temp/jmalcloud-docker/files/:/jmalcloud/files/ \
+-v /Users/jmal/temp/jmalcloud-docker/db/:/data/db/ \
+-d registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest
 ```
-Start parameters description : 
-Expose port : 
-`80` : Web portal
-`8080` : Blog entry
-`8088` : Netdisk service entry
-Disk mapping :
+
+> docker-compose
+
+docker-compose.yml
+
+```yaml
+version: "3.5"
+services:
+  jmalcloud:
+    image: registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest
+    container_name: jmalcloud
+    volumes:
+      - /Users/jmal/temp/jmalcloud-docker/files/:/jmalcloud/files/
+      - /Users/jmal/temp/jmalcloud-docker/db/:/data/db/
+    ports:
+      - "7070:80"
+      - "7071:8080"
+      - "7072:8088"
+      - "27018:27017"
+```
+
+Start: Run the following command in the docker-compose.yml file directory
+
+```shell
+docker-compse up -d
+```
+
+> Start-up parameters
+
+Port :
+`7070` : Web portal
+`7071` : Blog portal
+`7072` : Web api portal, 例如：http://localhost:7072/public/doc.html
+`27018` : MongoDB
+Volume :
 `/jmalcloud/files/` : Netdisk file storage directory
 `/data/db/` : mongodb data storage directory
-```
-#### 3. Visit port 7070 and try it. The interface of creating administrator appears to indicate successful deployment
 
-### Deployment method 2
+> Try visiting
 
-#### 1.Environmental Preparation
+Wait for about 40 seconds after startup, access port 7070 and see the following screen, indicating successful deployment
 
-- nginx 1.18+
-- mongodb 4.0+
-- jdk 1.8+
-
-#### 2.Download the web interface program and configure nginx
-
-Go to[here](https://github.com/jamebal/jmal-cloud-view/releases)Download the latest version, select dist.tar to download
-
-Download and unpack it somewhere
-
-The nginx configuration is as follows: (only two places need to be modified)
-
-```nginx
-server {
-        listen 80;
-        # 1.Here fill in your ip address, or domain name
-        server_name xxx;
-        # 2.This is the path to the extracted dist.tar
-        root xxx;
-        client_max_body_size 50m;	
-        client_body_buffer_size 512k;
-
-        location /api/ {
-                proxy_pass   http://localhost:8088/;
-                proxy_set_header Host $proxy_host;
-                proxy_set_header X-real-ip $remote_addr;
-        }
-
-        location / {
-                try_files $uri $uri/ /index.html;
-                index index.html index.htm;
-        }
-
-        location /mq/ {
-                proxy_pass   http://localhost:8088/mq/;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "upgrade";
-                proxy_connect_timeout 60s;
-                proxy_read_timeout 500s;
-                proxy_send_timeout 500s;
-        }
-
-        location ~ \.(eot|otf|ttf|woff|woff2|svg)$ {
-                add_header  Access-Control-Allow-Origin *;
-        }
-}
-```
-
-#### 3.Download the netdisk service program
-
-Go to[here](https://github.com/jamebal/jmal-cloud-server/releases)Download the latest jar packages
-
-Start (need to install jdk, mongodb environment in advance)
-
-`java -jar clouddisk-2.0-exec.jar --spring.profiles.active=prod --file.rootDir=xxx`
-
-  where `file.rootDir` is the real storage location of the netdisk file
-
-#### 4.access
-Just type your IP or domain name directly into your browser
-
-
+![](https://www.jmal.top/api/file/jmal/Image/Document/2021-03/20210301%E6%88%AA%E5%B1%8F%20144.png)
 
 ### Browser Support
 
