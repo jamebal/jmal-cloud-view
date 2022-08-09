@@ -275,9 +275,9 @@
             // 上传文件夹
             api.uploadFolder({
               isFolder: true,
-              folderPath: folder.parent.path,
-              filename: folder.name,
-              currentDirectory: this.params.currentDirectory,
+              folderPath: encodeURI(folder.parent.path),
+              filename: encodeURI(folder.name),
+              currentDirectory: encodeURI(this.params.currentDirectory),
               username: this.params.username,
               userId: this.params.userId
             }).then(() => {
@@ -347,10 +347,10 @@
           // 文件状态设为“合并中”
           this.statusSet(file.id, 'merging')
           api.mergeSimpleUpload({
-            filename: encodeURIComponent(file.name),
-            relativePath: encodeURIComponent(file.relativePath),
+            filename: encodeURI(file.name),
+            relativePath: encodeURI(file.relativePath),
             identifier: file.uniqueIdentifier,
-            currentDirectory: this.params.currentDirectory,
+            currentDirectory: encodeURI(this.params.currentDirectory),
             username: this.params.username,
             userId: this.params.userId,
             totalSize: file.size,

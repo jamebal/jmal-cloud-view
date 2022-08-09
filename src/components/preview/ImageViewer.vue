@@ -90,6 +90,7 @@ export default {
         let viewIndex = 0
         this.imageFiles = this.fileList.filter(element => !element.isFolder && element.contentType.startsWith('image'))
         this.imageFiles.forEach((element) => {
+          console.log(element)
           this.images.push({
             thumbnail: this.getImageUrlbyThumbnail(element.id),
             source: this.getImageUrl(element)

@@ -290,7 +290,7 @@
           shareId: this.shareId,
           fileId: file.id,
           id: file.id,
-          path: file.path,
+          path: encodeURI(file.path),
           username: this.$store.state.user.name
         }).then((res)=>{
           this.loading.close()
@@ -518,7 +518,7 @@
             message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
           })
           api.previewTextByPath({
-            path: row.path,
+            path: encodeURI(row.path),
             username: this.$store.state.user.name
           }).then((res)=>{
             this.loading.close()

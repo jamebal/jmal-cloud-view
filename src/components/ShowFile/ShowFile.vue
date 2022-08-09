@@ -1662,7 +1662,7 @@ export default {
     // 浏览器的返回事件
     goBack() {
       if (this.pathList.length <= 1) {
-        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
         return
       }
       this.lastLink()
@@ -1690,9 +1690,9 @@ export default {
         })
         if (!unPushLink) {
           if (!this.$route.query.path) {
-            this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
           } else {
-            this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
           }
         }
         if (!unRefresh) {
@@ -1755,8 +1755,8 @@ export default {
         this.newFolderLoading = true
         api.uploadFolder({
           isFolder: true,
-          filename: this.newFolderName,
-          currentDirectory: encodeURIComponent(this.path),
+          filename: encodeURI(this.newFolderName),
+          currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         }).then((res) => {
@@ -1810,10 +1810,10 @@ export default {
           }
         }
         api.addFile({
-          fileName: newFileName,
+          fileName: encodeURI(newFileName),
           isFolder: false,
           username: this.$store.state.user.name,
-          parentPath: parentPath
+          parentPath: encodeURI(parentPath)
         }).then((res) => {
           this.createTextFileLoading = false
 
@@ -1967,7 +1967,7 @@ export default {
           keyword: key,
           sortableProp: this.sortable.prop,
           order: this.sortable.order,
-          currentDirectory: encodeURIComponent(this.$route.query.path),
+          currentDirectory: encodeURI(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
@@ -1983,7 +1983,7 @@ export default {
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
         id: row.id,
-        currentDirectory: encodeURIComponent(this.$route.query.path),
+        currentDirectory: encodeURI(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -1998,7 +1998,7 @@ export default {
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
         id: row.id,
-        currentDirectory: encodeURIComponent(this.$route.query.path),
+        currentDirectory: encodeURI(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -2011,7 +2011,7 @@ export default {
       api.fileList({
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
-        currentDirectory: encodeURIComponent(this.$route.query.path),
+        currentDirectory: encodeURI(this.$route.query.path),
         queryFileType: this.queryFileType,
         sortableProp: this.sortable.prop,
         order: this.sortable.order,
@@ -2028,7 +2028,7 @@ export default {
       this.beforeLoadData(onLoad)
       api.fileList({
         userId: this.$store.state.user.userId,
-        currentDirectory: encodeURIComponent(this.$route.query.path),
+        currentDirectory: encodeURI(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize
       }).then(res => {
@@ -2776,8 +2776,8 @@ export default {
               }
               api.newFolder({
                 isFolder: true,
-                filename: data.name,
-                currentDirectory: encodeURIComponent(this.$route.query.path),
+                filename: encodeURI(data.name),
+                currentDirectory: encodeURI(this.$route.query.path),
                 username: this.$store.state.user.name,
                 userId: this.$store.state.user.userId
               }).then((res) => {
@@ -3067,7 +3067,7 @@ export default {
           const item = {'folder': row.name}
           this.pathList.push(item)
           this.pagination.pageIndex = 1
-          const path = encodeURIComponent(this.path);
+          const path = encodeURI(this.path);
           this.$router.push(`?vmode=${this.vmode}&path=${path}`)
           this.openDir(row)
         }

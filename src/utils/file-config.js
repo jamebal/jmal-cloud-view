@@ -12,9 +12,9 @@ export default {
     if (token) {
       let path = "/"
       if (file.path.length > 1) {
-        path = encodeURIComponent(file.path.substr(1, file.path.length - 2))
+        path = encodeURI(file.path.substr(1, file.path.length - 2))
       }
-      const filename = encodeURIComponent(file.name);
+      const filename = encodeURI(file.name);
       return `${this.baseUrl}/file/${username}/${path}/${filename}?jmal-token=${token}`
     } else {
       return `${this.baseUrl}/file/${username}/${path}/${filename}`
@@ -32,8 +32,7 @@ export default {
   // 下载文件
   download: function(username, file, token) {
     fileApi.isAllowDownload().then(() => {
-      encodeURI()
-      let url = `${this.baseUrl}/file/${username}${file.path}${encodeURIComponent(file.name)}?jmal-token=${token}&o=download`
+      let url = `${this.baseUrl}/file/${username}${encodeURI(file.path)}${encodeURI(file.name)}?jmal-token=${token}&o=download`
       window.open(url, '_self')
     })
   },

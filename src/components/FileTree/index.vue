@@ -76,7 +76,7 @@
         if (node.level > 0){
           api.listfiles({
             username: this.$store.state.user.name,
-            path: node.data.path,
+            path: encodeURI(node.data.path),
             tempDir: this.tempDir
           }).then(res => {
             const nextNodes = res.data.map(data => {
@@ -135,8 +135,8 @@
               }
               api.newFolder({
                 isFolder: true,
-                filename: data.name,
-                currentDirectory: path,
+                filename: encodeURI(data.name),
+                currentDirectory: encodeURI(path),
                 username: this.$store.state.user.name,
                 userId: this.$store.state.user.userId
               }).then((res) => {

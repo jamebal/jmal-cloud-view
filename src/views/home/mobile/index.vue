@@ -743,7 +743,7 @@ export default {
     // 浏览器的返回事件
     goBack() {
       if (this.pathList.length <= 1) {
-        this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+        this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
         return
       }
       this.clickBack()
@@ -849,9 +849,9 @@ export default {
         })
         if (!unPushLink) {
           if (!this.$route.query.path) {
-            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
           } else {
-            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
           }
         }
         if (!unRefresh) {
@@ -881,7 +881,7 @@ export default {
       this.beforeLoadData(onLoad)
       api.fileList({
         userId: this.$store.state.user.userId,
-        currentDirectory: this.$route.query.path,
+        currentDirectory: encodeURI(this.$route.query.path),
         queryFileType: this.queryFileType,
         sortableProp: this.sortableProp,
         order: this.order,
@@ -903,7 +903,7 @@ export default {
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
           keyword: key,
-          currentDirectory: this.$route.query.path,
+          currentDirectory: encodeURI(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
@@ -1064,7 +1064,7 @@ export default {
           item['folder'] = row.name
           item['index'] = this.pathList.length - 1
           this.pathList.push(item)
-          this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
+          this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
           this.getFileList()
         } else {
           if (row.contentType.startsWith('image')) {
@@ -1184,7 +1184,7 @@ export default {
         // 打开文件选择框
         Bus.$emit('openUploader', {
           // 传入的参数
-          currentDirectory: this.path,
+          currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         })
@@ -1194,7 +1194,7 @@ export default {
         // 打开文件夹选择框
         Bus.$emit('uploadFolder', {
           // 传入的参数
-          currentDirectory: this.path,
+          currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         })
@@ -1206,8 +1206,8 @@ export default {
       if (this.newFolderName) {
         api.uploadFolder({
           isFolder: true,
-          filename: this.newFolderName,
-          currentDirectory: this.path,
+          filename: encodeURI(this.newFolderName),
+          currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         }).then((res) => {
