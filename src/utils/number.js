@@ -115,7 +115,7 @@ export function formatTime(agoTime) {
     return parseInt(diff / 3600) + '小时前'
   } else if (diff < 3600 * 24 * 30) {
     return parseInt(diff / (3600 * 24)) + '天前'
-  } else if (diff <= 3600 * 24 * 30 * 12) {
+  } else if (diff <= 3600 * 24 * 30 * 24) {
     return parseInt(diff / (3600 * 24 * 30)) + '个月前'
   } else {
     return parseInt(diff / (3600 * 24 * 30 * 12)) + '年前'
