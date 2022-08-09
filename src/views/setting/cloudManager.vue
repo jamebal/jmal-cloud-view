@@ -27,7 +27,7 @@
         </div>
         <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
         <div class="config-itme-label">重置角色、菜单：
-          <el-button class="sync-button" size="mini" :loading="syncLoading" type="danger" @click="resetMenuAndRole()"><i class="el-icon-refresh-left"></i></el-button>
+          <el-button class="sync-button" size="mini" :loading="resetLoading" type="danger" @click="resetMenuAndRole()"><i class="el-icon-refresh-left"></i></el-button>
         </div>
         <span class="instruction">一般用于初始化角色、菜单数据</span>
       </div>
@@ -44,6 +44,7 @@ export default {
     return {
       title: '网盘管理',
       syncLoading: false,
+      resetLoading: false,
       webpEnabled: false
     }
   },
@@ -57,23 +58,37 @@ export default {
       })
     },
     sync() {
-      this.syncLoading = true
-      settingApi.sync({username: this.$store.state.user.name}).then(() => {
-        this.syncLoading = false
+      this.$confirm('是否开始同步? ', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.syncLoading = true
+        settingApi.sync({username: this.$store.state.user.name}).then(() => {
+          this.syncLoading = false
+        }).catch(() => {
+          this.syncLoading = false
+        })
       }).catch(() => {
         this.syncLoading = false
       })
     },
     // 重置角色菜单
     resetMenuAndRole(){
-      this.$confirm('您确定要删除此角色、菜单吗?', '提示', {
+      this.$confirm('您确定要删除当前角色、菜单吗? ', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.resetLoading = true
         settingApi.resetMenuAndRole().then(() => {
           this.$message.success("重置完成")
+          this.resetLoading = false
+        }).catch(()=> {
+          this.resetLoading = false
         })
+      }).catch(() => {
+        this.resetLoading = false
       })
     },
     webpChange(webpEnabled) {
