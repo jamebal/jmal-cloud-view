@@ -2,7 +2,7 @@
  * 页面专用
  */
 (function (window) {
-    const $ = window.$A;
+    const $ = window.$J;
     /**
      * =============================================================================
      * *******************************   web extra   *******************************
@@ -81,14 +81,14 @@
          * @param data
          */
         formatWebsocketMessageDetail(data) {
-            if ($A.isJson(data)) {
+            if ($J.isJson(data)) {
                 for (let key in data) {
                     if (!data.hasOwnProperty(key)) continue;
-                    data[key] = $A.formatWebsocketMessageDetail(data[key]);
+                    data[key] = $J.formatWebsocketMessageDetail(data[key]);
                 }
-            } else if ($A.isArray(data)) {
+            } else if ($J.isArray(data)) {
                 data.forEach((val, index) => {
-                    data[index] = $A.formatWebsocketMessageDetail(val);
+                    data[index] = $J.formatWebsocketMessageDetail(val);
                 });
             } else if (typeof data === "string") {
                 data = data.replace(/\{\{RemoteURL\}\}/g, this.apiUrl('../'))
@@ -102,14 +102,14 @@
          * @returns {*|string}
          */
         formatTime(date) {
-            let time = $A.Date(date, true),
+            let time = $J.Date(date, true),
                 string = '';
-            if ($A.formatDate('Ymd') === $A.formatDate('Ymd', time)) {
-                string = $A.formatDate('H:i', time)
-            } else if ($A.formatDate('Y') === $A.formatDate('Y', time)) {
-                string = $A.formatDate('m-d', time)
+            if ($J.formatDate('Ymd') === $J.formatDate('Ymd', time)) {
+                string = $J.formatDate('H:i', time)
+            } else if ($J.formatDate('Y') === $J.formatDate('Y', time)) {
+                string = $J.formatDate('m-d', time)
             } else {
-                string = $A.formatDate('Y-m-d', time)
+                string = $J.formatDate('Y-m-d', time)
             }
             return string || '';
         },
@@ -262,7 +262,7 @@
             if (retInt === true) {
                 return time;
             }
-            return $A.formatDate("Y-m-d", parseInt(time / 1000))
+            return $J.formatDate("Y-m-d", parseInt(time / 1000))
         },
 
         /**
@@ -271,46 +271,46 @@
          */
         timeOptionShortcuts() {
             const lastSecond = (e) => {
-                return $A.Date($A.formatDate("Y-m-d 23:59:29", Math.round(e / 1000)))
+                return $J.Date($J.formatDate("Y-m-d 23:59:29", Math.round(e / 1000)))
             };
             return [{
-                text: $A.L('今天'),
+                text: $J.L('今天'),
                 value() {
                     return [new Date(), lastSecond(new Date().getTime())];
                 }
             }, {
-                text: $A.L('明天'),
+                text: $J.L('明天'),
                 value() {
                     let e = new Date();
                     e.setDate(e.getDate() + 1);
                     return [new Date(), lastSecond(e.getTime())];
                 }
             }, {
-                text: $A.L('本周'),
+                text: $J.L('本周'),
                 value() {
-                    return [$A.getData('今天', true), lastSecond($A.getData('本周结束2', true))];
+                    return [$J.getData('今天', true), lastSecond($J.getData('本周结束2', true))];
                 }
             }, {
-                text: $A.L('本月'),
+                text: $J.L('本月'),
                 value() {
-                    return [$A.getData('今天', true), lastSecond($A.getData('本月结束', true))];
+                    return [$J.getData('今天', true), lastSecond($J.getData('本月结束', true))];
                 }
             }, {
-                text: $A.L('3天'),
+                text: $J.L('3天'),
                 value() {
                     let e = new Date();
                     e.setDate(e.getDate() + 2);
                     return [new Date(), lastSecond(e.getTime())];
                 }
             }, {
-                text: $A.L('5天'),
+                text: $J.L('5天'),
                 value() {
                     let e = new Date();
                     e.setDate(e.getDate() + 4);
                     return [new Date(), lastSecond(e.getTime())];
                 }
             }, {
-                text: $A.L('7天'),
+                text: $J.L('7天'),
                 value() {
                     let e = new Date();
                     e.setDate(e.getDate() + 6);
@@ -327,7 +327,7 @@
         dialogTags(dialog) {
             let tags = [];
             if (dialog.type === 'group') {
-                if (['project', 'task'].includes(dialog.group_type) && $A.isJson(dialog.group_info)) {
+                if (['project', 'task'].includes(dialog.group_type) && $J.isJson(dialog.group_info)) {
                     if (dialog.group_type === 'task' && dialog.group_info.complete_at) {
                         tags.push({
                             color: 'success',
@@ -377,8 +377,8 @@
     $.extend({
         // 加载器
         spinnerShow() {
-            $A.spinnerLoadNum++
-            if ($A.spinnerLoadNum > 0) {
+            $J.spinnerLoadNum++
+            if ($J.spinnerLoadNum > 0) {
                 const spinner = document.getElementById("common-spinner");
                 if (spinner) {
                     spinner.style.display = "block"
@@ -387,8 +387,8 @@
         },
 
         spinnerHide() {
-            $A.spinnerLoadNum--
-            if ($A.spinnerLoadNum <= 0) {
+            $J.spinnerLoadNum--
+            if ($J.spinnerLoadNum <= 0) {
                 const spinner = document.getElementById("common-spinner");
                 if (spinner) {
                     spinner.style.display = "none"
@@ -404,29 +404,29 @@
             } else if (typeof config === "string") {
                 config = {content: config};
             }
-            config.title = $A.L(config.title || (typeof config.render === 'undefined' ? '温馨提示' : ''));
-            config.content = $A.L(config.content || '');
-            config.okText = $A.L(config.okText || '确定');
-            config.cancelText = $A.L(config.cancelText || '取消');
+            config.title = $J.L(config.title || (typeof config.render === 'undefined' ? '温馨提示' : ''));
+            config.content = $J.L(config.content || '');
+            config.okText = $J.L(config.okText || '确定');
+            config.cancelText = $J.L(config.cancelText || '取消');
             return config;
         },
 
         modalInput(config, millisecond = 0) {
             if (millisecond > 0) {
-                setTimeout(() => { $A.modalInput(config) }, millisecond);
+                setTimeout(() => { $J.modalInput(config) }, millisecond);
                 return;
             }
             if (typeof config === "string") config = {title:config};
-            let inputId = "modalInput_" + $A.randomString(6);
+            let inputId = "modalInput_" + $J.randomString(6);
             const onOk = () => {
                 if (typeof config.onOk === "function") {
                     if (config.onOk(config.value, () => {
-                        $A.Modal.remove();
+                        $J.Modal.remove();
                     }) === true) {
-                        $A.Modal.remove();
+                        $J.Modal.remove();
                     }
                 } else {
-                    $A.Modal.remove();
+                    $J.Modal.remove();
                 }
             };
             const onCancel = () => {
@@ -434,7 +434,7 @@
                     config.onCancel();
                 }
             };
-            $A.Modal.confirm({
+            $J.Modal.confirm({
                 render: (h) => {
                     return h('div', [
                         h('div', {
@@ -443,11 +443,11 @@
                                 fontWeight: '500',
                                 marginBottom: '20px',
                             }
-                        }, $A.L(config.title)),
+                        }, $J.L(config.title)),
                         h('Input', {
                             props: {
                                 value: config.value,
-                                placeholder: $A.L(config.placeholder),
+                                placeholder: $J.L(config.placeholder),
                                 elementId: inputId,
                             },
                             on: {
@@ -455,7 +455,7 @@
                                     config.value = val;
                                 },
                                 'on-enter': (e) => {
-                                    $A(e.target).parents(".ivu-modal-body").find(".ivu-btn-primary").click();
+                                    $J(e.target).parents(".ivu-modal-body").find(".ivu-btn-primary").click();
                                 }
                             }
                         })
@@ -464,8 +464,8 @@
                 onOk,
                 onCancel,
                 loading: true,
-                okText: $A.L(config.okText || '确定'),
-                cancelText: $A.L(config.cancelText || '取消'),
+                okText: $J.L(config.okText || '确定'),
+                cancelText: $J.L(config.cancelText || '取消'),
             });
             setTimeout(() => {
                 document.getElementById(inputId) && document.getElementById(inputId).focus();
@@ -477,10 +477,10 @@
                 return;
             }
             if (millisecond > 0) {
-                setTimeout(() => { $A.modalConfirm(config) }, millisecond);
+                setTimeout(() => { $J.modalConfirm(config) }, millisecond);
                 return;
             }
-            $A.Modal.confirm($A.modalConfig(config));
+            $J.Modal.confirm($J.modalConfig(config));
         },
 
         modalSuccess(config, millisecond = 0) {
@@ -488,10 +488,10 @@
                 return;
             }
             if (millisecond > 0) {
-                setTimeout(() => { $A.modalSuccess(config) }, millisecond);
+                setTimeout(() => { $J.modalSuccess(config) }, millisecond);
                 return;
             }
-            $A.Modal.success($A.modalConfig(config));
+            $J.Modal.success($J.modalConfig(config));
         },
 
         modalInfo(config, millisecond = 0) {
@@ -499,10 +499,10 @@
                 return;
             }
             if (millisecond > 0) {
-                setTimeout(() => { $A.modalInfo(config) }, millisecond);
+                setTimeout(() => { $J.modalInfo(config) }, millisecond);
                 return;
             }
-            $A.Modal.info($A.modalConfig(config));
+            $J.Modal.info($J.modalConfig(config));
         },
 
         modalWarning(config, millisecond = 0) {
@@ -510,10 +510,10 @@
                 return;
             }
             if (millisecond > 0) {
-                setTimeout(() => { $A.modalWarning(config) }, millisecond);
+                setTimeout(() => { $J.modalWarning(config) }, millisecond);
                 return;
             }
-            $A.Modal.warning($A.modalConfig(config));
+            $J.Modal.warning($J.modalConfig(config));
         },
 
         modalError(config, millisecond = 0) {
@@ -521,30 +521,30 @@
                 return;
             }
             if (millisecond > 0) {
-                setTimeout(() => { $A.modalError(config) }, millisecond);
+                setTimeout(() => { $J.modalError(config) }, millisecond);
                 return;
             }
-            $A.Modal.error($A.modalConfig(config));
+            $J.Modal.error($J.modalConfig(config));
         },
 
         modalAlert(msg) {
             if (msg === false) {
                 return;
             }
-            alert($A.L(msg));
+            alert($J.L(msg));
         },
 
         //提示
         messageSuccess(msg) {
-            $A.Message.success($A.L(msg));
+            $J.Message.success($J.L(msg));
         },
 
         messageWarning(msg) {
-            $A.Message.warning($A.L(msg));
+            $J.Message.warning($J.L(msg));
         },
 
         messageError(msg) {
-            $A.Message.error($A.L(msg));
+            $J.Message.error($J.L(msg));
         },
 
         //通知
@@ -554,17 +554,17 @@
             } else if (typeof config === "string") {
                 config = {desc: config};
             }
-            config.title = $A.L(config.title || (typeof config.render === 'undefined' ? '温馨提示' : ''));
-            config.desc = $A.L(config.desc || '');
+            config.title = $J.L(config.title || (typeof config.render === 'undefined' ? '温馨提示' : ''));
+            config.desc = $J.L(config.desc || '');
             return config;
         },
 
         noticeSuccess(config) {
-            $A.Notice.success($A.noticeConfig(config));
+            $J.Notice.success($J.noticeConfig(config));
         },
 
         noticeWarning(config) {
-            $A.Notice.warning($A.noticeConfig(config));
+            $J.Notice.warning($J.noticeConfig(config));
         },
 
         noticeError(config) {
@@ -574,7 +574,7 @@
                     duration: 6
                 };
             }
-            $A.Notice.error($A.noticeConfig(config));
+            $J.Notice.error($J.noticeConfig(config));
         },
     });
 
@@ -718,7 +718,7 @@
             },
 
             enableDarkMode() {
-                if (!$A.isChrome()) {
+                if (!$J.isChrome()) {
                     return;
                 }
                 if (this.isDarkEnabled()) {
@@ -753,5 +753,5 @@
         }
     });
 
-    window.$A = $;
+    window.$J = $;
 })(window);

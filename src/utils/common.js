@@ -1,7 +1,7 @@
 /**
  * 基础函数
  */
-(function (window, $, undefined) {
+(function (window, fuc, undefined) {
     window.systemInfo = window.systemInfo || {};
 
     /**
@@ -9,7 +9,7 @@
      * *******************************   基础函数类   *******************************
      * =============================================================================
      */
-    $.extend({
+    fuc.extend({
         /**
          * 是否数组
          * @param obj
@@ -27,20 +27,6 @@
         isJson(obj) {
             return typeof (obj) == "object" && Object.prototype.toString.call(obj).toLowerCase() === "[object object]" && typeof obj.length == "undefined";
         },
-
-        /**
-         * 是否在数组里
-         * @param key
-         * @param array
-         * @returns {boolean|*}
-         */
-        inArray(key, array) {
-            if (!this.isArray(array)) {
-                return false;
-            }
-            return array.includes(key);
-        },
-
         /**
          * 随机获取范围
          * @param Min
@@ -169,21 +155,6 @@
         },
 
         /**
-         * 截取字符串
-         * @param string
-         * @param start
-         * @param end
-         * @returns {string}
-         */
-        subString(string, start, end) {
-            string += "";
-            if (!this.isHave(end)) {
-                end = string.length;
-            }
-            return string.substring(start, end);
-        },
-
-        /**
          * 随机字符
          * @param len
          * @returns {string}
@@ -232,63 +203,7 @@
             return _s;
         },
 
-        /**
-         * 返回10位数时间戳
-         * @param v
-         * @returns {number}
-         * @constructor
-         */
-        Time(v) {
-            let time
-            if (typeof v === "string" && this.strExists(v, "-")) {
-                v = v.replace(/-/g, '/');
-                time = new Date(v).getTime();
-            } else {
-                time = new Date().getTime();
-            }
-            return Math.round(time / 1000)
-        },
 
-        /**
-         * 返回 时间对象|时间戳
-         * @param v
-         * @param stamp 是否返回时间戳
-         * @returns {Date|number}
-         * @constructor
-         */
-        Date(v, stamp = false) {
-            if (typeof v === "string" && this.strExists(v, "-")) {
-                v = v.replace(/-/g, '/');
-            }
-            if (stamp === true) {
-                return Math.round(new Date(v).getTime() / 1000)
-            }
-            return new Date(v);
-        },
-
-        /**
-         * 补零
-         * @param str
-         * @param length
-         * @param after
-         * @returns {*}
-         */
-        zeroFill(str, length, after) {
-            str+= "";
-            if (str.length >= length) {
-                return str;
-            }
-            let _str = '', _ret = '';
-            for (let i = 0; i < length; i++) {
-                _str += '0';
-            }
-            if (after || typeof after === 'undefined') {
-                _ret = (_str + "" + str).substr(length * -1);
-            } else {
-                _ret = (str + "" + _str).substr(0, length);
-            }
-            return _ret;
-        },
 
         /**
          * 时间戳转时间格式
@@ -319,7 +234,7 @@
                 } else {
                     return v;
                 }
-                dateObj = $A.Date(v);
+                dateObj = $J.Date(v);
             }
             //
             format = format.replace(/Y/g, dateObj.getFullYear());
@@ -339,7 +254,7 @@
          */
         timeDiff(s, e) {
             if (typeof e === 'undefined') {
-                e = $A.Time();
+                e = $J.Time();
             }
             let d = e - s;
             if (d > 86400) {
@@ -448,7 +363,7 @@
             if(typeof(myObj) !== 'object') return myObj;
             if(myObj === null) return myObj;
             //
-            return $A.jsonParse($A.jsonStringify(myObj))
+            return $J.jsonParse($J.jsonStringify(myObj))
         },
 
         /**
@@ -494,7 +409,7 @@
          * @param callback
          */
         resize(obj, callback) {
-            let myObj = $A(obj);
+            let myObj = $J(obj);
             if (myObj.length === 0) return;
             let height = parseInt(myObj.outerHeight()),
                 width = parseInt(myObj.outerWidth());
@@ -611,7 +526,7 @@
                 return "";
             }
             let str = "";
-            $A.each(obj, (val) => {
+            $J.each(obj, (val) => {
                 if (val !== null) {
                     if (typeof val === "object" && this.count(val) > 0) {
                         str += this.objImplode(val);
@@ -658,7 +573,7 @@
         removeURLParameter(url, parameter) {
             if (parameter instanceof Array) {
                 parameter.forEach((key) => {
-                    url = $A.removeURLParameter(url, key)
+                    url = $J.removeURLParameter(url, key)
                 });
                 return url;
             }
@@ -688,7 +603,7 @@
          * @returns {*}
          */
         urlAddParams(url, params) {
-            if ($A.isJson(params)) {
+            if ($J.isJson(params)) {
                 if (url) {
                     url = this.removeURLParameter(url, Object.keys(params))
                 }
@@ -763,7 +678,7 @@
             if (object === null || typeof object !== "object") return;
             if (typeof object.length === 'number' && object.length > 0) object = object[0];
 
-            let ele = typeof object.$el === "object" ? $A(object.$el) : $A(object);
+            let ele = typeof object.$el === "object" ? $J(object.$el) : $J(object);
             if (ele.length === 0) return;
             let eleDom = ele[0];
 
@@ -811,7 +726,7 @@
          * @param callback
          */
         loadScript(url, callback) {
-            url = $A.originUrl(url);
+            url = $J.originUrl(url);
             if (this.rightExists(url, '.css')) {
                 this.loadCss(url, callback)
                 return;
@@ -865,7 +780,7 @@
          * @param callback
          */
         loadCss(url, callback) {
-            url = $A.originUrl(url);
+            url = $J.originUrl(url);
             if (this.rightExists(url, '.js')) {
                 this.loadScript(url, callback)
                 return;
@@ -929,17 +844,17 @@
                 format = "Y-m-d H:i:s";
             }
             if (params instanceof Date) {
-                params = $A.formatDate(format, params);
-            } else if ($A.isJson(params)) {
+                params = $J.formatDate(format, params);
+            } else if ($J.isJson(params)) {
                 params = Object.assign({}, params)
                 for (let key in params) {
                     if (!params.hasOwnProperty(key)) continue;
-                    params[key] = $A.date2string(params[key], format);
+                    params[key] = $J.date2string(params[key], format);
                 }
-            } else if ($A.isArray(params)) {
+            } else if ($J.isArray(params)) {
                 params = Object.assign([], params)
                 params.forEach((val, index) => {
-                    params[index] = $A.date2string(val, format);
+                    params[index] = $J.date2string(val, format);
                 });
             }
             return params;
@@ -958,7 +873,7 @@
             if (typeof sizes[i] === "undefined") {
                 return '0 B';
             }
-            return $A.runNum((bytes / Math.pow(k, i)), 2) + ' ' + sizes[i];
+            return $J.runNum((bytes / Math.pow(k, i)), 2) + ' ' + sizes[i];
         },
 
         /**
@@ -1014,7 +929,7 @@
      * ********************************   storage   ********************************
      * =============================================================================
      */
-    $.extend({
+    fuc.extend({
         setStorage(key, value) {
             return this.storage(key, value);
         },
@@ -1102,7 +1017,7 @@
      * *********************************   ihttp   *********************************
      * =============================================================================
      */
-    $.extend({
+    fuc.extend({
         serializeObject(obj, parents) {
             if (typeof obj === 'string') return obj;
             let resultArray = [];
@@ -1446,7 +1361,7 @@
      * *****************************   ajaxc   ****************************
      * =============================================================================
      */
-    $.extend({
+    fuc.extend({
         ajaxc(params) {
             if (!params) return false;
             if (typeof params.url === 'undefined') return false;
@@ -1463,7 +1378,7 @@
             if (typeof params.header == 'undefined') params.header = {};
             //
             params.before();
-            $A.ihttp({
+            $J.ihttp({
                 url: params.url,
                 data: params.data,
                 cache: params.cache,
@@ -1487,5 +1402,5 @@
         }
     });
 
-    window.$A = $;
-})(window, window.$ = window.jQuery = require('jquery'));
+    window.$J = fuc;
+})(window, window.fuc = window.jQuery = require('jquery'));

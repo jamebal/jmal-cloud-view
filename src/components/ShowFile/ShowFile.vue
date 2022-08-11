@@ -377,6 +377,7 @@
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
+    <office-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></office-preview>
     <!-- <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview> -->
     <!--文件详细信息-->
     <el-drawer
@@ -544,11 +545,13 @@ import '@/utils/directives.js'
 
 import fileConfig from '@/utils/file-config'
 import EditElement from "@/views/markdown/EditElement";
+import OfficePreview from "@/components/preview/OfficePreview";
 
 var rowStyleExecuting = false
 export default {
   name: 'ShowFile',
   components: {
+    OfficePreview,
     EditElement,
     MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
     ButtonUpload,
@@ -774,6 +777,8 @@ export default {
       imagePreviewVisible: false,
       videoPreviewRow: {},
       videoPreviewVisible: false,
+      officePreviewRow: {},
+      officePreviewVisible: false,
       audioPreviewRow: {},
       audioPreviewVisible: false,
       drawer: false,
@@ -3107,6 +3112,12 @@ export default {
         if (row.contentType.indexOf('audio') > -1) {
           // 音频文件
           Bus.$emit('onAddAudio', row, this.audioCoverUrl)
+          return
+        }
+        if (row.contentType.indexOf('office') > -1) {
+          // office文件
+          this.officePreviewVisible = true
+          this.officePreviewRow = row
           return
         }
         if (row.suffix === 'pdf') {

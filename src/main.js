@@ -1,5 +1,8 @@
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
+import '@/utils/common'
+import '@/utils/web'
+
 import '@/styles/index.scss' // global css
 import uploader from 'vue-simple-uploader'
 import EVueContextmenu from 'e-vue-contextmenu'

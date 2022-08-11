@@ -5,35 +5,9 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
-.component-only-office {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  .placeholder {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-  }
-  .office-loading {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-  }
-}
-</style>
 <script>
+
+import fileConfig from "@/utils/file-config";
 
 export default {
   name: "OnlyOfficeEditor",
@@ -70,7 +44,6 @@ export default {
   },
 
   mounted() {
-    //
   },
 
   beforeDestroy() {
@@ -83,14 +56,13 @@ export default {
   computed: {
 
     fileType() {
-      return this.getType(this.value.type);
+      return this.getType(this.value.suffix);
     },
 
     fileName() {
       return this.value.name;
     },
   },
-
   watch: {
     'value.id': {
       handler(id)  {
@@ -98,10 +70,10 @@ export default {
           return;
         }
         this.loadIng++;
-        $A.loadScript($A.apiUrl("../office/web-apps/apps/api/documents/api.js"), (e) => {
+        $J.loadScript($J.apiUrl("http://nps.jmal.top:18849/web-apps/apps/api/documents/api.js"), (e) => {
           this.loadIng--;
           if (e !== null) {
-            $A.modalAlert("组件加载失败！");
+            $J.modalAlert("组件加载失败！");
             return;
           }
           if (!this.documentKey) {
@@ -138,61 +110,67 @@ export default {
         this.docEditor.destroyEditor();
         this.docEditor = null;
       }
-      //
-      let lang = "zh";
-      switch (this.getLanguage()) {
-        case 'CN':
-        case 'TC':
-          lang = "zh";
-          break;
-        default:
-          lang = 'en';
-          break;
-      }
-      //
       let fileKey = this.code || this.value.id;
-      let fileName = $A.strExists(this.fileName, '.') ? this.fileName : (this.fileName + '.' + this.fileType);
+      let fileName = $J.strExists(this.fileName, '.') ? this.fileName : (this.fileName + '.' + this.fileType);
       const config = {
         "document": {
           "fileType": this.fileType,
-          "key": `${this.fileType}-${fileKey}-${keyAppend}`,
+          "key": `${this.fileType}-${$J.randNum(0,45678)}`,
           "title": fileName,
-          "url": `http://nginx/api/file/content/?id=${fileKey}&token=${this.userToken}`,
+          //"url": window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.value, this.$store.getters.token),
+          "url": "http://nps.jmal.top:19957/download?fileName=new+%281%29.docx&userAddress=%2FUsers%2Fjmal%2FDownloads%2Ftest%2F",
         },
         "editorConfig": {
           "mode": "edit",
-          "lang": lang,
+          "lang": "zh",
           "user": {
-            "id": this.userInfo.userid,
-            "name": this.userInfo.nickname
+            "id": this.$store.state.user.name,
+            "name": this.$store.state.user.name
           },
+          // "customization": {
+          //   "uiTheme": this.themeIsDark ? "theme-dark" : "theme-classic-light",
+          // },
           "customization": {
-            "uiTheme": this.themeIsDark ? "theme-dark" : "theme-classic-light",
+            "logo": null,
+            "autosave": true,
+            "comments": true,
+            "compactHeader": false,
+            "compactToolbar": false,
+            "compatibleFeatures": false,
+            "forcesave": false,
+            "help": false,
+            "hideRightMenu": false,
+            "hideRulers": false,
+            "submitForm": false,
+            "about": false,
+            "feedback": false
           },
-          "callbackUrl": `http://nginx/api/file/content/office?id=${fileKey}&token=${this.userToken}`,
+          // "callbackUrl": `${window.location.origin}/api/office/track?jmal-token=${this.$store.getters.token}&fileName=new.docx&userAddress=%2FUsers%2Fjmal%2FDownloads%2Ftest%2F`,
+          callbackUrl: "http://nps.jmal.top:19957/track?fileName=new+%281%29.docx&userAddress=%2FUsers%2Fjmal%2FDownloads%2Ftest%2F",
         }
       };
       if (/\/hideenOfficeTitle\//.test(window.navigator.userAgent)) {
         config.document.title = " ";
       }
-      if ($A.leftExists(fileKey, "msgFile_")) {
-        config.document.url = `http://nginx/api/dialog/msg/download/?msg_id=${$A.leftDelete(fileKey, "msgFile_")}&token=${this.userToken}`;
-      } else if ($A.leftExists(fileKey, "taskFile_")) {
-        config.document.url = `http://nginx/api/project/task/filedown/?file_id=${$A.leftDelete(fileKey, "taskFile_")}&token=${this.userToken}`;
-      }
-      if (this.readOnly) {
-        config.editorConfig.mode = "view";
-        config.editorConfig.callbackUrl = null;
-        if (!config.editorConfig.user.id) {
-          let viewer = $A.getStorageInt("viewer")
-          if (!viewer) {
-            viewer = $A.randNum(1000, 99999);
-            $A.setStorage("viewer", viewer)
-          }
-          config.editorConfig.user.id = "viewer_" + viewer;
-          config.editorConfig.user.name = "Viewer_" + viewer
-        }
-      }
+      console.log(config.document, config.editorConfig)
+      // if ($J.leftExists(fileKey, "msgFile_")) {
+      //   config.document.url = `http://nginx/api/dialog/msg/download/?msg_id=${$J.leftDelete(fileKey, "msgFile_")}&token=${this.userToken}`;
+      // } else if ($J.leftExists(fileKey, "taskFile_")) {
+      //   config.document.url = `http://nginx/api/project/task/filedown/?file_id=${$J.leftDelete(fileKey, "taskFile_")}&token=${this.userToken}`;
+      // }
+      // if (this.readOnly) {
+      //   config.editorConfig.mode = "view";
+      //   config.editorConfig.callbackUrl = null;
+      //   if (!config.editorConfig.user.id) {
+      //     let viewer = $J.getStorageInt("viewer")
+      //     if (!viewer) {
+      //       viewer = $J.randNum(1000, 99999);
+      //       $J.setStorage("viewer", viewer)
+      //     }
+      //     config.editorConfig.user.id = "viewer_" + viewer;
+      //     config.editorConfig.user.name = "Viewer_" + viewer
+      //   }
+      // }
       this.$nextTick(() => {
         this.docEditor = new DocsAPI.DocEditor(this.id, config);
       })
@@ -200,3 +178,6 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+
+</style>
