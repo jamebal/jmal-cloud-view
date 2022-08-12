@@ -7,6 +7,7 @@
 <script>
 
 import api from "@/api/file-api"
+import fileConfig from "@/utils/file-config";
 
 export default {
   name: "OnlyOfficeEditor",
@@ -104,12 +105,18 @@ export default {
       }
       let fileKey = `${new Date(this.value.updateDate).getTime()}-${this.value.id}`
       let fileName = $J.strExists(this.fileName, '.') ? this.fileName : (this.fileName + '.' + this.fileType)
+
+      let url = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.value, this.$store.getters.token)
+      if(this.readOnly){
+        url = window.location.origin + fileConfig.publicPreviewUrl(this.value.id, window.shareId);
+      }
+
       const config = {
         "document": {
           "fileType": this.fileType,
           "key": fileKey,
           "title": fileName,
-          "url": `${window.location.origin}${this.baseUrl}/file/${this.$store.state.user.name}/${encodeURI(this.value.path)}/${encodeURI(this.value.name)}?jmal-token=${this.$store.getters.token}`,
+          "url": url,
         },
         "editorConfig": {
           "mode": "edit",
