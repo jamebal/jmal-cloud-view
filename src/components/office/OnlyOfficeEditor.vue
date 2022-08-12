@@ -1,13 +1,12 @@
 <template>
   <div class="component-only-office">
     <div :id="this.id" class="placeholder"></div>
-    <div v-if="loadIng > 0" class="office-loading"></div>
   </div>
 </template>
 
 <script>
 
-import fileConfig from "@/utils/file-config";
+import api from "@/api/file-api"
 
 export default {
   name: "OnlyOfficeEditor",
@@ -15,7 +14,7 @@ export default {
     id: {
       type: String,
       default: () => {
-        return "office_" + Math.round(Math.random() * 10000);
+        return "office_" + Math.round(Math.random() * 10000)
       }
     },
     code: {
@@ -23,12 +22,12 @@ export default {
       default: ''
     },
     value: {
-      type: [Object, Array],
+      type: Object,
       default: function () {
         return {}
       }
     },
-    readOnly: {
+     readOnly: {
       type: Boolean,
       default: false
     },
@@ -37,101 +36,94 @@ export default {
 
   data() {
     return {
-      loadIng: 0,
-
       docEditor: null,
     }
   },
-
-  mounted() {
-  },
-
   beforeDestroy() {
     if (this.docEditor !== null) {
-      this.docEditor.destroyEditor();
-      this.docEditor = null;
+      this.docEditor.destroyEditor()
+      this.docEditor = null
     }
   },
-
   computed: {
-
     fileType() {
-      return this.getType(this.value.suffix);
+      return this.getType(this.value.suffix)
     },
-
     fileName() {
-      return this.value.name;
+      return this.value.name
     },
   },
   watch: {
     'value.id': {
       handler(id)  {
         if (!id) {
-          return;
+          return
         }
-        this.loadIng++;
-        $J.loadScript($J.apiUrl("http://nps.jmal.top:18849/web-apps/apps/api/documents/api.js"), (e) => {
-          this.loadIng--;
+        $J.loadScript($J.apiUrl("http://192.168.0.188:3454/web-apps/apps/api/documents/api.js"), (e) => {
           if (e !== null) {
-            $J.modalAlert("组件加载失败！");
-            return;
-          }
-          if (!this.documentKey) {
-            this.handleClose();
+            $J.modalAlert("组件加载失败！")
             return
           }
-          const documentKey = this.documentKey();
-          if (documentKey && documentKey.then) {
-            documentKey.then(this.loadFile);
+          if(this.$store.state.user.token && this.$store.state.user.userId === this.value.userId){
+            api.getFileInfoById(this.value.id).then(res => {
+              this.value = res.data
+              this.loadFile()
+            })
           } else {
-            this.loadFile();
+            api.getPublicFileInfoById(this.value.id).then(res => {
+              this.value = res.data
+              this.loadFile()
+            })
           }
         })
       },
       immediate: true,
     }
   },
-
   methods: {
     getType(type) {
       switch (type) {
+        case 'doc':
+          return 'docx'
         case 'word':
-          return 'docx';
+          return 'docx'
         case 'excel':
-          return 'xlsx';
+          return 'xlsx'
+        case 'xls':
+          return 'xlsx'
         case 'ppt':
           return 'pptx'
       }
-      return type;
+      return type
     },
 
-    loadFile(keyAppend = '') {
+    loadFile() {
       if (this.docEditor !== null) {
-        this.docEditor.destroyEditor();
-        this.docEditor = null;
+        this.docEditor.destroyEditor()
+        this.docEditor = null
       }
-      let fileKey = this.code || this.value.id;
-      let fileName = $J.strExists(this.fileName, '.') ? this.fileName : (this.fileName + '.' + this.fileType);
+      let fileKey = `${new Date(this.value.updateDate).getTime()}-${this.value.id}`
+      let fileName = $J.strExists(this.fileName, '.') ? this.fileName : (this.fileName + '.' + this.fileType)
       const config = {
         "document": {
           "fileType": this.fileType,
-          "key": `${this.fileType}-${$J.randNum(0,45678)}`,
+          "key": fileKey,
           "title": fileName,
-          //"url": window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.value, this.$store.getters.token),
-          "url": "http://nps.jmal.top:19957/download?fileName=new+%281%29.docx&userAddress=%2FUsers%2Fjmal%2FDownloads%2Ftest%2F",
+          "url": `${window.location.origin}${this.baseUrl}/file/${this.$store.state.user.name}/${encodeURI(this.value.path)}/${encodeURI(this.value.name)}?jmal-token=${this.$store.getters.token}`,
         },
         "editorConfig": {
           "mode": "edit",
           "lang": "zh",
           "user": {
-            "id": this.$store.state.user.name,
+            "id": this.$store.state.user.userId,
             "name": this.$store.state.user.name
           },
-          // "customization": {
-          //   "uiTheme": this.themeIsDark ? "theme-dark" : "theme-classic-light",
-          // },
           "customization": {
-            "logo": null,
+            "logo": {
+              "image": "http://localhost:9528/favicon.ico",
+              "imageEmbedded": "",
+              "url": window.location.origin
+            },
             "autosave": true,
             "comments": true,
             "compactHeader": false,
@@ -145,34 +137,27 @@ export default {
             "about": false,
             "feedback": false
           },
-          // "callbackUrl": `${window.location.origin}/api/office/track?jmal-token=${this.$store.getters.token}&fileName=new.docx&userAddress=%2FUsers%2Fjmal%2FDownloads%2Ftest%2F`,
-          callbackUrl: "http://nps.jmal.top:19957/track?fileName=new+%281%29.docx&userAddress=%2FUsers%2Fjmal%2FDownloads%2Ftest%2F",
+          "callbackUrl": `http://192.168.0.66:8088/office/track?jmal-token=${this.$store.getters.token}&fileId=${this.value.id}`,
         }
-      };
-      if (/\/hideenOfficeTitle\//.test(window.navigator.userAgent)) {
-        config.document.title = " ";
       }
-      console.log(config.document, config.editorConfig)
-      // if ($J.leftExists(fileKey, "msgFile_")) {
-      //   config.document.url = `http://nginx/api/dialog/msg/download/?msg_id=${$J.leftDelete(fileKey, "msgFile_")}&token=${this.userToken}`;
-      // } else if ($J.leftExists(fileKey, "taskFile_")) {
-      //   config.document.url = `http://nginx/api/project/task/filedown/?file_id=${$J.leftDelete(fileKey, "taskFile_")}&token=${this.userToken}`;
-      // }
-      // if (this.readOnly) {
-      //   config.editorConfig.mode = "view";
-      //   config.editorConfig.callbackUrl = null;
-      //   if (!config.editorConfig.user.id) {
-      //     let viewer = $J.getStorageInt("viewer")
-      //     if (!viewer) {
-      //       viewer = $J.randNum(1000, 99999);
-      //       $J.setStorage("viewer", viewer)
-      //     }
-      //     config.editorConfig.user.id = "viewer_" + viewer;
-      //     config.editorConfig.user.name = "Viewer_" + viewer
-      //   }
-      // }
+      if (!this.$pc) {
+        config.type = 'mobile'
+      }
+      if (this.readOnly) {
+        config.editorConfig.mode = "view"
+        config.editorConfig.callbackUrl = null
+        if (!config.editorConfig.user.id) {
+          let viewer = $J.getStorageInt("viewer")
+          if (!viewer) {
+            viewer = $J.randNum(1000, 99999)
+            $J.setStorage("viewer", viewer)
+          }
+          config.editorConfig.user.id = "viewer_" + viewer
+          config.editorConfig.user.name = "Viewer_" + viewer
+        }
+      }
       this.$nextTick(() => {
-        this.docEditor = new DocsAPI.DocEditor(this.id, config);
+        this.docEditor = new DocsAPI.DocEditor(this.id, config)
       })
     }
   }

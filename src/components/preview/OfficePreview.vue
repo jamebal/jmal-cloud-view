@@ -1,14 +1,12 @@
 <template>
-  <div class="preview" v-if="show">
+  <div class="office-preview" v-if="show">
     <van-overlay :show="show">
       <div class="block">
         <div class="close-bar" @click="close">
           <svg-icon class="preview-close" icon-class="close"/>
         </div>
         <div class="wrapper">
-          <div class="block">
-            <only-office-editor v-model="file" :documentKey="documentKey"></only-office-editor>
-          </div>
+          <only-office-editor v-model="file" :read-only="readOnly"></only-office-editor>
         </div>
       </div>
     </van-overlay>
@@ -16,10 +14,7 @@
 </template>
 
 <script>
-import 'vue-video-player/src/custom-theme.css'
-import 'video.js/dist/video-js.css'
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
-import fileConfig from "@/utils/file-config";
 
 export default {
   name: 'OfficePreview',
@@ -48,17 +43,14 @@ export default {
     return {
       pc: this.$pc,
       show: this.status,
-      url: '',
+      readOnly: true,
     }
   },
   watch: {
     status: function(visible){
       if(visible){
-        this.url = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
-        if(this.shareId){
-          this.url = fileConfig.publicPreviewUrl(this.file.id, window.shareId);
-        }
         this.show = true
+        this.checkReadOnly(this.file.userId)
       }
     }
   },
@@ -67,8 +59,19 @@ export default {
       this.show = false
       this.$emit('update:status', false)
     },
-    documentKey() {
-      console.log("documentKey")
+    checkReadOnly(fileUserId){
+      if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
+        this.readOnly = false
+      }
+      if (!this.$pc) {
+        this.readOnly = true
+        this.$nextTick(() => {
+          const closeBar = document.querySelector('.office-preview .close-bar');
+          closeBar.style.right = '2.5rem'
+          closeBar.style.float = 'left'
+          closeBar.style.transform = 'rotate(225deg)'
+        })
+      }
     },
   }
 }
@@ -100,16 +103,16 @@ export default {
     z-index: 2006;
     background-color: rgba(0,0,0,.5);
     position: relative;
-    top: -36px;
-    right: -36px;
+    top: -2.5rem;
+    right: -2.5rem;
     float: right;
     width: 0;
     height: 0;
-    border-radius: 36px;
-    border-width: 36px;
+    border-radius: 2.5rem;
+    border-width: 2.5rem;
     border-style: solid;
     border-color: transparent transparent transparent #d4d4d475;
-    line-height: 36px;
+    line-height: 2.5rem;
     opacity: 1;
     transform: rotate(-45deg);
   }
@@ -123,7 +126,7 @@ export default {
     transform: rotate(-45deg);
     z-index: 2009;
     position: absolute;
-    font-size: 18px;
+    font-size: 1.25rem;
     top: -8px;
     right: 13px;
   }
@@ -133,7 +136,7 @@ export default {
 
   >>> .component-only-office {
     position: absolute;
-    top: 36px;
+    top: 2.5rem;
     left: 0;
     right: 0;
     bottom: 0;

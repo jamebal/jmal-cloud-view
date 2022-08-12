@@ -378,7 +378,6 @@
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
     <office-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></office-preview>
-    <!-- <audio-preview :file="audioPreviewRow" :status.sync="audioPreviewVisible"></audio-preview> -->
     <!--文件详细信息-->
     <el-drawer
       :title="rowContextData.name"
@@ -883,7 +882,6 @@ export default {
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
   beforeDestroy() {
-    console.log('beforeDestroy')
     window.removeEventListener('keydown', this.keydown, false)
     window.removeEventListener('keyup', this.keyup, false)
     window.removeEventListener('popstate', this.goBack, false)
@@ -965,6 +963,7 @@ export default {
         if (index > -1) {
           this.fileList[index].size = fileDoc.size
           this.fileList[index].agoTime = 1
+          this.fileList[index].updateDate = fileDoc.updateDate
         }
       }
       if ('deleteFile' === url) {
@@ -3114,7 +3113,7 @@ export default {
           Bus.$emit('onAddAudio', row, this.audioCoverUrl)
           return
         }
-        if (row.contentType.indexOf('office') > -1) {
+        if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv') {
           // office文件
           this.officePreviewVisible = true
           this.officePreviewRow = row

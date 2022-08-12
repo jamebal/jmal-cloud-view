@@ -208,6 +208,7 @@
     <sim-text-preview :file.sync="textPreviewRow" :shareId="shareId" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
+    <office-preview :file="officePreviewRow" :shareId="shareId" :status.sync="officePreviewVisible"></office-preview>
     <el-divider class="grid-divider" content-position="center"><i class="el-icon-folder-opened"></i>&nbsp;{{summaries}}</el-divider>
     <el-pagination
       background
@@ -241,8 +242,10 @@
   import AudioPreview from "@/components/preview/AudioPreview";
   import fileConfig from "@/utils/file-config";
   import Clipboard from "clipboard";
+  import OfficePreview from "@/components/preview/OfficePreview";
   export default {
-    components: { IconFile, BreadcrumbFilePath,AlLoading,
+    components: {
+      OfficePreview, IconFile, BreadcrumbFilePath,AlLoading,
       AudioPreview, VideoPreview, ImageViewer, SimTextPreview
     },
     data() {
@@ -353,6 +356,8 @@
         imagePreviewVisible : false,
         videoPreviewRow: {},
         videoPreviewVisible: false,
+        officePreviewRow: {},
+        officePreviewVisible: false,
         audioPreviewRow: {},
         audioPreviewVisible: false,
         showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
@@ -925,11 +930,16 @@
             this.videoPreviewRow = row
             return
           }
+          // 音频文件
           if(row.contentType.indexOf('audio') > -1){
-            // 音频文件
-            // this.audioPreviewVisible = true
-            // this.audioPreviewRow = row
             Bus.$emit('onAddAudio',row, this.audioCoverUrl)
+            return
+          }
+          // office文件
+          if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv') {
+            // office文件
+            this.officePreviewVisible = true
+            this.officePreviewRow = row
             return
           }
           // 打开文件

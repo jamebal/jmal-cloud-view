@@ -271,4 +271,18 @@ export default {
       params
     })
   },
+  // 根据id获取文件信息
+  getFileInfoById: function(id) {
+    return request({
+      url: `/file_info/${id}`,
+      method: 'get'
+    })
+  },
+  // 根据id获取文件信息
+  getPublicFileInfoById: function(id) {
+    return request({
+      url: `/public/file_info/${id}`,
+      method: 'get'
+    })
+  },
 }
