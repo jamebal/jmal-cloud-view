@@ -233,7 +233,7 @@
               <template slot-scope="scope">
                 <el-input v-if="scope.row.index === editingIndex" :span="10"
                           v-focus v-model="renameFileName" placeholder="" size="small"
-                          @focus="renameInputFocus($event,scope.row.suffix)"
+                          @focus="renameInputFocus($event.currentTarget,scope.row.suffix)"
                           @blur="setInputBlur()"
                           @keyup.enter.native="rowRename(renameFileName, scope.row)">
                 </el-input>
@@ -343,7 +343,7 @@
                             type="textarea"
                             autosize
                             size="small"
-                            @focus="renameInputFocus($event, item.suffix)"
+                            @focus="renameInputFocus($event.currentTarget, item.suffix)"
                             @blur="setInputBlur()"
                             @keyup.enter.native="rowRename(renameFileName, item)">
                   </el-input>
@@ -499,21 +499,21 @@
 
     <el-dialog
       class="new-text-file-dialog"
-      title="新建文本文件"
+      :title="newCreateFileDialogTitle"
       :close-on-click-modal="false"
-      :visible.sync="newTextFileDialog">
+      :visible.sync="newCreateFileDialog">
       <el-input
-        ref="newTextFileName" size="small"
-        v-model="newTextFileName"
+        ref="newCreateFileName" size="small"
+        v-model="newCreateFileName"
         class="dialog-msg"
-        @focus="renameInputFocus($event,'')" :clearable="true"
+        @focus="renameInputFocus($event.currentTarget,'')" :clearable="true"
         @blur="setInputBlur()"
-        @keyup.enter.native="createTextFile(newTextFileName)"
+        @keyup.enter.native="createFile(newCreateFileName)"
       ></el-input>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="newTextFileDialog=false">取消</el-button>
-        <el-button size="small" type="primary" @click="createTextFile(newTextFileName)"
-                   v-loading="createTextFileLoading">确定</el-button>
+        <el-button size="small" @click="newCreateFileDialog=false">取消</el-button>
+        <el-button size="small" type="primary" @click="createFile(newCreateFileName)"
+                   v-loading="createFileLoading">确定</el-button>
       </span>
     </el-dialog>
 
@@ -764,9 +764,10 @@ export default {
       allChecked: false,
       summaries: '',
       shareDialog: false,
-      newTextFileDialog: false,
-      newTextFileName: '',
-      createTextFileLoading: false,
+      newCreateFileDialog: false,
+      newCreateFileName: '',
+      newCreateFileDialogTitle: '',
+      createFileLoading: false,
       shareLink: '',
       shareFileName: '',
       generateShareLinkLoading: true,
@@ -1717,18 +1718,29 @@ export default {
         this.$refs.newFolderName.select()
       })
     },
-    getNewFileName(fileList, newFolderName) {
+    getNewFileName(fileList, newFileName) {
       let append = 0
       let filenameList = []
       fileList.forEach(file => {
-        filenameList.push(file.name || file.label)
+        let fileName = file.name || file.label
+        // if (file.suffix) {
+        //   fileName = fileName.substring(0, fileName.lastIndexOf(`.${file.suffix}`))
+        // }
+        filenameList.push(fileName)
       })
-      const newName = newFolderName
-      while (filenameList.includes(newFolderName)) {
+      const newName = newFileName
+      while (filenameList.includes(newFileName)) {
         append += 1
-        newFolderName = newName + append
+        if (newName.indexOf('.') > 0) {
+          const name = newName.substring(0, newName.lastIndexOf('.'))
+          const suffix = newName.substring(newName.lastIndexOf('.'))
+          console.log('name', name, 'suffix', suffix)
+          newFileName = `${name}${append}${suffix}`
+        } else {
+          newFileName = `${newName}${append}`
+        }
       }
-      return newFolderName
+      return newFileName
     },
     hideNewFolderName() {
       this.showNewFolder = false
@@ -1796,8 +1808,8 @@ export default {
         });
       }
     },
-    // 新建文本文件
-    createTextFile(newFileName) {
+    // 新建文件
+    createFile(newFileName) {
       if (newFileName) {
         if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
@@ -1806,34 +1818,41 @@ export default {
           })
           return
         }
-        this.createTextFileLoading = true
+        this.createFileLoading = true
         let parentPath = "/"
         if (this.path) {
           if (this.path.length > 0) {
             parentPath = this.path
           }
         }
+        let suffix = newFileName.substring(newFileName.lastIndexOf('.') + 1);
         api.addFile({
           fileName: encodeURI(newFileName),
           isFolder: false,
           username: this.$store.state.user.name,
           parentPath: encodeURI(parentPath)
         }).then((res) => {
-          this.createTextFileLoading = false
-
-          // 打开编辑器
-          // let path = res.data.path
-          // path = '/' +  path.substring(0,path.length - res.data.name.length)
-          this.textPreviewRow = res.data
-          this.textPreviewVisible = true
-
+          this.createFileLoading = false
+          switch (suffix) {
+            case 'txt':
+              // 打开编辑器
+              this.textPreviewRow = res.data
+              this.textPreviewVisible = true
+              break
+            case 'docx':
+            case 'xlsx':
+            case 'pptx':
+              this.officePreviewRow = res.data
+              this.officePreviewVisible = true
+              break
+          }
           this.$message.success(`新建文件成功`)
           const that = this
           setTimeout(function () {
-            that.newTextFileDialog = false
+            that.newCreateFileDialog = false
           }, 200)
         }).catch(() => {
-          this.createTextFileLoading = false
+          this.createFileLoading = false
         })
 
       }
@@ -2313,12 +2332,12 @@ export default {
       }
     },
     // 选取输入框部分内容
-    renameInputFocus(event, suffix) {
-      this.setInputFocus()
-      event.currentTarget.selectionStart = 0
-      event.currentTarget.selectionEnd = event.currentTarget.value.length
+    renameInputFocus(doc, suffix) {
+      doc.focus()
+      doc.selectionStart = 0
+      doc.selectionEnd = doc.value.length
       if (suffix) {
-        event.currentTarget.selectionEnd -= suffix.length + 1
+        doc.selectionEnd -= suffix.length + 1
       }
     },
     // 重命名
@@ -2539,17 +2558,35 @@ export default {
           this.getFileList()
           break
         case 'createTextFile':
-          this.newTextFileName = this.getNewFileName(this.fileList, '未命名文件')
-          this.newTextFileDialog = true
-          this.$nextTick(() => {
-            this.$refs.newTextFileName.focus()
-            this.$refs.newTextFileName.select()
-          })
+          this.newCreateFileDialogTitle = "新建文本文件"
+          this.createNewFile('txt')
+          break
+        case 'createWordFile':
+          this.newCreateFileDialogTitle = "新建Word文档"
+          this.createNewFile('docx')
+          break
+        case 'createExcelFile':
+          this.newCreateFileDialogTitle = "新建Excel工作表"
+          this.createNewFile('xlsx')
+          break
+        case 'createPPTFile':
+          this.newCreateFileDialogTitle = "新建PPT演示文档"
+          this.createNewFile('pptx')
           break
         case 'createMarkdownFile':
           this.newDocument()
           break
       }
+    },
+    // 新建文件
+    createNewFile(suffix) {
+      this.newCreateFileName = `未命名文件.${suffix}`
+      this.newCreateFileName = this.getNewFileName(this.fileList, this.newCreateFileName)
+      this.newCreateFileDialog = true
+      this.$nextTick(() => {
+        let newFileNameInput = this.$refs.newCreateFileName.$el.querySelector('.el-input__inner')
+        this.renameInputFocus(newFileNameInput, suffix)
+      })
     },
     // 列表右键菜单操作
     menusOperations(operation) {

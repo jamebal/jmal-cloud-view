@@ -1,13 +1,16 @@
 <template>
-  <div class="component-only-office">
-    <div :id="this.id" class="placeholder"></div>
-  </div>
+  <di>
+    <div class="component-only-office">
+      <div :id="this.id" class="placeholder"></div>
+    </div>
+  </di>
 </template>
 
 <script>
 
 import api from "@/api/file-api"
 import fileConfig from "@/utils/file-config";
+import Bus from "@/assets/js/bus";
 
 export default {
   name: "OnlyOfficeEditor",
@@ -22,7 +25,7 @@ export default {
       type: String,
       default: ''
     },
-    value: {
+    file: {
       type: Object,
       default: function () {
         return {}
@@ -34,10 +37,10 @@ export default {
     },
     documentKey: Function
   },
-
   data() {
     return {
       docEditor: null,
+      saved: true,
     }
   },
   beforeDestroy() {
@@ -48,31 +51,28 @@ export default {
   },
   computed: {
     fileType() {
-      return this.getType(this.value.suffix)
-    },
-    fileName() {
-      return this.value.name
+      return this.getType(this.file.suffix)
     },
   },
   watch: {
-    'value.id': {
+    'file.id': {
       handler(id)  {
         if (!id) {
           return
         }
-        $J.loadScript($J.apiUrl("http://192.168.0.188:3454/web-apps/apps/api/documents/api.js"), (e) => {
+        $J.loadScript($J.apiUrl("http://imac/office/web-apps/apps/api/documents/api.js"), (e) => {
           if (e !== null) {
             $J.modalAlert("组件加载失败！")
             return
           }
-          if(this.$store.state.user.token && this.$store.state.user.userId === this.value.userId){
-            api.getFileInfoById(this.value.id).then(res => {
-              this.value = res.data
+          if(this.$store.state.user.token && this.$store.state.user.userId === this.file.userId){
+            api.getFileInfoById(this.file.id).then(res => {
+              this.file = res.data
               this.loadFile()
             })
           } else {
-            api.getPublicFileInfoById(this.value.id).then(res => {
-              this.value = res.data
+            api.getPublicFileInfoById(this.file.id).then(res => {
+              this.file = res.data
               this.loadFile()
             })
           }
@@ -80,6 +80,11 @@ export default {
       },
       immediate: true,
     }
+  },
+  mounted() {
+    Bus.$on('previewSaveAndClose', () => {
+      this.requestClose()
+    })
   },
   methods: {
     getType(type) {
@@ -97,25 +102,23 @@ export default {
       }
       return type
     },
-
     loadFile() {
       if (this.docEditor !== null) {
         this.docEditor.destroyEditor()
         this.docEditor = null
       }
-      let fileKey = `${new Date(this.value.updateDate).getTime()}-${this.value.id}`
-      let fileName = $J.strExists(this.fileName, '.') ? this.fileName : (this.fileName + '.' + this.fileType)
+      let fileKey = `${new Date(this.file.updateDate).getTime()}-${this.file.id}`
 
-      let url = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.value, this.$store.getters.token)
+      let url = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
       if(this.readOnly){
-        url = window.location.origin + fileConfig.publicPreviewUrl(this.value.id, window.shareId);
+        url = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId);
       }
-
+      let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.file.id)
       const config = {
         "document": {
           "fileType": this.fileType,
           "key": fileKey,
-          "title": fileName,
+          "title": this.file.name,
           "url": url,
         },
         "editorConfig": {
@@ -126,12 +129,8 @@ export default {
             "name": this.$store.state.user.name
           },
           "customization": {
-            "logo": {
-              "image": "http://localhost:9528/favicon.ico",
-              "imageEmbedded": "",
-              "url": window.location.origin
-            },
-            "autosave": true,
+            "logo": null,
+            "autosave": false,
             "comments": true,
             "compactHeader": false,
             "compactToolbar": false,
@@ -141,10 +140,10 @@ export default {
             "hideRightMenu": false,
             "hideRulers": false,
             "submitForm": false,
-            "about": false,
+            "about": null,
             "feedback": false
           },
-          "callbackUrl": `http://192.168.0.66:8088/office/track?jmal-token=${this.$store.getters.token}&fileId=${this.value.id}`,
+          "callbackUrl": callbackUrl,
         }
       }
       if (!this.$pc) {
@@ -154,18 +153,40 @@ export default {
         config.editorConfig.mode = "view"
         config.editorConfig.callbackUrl = null
         if (!config.editorConfig.user.id) {
-          let viewer = $J.getStorageInt("viewer")
-          if (!viewer) {
-            viewer = $J.randNum(1000, 99999)
-            $J.setStorage("viewer", viewer)
+          let visitor = $J.getStorageInt("visitor")
+          if (!visitor) {
+            visitor = $J.randNum(1000, 99999)
+            $J.setStorage("viewer", visitor)
           }
-          config.editorConfig.user.id = "viewer_" + viewer
-          config.editorConfig.user.name = "Viewer_" + viewer
+          config.editorConfig.user.id = "visitor_" + visitor
+          config.editorConfig.user.name = "Visitor_" + visitor
         }
+      }
+      config.events = {
+        "onDocumentReady": this.onDocumentReady,
+        "onDocumentStateChange": this.onDocumentStateChange,
       }
       this.$nextTick(() => {
         this.docEditor = new DocsAPI.DocEditor(this.id, config)
       })
+    },
+    onDocumentReady() {
+      console.log('onDocumentReady')
+      let parentDoc = document.querySelector('.component-only-office')
+      let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
+      let logo = doc.querySelector('.extra .logo')
+      // 隐藏logo,about
+      logo.style.display = 'none'
+      let about = doc.getElementById('left-btn-about')
+      about.style.display = 'none'
+      this.saveBtnDoc = doc.getElementById('slot-btn-dt-save').getElementsByTagName('button')[0]
+    },
+    onDocumentStateChange() {
+      this.saved = this.saveBtnDoc.classList.contains('disabled')
+      this.$emit('onEdit', this.saved)
+    },
+    requestClose() {
+      this.$emit('manualSave')
     }
   }
 }

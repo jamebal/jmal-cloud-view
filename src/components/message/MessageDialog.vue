@@ -10,7 +10,7 @@
       <svg-icon icon-class="warring"></svg-icon> <span class="dialog-msg">{{content}}</span>
       <span slot="footer" class="dialog-footer">
         <el-button :size="buttonSize" @click="operating">{{operatButtonText}}</el-button>
-        <el-button :size="buttonSize" @click="cancel">{{cancelButtonText}}</el-button>
+<!--        <el-button :size="buttonSize" @click="cancel">{{cancelButtonText}}</el-button>-->
         <el-button :size="buttonSize" type="primary" @click=confirm>{{confirmButtonText}}</el-button>
       </span>
     </el-dialog>

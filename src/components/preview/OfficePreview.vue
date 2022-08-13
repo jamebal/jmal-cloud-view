@@ -1,27 +1,46 @@
 <template>
-  <div class="office-preview" v-if="show">
-    <van-overlay :show="show">
-      <div class="block">
-        <div class="close-bar" @click="close">
-          <svg-icon class="preview-close" icon-class="close"/>
+  <div>
+    <message-dialog
+      title="确认信息"
+      content="是否在关闭前保存修改？"
+      :show.sync="isSaveDialogVisible"
+      operatButtonText="放弃修改"
+      confirmButtonText="保存"
+      @operating="closeDialog"
+      @confirm="saveAndClose"
+    >
+    </message-dialog>
+    <div class="office-preview" v-if="show">
+      <van-overlay :show="show">
+        <div class="block">
+          <div class="close-bar" @click="beforeClose">
+            <svg-icon class="preview-close" icon-class="close"/>
+          </div>
+          <div class="wrapper">
+            <only-office-editor ref="officeEditor" :file="file" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave"></only-office-editor>
+          </div>
         </div>
-        <div class="wrapper">
-          <only-office-editor v-model="file" :read-only="readOnly"></only-office-editor>
-        </div>
-      </div>
-    </van-overlay>
+      </van-overlay>
+    </div>
   </div>
 </template>
 
 <script>
+
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
+import MessageDialog from "@/components/message/MessageDialog";
+import Bus from "@/assets/js/bus";
 
 export default {
   name: 'OfficePreview',
-  components: {
-    OnlyOfficeEditor,
-  },
+  components: {MessageDialog, OnlyOfficeEditor},
   props: {
+    id: {
+      type: String,
+      default: () => {
+        return "office_" + Math.round(Math.random() * 10000)
+      }
+    },
     file: {
       type: Object,
       default: function () {
@@ -37,13 +56,13 @@ export default {
       default: false
     }
   },
-  computed: {
-  },
   data() {
     return {
       pc: this.$pc,
       show: this.status,
       readOnly: true,
+      isSaveDialogVisible: false,
+      saved: true,
     }
   },
   watch: {
@@ -55,10 +74,64 @@ export default {
     }
   },
   methods: {
+    /**
+     * 点击关闭按钮
+     */
+    beforeClose() {
+      if (!this.saved) {
+        this.isSaveDialogVisible = true
+      } else {
+        this.close()
+      }
+    },
+    /**
+     * 执行关闭预览窗口
+     */
     close() {
       this.show = false
       this.$emit('update:status', false)
     },
+    /**
+     * 编辑回调
+     * @param saved 是否已经保存
+     */
+    onEdit(saved) {
+      console.log('onEdit', saved)
+      this.saved = saved
+      if(saved){
+        window.onbeforeunload = function(e){
+          e.returnValue=("文件未保存, 确定退出吗?");
+        }
+      } else {
+        window.onbeforeunload = null
+      }
+    },
+    /**
+     * 放弃修改
+     */
+    closeDialog() {
+      this.isSaveDialogVisible = false
+      this.close()
+    },
+    /**
+     * 保存并退出
+     */
+    saveAndClose() {
+      // 通知插件保存
+      console.log('saveAndClose')
+      Bus.$emit('previewSaveAndClose')
+      this.isSaveDialogVisible = false
+    },
+    /**
+     * 手动保存提醒，有些组件没有自动保存
+     */
+    manualSave() {
+      this.$message.info('请手动保存')
+    },
+    /**
+     * 检查要预览调文件是否为只读
+     * @param fileUserId userId
+     */
     checkReadOnly(fileUserId){
       if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
         this.readOnly = false

@@ -7,6 +7,10 @@ export default {
   webDAVUrl: function(username) {
     return window.location.origin + `${this.baseUrl}/webDAV/${username}`
   },
+  // webDAV的url
+  officeCallBackUrl: function(token, fileId) {
+    return `${window.location.origin}${this.baseUrl}/office/track?jmal-token=${token}&fileId=${fileId}`
+  },
   // 预览文件的url
   previewUrl: function(username, file, token) {
     let path = "/"

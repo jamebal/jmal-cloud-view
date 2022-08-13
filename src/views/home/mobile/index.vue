@@ -268,6 +268,7 @@
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
+    <office-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></office-preview>
   </div>
 </template>
 <script>
@@ -283,11 +284,13 @@ import ImageViewer from "@/components/preview/ImageViewer";
 import VideoPreview from "@/components/preview/VideoPreview";
 import SimTextPreview from "@/components/preview/SimTextPreview";
 import {suffix} from "@/utils/file-type";
+import OfficePreview from "@/components/preview/OfficePreview";
 
 let pinyin = require("pinyin");
 
 export default {
   components: {
+    OfficePreview,
     SimTextPreview,
     VideoPreview,
     ImageViewer, IconFile,
@@ -375,6 +378,8 @@ export default {
       imagePreviewVisible: false,
       videoPreviewRow: {},
       videoPreviewVisible: false,
+      officePreviewRow: {},
+      officePreviewVisible: false,
       textPreviewVisible: false,
       textPreviewRow: {},
     };
@@ -1088,6 +1093,12 @@ export default {
           if (row.contentType.indexOf('audio') > -1) {
             // 音频文件
             Bus.$emit('onAddAudio', row, this.audioCoverUrl)
+            return
+          }
+          if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv') {
+            // office文件
+            this.officePreviewVisible = true
+            this.officePreviewRow = row
             return
           }
           if (row.suffix === 'pdf') {

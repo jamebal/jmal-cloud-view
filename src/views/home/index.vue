@@ -33,8 +33,15 @@ export default {
         },
         { label: '刷新', operation: 'refresh'},
         { divider: true, operation: 'divider' },
+        { label: '新建', operation: 'create' ,child: [
+            { label: '文本', operation: 'createTextFile', iconClass: 'file-txt'},
+            { label: 'Word', operation: 'createWordFile', iconClass: 'file-word'},
+            { label: 'Excel', operation: 'createExcelFile', iconClass: 'file-excel'},
+            { label: 'PPT', operation: 'createPPTFile', iconClass: 'file-ppt'},
+          ]
+        },
+        { divider: true, operation: 'divider' },
         { label: '写文章', operation: 'createMarkdownFile'},
-        { label: '新建文件', operation: 'createTextFile'},
       ]
     }
   },
