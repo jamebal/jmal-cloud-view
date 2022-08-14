@@ -11,16 +11,14 @@
     >
     </message-dialog>
     <div class="office-preview" v-if="show">
-      <van-overlay :show="show">
-        <div class="block">
+        <div class="preview-block" v-show="readyShow">
           <div class="close-bar" @click="beforeClose">
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
-            <only-office-editor ref="officeEditor" :file="file" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave"></only-office-editor>
+            <only-office-editor ref="officeEditor" :file="file" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReday="onReday"></only-office-editor>
           </div>
         </div>
-      </van-overlay>
     </div>
   </div>
 </template>
@@ -60,15 +58,20 @@ export default {
     return {
       pc: this.$pc,
       show: this.status,
+      readyShow: false,
       readOnly: true,
       isSaveDialogVisible: false,
       saved: true,
+      previewDocument: {},
     }
   },
   watch: {
     status: function(visible){
       if(visible){
         this.show = true
+        this.$nextTick(() => {
+          this.previewDocument = document.querySelector('.preview-block')
+        })
         this.checkReadOnly(this.file.userId)
       }
     }
@@ -89,7 +92,23 @@ export default {
      */
     close() {
       this.show = false
+      this.readyShow = false
       this.$emit('update:status', false)
+    },
+    /**
+     * 文件内容已经加载好了
+     */
+    onReday() {
+      this.saved = true
+      this.previewDocument.style.zIndex = 9999
+      this.readyShow = true
+      this.$nextTick(() => {
+        Bus.$emit('loadFileReady')
+        let that = this
+        setTimeout(function () {
+          that.previewDocument.style.zIndex = 2001
+        },200)
+      })
     },
     /**
      * 编辑回调
@@ -171,9 +190,16 @@ export default {
   background-color: rgba(0,0,0,.7);
 }
 
-.block {
+.preview-block {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,.7);
+  z-index: 2001;
+
   .close-bar {
-    z-index: 2006;
     background-color: rgba(0,0,0,.5);
     position: relative;
     top: -2.5rem;
@@ -197,7 +223,6 @@ export default {
 
   .preview-close {
     transform: rotate(-45deg);
-    z-index: 2009;
     position: absolute;
     font-size: 1.25rem;
     top: -8px;

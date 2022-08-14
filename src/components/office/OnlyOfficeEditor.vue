@@ -60,9 +60,11 @@ export default {
         if (!id) {
           return
         }
-        $J.loadScript($J.apiUrl("http://imac/office/web-apps/apps/api/documents/api.js"), (e) => {
+        let officeApiUrl = fileConfig.officeApiUrl()
+        $J.loadScript($J.apiUrl(officeApiUrl), (e) => {
           if (e !== null) {
-            $J.modalAlert("组件加载失败！")
+            this.$emit('onClose')
+            Bus.$emit('loadFileFaild')
             return
           }
           if(this.$store.state.user.token && this.$store.state.user.userId === this.file.userId){
@@ -172,6 +174,7 @@ export default {
     },
     onDocumentReady() {
       console.log('onDocumentReady')
+      this.$emit('onReday')
       let parentDoc = document.querySelector('.component-only-office')
       let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
       let logo = doc.querySelector('.extra .logo')

@@ -531,20 +531,20 @@
             if (msg === false) {
                 return;
             }
-            alert($J.L(msg));
+            alert(msg);
         },
 
         //提示
         messageSuccess(msg) {
-            $J.Message.success($J.L(msg));
+            $J.Message.success(msg);
         },
 
         messageWarning(msg) {
-            $J.Message.warning($J.L(msg));
+            $J.Message.warning(msg);
         },
 
         messageError(msg) {
-            $J.Message.error($J.L(msg));
+            $J.Message.error(msg);
         },
 
         //通知

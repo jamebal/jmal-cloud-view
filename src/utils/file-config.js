@@ -7,7 +7,11 @@ export default {
   webDAVUrl: function(username) {
     return window.location.origin + `${this.baseUrl}/webDAV/${username}`
   },
-  // webDAV的url
+  // office api url
+  officeApiUrl: function() {
+    return `${window.location.origin}/office/web-apps/apps/api/documents/api.js`
+  },
+  // office回调url
   officeCallBackUrl: function(token, fileId) {
     return `${window.location.origin}${this.baseUrl}/office/track?jmal-token=${token}&fileId=${fileId}`
   },
