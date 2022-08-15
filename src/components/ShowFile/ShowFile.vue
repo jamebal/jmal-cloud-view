@@ -3156,7 +3156,7 @@ export default {
           this.openCompressionVisible = true
           return
         }
-        if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv') {
+        if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv' || row.suffix === 'pdf') {
           // office文件
           this.officePreviewVisible = true
           this.officePreviewRow = row
@@ -3165,7 +3165,6 @@ export default {
         if (row.suffix === 'pdf') {
           // pdf文件
           fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
-          this.closeNotPreviewDialogVisible()
           return
         }
         this.notPreviewDialogVisible = true

@@ -16,7 +16,8 @@
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
-            <only-office-editor ref="officeEditor" :file="file" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
+            <pdf-preview v-if="fileType === 'pdf'" :file="file" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
+            <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
     </div>
@@ -28,10 +29,12 @@
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
 import Bus from "@/assets/js/bus";
+import fileConfig from "@/utils/file-config";
+import PdfPreview from "@/components/office/PdfPreview";
 
 export default {
   name: 'OfficePreview',
-  components: {MessageDialog, OnlyOfficeEditor},
+  components: {PdfPreview, MessageDialog, OnlyOfficeEditor},
   props: {
     id: {
       type: String,
@@ -56,6 +59,7 @@ export default {
   },
   data() {
     return {
+      fileUrl: '',
       pc: this.$pc,
       show: this.status,
       readyShow: false,
@@ -63,7 +67,13 @@ export default {
       isSaveDialogVisible: false,
       saved: true,
       previewDocument: {},
+      delayClosing: {}
     }
+  },
+  computed: {
+    fileType() {
+      return this.getType(this.file.suffix)
+    },
   },
   watch: {
     status: function(visible){
@@ -73,9 +83,12 @@ export default {
           this.previewDocument = document.querySelector('.preview-block')
         })
         this.checkReadOnly(this.file.userId)
+        if (this.file.suffix === 'pdf') {
+          this.readyShow = true
+        }
         // 3秒后还没加载出来视为加载失败
         let that = this
-        setTimeout(function () {
+        this.delayClosing = setTimeout(function () {
           if (!that.readyShow) {
             that.readyShow = true
             Bus.$emit('loadFileFaild')
@@ -85,6 +98,14 @@ export default {
     }
   },
   methods: {
+    getType(suffix) {
+      switch (suffix) {
+        case 'pdf':
+          return 'pdf'
+        default:
+          return 'office'
+      }
+    },
     /**
      * 点击关闭按钮
      */
@@ -99,6 +120,7 @@ export default {
      * 执行关闭预览窗口
      */
     close() {
+      clearTimeout(this.delayClosing)
       this.show = false
       this.readyShow = false
       this.$emit('update:status', false)
@@ -108,14 +130,16 @@ export default {
      */
     onReady() {
       this.saved = true
-      this.previewDocument.style.zIndex = 9999
-      this.readyShow = true
-      this.$nextTick(() => {
-        let that = this
-        setTimeout(function () {
-          that.previewDocument.style.zIndex = 2001
-        },200)
-      })
+      if (this.fileType === 'office') {
+        this.previewDocument.style.zIndex = 9999
+        this.readyShow = true
+        this.$nextTick(() => {
+          let that = this
+          setTimeout(function () {
+            that.previewDocument.style.zIndex = 2001
+          },200)
+        })
+      }
     },
     /**
      * 编辑回调
@@ -170,6 +194,10 @@ export default {
           closeBar.style.float = 'left'
           closeBar.style.transform = 'rotate(225deg)'
         })
+      }
+      this.fileUrl = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
+      if(this.readOnly){
+        this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId);
       }
     },
   }

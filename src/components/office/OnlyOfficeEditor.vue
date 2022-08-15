@@ -21,6 +21,10 @@ export default {
         return "office_" + Math.round(Math.random() * 10000)
       }
     },
+    fileUrl: {
+      type: String,
+      default: ''
+    },
     code: {
       type: String,
       default: ''
@@ -111,17 +115,13 @@ export default {
       }
       let fileKey = `${new Date(this.file.updateDate).getTime()}-${this.file.id}`
 
-      let url = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
-      if(this.readOnly){
-        url = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId);
-      }
       let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.file.id)
       const config = {
         "document": {
           "fileType": this.fileType,
           "key": fileKey,
           "title": this.file.name,
-          "url": url,
+          "url": this.fileUrl,
         },
         "editorConfig": {
           "mode": "edit",
