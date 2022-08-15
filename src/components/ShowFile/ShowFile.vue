@@ -441,7 +441,6 @@
     <message-dialog
       title="提示"
       content="此文件不支持预览, 是否下载该文件?"
-      :loading="notPreviewDialogLoading"
       :show.sync="notPreviewDialogVisible"
       operatButtonText="强行使用文本编辑器打开"
       confirmButtonText="下载"
@@ -547,7 +546,6 @@ import fileConfig from '@/utils/file-config'
 import EditElement from "@/views/markdown/EditElement";
 import OfficePreview from "@/components/preview/OfficePreview";
 
-var rowStyleExecuting = false
 export default {
   name: 'ShowFile',
   components: {
@@ -794,7 +792,6 @@ export default {
       drawFlag: false,
       fileListScrollTop: 0,
       notPreviewDialogVisible: false,
-      notPreviewDialogLoading: false,
       openingFile: '',
       openCompressionVisible: false,
       stompClient: undefined,//websocket订阅集合
@@ -828,18 +825,10 @@ export default {
   created() {
   },
   mounted() {
-    Bus.$on('fileSuccess', () => {
-
-    })
-    Bus.$on('loadFileReady', () => {
-      this.closeNotPreviewDialogVisible()
-    })
+    Bus.$on('fileSuccess', () => {})
     Bus.$on('loadFileFaild', () => {
       console.log('loadFileFaild')
       this.notPreviewDialogVisible = true
-      this.$nextTick(() => {
-        this.notPreviewDialogLoading = false
-      })
     })
     Bus.$on('clickMore', (rows) => {
       this.$refs.fileListTable.tableSelectData = rows
@@ -3139,39 +3128,32 @@ export default {
           this.$emit("selectedFile", selectFile)
           return
         }
-        this.notPreviewDialogVisible = true
-        this.notPreviewDialogLoading = true
         if (row.contentType.startsWith('image')) {
           // 图片
           this.imagePreviewVisible = true
           this.imagePreviewRow = row
-          this.closeNotPreviewDialogVisible()
           return
         }
         if (suffix.simText.includes(row.suffix)) {
           // 文本文件
           this.textPreviewRow = row
           this.textPreviewVisible = true
-          this.closeNotPreviewDialogVisible()
           return
         }
         if (row.contentType.indexOf('video') > -1) {
           // 视频文件
           this.videoPreviewVisible = true
           this.videoPreviewRow = row
-          this.closeNotPreviewDialogVisible()
           return
         }
         if (row.contentType.indexOf('audio') > -1) {
           // 音频文件
           Bus.$emit('onAddAudio', row, this.audioCoverUrl)
-          this.closeNotPreviewDialogVisible()
           return
         }
         if (suffix.compressedFile.includes(row.suffix)) {
           // 压缩文件
           this.openCompressionVisible = true
-          this.closeNotPreviewDialogVisible()
           return
         }
         if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv') {
@@ -3186,14 +3168,8 @@ export default {
           this.closeNotPreviewDialogVisible()
           return
         }
-        this.notPreviewDialogLoading = false
         this.notPreviewDialogVisible = true
       }
-    },
-    closeNotPreviewDialogVisible() {
-      // 其他文件
-      this.notPreviewDialogVisible = false
-      this.notPreviewDialogLoading = false
     },
     // 强行使用文本编辑器打开
     forciblyOpen(file) {

@@ -165,6 +165,7 @@ export default {
         }
       }
       config.events = {
+        "onAppReady": this.onAppReady,
         "onDocumentReady": this.onDocumentReady,
         "onDocumentStateChange": this.onDocumentStateChange,
       }
@@ -172,9 +173,11 @@ export default {
         this.docEditor = new DocsAPI.DocEditor(this.id, config)
       })
     },
+    onAppReady() {
+      this.$emit('onReady')
+    },
     onDocumentReady() {
       console.log('onDocumentReady')
-      this.$emit('onReday')
       let parentDoc = document.querySelector('.component-only-office')
       let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
       let logo = doc.querySelector('.extra .logo')

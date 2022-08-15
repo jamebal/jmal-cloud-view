@@ -10,13 +10,13 @@
       @confirm="saveAndClose"
     >
     </message-dialog>
-    <div class="office-preview" v-if="show">
+    <div class="office-preview" v-if="show" v-loading="!readyShow">
         <div class="preview-block" v-show="readyShow">
           <div class="close-bar" @click="beforeClose">
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
-            <only-office-editor ref="officeEditor" :file="file" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReday="onReday"></only-office-editor>
+            <only-office-editor ref="officeEditor" :file="file" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
     </div>
@@ -73,6 +73,14 @@ export default {
           this.previewDocument = document.querySelector('.preview-block')
         })
         this.checkReadOnly(this.file.userId)
+        // 3秒后还没加载出来视为加载失败
+        let that = this
+        setTimeout(function () {
+          if (!that.readyShow) {
+            that.readyShow = true
+            Bus.$emit('loadFileFaild')
+          }
+        },3000)
       }
     }
   },
@@ -98,12 +106,11 @@ export default {
     /**
      * 文件内容已经加载好了
      */
-    onReday() {
+    onReady() {
       this.saved = true
       this.previewDocument.style.zIndex = 9999
       this.readyShow = true
       this.$nextTick(() => {
-        Bus.$emit('loadFileReady')
         let that = this
         setTimeout(function () {
           that.previewDocument.style.zIndex = 2001
@@ -171,13 +178,14 @@ export default {
 
 <style lang="scss" scoped>
 
-.preview {
+.office-preview {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1002;
   width: 100%;
   height: 100%;
+
 }
 
 .van-overlay {
