@@ -2415,7 +2415,7 @@ export default {
         return
       }
       api.rename({
-        newFileName: newFileName,
+        newFileName: encodeURI(newFileName),
         username: this.$store.state.user.name,
         id: row.id
       }).then(res => {

@@ -684,7 +684,7 @@
       update(value,path,index) {
         this.updating = true
         markdownApi.editMarkdownByPath({
-            relativePath: path,
+            relativePath: encodeURI(path),
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             contentText: value
