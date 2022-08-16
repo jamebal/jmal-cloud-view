@@ -1,0 +1,199 @@
+<template>
+  <div class="drawio-content">
+    <div class="drawio-title">
+      <span class="drawio-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</span>
+      <span  class="drawio-save"><el-button v-if="!saved" @click="save" size="mini" :loading="updating">保存</el-button></span>
+    </div>
+    <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.drawio-content {
+  position: absolute;
+  top: 2.5rem;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .drawio-title {
+    text-align: center;
+    background-color: #fbfbfb;
+    z-index: 2001;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 10px;
+
+    .drawio-title-name {
+      line-height: 40px;
+    }
+
+    .drawio-save {
+      float: right;
+      margin-right: 30px;
+      line-height: 40px;
+    }
+  }
+
+  .drawio-iframe {
+    z-index: 1999;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 0 0;
+    border: 0;
+    float: none;
+    margin: -1px 0 0;
+    max-width: none;
+    outline: 0;
+    padding: 0;
+  }
+}
+</style>
+<script>
+
+import api from '@/api/file-api'
+import txtApi from "@/api/markdown-api"
+
+export default {
+  name: "Drawio",
+  props: {
+    file: {
+      type: Object,
+      default: function () {
+        return {}
+      }
+    },
+    shareId: {
+      type: String,
+      default: ''
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
+  },
+  data() {
+    return {
+      url: null,
+      bakData: '',
+      xml: '',
+      title: this.file.name,
+      saved: true
+    }
+  },
+  created() {
+    let language = 'zh'
+    let lightbox = this.readOnly ? 1 : 0
+    let chrome = this.readOnly ? 0 : 1
+    let theme = 'kennedy'
+    let title = this.file.name ? encodeURIComponent(this.file.name) : ''
+    let query = `?title=${title}&chrome=${chrome}&lightbox=${lightbox}&ui=${theme}&lang=${language}&offline=1&pwa=0&embed=1&noLangIcon=1&noExitBtn=1&noSaveBtn=1&saveAndExit=0&spin=1&proto=json`
+    this.url = $J.apiUrl(`../drawio/webapp/${query}`)
+  },
+  mounted() {
+    window.addEventListener('message', this.handleMessage)
+  },
+  beforeDestroy() {
+    window.removeEventListener('message', this.handleMessage)
+  },
+  watch: {
+    'file.id': {
+      handler(id)  {
+        if (!id) {
+          return
+        }
+        this.xml = ''
+        api.previewText({
+          shareId: this.shareId,
+          fileId: this.file.id,
+          id: this.file.id,
+          path: encodeURI(this.file.path),
+          username: this.$store.state.user.name
+        }).then((res) => {
+          this.xml = res.data.contentText
+          console.log(this.xml)
+          if (this.bakData === res.data.contentText) {
+            return
+          }
+          this.bakData = res.data.contentText
+          this.updateContent()
+        })
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
+  computed: {},
+  methods: {
+    updateContent() {
+      this.$refs.myFlow.contentWindow.postMessage(JSON.stringify({
+        action: "load",
+        autosave: 1,
+        xml: this.bakData,
+      }), "*")
+    },
+    save() {
+      this.saved = true
+      this.title = this.file.name
+      this.update(this.xml)
+    },
+    update(value) {
+      this.updating = true
+      txtApi.editMarkdownByPath({
+        relativePath: encodeURI(this.file.path + this.file.name),
+        userId: this.$store.state.user.userId,
+        username: this.$store.state.user.name,
+        contentText: value
+      }).then(() => {
+        this.updating = false
+        this.$message({
+          message: "保存成功",
+          type: 'success',
+          duration : 1000
+        })
+      }).catch(() => {
+        this.updating = false
+      })
+    },
+    handleMessage(event) {
+      const editWindow = this.$refs.myFlow.contentWindow
+      if (event.source !== editWindow) {
+        return
+      }
+      const payload = $J.jsonParse(event.data)
+      console.log('handleMessage payload', payload.event, payload)
+      switch (payload.event) {
+        case "init":
+          this.$emit('onReady')
+          this.updateContent()
+          break
+        case "load":
+          if (this.xml.length < 1) {
+            editWindow.postMessage(JSON.stringify({
+              action: "template"
+            }), "*")
+          }
+          break
+
+        case "autosave":
+          this.bakData = payload.xml
+          this.xml = payload.xml
+          this.saved = false
+          this.title = `*${this.file.name}`
+          this.$emit('onEdit', this.saved)
+          break
+
+        case "save":
+          // save
+          this.save()
+          this.$emit('onEdit', this.saved)
+          break
+      }
+    }
+  },
+}
+</script>

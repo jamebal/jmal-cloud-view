@@ -16,7 +16,8 @@
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
-            <pdf-preview v-if="fileType === 'pdf'" :file="file" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
+            <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
+            <drawio v-else-if="fileType === 'drawio'" :file="file" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady"></drawio>
             <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
@@ -31,10 +32,11 @@ import MessageDialog from "@/components/message/MessageDialog";
 import Bus from "@/assets/js/bus";
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
+import Drawio from "@/components/office/Drawio";
 
 export default {
   name: 'OfficePreview',
-  components: {PdfPreview, MessageDialog, OnlyOfficeEditor},
+  components: {Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor},
   props: {
     id: {
       type: String,
@@ -93,6 +95,7 @@ export default {
         this.$nextTick(() => {
           this.previewDocument = document.querySelector('.preview-block')
         })
+
         this.checkReadOnly(this.file.userId)
         // 3秒后还没加载出来视为加载失败
         let that = this
@@ -108,6 +111,8 @@ export default {
   methods: {
     getType(suffix) {
       switch (suffix) {
+        case 'drawio':
+          return 'drawio'
         case 'pdf':
           return 'pdf'
         default:
