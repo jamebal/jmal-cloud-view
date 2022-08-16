@@ -17,7 +17,7 @@
           </div>
           <div class="wrapper">
             <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
-            <drawio v-else-if="fileType === 'drawio'" :file="file" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady"></drawio>
+            <drawio v-else-if="fileType === 'drawio'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady"></drawio>
             <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
@@ -248,6 +248,7 @@ export default {
   z-index: 2001;
 
   .close-bar {
+    z-index: 2000;
     background-color: rgba(0,0,0,.5);
     position: relative;
     top: -2.5rem;

@@ -1,8 +1,8 @@
 <template>
-  <div class="drawio-content">
+  <div class="drawio-content" :style="{'top': readOnly ? '0': '2.5rem'}">
     <div class="drawio-title">
       <span class="drawio-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</span>
-      <span  class="drawio-save"><el-button v-if="!saved" @click="save" size="mini" :loading="updating">保存</el-button></span>
+      <span  class="drawio-save"><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></span>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
   </div>
@@ -10,6 +10,7 @@
 
 <style lang="scss" scoped>
 .drawio-content {
+  z-index: 999;
   position: absolute;
   top: 2.5rem;
   left: 0;
@@ -81,6 +82,7 @@ export default {
       url: null,
       bakData: '',
       xml: '',
+      saveBtnUpdating: false,
       title: this.file.name,
       saved: true
     }
@@ -107,7 +109,11 @@ export default {
           return
         }
         this.xml = ''
-        api.previewText({
+        let request = 'previewText'
+        if(this.readOnly){
+          request = 'sharePreviewText'
+        }
+        api[request]({
           shareId: this.shareId,
           fileId: this.file.id,
           id: this.file.id,
@@ -142,21 +148,21 @@ export default {
       this.update(this.xml)
     },
     update(value) {
-      this.updating = true
+      this.saveBtnUpdating = true
       txtApi.editMarkdownByPath({
         relativePath: encodeURI(this.file.path + this.file.name),
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
         contentText: value
       }).then(() => {
-        this.updating = false
+        this.saveBtnUpdating = false
         this.$message({
           message: "保存成功",
           type: 'success',
           duration : 1000
         })
       }).catch(() => {
-        this.updating = false
+        this.saveBtnUpdating = false
       })
     },
     handleMessage(event) {
