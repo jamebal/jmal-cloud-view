@@ -153,7 +153,7 @@ export default {
       this.saved = true
       this.readyShow = true
       this.fileReday = true
-      if (['drawio', 'office'].include(this.fileType)) {
+      if (['drawio', 'office'].includes(this.fileType)) {
         this.previewDocument.style.zIndex = 9999
         this.$nextTick(() => {
           let that = this
