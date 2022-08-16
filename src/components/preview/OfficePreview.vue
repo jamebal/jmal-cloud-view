@@ -17,7 +17,7 @@
           </div>
           <div class="wrapper">
             <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
-            <drawio v-else-if="fileType === 'drawio'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady"></drawio>
+            <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady"></drawio>
             <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
@@ -69,7 +69,8 @@ export default {
       isSaveDialogVisible: false,
       saved: true,
       previewDocument: {},
-      delayClosing: {}
+      delayClosing: {},
+      fileReday: false,
     }
   },
   computed: {
@@ -101,8 +102,7 @@ export default {
         let that = this
         this.delayClosing = setTimeout(function () {
           if (!that.readyShow) {
-            that.readyShow = true
-            Bus.$emit('loadFileFaild')
+            that.loadFileFaild()
           }
         },3000)
       }
@@ -118,6 +118,14 @@ export default {
         default:
           return 'office'
       }
+    },
+    /**
+     * 加载失败
+     */
+    loadFileFaild() {
+      this.close()
+      Bus.$emit('loadFileFaild')
+      this.readyShow = true
     },
     /**
      * 点击关闭按钮
@@ -142,10 +150,10 @@ export default {
      * 文件内容已经加载好了
      */
     onReady() {
-      console.log('onReady')
       this.saved = true
       this.readyShow = true
-      if (this.fileType === 'office') {
+      this.fileReday = true
+      if (['drawio', 'office'].include(this.fileType)) {
         this.previewDocument.style.zIndex = 9999
         this.$nextTick(() => {
           let that = this
@@ -162,12 +170,14 @@ export default {
     onEdit(saved) {
       this.saved = saved
       if(saved){
-        window.onbeforeunload = function(e){
-          e.returnValue=("文件未保存, 确定退出吗?");
-        }
+        window.addEventListener('onbeforeunload', this.onbeforeunload)
       } else {
-        window.onbeforeunload = null
+        window.removeEventListener('onbeforeunload', this.onbeforeunload)
       }
+    },
+    onbeforeunload(event) {
+      console.log('event', event)
+      event.returnValue=("文件未保存, 确定退出吗?");
     },
     /**
      * 放弃修改

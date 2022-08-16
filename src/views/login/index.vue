@@ -212,7 +212,6 @@ export default {
             this.loading = true
             this.$store.dispatch('user/login', this.loginForm).then(() => {
               this.$store.dispatch('user/setMenuList').then((res) => {
-                console.log(this.redirect)
                 this.$router.push({ path: this.redirect || '/' })
                 this.loading = false
               }).catch(() => {

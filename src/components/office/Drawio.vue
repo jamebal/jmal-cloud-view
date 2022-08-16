@@ -84,7 +84,8 @@ export default {
       xml: '',
       saveBtnUpdating: false,
       title: this.file.name,
-      saved: true
+      saved: true,
+      reday: false
     }
   },
   created() {
@@ -120,8 +121,8 @@ export default {
           path: encodeURI(this.file.path),
           username: this.$store.state.user.name
         }).then((res) => {
+          this.file.path = res.data.path
           this.xml = res.data.contentText
-          console.log(this.xml)
           if (this.bakData === res.data.contentText) {
             return
           }
@@ -146,6 +147,7 @@ export default {
       this.saved = true
       this.title = this.file.name
       this.update(this.xml)
+      this.$emit('onEdit', this.saved)
     },
     update(value) {
       this.saveBtnUpdating = true
@@ -171,9 +173,9 @@ export default {
         return
       }
       const payload = $J.jsonParse(event.data)
-      console.log('handleMessage payload', payload.event, payload)
       switch (payload.event) {
         case "init":
+          this.reday = true
           this.$emit('onReady')
           this.updateContent()
           break
@@ -196,7 +198,6 @@ export default {
         case "save":
           // save
           this.save()
-          this.$emit('onEdit', this.saved)
           break
       }
     }

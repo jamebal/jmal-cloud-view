@@ -827,7 +827,6 @@ export default {
   mounted() {
     Bus.$on('fileSuccess', () => {})
     Bus.$on('loadFileFaild', () => {
-      console.log('loadFileFaild')
       this.notPreviewDialogVisible = true
     })
     Bus.$on('clickMore', (rows) => {
@@ -1735,7 +1734,6 @@ export default {
         if (newName.indexOf('.') > 0) {
           const name = newName.substring(0, newName.lastIndexOf('.'))
           const suffix = newName.substring(newName.lastIndexOf('.'))
-          console.log('name', name, 'suffix', suffix)
           newFileName = `${name}${append}${suffix}`
         } else {
           newFileName = `${newName}${append}`
@@ -1840,6 +1838,7 @@ export default {
               this.textPreviewRow = res.data
               this.textPreviewVisible = true
               break
+            case 'drawio':
             case 'docx':
             case 'xlsx':
             case 'pptx':
@@ -2561,6 +2560,10 @@ export default {
         case 'createTextFile':
           this.newCreateFileDialogTitle = "新建文本文件"
           this.createNewFile('txt')
+          break
+        case 'createDrawioFile':
+          this.newCreateFileDialogTitle = "新建流程图"
+          this.createNewFile('drawio')
           break
         case 'createWordFile':
           this.newCreateFileDialogTitle = "新建Word文档"
