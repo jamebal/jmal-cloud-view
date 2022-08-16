@@ -3162,11 +3162,6 @@ export default {
           this.officePreviewRow = row
           return
         }
-        if (row.suffix === 'pdf') {
-          // pdf文件
-          fileConfig.preview(this.$store.state.user.name, row, this.$store.getters.token)
-          return
-        }
         this.notPreviewDialogVisible = true
       }
     },

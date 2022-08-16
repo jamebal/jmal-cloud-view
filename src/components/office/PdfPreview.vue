@@ -1,10 +1,9 @@
 <template>
-  <di>
+  <div>
     <div class="pdf-office">
-      <iframe ref="pdfIframe" :title="file.name" :src="fileUrl" width="100%" height="100%" align="top" frameborder="0"
-              name="PDF Preview"></iframe>
+      <iframe ref="pdfIframe" name="PDF Preview" :title="file.name" :src="fileUrl"></iframe>
     </div>
-  </di>
+  </div>
 </template>
 
 <script>
@@ -37,17 +36,17 @@ export default {
   },
   methods: {
     iframeLoad() {
-      console.log('loading')
       const iframe = this.$refs.pdfIframe;
+      const that = this
       if (iframe.attachEvent) {
         // IE
         iframe.attachEvent('onload', () => {
-          this.$emit('onReady')
+          that.$emit('onReady')
         });
       } else {
         // 非IE
         iframe.onload = () => {
-          this.$emit('onReady')
+          that.$emit('onReady')
         };
       }
     }
@@ -70,5 +69,10 @@ export default {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
 }
 </style>

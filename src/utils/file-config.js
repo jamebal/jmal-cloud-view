@@ -17,16 +17,11 @@ export default {
   },
   // 预览文件的url
   previewUrl: function(username, file, token) {
-    let path = "/"
-    if (file.path.length > 1) {
-      path = encodeURI(file.path.substr(1, file.path.length - 2))
-    }
-    const filename = encodeURI(file.name);
+    let fileUrl = `${this.baseUrl}/file/${username}${encodeURI(file.path)}${encodeURI(file.name)}`
     if (token) {
-      return `${this.baseUrl}/file/${username}/${path}/${filename}?jmal-token=${token}`
-    } else {
-      return `${this.baseUrl}/file/${username}/${path}/${filename}`
+      return `${fileUrl}?jmal-token=${token}`
     }
+    return fileUrl
   },
   // mardown里上传图片后的图片预览地址
   mardownPreviewUrl: function (path){
@@ -40,7 +35,7 @@ export default {
   // 下载文件
   download: function(username, file, token) {
     fileApi.isAllowDownload().then(() => {
-      let url = `${this.baseUrl}/file/${username}${encodeURI(file.path)}${encodeURI(file.name)}?jmal-token=${token}&o=download`
+      let url = this.previewUrl(username, file, token) + '&o=download'
       window.open(url, '_self')
     })
   },

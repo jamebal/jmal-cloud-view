@@ -75,6 +75,17 @@ export default {
       return this.getType(this.file.suffix)
     },
   },
+  mounted() {
+    let that = this;
+    this.$nextTick(function () {
+      document.addEventListener('keyup', function (e) {
+        // 监听ESC键
+        if (e.code === 'Escape') {
+          that.beforeClose()
+        }
+      }, false)
+    })
+  },
   watch: {
     status: function(visible){
       if(visible){
@@ -83,9 +94,6 @@ export default {
           this.previewDocument = document.querySelector('.preview-block')
         })
         this.checkReadOnly(this.file.userId)
-        if (this.file.suffix === 'pdf') {
-          this.readyShow = true
-        }
         // 3秒后还没加载出来视为加载失败
         let that = this
         this.delayClosing = setTimeout(function () {
@@ -129,10 +137,11 @@ export default {
      * 文件内容已经加载好了
      */
     onReady() {
+      console.log('onReady')
       this.saved = true
+      this.readyShow = true
       if (this.fileType === 'office') {
         this.previewDocument.style.zIndex = 9999
-        this.readyShow = true
         this.$nextTick(() => {
           let that = this
           setTimeout(function () {
@@ -146,7 +155,6 @@ export default {
      * @param saved 是否已经保存
      */
     onEdit(saved) {
-      console.log('onEdit', saved)
       this.saved = saved
       if(saved){
         window.onbeforeunload = function(e){
@@ -168,7 +176,6 @@ export default {
      */
     saveAndClose() {
       // 通知插件保存
-      console.log('saveAndClose')
       Bus.$emit('previewSaveAndClose')
       this.isSaveDialogVisible = false
     },
@@ -186,7 +193,7 @@ export default {
       if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
         this.readOnly = false
       }
-      if (!this.$pc) {
+      if (!this.$pc && this.fileType === 'office') {
         this.readOnly = true
         this.$nextTick(() => {
           const closeBar = document.querySelector('.office-preview .close-bar');
