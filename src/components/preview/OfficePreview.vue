@@ -17,8 +17,9 @@
           </div>
           <div class="wrapper">
             <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
-            <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady"></drawio>
-            <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
+            <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
+            <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
+            <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
     </div>
@@ -33,10 +34,11 @@ import Bus from "@/assets/js/bus";
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
 import Drawio from "@/components/office/Drawio";
+import MyMindEditor from "@/components/Minder/minder"
 
 export default {
   name: 'OfficePreview',
-  components: {Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor},
+  components: {Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor, MyMindEditor},
   props: {
     id: {
       type: String,
@@ -79,15 +81,10 @@ export default {
     },
   },
   mounted() {
-    let that = this;
-    this.$nextTick(function () {
-      document.addEventListener('keyup', function (e) {
-        // 监听ESC键
-        if (e.code === 'Escape') {
-          that.beforeClose()
-        }
-      }, false)
-    })
+    document.addEventListener('keyup', this.escape)
+  },
+  destroyed() {
+    document.removeEventListener('keyup', this.escape)
   },
   watch: {
     status: function(visible){
@@ -96,7 +93,6 @@ export default {
         this.$nextTick(() => {
           this.previewDocument = document.querySelector('.preview-block')
         })
-
         this.checkReadOnly(this.file.userId)
         // 6秒后还没加载出来视为加载失败
         let that = this
@@ -109,12 +105,23 @@ export default {
     }
   },
   methods: {
+    /**
+     * 按esc键
+     */
+    escape(event) {
+      // 监听ESC键
+      if (event.code === 'Escape') {
+        this.beforeClose()
+      }
+    },
     getType(suffix) {
       switch (suffix) {
         case 'drawio':
           return 'drawio'
         case 'pdf':
           return 'pdf'
+        case 'mind':
+          return 'mind'
         default:
           return 'office'
       }

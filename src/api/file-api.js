@@ -279,9 +279,9 @@ export default {
     })
   },
   // 根据id获取文件信息
-  getPublicFileInfoById: function(id) {
+  getPublicFileInfoById: function(fileId, shareId) {
     return request({
-      url: `/public/file_info/${id}`,
+      url: `/public/file_info/${fileId}/${shareId}`,
       method: 'get'
     })
   },

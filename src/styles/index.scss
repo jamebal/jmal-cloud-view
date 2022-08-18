@@ -11,8 +11,10 @@ body {
   text-rendering: optimizeLegibility;
   //font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;;
+  .el-tooltip__popper .popper__arrow {
+    border-width: 0;
+  }
 }
-
 >>>::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 12px;

@@ -35,6 +35,7 @@ export default {
         { divider: true, operation: 'divider' },
         { label: '新建', operation: 'create' ,child: [
             { label: '文本', operation: 'createTextFile', iconClass: 'file-txt'},
+            { label: '思维导图', operation: 'createMinderFile', iconClass: 'file-mind'},
             { label: '流程图', operation: 'createDrawioFile', iconClass: 'file-drawio'},
             { label: 'Word', operation: 'createWordFile', iconClass: 'file-word'},
             { label: 'Excel', operation: 'createExcelFile', iconClass: 'file-excel'},

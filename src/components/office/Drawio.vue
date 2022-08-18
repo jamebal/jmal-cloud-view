@@ -1,63 +1,18 @@
 <template>
   <div class="drawio-content" :style="{'top': readOnly ? '0': '2.5rem'}">
     <div class="drawio-title">
-      <span class="drawio-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</span>
-      <span  class="drawio-save"><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></span>
+      <div class="drawio-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</div>
+      <div  class="drawio-save"><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.drawio-content {
-  z-index: 999;
-  position: absolute;
-  top: 2.5rem;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  .drawio-title {
-    text-align: center;
-    background-color: #fbfbfb;
-    z-index: 2001;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 10px;
-
-    .drawio-title-name {
-      line-height: 40px;
-    }
-
-    .drawio-save {
-      float: right;
-      margin-right: 30px;
-      line-height: 40px;
-    }
-  }
-
-  .drawio-iframe {
-    z-index: 1999;
-    position: absolute;
-    top: 10px;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 0 0;
-    border: 0;
-    float: none;
-    margin: -1px 0 0;
-    max-width: none;
-    outline: 0;
-    padding: 0;
-  }
-}
-</style>
 <script>
 
 import api from '@/api/file-api'
 import txtApi from "@/api/markdown-api"
+import Bus from "@/assets/js/bus";
 
 export default {
   name: "Drawio",
@@ -98,10 +53,14 @@ export default {
     this.url = $J.apiUrl(`../drawio/webapp/${query}`)
   },
   mounted() {
+    Bus.$on('previewSaveAndClose', this.saveAndClose)
     window.addEventListener('message', this.handleMessage)
   },
   beforeDestroy() {
     window.removeEventListener('message', this.handleMessage)
+  },
+  destroyed() {
+    Bus.$off('previewSaveAndClose')
   },
   watch: {
     'file.id': {
@@ -134,8 +93,14 @@ export default {
       deep: true,
     },
   },
-  computed: {},
   methods: {
+    /**
+     * 保存并关闭
+     */
+    saveAndClose() {
+      this.save()
+      this.$emit('onClose')
+    },
     updateContent() {
       this.$refs.myFlow.contentWindow.postMessage(JSON.stringify({
         action: "load",
@@ -144,10 +109,9 @@ export default {
       }), "*")
     },
     save() {
-      this.saved = true
-      this.title = this.file.name
-      this.update(this.xml)
-      this.$emit('onEdit', this.saved)
+      if (!this.saved) {
+        this.update(this.xml)
+      }
     },
     update(value) {
       this.saveBtnUpdating = true
@@ -158,11 +122,9 @@ export default {
         contentText: value
       }).then(() => {
         this.saveBtnUpdating = false
-        this.$message({
-          message: "保存成功",
-          type: 'success',
-          duration : 1000
-        })
+        this.saved = true
+        this.title = this.file.name
+        this.$emit('onEdit', this.saved)
       }).catch(() => {
         this.saveBtnUpdating = false
       })
@@ -204,3 +166,51 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.drawio-content {
+  z-index: 999;
+  position: absolute;
+  top: 2.5rem;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .drawio-title {
+    text-align: center;
+    background-color: #fbfbfb;
+    z-index: 2001;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 10px;
+
+    .drawio-title-name {
+      line-height: 40px;
+    }
+
+    .drawio-save {
+      float: right;
+      margin-top: -40px;
+      margin-right: 30px;
+      line-height: 40px;
+    }
+  }
+
+  .drawio-iframe {
+    z-index: 1999;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 0 0;
+    border: 0;
+    float: none;
+    margin: -1px 0 0;
+    max-width: none;
+    outline: 0;
+    padding: 0;
+  }
+}
+</style>

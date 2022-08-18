@@ -936,7 +936,7 @@
             return
           }
           // office文件
-          if (row.contentType.indexOf('office') > -1 || ['pdf','csv','drawio'].includes(row.suffix)) {
+          if (row.contentType.indexOf('office') > -1 || ['pdf','csv','drawio','mind'].includes(row.suffix)) {
             // office文件
             this.officePreviewVisible = true
             this.officePreviewRow = row

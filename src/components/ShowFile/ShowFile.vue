@@ -1839,6 +1839,7 @@ export default {
               this.textPreviewVisible = true
               break
             case 'drawio':
+            case 'mind':
             case 'docx':
             case 'xlsx':
             case 'pptx':
@@ -2565,6 +2566,10 @@ export default {
           this.newCreateFileDialogTitle = "新建流程图"
           this.createNewFile('drawio')
           break
+        case 'createMinderFile':
+          this.newCreateFileDialogTitle = "新建思维导图"
+          this.createNewFile('mind')
+          break
         case 'createWordFile':
           this.newCreateFileDialogTitle = "新建Word文档"
           this.createNewFile('docx')
@@ -3159,7 +3164,7 @@ export default {
           this.openCompressionVisible = true
           return
         }
-        if (row.contentType.indexOf('office') > -1 || ['pdf','csv','drawio'].includes(row.suffix)) {
+        if (row.contentType.indexOf('office') > -1 || ['pdf','csv','drawio','mind'].includes(row.suffix)) {
           // office文件
           this.officePreviewVisible = true
           this.officePreviewRow = row

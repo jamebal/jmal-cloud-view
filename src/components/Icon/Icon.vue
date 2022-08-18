@@ -5,7 +5,7 @@
 
 import { Icon } from 'ant-design-vue'
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: document.location.protocol + '/resource/font_2024484_9qbzcip6x9m.js'
+  scriptUrl: document.location.protocol + '/resource/font_2024484_b4h46y1d4ho.js'
 })
 
 // 把此段代码贴到iconfont项目页面的控制台中, 以获取图标列表

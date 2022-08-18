@@ -29,6 +29,10 @@ export default {
       type: String,
       default: ''
     },
+    shareId: {
+      type: String,
+      default: ''
+    },
     file: {
       type: Object,
       default: function () {
@@ -77,7 +81,7 @@ export default {
               this.loadFile()
             })
           } else {
-            api.getPublicFileInfoById(this.file.id).then(res => {
+            api.getPublicFileInfoById(this.file.id, this.shareId).then(res => {
               this.file = res.data
               this.loadFile()
             })
@@ -91,6 +95,9 @@ export default {
     Bus.$on('previewSaveAndClose', () => {
       this.requestClose()
     })
+  },
+  destroyed() {
+    Bus.$off('previewSaveAndClose')
   },
   methods: {
     getType(type) {
