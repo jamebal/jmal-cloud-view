@@ -98,13 +98,13 @@ export default {
         })
 
         this.checkReadOnly(this.file.userId)
-        // 3秒后还没加载出来视为加载失败
+        // 6秒后还没加载出来视为加载失败
         let that = this
         this.delayClosing = setTimeout(function () {
           if (!that.readyShow) {
             that.loadFileFaild()
           }
-        },3000)
+        },6000)
       }
     }
   },
