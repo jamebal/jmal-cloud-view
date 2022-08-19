@@ -1,84 +1,44 @@
 # JmalCloud Personal Netdisk ｜ [中文](https://github.com/jamebal/jmal-cloud-view/blob/master/README.md)
 JmalCloud It's a private cloud storage project that makes it simple and secure to manage your files in the cloud
 
-✅ Support online preview of images, audio, video and other files
+✅ Supports online preview of images, audio, video and other files
 
-✅ Provide powerful online text editor
+✅ Supports editing and previewing of Word, Excel, PPT, process and mind map
 
-✅ Support oversized file upload, breakpoint transfer
+✅ support x86, arm64 (Centos/Debian/Ubuntu/macOS)
 
-✅ Support webDAV
+✅ provides a powerful online text editor
 
-### Online preview address: 
+✅ Supports large file uploading and resumable uploading
+
+✅ supports webDAV
+
+### Online preview address:
 Address 1: https://www.jmal.top , Username:admin,Password:jmalcloud (partial access)
 
 Address 2: https://cloud1.jmal.top , Username:admin,Password:jmalcloud (all permissions)
 
-Some screenshots:
+
+### deployment
+
+- You must install: 'Docker' and 'Docker Compose V2.0 +'
+
+```shell
+# 1. Clone the project to your local or server
+git clone https://github.com/jamebal/jmal-cloud-server.git
+
+# 2. Enter the directory
+cd jmal-cloud-server
+
+# 3. One-click installation
+./install.sh
+```
+
+> Try access port 7070
+
+### Some screenshots:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png?shareKey=601b697575858bec45c457a3&o=preview)
 ![image1](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20191.png?shareKey=601b697575858bec45c457a3&o=preview)
-
-
-### deploy
-**Either of the following two startup methods is recommended[docker-compose](https://docs.docker.com/compose//)**
-
-> docker run
-
-```shell
-docker run \
---restart=always \
---name jmalcloud \
--p 7070:80 \
--p 7071:8080 \
--p 7072:8088 \
--p 27018:27017 \
--v /Users/jmal/temp/jmalcloud-docker/files/:/jmalcloud/files/ \
--v /Users/jmal/temp/jmalcloud-docker/db/:/data/db/ \
--d registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest
-```
-
-> docker-compose
-
-docker-compose.yml
-
-```yaml
-version: "3.5"
-services:
-  jmalcloud:
-    image: registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud:latest
-    container_name: jmalcloud
-    volumes:
-      - /Users/jmal/temp/jmalcloud-docker/files/:/jmalcloud/files/
-      - /Users/jmal/temp/jmalcloud-docker/db/:/data/db/
-    ports:
-      - "7070:80"
-      - "7071:8080"
-      - "7072:8088"
-      - "27018:27017"
-```
-
-Start: Run the following command in the docker-compose.yml file directory
-
-```shell
-docker-compse up -d
-```
-
-> Start-up parameters
-
-Port :
-`7070` : Web portal
-`7071` : Blog portal
-`7072` : Web api portal, 例如：http://localhost:7072/public/doc.html
-`27018` : MongoDB
-Volume :
-`/jmalcloud/files/` : Netdisk file storage directory
-`/data/db/` : mongodb data storage directory
-
-> Try visiting
-
-Wait for about 40 seconds after startup, access port 7070 and see the following screen, indicating successful deployment
-
-![](https://www.jmal.top/api/file/jmal/Image/Document/2021-03/20210301%E6%88%AA%E5%B1%8F%20144.png)
 
 ### Browser Support
 
