@@ -98,11 +98,11 @@
         username: this.$store.state.user.name,
         options: {
           target: api.simpleUploadURL,
-          chunkSize: 2 * 1024 * 1024,
+          chunkSize: 3 * 1024 * 1024,
           // speedSmoothingFactor: 0.1,
           // progressCallbacksInterval: 500,
           maxChunkRetries: 1, // 最大重试次数
-          simultaneousUploads: 3, // 并发上传数
+          simultaneousUploads: 5, // 并发上传数
           testChunks: true, // 是否开启服务器分片校验
           // 服务器分片校验函数，秒传及断点续传基础
           checkChunkUploadedByResponse: function(chunk, message) {
