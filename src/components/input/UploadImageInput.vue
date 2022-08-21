@@ -192,7 +192,6 @@ export default {
       };
       xhr.onerror = function (){
         that.uploadState = 3
-        console.log(this.status, this.response)
       }
       xhr.send();
     },

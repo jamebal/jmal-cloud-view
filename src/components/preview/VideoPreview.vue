@@ -167,11 +167,9 @@ export default {
         this.closeBarShow = true
       },
       ontouchstart() {
-        console.log('ontouchstart', this.closeBarShow)
         this.closeBarShow = true
       },
       ontouchsend() {
-        console.log('ontouchsend', this.closeBarShow)
         this.closeBarShow = false
         this.clearTimeout()
       }

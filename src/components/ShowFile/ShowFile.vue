@@ -1847,7 +1847,6 @@ export default {
               this.officePreviewVisible = true
               break
           }
-          this.$message.success(`新建文件成功`)
           const that = this
           setTimeout(function () {
             that.newCreateFileDialog = false
@@ -2345,7 +2344,6 @@ export default {
     rowRename(newFileName, row) {
       //去掉回车换行
       newFileName = newFileName.replace(/[\r\n]/g, "");
-      console.log('newFileName', newFileName)
       if (newFileName) {
         if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({

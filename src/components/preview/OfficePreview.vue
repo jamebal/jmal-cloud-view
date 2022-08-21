@@ -183,7 +183,6 @@ export default {
       }
     },
     onbeforeunload(event) {
-      console.log('event', event)
       event.returnValue=("文件未保存, 确定退出吗?");
     },
     /**

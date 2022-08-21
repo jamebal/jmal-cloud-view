@@ -103,7 +103,6 @@ function findPath(menuList, to, parentPath){
       }
     }
     if(parentPath){
-      console.log("parentPath", parentPath)
       menu.path = parentPath + '/' + menu.path
     }
     if(menu.path === to) return true

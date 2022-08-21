@@ -274,7 +274,6 @@ export default {
             fileIdList.push(article.id)
           })
           // 修改排序
-          console.log(fileIdList)
           markdownApi.sortMarkdown(fileIdList).then(()=>{
 
           }).catch(() => {

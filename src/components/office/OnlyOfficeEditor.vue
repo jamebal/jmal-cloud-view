@@ -184,7 +184,6 @@ export default {
       this.$emit('onReady')
     },
     onDocumentReady() {
-      console.log('onDocumentReady')
       let parentDoc = document.querySelector('.component-only-office')
       let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
       let logo = doc.querySelector('.extra .logo')

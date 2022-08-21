@@ -38,6 +38,7 @@
 <script>
 
 import settingApi from "@/api/setting-api";
+import Bus from "@/assets/js/bus";
 
 export default {
   data() {
@@ -50,11 +51,23 @@ export default {
   },
   mounted() {
     this.getInfo()
+    this.getIsSync()
+    Bus.$on('msg/synced', () => {
+      this.syncLoading = false
+    })
+  },
+  destroyed() {
+    Bus.$off()
   },
   methods: {
     getInfo(){
       settingApi.getWebp({userId: this.$store.state.user.userId}).then((res) => {
         this.webpEnabled = !res.data
+      })
+    },
+    getIsSync() {
+      settingApi.isSync().then((res) => {
+        this.syncLoading = res.data
       })
     },
     sync() {
@@ -65,12 +78,9 @@ export default {
       }).then(() => {
         this.syncLoading = true
         settingApi.sync({username: this.$store.state.user.name}).then(() => {
-          this.syncLoading = false
         }).catch(() => {
-          this.syncLoading = false
         })
       }).catch(() => {
-        this.syncLoading = false
       })
     },
     // 重置角色菜单

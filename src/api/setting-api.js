@@ -8,6 +8,13 @@ export default {
       params
     })
   },
+  isSync(params) {
+    return request({
+      url: '/user/setting/isSync',
+      method: 'get',
+      params
+    })
+  },
   getWebp(params) {
     return request({
       url: '/user/setting/get/webp',

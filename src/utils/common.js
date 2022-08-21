@@ -420,7 +420,6 @@
                 if (height !== tmpHeight || width !== tmpWidth) {
                     height = tmpHeight;
                     width = tmpWidth;
-                    console.log(width, height);
                     if (typeof callback === 'function') callback();
                 }
             }, 250);

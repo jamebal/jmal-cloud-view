@@ -842,7 +842,6 @@
         this.$refs.contextShow.hideMenu()
       },
       downloadFile(copy) {
-        console.log('downloadFile', copy)
         let totalSize = 0
         if(this.indexList.length > 0){
           this.selectRowData.forEach(item => {

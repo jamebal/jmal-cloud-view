@@ -33,7 +33,12 @@ function connect(username,token){
     ws.isConnected = true;
     // 订阅消息
     ws.stompClient.subscribe('/user/queue/update', (msg) => {
-      Bus.$emit('msg/file/change', msg)
+      const url = msg.headers.url
+      if (url === 'synced') {
+        Bus.$emit('msg/synced', msg)
+      } else {
+        Bus.$emit('msg/file/change', msg)
+      }
     }, ws.headers);
   }, (err) => {
     ws.isConnected = false;

@@ -203,7 +203,6 @@
       },
       // 确认密码
       onSavePassword() {
-        console.log('this.validOldPass', this.validOldPass)
         if(this.validOldPass){
           this.$refs.passwordForm.validate((valid) => {
             this.valid = valid
@@ -274,7 +273,6 @@
         let data = new FormData();
         data.append('id', this.$store.state.user.userId)
         // data.append('avatar', dataURL)
-        console.log(this.blobToFile(blob))
         data.append('blobAvatar',blob)
         this.userUpdate(data,dataURL)
       },
