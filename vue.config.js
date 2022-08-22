@@ -35,7 +35,6 @@ module.exports = {
   lintOnSave: false,
   productionSourceMap: false,
   devServer: {
-    host: 'imac',
     port: port,
     open: false,
     overlay: {
