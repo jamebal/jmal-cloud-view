@@ -24,15 +24,16 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 
 ```shell
 # 1、克隆项目到您的本地或服务器
-git clone https://github.com/jamebal/jmal-cloud-server.git
+git clone --depth=1 https://github.com/jamebal/jmal-cloud-server.git
+# 或者
+git clone --depth=1 https://gitee.com/jmal/jmal-cloud-server.git
 
 # 2、进入目录
 cd jmal-cloud-server
 
 # 3、一键安装
-./install.sh
+./jc.sh install
 ```
-> 访问7070端口试试看
 
 ### 部分截图:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png?shareKey=601b697575858bec45c457a3&o=preview)

@@ -24,17 +24,17 @@ Address 2: https://cloud1.jmal.top , Username:admin,Password:jmalcloud (all perm
 - You must install: 'Docker' and 'Docker Compose V2.0 +'
 
 ```shell
-# 1. Clone the project to your local or server
-git clone https://github.com/jamebal/jmal-cloud-server.git
+# 1、Clone the project to your local or server
+git clone --depth=1 https://github.com/jamebal/jmal-cloud-server.git
+# Or
+git clone --depth=1 https://gitee.com/jmal/jmal-cloud-server.git
 
-# 2. Enter the directory
+# 2、Enter the directory
 cd jmal-cloud-server
 
-# 3. One-click installation
-./install.sh
+# 3、A key to install
+./jc.sh install
 ```
-
-> Try access port 7070
 
 ### Some screenshots:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png?shareKey=601b697575858bec45c457a3&o=preview)
