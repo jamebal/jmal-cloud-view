@@ -11,7 +11,7 @@
           </div>
         <div class="share-header-content sharer">
           <span><span class="user">{{sharer.showName}}</span>的分享</span>
-          <el-avatar :src="sharer.avatar"></el-avatar>
+          <el-avatar :src="sharerAvatarUrl"></el-avatar>
         </div>
       </div>
       <el-divider class="header-location"></el-divider>
@@ -363,6 +363,7 @@
         showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
         showSizeItem: this.$pc,// 列表模式下是否显示文件大小
         sharer: {},//分享者信息
+        sharerAvatarUrl: ''
       }
     },
     computed: {
@@ -561,6 +562,7 @@
             if(this.fileList.length > 0) {
               api.getSharer({userId: this.fileList[0].userId}).then(res => {
                 this.sharer = res.data
+                this.sharerAvatarUrl = this.imageUrl + res.data.avatar
               })
             }
             this.loadClientHeight()
@@ -868,7 +870,11 @@
             return
           }
           if(copy){
-            this.copyDownloadLink(fileConfig.publicDownloadUrl( this.shareId, this.rowContextData))
+            if (this.rowContextData.isShare) {
+              this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData))
+            } else {
+              this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds))
+            }
           } else {
             fileConfig.publicDownload( this.shareId, this.rowContextData)
           }
