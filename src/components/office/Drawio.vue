@@ -140,6 +140,9 @@ export default {
           this.reday = true
           this.$emit('onReady')
           this.updateContent()
+          let doc = this.$refs.myFlow.contentWindow.document
+          let helpMenu = doc.querySelector('.geMenubarContainer .geMenubar').childNodes[5]
+          helpMenu.style.display = 'none'
           break
         case "load":
           if (this.xml.length < 1) {
@@ -177,30 +180,31 @@ export default {
   height: 100%;
 
   .drawio-title {
-    text-align: center;
+    text-align: left;
     background-color: #fbfbfb;
     z-index: 2001;
     position: absolute;
     top: 0;
-    width: 100%;
-    height: 10px;
+    width: 50%;
+    margin-left: 50%;
+    height: 0;
 
     .drawio-title-name {
-      line-height: 40px;
+      line-height: 32px;
     }
 
     .drawio-save {
       float: right;
-      margin-top: -40px;
-      margin-right: 30px;
-      line-height: 40px;
+      margin-top: -32px;
+      margin-right: 32px;
+      line-height: 32px;
     }
   }
 
   .drawio-iframe {
     z-index: 1999;
     position: absolute;
-    top: 10px;
+    top: 2px;
     left: 0;
     width: 100%;
     height: 100%;
