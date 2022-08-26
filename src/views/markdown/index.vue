@@ -679,6 +679,18 @@ export default {
   }
 }
 
+@media (min-width: 1440px) {
+  .article-editor {
+    max-width: 1440px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .article-editor {
+    max-width: 1920px;
+  }
+}
+
 >>> .el-tree-node {
   &:focus > .el-tree-node__content {
     background-color: unset;
