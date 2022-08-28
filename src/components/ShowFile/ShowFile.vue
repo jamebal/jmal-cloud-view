@@ -934,7 +934,7 @@ export default {
       }
       // ctrl + A / cmd + A
       if (this.isCmd && keyCode == 65) {
-        if (this.inputting) {
+        if (this.inputting || this.editingIndex !== -1) {
           event.target.select()
         } else {
           this.$nextTick(() => {
@@ -2333,6 +2333,7 @@ export default {
     },
     // 选取输入框部分内容
     renameInputFocus(doc, suffix) {
+      this.setInputFocus()
       doc.focus()
       doc.selectionStart = 0
       doc.selectionEnd = doc.value.length
