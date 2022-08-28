@@ -2792,13 +2792,7 @@ export default {
         }
         if (operating === 'move') {
           // 移除列表
-          if (this.$refs.fileListTable.tableSelectData.length === 1) {
-            this.fileList.splice(this.$refs.fileListTable.tableSelectData[0].index, 1)
-          } else {
-            this.getFileList()
-          }
-          this.$refs.fileListTable.clearSelection()// 删除后清空之前选择的数据
-          this.$refs.fileListTable.tableSelectData = []
+          this.getFileList()
         }
         setTimeout(function () {
           copying.close()
@@ -3029,8 +3023,13 @@ export default {
         for (let i = 0; i < removeFileIndexList.length; i++) {
           this.fileList.splice(removeFileIndexList[i], 1)
         }
+        this.fileList.map((item, index) => {
+          item.index = index
+        })
         // 改变拖拽目标
         this.rowDrop()
+        // 画矩形选取
+        this.darwRectangle()
       }, 300)
     },
     // 预览压缩文件
