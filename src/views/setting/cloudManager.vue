@@ -9,6 +9,17 @@
         </div>
       </div>
       <div>
+        <div>
+          <el-upload
+            class="avatar-uploader"
+            :action="uploadUrl"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="logoUrl" :src="logoUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </div>
         <div class="config-itme-label">启用webp：
           <el-switch
             v-model="webpEnabled"
@@ -38,18 +49,23 @@
 <script>
 
 import settingApi from "@/api/setting-api";
+import {getSetting} from '@/api/setting-api'
 import Bus from "@/assets/js/bus";
+import fileConfig from "@/utils/file-config";
 
 export default {
   data() {
     return {
+      uploadUrl: process.env.VUE_APP_BASE_API + '/user/setting/upload_logo?jmal-token=' + this.$store.state.user.token,
       title: '网盘管理',
       syncLoading: false,
       resetLoading: false,
-      webpEnabled: false
+      webpEnabled: false,
+      logoUrl: ''
     }
   },
   mounted() {
+    this.getWebsiteSetting()
     this.getInfo()
     this.getIsSync()
     Bus.$on('msg/synced', () => {
@@ -60,6 +76,29 @@ export default {
     Bus.$off()
   },
   methods: {
+    handleAvatarSuccess(res, file) {
+      if (res.code === 0) {
+        this.logoUrl = fileConfig.logoUrl(res.data)
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+    beforeAvatarUpload(file) {
+      const isLtOneM = file.size / 1024 / 1024 < 1;
+      if (!isLtOneM) {
+        this.$message.error('上传头像图片大小不能超过 1MB!');
+      }
+      return isLtOneM;
+    },
+    // 获取网站设置
+    getWebsiteSetting() {
+      getSetting({userId: this.$store.state.user.userId}).then((res) => {
+        if(res.data) {
+          this.logoUrl = fileConfig.logoUrl(res.data.netdiskLogo)
+          // this.logoUrl = '../../icons/svg/jmal-cloud.svg'
+        }
+      })
+    },
     getInfo(){
       settingApi.getWebp({userId: this.$store.state.user.userId}).then((res) => {
         this.webpEnabled = !res.data
@@ -117,4 +156,29 @@ export default {
 >>> .el-textarea {
   max-width: 1080px;
 }
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 150px;
+  height: 150px;
+  line-height: 150px;
+  text-align: center;
+}
+.avatar {
+  width: 150px;
+  height: 150px;
+  display: block;
+}
+
 </style>

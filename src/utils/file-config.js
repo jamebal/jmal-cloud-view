@@ -1,8 +1,11 @@
 import fileApi from '@/api/file-api'
 
 export default {
-
   baseUrl: '/api',
+  // 网盘logo
+  logoUrl: function(filename) {
+    return window.location.origin + `${this.baseUrl}/file/${filename}`
+  },
   // webDAV的url
   webDAVUrl: function(username) {
     return window.location.origin + `${this.baseUrl}/webDAV/${username}`
