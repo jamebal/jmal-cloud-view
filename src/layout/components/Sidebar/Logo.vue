@@ -3,12 +3,13 @@
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
-        <svg-icon class="sidebar-logo" icon-class="jmal-cloud"></svg-icon>
-        <h1 class="sidebar-title">{{ title }} </h1>
+<!--        <svg-icon class="sidebar-logo" icon-class="jmal-cloud"></svg-icon>-->
+        <Logo v-model="netdiskLogo" width="25"></Logo>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
-        <svg-icon class="sidebar-logo-expand" icon-class="jmal-cloud"></svg-icon>
+<!--        <svg-icon class="sidebar-logo-expand" icon-class="jmal-cloud"></svg-icon>-->
+        <Logo v-model="netdiskLogo" width="25" class="sidebar-logo-expand"></Logo>
         <h1 class="sidebar-title">{{ title }} </h1>
       </router-link>
     </transition>
@@ -16,17 +17,28 @@
 </template>
 
 <script>
+import Bus from "@/assets/js/bus";
+import Logo from "@/components/Logo";
+
 export default {
   name: 'SidebarLogo',
+  components: {Logo},
   props: {
     collapse: {
       type: Boolean,
       required: true
     }
   },
+  mounted() {
+    Bus.$on('updateLogo', () => {
+      console.log('updateLogo', this.$store.state.user.netdiskLogo)
+      this.netdiskLogo = this.$store.state.user.netdiskLogo
+    })
+  },
   data() {
     return {
       title: 'jmalcloud',
+      netdiskLogo: ''
     }
   }
 }

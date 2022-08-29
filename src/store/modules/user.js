@@ -14,7 +14,9 @@ const getDefaultState = () => {
     userInfo: {},
     avatar: '',
     userId: getConsumerId(),
-    menuList: []
+    menuList: [],
+    netdiskName: '',
+    netdiskLogo: '',
   }
 }
 
@@ -44,6 +46,12 @@ const mutations = {
   },
   SET_USER_INFO:(state,userInfo) => {
     state.userInfo = userInfo;
+  },
+  SET_NETDISK_NAME:(state,netdiskName) => {
+    state.netdiskName = netdiskName;
+  },
+  SET_NETDISK_LOGO:(state,netdiskLogo) => {
+    state.netdiskLogo = netdiskLogo;
   }
 }
 
@@ -83,6 +91,13 @@ const actions = {
         reject(error)
       })
     })
+  },
+
+  // set logo
+  setLogo({ commit }, logoInfo) {
+    const { netdiskName, netdiskLogo } = logoInfo
+    commit('SET_NETDISK_NAME', netdiskName)
+    commit('SET_NETDISK_LOGO', netdiskLogo)
   },
 
   // get user info

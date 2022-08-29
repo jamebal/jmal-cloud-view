@@ -9,9 +9,13 @@
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
         <div class="title-container">
-          <h3 v-if="!initialize" class="title">
-            <span class="jmal-cloud-log"><svg-icon icon-class="jmal-cloud"></svg-icon></span>
-            <span>JmalCloud</span>
+          <h3 v-if="!initialize">
+            <div  class="title">
+              <Logo v-model="webstieRecord.netdiskLogo" width="65"></Logo>
+              <div class="jmal-cloud-name">
+                <div>{{ webstieRecord.netdiskName }}</div>
+              </div>
+            </div>
           </h3>
           <h3 v-if="initialize" class="title">创建管理员</h3>
         </div>
@@ -100,10 +104,11 @@
 import { getWebstieRecord } from "@/api/setting-api";
 import { hasUser, initialization } from '@/api/user'
 import { getRememberName } from '@/utils/auth'
-import store from "@/store";
+import Logo from "@/components/Logo";
 
 export default {
   name: 'Login',
+  components: {Logo},
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!this.validUsername(value)) {
@@ -131,7 +136,9 @@ export default {
     return {
       webstieRecord: {
         copyright: 'Copyright © 2020 Journey Magical AL',
-        recordPermissionNum: '"鄂 ICP 备 2020021454 号 - 1"'
+        recordPermissionNum: '"鄂 ICP 备 2020021454 号 - 1"',
+        netdiskName: 'jmalcloud',
+        netdiskLogo: ''
       },
       loginForm: {
         username: '',
@@ -364,10 +371,13 @@ $light_gray:#eee;
       margin: 20px auto 40px auto;
       text-align: center;
       font-weight: 500;
+      display: inline-flex;
     }
 
-    .jmal-cloud-log {
-      font-size: 42px;
+    .jmal-cloud-name {
+      font-size: 22px;
+      line-height: 65px;
+      margin-left: 10px;
     }
   }
 

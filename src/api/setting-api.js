@@ -15,6 +15,13 @@ export default {
       params
     })
   },
+  updateNetdiskName(params) {
+    return request({
+      url: '/user/setting/update_netdisk_name',
+      method: 'put',
+      params
+    })
+  },
   getWebp(params) {
     return request({
       url: '/user/setting/get/webp',
