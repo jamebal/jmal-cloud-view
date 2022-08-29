@@ -9,8 +9,6 @@ import EVueContextmenu from 'e-vue-contextmenu'
 import App from './App'
 import store from './store'
 import router from './router'
-import VueWechatTitle from 'vue-wechat-title'
-
 
 // ant-design-vue
 import { Affix } from 'ant-design-vue';
@@ -33,7 +31,7 @@ import Viewer from 'v-viewer'
 
 Vue.use(Viewer)
 
-Vue.use(VueWechatTitle)
+// Vue.use(VueWechatTitle)
 
 Vue.use(uploader)
 Vue.use(EVueContextmenu)

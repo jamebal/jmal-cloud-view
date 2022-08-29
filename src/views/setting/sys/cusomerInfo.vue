@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-wechat-title="title">
+  <div class="container">
     <select-file title="选择头像" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
     <el-dialog class="dialog-avatar" title="修改头像" :visible.sync="dialogAvatar" @close="handleCloseDialogAvatar">
       <cropper-dialog

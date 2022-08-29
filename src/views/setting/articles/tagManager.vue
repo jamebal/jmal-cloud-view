@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-wechat-title="title">
+  <div class="container">
     <el-dialog class="dialog-cm" width="500px" :title="dialogTitle" :close-on-click-modal="false" :visible.sync="dialogVisible">
       <el-form ref="managerForm" size="medium" :model="form" label-position="left" :rules="rules" label-width="95px">
         <el-form-item label="标签名称:" prop="name">

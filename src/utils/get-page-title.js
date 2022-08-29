@@ -1,11 +1,16 @@
 import defaultSettings from '@/settings'
 
+import { getLogoName } from '@/utils/logo'
+
 const title = defaultSettings.title || 'Vue Admin Template'
 
 export default function getPageTitle(pageTitle) {
-  if (pageTitle) {
-    console.log('title', title)
-    return `${pageTitle} - ${title}`
+  let logoName = getLogoName()
+  if (!logoName || logoName === 'undefined') {
+    logoName = title
   }
-  return `${title}`
+  if (pageTitle) {
+    return `${pageTitle} - ${logoName}`
+  }
+  return `${logoName}`
 }

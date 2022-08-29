@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-wechat-title="title">
+  <div class="container">
     <el-dialog class="dialog-form" width="600px" :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
       <el-form size="medium" ref="managerForm" label-width="90px"  :model="form" :rules="rules">
         <el-row :gutter="10">

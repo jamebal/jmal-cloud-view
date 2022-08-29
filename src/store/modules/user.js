@@ -1,6 +1,7 @@
 import { login, logout, getInfo } from '@/api/user'
 import menuApi from '@/api/menu'
 import { getToken, setToken, getConsumerId, setConsumerId, removeToken, removeConsumerId , setRememberName, removeRememberName } from '@/utils/auth'
+import { setLogo } from '@/utils/logo'
 import { resetRouter } from '@/router'
 import router from '@/router'
 import Layout from '@/layout'
@@ -98,6 +99,7 @@ const actions = {
     const { netdiskName, netdiskLogo } = logoInfo
     commit('SET_NETDISK_NAME', netdiskName)
     commit('SET_NETDISK_LOGO', netdiskLogo)
+    setLogo(netdiskName, netdiskLogo)
   },
 
   // get user info
@@ -121,6 +123,7 @@ const actions = {
         commit('SET_USER_INFO', data)
         commit('SET_NETDISK_NAME', netdiskName)
         commit('SET_NETDISK_LOGO', netdiskLogo)
+        setLogo(netdiskName, netdiskLogo)
         sessionStorage.setItem('store', JSON.stringify(state))
         resolve(data)
       }).catch(error => {

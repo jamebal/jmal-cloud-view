@@ -1,5 +1,5 @@
 <template>
-  <div v-wechat-title="title">
+  <div>
     <el-dialog
       :title="title"
       :fullscreen="true"

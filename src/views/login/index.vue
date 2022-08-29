@@ -13,7 +13,7 @@
             <div  class="title">
               <Logo v-model="webstieRecord.netdiskLogo" width="65"></Logo>
               <div class="jmal-cloud-name">
-                <div>{{ webstieRecord.netdiskName ? webstieRecord.netdiskName : 'jmalcloud' }}</div>
+                <div>{{ webstieRecord.netdiskName ? webstieRecord.netdiskName : 'JmalCloud' }}</div>
               </div>
             </div>
           </h3>
@@ -105,6 +105,7 @@ import { getWebstieRecord } from "@/api/setting-api";
 import { hasUser, initialization } from '@/api/user'
 import { getRememberName } from '@/utils/auth'
 import Logo from "@/components/Logo";
+import Bus from "@/assets/js/bus";
 
 export default {
   name: 'Login',
@@ -119,14 +120,12 @@ export default {
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('密码不能少于6位数字'))
       } else {
         callback()
       }
     }
     const confirmPassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('密码不能少于6位数字'))
       } else if(this.loginForm.password !== value) {
         callback(new Error('密码不一致'))
       } else {
@@ -189,6 +188,9 @@ export default {
 
     getWebstieRecord().then((res) => {
       this.webstieRecord = res.data
+      if (this.webstieRecord.netdiskName || this.webstieRecord.netdiskLogo) {
+        this.$store.dispatch('user/setLogo', {netdiskName: this.webstieRecord.netdiskName, netdiskLogo: this.webstieRecord.netdiskLogo})
+      }
     })
   },
   methods: {

@@ -2,13 +2,9 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
-<!--        <svg-icon class="sidebar-logo" icon-class="jmal-cloud"></svg-icon>-->
-        <Logo v-model="netdiskLogo" width="25"></Logo>
+        <Logo v-model="netdiskLogo" width="50" padding="8"></Logo>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link logo-expand" to="/">
-        <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
-<!--        <svg-icon class="sidebar-logo-expand" icon-class="jmal-cloud"></svg-icon>-->
         <Logo v-model="netdiskLogo" width="50" padding="8"></Logo>
         <h1 class="sidebar-title">{{ title }} </h1>
       </router-link>
@@ -31,11 +27,10 @@ export default {
   },
   computed: {
     title() {
-      console.log('this.$store.state.user', this.$store.state.user)
       if (this.$store.state.user.netdiskName) {
         return this.$store.state.user.netdiskName
       }
-      return 'jmalcloud'
+      return 'JmalCloud'
     },
     netdiskLogo() {
       if (this.$store.state.user.netdiskLogo) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" v-wechat-title="title">
+  <div class="app-container">
     <el-card class="box-card">
       <div slot="header">
         <div class="box-card-header">
@@ -59,6 +59,7 @@
 import settingApi, {getSetting} from "@/api/setting-api";
 import Bus from "@/assets/js/bus";
 import Logo from "@/components/Logo";
+import getPageTitle from "@/utils/get-page-title";
 
 export default {
   components: {Logo},
@@ -70,7 +71,7 @@ export default {
       resetLoading: false,
       webpEnabled: false,
       logoFileName: '',
-      netdiskName: 'jmalcloud',
+      netdiskName: 'JmalCloud',
       showAckBtn: false,
       inputNetdiskNameWidth: 150,
       logoFileTypeList: ['image/svg+xml', 'image/jpg', 'image/png', 'image/jpeg']
@@ -144,6 +145,7 @@ export default {
         settingApi.updateNetdiskName({netdiskName: this.netdiskName}).then(() => {
           this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.logoFileName}).then(()=> {
             Bus.$emit('updateLogo')
+            document.title = getPageTitle(this.$route.meta.title)
           })
           this.$message.success("网盘名称 修改成功")
           this.setInputBlur()
