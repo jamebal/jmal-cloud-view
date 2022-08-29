@@ -6,10 +6,10 @@
 <!--        <svg-icon class="sidebar-logo" icon-class="jmal-cloud"></svg-icon>-->
         <Logo v-model="netdiskLogo" width="25"></Logo>
       </router-link>
-      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
+      <router-link v-else key="expand" class="sidebar-logo-link logo-expand" to="/">
         <!--<img v-if="logo" :src="logo" class="sidebar-logo">-->
 <!--        <svg-icon class="sidebar-logo-expand" icon-class="jmal-cloud"></svg-icon>-->
-        <Logo v-model="netdiskLogo" width="25" class="sidebar-logo-expand"></Logo>
+        <Logo v-model="netdiskLogo" width="50" padding="8"></Logo>
         <h1 class="sidebar-title">{{ title }} </h1>
       </router-link>
     </transition>
@@ -29,6 +29,21 @@ export default {
       required: true
     }
   },
+  computed: {
+    title() {
+      console.log('this.$store.state.user', this.$store.state.user)
+      if (this.$store.state.user.netdiskName) {
+        return this.$store.state.user.netdiskName
+      }
+      return 'jmalcloud'
+    },
+    netdiskLogo() {
+      if (this.$store.state.user.netdiskLogo) {
+        return this.$store.state.user.netdiskLogo
+      }
+      return ''
+    }
+  },
   mounted() {
     Bus.$on('updateLogo', () => {
       console.log('updateLogo', this.$store.state.user.netdiskLogo)
@@ -37,8 +52,6 @@ export default {
   },
   data() {
     return {
-      title: 'jmalcloud',
-      netdiskLogo: ''
     }
   }
 }
@@ -94,8 +107,13 @@ export default {
 
   &.collapse {
     .sidebar-logo {
-      margin-right: 0px;
+      margin-right: 0;
     }
+  }
+
+  .logo-expand {
+    display: inline-flex !important;
+    width: auto !important;
   }
 }
 </style>

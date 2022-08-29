@@ -13,7 +13,7 @@
             <div  class="title">
               <Logo v-model="webstieRecord.netdiskLogo" width="65"></Logo>
               <div class="jmal-cloud-name">
-                <div>{{ webstieRecord.netdiskName }}</div>
+                <div>{{ webstieRecord.netdiskName ? webstieRecord.netdiskName : 'jmalcloud' }}</div>
               </div>
             </div>
           </h3>

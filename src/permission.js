@@ -5,6 +5,8 @@ import 'nprogress/nprogress.css' // 进度条样式
 import { getToken } from '@/utils/auth' // 认证获取token
 import getPageTitle from '@/utils/get-page-title'
 
+import { getLogoName, getLogo } from '@/utils/logo'
+
 NProgress.configure({ showSpinner: false }) // NProgress配置
 
 const whiteList = ['/login','/s','/s/','/s_m','/s_m/'] // 白名单
@@ -13,6 +15,7 @@ router.beforeEach(async(to, from, next) => {
   // 开始进度条
   NProgress.start()
   // 设置页面标题
+  console.log('to.meta.title', to.meta.title)
   document.title = getPageTitle(to.meta.title)
 
   // 确认用户是否已登录

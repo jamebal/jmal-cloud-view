@@ -142,6 +142,9 @@ export default {
       const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
       if(reg.test(this.netdiskName)) {
         settingApi.updateNetdiskName({netdiskName: this.netdiskName}).then(() => {
+          this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.logoFileName}).then(()=> {
+            Bus.$emit('updateLogo')
+          })
           this.$message.success("网盘名称 修改成功")
           this.setInputBlur()
         }).catch(()=>{

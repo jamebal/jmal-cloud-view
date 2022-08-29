@@ -1,7 +1,7 @@
 <template>
     <div :style="{width: width + 'px',height: width + 'px'}">
-      <el-image v-if="logoUrl" :src="logoUrl" fit="cover" :style="{width: width + 'px',height: width + 'px'}"></el-image>
-      <svg-icon v-else icon-class="jmal-cloud" :style="{width: width + 'px',height: width + 'px'}"/>
+      <el-image v-if="logoUrl" :src="logoUrl" fit="cover" :style="{width: width + 'px',height: width + 'px', padding: padding + 'px'}"></el-image>
+      <svg-icon v-else icon-class="jmal-cloud" :style="{width: width + 'px',height: width + 'px', padding: padding + 'px'}"/>
     </div>
 </template>
 
@@ -18,6 +18,10 @@ export default {
     width: {
       type: Number,
       default: 50
+    },
+    padding: {
+      type: Number,
+      default: 0
     }
   },
   data() {

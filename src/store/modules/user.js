@@ -112,13 +112,15 @@ const actions = {
           // reject('Verification failed, please Login again.')
         }
 
-        const { id, username, showName, avatar } = data
+        const { id, username, showName, avatar, netdiskName, netdiskLogo} = data
 
         commit('SET_NAME', username)
         commit('SET_SHOW_NAME', showName)
         commit('SET_AVATAR', avatar)
         commit('SET_USERID', id)
         commit('SET_USER_INFO', data)
+        commit('SET_NETDISK_NAME', netdiskName)
+        commit('SET_NETDISK_LOGO', netdiskLogo)
         sessionStorage.setItem('store', JSON.stringify(state))
         resolve(data)
       }).catch(error => {
