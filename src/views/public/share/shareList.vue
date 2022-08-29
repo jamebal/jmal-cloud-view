@@ -6,8 +6,8 @@
     <div class="share-h">
       <div class="share-header">
           <div class="share-header-content logo">
-              <svg-icon icon-class="jmal-cloud"/>
-              <span>jmalcloud</span>
+              <Logo v-model="netdiskLogo" width="35"></Logo>
+              <span>{{ netdiskName }}</span>
           </div>
         <div class="share-header-content sharer">
           <span><span class="user">{{sharer.showName}}</span>的分享</span>
@@ -243,8 +243,10 @@
   import fileConfig from "@/utils/file-config";
   import Clipboard from "clipboard";
   import OfficePreview from "@/components/preview/OfficePreview";
+  import Logo from "@/components/Logo";
   export default {
     components: {
+      Logo,
       OfficePreview, IconFile, BreadcrumbFilePath,AlLoading,
       AudioPreview, VideoPreview, ImageViewer, SimTextPreview
     },
@@ -363,13 +365,21 @@
         showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
         showSizeItem: this.$pc,// 列表模式下是否显示文件大小
         sharer: {},//分享者信息
-        sharerAvatarUrl: ''
+        sharerAvatarUrl: '',
+        netdiskName: 'JmalCloud',
+        netdiskLogo: ''
       }
     },
     computed: {
       ...mapGetters([
         'name'
-      ])
+      ]),
+      netdiskLogo() {
+        if (this.$store.state.user.netdiskLogo) {
+          return this.$store.state.user.netdiskLogo
+        }
+        return ''
+      }
     },
     created() {
       this.getFileList()
@@ -563,6 +573,12 @@
               api.getSharer({userId: this.fileList[0].userId}).then(res => {
                 this.sharer = res.data
                 this.sharerAvatarUrl = this.imageUrl + res.data.avatar
+                if (this.sharer.netdiskName) {
+                  this.netdiskName = this.sharer.netdiskName
+                }
+                if (this.sharer.netdiskLogo) {
+                  this.netdiskLogo = this.sharer.netdiskLogo
+                }
               })
             }
             this.loadClientHeight()
