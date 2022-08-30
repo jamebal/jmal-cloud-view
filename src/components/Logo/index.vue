@@ -35,7 +35,6 @@ export default {
         if (!value) {
           return
         }
-        console.log('value', value)
         this.setLogUrl(value)
       },
       immediate: true,
