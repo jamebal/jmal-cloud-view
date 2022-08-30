@@ -261,7 +261,6 @@ export default {
         }).then((res) => {
           if (res.data.draft) {
             this.file = JSON.parse(res.data.draft)
-            console.log('file', this.file)
             if (res.data.release) {
               this.currentDarft = true
             }

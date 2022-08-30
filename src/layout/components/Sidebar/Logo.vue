@@ -41,7 +41,6 @@ export default {
   },
   mounted() {
     Bus.$on('updateLogo', () => {
-      console.log('updateLogo', this.$store.state.user.netdiskLogo)
       this.netdiskLogo = this.$store.state.user.netdiskLogo
     })
   },
