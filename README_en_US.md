@@ -13,10 +13,8 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 
 ✅ supports webDAV
 
-### Online preview address:
-Address 1: https://www.jmal.top , Username:admin,Password:jmalcloud (partial access)
-
-Address 2: https://cloud1.jmal.top , Username:admin,Password:jmalcloud (all permissions)
+### Online Demo:
+[https://cloud.jmal.top](https://cloud.jmal.top) , username:demo, password:demo1234
 
 
 ### deployment
