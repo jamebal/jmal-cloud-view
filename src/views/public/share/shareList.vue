@@ -227,7 +227,7 @@
 
 <script>
   import { mapGetters } from 'vuex'
-  import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
+  import { formatTime, formatSize } from '@/utils/number'
   import Bus from '@/assets/js/bus'
   import api from '@/api/file-api'
   import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
@@ -407,12 +407,9 @@
       // 加载布局
       if(this.$route.query.vmode){
         this.vmode = this.$route.query.vmode
-        if(this.vmode === 'list'){
-          this.grid = false
-        }else{
-          this.grid = true
-        }
+        this.grid = this.vmode !== 'list';
       }
+
     },
     destroyed() {
       window.removeEventListener('popstate', this.goBack, false)
@@ -579,6 +576,7 @@
                 if (this.sharer.netdiskLogo) {
                   this.netdiskLogo = this.sharer.netdiskLogo
                 }
+                this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.netdiskLogo})
               })
             }
             this.loadClientHeight()

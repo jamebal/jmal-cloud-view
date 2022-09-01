@@ -1,6 +1,5 @@
 import Cookies from 'js-cookie'
 import fileConfig from "@/utils/file-config";
-import getPageTitle from "@/utils/get-page-title";
 
 const titleKey = 'netdisk-name'
 

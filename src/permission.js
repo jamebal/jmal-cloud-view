@@ -3,16 +3,11 @@ import store from './store'
 import NProgress from 'nprogress' // 进度条
 import 'nprogress/nprogress.css' // 进度条样式
 import { getToken } from '@/utils/auth' // 认证获取token
-import {setFavicon} from '@/utils/logo'
 import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress配置
 
 const whiteList = ['/login','/s','/s/','/s_m','/s_m/'] // 白名单
-
-window.onload = function() {
-  setFavicon()
-}
 
 router.beforeEach(async(to, from, next) => {
   // 开始进度条
