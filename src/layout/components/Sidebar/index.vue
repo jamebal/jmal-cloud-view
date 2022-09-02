@@ -144,7 +144,7 @@ export default {
       const quota = this.userInfo.quota
       const space = this.takeUpSpace/1024/1024/1024
       if(space && quota > 0){
-        const percentage = Number((space/quota * 100).toFixed(1))
+        const percentage = Number((space/quota * 100).toFixed(5))
         this.percentage = percentage > 100 ? 100 : percentage
         if(this.isCollapse){
           return `${formatSize(this.takeUpSpace)}`
