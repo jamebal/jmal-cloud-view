@@ -121,8 +121,8 @@ export default {
         this.docEditor = null
       }
       this.fileUrl = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
-      if(this.readOnly){
-        this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId);
+      if(this.readOnly && window.shareId){
+        this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId)
       }
       let fileKey = `${new Date(this.file.updateDate).getTime()}-${this.file.id}`
 
@@ -187,16 +187,28 @@ export default {
     },
     onAppReady() {
       this.$emit('onReady')
+      console.log('onAppReady')
     },
     onDocumentReady() {
+      console.log('onDocumentReady')
       let parentDoc = document.querySelector('.component-only-office')
       let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
+
+      if (!this.$pc) {
+        parentDoc.style.top = '5rem'
+        doc.querySelector('.navbar.main-navbar.navbar-with-logo').style.height = '0'
+        let editorNavbar = doc.getElementById("editor-navbar")
+        console.log(editorNavbar)
+        // editorNavbar.style.display = 'none'
+      }
+
       let logo = doc.querySelector('.extra .logo')
       // 隐藏logo,about
       logo.style.display = 'none'
       let about = doc.getElementById('left-btn-about')
       about.style.display = 'none'
       this.saveBtnDoc = doc.getElementById('slot-btn-dt-save').getElementsByTagName('button')[0]
+
     },
     onDocumentStateChange() {
       this.saved = this.saveBtnDoc.classList.contains('disabled')
