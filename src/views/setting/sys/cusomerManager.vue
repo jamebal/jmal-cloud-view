@@ -286,7 +286,7 @@ export default {
         this.$refs.selectRole.blur()
       },
       resetPassword() {
-        this.$confirm('确定重置该用户密码吗, 是否继续?', '提示', {
+        this.$confirm('是否重置改用户的密码(重置后的密码为:jmalcloud)?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

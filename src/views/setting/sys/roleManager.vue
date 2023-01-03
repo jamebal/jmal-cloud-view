@@ -258,18 +258,6 @@ export default {
         const findIndex = this.dataList.findIndex(data => data.id === id)
         this.form = this.dataList[findIndex]
       },
-      resetPassword() {
-        this.$confirm('确定重置该用户密码吗, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          resetPass(this.form.id).then(() => {
-          }).catch(() => {
-            this.onError()
-          })
-        })
-      },
       // 删除选中
       handleSelectDelete () {
         this.$confirm('确定要删除选中的角色吗?', '提示', {
