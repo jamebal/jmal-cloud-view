@@ -186,6 +186,13 @@
   position: fixed;
 }
 
+>>>.el-tooltip .table-file-name {
+  word-wrap: break-word;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 >>> .el-table__row >>>.table-file-name:hover {
   cursor: pointer;
   color: #19ACF9
@@ -287,6 +294,7 @@
 >>> .van-grid-item__content .svg-icon{
   font-size: 5rem;
 }
+
 >>> .grid-item-text {
   cursor: default;
   text-align: center;
@@ -300,11 +308,13 @@
   position: absolute;
   padding: 0 5px 0 5px;
   bottom: 5px;
+  left: 0;
   textarea {
     overflow: hidden;
     resize:none;
   }
 }
+
 >>> .grid-item-text-image {
   position: absolute;
   top: 80%;
@@ -321,7 +331,7 @@
   left: 10px;
   z-index: 1;
 }
->>> .grid-time {
+>>> .grid-item {
   border-radius: 5px;
   padding: 0 8px;
   border: solid 1px #ccc0;
@@ -343,9 +353,18 @@
     backdrop-filter: contrast(0.5);
   }
 }
->>> .grid-time:hover {
+//>>> .grid-item:hover {
+//  background-color: #e0f3fc;
+//}
+
+.grid-hover-back {
+  border-radius: 5px;
+  background: #ffffff00;
+}
+.grid-hover:hover {
   background-color: #e0f3fc;
 }
+
 .checkbox-group-header {
   margin: 10px 0 0;
   .grid-all-checkbox {

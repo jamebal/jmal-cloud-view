@@ -182,7 +182,7 @@
           :default-sort="sortable"
           :highlight-current-row="false"
           empty-text="无文件"
-          :use-virtual="true"
+          :use-virtual="false"
           :row-height="51.5"
           :border="false"
           :excess-rows="10"
@@ -237,7 +237,7 @@
                           @blur="setInputBlur()"
                           @keyup.enter.native="rowRename(renameFileName, scope.row)">
                 </el-input>
-                <span v-else class="table-file-name">{{ scope.row.name }}</span>
+                <div v-else class="table-file-name">{{ scope.row.name }}</div>
               </template>
             </pl-table-column>
             <!--分享-->
@@ -320,7 +320,7 @@
                              :title="'大小：'+formatSize(item.size)+'\r\n'+(item.w && item.h ? '分辨率：'+item.w + 'x' + item.h +'\r\n' : '')+'名称：'+item.name+'\r\n'+'创建时间：'+item.uploadDate+'\r\n'+'修改时间：'+item.updateDate+'\r\n'+'路径：'+item.path"
               >
                 <div
-                  class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                  class="grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
                   :style="{
                   'background': selectRowData.includes(item)?'#caeaf991':'',
                   'background-size': 'cover',
@@ -331,6 +331,7 @@
                   @dblclick="fileClick(item)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
+                  <div class="grid-hover-back grid-hover van-grid-item__content van-grid-item__content--center van-grid-item__content--square">
                   <div class="grid-item-icon">
                     <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true"
                                :grid-width="gridColumnWidth"></icon-file>
@@ -347,7 +348,10 @@
                             @blur="setInputBlur()"
                             @keyup.enter.native="rowRename(renameFileName, item)">
                   </el-input>
-                  <div v-else class="grid-item-text">{{ item.name }}</div>
+                  <div v-else>
+                    <div class="grid-item-text"><span>{{ item.name }}</span></div>
+                  </div>
+                </div>
                 </div>
               </van-grid-item>
             </van-grid>
@@ -562,7 +566,7 @@ export default {
     },
     lessClientHeight: {
       type: Number,
-      default: 150,
+      default: 106,
     },
     showUploadButton: {
       type: Boolean,
@@ -694,6 +698,7 @@ export default {
         {'folder': ''},
       ],
       fileList: [],
+      pageLoadCompleteList: [],
       pagination: {
         pageIndex: 1,
         pageSize: 50,
@@ -791,13 +796,15 @@ export default {
       dragElementList: [],
       drawFlag: false,
       fileListScrollTop: 0,
+      initFileListScrollTop: 0,
       notPreviewDialogVisible: false,
       openingFile: '',
       openCompressionVisible: false,
       stompClient: undefined,//websocket订阅集合
       showUpdateDateItem: true,// 列表模式下是否显示修改时间
       showSizeItem: true,// 列表模式下是否显示文件大小
-      stopSortChange: false
+      stopSortChange: false,
+      draging: 0,// 是否正在拖拽中，0：没有拖拽，1：拖拽中
     }
   },
   computed: {
@@ -857,8 +864,10 @@ export default {
       this.vmode = this.$route.query.vmode
       if (this.vmode === 'list') {
         this.grid = false
+        this.lessClientHeight = 140
       } else {
         this.grid = true
+        this.lessClientHeight = 106
       }
     }
     // 加载url上的path
@@ -1017,17 +1026,19 @@ export default {
       }
       // 使列表可拖拽
       this.rowDrop()
+      this.darwRectangle()
     },
     // 画矩形选区
     darwRectangle() {
 
       let scrollDiv = document.querySelector('.el-table__body-wrapper')
       if (this.grid) {
-        // 添加grid视图的scroll事件
-        document.querySelector('.van-grid').onscroll = (e) => {
-          this.tableBodyScroll(null, e)
-        }
         scrollDiv = document.querySelector('.van-grid')
+      }
+
+      // 添加scroll事件
+      scrollDiv.onscroll = (e) => {
+        this.tableBodyScroll(null, e)
       }
 
       if (this.selectFile) {
@@ -1044,13 +1055,10 @@ export default {
       _this.drawFlag = false
       let itemClassName = 'el-table__row'
       if (_this.grid) {
-        itemClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+        itemClassName = 'grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
       }
       draw.onmousedown = null
       draw.onmousedown = function (e) {
-        if (_this.fileListScrollTop > 0) {
-          return
-        }
         let evt = window.event || e
         const elPath = e.path || (e.composedPath && e.composedPath())
         // 列表模式下点击表头，阻止点击事件
@@ -1124,7 +1132,6 @@ export default {
           }
           const drawRectangle = document.getElementById(wId)
           if (drawRectangle) {
-            noScroll()
             drawRectangle.style.left = retcLeft + 'px'
             drawRectangle.style.top = retcTop + 'px'
             drawRectangle.style.width = retcWidth + 'px'
@@ -1133,7 +1140,7 @@ export default {
           }
           if (_this.drawFlag && (retcHeight + retcWidth) > 4) {
             if (!drawSelecting) {
-              drawSelect({x: retcLeft, y: retcTop, w: retcWidth, h: retcHeight})
+              drawSelect({x: retcLeft, y: retcTop + _this.fileListScrollTop, w: retcWidth, h: retcHeight})
             }
           }
         }
@@ -1147,7 +1154,6 @@ export default {
             }, 200)
           }
           setTimeout(function () {
-            restoreScroll()
             _this.drawFlag = false
           }, 50)
           const rectangle = document.getElementById(wId)
@@ -1159,28 +1165,6 @@ export default {
           }
           const dragingDivs = Array.prototype.slice.call(draw.getElementsByClassName('dragingDiv'))
           dragingDivs.forEach(el => draw.removeChild(el))
-        }
-      }
-      // 禁止滚动
-      let noScroll = function () {
-        scrollDiv.onmousewheel = function (evt) {
-          evt = evt || window.event
-          if (evt.preventDefault) {
-            // Firefox
-            evt.preventDefault()
-            evt.stopPropagation()
-          } else {
-            // IE
-            evt.cancelBubble = true
-            evt.returnValue = false
-          }
-          return false
-        }
-      }
-      // 恢复滚动
-      let restoreScroll = function () {
-        scrollDiv.onmousewheel = function (evt) {
-          return true
         }
       }
 
@@ -1215,9 +1199,6 @@ export default {
       if (this.selectFile) {
         return
       }
-      if (this.fileListScrollTop > 0 && this.$route.path !== '/') {
-        return
-      }
       // 目标元素的背景颜色
       let dragEnterBackCorlor = null
       // 被拖拽元素的背景色
@@ -1230,7 +1211,7 @@ export default {
 
       let parentClassName = 'van-grid'
       let itemClassName = 'van-grid-item van-grid-item--square'
-      let gridItemChildenClassName = 'grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+      let gridItemChildenClassName = 'grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
       if (!_this.grid) {
         itemClassName = 'el-table__row'
         parentClassName = 'el-table__body'
@@ -1372,7 +1353,7 @@ export default {
           _this.selectRowData.forEach(row => {
             let dragingDiv = document.getElementById('dragingDiv' + row.index)
             dragingDiv.style.transition = 'all 0.3s'
-            dragingDiv.style.top = dragingDiv.original.top
+            dragingDiv.style.top = dragingDiv.original.top - (_this.fileListScrollTop - _this.initFileListScrollTop) + 'px'
             dragingDiv.style.left = dragingDiv.original.left
           })
           setTimeout(() => {
@@ -1385,6 +1366,16 @@ export default {
             draw.removeChild(document.getElementById('dragingDiv' + row.index))
           })
         }
+        setTimeout(() => {
+          if (!_this.grid) {
+            document.getElementsByClassName("el-table")[0].classList.add('el-table--enable-row-hover')
+          } else {
+            target.querySelectorAll('.grid-hover-back').forEach(e => {
+              e.classList.add('grid-hover')
+            })
+          }
+        }, 350)
+        _this.draging = 0
       }
 
       container.ondragend = function (e) {
@@ -1416,72 +1407,82 @@ export default {
           return
         }
         e.target.style.cursor = 'no-drop'
-        // 当滚动条滚动后禁止拖拽
-        if (_this.fileListScrollTop === 0) {
-          // 复制被拖拽dom的title, 拖拽过程中移除, 拖拽完后还原
-          moveTitle = e.target.parentNode.parentNode.title
-          e.target.parentNode.parentNode.title = ''
-          // 创建拖拽时的dom, 克隆自被拖拽dom
-          _this.selectRowData.forEach((row, index) => {
-            const element = _this.dragElementList[row.index]
-            const rowIndex = element.rowIndex
-            dragingDiv = element.cloneNode(true)
-            dragingDiv.id = 'dragingDiv' + rowIndex
-            dragingDiv.classList.add('dragingDiv')
-            dragingDiv.classList.remove('el-table_row')
-            dragingDiv.style.transition = 'all 0.3s'
-            dragingDiv.style.zIndex = -1
-            dragingDiv.style.position = 'absolute'
-            const pos = _this.dragElementList[rowIndex]
-            dragingDiv.style.width = pos.w + 'px'
-            dragingDiv.style.height = pos.h + 'px'
-            dragingDiv.style.left = pos.x - drawOffsetLeft + 'px'
-            if (!_this.grid) {
-              dragingDiv.firstChild.style.textAlign = 'center'
-              let tds = Array.prototype.slice.call(dragingDiv.childNodes)
-              tds.forEach((node, index) => {
-                if (index === 4) {
-                  node.style.borderRadius = '0 3px 3px 0'
-                  node.style.borderRight = '1px solid #409eff'
-                  node.firstChild.style.width = '80px'
-                  return true
-                }
-                if (index !== 0 && index !== 1) {
-                  dragingDiv.removeChild(node)
-                }
-              })
-              dragingDiv.style.top = pos.y - 51.5 + 'px'
-            } else {
-              dragingDiv.style.top = pos.y - pos.h / 2 + 10 + 'px'
-            }
-            if (index === 0) {
-              let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
-              numberFilesCopy.id = 'numberFilesCopy'
-              numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
-              dragingDiv.appendChild(numberFilesCopy)
-            }
-            dragingDiv.original = {top: dragingDiv.style.top, left: dragingDiv.style.left}
-            draw.appendChild(dragingDiv)
-          })
-          firstOver = 0
-          let dragImage = document.getElementById('dragImage');
-          e.dataTransfer.setDragImage(dragImage, 10, 10)
-          Bus.$emit('onDragStart', true)
-          // 避免和画矩形选区冲突
-          _this.drawFlag = false
-          let rectangle = document.getElementById('rectangle1')
-          if (rectangle) {
-            document.getElementById('v-draw-rectangle').removeChild(rectangle)
+        // 复制被拖拽dom的title, 拖拽过程中移除, 拖拽完后还原
+        moveTitle = e.target.parentNode.parentNode.title
+        e.target.parentNode.parentNode.title = ''
+        // 创建拖拽时的dom, 克隆自被拖拽dom
+        _this.selectRowData.forEach((row, index) => {
+          const element = _this.dragElementList[row.index]
+          const rowIndex = element.rowIndex
+          dragingDiv = element.cloneNode(true)
+          dragingDiv.id = 'dragingDiv' + rowIndex
+          dragingDiv.classList.add('dragingDiv')
+          dragingDiv.classList.remove('el-table_row')
+          dragingDiv.style.transition = 'all 0.3s'
+          dragingDiv.style.zIndex = -1
+          dragingDiv.style.position = 'absolute'
+          const pos = _this.dragElementList[rowIndex]
+          dragingDiv.style.width = pos.w + 'px'
+          dragingDiv.style.height = pos.h + 'px'
+          dragingDiv.style.left = pos.x - drawOffsetLeft + 'px'
+          let dragingDivStyleTop = 0
+          if (!_this.grid) {
+            dragingDiv.firstChild.style.textAlign = 'center'
+            let tds = Array.prototype.slice.call(dragingDiv.childNodes)
+            tds.forEach((node, index) => {
+              if (index === 4) {
+                node.style.borderRadius = '0 3px 3px 0'
+                node.style.borderRight = '1px solid #409eff'
+                node.firstChild.style.height = '44px'
+                node.firstChild.style.lineHeight = '44px'
+                node.firstChild.style.width = '80px'
+                return true
+              }
+              if (index !== 0 && index !== 1) {
+                dragingDiv.removeChild(node)
+              }
+            })
+            dragingDivStyleTop = pos.y - _this.fileListScrollTop - 51.5
+          } else {
+            dragingDivStyleTop = pos.y - _this.fileListScrollTop - pos.h / 2 + 10
           }
-          dragged = e.target
-          draggedIndex = dragged.rowIndex
-          // 只有选中的才能拖拽
-          _this.cellMouseIndex = -1
-          dragBackCorlor = dragged.style.backgroundColor
+          dragingDiv.style.top = dragingDivStyleTop + 'px'
+          if (index === 0) {
+            let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
+            numberFilesCopy.id = 'numberFilesCopy'
+            numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
+            dragingDiv.appendChild(numberFilesCopy)
+          }
+          dragingDiv.original = {top: dragingDivStyleTop, left: dragingDiv.style.left}
+          _this.initFileListScrollTop = _this.fileListScrollTop
+          draw.appendChild(dragingDiv)
+        })
+        firstOver = 0
+        let dragImage = document.getElementById('dragImage');
+        e.dataTransfer.setDragImage(dragImage, 10, 10)
+        Bus.$emit('onDragStart', true)
+        // 避免和画矩形选区冲突
+        _this.drawFlag = false
+        let rectangle = document.getElementById('rectangle1')
+        if (rectangle) {
+          document.getElementById('v-draw-rectangle').removeChild(rectangle)
         }
+        dragged = e.target
+        draggedIndex = dragged.rowIndex
+        // 只有选中的才能拖拽
+        _this.cellMouseIndex = -1
+        dragBackCorlor = dragged.style.backgroundColor
+
+        if (!_this.grid) {
+          document.getElementsByClassName("el-table--enable-row-hover")[0].classList.remove('el-table--enable-row-hover')
+        } else {
+          target.querySelectorAll('.grid-hover-back').forEach(e => {
+            e.classList.remove('grid-hover')
+          })
+        }
+        _this.draging = 1
       }
       container.ondragenter = function (e) {
-        // console.log('ondragenter', e.target)
         clearTimeout(loop)
         // 由于被拖动的元素 经过区域内中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
         let throughRow = judgThroughDom(e, 'enter')
@@ -1564,7 +1565,6 @@ export default {
         }
       }
       container.ondrop = function () {
-        // console.log('放下了'+draggedIndex);
         const form = _this.fileList[draggedIndex]
         const to = _this.fileList[dragIndex]
         if (form && to && form.id !== to.id && to.isFolder && !_this.selectRowData.includes(to)) {
@@ -1866,9 +1866,12 @@ export default {
       this.vmode = 'list'
       if (this.grid) {
         this.vmode = 'grid'
+        this.lessClientHeight = 106
       } else {
+        this.lessClientHeight = 140
         this.$refs.fileListTable.setHeight()
       }
+      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
       if (!this.path) {
         this.path = ''
       }
@@ -1929,6 +1932,7 @@ export default {
       } else {
         this.pagination.pageIndex = 1
       }
+      this.pageLoadCompleteList[this.pagination.pageIndex] = false
       this.tableLoading = true
       this.finished = false
     },
@@ -1963,16 +1967,17 @@ export default {
       this.$nextTick(() => {
         this.containerResize()
         this.tableLoading = false
+        this.pageLoadCompleteList[this.pagination.pageIndex] = true
       })
       // 加载菜单状态
       this.loadContextMenus()
       // 使列表滑到顶部
-      if (!onLoad && !this.grid) {
-        if (this.fileListScrollTop > 0) {
-          this.$refs.fileListTable.pagingScrollTopLeft()
-        }
-      }
-      this.fileListScrollTop = 0
+     //  if (!onLoad && !this.grid) {
+     //    if (this.fileListScrollTop > 0) {
+     //      this.$refs.fileListTable.pagingScrollTopLeft()
+     //    }
+     //  }
+     // this.fileListScrollTop = 0
     },
     searchFile(key, onLoad) {
       if (key) {
@@ -2060,10 +2065,12 @@ export default {
     },
     tableBodyScroll(table, e) {
       this.fileListScrollTop = e.target.scrollTop
-      Bus.$emit("fileListScrollTop", this.fileListScrollTop)
       let scrollBottom = e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop;
       if (scrollBottom < 200) {
         if (!this.finished) {
+          if (!this.pageLoadCompleteList[this.pagination.pageIndex]) {
+            return
+          }
           if (this.listModeSearch) {
             if (this.listModeSearchOpenDir) {
               this.searchFileAndOpenDir(this.listModeSearchOpenDir, true)
@@ -2075,6 +2082,10 @@ export default {
           }
         }
       }
+      // // 改变拖拽目标
+      // this.rowDrop()
+      // // 画矩形选取
+      // this.darwRectangle()
     },
     pinSelect(rows, row) {
       if (this.selectPin && this.selectOrgin > -1) {
@@ -2282,6 +2293,9 @@ export default {
     },
     // 单元格hover进入时事件
     cellMouseEnter(row) {
+      if (this.draging === 1) {
+        return
+      }
       if (this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex !== row.index) {
         this.$refs.contextShow.hideMenu()
       }
@@ -2293,6 +2307,9 @@ export default {
     },
     // 单元格hover退出时事件
     cellMouseLeave(row) {
+      if (this.draging === 1) {
+        return
+      }
       if (this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex !== row.index) {
         this.$refs.contextShow.hideMenu()
         this.$refs.contextShow.locals = {}
@@ -3412,7 +3429,7 @@ export default {
 
 >>> .el-table--enable-row-hover {
   .el-table__body tr:hover > td {
-    background-color: #e0f3fc !important;
+    background-color: #e0f3fc;
   }
 }
 
