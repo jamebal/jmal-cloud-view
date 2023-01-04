@@ -77,7 +77,8 @@
               ref="saveTagInput"
               size="small"
               :fetch-suggestions="querySearch"
-              :popper-append-to-body="false"
+              :popper-append-to-body="true"
+              :trigger-on-focus="false"
               @select="handleSelect"
               placeholder="请输入标签名"
               @keyup.enter.native="handleInputConfirm"
@@ -337,7 +338,7 @@ export default {
         that.inputValueExist = false
         that.inputVisible = false
         that.inputValue = ''
-      }, 100)
+      }, 250)
     },
     vditorInit(content) {
       this.contentEditor = new Vditor('vditor', {
@@ -647,25 +648,6 @@ export default {
   padding-top: 4px;
   position: absolute;
   margin-left: 8px;
-}
-
->>> .el-autocomplete-suggestion {
-  li {
-    padding: 0;
-    background-color: #ecf5ff;
-    color: #409eff;
-    border: 1px solid #d9ecff;
-    border-radius: 4px;
-    box-sizing: border-box;
-    white-space: nowrap;
-    margin: 2px 4px;
-    text-align: center;
-  }
-
-  li:hover {
-    background-color: #3f9eff;
-    color: #fafdff;
-  }
 }
 
 >>> .el-autocomplete-suggestion__wrap {
