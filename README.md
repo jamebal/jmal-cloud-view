@@ -32,6 +32,7 @@ cd jmal-cloud-server
 # 3、一键安装
 ./jc.sh install
 ```
+[其它方式部署](https://blog.jmal.top/s/%E9%83%A8%E7%BD%B2jmalcloud)
 
 ### 部分截图:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
