@@ -33,9 +33,10 @@ cd jmal-cloud-server
 # 3、A key to install
 ./jc.sh install
 ```
+[Other ways deployment](https://blog.jmal.top/s/%E9%83%A8%E7%BD%B2jmalcloud)
 
 ### Some screenshots:
-![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png?shareKey=601b697575858bec45c457a3&o=preview)
+![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
 ![image1](./doc/%E6%88%AA%E5%B1%8F%2028.png)
 ![image2](./doc/%E6%88%AA%E5%B1%8F%2029.png)
 ![image3](./doc/%E6%88%AA%E5%B1%8F%2030.png)
