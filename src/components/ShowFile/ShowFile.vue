@@ -315,7 +315,7 @@
 
           <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
             <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false"
-                      :style="{'width':'100%','max-height': clientHeight-45+'px','overflow':'auto'}">
+                      :style="{'width':'100%','max-height': clientHeight-25+'px','overflow':'auto', 'box-shadow': fileListScrollTop > 0 ? '#a5a7a8 0px 0px 3px' : '#ffffff 0px 0px 0px'}">
               <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
                              :title="'大小：'+formatSize(item.size)+'\r\n'+(item.w && item.h ? '分辨率：'+item.w + 'x' + item.h +'\r\n' : '')+'名称：'+item.name+'\r\n'+'创建时间：'+item.uploadDate+'\r\n'+'修改时间：'+item.updateDate+'\r\n'+'路径：'+item.path"
               >
@@ -701,7 +701,7 @@ export default {
       pageLoadCompleteList: [],
       pagination: {
         pageIndex: 1,
-        pageSize: 51,
+        pageSize: 50,
         total: 0,
         pageSizes: [10, 20, 30, 40, 50]
       },
@@ -862,13 +862,20 @@ export default {
     // 加载布局
     if (this.$route.query.vmode) {
       this.vmode = this.$route.query.vmode
-      if (this.vmode === 'list') {
-        this.grid = false
-        this.lessClientHeight = 140
+    } else {
+      if (this.defaultGrid) {
+        this.vmode === 'grid'
       } else {
-        this.grid = true
-        this.lessClientHeight = 106
+        this.vmode === 'list'
       }
+    }
+    if (this.vmode === 'list') {
+      this.grid = false
+      this.lessClientHeight = 140
+    } else {
+      this.grid = true
+      this.lessClientHeight = 106
+      this.containerResize()
     }
     // 加载url上的path
     if (this.$route.query.path !== '/') {
@@ -886,8 +893,6 @@ export default {
     window.onresize = function () {
       that.clientHeight = document.documentElement.clientHeight - that.lessClientHeight
     }
-    // 画矩形选区
-    this.darwRectangle()
 
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
@@ -1024,6 +1029,9 @@ export default {
       } else {
         this.showSizeItem = true
       }
+      let gridRowNum = Math.round(this.clientHeight/ (clientWidth/this.gridColumnNum))
+      this.pagination.pageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
+
       // 使列表可拖拽
       this.rowDrop()
       this.darwRectangle()

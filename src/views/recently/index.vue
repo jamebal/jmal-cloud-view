@@ -1,7 +1,7 @@
 <template>
   <div>
     <show-file
-      :defaultGrid="false"
+      :defaultGrid="true"
       :orderCustom="true"
       :sortable="sortable"
       :queryCondition="queryCondition"

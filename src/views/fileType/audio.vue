@@ -3,7 +3,7 @@
     <show-file
       queryFileType="audio"
       :orderCustom="true"
-      :defaultGrid="false"
+      :defaultGrid="true"
       :sortable="sortable"
       :queryCondition="queryCondition"
       singleFileType="音乐"
