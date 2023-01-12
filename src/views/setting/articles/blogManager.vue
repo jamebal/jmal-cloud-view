@@ -93,6 +93,10 @@
           <el-input autosize type="textarea" width="100%" v-model="form.copyright"></el-input>
           <div class="config-itme-label">备案许可号：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.recordPermissionNum"></el-input>
+          <div class="config-itme-label">网站联网备案号：</div>
+          <el-input autosize type="textarea" width="100%" v-model="form.networkRecordNumber"></el-input>
+          <div class="config-itme-label">网站联网备案号文本：</div>
+          <el-input autosize type="textarea" width="100%" v-model="form.networkRecordNumberStr"></el-input>
         </el-tab-pane>
       </el-tabs>
       <div v-if="subpage" class="list-body">
@@ -144,7 +148,9 @@ export default {
         tagBackground: '',
         alonePages: [],
         copyright: '',
-        recordPermissionNum: ''
+        recordPermissionNum: '',
+        networkRecordNumber: '',
+        networkRecordNumberStr: ''
       },
       operatingButtons: [],
       dataList: [],

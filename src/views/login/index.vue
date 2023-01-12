@@ -93,7 +93,10 @@
       <br><br><br>
       <div class="copyright">
         <p><span>{{ webstieRecord.copyright }}</span></p>
-        <p><a href="http://beian.miit.gov.cn" target="_blank">{{ webstieRecord.recordPermissionNum }}</a></p>
+        <p>
+          <a target="_blank" href="https://beian.miit.gov.cn" >{{ webstieRecord.recordPermissionNum }}</a>
+          <a target="_blank" :href="'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode='+webstieRecord.networkRecordNumber" ><img v-if="webstieRecord.networkRecordNumberStr" src="~@/assets/img/beian.png"/>{{ webstieRecord.networkRecordNumberStr }}</a>
+        </p>
       </div>
       <br>
     </footer>
@@ -133,9 +136,10 @@ export default {
       }
     }
     return {
+      beianUrl: "http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=",
       webstieRecord: {
         copyright: 'Copyright © 2020 Journey Magical AL',
-        recordPermissionNum: '"鄂 ICP 备 2020021454 号 - 1"',
+        recordPermissionNum: '',
         netdiskName: 'jmalcloud',
         netdiskLogo: ''
       },
