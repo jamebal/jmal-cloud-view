@@ -16,8 +16,8 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 ### 线上Demo:
 [查看 Demo](https://jmal.cc/demo) , 用户名:demo, 密码:demo1234
 
-### 部署
-
+### docker部署(推荐)
+[docker部署](https://jmal.cc/mv572)
 - 必须安装：`Docker` 和 `Docker Compose v2.0+`
 
 ```shell
@@ -32,7 +32,7 @@ cd jmal-cloud-server
 # 3、一键安装
 ./jc.sh install
 ```
-[其它方式部署](https://blog.jmal.top/s/%E9%83%A8%E7%BD%B2jmalcloud)
+[其它方式部署](https://jmal.cc/b75gm)
 
 ### 部分截图:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
