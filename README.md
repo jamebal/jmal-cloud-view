@@ -11,7 +11,7 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 
 ✅ 支持超大文件上传，断点续传
 
-✅ 支持webDAV
+✅ 支持WebDAV
 
 ### 线上Demo:
 [查看 Demo](https://jmal.cc/demo) , 用户名:demo, 密码:demo1234
