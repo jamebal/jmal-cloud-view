@@ -17,8 +17,8 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 [View Demo](https://jmal.cc/demo) , username:demo, password:demo1234
 
 
-### deployment
-
+### deployment(Recommend)
+[docker deployment](https://jmal.cc/mv572)
 - You must install: 'Docker' and 'Docker Compose V2.0 +'
 
 ```shell
@@ -33,7 +33,7 @@ cd jmal-cloud-server
 # 3、A key to install
 ./jc.sh install
 ```
-[Other ways deployment](https://blog.jmal.top/s/%E9%83%A8%E7%BD%B2jmalcloud)
+[Other ways deployment](https://jmal.cc/b75gm)
 
 ### Some screenshots:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
