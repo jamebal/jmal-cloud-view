@@ -14,7 +14,7 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 ✅ supports webDAV
 
 ### Online Demo:
-[https://cloud1.jmal.top](https://cloud1.jmal.top) , username:demo, password:demo1234
+[View Demo](https://jmal.cc/demo) , username:demo, password:demo1234
 
 
 ### deployment
