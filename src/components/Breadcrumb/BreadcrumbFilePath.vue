@@ -1,5 +1,6 @@
 <template>
   <span>
+    <svg-icon v-if="item.isShare" class="share-dir" icon-class="share"/>
     <a v-if="strLength(item.folder) > maxNameLength">
       <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
         <a v-if="pathList.length >= maxPathCount">
@@ -93,6 +94,11 @@
   }
 </script>
 <style lang="scss" scoped>
+  .share-dir {
+    color: #52c41a;
+    margin-right: -0.5rem;
+    font-size: 1.2rem !important;
+  }
   .redirect {
     color: #97a8be;
   }

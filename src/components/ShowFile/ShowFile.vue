@@ -2520,7 +2520,7 @@ export default {
     menuFavoriteLeave(index, isFavorite) {
       this.highlightFavorite(this.isCollectView ? true : isFavorite, false)
     },
-    // 是否高亮收图标
+    // 是否高亮收藏图标
     highlightFavorite(isFavorite, isHover) {
       const item_menu = this.menus.find(item => {
         if (item.operation === 'favorite' || item.operation === 'unFavorite') {
@@ -2901,10 +2901,17 @@ export default {
         isFolder: row.isFolder
       }).then(res => {
         this.shareDialog = true
+        // 这3行代码是为了让vue刷新数据
+        const isFavorite = this.rowContextData.isFavorite
+        this.rowContextData.isFavorite = !isFavorite
+        this.rowContextData.isFavorite = isFavorite
         if (res.data) {
-          this.shareLink = window.location.origin + '/s?s=' + res.data
+          let shareId = res.data
+          this.shareLink = window.location.origin + '/s?s=' + shareId
           this.generateShareLinkLoading = false
+          this.rowContextData.shareId = shareId
         }
+        this.rowContextData.isShare = true
       }).catch(() => {
         this.shareDialog = false
         this.generateShareLinkLoading = false
@@ -3137,7 +3144,7 @@ export default {
           } else {
             this.path = '/' + row.name
           }
-          const item = {'folder': row.name}
+          const item = {'folder': row.name, 'isShare': row.isShare}
           this.pathList.push(item)
           this.pagination.pageIndex = 1
           const path = encodeURI(this.path);
