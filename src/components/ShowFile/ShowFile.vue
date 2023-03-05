@@ -489,18 +489,7 @@
       </div>
     </el-dialog>
 
-    <!--分享-->
-    <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
-      <div v-loading="generateShareLinkLoading">
-        <el-input readonly="readonly" v-model="shareLink" @focus="setInputFocus" @blur="setInputBlur()"></el-input>
-        <div slot="footer" class="dialog-footer share-dialog-footer">
-          <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">
-            复制链接
-          </el-button>
-        </div>
-      </div>
-    </el-dialog>
-
+    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onSuccess="shareSuccess"></share-dialog>
     <el-dialog
       class="new-text-file-dialog"
       :title="newCreateFileDialogTitle"
@@ -549,10 +538,12 @@ import '@/utils/directives.js'
 import fileConfig from '@/utils/file-config'
 import EditElement from "@/views/markdown/EditElement";
 import OfficePreview from "@/components/preview/OfficePreview";
+import ShareDialog from "@/components/ShareDialog/index.vue";
 
 export default {
   name: 'ShowFile',
   components: {
+    ShareDialog,
     OfficePreview,
     EditElement,
     MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
@@ -767,14 +758,14 @@ export default {
       gridColumnWidth: 120,
       allChecked: false,
       summaries: '',
-      shareDialog: false,
+      shareDialogVisible: false,
+      shareDialogObject: {},
       newCreateFileDialog: false,
       newCreateFileName: '',
       newCreateFileDialogTitle: '',
       createFileLoading: false,
       shareLink: '',
       shareFileName: '',
-      generateShareLinkLoading: true,
       textPreviewVisible: false,
       textPreviewRow: {},
       imagePreviewRow: {},
@@ -2894,52 +2885,41 @@ export default {
           row = this.$refs.fileListTable.tableSelectData[0]
         }
       }
-      this.shareFileName = row.name
-      api.generate({
-        userId: row.userId,
-        fileId: row.id,
-        isFolder: row.isFolder
-      }).then(res => {
-        this.shareDialog = true
-        // 这3行代码是为了让vue刷新数据
-        const isFavorite = this.rowContextData.isFavorite
-        this.rowContextData.isFavorite = !isFavorite
-        this.rowContextData.isFavorite = isFavorite
-        if (res.data) {
-          let shareId = res.data
-          this.shareLink = window.location.origin + '/s?s=' + shareId
-          this.generateShareLinkLoading = false
-          this.rowContextData.shareId = shareId
-        }
-        this.rowContextData.isShare = true
-      }).catch(() => {
-        this.shareDialog = false
-        this.generateShareLinkLoading = false
-      })
+      this.shareDialogObject = row
+      this.shareDialogObject.fileId = row.id
+      this.shareDialogObject.shareId = undefined
+      this.shareDialogVisible = true
+      // this.shareFileName = row.name
+      // api.generate({
+      //   userId: row.userId,
+      //   fileId: row.id,
+      //   isFolder: row.isFolder
+      // }).then(res => {
+      //   this.shareDialog = true
+      //   // 这3行代码是为了让vue刷新数据
+      //   const isFavorite = this.rowContextData.isFavorite
+      //   this.rowContextData.isFavorite = !isFavorite
+      //   this.rowContextData.isFavorite = isFavorite
+      //   if (res.data) {
+      //     let shareId = res.data
+      //     this.shareLink = window.location.origin + '/s?s=' + shareId
+      //     this.generateShareLinkLoading = false
+      //     this.rowContextData.shareId = shareId
+      //   }
+      //   this.rowContextData.isShare = true
+      // }).catch(() => {
+      //   this.shareDialog = false
+      //   this.generateShareLinkLoading = false
+      // })
     },
-    // 复制分享链接
-    copyShareLink() {
-      var clipboard = new Clipboard('.tag-share-link')
-      clipboard.on('success', e => {
-        this.$message({
-          message: '复制成功',
-          type: 'success',
-          duration: 1000
-        });
-        this.shareDialog = false
-        // 释放内存
-        clipboard.destroy()
-      })
-      clipboard.on('error', e => {
-        // 不支持复制
-        this.$message({
-          message: '该浏览器不支持自动复制',
-          type: 'warning',
-          duration: 1000
-        });
-        // 释放内存
-        clipboard.destroy()
-      })
+    shareSuccess(shareId) {
+      console.log('shareSuccess', shareId)
+      // 这3行代码是为了让vue刷新数据
+      const isFavorite = this.rowContextData.isFavorite
+      this.rowContextData.isFavorite = !isFavorite
+      this.rowContextData.isFavorite = isFavorite
+      this.rowContextData.shareId = shareId
+      this.rowContextData.isShare = true
     },
     downloadFile() {
       let totalSize = 0
@@ -3284,6 +3264,12 @@ export default {
 
 .drawer-icon {
   text-align: center;
+  >>> .icon-favorite {
+    display: none;
+  }
+  >>> .icon-share {
+    display: none;
+  }
 }
 
 .drawer-icon-font >>> .svg-icon {

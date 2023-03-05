@@ -196,6 +196,14 @@ export default {
       params
     })
   },
+  // 获取分享信息
+  getShare: function(params) {
+    return request({
+      url: '/get/share',
+      method: 'get',
+      params
+    })
+  },
   // 访问分享链接里的文件夹
   accessShareOpenDir: function(params) {
     return request({

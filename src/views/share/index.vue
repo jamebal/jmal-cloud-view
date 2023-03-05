@@ -1,14 +1,6 @@
 <template>
   <div class="container">
-    <!--分享-->
-    <el-dialog :title="'分享:'+shareFileName" :visible.sync="shareDialog" center>
-      <div v-loading="generateShareLinkLoading">
-        <el-input readonly="readonly" v-model="shareLink"></el-input>
-        <div slot="footer" class="dialog-footer share-dialog-footer">
-          <el-button type="primary" class="tag-share-link" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
-        </div>
-      </div>
-    </el-dialog>
+    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onUpdateExpireData="onUpdateExpireData"></share-dialog>
     <!--list布局-->
     <div v-show="fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">
     <pl-table
@@ -95,11 +87,11 @@
               <svg-icon title="分享" v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="cancel-share" @click="cancelShare(scope.row)"/>
           </template>
         </pl-table-column>
-        <!--时间-->
+        <!--创建时间-->
         <pl-table-column
           v-if="index === 5"
           :key="index"
-          width="250"
+          width="200"
           :prop="item.name"
           :index="index"
           :label="item.label"
@@ -113,11 +105,29 @@
             <span>{{scope.row.createDate}}</span>
           </template>
         </pl-table-column>
-        <!--修改时间-->
+        <!--分享形式-->
         <pl-table-column
           v-if="index === 6"
           :key="index"
-          width="250"
+          width="150"
+          :prop="item.name"
+          :label="item.label"
+          :index="index"
+          :sort-orders="['ascending', 'descending']"
+          :sortable="item.sortable"
+          :show-overflow-tooltip="true"
+          align="center"
+          header-align="center"
+        >
+          <template slot-scope="scope">
+            <span>{{scope.row.isPrivacy ? '私密':'公开'}}</span>
+          </template>
+        </pl-table-column>
+        <!--修改时间-->
+        <pl-table-column
+          v-if="index === 7"
+          :key="index"
+          width="200"
           :prop="item.name"
           :label="item.label"
           :index="index"
@@ -134,17 +144,6 @@
       </template>
     </pl-table>
     </div>
-
-    <!--<el-pagination-->
-      <!--background-->
-      <!--layout="prev, pager, next"-->
-      <!--:hide-on-single-page="true"-->
-      <!--:current-page.sync="pagination.pageIndex"-->
-      <!--:page-sizes="pagination.pageSizes"-->
-      <!--:page-size="pagination.pageSize"-->
-      <!--:total="pagination.total"-->
-      <!--@current-change="currentChange">-->
-    <!--</el-pagination>-->
     <empty-file
       v-if="fileList.length < 1 && !tableLoading"
       emptyStatus="还没有分享历史哦~"
@@ -158,11 +157,10 @@
   import ShowFile from "@/components/ShowFile/ShowFile";
   import EmptyFile from "@/components/EmptyFile";
   import IconFile from "@/components/Icon/IconFile";
-  import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
+  import ShareDialog from "@/components/ShareDialog/index.vue";
   import api from '@/api/file-api'
-  import Clipboard from 'clipboard';
   export default {
-    components: { ShowFile, EmptyFile, IconFile},
+    components: { ShowFile, EmptyFile, IconFile, ShareDialog},
     props: {
       emptyStatus: {
         'type': String,
@@ -245,10 +243,13 @@
             name: '', label: '', more: true, index: 4
           },
           {
-            name: 'createDate', label: '时间', sortable: 'custom', index: 5
+            name: 'createDate', label: '链接创建时间', sortable: 'custom', index: 5
           },
           {
-            name: 'expireDate', label: '过期时间', sortable: 'custom', index: 6
+            name: 'isPrivacy', label: '分享形式', sortable: 'custom', index: 6
+          },
+          {
+            name: 'expireDate', label: '过期时间', sortable: 'custom', index: 7
           }
         ],
         rowContextData: {},
@@ -256,12 +257,12 @@
         tableLoading: false,
         finished: false,
         cellMouseIndex: -1,
-        editingIndex: -1,
         shareDialog: false,
         shareLink: '',
         shareFileName: '',
-        generateShareLinkLoading: true,
-        sumFileAndFolder: ''
+        sumFileAndFolder: '',
+        shareDialogVisible: false,
+        shareDialogObject: {},
       }
     },
     mounted() {
@@ -341,7 +342,8 @@
         const itemIcon = this.tableHead[1]
         const itemName = this.tableHead[2]
         const itemSize = this.tableHead[5]
-        const itemDate = this.tableHead[6]
+        const itemIsPrivacy = this.tableHead[6]
+        const itemDate = this.tableHead[7]
         if (this.selectRowData.length > 0) {
           this.sumFileAndFolder = this.getShowSumFileAndFolder(row)
           itemIcon.label = '已选中'
@@ -351,6 +353,8 @@
           itemSize.sortable = false
           itemDate.label = ''
           itemDate.sortable = false
+          itemIsPrivacy.label = ''
+          itemIsPrivacy.sortable = false
         } else {
           itemIcon.label = ''
           itemName.label = '分享文件'
@@ -359,6 +363,8 @@
           itemSize.sortable = 'custom'
           itemDate.label = '过期时间'
           itemDate.sortable = 'custom'
+          itemIsPrivacy.label = '分享形式'
+          itemIsPrivacy.sortable = 'custom'
         }
       },
       // 统计文件和文件夹
@@ -397,21 +403,10 @@
       tableRowClassName({ row, rowIndex }) {
         row.index = rowIndex
       },
-      // 选择某行预备数据
-      preliminaryRowData(row) {
-        if (row) {
-          this.selectRowData[0] = row
-          this.rowContextData = row
-        }
-        const isFavorite = this.selectRowData[0].isFavorite
-        this.highlightFavorite(isFavorite, false)
-      },
       // 单元格hover进入时时间
       cellMouseEnter(row) {
-        if(this.editingIndex === -1){
-          if (this.indexList.length < 1) {
-            this.cellMouseIndex = row.index
-          }
+        if (this.indexList.length < 1) {
+          this.cellMouseIndex = row.index
         }
       },
       // 单元格hover退出时时间
@@ -421,26 +416,18 @@
       // 单元格点击事件
       cellClick(row, column) {
         clearTimeout(this.Loop);
-        if(this.editingIndex === -1) {
-          const columnIndex = column.index
-          if (columnIndex === 0) {
-            // 点击选中
-            this.$refs.fileListTable.toggleRowSelection(row)
+        const columnIndex = column.index
+        if (columnIndex === 0) {
+          // 点击选中
+          this.$refs.fileListTable.toggleRowSelection(row)
+        }
+        if (columnIndex === 2) {
+          if (this.indexList.length < 1) {
+            this.fileClick(row)
           }
-          if (columnIndex === 2) {
-            if (this.indexList.length < 1) {
-              if (row.index !== this.editingIndex) {
-                this.fileClick(row)
-                this.editingIndex = -1
-              }
-            }
-          }
-          if (columnIndex === 4) {
-            // // 单个操作
-          }
-          if (this.indexList.length > 0 && columnIndex > 0) {
-            this.$refs.fileListTable.toggleRowSelection(row)
-          }
+        }
+        if (this.indexList.length > 0 && columnIndex > 0) {
+          this.$refs.fileListTable.toggleRowSelection(row)
         }
       },
       // 取消分享
@@ -466,34 +453,16 @@
       },
       // 点击文件或文件夹
       fileClick(row) {
-        this.shareDialog = true
-        this.shareFileName = row.fileName
-        this.shareLink = window.location.origin+'/s?s='+row.id
-        this.generateShareLinkLoading = false
+        this.shareDialogObject = row
+        this.shareDialogObject.name = row.fileName
+        this.shareDialogObject.shareId = row.id
+        this.shareDialogVisible = true
       },
-      // 复制分享链接
-      copyShareLink() {
-        var clipboard = new Clipboard('.tag-share-link')
-        clipboard.on('success', e => {
-          this.$message({
-            message: '复制成功',
-            type: 'success',
-            duration: 1000
-          });
-          this.shareDialog = false
-          // 释放内存
-          clipboard.destroy()
-        })
-        clipboard.on('error', e => {
-          // 不支持复制
-          this.$message({
-            message: '该浏览器不支持自动复制',
-            type: 'warning',
-            duration: 1000
-          });
-          // 释放内存
-          clipboard.destroy()
-        })
+      onUpdateExpireData(shareId, expireDate) {
+        let index = this.fileList.findIndex(item => item.id === shareId)
+        let share = this.fileList[index]
+        share.expireDate = expireDate
+        this.fileList.splice(index, 1, share)
       },
     }
   }
