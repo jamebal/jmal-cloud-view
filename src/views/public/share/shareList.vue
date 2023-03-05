@@ -569,7 +569,7 @@
             if(this.fileList.length > 0) {
               api.getSharer({userId: this.fileList[0].userId}).then(res => {
                 this.sharer = res.data
-                this.sharerAvatarUrl = this.imageUrl + res.data.avatar
+                this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
                 if (this.sharer.netdiskName) {
                   this.netdiskName = this.sharer.netdiskName
                 }

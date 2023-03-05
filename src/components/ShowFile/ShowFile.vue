@@ -862,10 +862,14 @@ export default {
     }
     if (this.vmode === 'list') {
       this.grid = false
-      this.lessClientHeight = 140
+      if (!this.selectFile) {
+        this.lessClientHeight = 140
+      }
     } else {
       this.grid = true
-      this.lessClientHeight = 106
+      if (!this.selectFile) {
+        this.lessClientHeight = 106
+      }
       this.containerResize()
     }
     // 加载url上的path
