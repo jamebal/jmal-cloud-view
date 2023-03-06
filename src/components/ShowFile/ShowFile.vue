@@ -349,7 +349,7 @@
                             @keyup.enter.native="rowRename(renameFileName, item)">
                   </el-input>
                   <div v-else>
-                    <div class="grid-item-text"><span>{{ item.name }}</span></div>
+                    <div class="grid-item-text"><span>{{ gridFilename(item) }}</span></div>
                   </div>
                 </div>
                 </div>
@@ -802,6 +802,32 @@ export default {
     ...mapGetters([
       'name'
     ]),
+    gridFilename() {
+      return function (item) {
+        if (item.folder) {
+          return filename
+        }
+        let filename = item.name
+        let sliceLength = 10
+        let chineseLength = 0
+        for (var i = 0; i < 10; i++) {
+          var code = filename.charCodeAt(i);
+          if (code > 255) {
+            // 如果编码大于255，说明是中文
+            chineseLength++
+          }
+        }
+        sliceLength -= Math.ceil(chineseLength / 2)
+        let suffix = filename.split(".").pop()
+        let prev = filename.slice(0, sliceLength)
+        let next = filename.slice(-suffix.length - 1)
+        let abb = prev + "…" + next
+        if (abb.length + 1 >= filename.length) {
+          return filename
+        }
+        return prev + "…" + next
+      }
+    },
     getSummaries2() {
       let totalSize = 0
       this.fileList.forEach(file => {

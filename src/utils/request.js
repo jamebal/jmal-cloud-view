@@ -15,7 +15,6 @@ service.interceptors.request.use(
     // do something before request is sent
     if (store.getters.token) {
       config.headers['jmal-token'] = getToken()
-      console.log(config.headers)
     }
     if (store.getters.shareToken) {
       config.headers['share-token'] = getShareToken()
