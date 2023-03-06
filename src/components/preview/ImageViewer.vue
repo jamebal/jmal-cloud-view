@@ -116,7 +116,7 @@ export default {
     getImageUrl(element) {
       let url = fileConfig.previewUrl(this.$store.state.user.name, element, this.$store.getters.token)
       if (this.shareId) {
-        url = fileConfig.publicPreviewUrl(element.id, window.shareId);
+        url = fileConfig.publicPreviewUrl(element.id, window.shareId, this.$store.getters.shareToken);
       }
       return url
     },

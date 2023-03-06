@@ -226,10 +226,10 @@
         <span>{{ shareData.fileName }}</span>
       </div>
       <div class="share-code">
-        <el-input v-model="extractionCode" placeholder="请输入提取码" clearable></el-input>
+        <el-input v-model="extractionCode" placeholder="请输入提取码" clearable @keyup.enter.native="validShareCode(extractionCode)"></el-input>
       </div>
       <div class="share-code-valid">
-        <el-button type="primary" :disabled="extractionCode.length === 0">查看文件</el-button>
+        <el-button type="primary" :disabled="extractionCode.length === 0" @click="validShareCode(extractionCode)">查看文件</el-button>
       </div>
     </div>
 
@@ -276,6 +276,7 @@ import fileConfig from "@/utils/file-config";
 import Clipboard from "clipboard";
 import OfficePreview from "@/components/preview/OfficePreview";
 import Logo from "@/components/Logo";
+import getPageTitle from "@/utils/get-page-title";
 
 export default {
   components: {
@@ -606,7 +607,6 @@ export default {
             this.showShareCode = true
             userId = res.data.userId
             this.shareData = res.data
-            console.log('shareData', this.shareData)
           } else {
             this.fileList = res.data
             this.fileList.map((item, index) => {
@@ -661,7 +661,6 @@ export default {
     getSharer(userId) {
       api.getSharer({userId: userId}).then(res => {
         this.sharer = res.data
-        console.log('this.sharer', this.sharer)
         this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
         if (this.sharer.netdiskName) {
           this.netdiskName = this.sharer.netdiskName
@@ -937,20 +936,20 @@ export default {
         }
         if (fileIds.length > 1 || this.rowContextData.isFolder) {
           if (copy) {
-            this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds))
+            this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
           } else {
-            fileConfig.publicPackageDownload(this.shareId, fileIds)
+            fileConfig.publicPackageDownload(this.shareId, fileIds, this.$store.getters.shareToken)
           }
           return
         }
         if (copy) {
           if (this.rowContextData.isShare) {
-            this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData))
+            this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData,undefined, this.$store.getters.shareToken))
           } else {
-            this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds))
+            this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
           }
         } else {
-          fileConfig.publicDownload(this.shareId, this.rowContextData)
+          fileConfig.publicDownload(this.shareId, this.rowContextData, this.$store.getters.shareToken)
         }
       } else {
         this.$message({
@@ -976,6 +975,7 @@ export default {
         this.$message({message: '该浏览器不支持自动复制', type: 'warning', duration: 1000});
         clipboard.destroy()
       })
+      console.log('url', url)
     },
     // 点击文件或文件夹
     fileClick(row) {
@@ -1022,8 +1022,19 @@ export default {
           return
         }
         // 打开文件
-        fileConfig.publicPreview(row.id, this.shareId)
+        fileConfig.publicPreview(row.id, this.shareId, this.$store.getters.shareToken)
       }
+    },
+    /**
+     * 验证提取码
+     * @param shareCode 提取码
+     */
+    validShareCode(shareCode) {
+      this.$store.dispatch('user/validShareCode', {shareId: this.shareId, shareCode: shareCode}).then(()=> {
+        this.showShareCode = false
+        // 验证成功
+        this.getFileList()
+      })
     }
   }
 }

@@ -122,7 +122,7 @@ export default {
       }
       this.fileUrl = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
       if(this.readOnly && window.shareId){
-        this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId)
+        this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId, this.$store.getters.shareToken)
       }
       let fileKey = `${new Date(this.file.updateDate).getTime()}-${this.file.id}`
 

@@ -10,7 +10,7 @@
           <svg-icon v-if="grid" class="mobile grid icon-favorite" icon-class="Favoritestarrate"/>
         </div>
     </div>
-    <div v-if="item.isShare && item.shareId && !public">
+    <div v-if="item.isShare && item.shareBase && !public">
         <div v-if="pc">
           <svg-icon v-if="!grid" class="pc list icon-share" icon-class="share"/>
           <svg-icon v-if="grid" class="pc grid icon-share" icon-class="share"/>

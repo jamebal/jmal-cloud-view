@@ -2891,38 +2891,16 @@ export default {
       }
       this.shareDialogObject = row
       this.shareDialogObject.fileId = row.id
-      this.shareDialogObject.shareId = undefined
+      this.shareDialogObject.shareBase = undefined
       this.shareDialogVisible = true
-      // this.shareFileName = row.name
-      // api.generate({
-      //   userId: row.userId,
-      //   fileId: row.id,
-      //   isFolder: row.isFolder
-      // }).then(res => {
-      //   this.shareDialog = true
-      //   // 这3行代码是为了让vue刷新数据
-      //   const isFavorite = this.rowContextData.isFavorite
-      //   this.rowContextData.isFavorite = !isFavorite
-      //   this.rowContextData.isFavorite = isFavorite
-      //   if (res.data) {
-      //     let shareId = res.data
-      //     this.shareLink = window.location.origin + '/s?s=' + shareId
-      //     this.generateShareLinkLoading = false
-      //     this.rowContextData.shareId = shareId
-      //   }
-      //   this.rowContextData.isShare = true
-      // }).catch(() => {
-      //   this.shareDialog = false
-      //   this.generateShareLinkLoading = false
-      // })
     },
-    shareSuccess(shareId) {
-      console.log('shareSuccess', shareId)
+    shareSuccess(shareBase) {
+      console.log('shareSuccess', shareBase)
       // 这3行代码是为了让vue刷新数据
       const isFavorite = this.rowContextData.isFavorite
       this.rowContextData.isFavorite = !isFavorite
       this.rowContextData.isFavorite = isFavorite
-      this.rowContextData.shareId = shareId
+      this.rowContextData.shareBase = shareBase
       this.rowContextData.isShare = true
     },
     downloadFile() {

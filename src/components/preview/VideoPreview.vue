@@ -100,7 +100,7 @@ export default {
         if(visible){
           let url = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
           if(this.shareId){
-            url = fileConfig.publicPreviewUrl(this.file.id, window.shareId);
+            url = fileConfig.publicPreviewUrl(this.file.id, window.shareId, this.$store.getters.shareToken);
           }
           this.playerOptions.sources = [{
                         //类型

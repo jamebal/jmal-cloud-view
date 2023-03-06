@@ -180,6 +180,14 @@ export default {
       params
     })
   },
+  // 验证提取码
+  validShareCode: function(data) {
+    return request({
+      url: 'public/valid-share-code',
+      method: 'post',
+      data
+    })
+  },
   // 访问分享链接
   accessShare: function(params) {
     return request({
