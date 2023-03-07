@@ -804,14 +804,14 @@ export default {
     ]),
     gridFilename() {
       return function (item) {
+        let filename = item.name
         if (item.folder) {
           return filename
         }
-        let filename = item.name
-        let sliceLength = 10
+        let sliceLength = 9
         let chineseLength = 0
-        for (var i = 0; i < 10; i++) {
-          var code = filename.charCodeAt(i);
+        for (let i = 0; i < 9; i++) {
+          let code = filename.charCodeAt(i);
           if (code > 255) {
             // 如果编码大于255，说明是中文
             chineseLength++
