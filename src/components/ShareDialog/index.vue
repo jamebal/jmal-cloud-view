@@ -62,8 +62,8 @@
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare" v-loading="generateShareLinkLoading">创建分享</el-button>
-        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy" @click="copyShareLink" :data-clipboard-text="shareLink + '&code=' + extractionCode">复制链接和提取码</el-button>
-        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary" @click="copyShareLink" :data-clipboard-text="shareLink">复制链接</el-button>
+        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy" @click="copyShareLink('口令复制成功')" :data-clipboard-text="file.name + ' ' + shareLink + ' 提取码：' + extractionCode">复制口令</el-button>
+        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary" @click="copyShareLink('链接复制成功')" :data-clipboard-text="shareLink">复制链接</el-button>
       </div>
     </el-dialog>
   </di>
@@ -165,14 +165,12 @@ export default {
   watch: {
     file(file) {
       if (file.fileId) {
-        console.log('file', file)
       }
     },
     status(visible) {
       if(visible){
         this.shareDialogVisible = true
         if (this.file.shareId) {
-          console.log('share', this.file)
           this.shareOptionConfig.shared = true
           this.shareOptionConfig.linkLabel = '分享链接'
           this.shareLink = this.getShareLink(this.file.shareId)
@@ -194,7 +192,6 @@ export default {
   },
   methods: {
     shareDialogClose() {
-      console.log('shareDialogClose')
       this.shareOptionConfig.shared = false
       this.$emit('update:status', this.shareDialogVisible)
     },
@@ -251,7 +248,6 @@ export default {
         isPrivacy: this.shareOption.isPrivacy
       }).then(res => {
         if (res.data) {
-          console.log(res.data)
           let {shareId, extractionCode} = res.data
           this.shareLink = this.getShareLink(shareId)
           this.generateShareLinkLoading = false
@@ -278,13 +274,13 @@ export default {
       })
     },
     // 复制分享链接
-    copyShareLink() {
+    copyShareLink(msg) {
       let clipboard = new Clipboard('.tag-share-link')
       clipboard.on('success', e => {
         this.$message({
-          message: '复制成功',
+          message: msg,
           type: 'success',
-          duration: 1000
+          duration: 3000
         });
         // 释放内存
         clipboard.destroy()
