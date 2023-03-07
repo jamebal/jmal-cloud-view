@@ -277,6 +277,7 @@ import Clipboard from "clipboard";
 import OfficePreview from "@/components/preview/OfficePreview";
 import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
+import store from "@/store";
 
 export default {
   components: {
@@ -620,7 +621,9 @@ export default {
             this.getSharer(userId)
           }
           if (this.fileList.length > 0) {
-            this.loadShareFileList(pagination, overload, res.count)
+            store.dispatch('user/resetShareToken').then(() => {
+              this.loadShareFileList(pagination, overload, res.count)
+            })
           }
         }
       }).catch(() => {
@@ -988,7 +991,7 @@ export default {
         item['index'] = this.pathList.length
         this.pathList.push(item)
         this.pagination.pageIndex = 1
-        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
+        this.$router.push(`?s=${this.shareId}&vmode=${this.vmode}`)
         this.accessShareOpenDir(row.id)
       } else {
         if (row.contentType.startsWith('image')) {

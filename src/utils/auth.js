@@ -37,6 +37,10 @@ export function removeToken() {
   return Cookies.remove(tokenKey)
 }
 
+export function removeShareToken() {
+  return Cookies.remove(shareTokenKey)
+}
+
 export function getConsumerId() {
   return Cookies.get(consumerId)
 }

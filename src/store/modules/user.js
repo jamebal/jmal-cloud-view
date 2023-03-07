@@ -11,7 +11,7 @@ import {
   setRememberName,
   removeRememberName,
   setShareToken,
-  getShareToken
+  getShareToken, removeShareToken
 } from '@/utils/auth'
 import { setLogo } from '@/utils/logo'
 import { resetRouter } from '@/router'
@@ -182,6 +182,15 @@ const actions = {
       removeToken() // must remove  token  first
       removeConsumerId()
       commit('RESET_STATE')
+      resolve()
+    })
+  },
+
+  // remove share token
+  resetShareToken({ commit }) {
+    return new Promise(resolve => {
+      removeShareToken()
+      commit('SET_SHARE_TOKEN', undefined)
       resolve()
     })
   }
