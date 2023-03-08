@@ -4,17 +4,17 @@ import ws from './websocket_config';
 import Bus from '@/assets/js/bus'
 
 export function toConnection(username,token) {
-  connect(username,token);
+  connect(username, token);
   // 断开重连机制,尝试发送消息,捕获异常发生时重连
   ws.timer = setInterval(() => {
     try {
       if(ws.isConnected){
         ws.stompClient.send("test");
       }else{
-        connect(username,token);
+        connect(username, token);
       }
     } catch (err) {
-      connect(username,token);
+      connect(username, token);
     }
   }, 10000);
 }

@@ -11,7 +11,9 @@ import {
   setRememberName,
   removeRememberName,
   setShareToken,
-  getShareToken, removeShareToken
+  getShareToken,
+  removeShareToken,
+  getUsername, setUsername,
 } from '@/utils/auth'
 import { setLogo } from '@/utils/logo'
 import { resetRouter } from '@/router'
@@ -24,7 +26,7 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     shareToken: getShareToken(),
-    name: '',
+    name: getUsername(),
     showName: '',
     userInfo: {},
     avatar: '',
@@ -97,6 +99,7 @@ const actions = {
         const { data } = response
         commit('SET_TOKEN', data.token)
         setToken(data.token)
+        setUsername(username.trim())
         commit('SET_USERID', data.userId)
         setConsumerId(data.userId)
         if(rememberMe){

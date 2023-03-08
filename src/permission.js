@@ -27,7 +27,7 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       // 非登录页面
-      const hasGetUserInfo = store.getters.name
+      const hasGetUserInfo = store.getters.userInfo.username
       if (hasGetUserInfo) {
         // 存在用户信息
         setMenuList(next)

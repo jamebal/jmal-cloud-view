@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 
 const tokenKey = 'jmal_token'
+const usernameKey = 'username'
 const shareTokenKey = 'share-token'
 const consumerId = 'consumerId'
 const rememberName = 'rememberName'
@@ -21,6 +22,14 @@ export function getToken() {
   return Cookies.get(tokenKey)
 }
 
+export function getUsername() {
+  return Cookies.get(usernameKey)
+}
+
+export function setUsername(username) {
+  return Cookies.set(usernameKey, username)
+}
+
 export function getShareToken() {
   return Cookies.get(shareTokenKey)
 }
@@ -34,7 +43,8 @@ export function setToken(token) {
 }
 
 export function removeToken() {
-  return Cookies.remove(tokenKey)
+  Cookies.remove(tokenKey)
+  Cookies.remove(usernameKey)
 }
 
 export function removeShareToken() {

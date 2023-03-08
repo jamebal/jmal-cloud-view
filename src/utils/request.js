@@ -1,6 +1,6 @@
 // import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import {getShareToken, getToken} from '@/utils/auth'
+import {getShareToken, getToken, getUsername} from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -15,6 +15,9 @@ service.interceptors.request.use(
     // do something before request is sent
     if (store.getters.token) {
       config.headers['jmal-token'] = getToken()
+    }
+    if (store.getters.name) {
+      config.headers['name'] = getUsername()
     }
     if (store.getters.shareToken) {
       config.headers['share-token'] = getShareToken()
