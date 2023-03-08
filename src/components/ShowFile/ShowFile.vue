@@ -3133,7 +3133,7 @@ export default {
           } else {
             this.path = '/' + row.name
           }
-          const item = {'folder': row.name, 'isShare': row.isShare}
+          const item = {'folder': row.name, 'shareBase': row.shareBase}
           this.pathList.push(item)
           this.pagination.pageIndex = 1
           const path = encodeURI(this.path);

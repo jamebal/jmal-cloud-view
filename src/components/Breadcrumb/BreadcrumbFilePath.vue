@@ -1,6 +1,6 @@
 <template>
   <span>
-    <svg-icon v-if="item.isShare" class="share-dir" icon-class="share"/>
+    <svg-icon v-if="item.shareBase" class="share-dir" icon-class="share"/>
     <a v-if="strLength(item.folder) > maxNameLength">
       <el-tooltip class="item" effect="dark" :content="item.folder" placement="top">
         <a v-if="pathList.length >= maxPathCount">
