@@ -620,10 +620,12 @@ export default {
           if (userId !== null) {
             this.getSharer(userId)
           }
-          if (this.fileList.length > 0) {
+          if (this.fileList.length > 0 && !this.fileList[0].isPrivacy) {
             store.dispatch('user/resetShareToken').then(() => {
               this.loadShareFileList(pagination, overload, res.count)
             })
+          } else {
+            this.loadShareFileList(pagination, overload, res.count)
           }
         }
       }).catch(() => {
