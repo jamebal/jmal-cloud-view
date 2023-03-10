@@ -65,7 +65,7 @@ export default {
   components: {Logo},
   data() {
     return {
-      uploadUrl: process.env.VUE_APP_BASE_API + '/user/setting/upload_logo?jmal-token=' + this.$store.state.user.token,
+      uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}`,
       title: '网盘管理',
       syncLoading: false,
       resetLoading: false,

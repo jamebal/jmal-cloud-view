@@ -9,6 +9,7 @@ export function toConnection(username,token) {
   ws.timer = setInterval(() => {
     try {
       if(ws.isConnected){
+        console.log('isConnected', ws.isConnected)
         ws.stompClient.send("test");
       }else{
         connect(username, token);

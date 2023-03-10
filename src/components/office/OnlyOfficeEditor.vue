@@ -126,7 +126,7 @@ export default {
       }
       let fileKey = `${new Date(this.file.updateDate).getTime()}-${this.file.id}`
 
-      let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.file.id)
+      let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.$store.getters.name, this.file.id)
 
       const config = {
         "document": {

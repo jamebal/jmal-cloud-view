@@ -48,7 +48,8 @@ export default {
   computed: {},
   data() {
     return {
-      imageThumbnailUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
+      imageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
+      shareImageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`,
       publicImageThumbnailUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
       currentSrc: '',
       images: [],
@@ -124,6 +125,9 @@ export default {
       if (this.$store.getters.token){
         return this.imageThumbnailUrl + fileId
       } else {
+        if (this.$store.getters.shareToken) {
+          return this.shareImageThumbnailUrl + fileId
+        }
         return this.publicImageThumbnailUrl + fileId
       }
     },

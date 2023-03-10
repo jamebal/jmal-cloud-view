@@ -60,7 +60,7 @@ export default {
     return {
       isShow: true,
       activeIndex: '1',
-      imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
+      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
       defaultAvatar: require('../../assets/img/default-avatar.png')
     }
   },

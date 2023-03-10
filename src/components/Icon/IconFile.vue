@@ -28,7 +28,7 @@
           <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
                     :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
           <div slot="error" class="image-slot">
-            <svg-icon class="avatar-default-image" icon-class="audio"/>
+            <svg-icon icon-class="audio"/>
           </div>
         </el-image>
         <el-avatar v-if="!grid" shape="square"

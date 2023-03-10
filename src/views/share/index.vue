@@ -201,8 +201,8 @@
     },
     data() {
       return {
-        imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-        audioCoverUrl: process.env.VUE_APP_BASE_API + '/view/cover?jmal-token=' + this.$store.state.user.token + '&id=',
+        imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
+        audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
         fileMenuActive: '',
         path: this.$route.query.path,
         showNewFolder: false,

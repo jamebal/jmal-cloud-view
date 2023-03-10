@@ -376,6 +376,7 @@ export default {
         accept: 'image/*,.mp3, .wav, .rar',
         headers: {
           'jmal-token': this.$store.state.user.token,
+          'name': this.$store.state.user.name,
           'username': this.$store.state.user.name,
           'userId': this.$store.state.user.userId
         },

@@ -307,8 +307,8 @@ export default {
       lastTabbarOffsetTop: 0,// 底部tabbar与上边框 上次的距离
       diffTabbarTop: 0,// 底部tabbar与上边框的变化距离
       isiPhoneX: 0,
-      imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-      audioCoverUrl: process.env.VUE_APP_BASE_API + '/view/cover?jmal-token=' + this.$store.state.user.token + '&id=',
+      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
+      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
       tabActive: 0,
       path: this.$route.query.path,
       fileList: [],
@@ -618,7 +618,7 @@ export default {
           fileIds.push(this.rowContextData.id)
         }
         if (fileIds.length > 1 || this.rowContextData.isFolder) {
-          fileConfig.packageDownload(fileIds, this.$store.state.user.token)
+          fileConfig.packageDownload(fileIds, this.$store.state.user.token, this.$store.state.user.name)
           return
         }
         fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.state.user.token)
@@ -634,7 +634,6 @@ export default {
       this.rowContextData.isFavorite = isFavorite
       this.highlightFavorite(isFavorite, true)
       api.favoriteUrl({
-        token: this.$store.state.user.token,
         fileIds: this.rowContextData.id,
         isFavorite: isFavorite
       }).then(res => {

@@ -15,14 +15,14 @@ export default {
     return `${window.location.origin}/office/web-apps/apps/api/documents/api.js`
   },
   // office回调url
-  officeCallBackUrl: function(token, fileId) {
-    return `${window.location.origin}${this.baseUrl}/office/track?jmal-token=${token}&fileId=${fileId}`
+  officeCallBackUrl: function(token, username, fileId) {
+    return `${window.location.origin}${this.baseUrl}/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
     let fileUrl = `${this.baseUrl}/file/${username}${encodeURI(file.path)}${encodeURI(file.name)}`
     if (token) {
-      return `${fileUrl}?jmal-token=${token}`
+      return `${fileUrl}?jmal-token=${token}&name=${username}`
     }
     if (shareToken) {
       return `${fileUrl}?share-token=${shareToken}`
@@ -46,9 +46,9 @@ export default {
     })
   },
   // 打包下载文件
-  packageDownload: function(fileIds, token, shareToken) {
+  packageDownload: function(fileIds, token, username) {
     fileApi.isAllowDownload().then(() => {
-      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}&jmal-token=${token}`, '_self')
+      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}&jmal-token=${token}&name=${username}`, '_self')
     })
   },
   // 共享文件下载

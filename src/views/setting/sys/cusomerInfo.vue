@@ -87,7 +87,7 @@
         }
       };
       return {
-        imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
+        imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
         title: "个人信息",
         userUpdateLoading: false,
         dialogAvatar: false,

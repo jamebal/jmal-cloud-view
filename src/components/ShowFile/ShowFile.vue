@@ -674,8 +674,8 @@ export default {
   },
   data() {
     return {
-      imageUrl: process.env.VUE_APP_BASE_API + '/view/thumbnail?jmal-token=' + this.$store.state.user.token + '&id=',
-      audioCoverUrl: process.env.VUE_APP_BASE_API + '/view/cover?jmal-token=' + this.$store.state.user.token + '&id=',
+      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
+      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
       fileMenuActive: '',
       path: this.$route.query.path,
       showNewFolder: false,
@@ -2949,7 +2949,7 @@ export default {
           fileIds.push(this.rowContextData.id)
         }
         if (fileIds.length > 1 || this.rowContextData.isFolder) {
-          fileConfig.packageDownload(fileIds, this.$store.state.user.token)
+          fileConfig.packageDownload(fileIds, this.$store.state.user.token, this.$store.state.user.name)
           return
         }
         fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.getters.token)

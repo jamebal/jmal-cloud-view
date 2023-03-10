@@ -128,7 +128,8 @@ export default {
             .replace(/\sseconds?/, '秒')
         },
         headers: {
-          'jmal-token': this.$store.state.user.token
+          'jmal-token': this.$store.state.user.token,
+          'name': this.$store.state.user.name
         },
         query() {
         }

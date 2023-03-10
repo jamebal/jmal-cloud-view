@@ -220,16 +220,20 @@
 
     <div v-if="showShareCode" class="share-content">
       <div class="share-icon">
-        <icon-file class="share-icon-font" :item="shareData" :grid="true" :details="true" :image-url="imageUrl"></icon-file>
+        <icon-file class="share-icon-font" :item="shareData" :grid="true" :details="true"
+                   :image-url="imageUrl"></icon-file>
       </div>
       <div class="share-filename">
         <span>{{ shareData.fileName }}</span>
       </div>
       <div class="share-code">
-        <el-input v-model="extractionCode" placeholder="请输入提取码" clearable @keyup.enter.native="validShareCode(extractionCode)"></el-input>
+        <el-input v-model="extractionCode" placeholder="请输入提取码" clearable
+                  @keyup.enter.native="validShareCode(extractionCode)"></el-input>
       </div>
       <div class="share-code-valid">
-        <el-button type="primary" :disabled="extractionCode.length === 0" @click="validShareCode(extractionCode)">查看文件</el-button>
+        <el-button type="primary" :disabled="extractionCode.length === 0" @click="validShareCode(extractionCode)">
+          查看文件
+        </el-button>
       </div>
     </div>
 
@@ -276,7 +280,6 @@ import fileConfig from "@/utils/file-config";
 import Clipboard from "clipboard";
 import OfficePreview from "@/components/preview/OfficePreview";
 import Logo from "@/components/Logo";
-import getPageTitle from "@/utils/get-page-title";
 import store from "@/store";
 
 export default {
@@ -289,7 +292,7 @@ export default {
     return {
       prompt: '文件分享已被撤销',// 文件分享已被撤销
       isLoading: true,
-      imageUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
+      //imageUrl: this.$store.getters.shareToken ? `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?id=` : `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`,
       fileMenuActive: '',
       path: this.$route.query.path,
       showNewFolder: false,
@@ -417,6 +420,12 @@ export default {
         return this.$store.state.user.netdiskLogo
       }
       return ''
+    },
+    imageUrl() {
+      console.log('this.$store.getters.shareToken', this.$store.getters.shareToken)
+      return this.$store.getters.shareToken === undefined ?
+        `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?id=` :
+        `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`
     }
   },
   created() {
@@ -949,7 +958,7 @@ export default {
         }
         if (copy) {
           if (this.rowContextData.isShare) {
-            this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData,undefined, this.$store.getters.shareToken))
+            this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData, undefined, this.$store.getters.shareToken))
           } else {
             this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
           }
@@ -1035,7 +1044,7 @@ export default {
      * @param shareCode 提取码
      */
     validShareCode(shareCode) {
-      this.$store.dispatch('user/validShareCode', {shareId: this.shareId, shareCode: shareCode}).then(()=> {
+      this.$store.dispatch('user/validShareCode', {shareId: this.shareId, shareCode: shareCode}).then(() => {
         this.showShareCode = false
         // 验证成功
         this.getFileList()
@@ -1142,13 +1151,16 @@ export default {
 
 .share-icon {
   margin: 20px 0 20px 0;
-  >>> .icon-favorite {
+
+  > > > .icon-favorite {
     display: none;
   }
-  >>> .icon-share {
+
+  > > > .icon-share {
     display: none;
   }
-  .share-icon-font >>> .svg-icon {
+
+  .share-icon-font > > > .svg-icon {
     font-size: 8rem;
   }
 }
@@ -1158,14 +1170,15 @@ export default {
 }
 
 .share-code {
-  >>> .el-input {
+  > > > .el-input {
     width: 200px;
   }
 }
 
 .share-code-valid {
   margin-top: 20px;
-  >>> .el-button {
+
+  > > > .el-button {
     width: 200px;
   }
 }

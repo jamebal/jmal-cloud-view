@@ -97,9 +97,10 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        commit('SET_TOKEN', data.jmalToken)
+        setToken(data.jmalToken)
         setUsername(username.trim())
+        commit('SET_NAME', username.trim())
         commit('SET_USERID', data.userId)
         setConsumerId(data.userId)
         if(rememberMe){
