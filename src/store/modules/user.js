@@ -21,6 +21,7 @@ import router from '@/router'
 import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
 import api from "@/api/file-api";
+import {disconnect} from "@/websocket/sockJS";
 
 const getDefaultState = () => {
   return {
@@ -95,7 +96,7 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password, rememberMe } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ username: username.trim(), password: password, rememberMe: rememberMe }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.jmalToken)
         setToken(data.jmalToken)
@@ -169,8 +170,10 @@ const actions = {
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        removeToken() // must remove  token  first
+        disconnect()
+        removeToken()
         removeConsumerId()
+        removeRememberName()
         resetRouter()
         commit('RESET_STATE')
         resolve()

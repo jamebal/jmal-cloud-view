@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 
-const tokenKey = 'jmal_token'
+const tokenKey = 'jmal-token'
 const usernameKey = 'username'
 const shareTokenKey = 'share-token'
 const consumerId = 'consumerId'

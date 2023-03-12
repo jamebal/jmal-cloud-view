@@ -825,8 +825,7 @@ export default {
         if (abb.length + 1 >= filename.length) {
           return filename
         }
-        // return prev + "…" + next
-        return filename
+        return prev + "…" + next
       }
     },
     getSummaries2() {
