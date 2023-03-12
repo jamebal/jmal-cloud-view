@@ -235,6 +235,9 @@
           查看文件
         </el-button>
       </div>
+      <div class="share-expire-date">
+        <span>{{shareData.expireDate ? "到期时间：" + shareData.expireDate : "永久有效"}}</span>
+      </div>
     </div>
 
     <sim-text-preview :file.sync="textPreviewRow" :shareId="shareId"
@@ -243,7 +246,7 @@
                   :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
     <office-preview :file="officePreviewRow" :shareId="shareId" :status.sync="officePreviewVisible"></office-preview>
-    <el-divider v-if="!showShareCode" class="grid-divider" content-position="center"><i
+    <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center"><i
       class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
     </el-divider>
     <el-pagination
@@ -422,7 +425,6 @@ export default {
       return ''
     },
     imageUrl() {
-      console.log('this.$store.getters.shareToken', this.$store.getters.shareToken)
       return this.$store.getters.shareToken === undefined ?
         `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?id=` :
         `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`
@@ -430,6 +432,7 @@ export default {
   },
   created() {
     this.getFileList()
+    this.getSharer();
   },
   mounted() {
     Bus.$on('fileSuccess', () => {
@@ -612,22 +615,14 @@ export default {
         if (Object.getPrototypeOf(res.data) === String.prototype) {
           this.prompt = '该链接已失效'
         } else {
-          let userId = null
           if (res.data.isPrivacy) {
             this.showShareCode = true
-            userId = res.data.userId
             this.shareData = res.data
           } else {
             this.fileList = res.data
             this.fileList.map((item, index) => {
               item.index = index
             })
-            if (this.fileList.length > 0) {
-              userId = this.fileList[0].userId
-            }
-          }
-          if (userId !== null) {
-            this.getSharer(userId)
           }
           if (this.fileList.length > 0 && !this.fileList[0].isPrivacy) {
             store.dispatch('user/resetShareToken').then(() => {
@@ -672,8 +667,8 @@ export default {
         }
       })
     },
-    getSharer(userId) {
-      api.getSharer({userId: userId}).then(res => {
+    getSharer() {
+      api.getSharer({shareId: this.shareId}).then(res => {
         this.sharer = res.data
         this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
         if (this.sharer.netdiskName) {
@@ -989,7 +984,6 @@ export default {
         this.$message({message: '该浏览器不支持自动复制', type: 'warning', duration: 1000});
         clipboard.destroy()
       })
-      console.log('url', url)
     },
     // 点击文件或文件夹
     fileClick(row) {
@@ -1079,6 +1073,10 @@ export default {
 }
 
 .share-header {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 20px;
   height: 45px;
 
   .logo {
@@ -1172,7 +1170,17 @@ export default {
 .share-code {
   > > > .el-input {
     width: 200px;
+    ::placeholder {
+      text-align: center;
+    }
+    input:-moz-placeholder {
+      text-align: center;
+    }
+    input::-webkit-input-placeholder {
+      text-align: center;
+    }
   }
+
 }
 
 .share-code-valid {
@@ -1181,6 +1189,12 @@ export default {
   > > > .el-button {
     width: 200px;
   }
+}
+
+.share-expire-date {
+  color: #25262b5c;
+  font-size: 12px;
+  margin-top: 10px;
 }
 
 </style>

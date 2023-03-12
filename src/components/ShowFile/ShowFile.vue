@@ -2921,7 +2921,6 @@ export default {
       this.shareDialogVisible = true
     },
     shareSuccess(shareBase) {
-      console.log('shareSuccess', shareBase)
       // 这3行代码是为了让vue刷新数据
       const isFavorite = this.rowContextData.isFavorite
       this.rowContextData.isFavorite = !isFavorite

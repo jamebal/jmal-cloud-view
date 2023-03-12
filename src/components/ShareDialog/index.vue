@@ -163,10 +163,6 @@ export default {
     }
   },
   watch: {
-    file(file) {
-      if (file.fileId) {
-      }
-    },
     status(visible) {
       if(visible){
         this.shareDialogVisible = true
