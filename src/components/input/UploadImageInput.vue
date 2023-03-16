@@ -233,7 +233,8 @@ export default {
       axios.post('/api/upload-markdown-image', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'jmal-token': that.$store.state.user.token
+          'jmal-token': that.$store.state.user.token,
+          'name': that.$store.getters.name
         },
         onUploadProgress: progressEvent => {
           that.onpregress((progressEvent.loaded / progressEvent.total * 100 | 0))
