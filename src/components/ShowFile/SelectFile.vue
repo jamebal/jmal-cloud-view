@@ -10,6 +10,7 @@
       @close="handleClose"
     >
       <show-file
+        v-if="dialogVisible"
         select-file
         query-file-type="image"
         :defaultGrid="true"
