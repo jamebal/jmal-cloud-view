@@ -1,11 +1,13 @@
 <template>
   <di>
     <!--分享-->
-    <el-dialog title="分享文件" style="{'font-weight': 600}" :visible.sync="shareDialogVisible" @close="shareDialogClose">
+    <el-dialog title="分享文件" style="{'font-weight': 600}" :visible.sync="shareDialogVisible"
+               @close="shareDialogClose">
       <div>
         <div class="share-content">
           <div class="share-icon">
-            <icon-file class="share-icon-font" :item="file" :grid="true" :details="true" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
+            <icon-file class="share-icon-font" :item="file" :grid="true" :details="true" :image-url="imageUrl"
+                       :audio-cover-url="audioCoverUrl"></icon-file>
           </div>
           <div class="share-filename">
             <span>{{ file.name }}</span>
@@ -50,9 +52,23 @@
                   </el-select>
                 </el-col>
               </el-form-item>
-              <el-col  class="share-link">
-                <el-input size="small" v-if="shareOptionConfig.shared" readonly="readonly" v-model="shareLink"></el-input>
-                <el-input class="share-link-code" size="small" v-if="shareOptionConfig.shared && shareOption.isPrivacy" readonly="readonly" v-model="extractionCode">
+              <el-col class="share-link">
+                <el-input size="small" v-if="shareOptionConfig.shared" readonly="readonly" v-model="shareLink">
+                  <el-popover
+                    slot="append"
+                    class="share-link-qrcode"
+                    placement="right"
+                    trigger="hover"
+                    >
+                    <img alt="qrcode-share-link" :src="qrCodeshareLink"/>
+                    <el-button slot="reference" class="qrcode-btn tag-share-link" @click="copyShareLink('链接复制成功')"
+                               :data-clipboard-text="shareLink">
+                      <svg-icon icon-class="qrcode" class="qrcode"/>
+                    </el-button>
+                  </el-popover>
+                </el-input>
+                <el-input class="share-link-code" size="small" v-if="shareOptionConfig.shared && shareOption.isPrivacy"
+                          readonly="readonly" v-model="extractionCode">
                   <template slot="prepend">提取码</template>
                 </el-input>
               </el-col>
@@ -61,9 +77,16 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare" v-loading="generateShareLinkLoading">创建分享</el-button>
-        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy" @click="copyShareLink('口令复制成功')" :data-clipboard-text="file.name + ' ' + shareLink + ' 提取码：' + extractionCode">复制口令</el-button>
-        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary" @click="copyShareLink('链接复制成功')" :data-clipboard-text="shareLink">复制链接</el-button>
+        <el-button size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare"
+                   v-loading="generateShareLinkLoading">创建分享
+        </el-button>
+        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy"
+                   @click="copyShareLink('口令复制成功')"
+                   :data-clipboard-text="file.name + ' ' + shareLink + ' 提取码：' + extractionCode">复制口令
+        </el-button>
+        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary"
+                   @click="copyShareLink('链接复制成功')" :data-clipboard-text="shareLink">复制链接
+        </el-button>
       </div>
     </el-dialog>
   </di>
@@ -75,10 +98,14 @@ import moment from 'moment'
 import IconFile from "@/components/Icon/IconFile";
 import api from '@/api/file-api'
 import Clipboard from "clipboard";
+import Icon from "@/components/Icon/Icon.vue";
+import QRCode from 'qrcode';
+
 
 export default {
   name: "ShareDialog",
   components: {
+    Icon,
     IconFile
   },
   props: {
@@ -155,6 +182,7 @@ export default {
         expiresDate: '',
       },
       shareLink: "",
+      qrCodeshareLink: "",
       extractionCode: '',
       shareOptionConfig: {
         shared: false,
@@ -164,12 +192,12 @@ export default {
   },
   watch: {
     status(visible) {
-      if(visible){
+      if (visible) {
         this.shareDialogVisible = true
         if (this.file.shareId) {
           this.shareOptionConfig.shared = true
           this.shareOptionConfig.linkLabel = '分享链接'
-          this.shareLink = this.getShareLink(this.file.shareId)
+          this.setShareLink(this.getShareLink(this.file.shareId))
           this.shareOption.isPrivacy = this.file.isPrivacy
           if (this.file.expireDate) {
             this.shareOption.expiresDate = moment(this.file.expireDate).format('x')
@@ -187,6 +215,16 @@ export default {
     }
   },
   methods: {
+    setShareLink(sahreLink) {
+      this.shareLink = sahreLink
+      QRCode.toDataURL(sahreLink)
+        .then(url => {
+          this.qrCodeshareLink = url
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
     shareDialogClose() {
       this.shareOptionConfig.shared = false
       this.$emit('update:status', this.shareDialogVisible)
@@ -245,7 +283,7 @@ export default {
       }).then(res => {
         if (res.data) {
           let {shareId, extractionCode} = res.data
-          this.shareLink = this.getShareLink(shareId)
+          this.setShareLink(this.getShareLink(shareId))
           this.generateShareLinkLoading = false
           this.shareOptionConfig.shared = true
           this.shareOption.expiresDateOption = 2
@@ -261,7 +299,7 @@ export default {
               duration: 3000,
               dangerouslyUseHTMLString: true,
               iconClass: 'el-icon-success',
-              message: '<strong>&nbsp;&nbsp;有效期已设置为: <span>'+ expireDate + '</span> </strong>'
+              message: '<strong>&nbsp;&nbsp;有效期已设置为: <span>' + expireDate + '</span> </strong>'
             });
           }
         }
@@ -298,8 +336,9 @@ export default {
 
 <style lang="scss" scoped>
 
->>> .el-dialog {
-  max-width: 440px;
+> > > .el-dialog {
+  max-width: 460px;
+
   .el-dialog__title {
     font-weight: 600;
   }
@@ -308,13 +347,16 @@ export default {
 .share-icon {
   margin: 20px 0 20px 0;
   text-align: center;
-  >>> .icon-favorite {
+
+  > > > .icon-favorite {
     display: none;
   }
-  >>> .icon-share {
+
+  > > > .icon-share {
     display: none;
   }
-  .share-icon-font >>> .svg-icon {
+
+  .share-icon-font > > > .svg-icon {
     font-size: 8rem;
   }
 }
@@ -326,29 +368,33 @@ export default {
 
 .share-option {
 
-  >>>.el-form-item--mini.el-form-item {
+  > > > .el-form-item--mini.el-form-item {
     margin-bottom: 10px;
   }
 
   .share-expires-data {
-    >>> .el-input__inner {
+    > > > .el-input__inner {
       cursor: pointer;
       padding-right: 0;
     }
-    >>> .el-date-editor.el-input {
+
+    > > > .el-date-editor.el-input {
       width: 100%;
     }
   }
-  >>> .el-form-item__label {
+
+  > > > .el-form-item__label {
     line-height: 32px;
   }
+
   .shared-expires-text {
     text-align: right;
     line-height: 32px;
     padding-right: 5px;
   }
 }
->>> .dialog-footer {
+
+> > > .dialog-footer {
   .el-loading-spinner .circular {
     width: 25px !important;
   }
@@ -361,16 +407,25 @@ export default {
   .share-link-code {
     width: 130px;
     margin-top: 10px;
-    >>> .el-input-group__prepend {
-      padding:0 10px;
+
+    > > > .el-input-group__prepend {
+      padding: 0 10px;
       font-weight: 500;
     }
   }
 
-  >>> .el-input__inner {
+  .qrcode-btn {
+    padding: 12px 10px;
+  }
+
+  .qrcode {
+    font-size: 1.5rem;
+  }
+
+  > > > .el-input__inner {
     background-color: #84858d14;
     text-align: center;
+    padding: 0 10px;
   }
 }
-
 </style>

@@ -64,7 +64,6 @@ export default {
       if (this.$store.getters.token === undefined) {
         url = fileConfig.publicPreviewUrl(newFile.id, window.shareId, this.$store.getters.shareToken);
       }
-      console.log('sfdsf', url)
       let music = newFile.music
       let fileName = newFile.name.substring(0, newFile.name.length - newFile.suffix.length - 1)
       let musicOperation = {
