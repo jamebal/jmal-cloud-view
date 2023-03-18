@@ -26,7 +26,7 @@
 
 .el-breadcrumb {
   font-size: 1rem;
-  line-height: 46px;
+  line-height: 40px;
 }
 
 .button-class {
@@ -195,12 +195,8 @@
 
 .search-class{
   float: right;
-  width: 40%;
   display: flex;
   justify-content: flex-end;
-  .el-input {
-    width: 235px;
-  }
   .sort{
     padding: 5px 10px;
     margin-left: 5px;
@@ -208,6 +204,9 @@
   .vmode{
     padding: 5px 10px;
     margin-left: -5px;
+  }
+  >>>.el-input-group__prepend {
+    padding: 0 13px;
   }
 }
 

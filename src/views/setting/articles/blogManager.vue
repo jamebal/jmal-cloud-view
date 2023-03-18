@@ -19,20 +19,18 @@
           </div>
         </div>
       </a-affix>
-
       <el-tabs v-if="!subpage" v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="网站首页" name="1">
           <div class="config-itme-label">网站图标：</div>
           <upload-image-input v-model="form.siteIco" desc="只支持ico格式" :enable-select="false" :enable-url="false" accept="image/vnd.microsoft.icon"/>
-          <span class="instruction"><a href="http://www.favicon-icon-generator.com/" target="_blank">在线制作ico</a></span>
+          <span class="instruction"><a href="https://tool.lu/favicon/" target="_blank">在线制作ico</a></span>
           <div class="config-itme-label">站点名称：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteName"></el-input>
           <span class="instruction">给您的网站取一个响亮的名字。</span>
           <div class="config-itme-label">站点地址：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteUrl"></el-input>
           <span class="instruction">在这里填入站点的地址或域名。例如：<a href="https://blog.jmal.top" target="_blank">https://blog.jmal.top</a></span>
-          <div class="config-itme-label">站点背景大图：</div>
-          <upload-image-input v-model="form.backgroundSite"/>
+          <div class="config-itme-label">站点背景大图：</div><upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：
             <el-button type="text" @click="heartwings">历史记录</el-button>

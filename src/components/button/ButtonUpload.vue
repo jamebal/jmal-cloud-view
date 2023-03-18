@@ -123,7 +123,7 @@
     outline: none;
     cursor: pointer;
     border: 0;
-    padding: 8px 20px 8px 20px;
+    padding: 8px 15px 8px 15px;
     border-radius: 4px;
     line-height: 24px;
     font-family: inherit;
