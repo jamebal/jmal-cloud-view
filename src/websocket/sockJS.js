@@ -50,6 +50,7 @@ function connect(username,token){
 export function disconnect() {
   if (ws.isConnected) {
     ws.stompClient.disconnect();
+    ws.isConnected = false
   }
-  clearInterval(ws.timer);
+  clearInterval(ws.timer)
 }

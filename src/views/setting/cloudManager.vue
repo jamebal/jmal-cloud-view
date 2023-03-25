@@ -41,7 +41,8 @@
         </span>
         <div class="config-itme-label">网盘同步：
           <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
-            class="el-icon-refresh"></i></el-button>
+            class="el-icon-refresh"></i>
+          </el-button> <span v-show="syncPercent < 100">{{syncPercent}}%</span>
         </div>
         <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
         <div class="config-itme-label">重置角色、菜单：
@@ -68,6 +69,7 @@ export default {
       uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}`,
       title: '网盘管理',
       syncLoading: false,
+      syncPercent: 100,
       resetLoading: false,
       webpEnabled: false,
       logoFileName: '',
@@ -81,8 +83,11 @@ export default {
     this.getWebsiteSetting()
     this.getInfo()
     this.getIsSync()
-    Bus.$on('msg/synced', () => {
-      this.syncLoading = false
+    Bus.$on('msg/synced', (msg) => {
+      this.syncPercent = msg.body
+      if (this.syncPercent >= 100) {
+        this.syncLoading = false
+      }
     })
   },
   destroyed() {
@@ -162,8 +167,10 @@ export default {
       })
     },
     getIsSync() {
-      settingApi.isSync().then((res) => {
-        this.syncLoading = res.data
+      settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
+        this.syncLoading = true;
+        this.syncPercent = res.data
+        this.syncLoading = this.syncPercent < 100;
       })
     },
     sync() {
@@ -173,6 +180,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.syncLoading = true
+        this.syncPercent = 0
         settingApi.sync({username: this.$store.state.user.name}).then(() => {
           this.$message.success("开始同步...")
         })
