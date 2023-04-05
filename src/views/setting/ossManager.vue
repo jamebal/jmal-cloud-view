@@ -9,69 +9,79 @@
           </div>
         </div>
       </div>
-
+      <table-list
+        ref="tableOssConfig"
+        :has-selection="false"
+        :tableData="ossConfigList"
+        :less-client-height="210"
+        :loading="tableLoading"
+        :tableHeader="tableHeader"
+      ></table-list>
     </el-card>
-
-    <el-dialog class="set-oss-dialog" title="添加OSS" :visible.sync="showDialog" :close-on-click-modal="false">
-      <el-form :rules="rules" ref="form" :model="formData" label-width="120px" size="small">
-        <el-form-item label="Platform" prop="platform">
-          <el-select v-model="formData.platform" placeholder="选择平台">
-            <el-option
-              v-for="item in platforms"
-              :key="item.key"
-              :label="item.value"
-              :value="item.key"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Endpoint" prop="endpoint">
-          <el-input v-model="formData.endpoint"></el-input>
-        </el-form-item>
-        <el-form-item label="Access Key" prop="accessKey">
-          <el-input type="password" v-model="formData.accessKey"></el-input>
-        </el-form-item>
-        <el-form-item label="Secret Key" prop="secretKey">
-          <el-input type="password" v-model="formData.secretKey"></el-input>
-        </el-form-item>
-        <el-form-item label="Region" prop="region">
-          <el-input v-model="formData.region"></el-input>
-        </el-form-item>
-        <el-form-item label="Bucket" prop="bucket">
-          <el-input v-model="formData.bucket"></el-input>
-        </el-form-item>
-        <el-form-item label="目录名称" prop="folderName">
-          <el-input v-model="formData.folderName"></el-input>
-          <div class="form-item-desc">将在根目录下创建此目录，相当于把oss挂载到了此目录</div>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
+    <div>
+      <el-dialog class="set-oss-dialog" :title="putOssTitle" :visible.sync="showDialog" :close-on-click-modal="false">
+        <el-form :rules="rules" ref="form" :model="formData" label-width="120px" size="small">
+          <el-form-item label="Platform" prop="platform">
+            <el-select v-model="formData.platform" placeholder="选择平台">
+              <el-option
+                v-for="item in platforms"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="Endpoint" prop="endpoint">
+            <el-input v-model="formData.endpoint"></el-input>
+          </el-form-item>
+          <el-form-item label="Access Key" prop="accessKey">
+            <el-input type="password" v-model="formData.accessKey"></el-input>
+          </el-form-item>
+          <el-form-item label="Secret Key" prop="secretKey">
+            <el-input type="password" v-model="formData.secretKey"></el-input>
+          </el-form-item>
+          <el-form-item label="Region" prop="region">
+            <el-input v-model="formData.region"></el-input>
+          </el-form-item>
+          <el-form-item label="Bucket" prop="bucket">
+            <el-input v-model="formData.bucket"></el-input>
+          </el-form-item>
+          <el-form-item label="目录名称" prop="folderName">
+            <el-input v-model="formData.folderName"></el-input>
+            <div class="form-item-desc">将在根目录下创建此目录，相当于把oss挂载到了此目录</div>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="showDialog = false">取消</el-button>
         <el-button size="small" type="primary" @click="submitForm">确定</el-button>
       </span>
-    </el-dialog>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
 <script>
 
 import ossApi from "@/api/oss"
+import TableList from "@/components/table/TableList.vue";
 
 export default {
+  components: {TableList},
   data() {
     const validateFolderName = async (rule, value, callback) => {
-      await this.existFolderName(value)
       if (value === '') {
         callback(new Error('请输入目录名'));
       } else if (/[\[\]\/\\"<>\?\*]/gi.test(value)) {
-        callback(new Error('目录名不能包含以下字符:<,>,|,*,?,,/,[,]'));
-      } else if (this.existFolder) {
-        callback(new Error('该目录已存在'));
+        callback(new Error('目录名不能包含这些字符:<,>,|,*,?,,/,[,]'));
       } else {
         callback()
       }
     }
     return {
+      putOssTitle: '',
       showDialog: false,
+      ossConfigList: [],
+      tableLoading: false,
       formData: {
         endpoint: "",
         accessKey: "",
@@ -81,8 +91,25 @@ export default {
         folderName: "",
         platform: "",
       },
+      tableHeader: [
+        {prop: 'platform', label: '平台', noScope: true, align: 'left',
+          formatData: (platform)=> {
+            let index = this.platforms.findIndex(item => item.value === platform)
+            if (index > -1) {
+              return this.platforms[index].label
+            }
+            return ""
+          }
+        },
+        {prop: 'bucket', label: 'bucket', noScope: true, align: 'left'},
+        {prop: 'folderName', label: '目录名', noScope: true, align: 'left'},
+        {label: '操作', minWidth: this.$pc ? 0 : 130, active: [
+            {name: '修改', icon: 'el-icon-edit', handle: (row) => this.updateOssConfig(row)},
+            {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.deleteOssConfig([row.id])},
+          ],
+        },
+      ],
       platforms: [],
-      existFolder: false,
       rules: {
         platform: [
           {required: true, message: '请选择平台', trigger: 'change'}
@@ -109,14 +136,14 @@ export default {
     }
   },
   mounted() {
+    this.getPlatformList()
   },
   destroyed() {
   },
   methods: {
-    async existFolderName(folderName) {
-      this.existFolder = false
-      await ossApi.existFolderName({username: this.$store.getters.name, folderName: folderName}).then((res) => {
-        this.existFolder = res.data
+    getOssConfigList() {
+      ossApi.ossConfigList().then((res) => {
+        this.ossConfigList = res.data;
       })
     },
     submitForm() {
@@ -128,18 +155,35 @@ export default {
         }
       });
     },
+    deleteOssConfig(id) {
+      ossApi.deleteOssConfig({id: id}).then(() => {
+        this.getOssConfigList()
+        this.$message.success("删除成功！")
+      })
+    },
+    updateOssConfig(row) {
+      this.formData = row
+      this.showDialog = true
+      this.putOssTitle = '修改OSS'
+    },
     putOssConfig() {
       this.formData.userId = this.$store.getters.userId
       ossApi.putOssConfig(this.formData).then(() => {
-        this.$message.success("添加成功！")
+        this.getOssConfigList()
+        this.$message.success(this.putOssTitle + "成功！")
         this.showDialog = false;
       })
     },
     addOSS() {
+      this.formData = {}
+      this.showDialog = true
+      this.putOssTitle = '添加OSS'
+    },
+    getPlatformList() {
       ossApi.getPlatformList().then((res) => {
         this.platforms = res.data
+        this.getOssConfigList()
       })
-      this.showDialog = true
     }
   }
 }
