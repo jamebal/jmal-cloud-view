@@ -112,22 +112,22 @@ export default {
       platforms: [],
       rules: {
         platform: [
-          {required: true, message: '请选择平台', trigger: 'change'}
+          {required: true, message: '请选择平台', trigger: 'submit'}
         ],
         endpoint: [
-          {required: true, message: '请填写Endpoint', trigger: 'blur'}
+          {required: true, message: '请填写Endpoint', trigger: 'submit'}
         ],
         accessKey: [
-          {required: true, message: '请填写accessKey', trigger: 'blur'}
+          {required: true, message: '请填写accessKey', trigger: 'submit'}
         ],
         secretKey: [
-          {required: true, message: '请填写secretKey', trigger: 'blur'}
+          {required: true, message: '请填写secretKey', trigger: 'submit'}
         ],
         region: [
-          {required: true, message: '请填写region', trigger: 'blur'}
+          {required: true, message: '请填写region', trigger: 'submit'}
         ],
         bucket: [
-          {required: true, message: '请填写bucket', trigger: 'blur'}
+          {required: true, message: '请填写bucket', trigger: 'submit'}
         ],
         folderName: [
           {required: true, validator: validateFolderName, trigger: 'submit'}
