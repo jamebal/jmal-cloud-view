@@ -53,7 +53,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="showDialog = false">取消</el-button>
-        <el-button size="small" type="primary" @click="submitForm">确定</el-button>
+        <el-button size="small" type="primary" @click="submitForm" v-loading="submitLoading">确定</el-button>
       </span>
       </el-dialog>
     </div>
@@ -91,6 +91,7 @@ export default {
         folderName: "",
         platform: "",
       },
+      submitLoading: false,
       tableHeader: [
         {prop: 'platform', label: '平台', noScope: true, align: 'left',
           formatData: (platform)=> {
@@ -167,11 +168,15 @@ export default {
       this.putOssTitle = '修改OSS'
     },
     putOssConfig() {
+      this.submitLoading = true
       this.formData.userId = this.$store.getters.userId
       ossApi.putOssConfig(this.formData).then(() => {
         this.getOssConfigList()
         this.$message.success(this.putOssTitle + "成功！")
-        this.showDialog = false;
+        this.showDialog = false
+        this.submitLoading = false
+      }).catch(() => {
+        this.submitLoading = false
       })
     },
     addOSS() {
@@ -206,6 +211,12 @@ export default {
     font-size: 12px;
     line-height: 1;
     padding-top: 2px;
+  }
+}
+
+> > > .dialog-footer {
+  .el-loading-spinner .circular {
+    width: 25px !important;
   }
 }
 </style>
