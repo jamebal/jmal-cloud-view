@@ -2039,6 +2039,7 @@ export default {
       this.beforeLoadData(onLoad)
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
+        username: this.$store.getters.name,
         id: row.id,
         currentDirectory: encodeURI(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
@@ -2054,6 +2055,7 @@ export default {
       this.beforeLoadData(onLoad)
       api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
+        username: this.$store.getters.name,
         id: row.id,
         currentDirectory: encodeURI(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,

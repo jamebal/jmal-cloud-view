@@ -290,6 +290,7 @@
           shareId: this.shareId,
           fileId: file.id,
           id: file.id,
+          fileName: file.name,
           path: encodeURI(file.path),
           username: this.$store.state.user.name
         }).then((res)=>{
