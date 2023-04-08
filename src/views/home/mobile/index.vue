@@ -659,6 +659,7 @@ export default {
         message: '此操作将永久删除' + str + ', 是否继续?'
       }).then(() => {
         api.delete({
+          currentDirectory: this.rowContextData.path,
           username: this.$store.state.user.name,
           fileIds: fileIds
         }).then(() => {

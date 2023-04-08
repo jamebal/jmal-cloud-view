@@ -3005,6 +3005,7 @@ export default {
         type: 'warning'
       }).then(() => {
         api.delete({
+          currentDirectory: this.rowContextData.path,
           username: this.$store.state.user.name,
           fileIds: fileIds
         }).then(() => {
