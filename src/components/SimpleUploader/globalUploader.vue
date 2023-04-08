@@ -99,7 +99,7 @@ export default {
       username: this.$store.state.user.name,
       options: {
         target: api.simpleUploadURL,
-        chunkSize: 2 * 1024 * 1024,
+        chunkSize: 3 * 1024 * 1024,
         // speedSmoothingFactor: 0.1,
         // progressCallbacksInterval: 500,
         maxChunkRetries: 3, // 最大重试次数

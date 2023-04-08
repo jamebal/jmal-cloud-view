@@ -1011,8 +1011,16 @@ export default {
         if (!this.path) {
           this.path = ''
         }
-        if (this.path + '/' === fileDoc.$set.path) {
-          this.getFileList()
+        if (fileDoc) {
+          if (fileDoc.$set) {
+            if (this.path + '/' === fileDoc.$set.path) {
+              this.getFileList()
+            }
+          } else {
+            if (this.path + '/' === fileDoc.path) {
+              this.getFileList()
+            }
+          }
         }
       }
     },
