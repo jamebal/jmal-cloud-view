@@ -275,7 +275,7 @@ export default {
           }
       }
       api.generate({
-        userId: this.file.userId,
+        userId: this.$store.state.user.userId,
         fileId: this.file.fileId,
         isFolder: this.file.isFolder,
         expireDate: expireDate,
