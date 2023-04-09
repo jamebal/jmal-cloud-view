@@ -520,6 +520,7 @@
           })
           api.previewTextByPath({
             path: encodeURI(row.path),
+            fileName: row.name,
             username: this.$store.state.user.name
           }).then((res)=>{
             this.loading.close()
