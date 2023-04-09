@@ -2095,6 +2095,7 @@ export default {
       this.beforeLoadData(onLoad)
       api.fileList({
         userId: this.$store.state.user.userId,
+        username: this.$store.state.user.name,
         currentDirectory: encodeURI(this.$route.query.path),
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize

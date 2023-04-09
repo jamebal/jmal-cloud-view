@@ -883,8 +883,10 @@ export default {
       this.getFileList();
     },
     getFileList(onLoad) {
+      console.log("getFileList", onLoad)
       this.beforeLoadData(onLoad)
       api.fileList({
+        username: this.$store.state.user.name,
         userId: this.$store.state.user.userId,
         currentDirectory: encodeURI(this.$route.query.path),
         queryFileType: this.queryFileType,

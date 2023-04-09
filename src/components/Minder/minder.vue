@@ -146,6 +146,7 @@ export default {
           shareId: this.shareId,
           fileId: this.file.id,
           id: this.file.id,
+          fileName: this.file.name,
           path: encodeURI(this.file.path),
           username: this.$store.state.user.name
         }).then((res) => {

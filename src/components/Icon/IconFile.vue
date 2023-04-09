@@ -20,6 +20,16 @@
           <svg-icon v-if="grid" class="mobile grid icon-share" icon-class="share"/>
         </div>
     </div>
+    <div v-if="item.ossFolder && !public">
+        <div v-if="pc">
+          <el-tag v-if="!grid" size="small" class="pc list oss-folder">{{ item.ossPlatform }}</el-tag>
+          <el-tag v-if="grid" size="small" class="pc grid oss-folder">{{ item.ossPlatform }}</el-tag>
+        </div>
+        <div v-else>
+          <el-tag v-if="!grid" size="small" class="mobile list oss-folder">{{ item.ossPlatform }}</el-tag>
+          <el-tag v-if="grid" size="small" class="mobile grid oss-folder">{{ item.ossPlatform }}</el-tag>
+        </div>
+    </div>
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
     <div v-else-if="item.contentType.indexOf('audio') > -1" v-on:mousedown="noDrag($event)">
@@ -185,4 +195,34 @@ export default {
   font-size: 0.5rem;
   margin-left: 0.5rem;
 }
+
+.oss-folder {
+  position: absolute;
+}
+
+.oss-folder {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pc.grid.oss-folder {
+  height: 12px;
+  padding: 0 2px;
+  line-height: 12px;
+}
+
+.mobile.list.oss-folder {
+  left: 85%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mobile.grid.oss-folder {
+  top: 40%;
+  height: 12px;
+  padding: 0 2px;
+  line-height: 12px;
+}
+
 </style>
