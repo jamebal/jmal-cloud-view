@@ -65,7 +65,7 @@ export default {
     if (!shareToken) {
       shareToken = "none"
     }
-    return `${this.baseUrl}/public/s/preview/${fileId}/${shareId}/${shareToken}`
+    return `${this.baseUrl}/public/s/preview?fileId=${fileId}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载
   publicPackageDownload: function(shareId, fileIds, shareToken) {
@@ -76,10 +76,10 @@ export default {
     if (!shareToken) {
       shareToken = "none"
     }
-    return window.location.origin + `${this.baseUrl}/public/s/download/${file.id}/${shareId}/${shareToken}`
+    return window.location.origin + `${this.baseUrl}/public/s/downloadfileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}$share-token=${shareToken}`
+    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}&share-token=${shareToken}`
   },
 }
