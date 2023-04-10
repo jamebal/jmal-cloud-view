@@ -2782,6 +2782,7 @@ export default {
     moveOrCopy() {
       this.dialogMoveOrCopyVisible = true
       this.titlePrefix = '移动或复制到: '
+      this.unzipOperating = false
       const that = this
       setTimeout(function () {
         that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
