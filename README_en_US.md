@@ -35,6 +35,23 @@ cd jmal-cloud-server
 ```
 [Other ways deployment](https://jmal.cc/b75gm)
 
+### Dev
+#### Environment Requirements:
+- jdk17+
+- mongodb4.4+
+- node v16.x.x
+##### 1. Clone the server-side project
+`git clone https://github.com/jamebal/jmal-cloud-server.git`
+
+##### 2. Modify the configuration file `src/main/resources/file.yml`
+   Change the parameters `rootDir` and `ip2region-db-path` to your own directory and start the service
+
+##### 3. Clone the web-side project
+`git clone https://github.com/jamebal/jmal-cloud-view.git`
+
+##### 4. Run `npm install` in the project directory
+##### 5. Start the web-side with `npm run dev`
+
 ### Some screenshots:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
 ![image1](./doc/%E6%88%AA%E5%B1%8F%2028.png)

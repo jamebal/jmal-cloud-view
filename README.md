@@ -34,6 +34,22 @@ cd jmal-cloud-server
 ```
 [其它方式部署](https://jmal.cc/b75gm)
 
+### dev
+#### 环境准备:
+- jdk17+
+- mongodb4.4+
+- node v16.x.x
+
+##### 1、克隆服务端项目
+`git clone  https://github.com/jamebal/jmal-cloud-server.git`
+##### 2、修改配置文件 `src/main/resources/file.yml`
+修改参数`rootDir` 和 `ip2region-db-path` 改为自己的目录, 即可启动服务
+##### 3、克隆web端项目
+`git clone https://github.com/jamebal/jmal-cloud-view.git`
+##### 4、项目目录下执行`npm install`
+##### 5、启动web端`npm run dev`
+
+
 ### 部分截图:
 ![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
 ![image1](./doc/%E6%88%AA%E5%B1%8F%2028.png)
