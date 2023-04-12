@@ -881,9 +881,9 @@ export default {
       this.vmode = this.$route.query.vmode
     } else {
       if (this.defaultGrid) {
-        this.vmode === 'grid'
+        this.vmode = 'grid'
       } else {
-        this.vmode === 'list'
+        this.vmode = 'list'
       }
     }
     if (this.vmode === 'list') {
