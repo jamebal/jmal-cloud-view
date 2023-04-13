@@ -1159,7 +1159,7 @@ export default {
   }
 
   .share-icon-font > > > .svg-icon {
-    font-size: 8rem;
+    font-size: 7.6rem;
   }
 }
 

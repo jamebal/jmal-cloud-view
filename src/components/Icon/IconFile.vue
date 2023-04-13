@@ -56,7 +56,7 @@
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
-          <svg-icon icon-class="loading-image-error"/>
+          <svg-icon icon-class="image"/>
         </div>
       </el-image>
 

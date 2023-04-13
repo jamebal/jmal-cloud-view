@@ -76,7 +76,7 @@ export default {
     if (!shareToken) {
       shareToken = "none"
     }
-    return window.location.origin + `${this.baseUrl}/public/s/downloadfileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
+    return window.location.origin + `${this.baseUrl}/public/s/download?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
