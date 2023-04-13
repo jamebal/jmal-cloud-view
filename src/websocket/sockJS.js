@@ -38,18 +38,26 @@ function connect(username,token){
         Bus.$emit('msg/synced', msg)
       } else {
         Bus.$emit('msg/file/change', msg)
-        if ('copyFile' === url) {
+        if ('operationFile' === url) {
           let doc = JSON.parse(msg.body)
           if (doc.code === 0) {
             Bus.$notify({
-              title: '操作成功',
+              title: `${doc.operation}成功`,
               dangerouslyUseHTMLString: true,
-              message: `<div><p>form:</p><span>${doc.from}</span></div><div><p>to:</p><span>${doc.to}</span></div>`,
-              type: 'success'
+              message: `
+<div>
+  <p>form:</p>
+  <pre style="word-break: break-all;white-space: pre-wrap;">${doc.from}</pre>
+</div>
+<div>
+  <p>to:</p>
+  <pre style="word-break: break-all;white-space: pre-wrap;">${doc.to}</pre>
+</div>`,
+              type: 'success',
             });
           } else {
             Bus.$notify({
-              title: '操作失败',
+              title: `${doc.operation}失败`,
               dangerouslyUseHTMLString: true,
               message: `<span>${doc.msg}</span>`,
               type: 'error'

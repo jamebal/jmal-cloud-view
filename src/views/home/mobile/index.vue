@@ -587,13 +587,11 @@ export default {
           newFileName: encodeURI(newFileName),
           username: this.$store.state.user.name,
           id: row.id
-        }).then(res => {
-          if (res.data) {
-            this.renameLoading = false
-            row.name = newFileName
-            this.fileList[row.index] = row
-            this.editingIndex = -1
-          }
+        }).then(() => {
+          this.renameLoading = false
+          row.name = newFileName
+          this.fileList[row.index] = row
+          this.editingIndex = -1
         })
       } else {
         this.editingIndex = -1

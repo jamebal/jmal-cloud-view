@@ -346,7 +346,7 @@
                             size="small"
                             @focus="renameInputFocus($event.currentTarget, item.suffix)"
                             @blur="setInputBlur()"
-                            @keyup.enter.native="rowRename(renameFileName, item)">
+                            @keyup.enter.prevent.native="rowRename(renameFileName, item)">
                   </el-input>
                   <div v-else>
                     <div class="grid-item-text"><span>{{ gridFilename(item) }}</span></div>
@@ -2464,16 +2464,14 @@ export default {
         username: this.$store.state.user.name,
         id: row.id
       }).then(res => {
-        if (res.data) {
-          this.renameLoading = false
-          row.name = newFileName
-          row.suffix = newFileName.replace(/.+\./, "")
-          this.fileList[row.index] = row
-          this.editingIndex = -1
-        }
+        this.renameLoading = false
+        row.name = newFileName
+        row.suffix = newFileName.replace(/.+\./, "")
+        this.fileList[row.index] = row
+        this.editingIndex = -1
+        this.$message.success("重命名中...")
       }).then(() => {
         this.$refs.fileListTable.clearSelection()
-        this.$message.success("重命名成功")
       }).catch(() => {
         this.renameLoading = false
         this.editingIndex = -1
