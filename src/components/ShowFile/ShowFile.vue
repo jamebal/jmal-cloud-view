@@ -465,6 +465,7 @@
       @close="clearTreeNode"
     >
       <el-tree
+        v-if="dialogMoveOrCopyVisible"
         ref="directoryTree"
         :data="directoryTreeData"
         node-key="id"
@@ -523,7 +524,6 @@ import api from '@/api/file-api'
 import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "@/components/Icon/IconFile";
 import EmptyFile from "@/components/EmptyFile";
-import Clipboard from 'clipboard';
 import SimTextPreview from "@/components/preview/SimTextPreview";
 import ImageViewer from "@/components/preview/ImageViewer";
 import VideoPreview from "@/components/preview/VideoPreview";
@@ -2704,9 +2704,7 @@ export default {
       this.$refs.contextShow.hideMenu()
     },
     clearTreeNode() {
-      let rootNode = this.$refs.directoryTree.getNode('0')
-      rootNode.loaded = false
-      rootNode.expanded = false
+      // 清空文件树
     },
     // 加载下一级文件树
     directoryTreeLoadNode(node, resolve) {
@@ -2779,8 +2777,12 @@ export default {
     confirmUnzip() {
       this.unzip(this.openingFile, this.selectTreeNode.id, false)
     },
-    moveOrCopy() {
+    showDialogMoveOrCopyVisible() {
       this.dialogMoveOrCopyVisible = true
+    },
+    moveOrCopy() {
+      this.showDialogMoveOrCopyVisible()
+
       this.titlePrefix = '移动或复制到: '
       this.unzipOperating = false
       const that = this
@@ -2834,7 +2836,7 @@ export default {
         type: 'info',
         duration: 0,
         dangerouslyUseHTMLString: true,
-        message: '<span>&nbsp;&nbsp;正在' + operation + '</span>'
+        message: operation + '中...'
       });
       this.dialogMoveOrCopyVisible = false
       api[operating]({
@@ -2845,7 +2847,7 @@ export default {
       }).then(() => {
         copying.iconClass = null
         copying.type = 'success'
-        copying.message = operation + '成功'
+        copying.message = operation + '中...'
         if (this.rowContextData.isFolder) {
           this.$refs.directoryTree.append(this.rowContextData, to)
         }
@@ -2875,15 +2877,17 @@ export default {
               if (parentData.path) {
                 path = parentData.path + parentData.name + path
               }
+              let newFolderName = document.getElementById("treeInput").value
               api.newFolder({
                 isFolder: true,
-                filename: encodeURI(data.name),
-                currentDirectory: encodeURI(this.$route.query.path),
+                filename: encodeURI(newFolderName),
+                currentDirectory: encodeURI(path),
                 username: this.$store.state.user.name,
                 userId: this.$store.state.user.userId
               }).then((res) => {
                 data.newFolder = false
-                data.id = res.data.id
+                data.name = newFolderName
+                data.id = res.data
               }).catch(() => {
                 window.event.preventDefault()
                 window.event.stopPropagation()
@@ -3070,7 +3074,7 @@ export default {
       this.unzip(file, undefined, true)
     },
     unzipTo(file) {
-      this.dialogMoveOrCopyVisible = true
+      this.showDialogMoveOrCopyVisible()
       this.titlePrefix = '解压到: '
       this.unzipOperating = true
       const that = this

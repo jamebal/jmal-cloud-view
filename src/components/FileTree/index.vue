@@ -141,7 +141,7 @@
                 userId: this.$store.state.user.userId
               }).then((res) => {
                 data.newFolder = false
-                data.id = res.data.id
+                data.id = res.data
               }).catch(() => {
                 window.event.preventDefault()
                 window.event.stopPropagation()
