@@ -9,7 +9,7 @@
           <Logo v-model="netdiskLogo" width="35"></Logo>
           <span>{{ netdiskName }}</span>
         </div>
-        <div class="share-header-content sharer">
+        <div class="share-header-content sharer" v-if="sharer">
           <span><span class="user">{{ sharer.showName }}</span>的分享</span>
           <el-avatar :src="sharerAvatarUrl"></el-avatar>
         </div>
@@ -670,14 +670,16 @@ export default {
     getSharer() {
       api.getSharer({shareId: this.shareId}).then(res => {
         this.sharer = res.data
-        this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
-        if (this.sharer.netdiskName) {
-          this.netdiskName = this.sharer.netdiskName
+        if (res.data) {
+          this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
+          if (this.sharer.netdiskName) {
+            this.netdiskName = this.sharer.netdiskName
+          }
+          if (this.sharer.netdiskLogo) {
+            this.netdiskLogo = this.sharer.netdiskLogo
+          }
+          this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.netdiskLogo})
         }
-        if (this.sharer.netdiskLogo) {
-          this.netdiskLogo = this.sharer.netdiskLogo
-        }
-        this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.netdiskLogo})
       })
     },
     currentChange(pageIndex) {
