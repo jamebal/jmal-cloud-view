@@ -1004,7 +1004,7 @@ export default {
       }
       if ('deleteFile' === url) {
         if (index > -1) {
-          this.fileList.splice(index, 1)
+          this.getFileList()
         }
       }
       if ('createFile' === url) {

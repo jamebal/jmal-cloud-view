@@ -47,11 +47,11 @@ function connect(username,token){
               message: `
 <div>
   <p>form:</p>
-  <pre style="word-break: break-all;white-space: pre-wrap;">${doc.from}</pre>
+  <pre style="word-break: break-all;white-space: pre-wrap;font-size: 12px;">${doc.from}</pre>
 </div>
 <div>
   <p>to:</p>
-  <pre style="word-break: break-all;white-space: pre-wrap;">${doc.to}</pre>
+  <pre style="word-break: break-all;white-space: pre-wrap;font-size: 12px;">${doc.to}</pre>
 </div>`,
               type: 'success',
             });
@@ -59,7 +59,7 @@ function connect(username,token){
             Bus.$notify({
               title: `${doc.operation}失败`,
               dangerouslyUseHTMLString: true,
-              message: `<span>${doc.msg}</span>`,
+              message: `<span style="font-size: 12px;">${doc.msg}</span>`,
               type: 'error'
             });
           }
