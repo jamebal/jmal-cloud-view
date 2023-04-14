@@ -69,9 +69,9 @@ export default {
       let musicOperation = {
         id: newFile.id,
         url: url,
-        name: music.songName ? music.songName : fileName,
-        artist: music.songName ? music.singer : fileName,
-        cover: music.songName ? audioCoverUrl + newFile.id : '',
+        name: music ? music.songName || fileName : fileName,
+        artist: music ? music.singer || fileName : fileName,
+        cover: music ? audioCoverUrl + newFile.id : '',
         type: newFile.contentType
       }
       let musicIndex = this.audios.findIndex(item => item.id === newFile.id)
