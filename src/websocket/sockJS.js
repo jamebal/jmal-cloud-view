@@ -56,6 +56,7 @@ function connect(username,token){
               type: 'success',
             });
           } else {
+            Bus.$emit('msg/file/operation/fault', 'fault')
             Bus.$notify({
               title: `${doc.operation}失败`,
               dangerouslyUseHTMLString: true,

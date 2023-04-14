@@ -916,6 +916,8 @@ export default {
     }
 
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
+
+    Bus.$on('msg/file/operation/fault', (msg) => this.onmessageFault(msg))
   },
   beforeDestroy() {
     window.removeEventListener('keydown', this.keydown, false)
@@ -989,6 +991,12 @@ export default {
       // 松开shift建
       if (event.keyCode === 16) {
         this.selectPin = false
+      }
+    },
+    onmessageFault(msg) {
+      if ('fault' === msg) {
+        this.getFileList()
+        return
       }
     },
     onmessage(msg) {
