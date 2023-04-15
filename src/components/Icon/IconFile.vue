@@ -207,9 +207,9 @@ export default {
 }
 
 .pc.grid.oss-folder {
-  height: 12px;
-  padding: 0 2px;
-  line-height: 12px;
+  height: 14px;
+  padding: 0 3px;
+  line-height: 14px;
 }
 
 .pc.list.oss-folder {
