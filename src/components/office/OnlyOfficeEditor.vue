@@ -76,12 +76,12 @@ export default {
             return
           }
           if(this.$store.state.user.token && this.$store.state.user.userId === this.file.userId){
-            api.getFileInfoById(this.file.id).then(res => {
+            api.getFileInfoById({id: this.file.id}).then(res => {
               this.file = res.data
               this.loadFile()
             })
           } else {
-            api.getPublicFileInfoById(this.file.id, this.shareId).then(res => {
+            api.getPublicFileInfoById({fileId: this.file.id, shareId: this.shareId}).then(res => {
               this.file = res.data
               this.loadFile()
             })

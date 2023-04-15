@@ -288,17 +288,19 @@ export default {
     })
   },
   // 根据id获取文件信息
-  getFileInfoById: function(id) {
+  getFileInfoById: function(params) {
     return request({
-      url: `/file_info/${id}`,
-      method: 'get'
+      url: '/file_info',
+      method: 'get',
+      params
     })
   },
   // 根据id获取文件信息
-  getPublicFileInfoById: function(fileId, shareId) {
+  getPublicFileInfoById: function(params) {
     return request({
-      url: `/public/file_info/${fileId}/${shareId}`,
-      method: 'get'
+      url: '/public/file_info',
+      method: 'get',
+      params
     })
   },
 }
