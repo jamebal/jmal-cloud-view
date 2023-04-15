@@ -237,7 +237,10 @@
                           @blur="setInputBlur()"
                           @keyup.enter.native="rowRename(renameFileName, scope.row)">
                 </el-input>
-                <div v-else class="table-file-name">{{ scope.row.name }}</div>
+                <div v-else class="table-file-name">
+                  {{ scope.row.name }}
+                  <el-tag v-if="scope.row.ossPlatform" size="small" class="pc list oss-folder">{{ scope.row.ossPlatform }}</el-tag>
+                </div>
               </template>
             </pl-table-column>
             <!--分享-->

@@ -212,6 +212,10 @@ export default {
   line-height: 12px;
 }
 
+.pc.list.oss-folder {
+  display: none;
+}
+
 .mobile.list.oss-folder {
   left: 85%;
   top: 50%;
