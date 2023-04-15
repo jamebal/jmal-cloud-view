@@ -11,6 +11,7 @@
 import api from "@/api/file-api"
 import fileConfig from "@/utils/file-config";
 import Bus from "@/assets/js/bus";
+import SparkMD5 from 'spark-md5'
 
 export default {
   name: "OnlyOfficeEditor",
@@ -124,7 +125,7 @@ export default {
       if(this.readOnly && window.shareId){
         this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file.id, window.shareId, this.$store.getters.shareToken)
       }
-      let fileKey = `${new Date(this.file.updateDate).getTime()}-${this.file.id}`
+      let fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id)}`
 
       let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.$store.getters.name, this.file.id)
 
