@@ -3297,6 +3297,7 @@ export default {
 
 .drawer-icon {
   text-align: center;
+  position: relative;
   >>> .icon-favorite {
     display: none;
   }

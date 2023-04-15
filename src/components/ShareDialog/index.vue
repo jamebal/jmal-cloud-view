@@ -347,6 +347,7 @@ export default {
 .share-icon {
   margin: 20px 0 20px 0;
   text-align: center;
+  position: relative;
 
   > > > .icon-favorite {
     display: none;
