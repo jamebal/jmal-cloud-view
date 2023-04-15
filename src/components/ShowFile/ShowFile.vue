@@ -3025,7 +3025,7 @@ export default {
           fileIds: fileIds
         }).then(() => {
           // 移除列表
-          this.removeSelectItme()
+          // this.removeSelectItme()
         }).then(() => {
           this.$notify({
             title: '删除成功',
