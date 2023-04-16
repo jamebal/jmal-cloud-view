@@ -1,6 +1,8 @@
 # JmalCloud Personal Netdisk ｜ [中文](https://github.com/jamebal/jmal-cloud-view/blob/master/README.md)
 JmalCloud It's a private cloud storage project that makes it simple and secure to manage your files in the cloud
 
+✅ Support OSS, Alibaba Cloud OSS and Tencent Cloud OSS
+
 ✅ Supports online preview of images, audio, video and other files
 
 ✅ Supports editing and previewing of Word, Excel, PPT, process and mind map
