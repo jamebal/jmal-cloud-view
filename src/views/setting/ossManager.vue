@@ -35,7 +35,7 @@
             <el-input v-model="formData.endpoint"></el-input>
           </el-form-item>
           <el-form-item label="Access Key" prop="accessKey">
-            <el-input type="password" v-model="formData.accessKey"></el-input>
+            <el-input v-model="formData.accessKey"></el-input>
           </el-form-item>
           <el-form-item label="Secret Key" prop="secretKey">
             <el-input type="password" v-model="formData.secretKey"></el-input>
