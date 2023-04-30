@@ -16,7 +16,6 @@
 <script>
 import fileConfig from '@/utils/file-config'
 import Artplayer from "@/components/preview/Artplayer.vue";
-
 export default {
   name: 'VideoPreview',
   components: {
@@ -72,6 +71,7 @@ export default {
           {
             name: 'nplayer',
             position: 'right',
+            tooltip: 'nPlayer',
             style: {
               marginRight: '20px',
             },
@@ -81,6 +81,7 @@ export default {
           {
             name: 'infuse',
             position: 'right',
+            tooltip: 'Infuse',
             style: {
               marginRight: '20px',
             },

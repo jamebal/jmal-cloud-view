@@ -1,22 +1,25 @@
 <template>
-  <div ref="audioPreview" v-if="show">
-    <div class="audio-player"
-         v-aplayerDrag="{ x: transformX, y: transformY }"
-         @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false" @touchmove="closeBarShow = true"
-         @touchend="touchend">
-      <a-player
-        ref="audioPlayer"
-        autoplay
-        listFolded
-        loop.sync="all"
-        order.sync="list"
-        :mini.sync="mini"
-        :audio="list"
-        :lrc-type="0"
-      >
-      </a-player>
-      <div v-show="closeBarShow" class="close-bar" @click="close">
-        <svg-icon class="audio-player-close" icon-class="close"/>
+  <div ref="asdfasdf">
+    <div ref="audioPreview" v-if="show">
+      <div class="audio-player"
+           v-aplayerDrag="{ x: transformX, y: transformY }"
+           @mouseenter="closeBarShow = true" @mouseleave="closeBarShow = false" @touchmove="closeBarShow = true"
+           @touchend="touchend">
+        <vue-a-player
+          ref="audioPlayer"
+          listFolded
+          controls
+          preload="auto"
+          :repeat="repeat"
+          :shuffle="shuffle"
+          :music="currentMusic"
+          :mini.sync="mini"
+          :list="list"
+        >
+        </vue-a-player>
+        <div v-show="closeBarShow" class="close-bar" @click="close">
+          <svg-icon class="audio-player-close" icon-class="close"/>
+        </div>
       </div>
     </div>
   </div>
@@ -25,11 +28,13 @@
 <script>
 import '@/utils/directives.js'
 import Bus from '@/assets/js/bus'
+import VueAPlayer from 'vue-aplayer'
+VueAPlayer.disableVersionBadge = true
 import fileConfig from '@/utils/file-config'
 
 export default {
   name: 'AudioPreview',
-  components: {},
+  components: {VueAPlayer},
   props: {},
   computed: {},
   data() {
@@ -39,20 +44,11 @@ export default {
       transformY: !this.$pc ? document.body.clientHeight / 2 - 100 : 0,
       show: false,
       closeBarShow: false,
-      // api ==>  https://aplayer.netlify.app/docs/guide/options.html#volume
-      audios: [],
+      currentMusic: {},
       list: [],
       mini: !this.$pc,
-      audioPlayerDoc: undefined
-    }
-  },
-  watch: {
-    show(val) {
-      if (val && !this.audioPlayerDoc) {
-        this.$nextTick(() => {
-          this.audioPlayerDoc = document.querySelector('.audio-player')
-        })
-      }
+      repeat: 'no-repeat',
+      shuffle: false
     }
   },
   mounted() {
@@ -60,46 +56,35 @@ export default {
       if (!this.show) {
         this.show = true
       }
-      let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
-      if (this.$store.getters.token === undefined) {
-        url = fileConfig.publicPreviewUrl(newFile.id, window.shareId, this.$store.getters.shareToken);
-      }
-      let music = newFile.music
-      let fileName = newFile.name.substring(0, newFile.name.length - newFile.suffix.length - 1)
-      let musicOperation = {
-        id: newFile.id,
-        url: url,
-        name: music ? music.songName || fileName : fileName,
-        artist: music ? music.singer || fileName : fileName,
-        cover: music ? audioCoverUrl + newFile.id : '',
-        type: newFile.contentType
-      }
-      let musicIndex = this.audios.findIndex(item => item.id === newFile.id)
-      if (musicIndex < 0) {
-        if (this.audios.length === 1) {
-          let loop = document.querySelector('.aplayer-icon.aplayer-icon-loop');
-          loop.style.display = 'inline'
-          let order = document.querySelector('.aplayer-icon.aplayer-icon-order');
-          order.style.display = 'inline'
+      this.$nextTick(() => {
+        console.log('this.$refs', this.$refs)
+        let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
+        if (this.$store.getters.token === undefined) {
+          url = fileConfig.publicPreviewUrl(newFile.id, window.shareId, this.$store.getters.shareToken);
         }
-        this.audios.push(musicOperation)
-        setTimeout(() => {
-          this.list = this.audios
-          setTimeout(() => {
-            this.$refs.audioPlayer.switch(this.audios.length - 1)
-          }, 0)
-        }, 0)
-      } else {
-        this.$refs.audioPlayer.switch(musicIndex)
-      }
+        let music = newFile.music
+        let fileName = newFile.name.substring(0, newFile.name.length - newFile.suffix.length - 1)
+        this.currentMusic = {
+          id: newFile.id,
+          src: url,
+          title: music ? music.songName || fileName : fileName,
+          artist: music ? music.singer || fileName : fileName,
+          pic: music ? audioCoverUrl + newFile.id : '',
+          theme: 'pic'
+        }
+        let musicIndex = this.list.findIndex(item => item.id === newFile.id)
+        if (musicIndex < 0) {
+          this.list.push(this.currentMusic)
+        }
+        this.$refs.audioPlayer.thenPlay()
+        console.log(this.$refs.audioPlayer.repeat, this.$refs.audioPlayer.shuffle);
+      })
     })
   },
   methods: {
     close() {
       this.show = false
-      this.audioPlayerDoc = undefined
       this.$refs.audioPlayer.pause()
-      this.audios.splice(0, this.audios.length)
     },
     touchend() {
       const that = this

@@ -41,12 +41,6 @@ Vue.use(vant.ImagePreview)
 import Minder from '@/components/Minder'
 Vue.use(Minder)
 
-import APlayer from '@moefe/vue-aplayer';
-Vue.use(APlayer, {
-  defaultCover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=60',
-  productionTip: false, // 是否在控制台输出版本信息
-});
-
 new Vue({
   el: '#app',
   router,

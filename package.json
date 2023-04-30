@@ -15,7 +15,6 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
-    "@moefe/vue-aplayer": "^2.0.0-beta.5",
     "ant-design-vue": "^1.6.5",
     "artplayer": "^4.5.4",
     "clipboard": "^2.0.6",
@@ -23,6 +22,7 @@
     "e-vue-contextmenu": "^0.1.3",
     "gsap": "^3.2.6",
     "highlightjs-line-numbers.js": "^2.7.0",
+    "hls.js": "^1.4.0",
     "htmlhint": "^0.13.0",
     "jquery": "^3.5.0",
     "jquery-contextmenu": "^2.9.1",

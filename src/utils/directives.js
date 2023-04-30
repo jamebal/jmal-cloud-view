@@ -1,10 +1,9 @@
-
 // import Vue from 'vue'
 
 // v-draw-rectangle 画矩形选区
-Vue.directive('drawRectangle',{
-  bind(el,binding,vnode,oldVnode){
-    let $$ = function(id){
+Vue.directive('drawRectangle', {
+  bind(el, binding, vnode, oldVnode) {
+    let $$ = function (id) {
       return document.getElementById(id)
     }
     let draw = el
@@ -12,7 +11,7 @@ Vue.directive('drawRectangle',{
     let startX = 0, startY = 0
     let flag = false
     let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
-    draw.onmousedown = function(e){
+    draw.onmousedown = function (e) {
       flag = true
       let evt = window.event || e
       let scrollTop = draw.scrollTop || draw.scrollTop
@@ -33,8 +32,8 @@ Vue.directive('drawRectangle',{
       div.style.overflow = 'hidden'
       draw.appendChild(div)
 
-      document.onmousemove = function(e){
-        if(flag){
+      document.onmousemove = function (e) {
+        if (flag) {
           let evt = window.event || e
           let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
           let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
@@ -52,11 +51,11 @@ Vue.directive('drawRectangle',{
 
     }
 
-    document.onmouseup = function(e){
+    document.onmouseup = function (e) {
       flag = false
-      if($$(wId)){
+      if ($$(wId)) {
         draw.removeChild($$(wId))
-        if(retcWidth > 1 && retcHeight > 1){
+        if (retcWidth > 1 && retcHeight > 1) {
         }
       }
       return false
@@ -70,28 +69,25 @@ Vue.directive('aplayerDrag', {
     // 获取拖拽内容头部
     const dialogHeaderEl = el.querySelector('.aplayer-music');
     const dragDom = el;
-    dragDom.style.transform="translate("+binding.value.x+"px,"+binding.value.y+"px)";
+    // dragDom.style.transform = "translate(" + binding.value.x + "px," + binding.value.y + "px)";
+    dragDom.style.left = binding.value.x + "px"
+    dragDom.style.top = binding.value.y + "px"
     dialogHeaderEl.style.cursor = 'move';
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null);
     const sty = dragDom.currentStyle || window.getComputedStyle(dragDom, null);
     // 鼠标按下事件
     dragDom.addEventListener('touchstart', touchstart, false);
     dragDom.addEventListener('touchmove', touchmove, false);
-    let disX,disY,styL,styT;
+    let disX, disY, styL, styT;
+
     function touchstart(e) {
       // 鼠标按下，计算当前元素距离可视区的距离 (鼠标点击位置距离可视窗口的距离)
       disX = e.touches[0].clientX - dialogHeaderEl.offsetLeft;
       disY = e.touches[0].clientY - dialogHeaderEl.offsetTop;
-      // 获取到的值带px 正则匹配替换
-      // 注意在ie中 第一次获取到的值为组件自带50% 移动之后赋值为px
-      if (sty.left.includes('%')) {
-        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100) + binding.value.x;
-        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100) + binding.value.y;
-      } else {
-        styL = +sty.left.replace(/\px/g, '') + binding.value.x;
-        styT = +sty.top.replace(/\px/g, '') + binding.value.y;
-      }
+      styL = binding.value.x
+      styT =  binding.value.y
     }
+
     // 鼠标拖拽事件
     function touchmove(e) {
       e.preventDefault()
@@ -106,32 +102,25 @@ Vue.directive('aplayerDrag', {
       } else if (finallyL > document.body.clientWidth - dragDom.clientWidth) {///右边
         finallyL = document.body.clientWidth - dragDom.clientWidth
       }
-
       if (finallyT < 0) {////顶部
         finallyT = 0
       } else if (finallyT > document.body.clientHeight - dragDom.clientHeight) (///底部
         finallyT = document.body.clientHeight - dragDom.clientHeight
       )
-      dragDom.style.transform = "translate(" + finallyL + "px," + finallyT + "px)";
+      dragDom.style.left = finallyL + "px"
+      dragDom.style.top = finallyT + "px"
       //将此时的位置传出去
       binding.value.x = finallyL;
       binding.value.y = finallyT;
     }
+
     // 鼠标按下事件
     dialogHeaderEl.onmousedown = (e) => {
       // 鼠标按下，计算当前元素距离可视区的距离 (鼠标点击位置距离可视窗口的距离)
       const disX = e.clientX - dialogHeaderEl.offsetLeft + 81;
       const disY = e.clientY - dialogHeaderEl.offsetTop + 14;
-      // 获取到的值带px 正则匹配替换
-      let styL, styT;
-      // 注意在ie中 第一次获取到的值为组件自带50% 移动之后赋值为px
-      if (sty.left.includes('%')) {
-        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100)+binding.value.x;
-        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100)+binding.value.y;
-      } else {
-        styL = +sty.left.replace(/\px/g, '')+binding.value.x;
-        styT = +sty.top.replace(/\px/g, '')+binding.value.y;
-      };
+      styL = binding.value.x
+      styT =  binding.value.y
       // 鼠标拖拽事件
       document.onmousemove = function (e) {
         // 通过事件委托，计算移动的距离 （开始拖拽至结束拖拽的距离）
@@ -151,10 +140,11 @@ Vue.directive('aplayerDrag', {
         } else if (finallyT > document.body.clientHeight - dragDom.clientHeight) (///底部
           finallyT = document.body.clientHeight - dragDom.clientHeight
         )
-        dragDom.style.transform="translate("+finallyL+"px,"+finallyT+"px)";
+        dragDom.style.left = finallyL + "px"
+        dragDom.style.top = finallyT + "px"
         //将此时的位置传出去
-        binding.value.x=finallyL;
-        binding.value.y=finallyT;
+        binding.value.x = finallyL;
+        binding.value.y = finallyT;
       };
       document.onmouseup = function (e) {
         document.onmousemove = null;
@@ -175,9 +165,9 @@ Vue.directive('dialogDrag', {
     const dialogHeaderEl = el.querySelector('.el-dialog__header');
     const dragDom = el.querySelector('.el-dialog');
     let dialogWidth = document.body.clientWidth * binding.value.dialogWidthPercent
-    let x = (document.body.clientWidth - dialogWidth)/2
-    let y = (document.body.clientHeight - document.body.clientHeight * binding.value.dialogWidthPercent)/2
-    dragDom.style.transform="translate("+x+"px,"+y+"px)";
+    let x = (document.body.clientWidth - dialogWidth) / 2
+    let y = (document.body.clientHeight - document.body.clientHeight * binding.value.dialogWidthPercent) / 2
+    dragDom.style.transform = "translate(" + x + "px," + y + "px)";
     //dialogHeaderEl.style.cursor = 'move';
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null);
     const sty = dragDom.currentStyle || window.getComputedStyle(dragDom, null);
@@ -190,16 +180,17 @@ Vue.directive('dialogDrag', {
       let styL, styT;
       // 注意在ie中 第一次获取到的值为组件自带50% 移动之后赋值为px
       if (sty.left.includes('%')) {
-        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100)+x;
-        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100)+y;
+        styL = +document.body.clientWidth * (+sty.left.replace(/\%/g, '') / 100) + x;
+        styT = +document.body.clientHeight * (+sty.top.replace(/\%/g, '') / 100) + y;
       } else {
-        styL = +sty.left.replace(/\px/g, '')+x;
-        styT = +sty.top.replace(/\px/g, '')+y;
-      };
+        styL = +sty.left.replace(/\px/g, '') + x;
+        styT = +sty.top.replace(/\px/g, '') + y;
+      }
+      ;
       // 鼠标拖拽事件
       document.onmousemove = function (e) {
         // 全屏禁止拖动
-        if((dragDom.offsetParent.clientWidth - dragDom.clientWidth) === 0){
+        if ((dragDom.offsetParent.clientWidth - dragDom.clientWidth) === 0) {
           return
         }
         // 通过事件委托，计算移动的距离 （开始拖拽至结束拖拽的距离）
@@ -219,9 +210,9 @@ Vue.directive('dialogDrag', {
         } else if (finallyT > dragDom.offsetParent.clientHeight - dragDom.clientHeight) (///底部
           finallyT = dragDom.offsetParent.clientHeight - dragDom.clientHeight
         )
-        x=finallyL;
-        y=finallyT;
-        dragDom.style.transform="translate("+finallyL+"px,"+finallyT+"px)";
+        x = finallyL;
+        y = finallyT;
+        dragDom.style.transform = "translate(" + finallyL + "px," + finallyT + "px)";
         //将此时的位置传出去
         // binding.value({x:e.pageX,y:e.pageY})
       };
@@ -242,7 +233,7 @@ Vue.directive('dialogDragWidth', {
       // 鼠标按下，计算当前元素距离可视区的距离
       const disX = e.clientX - el.offsetLeft
 
-      document.onmousemove = function(e) {
+      document.onmousemove = function (e) {
         e.preventDefault() // 移动时禁用默认事件
 
         // 通过事件委托，计算移动的距离
@@ -250,7 +241,7 @@ Vue.directive('dialogDragWidth', {
         dragDom.style.width = `${l}px`
       }
 
-      document.onmouseup = function(e) {
+      document.onmouseup = function (e) {
         document.onmousemove = null
         document.onmouseup = null
       }
@@ -272,11 +263,13 @@ Vue.directive('clickoutside', { // 初始化指令
         binding.value(e);
       }
     }
+
     // 给当前元素绑定个私有变量，方便在unbind中可以解除事件监听
     el.__vueClickOutside__ = documentHandler;
     document.addEventListener('click', documentHandler);
   },
-  update() {},
+  update() {
+  },
   unbind(el, binding) { // 解除事件监听
     document.removeEventListener('click', el.__vueClickOutside__);
     delete el.__vueClickOutside__;
