@@ -1,16 +1,16 @@
 <template>
-<div class="preview" v-if="show">
-<van-overlay :show="show">
-  <div class="wrapper">
-    <div class="block">
-      <div class="close-bar" @click="close">
-        <svg-icon class="audio-player-close" icon-class="close"/>
+  <div class="preview" v-if="show">
+    <van-overlay :show="show">
+      <div class="wrapper">
+        <div class="block">
+          <div class="close-bar" @click="close">
+            <svg-icon class="audio-player-close" icon-class="close"/>
+          </div>
+          <Artplayer @get-instance="getInstance" :option="option" :style="style"/>
+        </div>
       </div>
-      <Artplayer @get-instance="getInstance" :option="option" :style="style"/>
-    </div>
+    </van-overlay>
   </div>
-</van-overlay>
-</div>
 </template>
 
 <script>
@@ -18,99 +18,191 @@ import fileConfig from '@/utils/file-config'
 import Artplayer from "@/components/preview/Artplayer.vue";
 
 export default {
-    name: 'VideoPreview',
-    components: {
-      Artplayer
-    },
-    props: {
-      file: {
-        type: Object,
-        default: function () {
-          return {}
-        }
-      },
-      shareId: {
-        type: String,
-        default: undefined
-      },
-      status: {
-        type: Boolean,
-        default: false
+  name: 'VideoPreview',
+  components: {
+    Artplayer
+  },
+  props: {
+    file: {
+      type: Object,
+      default: function () {
+        return {}
       }
     },
-    computed: {
+    shareId: {
+      type: String,
+      default: undefined
     },
-    data() {
-      return {
-        pc: this.$pc,
-        option: {
-          url: '',
-          fullscreen: true,
-          fullscreenWeb: true,
-          //pip: true, // 是否在底部控制栏里显示 画中画 的开关按钮
-          flip: true, // 是否显示视频翻转功能，目前只出现在 设置面板 和 右键菜单 里
-          playbackRate: true, // 是否显示视频播放速度功能，会出现在 设置面板 和 右键菜单 里
-          aspectRatio: true, // 是否显示视频长宽比功能，会出现在 设置面板 和 右键菜单 里
-          screenshot: true, // 是否在底部控制栏里显示 视频截图 功能
-          setting: true, // 是否在底部控制栏里显示 设置面板 的开关按钮
-        },
-        style: {
-          width: '100vw',
-          height: '60vh',
-          maxWidth: '900px',
-          maxHeight: '600px',
-        },
-        show: this.status,
-        timeout: null,
-        playing: false,
-      }
-    },
-    watch: {
-      status: function(visible){
-        if(visible){
-          this.option.url = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
-          if(this.shareId){
-            this.option.url = fileConfig.publicPreviewUrl(this.file.id, window.shareId, this.$store.getters.shareToken)
-          }
-          this.option.id = this.file.id
-          this.show = true
-        }
-      }
-    },
-    methods: {
-      close() {
-        this.show = false
-        this.$emit('update:status', false)
-      },
-      getInstance(art) {
-      },
+    status: {
+      type: Boolean,
+      default: false
     }
+  },
+  computed: {},
+  data() {
+    return {
+      pc: this.$pc,
+      art: null,
+      option: {
+        url: '',
+        title: '', // 视频标题，目前会出现在 视频截图 和 迷你模式 下
+        fullscreen: true,
+        fullscreenWeb: true,
+        //pip: true, // 是否在底部控制栏里显示 画中画 的开关按钮
+        flip: true, // 是否显示视频翻转功能，目前只出现在 设置面板 和 右键菜单 里
+        playbackRate: true, // 是否显示视频播放速度功能，会出现在 设置面板 和 右键菜单 里
+        aspectRatio: true, // 是否显示视频长宽比功能，会出现在 设置面板 和 右键菜单 里
+        screenshot: true, // 是否在底部控制栏里显示 视频截图 功能
+        setting: true, // 是否在底部控制栏里显示 设置面板 的开关按钮
+        autoplay: false, // 是否自动播放
+        autoPlayback: true, // 是否使用自动 回放功能
+        theme: '#23ade5',
+        hotkey: true, // 是否使用快捷键
+        controls: [
+          {
+            name: 'iina',
+            position: 'right',
+            tooltip: 'IINA',
+            style: {
+              marginRight: '20px',
+            },
+            html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/iina.webp")}"></a>`,
+            index: 1,
+          },
+          {
+            name: 'nplayer',
+            position: 'right',
+            style: {
+              marginRight: '20px',
+            },
+            html: `<a href="nplayer-videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/nplayer.webp")}"></a>`,
+            index: 2,
+          },
+          {
+            name: 'infuse',
+            position: 'right',
+            style: {
+              marginRight: '20px',
+            },
+            html: `<a href="infuse://x-callback-url/play?url=videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/infuse.webp")}"></a>`,
+            index: 3,
+          },
+          {
+            name: 'copyLink',
+            position: 'right',
+            html: '复制链接',
+            index: 5,
+            style: {
+              marginRight: '20px',
+            },
+            click: () => this.copyToClipboard(this.videoLink),
+          }
+        ],
+      },
+      videoLink: '',
+      style: {
+        width: '100vw',
+        height: '60vh',
+        maxWidth: '900px',
+        maxHeight: '600px',
+      },
+      show: this.status,
+      timeout: null,
+      playing: false,
+    }
+  },
+  mounted() {
+    document.addEventListener('keyup', this.escape)
+  },
+  destroyed() {
+    document.removeEventListener('keyup', this.escape)
+  },
+  watch: {
+    status: function (visible) {
+      if (visible) {
+        this.option.url = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
+        if (this.shareId) {
+          this.option.url = fileConfig.publicPreviewUrl(this.file.id, window.shareId, this.$store.getters.shareToken)
+        }
+        this.videoLink = window.location.origin + this.option.url
+        this.title = this.file.name
+        this.option.id = this.file.id
+        this.show = true
+      }
+    }
+  },
+  methods: {
+    copyToClipboard(text) {
+      const type = "text/plain";
+      const blob = new Blob([text], { type });
+      const data = [new ClipboardItem({ [type]: blob })];
+      navigator.clipboard.write(data).then(
+        () => {
+          this.$message({
+            message: '复制成功',
+            type: 'success',
+            duration: 1000,
+          });
+        },
+        () => {
+          this.$message({
+            message: '复制失败',
+            type: 'error',
+            duration: 1000,
+          });
+        }
+      );
+    },
+    escape(event) {
+      // 监听ESC键
+      if (event.code === 'Escape') {
+        this.close()
+      }
+    },
+    close() {
+      this.show = false
+      this.$emit('update:status', false)
+    },
+    getInstance(art) {
+      this.art = art
+      art.on('ready', () => {
+        let doc = this.art.controls.$parent
+        // iina
+        const iina = doc.querySelector('[data-index="1"]').querySelector('a');
+        iina.href = `iina://weblink?url=${this.videoLink}`
+        // nplayer
+        const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
+        nplayer.href = `nplayer-${this.videoLink}`
+        // infuse
+        const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
+        infuse.href = `infuse://x-callback-url/play?url==${this.videoLink}`
+      });
+    },
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .preview {
   position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1002;
-    width: 100%;
-    height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1002;
+  width: 100%;
+  height: 100%;
 }
 
 .van-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1003;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,.7);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1003;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .7);
 }
 
 .block {
-
-
   .close-bar {
     z-index: 2006;
     position: absolute;
