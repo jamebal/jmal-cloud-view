@@ -31,8 +31,24 @@
         </div>
     </div>
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
-    <svg-icon v-else-if="item.contentType.indexOf('video') > -1" icon-class="video"/>
-    <div v-else-if="item.contentType.indexOf('audio') > -1" v-on:mousedown="noDrag($event)">
+    <div v-else-if="item.contentType.indexOf('video') > -1">
+      <div v-if="item.mediaCover !== undefined">
+        <div v-if="grid && pc" class="grid-play-icon">
+          <svg-icon icon-class="play1"/>
+        </div>
+        <el-image lazy v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
+                  :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
+        </el-image>
+        <el-avatar v-if="!grid" shape="square" fit="contain"
+                   :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
+          <div slot="default">
+            <svg-icon class="avatar-default-image" icon-class="video"/>
+          </div>
+        </el-avatar>
+      </div>
+      <svg-icon v-else icon-class="video"/>
+    </div>
+    <div v-else-if="item.contentType.indexOf('audio') > -1">
       <div v-if="item.music !== undefined">
         <div v-if="item.music.name !== null">
           <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
@@ -51,8 +67,7 @@
       </div>
       <svg-icon v-else icon-class="audio"/>
     </div>
-    <!--<svg-icon v-else-if="item.contentType.indexOf('text') > -1" icon-class="file-txt"/>-->
-    <div v-else-if="item.contentType.startsWith('image')" v-on:mousedown="noDrag($event)">
+    <div v-else-if="item.contentType.startsWith('image')">
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
@@ -126,15 +141,26 @@ export default {
       return 'file'
     },
   },
-  methods: {
-    noDrag(e) {
-      // console.log('noDrag',e)
-      // e.preventDefault()
-    }
-  }
+  methods: {}
 }
 </script>
 <style lang="scss" scoped>
+
+.grid-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  background: rgb(255 255 255 / 30%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  border-radius: 50%;
+  .svg-icon {
+    font-size: 2rem !important;
+  }
+}
+
 .avatar-default-image {
   height: 35px;
   width: 35px;
