@@ -16,6 +16,9 @@
 <script>
 import fileConfig from '@/utils/file-config'
 import Artplayer from "@/components/preview/Artplayer.vue";
+import Hls from "hls.js";
+import FlvJs from "flv.js";
+
 export default {
   name: 'VideoPreview',
   components: {
@@ -46,14 +49,14 @@ export default {
         url: '',
         title: '', // 视频标题，目前会出现在 视频截图 和 迷你模式 下
         fullscreen: true,
-        fullscreenWeb: true,
+        fullscreenWeb: this.$pc,
         //pip: true, // 是否在底部控制栏里显示 画中画 的开关按钮
         flip: true, // 是否显示视频翻转功能，目前只出现在 设置面板 和 右键菜单 里
         playbackRate: true, // 是否显示视频播放速度功能，会出现在 设置面板 和 右键菜单 里
         aspectRatio: true, // 是否显示视频长宽比功能，会出现在 设置面板 和 右键菜单 里
         screenshot: true, // 是否在底部控制栏里显示 视频截图 功能
         setting: true, // 是否在底部控制栏里显示 设置面板 的开关按钮
-        autoplay: false, // 是否自动播放
+        autoplay: true, // 是否自动播放
         autoPlayback: true, // 是否使用自动 回放功能
         theme: '#23ade5',
         hotkey: true, // 是否使用快捷键
@@ -63,7 +66,8 @@ export default {
             position: 'right',
             tooltip: 'IINA',
             style: {
-              marginRight: '20px',
+              marginRight: this.$pc ? '20px' : '0px',
+              display: this.$pc ? 'block' : 'none'
             },
             html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/iina.webp")}"></a>`,
             index: 1,
@@ -73,7 +77,7 @@ export default {
             position: 'right',
             tooltip: 'nPlayer',
             style: {
-              marginRight: '20px',
+              marginRight: this.$pc ? '20px' : '0px',
             },
             html: `<a href="nplayer-videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/nplayer.webp")}"></a>`,
             index: 2,
@@ -83,7 +87,7 @@ export default {
             position: 'right',
             tooltip: 'Infuse',
             style: {
-              marginRight: '20px',
+              marginRight: this.$pc ? '20px' : '0px',
             },
             html: `<a href="infuse://x-callback-url/play?url=videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/infuse.webp")}"></a>`,
             index: 3,
@@ -94,7 +98,7 @@ export default {
             html: '复制链接',
             index: 5,
             style: {
-              marginRight: '20px',
+              marginRight: this.$pc ? '20px' : '0px',
             },
             click: () => this.copyToClipboard(this.videoLink),
           }
@@ -121,11 +125,30 @@ export default {
   watch: {
     status: function (visible) {
       if (visible) {
-        this.option.url = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
+        let videoUrl = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
         if (this.shareId) {
-          this.option.url = fileConfig.publicPreviewUrl(this.file.id, window.shareId, this.$store.getters.shareToken)
+          videoUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
         }
-        this.videoLink = window.location.origin + this.option.url
+        if (this.file.m3u8) {
+          videoUrl = `${fileConfig.baseUrl}/video/hls/${this.file.m3u8}`
+          if (this.shareId) {
+            videoUrl = `${fileConfig.baseUrl}/public/video/hls/${this.file.m3u8}?share-token=${this.$store.getters.shareToken}`
+          }
+        }
+        this.option.url = videoUrl
+        console.log('this.option.url', this.option.url)
+        if (this.file.m3u8) {
+          this.option.customType = {
+            m3u8: this.playM3u8
+          }
+        }
+        if (this.file.contentType.indexOf('flv') > -1) {
+          this.option.customType = {
+            flv: this.playFlv
+          }
+        }
+
+        this.videoLink = window.location.origin + videoUrl
         this.title = this.file.name
         this.option.id = this.file.id
         this.show = true
@@ -134,25 +157,18 @@ export default {
   },
   methods: {
     copyToClipboard(text) {
-      const type = "text/plain";
-      const blob = new Blob([text], { type });
-      const data = [new ClipboardItem({ [type]: blob })];
-      navigator.clipboard.write(data).then(
-        () => {
-          this.$message({
-            message: '复制成功',
-            type: 'success',
-            duration: 1000,
-          });
-        },
-        () => {
-          this.$message({
-            message: '复制失败',
-            type: 'error',
-            duration: 1000,
-          });
-        }
-      );
+      // 复制文本
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      textArea.remove();
+      this.$message({
+        message: '复制成功',
+        type: 'success',
+        duration: 1000,
+      });
     },
     escape(event) {
       // 监听ESC键
@@ -166,19 +182,47 @@ export default {
     },
     getInstance(art) {
       this.art = art
-      art.on('ready', () => {
-        let doc = this.art.controls.$parent
-        // iina
-        const iina = doc.querySelector('[data-index="1"]').querySelector('a');
-        iina.href = `iina://weblink?url=${this.videoLink}`
-        // nplayer
-        const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
-        nplayer.href = `nplayer-${this.videoLink}`
-        // infuse
-        const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
-        infuse.href = `infuse://x-callback-url/play?url==${this.videoLink}`
-      });
+      let doc = this.art.controls.$parent
+      // iina
+      const iina = doc.querySelector('[data-index="1"]').querySelector('a');
+      iina.href = `iina://weblink?url=${this.videoLink}`
+      console.log('iina.href', iina.href)
+      // nplayer
+      const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
+      let link = `nplayer-${this.videoLink}`
+      nplayer.href = link
+      // infuse
+      const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
+      infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
     },
+    playM3u8(video, url, art) {
+      if (Hls.isSupported()) {
+        if (art.hls) art.hls.destroy();
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        art.hls = hls;
+        console.log('Hls')
+        art.on('destroy', () => hls.destroy());
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        console.log('Hls1')
+      } else {
+        art.notice.show = 'Unsupported playback format: m3u8';
+      }
+    },
+    playFlv(video, url, art) {
+      if (FlvJs.isSupported()) {
+        if (art.flv) art.flv.destroy();
+        const flv = FlvJs.createPlayer({ type: 'flv', url });
+        flv.attachMediaElement(video);
+        flv.load();
+        art.flv = flv;
+        art.on('destroy', () => flv.destroy());
+      } else {
+        art.notice.show = 'Unsupported playback format: flv';
+      }
+    }
   }
 }
 </script>

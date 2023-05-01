@@ -86,7 +86,7 @@
           width="50"
         >
           <template slot-scope="scope">
-            <icon-file :item="scope.row" :image-url="imageUrl" :public="true"></icon-file>
+            <icon-file v-if="sharer" :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioUrl" :public="true"></icon-file>
           </template>
         </el-table-column>
 
@@ -204,7 +204,7 @@
               <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)"
                             class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
               <div class="grid-item-icon">
-                <icon-file :item="item" :image-url="imageUrl" :grid="true" :grid-width="gridColumnWidth"
+                <icon-file v-if="sharer" :item="item" :image-url="imageUrl" :audio-cover-url="audioUrl" :grid="true" :grid-width="gridColumnWidth"
                            :public="true"></icon-file>
               </div>
               <span class="grid-item-text">{{ item.name }}</span>
@@ -220,8 +220,8 @@
 
     <div v-if="showShareCode" class="share-content">
       <div class="share-icon">
-        <icon-file class="share-icon-font" :item="shareData" :grid="true" :details="true"
-                   :image-url="imageUrl"></icon-file>
+        <icon-file v-if="sharer" class="share-icon-font" :item="shareData" :grid="true" :details="true"
+                   :image-url="imageUrl" :audio-cover-url="audioUrl"></icon-file>
       </div>
       <div class="share-filename">
         <span>{{ shareData.fileName }}</span>
@@ -405,7 +405,7 @@ export default {
       audioPreviewVisible: false,
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
       showSizeItem: this.$pc,// 列表模式下是否显示文件大小
-      sharer: {},//分享者信息
+      sharer: undefined,//分享者信息
       sharerAvatarUrl: '',
       netdiskName: 'JmalCloud',
       netdiskLogo: '',
@@ -428,6 +428,11 @@ export default {
       return this.$store.getters.shareToken === undefined ?
         `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?id=` :
         `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`
+    },
+    audioUrl() {
+      return this.$store.getters.shareToken === undefined ?
+        `${process.env.VUE_APP_BASE_API}/public/s/view/cover?name=${this.sharer.username}&id=` :
+        `${process.env.VUE_APP_BASE_API}/public/s/view/cover?name=${this.sharer.username}&share-token=${this.$store.getters.shareToken}&id=`
     }
   },
   created() {
@@ -678,6 +683,9 @@ export default {
           if (this.sharer.netdiskLogo) {
             this.netdiskLogo = this.sharer.netdiskLogo
           }
+
+          this.audioUrl = `${process.env.VUE_APP_BASE_API}/public/s/view/cover?name=${this.sharer.username}&id=`
+
           this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.netdiskLogo})
         }
       })
