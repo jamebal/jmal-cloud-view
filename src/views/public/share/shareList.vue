@@ -1032,7 +1032,7 @@ export default {
           return
         }
         // 打开文件
-        fileConfig.publicPreview(row.id, this.shareId, this.$store.getters.shareToken)
+        fileConfig.publicPreview(row, this.shareId, this.$store.getters.shareToken)
       }
     },
     /**

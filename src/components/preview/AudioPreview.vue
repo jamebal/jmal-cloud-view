@@ -60,7 +60,7 @@ export default {
         console.log('this.$refs', this.$refs)
         let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
         if (this.$store.getters.token === undefined) {
-          url = fileConfig.publicPreviewUrl(newFile.id, window.shareId, this.$store.getters.shareToken);
+          url = fileConfig.publicPreviewUrl(newFile, window.shareId, this.$store.getters.shareToken);
         }
         let music = newFile.music
         let fileName = newFile.name.substring(0, newFile.name.length - newFile.suffix.length - 1)

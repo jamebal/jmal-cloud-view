@@ -56,16 +56,16 @@ export default {
     window.open(this.publicDownloadUrl(shareId, file, shareToken), '_self')
   },
   // 共享文件预览
-  publicPreview: function(fileId, shareId, shareToken) {
-    const url = this.publicPreviewUrl(fileId, shareId, shareToken)
+  publicPreview: function(file, shareId, shareToken) {
+    const url = this.publicPreviewUrl(file, shareId, shareToken)
     window.open(url, '_blank')
   },
   // 共享文件预览Url
-  publicPreviewUrl: function(fileId, shareId, shareToken) {
+  publicPreviewUrl: function(file, shareId, shareToken) {
     if (!shareToken) {
       shareToken = "none"
     }
-    return `${this.baseUrl}/public/s/preview?fileId=${fileId}&shareId=${shareId}&shareToken=${shareToken}`
+    return `${this.baseUrl}/public/s/preview/${file.name}?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载
   publicPackageDownload: function(shareId, fileIds, shareToken) {
@@ -76,7 +76,7 @@ export default {
     if (!shareToken) {
       shareToken = "none"
     }
-    return window.location.origin + `${this.baseUrl}/public/s/download?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
+    return window.location.origin + `${this.baseUrl}/public/s/download/${file.name}?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
