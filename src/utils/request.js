@@ -1,6 +1,6 @@
 // import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import {getShareToken, getToken, getUsername} from '@/utils/auth'
+import {getShareId, getShareToken, getToken, getUsername} from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -21,6 +21,7 @@ service.interceptors.request.use(
     }
     if (store.getters.shareToken) {
       config.headers['share-token'] = getShareToken()
+      config.headers['shareId'] = getShareId()
     }
     return config
   },

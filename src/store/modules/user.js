@@ -121,7 +121,7 @@ const actions = {
       fileApi.validShareCode({ shareId: shareId, shareCode: shareCode }).then(response => {
         const { data } = response
         commit('SET_SHARE_TOKEN', data)
-        setShareToken(data)
+        setShareToken(data, shareId)
         resolve()
       }).catch(error => {
         reject(error)

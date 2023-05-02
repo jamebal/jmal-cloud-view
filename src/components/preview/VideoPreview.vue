@@ -132,7 +132,7 @@ export default {
         if (this.file.m3u8) {
           videoUrl = `${fileConfig.baseUrl}/video/hls/${this.file.m3u8}`
           if (this.shareId) {
-            videoUrl = `${fileConfig.baseUrl}/public/video/hls/${this.file.m3u8}?share-token=${this.$store.getters.shareToken}`
+            videoUrl = `${fileConfig.baseUrl}/public/video/hls/${this.file.m3u8}`
           }
         }
         this.option.url = videoUrl

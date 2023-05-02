@@ -295,7 +295,6 @@ export default {
     return {
       prompt: '文件分享已被撤销',// 文件分享已被撤销
       isLoading: true,
-      //imageUrl: this.$store.getters.shareToken ? `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?id=` : `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`,
       fileMenuActive: '',
       path: this.$route.query.path,
       showNewFolder: false,
