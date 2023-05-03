@@ -393,7 +393,7 @@ export default {
           let response = JSON.parse(responseText)
           let succMap = {}
           response.data.forEach(map => {
-            succMap[map.filename] = fileConfig.mardownPreviewUrl(map.filepath)
+            succMap[map.filename] = fileConfig.markdownPreviewUrl(map.filepath)
           })
           response.data = {}
           response.data['succMap'] = succMap
@@ -405,7 +405,7 @@ export default {
         linkToImgUrl: '/api/upload-markdown-link-image',
         linkToImgFormat(responseText) {
           let response = JSON.parse(responseText)
-          response.data['url'] = fileConfig.mardownPreviewUrl(response.data.url)
+          response.data['url'] = fileConfig.markdownPreviewUrl(response.data.url)
           return JSON.stringify(response)
         },
       }

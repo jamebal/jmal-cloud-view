@@ -21,6 +21,7 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
     let fileUrl = `${this.baseUrl}/file/${username}${encodeURI(file.path)}${encodeURI(file.name)}`
+    fileUrl = fileUrl.replace(/%5C/g, '/')
     if (token) {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
     }
@@ -29,13 +30,14 @@ export default {
     }
     return fileUrl
   },
-  // mardown里上传图片后的图片预览地址
-  mardownPreviewUrl: function (path){
+  // markdown里上传图片后的图片预览地址
+  markdownPreviewUrl: function (path){
     return window.location.origin + `${this.baseUrl}${path}`
   },
   // 预览文件
   preview: function(username, file, token) {
-    const url = this.previewUrl(username, file, token)
+    let url = this.previewUrl(username, file, token)
+    url = url.replace(/%5C/g, '/')
     window.open(url, '_blank')
   },
   // 下载文件

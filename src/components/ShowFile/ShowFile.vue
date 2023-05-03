@@ -973,7 +973,7 @@ export default {
         this.selectPin = true
       }
       // ctrl + A / cmd + A
-      if (this.isCmd && keyCode == 65) {
+      if (this.isCmd && keyCode === 65) {
         if (this.inputting || this.editingIndex !== -1) {
           event.target.select()
         } else {
@@ -999,7 +999,6 @@ export default {
     onmessageFault(msg) {
       if ('fault' === msg) {
         this.getFileList()
-        return
       }
     },
     onmessage(msg) {
@@ -1024,10 +1023,14 @@ export default {
         }
         if (fileDoc) {
           if (fileDoc.$set) {
-            if (this.path + '/' === fileDoc.$set.path) {
+            let path = fileDoc.$set.path
+            path = path.replace(/\\/g, '/')
+            if (this.path + '/' === path) {
               this.getFileList()
             }
           } else {
+            let path = fileDoc.path
+            path = path.replace(/\\/g, '/')
             if (this.path + '/' === fileDoc.path) {
               this.getFileList()
             }
@@ -1740,6 +1743,7 @@ export default {
           } else {
             this.path += '/' + this.pathList[number].folder
           }
+          this.path = this.path.replace(/\\/g, '/')
         })
         if (!unPushLink) {
           if (!this.$route.query.path) {
@@ -2069,6 +2073,7 @@ export default {
         this.listModeSearchOpenDir = row
       })
       this.path = row.path + row.name
+      this.path = this.path.replace(/\\/g, '/')
     },
     openDir(row, onLoad) {
       this.beforeLoadData(onLoad)
@@ -2083,6 +2088,7 @@ export default {
         this.loadData(res, onLoad)
       })
       this.path = row.path + row.name
+      this.path = this.path.replace(/\\/g, '/')
     },
     getFileList(onLoad) {
       this.beforeLoadData(onLoad)

@@ -175,7 +175,7 @@ export default {
       this.fileList = fileList
     },
     format(filepath){
-      this.currentValue = fileConfig.mardownPreviewUrl(filepath)
+      this.currentValue = fileConfig.markdownPreviewUrl(filepath)
       this.change(this.currentValue)
     },
     // url转blob
