@@ -148,7 +148,8 @@ export default {
           id: this.file.id,
           fileName: this.file.name,
           path: encodeURI(this.file.path),
-          username: this.$store.state.user.name
+          username: this.$store.state.user.name,
+          content: true,
         }).then((res) => {
           this.file.path = res.data.path
           if (res.data.contentText && res.data.contentText.length > 1) {

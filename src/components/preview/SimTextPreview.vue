@@ -126,6 +126,7 @@
 </template>
 <script>
 
+  import _ from "lodash"
   import '@/utils/directives.js'
   import api from '@/api/file-api'
   import markdownApi from '@/api/markdown-api'
@@ -221,6 +222,7 @@
         nextActiveName: '',
         editableTabs: [],
         editableValueMap: new Map(),
+        abortControllerMap: new Map(),
         filePathNav: '',
         toolbars: {
           readmodel: true, // 沉浸式阅读
@@ -286,21 +288,29 @@
         if(!file.id){
           request = 'previewTextByPath'
         }
-        api[request]({
+        const params = {
           shareId: this.shareId,
           fileId: file.id,
           id: file.id,
           fileName: file.name,
           path: encodeURI(file.path),
           username: this.$store.state.user.name
-        }).then((res)=>{
+        }
+        api[request](params).then((res) => {
           this.loading.close()
-          this.directoryTreeData = {name: res.data.name, isFolder: true, isLeaf: false, id: res.data.id, path: res.data.path}
+          this.directoryTreeData = {
+            name: res.data.name,
+            isFolder: true,
+            isLeaf: false,
+            id: res.data.id,
+            path: res.data.path
+          }
           this.textPreviewVisible = true
-          this.content = res.data.contentText
 
-          let pathname = res.data.path.substring(1,res.data.path.length)+res.data.name
-          if('previewTextByPath' === request){
+          this.requestStream(request, params, 0)
+
+          let pathname = res.data.path.substring(1, res.data.path.length) + res.data.name
+          if ('previewTextByPath' === request) {
             pathname = `/${res.data.path}/${res.data.name}`
           }
 
@@ -312,10 +322,9 @@
             status: undefined,//标签状态
             name: pathname
           })
-          this.setEditMap(0, res.data.contentText)
           this.editableTabsValue = pathname
           // 界面的渲染后的初始化工作
-          this.$nextTick(()=>{
+          this.$nextTick(() => {
             this.onDialogDblClick()
             this.dargDialogSize()
             this.dragControllerDiv()
@@ -337,6 +346,63 @@
       }
     },
     methods:{
+      abortControllerAbort(index) {
+        const map = this.abortControllerMap.get(index)
+        if (map !== undefined && map.abort !== undefined) {
+          map.abort.abort()
+          map.throttle.cancel()
+        }
+      },
+      async requestStream(request, params, index) {
+        try {
+          this.abortControllerAbort(index)
+          const queryString = this.buildQueryString(params);
+          let url = "/api/preview/text/stream"
+          if (request === 'previewTextByPath') {
+            url = "/api/preview/path/text/stream"
+          } else if (request === 'sharePreviewText') {
+            url = "/api/public/s/preview/text/stream"
+          }
+          const abortController = new AbortController();
+          const response = await fetch(`${url}?${queryString}`, { signal: abortController.signal })
+          let result = "";
+          // 创建一个节流函数，限制更新频率为每 1500 毫秒一次
+          const throttledUpdateContent = _.throttle(text => {
+            this.content = text;
+            this.setEditMap(index, this.content)
+          }, 1500);
+
+          this.abortControllerMap.set(index, {abort: abortController, throttle: throttledUpdateContent})
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          const processData = async () => {
+            const { done, value } = await reader.read();
+            if (done) {
+              // 确保在流结束时取消节流
+              throttledUpdateContent.cancel();
+              this.content = result;
+              return;
+            }
+            result += decoder.decode(value, { stream: true });
+            // 使用节流函数更新 content 属性
+            throttledUpdateContent(result);
+            await processData(); // 递归处理剩余数据
+          };
+
+          await processData();
+
+        } catch (error) {
+          console.error("Fetch error:", error);
+        }
+      },
+      buildQueryString(params) {
+        const queryParams = new URLSearchParams();
+        for (const key in params) {
+          queryParams.append(key, params[key]);
+        }
+      return queryParams.toString();
+      },
       getEditorLanguage(suffix) {
         let editorLanguage = this.defalutLanguage
         let languages = monaco.languages.getLanguages();
@@ -518,11 +584,12 @@
             offset: document.body.clientHeight/3,
             message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
           })
-          api.previewTextByPath({
+          const params = {
             path: encodeURI(row.path),
             fileName: row.name,
             username: this.$store.state.user.name
-          }).then((res)=>{
+          }
+          api.previewTextByPath(params).then((res)=>{
             this.loading.close()
             // 添加一个tab
             let tab = {
@@ -534,15 +601,15 @@
             }
             if(row.isAddTab){
               this.editableTabs.push(tab)
-              this.setEditMap(this.editableTabs.length -1, res.data.contentText)
+              this.requestStream('previewTextByPath', params, this.editableTabs.length -1)
             }else{
               let thisTabIndex = this.editableTabs.findIndex(tab=> tab.status===undefined)
               if(thisTabIndex > -1){
                 this.editableTabs[thisTabIndex] = tab
-                this.setEditMap(thisTabIndex, res.data.contentText)
+                this.requestStream('previewTextByPath', params, thisTabIndex)
               }else{
                 this.editableTabs.push(tab)
-                this.setEditMap(this.editableTabs.length - 1, res.data.contentText)
+                this.requestStream('previewTextByPath', params, this.editableTabs.length - 1)
               }
             }
             this.editableTabsValue = row.path
@@ -677,6 +744,10 @@
       closeAllTabs(){
         this.editableTabs.splice(0,this.editableTabs.length)
         this.$emit('update:file', {})
+        for (const [key, value] of this.abortControllerMap) {
+          console.log(`Key1: ${key}, Value: ${value}`);
+          this.abortControllerAbort(key)
+        }
       },
       save(value,index) {
         if(value !== this.editableTabs[index].content && this.isShowUpdateBtn){
@@ -811,21 +882,22 @@
           tabs.forEach((tab, index) => {
             if (tab.name === targetName) {
               removeIndex = index
-              let nextTab = tabs[index + 1] || tabs[index - 1];
+              let nextTab = tabs[index + 1] || tabs[index - 1]
               if (nextTab) {
-                activeName = nextTab.name;
+                activeName = nextTab.name
               }
             }
           });
         }
         this.nextActiveName = activeName
         if(this.editableTabs[removeIndex].status !== 'Modifying'){
-          this.editableTabsValue = activeName;
-          this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+          this.editableTabsValue = activeName
+          this.editableTabs = tabs.filter(tab => tab.name !== targetName)
         }else{
           this.removeIndex = removeIndex
           this.isTabSaveDialogVisible = true
         }
+        this.abortControllerAbort(removeIndex)
       },
     }
   }
