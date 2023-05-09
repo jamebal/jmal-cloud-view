@@ -9,6 +9,43 @@ export function login(data) {
   })
 }
 
+/**
+ * 加载ldap配置
+ * @returns {*}
+ */
+export function loadLdapConfig() {
+  return request({
+    url: 'ldap/config',
+    method: 'get'
+  })
+}
+
+/**
+ * 更新ldap配置
+ * @param data
+ * @returns {*}
+ */
+export function updateLdapConfig(data) {
+  return request({
+    url: 'ldap/config',
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 测试ldap配置
+ * @param data
+ * @returns {*}
+ */
+export function testLdapConfig(data) {
+  return request({
+    url: 'ldap/test-config',
+    method: 'put',
+    data
+  })
+}
+
 export function getInfo(params) {
   return request({
     url: 'user/userInfo',
