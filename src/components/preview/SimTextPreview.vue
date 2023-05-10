@@ -382,6 +382,7 @@
               // 确保在流结束时取消节流
               throttledUpdateContent.cancel();
               this.content = result;
+              this.setEditMap(index, this.content)
               return;
             }
             result += decoder.decode(value, { stream: true });
