@@ -11,100 +11,104 @@
       <div>
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="基本设置" name="1">
-            <div class="config-itme-label">网盘名称：
-              <el-input placeholder="请输入网盘名称" v-model="netdiskName" minlength="1" maxlength="8" size="medium"
-                        :style="{width: inputNetdiskNameWidth+'px'}"
-                        @keyup.enter.native="updateNetdiskName" @input="inputNetdiskName">
-                <el-button v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>
-              </el-input>
-            </div>
-            <div class="config-itme-label logo">网盘Logo：
-              <el-upload
-                class="avatar-uploader"
-                :action="uploadUrl"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :before-upload="beforeAvatarUpload">
-                <Logo v-model="logoFileName" width="80" class="avatar"></Logo>
-              </el-upload>
-            </div>
-            <span class="instruction">点击更换Logo</span>
-            <div class="config-itme-label">启用webp：
-              <el-switch
-                v-model="webpEnabled"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-                @change="webpChange"
-              >
-              </el-switch>
-            </div>
-            <span class="instruction">
+            <div v-if="activeName === '1'">
+              <div class="config-itme-label">网盘名称：
+                <el-input placeholder="请输入网盘名称" v-model="netdiskName" minlength="1" maxlength="8" size="medium"
+                          :style="{width: inputNetdiskNameWidth+'px'}"
+                          @keyup.enter.native="updateNetdiskName" @input="inputNetdiskName">
+                  <el-button v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>
+                </el-input>
+              </div>
+              <div class="config-itme-label logo">网盘Logo：
+                <el-upload
+                  class="avatar-uploader"
+                  :action="uploadUrl"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess"
+                  :before-upload="beforeAvatarUpload">
+                  <Logo v-model="logoFileName" width="80" class="avatar"></Logo>
+                </el-upload>
+              </div>
+              <span class="instruction">点击更换Logo</span>
+              <div class="config-itme-label">启用webp：
+                <el-switch
+                  v-model="webpEnabled"
+                  active-color="#13ce66"
+                  inactive-color="#ff4949"
+                  @change="webpChange"
+                >
+                </el-switch>
+              </div>
+              <span class="instruction">
           将图片转换为webp格式存储，在不降低图片质量的情况下，极大降低图片文件的体积，建议开启.
           <a href="https://baike.baidu.com/item/webp%E6%A0%BC%E5%BC%8F" target="_blank">什么是webp?</a>
           </span>
-            <div class="config-itme-label">网盘同步：
-              <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
-                class="el-icon-refresh"></i>
-              </el-button>
-              <span v-show="syncPercent < 100">{{ syncPercent }}%</span>
+              <div class="config-itme-label">网盘同步：
+                <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
+                  class="el-icon-refresh"></i>
+                </el-button>
+                <span v-show="syncPercent < 100">{{ syncPercent }}%</span>
+              </div>
+              <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
+              <div class="config-itme-label">重置角色、菜单：
+                <el-button class="sync-button" size="mini" :loading="resetLoading" type="danger"
+                           @click="resetMenuAndRole()">
+                  <i class="el-icon-refresh-left"></i></el-button>
+              </div>
+              <span class="instruction">一般用于初始化角色、菜单数据</span>
             </div>
-            <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
-            <div class="config-itme-label">重置角色、菜单：
-              <el-button class="sync-button" size="mini" :loading="resetLoading" type="danger"
-                         @click="resetMenuAndRole()">
-                <i class="el-icon-refresh-left"></i></el-button>
-            </div>
-            <span class="instruction">一般用于初始化角色、菜单数据</span>
           </el-tab-pane>
           <el-tab-pane label="LDAP认证" name="2" class="setting-tab-panel">
-            <el-form :rules="rules" ref="form" :model="ldapFormData" label-width="120px" size="small"
-                     style="width: 450px">
-              <el-form-item label="功能状态" prop="enable">
-                <el-select v-model="ldapFormData.enable">
-                  <el-option
-                    v-for="item in ldapStatusOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="LDAP 服务器" prop="ldapServer">
-                <el-input placeholder="例如: ldap.test.com:389" v-model="ldapFormData.ldapServer"></el-input>
-              </el-form-item>
-              <el-form-item label="Base DN" prop="baseDN">
-                <el-input placeholder="例如: cn=admin,dc=test,dc=com" v-model="ldapFormData.baseDN"></el-input>
-              </el-form-item>
+            <div v-if="activeName === '2'">
+              <el-form :rules="rules" ref="form" :model="ldapFormData" label-width="120px" size="small"
+                       style="width: 450px" autocomplete="off">
+                <el-form-item label="功能状态" prop="enable">
+                  <el-select v-model="ldapFormData.enable">
+                    <el-option
+                      v-for="item in ldapStatusOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="LDAP 服务器" prop="ldapServer">
+                  <el-input placeholder="例如: ldap.test.com:389" v-model="ldapFormData.ldapServer"></el-input>
+                </el-form-item>
+                <el-form-item label="Base DN" prop="baseDN">
+                  <el-input placeholder="例如: cn=admin,dc=test,dc=com" v-model="ldapFormData.baseDN" autocomplete="off"></el-input>
+                </el-form-item>
 
-              <el-form-item label="密码" prop="password">
-                <el-input type="password" placeholder="管理员密码" v-model="ldapFormData.password"></el-input>
-              </el-form-item>
+                <el-form-item label="密码" prop="password">
+                  <el-input type="password" placeholder="管理员密码" v-model="ldapFormData.password" autocomplete="off"></el-input>
+                </el-form-item>
 
-              <el-form-item>
-                <el-button type="primary" :disabled="ldapTestBtn" v-loading="testLdapConfigLoading" @click="doTestLdapConfig">测试链接</el-button>
-                <span v-if="testLdapConfigResult === 0" class="el-icon-check" style="color: #67C23A"></span>
-                <span v-if="testLdapConfigResult > 0" class="el-icon-close" style="color: #F56C6C"></span>
-              </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" :disabled="ldapTestBtn" v-loading="testLdapConfigLoading" @click="doTestLdapConfig">测试链接</el-button>
+                  <span v-if="testLdapConfigResult === 0" class="el-icon-check" style="color: #67C23A"></span>
+                  <span v-if="testLdapConfigResult > 0" class="el-icon-close" style="color: #F56C6C"></span>
+                </el-form-item>
 
-              <el-form-item label="登录名" prop="loginName">
-                <el-input placeholder="LDAP服务器中对应个人用户名的字段, 例如: uid" v-model="ldapFormData.loginName"></el-input>
-              </el-form-item>
+                <el-form-item label="登录名" prop="loginName">
+                  <el-input placeholder="LDAP服务器中对应个人用户名的字段, 例如: uid" v-model="ldapFormData.loginName"></el-input>
+                </el-form-item>
 
-              <el-form-item label="默认角色" prop="defaultRoleList">
-                <el-select ref="selectRole" v-model="ldapFormData.defaultRoleList" multiple placeholder="请选择角色">
-                  <el-option
-                    v-for="item in roleList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
+                <el-form-item label="默认角色" prop="defaultRoleList">
+                  <el-select ref="selectRole" v-model="ldapFormData.defaultRoleList" multiple placeholder="请选择角色">
+                    <el-option
+                      v-for="item in roleList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
 
-              <el-form-item>
-                <el-button type="primary" :disabled="ldapSaveBtn" v-loading="saveLdapConfigLoading" @click="saveLdapConfig">保存配置</el-button>
-              </el-form-item>
-            </el-form>
+                <el-form-item>
+                  <el-button type="primary" :disabled="ldapSaveBtn" v-loading="saveLdapConfigLoading" @click="saveLdapConfig">保存配置</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -274,7 +278,9 @@ export default {
     },
     getLdapConfig() {
       loadLdapConfig().then(res => {
-        this.ldapFormData = res.data;
+        if (res.data) {
+          this.ldapFormData = res.data;
+        }
       })
     },
     inputNetdiskName(input) {
@@ -430,7 +436,6 @@ export default {
   >>> .el-loading-spinner .circular {
     width: 25px !important;
   }
-
 }
 
 </style>
