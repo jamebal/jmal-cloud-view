@@ -749,7 +749,6 @@
         this.editableTabs.splice(0,this.editableTabs.length)
         this.$emit('update:file', {})
         for (const [key, value] of this.abortControllerMap) {
-          console.log(`Key1: ${key}, Value: ${value}`);
           this.abortControllerAbort(key)
         }
       },
