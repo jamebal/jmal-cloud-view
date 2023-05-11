@@ -57,8 +57,11 @@
             :title="lightTheme?'暗色':'亮色'"
             @click="skinning"
           />
-          <button class="title-extension-button" @click="fullScreen" size="small">
+          <button class="title-extension-button" @click="fullScreen">
             <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
+          </button>
+          <button class="title-extension-button" @click="closeDialog">
+            <i class="el-dialog__close el-icon el-icon-close"></i>
           </button>
         </div>
       </div>
@@ -990,22 +993,18 @@
     }
 
     .el-dialog__header {
-      padding: 5px 20px 5px;
+      padding: 5px 10px 5px;
       overflow: hidden;
 
       .el-dialog__headerbtn {
-        top: 12px;
-        right: 16px;
-        .el-dialog__close {
-          font-size: 26px;
-        }
+        display: none;
       }
       .title-name {
         line-height: 34px;
       }
       .title-extension {
         float: right;
-        margin-right: 30px;
+        margin-right: 0;
         margin-top: 3px;
         display: -webkit-box;
         display: -ms-flexbox;
@@ -1015,7 +1014,7 @@
         justify-content: flex-end;
 
         .title-extension-button {
-          padding: 5px;
+          padding: 0;
           margin-left: 15px;
           background: 0 0;
           border: none;
@@ -1026,6 +1025,12 @@
             font-size: 18px;
           }
           .svg-icon:hover {
+            color: #409EFF;
+          }
+          .el-icon-close {
+            font-size: 28px;
+          }
+          .el-icon-close:hover {
             color: #409EFF;
           }
         }
