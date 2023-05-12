@@ -1007,6 +1007,9 @@ export default {
       let index = this.fileList.findIndex(file => file.id === fileDoc.id)
       if ('updateFile' === url) {
         if (index > -1) {
+          if (fileDoc.m3u8) {
+            this.fileList[index].m3u8 = fileDoc.m3u8
+          }
           this.fileList[index].size = fileDoc.size
           this.fileList[index].agoTime = 1
           this.fileList[index].updateDate = fileDoc.updateDate

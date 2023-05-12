@@ -136,7 +136,6 @@ export default {
           }
         }
         this.option.url = videoUrl
-        console.log('this.option.url', this.option.url)
         if (this.file.m3u8) {
           this.option.customType = {
             m3u8: this.playM3u8
@@ -186,10 +185,9 @@ export default {
       // iina
       const iina = doc.querySelector('[data-index="1"]').querySelector('a');
       iina.href = `iina://weblink?url=${this.videoLink}`
-      console.log('iina.href', iina.href)
       // nplayer
       const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
-      let link = `nplayer-${this.videoLink}`
+      const link = `nplayer-${this.videoLink}`
       nplayer.href = link
       // infuse
       const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
@@ -202,11 +200,9 @@ export default {
         hls.loadSource(url);
         hls.attachMedia(video);
         art.hls = hls;
-        console.log('Hls')
         art.on('destroy', () => hls.destroy());
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = url;
-        console.log('Hls1')
       } else {
         art.notice.show = 'Unsupported playback format: m3u8';
       }

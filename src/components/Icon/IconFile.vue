@@ -32,12 +32,15 @@
     </div>
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <div v-else-if="item.contentType.indexOf('video') > -1">
-      <div v-if="item.mediaCover !== undefined">
+      <div v-if="item.mediaCover === undefined || item.mediaCover === 'true'">
         <div v-if="grid && pc" class="grid-play-icon">
           <svg-icon icon-class="play1"/>
         </div>
         <el-image lazy v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
                   :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
+          <div slot="error" class="image-slot">
+            <svg-icon icon-class="video"/>
+          </div>
         </el-image>
         <el-avatar v-if="!grid" shape="square" fit="contain"
                    :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
