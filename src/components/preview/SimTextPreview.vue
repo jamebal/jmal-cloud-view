@@ -66,7 +66,7 @@
         </div>
       </div>
       <div class="content" :style="{height: editorHieght+26+'px'}">
-        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: options.readOnly || moblie ?`-${contentsWidth}px`:`0px`}">
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: panelReadOnly || moblie ?`-${contentsWidth}px`:`0px`}">
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
@@ -84,9 +84,9 @@
             </fancy-tree>
           </div>
         </div>
-        <div class="editor-resize" :style="{marginLeft: options.readOnly || moblie ?`0px`:`${contentsWidth}px`,transition: transition}">
+        <div class="editor-resize" :style="{marginLeft: panelReadOnly || moblie ?`0px`:`${contentsWidth}px`,transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i v-show="!options.readOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
+          <i v-show="!panelReadOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab">
@@ -181,6 +181,7 @@
         defalutLanguage: 'redis',
         lineWrapping: false,
         moblie: false,
+        panelReadOnly: true,
         options: {
           fontSize: 14,
           contextmenu: true,
@@ -358,6 +359,8 @@
       },
       async requestStream(request, params, index) {
         try {
+          const readOnly = this.panelReadOnly
+          this.options.readOnly = true
           this.abortControllerAbort(index)
           const queryString = this.buildQueryString(params);
           let url = "/api/preview/text/stream"
@@ -386,6 +389,7 @@
               throttledUpdateContent.cancel();
               this.content = result;
               this.setEditMap(index, this.content)
+              this.options.readOnly = readOnly
               return;
             }
             result += decoder.decode(value, { stream: true });
@@ -648,11 +652,13 @@
       checkReadOnly(fileUserId){
         if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
           this.options.readOnly = false
+          this.panelReadOnly = false
         }
         if (!this.$pc) {
           this.options.readOnly = true
+          this.panelReadOnly = false
         }
-        if(this.options.readOnly || this.moblie){
+        if(this.panelReadOnly || this.moblie){
           this.$nextTick(()=> {
             this.editorWidth += this.contentsWidth
             this.contentsHide = true
