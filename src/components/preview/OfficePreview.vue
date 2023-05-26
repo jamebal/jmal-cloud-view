@@ -94,13 +94,13 @@ export default {
           this.previewDocument = document.querySelector('.preview-block')
         })
         this.checkReadOnly(this.file.userId)
-        // 6秒后还没加载出来视为加载失败
+        // 12秒后还没加载出来视为加载失败
         let that = this
         this.delayClosing = setTimeout(function () {
           if (!that.readyShow) {
             that.loadFileFaild()
           }
-        },6000)
+        },12000)
       }
     }
   },

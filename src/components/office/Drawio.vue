@@ -2,7 +2,23 @@
   <div class="drawio-content" :style="{'top': readOnly ? '0': '2.5rem'}">
     <div class="drawio-title">
       <div class="drawio-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</div>
-      <div  class="drawio-save"><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
+      <div class="drawio-operation">
+        <div style="margin-right: 15px">
+          <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
+        </div>
+        <history-popover
+          ref="historyPopover"
+          :has-history-version.sync="hasHistoryVersion"
+          :history-list-popover-visible.sync="historyListPopoverVisible"
+          :history-operation-loading="!loading.closed"
+          :saved.sync="saved"
+          @viewHistoryFile="viewHistoryFile"
+          @recoverySuccess="recoverySuccess"
+        >
+        </history-popover>
+
+        <div><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
+      </div>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
   </div>
@@ -13,9 +29,12 @@
 import api from '@/api/file-api'
 import txtApi from "@/api/markdown-api"
 import Bus from "@/assets/js/bus";
+import HistoryPopover from "@/components/HistoryPopover/index.vue";
+import historyApi from "@/api/file-history";
 
 export default {
   name: "Drawio",
+  components: {HistoryPopover},
   props: {
     file: {
       type: Object,
@@ -40,7 +59,16 @@ export default {
       saveBtnUpdating: false,
       title: this.file.name,
       saved: true,
-      reday: false
+      ready: false,
+      currentContext: undefined,
+      currentTitle: undefined,
+      historyVersion: {metadata: {}},
+      hasHistoryVersion: false,
+      historyListPopoverVisible: false,
+      viewHistory: false,
+      loading: {
+        closed: true
+      },
     }
   },
   created() {
@@ -90,15 +118,67 @@ export default {
           this.bakData = res.data.contentText
           this.updateContent()
         })
+        this.$nextTick(()=> {
+          this.$refs.historyPopover.loadHistoryList(this.file.id)
+        })
       },
       immediate: true,
       deep: true,
     },
   },
   methods: {
-    /**
-     * 保存并关闭
-     */
+    viewHistoryFile({historyInfo, recovery}) {
+      if (!this.saved) {
+        this.$message({type: 'info', message: "请先保存当前修改的内容"})
+        return
+      }
+      let loadingInfo = recovery ? '恢复中...' : '加载中...'
+      this.loading = this.$message({
+        iconClass: 'el-icon-loading',
+        type: 'info',
+        duration: 0,
+        dangerouslyUseHTMLString: true,
+        message: `<span>&nbsp;&nbsp;${loadingInfo}</span>`
+      })
+      historyApi.previewHistoryText({id: historyInfo.id}).then((res) => {
+        this.loading.close()
+
+        if (this.historyListPopoverVisible) {
+          this.historyListPopoverVisible = false
+        }
+        if (recovery) {
+          this.cancelPreview(null, res.data.contentText)
+          this.$message({message: '恢复成功',type: 'success'})
+        } else {
+          this.currentContext = this.xml
+          this.currentTitle = this.title
+          this.bakData = res.data.contentText
+          this.xml = res.data.contentText
+          this.updateContent()
+          this.historyVersion = historyInfo
+          this.title = `历史版本：${historyInfo.metadata.time}`
+          this.viewHistory = true
+        }
+      }).catch(() => {
+        this.loading.close()
+      })
+    },
+    recoverySuccess({historyInfo}) {
+      this.viewHistoryFile({historyInfo: historyInfo, recovery: true})
+    },
+    cancelPreview(event, currentContext) {
+      if (!currentContext) {
+        currentContext = this.currentContext
+      }
+      this.historyVersion = {metadata: {}}
+      this.xml = currentContext
+      this.bakData = currentContext
+      this.updateContent()
+      if (this.currentTitle) {
+        this.title = this.currentTitle
+      }
+      this.viewHistory = false
+    },
     saveAndClose() {
       this.save()
       this.$emit('onClose')
@@ -127,6 +207,7 @@ export default {
         this.saved = true
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
+        this.$refs.historyPopover.loadHistoryList(this.file.id)
       }).catch(() => {
         this.saveBtnUpdating = false
       })
@@ -136,13 +217,13 @@ export default {
       if (event.source !== editWindow) {
         return
       }
+      let doc = this.$refs.myFlow.contentWindow.document
       const payload = $J.jsonParse(event.data)
       switch (payload.event) {
         case "init":
-          this.reday = true
+          this.ready = true
           this.$emit('onReady')
           this.updateContent()
-          let doc = this.$refs.myFlow.contentWindow.document
           let helpMenu = doc.querySelector('.geMenubarContainer .geMenubar').childNodes[5]
           helpMenu.style.display = 'none'
           break
@@ -155,15 +236,24 @@ export default {
           break
 
         case "autosave":
-          this.bakData = payload.xml
-          this.xml = payload.xml
-          this.saved = false
-          this.title = `*${this.file.name}`
-          this.$emit('onEdit', this.saved)
+          let undo = doc.querySelector('.geSprite.geSprite-undo')
+          if (undo && !this.viewHistory) {
+            let undoClass = undo.parentElement.getAttribute('class')
+            if (undoClass && undoClass.indexOf('mxDisabled') > -1) {
+              this.saved = true
+              if (this.title === `*${this.file.name}`) {
+                this.title = this.file.name
+              }
+            } else {
+              this.xml = payload.xml
+              this.saved = false
+              this.title = `*${this.file.name}`
+            }
+            this.$emit('onEdit', this.saved)
+          }
           break
 
         case "save":
-          // save
           this.save()
           break
       }
@@ -187,18 +277,19 @@ export default {
     z-index: 2001;
     position: absolute;
     top: 0;
-    width: 50%;
-    margin-left: 50%;
+    width: calc(50% + 121px);
+    margin-left: calc(50% - 121px);
     height: 0;
 
     .drawio-title-name {
       line-height: 32px;
     }
 
-    .drawio-save {
+    .drawio-operation {
+      display: flex;
       float: right;
       margin-top: -32px;
-      margin-right: 32px;
+      margin-right: 15px;
       line-height: 32px;
     }
   }

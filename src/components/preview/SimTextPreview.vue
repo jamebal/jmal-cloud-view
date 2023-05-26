@@ -38,17 +38,33 @@
       <div slot="title" class="simtext-header-title">
         <span v-show="!moblie"><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
-          <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
-          <el-button
-            v-if="editableTabsValue.endsWith('.md')"
-            :class="lightTheme?'':'dark-button'"
-            size="small"
-            circle
-            @click="changePreviewMode"
-            :title="previewMode?'编辑':'预览'"
+
+          <history-popover
+            ref="historyPopover"
+            :saved="!isShowUpdateBtn"
+            :has-history-version.sync="hasHistoryVersion"
+            :history-list-popover-visible.sync="historyListPopoverVisible"
+            :history-operation-loading="!loading.closed"
+            :light-theme.sync="lightTheme"
+            buttonSize="small"
+            @viewHistoryFile="viewHistoryFile"
+            @recoverySuccess="recoverySuccess"
+            @loadHistoryPathListSuccess="loadHistoryPathListSuccess"
           >
-            <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
-          </el-button>
+          </history-popover>
+
+          <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
+
+<!--          <el-button-->
+<!--            v-if="editableTabsValue.endsWith('.md')"-->
+<!--            :class="lightTheme?'':'dark-button'"-->
+<!--            size="small"-->
+<!--            circle-->
+<!--            @click="changePreviewMode"-->
+<!--            :title="previewMode?'编辑':'预览'"-->
+<!--          >-->
+<!--            <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>-->
+<!--          </el-button>-->
           <el-button
             :class="lightTheme?'':'dark-button'"
             size="small"
@@ -86,7 +102,7 @@
         </div>
         <div class="editor-resize" :style="{marginLeft: panelReadOnly || moblie ?`0px`:`${contentsWidth}px`,transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i v-show="!panelReadOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="影藏文件目录" @click="hideContents"/>
+          <i v-show="!panelReadOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="隐藏文件目录" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab">
@@ -111,7 +127,7 @@
                   :height="editorHieght"
                   :theme="lightTheme?'vs':'vs-dark'"
                   :language="item.language"
-                  :diffEditor="diffEditor"
+                  :diffEditor="item.hasHistoryVersion"
                   original="..."
                   :options="options"
                   @change="change($event,index)"
@@ -132,6 +148,7 @@
   import _ from "lodash"
   import '@/utils/directives.js'
   import api from '@/api/file-api'
+  import historyApi from '@/api/file-history'
   import markdownApi from '@/api/markdown-api'
 
   import { iconClass,lineWrapping,suffix } from '@/utils/file-type'
@@ -146,10 +163,12 @@
   import Icon from '@/components/Icon/Icon.vue'
 
   import VditorPreview from "@/components/preview/VditorPreview";
+  import HistoryPopover from "@/components/HistoryPopover/index.vue";
 
   export default {
     name: "SimTextPreview",
     components: {
+      HistoryPopover,
       Icon,MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav,VditorPreview
     },
     props: {
@@ -174,6 +193,8 @@
         }
       }
     },
+    computed: {
+    },
     data(){
       return{
         lightTheme: true,
@@ -194,19 +215,20 @@
           // 换行
           wordWrap: this.lineWrapping ? 'wordWrapColumn':'',
           wordWrapMinified: true,
-          wrappingIndent: "indent"
+          wrappingIndent: "indent",
+          preview: true,
+          previewMode: 'subwordSmart'
         },
-        diffEditor: false,
         textPreviewVisible: false,
         fullscreen: false,
-        dialogWidth: 0,
+        dialogWidth: 650,
+        minDialogWidth: 650,
         dialogWidthPercent: 0.7,
         lastTransform: undefined,
         contentsWidth: 273,
         editorWidth: 1035,
         editorHieght: 640,
         transition: 'all 500ms ease 0s',
-        content: '',
         newContent: '',
         previewMode: true,
         isShowUpdateBtn: false,
@@ -227,16 +249,20 @@
         editableTabs: [],
         editableValueMap: new Map(),
         abortControllerMap: new Map(),
+        editableVersionMap: new Map(),
+        hasHistoryVersion: false,
+        historyListPopoverVisible: false,
+        historyVersion: {metadata: {}},
         filePathNav: '',
         toolbars: {
           readmodel: true, // 沉浸式阅读
           navigation: true, // 导航目录
-        }
+        },
       }
     },
     mounted() {
       this.$nextTick(()=>{
-        this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+        this.setDialogWidth()
       })
     },
     directives: {
@@ -311,13 +337,10 @@
           }
           this.textPreviewVisible = true
 
-          this.requestStream(request, params, 0)
-
           let pathname = res.data.path.substring(1, res.data.path.length) + res.data.name
           if ('previewTextByPath' === request) {
             pathname = `/${res.data.path}/${res.data.name}`
           }
-
           // 加载tabs
           this.editableTabs.push({
             title: res.data.name,
@@ -326,11 +349,16 @@
             status: undefined,//标签状态
             name: pathname
           })
+
+          this.requestStream(request, params, 0)
+
           this.editableTabsValue = pathname
+          // 加载历史版本
+          this.$refs.historyPopover.loadHistoryPathList(pathname)
           // 界面的渲染后的初始化工作
           this.$nextTick(() => {
             this.onDialogDblClick()
-            this.dargDialogSize()
+            this.dragDialogSize()
             this.dragControllerDiv()
             this.setTheme()
           })
@@ -347,9 +375,90 @@
         if(value.endsWith('.md')){
           this.previewMode = false
         }
+        this.hasHistoryVersion = this.editableVersionMap.get(value)
+        if (this.hasHistoryVersion) {
+          let currentIndex = this.editableTabs.findIndex(editable => editable.name === value)
+          const tab = this.editableTabs[currentIndex]
+          this.historyVersion = tab.historyVersion || {metadata: {}}
+        } else {
+          this.historyVersion = {metadata: {}}
+        }
       }
     },
     methods:{
+      setDialogWidth() {
+        this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+      },
+      loadHistoryPathListSuccess({res, pathname}) {
+        if (res.count && res.count > 0) {
+          this.editableVersionMap.set(pathname, true)
+        } else {
+          this.editableVersionMap.set(pathname, false)
+        }
+        this.hasHistoryVersion = this.editableVersionMap.get(pathname)
+      },
+      // loading
+      viewHistoryFile({historyInfo, diff, recovery}) {
+        const pathname = this.editableTabsValue
+        let currentIndex = this.editableTabs.findIndex(editable => editable.name === pathname)
+        const tab = this.editableTabs[currentIndex]
+
+        if (this.isShowUpdateBtn) {
+          this.$message({type: 'info', message: "请先保存当前修改的内容"})
+          return
+        }
+
+        const currentContentText = this.getContentText(currentIndex)
+
+        let loadingInfo = recovery ? '恢复中...' : '加载中...'
+        this.loading = this.$message({
+          iconClass: 'el-icon-loading',
+          type: 'info',
+          duration: 0,
+          dangerouslyUseHTMLString: true,
+          message: `<span>&nbsp;&nbsp;${loadingInfo}</span>`
+        })
+        historyApi.previewHistoryText({id: historyInfo.id}).then((res) => {
+          // add new tab
+          let newTab = {
+            title: tab.title,
+            copyTitle: tab.copyTitle,
+            status: undefined,
+            language: tab.language,
+            name: pathname,
+            hasHistoryVersion: !recovery || diff,
+            historyVersion: historyInfo
+          }
+          // remove
+          this.removeTab(pathname)
+          this.$nextTick(() => {
+            this.loading.close()
+            this.editableTabs.splice(currentIndex, 0, newTab)
+            if (diff) {
+              this.setEditMap(currentIndex, currentContentText, res.data.contentText, historyInfo.metadata.time)
+            } else {
+              this.setEditMap(currentIndex, res.data.contentText)
+            }
+            this.editableTabsValue = pathname
+            if (this.historyListPopoverVisible) {
+              this.historyListPopoverVisible = false
+            }
+            if (recovery) {
+              this.historyVersion = {metadata: {}}
+            } else {
+              this.historyVersion = newTab.historyVersion
+            }
+            if (recovery) {
+              this.$message({message: '恢复成功',type: 'success'})
+            }
+          })
+        }).catch(() => {
+          this.loading.close()
+        })
+      },
+      recoverySuccess({historyInfo}) {
+        this.viewHistoryFile({historyInfo: historyInfo, diff: false, recovery: true})
+      },
       abortControllerAbort(index) {
         const map = this.abortControllerMap.get(index)
         if (map !== undefined && map.abort !== undefined) {
@@ -362,7 +471,7 @@
           const readOnly = this.panelReadOnly
           this.options.readOnly = true
           this.abortControllerAbort(index)
-          const queryString = this.buildQueryString(params);
+          const queryString = this.buildQueryString(params)
           let url = "/api/preview/text/stream"
           if (request === 'previewTextByPath') {
             url = "/api/preview/path/text/stream"
@@ -374,8 +483,7 @@
           let result = "";
           // 创建一个节流函数，限制更新频率为每 1500 毫秒一次
           const throttledUpdateContent = _.throttle(text => {
-            this.content = text;
-            this.setEditMap(index, this.content)
+            this.setEditMap(index, text)
           }, 1500);
 
           this.abortControllerMap.set(index, {abort: abortController, throttle: throttledUpdateContent})
@@ -387,8 +495,7 @@
             if (done) {
               // 确保在流结束时取消节流
               throttledUpdateContent.cancel();
-              this.content = result;
-              this.setEditMap(index, this.content)
+              this.setEditMap(index, result)
               this.options.readOnly = readOnly
               return;
             }
@@ -454,7 +561,7 @@
         }
       },
       // 拖动调整窗口大小
-      dargDialogSize(){
+      dragDialogSize(){
         // 右下角
         let nwse = document.querySelector('.el-dialog__body .nwse-resize')
         if(nwse){
@@ -567,7 +674,7 @@
         if(row.isFolder){
           return
         }
-        if(!suffix.simText.includes(row.suffix)){
+        if(!suffix.simText.includes(row.suffix) && row.contentType.indexOf('utf-8') < 0){
           return
         }
         let languages = monaco.languages.getLanguages();
@@ -621,6 +728,9 @@
               }
             }
             this.editableTabsValue = row.path
+
+            // 加载历史版本
+            this.$refs.historyPopover.loadHistoryPathList(row.path)
           }).catch(() => {
             this.loading.close()
           })
@@ -629,15 +739,50 @@
           this.clickTab()
         }
       },
-      setEditMap(index, text) {
+      getContentText(index) {
+        let ref = 'monacoEditor' + index
+        return this.$refs[ref][0]._getValue()
+      },
+      setEditMap(index, text, historyText, historyVersion) {
         this.editableValueMap.set(index, text)
         this.$nextTick(()=> {
           let ref = 'monacoEditor' + index
-          this.$refs[ref][0]._setValue(text)
+          if (historyText) {
+            this.$refs[ref][0]._setModel(text, historyText)
+          } else {
+            this.$refs[ref][0]._setValue(text)
+          }
           if (!this.$pc && this.dialogWidthPercent < 1) {
             this.fullScreen()
           }
         })
+
+        this.$nextTick(() => {
+          const pathname = this.editableTabs[index].name
+          let monacoDiffEditor = document.getElementById(`pane-${pathname}`)
+          let original = monacoDiffEditor.querySelector(".editor.original")
+          let current = monacoDiffEditor.querySelector(".editor.modified")
+          if (original !== null && current !== null) {
+            this.setVersionInfo(original, historyVersion)
+            this.setVersionInfo(current, "当前版本")
+          }
+        })
+
+      },
+      setVersionInfo(editor, versionInfo) {
+        const existingDiv = editor.querySelector('.version-info');
+        if (!existingDiv) {
+          const div = document.createElement('div');
+          div.className = 'version-info';
+          div.textContent = versionInfo;
+          if (editor.firstChild) {
+            editor.insertBefore(div, editor.firstChild);
+          } else {
+            editor.appendChild(div);
+          }
+        } else {
+          existingDiv.textContent = versionInfo
+        }
       },
       containerResize() {
         this.loadEditorSize()
@@ -666,7 +811,7 @@
         }
       },
       loadEditorSize(){
-        this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+        this.setDialogWidth()
         if(this.contentsHide){
           this.editorWidth = this.dialogWidth
         }else{
@@ -701,7 +846,7 @@
         this.isSaveDialogVisible = false
         this.isShowUpdateBtn = false
       },
-      // 放弃修改
+      // Abandon Modification
       closeTabDialog(){
         this.isTabSaveDialogVisible = false
         this.editableTabsValue = this.nextActiveName
@@ -716,24 +861,26 @@
         this.$emit('update:status', this.textPreviewVisible)
         this.isSaveDialogVisible = false
         this.isShowUpdateBtn = false
+        this.historyVersion = {metadata: {}}
         this.closeAllTabs()
       },
       change(value,index) {
+        let editableTabValue = this.editableTabs[index]
         if(value === this.editableValueMap.get(index)){
-          if(this.editableTabs[index].copyTitle !== this.editableTabs[index].title){
-            this.editableTabs[index].title = this.editableTabs[index].copyTitle
-            this.editableTabs[index].status = 'Modified'
-            // 没有任何改变
+          if(editableTabValue.copyTitle !== editableTabValue.title){
+            editableTabValue.title = editableTabValue.copyTitle
+            editableTabValue.status = 'Modified'
+            // without any change
             if(this.editableTabs.findIndex(tab=>tab.title !== tab.copyTitle) < 0){
               this.isShowUpdateBtn = false
             }
           }
         }else{
-          if(this.editableTabs[index].copyTitle === this.editableTabs[index].title){
-            this.editableTabs[index].title += '*'
-            this.editableTabs[index].status = 'Modifying'
+          if(editableTabValue.copyTitle === editableTabValue.title){
+            editableTabValue.title += '*'
+            editableTabValue.status = 'Modifying'
             this.isShowUpdateBtn = true
-            this.editableTabs[index].change = value
+            editableTabValue.change = value
           }
         }
       },
@@ -758,7 +905,7 @@
           this.abortControllerAbort(key)
         }
       },
-      save(value,index) {
+      save(value, index) {
         if(value !== this.editableTabs[index].content && this.isShowUpdateBtn){
           this.update(value,this.editableTabs[index].name,index)
         }
@@ -794,6 +941,7 @@
               }
             }
             if(!this.modifyMsg){
+              this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
               this.modifyMsg = this.$message({
                 message: "更新成功",
                 type: 'success',
@@ -815,11 +963,11 @@
         if(this.fullscreen){
           this.lastTransform = dragDom.style.transform
           this.dialogWidthPercent = 1
-          this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+          this.setDialogWidth()
           dragDom.style.transform="translate("+0+"px,"+0+"px)";
         }else{
           this.dialogWidthPercent = 0.7
-          this.dialogWidth = document.body.clientWidth * this.dialogWidthPercent
+          this.setDialogWidth()
           let x = (document.body.clientWidth - this.dialogWidth)/2
           let y = (document.body.clientHeight - this.dialogWidth)/2
           if(this.lastTransform){
@@ -880,8 +1028,8 @@
         this.clickTab()
       },
       clickTab() {
-        this.editorWidth += 0.001
-        this.editorHieght += 0.001
+        // this.editorWidth += 0.001
+        // this.editorHieght += 0.001
       },
       removeTab(targetName) {
         let tabs = this.editableTabs;
@@ -900,13 +1048,19 @@
         }
         this.nextActiveName = activeName
         if(this.editableTabs[removeIndex].status !== 'Modifying'){
-          this.editableTabsValue = activeName
           this.editableTabs = tabs.filter(tab => tab.name !== targetName)
         }else{
           this.removeIndex = removeIndex
           this.isTabSaveDialogVisible = true
         }
+        this.editableTabsValue = activeName
         this.abortControllerAbort(removeIndex)
+        setTimeout(()=> {
+          if (this.editableTabs.length < 1) {
+            this.hasHistoryVersion = false
+            this.historyVersion = {metadata: {}}
+          }
+        }, 100)
       },
     }
   }
@@ -983,14 +1137,13 @@
       background: #ececec;
       border: 1px solid #ececec;
     }
-
+    .light-button:hover {
+      background: #DCDFE6;
+    }
     .dark-button {
       background: #3e3e3e;
       border: 1px solid #3e3e3e;
       color: #ffffff;
-    }
-    .light-button:hover {
-      background: #DCDFE6;
     }
     .dark-button:hover {
       color: #409EFF;
@@ -1407,4 +1560,5 @@
     padding: 20px 30px;
     background-color: #ffffff;
   }
+
 </style>

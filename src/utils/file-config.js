@@ -30,6 +30,10 @@ export default {
     }
     return fileUrl
   },
+  // 预览历史文件
+  previewHistoryUrl: function(historyId, name, token) {
+    return `${this.baseUrl}/history/preview/file?id=${historyId}&name=${name}&jmal-token=${token}`
+  },
   // markdown里上传图片后的图片预览地址
   markdownPreviewUrl: function (path){
     return window.location.origin + `${this.baseUrl}${path}`

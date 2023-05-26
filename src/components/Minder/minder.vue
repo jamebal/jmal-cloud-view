@@ -1,8 +1,25 @@
 <template>
   <div class="minder-editor-container">
     <div class="minder-title" v-show="titleShow">
-      <div class="minder-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</div>
-      <div  class="minder-save"><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
+      <div class="minder-title-name" :style="{'color': titleColor}">{{title}}</div>
+      <div class="minder-operation">
+        <div style="margin-right: 15px">
+          <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
+        </div>
+        <history-popover
+          ref="historyPopover"
+          :has-history-version.sync="hasHistoryVersion"
+          :history-list-popover-visible.sync="historyListPopoverVisible"
+          :history-operation-loading="!loading.closed"
+          :saved.sync="saved"
+          @viewHistoryFile="viewHistoryFile"
+          @recoverySuccess="recoverySuccess"
+        >
+        </history-popover>
+        <div>
+          <el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button>
+        </div>
+      </div>
     </div>
     <div class="quickbar">
       <el-tooltip placement="top" effect="light">
@@ -13,7 +30,7 @@
           <el-slider v-model="zoom" :min="10" :max="300" input-size="mini" tooltip-class="slider-tooltip"></el-slider>
         </div>
       </el-tooltip>
-      <el-tooltip v-if="readOnly!==true" placement="top" effect="light">
+      <el-tooltip v-if="!hasReadOnly" placement="top" effect="light">
         <div>
           <em class="ft icon" title="图形">
             <svg-icon icon-class="graph1"/>
@@ -21,16 +38,16 @@
         </div>
         <div slot="content">
           <ul class="minder-editor-quickul mold" style="margin-bottom: 0;">
-            <li @click="execCommand('template', 'default')"><span class="default"></span></li>
-            <li @click="execCommand('template', 'structure')"><span class="structure"></span></li>
-            <li @click="execCommand('template', 'filetree')"><span class="filetree"></span></li>
-            <li @click="execCommand('template', 'right')"><span class="right"></span></li>
-            <li @click="execCommand('template', 'fish-bone')"><span class="fish-bone"></span></li>
-            <li @click="execCommand('template', 'tianpan')"><span class="tianpan"></span></li>
+            <li @click="execCommand('template', 'default')" title="默认"><span class="default"></span></li>
+            <li @click="execCommand('template', 'structure')" title="结构"><span class="structure"></span></li>
+            <li @click="execCommand('template', 'filetree')" title="树形"><span class="filetree"></span></li>
+            <li @click="execCommand('template', 'right')" title="靠右"><span class="right"></span></li>
+            <li @click="execCommand('template', 'fish-bone')" title="鱼骨"><span class="fish-bone"></span></li>
+            <li @click="execCommand('template', 'tianpan')" title="天盘"><span class="tianpan"></span></li>
           </ul>
         </div>
       </el-tooltip>
-      <el-tooltip v-if="readOnly!==true" placement="top" effect="light">
+      <el-tooltip v-if="!hasReadOnly" placement="top" effect="light">
         <div>
           <em class="ft icon" title="样式">
             <svg-icon icon-class="clothes"/>
@@ -94,10 +111,13 @@ import JSPDF from 'jspdf';
 import api from "@/api/file-api";
 import txtApi from "@/api/markdown-api";
 import Bus from "@/assets/js/bus";
+import historyApi from "@/api/file-history";
+import HistoryPopover from "@/components/HistoryPopover/index.vue";
 
 
 export default {
   name: 'my-mind-editor',
+  components: {HistoryPopover},
   props: {
     file: {
       type: Object,
@@ -118,6 +138,17 @@ export default {
       default: 'minder-component-' + generateMixed(12)
     },
   },
+  computed: {
+    hasReadOnly() {
+      return this.readOnly || this.viewHistory
+    },
+    titleColor() {
+      if (!this.saved) {
+        return '#ff8200'
+      }
+      return ''
+    }
+  },
   data() {
     return {
       minder: null,
@@ -129,7 +160,16 @@ export default {
       zoom: 100,
       saved: true,
       titleShow: false,
-    };
+      currentContext: undefined,
+      currentTitle: undefined,
+      historyVersion: {metadata: {}},
+      hasHistoryVersion: false,
+      historyListPopoverVisible: false,
+      viewHistory: false,
+      loading: {
+        closed: true
+      },
+    }
   },
   watch: {
     'file.id': {
@@ -138,7 +178,7 @@ export default {
           return
         }
         let request = 'previewText'
-        if (this.readOnly) {
+        if (this.hasReadOnly) {
           request = 'sharePreviewText'
         }
         this.content = null
@@ -158,6 +198,9 @@ export default {
           this.init(this.content)
           this.$emit('onReady')
         })
+        this.$nextTick(()=> {
+          this.$refs.historyPopover.loadHistoryList(this.file.id)
+        })
       },
       deep: true,
       immediate: true
@@ -175,9 +218,70 @@ export default {
     document.removeEventListener('keydown', this.ctrlAndS)
   },
   methods: {
-    /**
-     * 保存并关闭
-     */
+    viewHistoryFile({historyInfo, recovery}) {
+      if (!this.saved) {
+        this.$message({type: 'info', message: "请先保存当前修改的内容"})
+        return
+      }
+      let loadingInfo = recovery ? '恢复中...' : '加载中...'
+      this.loading = this.$message({
+        iconClass: 'el-icon-loading',
+        type: 'info',
+        duration: 0,
+        dangerouslyUseHTMLString: true,
+        message: `<span>&nbsp;&nbsp;${loadingInfo}</span>`
+      })
+      historyApi.previewHistoryText({id: historyInfo.id}).then((res) => {
+        this.loading.close()
+
+        if (this.historyListPopoverVisible) {
+          this.historyListPopoverVisible = false
+        }
+        if (recovery) {
+          this.cancelPreview(null, res.data.contentText)
+          this.$message({message: '恢复成功',type: 'success'})
+        } else {
+          this.currentContext = JSON.stringify(this.content)
+          this.currentTitle = this.title
+          this.content = JSON.parse(res.data.contentText)
+          this.bakValue = res.data.contentText
+          this.minder.importJson(this.content)
+          this.historyVersion = historyInfo
+          this.title = `历史版本：${historyInfo.metadata.time}`
+          this.viewHistory = true
+          this.setReadOnly()
+        }
+      }).catch(() => {
+        this.loading.close()
+      })
+    },
+    recoverySuccess({historyInfo}) {
+      this.viewHistoryFile({historyInfo: historyInfo, recovery: true})
+    },
+    cancelPreview(event, currentContext) {
+      if (!currentContext) {
+        currentContext = this.currentContext
+      }
+      this.historyVersion = {metadata: {}}
+      this.content = JSON.parse(currentContext)
+      this.bakValue = currentContext
+      this.minder.importJson(this.content)
+      if (this.currentTitle) {
+        this.title = this.currentTitle
+      }
+      this.viewHistory = false
+      this.setReadOnly()
+    },
+    setReadOnly() {
+      window.__minderReadOnly = this.hasReadOnly
+      if (this.hasReadOnly === true) {
+        this.minder.disable()
+        this.minder.execCommand('Hand')
+        this.isHand = true
+      } else {
+        this.minder.enable()
+      }
+    },
     saveAndClose() {
       this.save()
       this.$emit('onClose')
@@ -247,30 +351,29 @@ export default {
             this.minder.importJson(this.content)
             return
           }
-          window.__minderReadOnly = this.readOnly
           const Editor = require('./editor')
           this.minder = window.editor = new Editor(document.getElementById(this.id)).minder
           this.bakValue = JSON.stringify(this.content)
           this.titleShow = true
           this.minder.importJson(this.content)
-          if (this.readOnly === true) {
-            this.minder.disable()
-            this.minder.execCommand('Hand')
-            this.isHand = true
-          }
-          this.minder.on('contentchange', () => {
-            const newJson = this.minder.exportJson()
-            if (this.bakValue === JSON.stringify(newJson)) {
-              return
-            }
-            this.bakValue = JSON.stringify(newJson)
-            this.content = newJson
-            this.saved = false
-            this.title = `*${this.file.name}`
-            this.$emit('onEdit', this.saved)
-          })
+          this.setReadOnly()
+          this.minder.on('contentchange', () => this.onContentChange())
         }, 300)
       })
+    },
+    onContentChange() {
+      const newJson = this.minder.exportJson()
+      if (this.bakValue === JSON.stringify(newJson)) {
+        this.saved = true
+        if (this.title === `*${this.file.name}`) {
+          this.title = this.file.name
+        }
+      } else {
+        this.content = newJson
+        this.saved = false
+        this.title = `*${this.file.name}`
+      }
+      this.$emit('onEdit', this.saved)
     },
     init(newObj) {
       if (typeof newObj !== "object" || newObj === null) {
@@ -314,6 +417,7 @@ export default {
         this.saved = true
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
+        this.$refs.historyPopover.loadHistoryList(this.file.id)
       }).catch(() => {
         this.saveBtnUpdating = false
       })
@@ -466,7 +570,8 @@ export default {
       line-height: 40px;
     }
 
-    .minder-save {
+    .minder-operation {
+      display: flex;
       float: right;
       margin-top: -40px;
       margin-right: 30px;

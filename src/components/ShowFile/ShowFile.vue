@@ -3222,6 +3222,12 @@ export default {
           this.officePreviewRow = row
           return
         }
+        if (row.contentType.indexOf('utf-8') > -1) {
+          // 文本文件
+          this.textPreviewRow = row
+          this.textPreviewVisible = true
+          return
+        }
         this.notPreviewDialogVisible = true
       }
     },

@@ -162,7 +162,13 @@ export default {
 
     _getValue() {
       let editor = this._getEditor();
-      if(!editor) return '';
+      if(!editor) {
+        if (this.diffEditor) {
+          return this.editor.getModel().modified.getValue()
+        } else {
+          return ''
+        }
+      }
       return editor.getValue();
     },
 
@@ -175,8 +181,8 @@ export default {
       this.editorMounted(editor, monaco);
       if(this.diffEditor){
         editor.onDidUpdateDiff((event) => {
-          const value = this._getValue();
-          this._emitChange(value, event);
+          const value = this._getValue()
+          this._emitChange(value, event)
         });
       }else{
         editor.onDidChangeModelContent(event => {
