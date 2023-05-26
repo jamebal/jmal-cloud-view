@@ -34,9 +34,9 @@ jobs:
         run: |
           git fetch --prune --unshallow
           LATEST_TAG=$(git describe --tags --abbrev=0)
-          FEAT_MSGS=$(git log $LATEST_TAG..HEAD --grep 'feat:' --pretty=format:"- %s%n")
-          FIX_MSGS=$(git log $LATEST_TAG..HEAD --grep 'fix:' --pretty=format:"- %s%n")
-          PERF_MSGS=$(git log $LATEST_TAG..HEAD --grep 'perf:' --pretty=format:"- %s%n")
+          FEAT_MSGS=$(git log $LATEST_TAG..HEAD --grep 'feat:' --pretty=format:"- %s%n" | sed 's/feat://')
+          FIX_MSGS=$(git log $LATEST_TAG..HEAD --grep 'fix:' --pretty=format:"- %s%n" | sed 's/fix://')
+          PERF_MSGS=$(git log $LATEST_TAG..HEAD --grep 'perf:' --pretty=format:"- %s%n" | sed 's/perf://')
           RELEASE_NOTES="### 新功能 ✨\n${FEAT_MSGS}\n### 修复 🐛\n${FIX_MSGS}\n### 优化 🎨\n${PERF_MSGS}"
           echo -e "RELEASE_NOTES<<EOF\n$RELEASE_NOTES\nEOF" >> $GITHUB_ENV
 
