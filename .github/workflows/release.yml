@@ -37,7 +37,16 @@ jobs:
           FEAT_MSGS=$(git log $LATEST_TAG..HEAD --grep 'feat:' --pretty=format:"- %s%n" | sed 's/feat://')
           FIX_MSGS=$(git log $LATEST_TAG..HEAD --grep 'fix:' --pretty=format:"- %s%n" | sed 's/fix://')
           PERF_MSGS=$(git log $LATEST_TAG..HEAD --grep 'perf:' --pretty=format:"- %s%n" | sed 's/perf://')
-          RELEASE_NOTES="### 新功能 ✨\n${FEAT_MSGS}\n### 修复 🐛\n${FIX_MSGS}\n### 优化 🎨\n${PERF_MSGS}"
+          RELEASE_NOTES=""
+          if [ -n "$FEAT_MSGS" ]; then
+            RELEASE_NOTES+="### 新功能 ✨\n${FEAT_MSGS}\n"
+          fi
+          if [ -n "$FIX_MSGS" ]; then
+            RELEASE_NOTES+="### 修复 🐛\n${FIX_MSGS}\n"
+          fi
+          if [ -n "$PERF_MSGS" ]; then
+            RELEASE_NOTES+="### 优化 🎨\n${PERF_MSGS}\n"
+          fi
           echo -e "RELEASE_NOTES<<EOF\n$RELEASE_NOTES\nEOF" >> $GITHUB_ENV
 
       - name: Create Git tag
@@ -56,7 +65,7 @@ jobs:
           tag_name: v${{ env.PROJECT_VERSION }}
           release_name: v${{ env.PROJECT_VERSION }}
           body: |
-            Changes in this release:
+            ## Changes in this release:
             ${{ env.RELEASE_NOTES }}
           draft: false
           prerelease: false
