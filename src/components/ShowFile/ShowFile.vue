@@ -1823,6 +1823,7 @@ export default {
           return;
         }
         this.newFolderLoading = true
+        this.createFileLoading = true
         api.uploadFolder({
           isFolder: true,
           filename: encodeURI(this.newFolderName),
@@ -1837,6 +1838,8 @@ export default {
               type: 'warning'
             });
           } else {
+            this.createFileLoading = false
+            this.newCreateFileDialog = false
             this.newFolderLoading = false
             this.showNewFolder = false
             this.isShowNewFolder = false
@@ -1853,6 +1856,7 @@ export default {
           }
         }).catch(() => {
           this.newFolderLoading = false
+          this.createFileLoading = false
         })
       } else {
         this.newFolderLoading = false
@@ -1864,6 +1868,11 @@ export default {
     },
     // 新建文件
     createFile(newFileName) {
+      if (this.newCreateFileDialogTitle === "新建文件夹") {
+        this.newFolderName = newFileName
+        this.newFolderNameClick()
+        return
+      }
       if (newFileName) {
         if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
@@ -2636,6 +2645,10 @@ export default {
           this.newCreateFileDialogTitle = "新建文本文件"
           this.createNewFile('txt')
           break
+        case 'createFolder':
+          this.newCreateFileDialogTitle = "新建文件夹"
+          this.createNewFile('')
+          break
         case 'createDrawioFile':
           this.newCreateFileDialogTitle = "新建流程图"
           this.createNewFile('drawio')
@@ -2663,7 +2676,11 @@ export default {
     },
     // 新建文件
     createNewFile(suffix) {
-      this.newCreateFileName = `未命名文件.${suffix}`
+      if (this.newCreateFileDialogTitle === "新建文件夹") {
+        this.newCreateFileName = `新建文件夹`
+      } else {
+        this.newCreateFileName = `未命名文件.${suffix}`
+      }
       this.newCreateFileName = this.getNewFileName(this.fileList, this.newCreateFileName)
       this.newCreateFileDialog = true
       this.$nextTick(() => {

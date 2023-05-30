@@ -34,6 +34,8 @@ export default {
         { label: '刷新', operation: 'refresh'},
         { divider: true, operation: 'divider' },
         { label: '新建', operation: 'create' ,child: [
+            { label: '文件夹', operation: 'createFolder', iconClass: 'folder'},
+            { divider: true, operation: 'divider' },
             { label: '文本', operation: 'createTextFile', iconClass: 'file-txt'},
             { label: '思维导图', operation: 'createMinderFile', iconClass: 'file-mind'},
             { label: '流程图', operation: 'createDrawioFile', iconClass: 'file-drawio'},
