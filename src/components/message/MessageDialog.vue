@@ -1,7 +1,5 @@
 <template>
   <div>
-<!--    <el-container v-loading="loading">-->
-<!--    </el-container>-->
       <el-dialog
         class="jmal-message-dialog"
         :title="title"
@@ -14,7 +12,6 @@
           <svg-icon v-if="!loading" icon-class="warring"></svg-icon> <span class="dialog-msg">{{content}}</span>
           <span v-if="!loading" slot="footer" class="dialog-footer">
             <el-button :size="buttonSize" @click="operating">{{operatButtonText}}</el-button>
-                <!--        <el-button :size="buttonSize" @click="cancel">{{cancelButtonText}}</el-button>-->
             <el-button :size="buttonSize" type="primary" @click=confirm>{{confirmButtonText}}</el-button>
         </span>
       </el-dialog>

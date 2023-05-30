@@ -1,13 +1,14 @@
 <template>
   <div class="drawio-content" :style="{'top': readOnly ? '0': '2.5rem'}">
     <div class="drawio-title">
-      <div class="drawio-title-name" :style="{'color': saved ? '': '#ff8200'}">{{title}}</div>
+      <div class="drawio-title-name" :style="{'color': saved ? (lightTheme ? '':'#ffffff'): '#ff8200'}">{{title}}</div>
       <div class="drawio-operation">
         <div style="margin-right: 15px">
-          <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
+          <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini" :class="lightTheme ? '':'dark-button'">取消预览</el-button>
         </div>
         <history-popover
           ref="historyPopover"
+          :light-theme.sync="lightTheme"
           :has-history-version.sync="hasHistoryVersion"
           :history-list-popover-visible.sync="historyListPopoverVisible"
           :history-operation-loading="!loading.closed"
@@ -17,7 +18,7 @@
         >
         </history-popover>
 
-        <div><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
+        <div><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating" :class="lightTheme ? '':'dark-button'">保存</el-button></div>
       </div>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
@@ -56,6 +57,7 @@ export default {
       url: null,
       bakData: '',
       xml: '',
+      drawioUrlValid: false,
       saveBtnUpdating: false,
       title: this.file.name,
       saved: true,
@@ -69,6 +71,7 @@ export default {
       loading: {
         closed: true
       },
+      lightTheme: true
     }
   },
   created() {
@@ -109,7 +112,11 @@ export default {
           path: encodeURI(this.file.path),
           username: this.$store.state.user.name,
           content: true,
-        }).then((res) => {
+        }).then(async (res) => {
+          await this.checkDrawioUrl()
+          if (!this.drawioUrlValid) {
+            return
+          }
           this.file.path = res.data.path
           this.xml = res.data.contentText
           if (this.bakData === res.data.contentText) {
@@ -127,6 +134,19 @@ export default {
     },
   },
   methods: {
+    async checkDrawioUrl() {
+      await axios.get(this.url).then(response => {
+        if (response.status === 200) {
+          this.drawioUrlValid = true
+        } else {
+          this.$emit('onClose')
+          Bus.$emit('loadFileFaild')
+        }
+      }).catch(() => {
+        this.$emit('onClose')
+        Bus.$emit('loadFileFaild')
+      })
+    },
     viewHistoryFile({historyInfo, recovery}) {
       if (!this.saved) {
         this.$message({type: 'info', message: "请先保存当前修改的内容"})
@@ -207,10 +227,24 @@ export default {
         this.saved = true
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
+        this.bakData = this.xml
+        this.updateContent()
         this.$refs.historyPopover.loadHistoryList(this.file.id)
       }).catch(() => {
         this.saveBtnUpdating = false
       })
+    },
+    onSwitchTheme() {
+      let isDarkMode = false;
+      let linkElements = this.$refs.myFlow.contentWindow.document.getElementsByTagName("link");
+      for (let i = 0; i < linkElements.length; i++) {
+        let link = linkElements[i];
+        if (link.href.includes("styles/dark.css")) {
+          isDarkMode = true;
+          break;
+        }
+      }
+      this.lightTheme = !isDarkMode
     },
     handleMessage(event) {
       const editWindow = this.$refs.myFlow.contentWindow
@@ -221,11 +255,17 @@ export default {
       const payload = $J.jsonParse(event.data)
       switch (payload.event) {
         case "init":
+          console.log('init')
           this.ready = true
           this.$emit('onReady')
           this.updateContent()
           let helpMenu = doc.querySelector('.geMenubarContainer .geMenubar').childNodes[5]
+          doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
           helpMenu.style.display = 'none'
+          let elementTheme = doc.querySelector('.geToolbarContainer').querySelector('[title="主题"][class="geButton geAdaptiveAsset"]');
+          if (elementTheme) {
+            elementTheme.addEventListener('click', this.onSwitchTheme)
+          }
           break
         case "load":
           if (this.xml.length < 1) {
@@ -271,24 +311,38 @@ export default {
   width: 100%;
   height: 100%;
 
+  >>>.dark-button {
+    background: #3e3e3e;
+    border: 1px solid #3e3e3e;
+    color: #ffffff;
+  }
+  >>>.dark-button:hover {
+    color: #409EFF;
+    background-color: #181818;
+  }
+
   .drawio-title {
-    text-align: left;
-    background-color: #fbfbfb;
     z-index: 2001;
-    position: absolute;
-    top: 0;
-    width: calc(50% + 121px);
-    margin-left: calc(50% - 121px);
-    height: 0;
+    position: relative;
 
     .drawio-title-name {
       line-height: 32px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 2001;
+      position: absolute;
+      text-align: center;
+      width: 40%;
+      top: 16px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
     }
 
     .drawio-operation {
       display: flex;
       float: right;
-      margin-top: -32px;
       margin-right: 15px;
       line-height: 32px;
     }

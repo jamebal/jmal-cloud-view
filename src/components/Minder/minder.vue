@@ -417,6 +417,7 @@ export default {
         this.saved = true
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
+        this.bakValue = value
         this.$refs.historyPopover.loadHistoryList(this.file.id)
       }).catch(() => {
         this.saveBtnUpdating = false

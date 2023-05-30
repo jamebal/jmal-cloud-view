@@ -449,9 +449,10 @@
       title="提示"
       content="此文件不支持预览, 是否下载该文件?"
       :show.sync="notPreviewDialogVisible"
-      operatButtonText="强行使用文本编辑器打开"
+      button-size="mini"
+      operatButtonText="取消"
       confirmButtonText="下载"
-      @operating="forciblyOpen(openingFile)"
+      @operating="notPreviewDialogVisible = false"
       @confirm="determineDownload(openingFile)"
     >
     </message-dialog>
