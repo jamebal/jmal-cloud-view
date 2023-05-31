@@ -33,6 +33,9 @@ cd jmal-cloud-server
 
 # 3、一键安装
 ./jc.sh install
+
+# 4、更新
+./jc.sh pull && ./jc.sh update
 ```
 [其它方式部署](https://jmal.cc/b75gm)
 
