@@ -34,6 +34,11 @@ cd jmal-cloud-server
 
 # 3、A key to install
 ./jc.sh install
+
+# 4、Update
+./jc.sh pull
+./jc.sh update
+
 ```
 [Other ways deployment](https://jmal.cc/b75gm)
 
