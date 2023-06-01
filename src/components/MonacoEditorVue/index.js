@@ -119,19 +119,6 @@ export default {
         theme: theme,
         ...options
       });
-      this.editor.addAction({
-        id: 'my-unique-id',
-        label: 'Hello World',
-        keybindings: [
-          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_M,
-        ],
-        contextMenuGroupId: 'navigation',
-        contextMenuOrder: 1.5,
-        run: function(ed) {
-          alert('Hello World!');
-        }
-      });
-
       this.diffEditor && this._setModel(this.value, this.original);
       this._editorMounted(this.editor);      //编辑器初始化后
     },
