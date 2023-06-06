@@ -106,7 +106,7 @@ export default {
         {prop: 'folderName', label: '目录名', noScope: true, align: 'left'},
         {label: '操作', minWidth: this.$pc ? 0 : 130, active: [
             {name: '修改', icon: 'el-icon-edit', handle: (row) => this.updateOssConfig(row)},
-            {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.deleteOssConfig([row.id])},
+            {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete(row)},
           ],
         },
       ],
@@ -156,9 +156,25 @@ export default {
         }
       });
     },
+    handleDelete(row) {
+      let platform = ''
+      let index = this.platforms.findIndex(item => item.value === row.platform)
+      if (index > -1) {
+        platform = this.platforms[index].label
+      }
+      this.$confirm(`确定要删除 ${platform}(${row.bucket}) 吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteOssConfig(row.id)
+      })
+    },
     deleteOssConfig(id) {
+      this.deleteLoading = true
       ossApi.deleteOssConfig({id: id}).then(() => {
         this.getOssConfigList()
+        this.deleteLoading = false
         this.$message.success("删除成功！")
       })
     },
