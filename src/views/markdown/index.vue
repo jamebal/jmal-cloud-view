@@ -352,6 +352,7 @@ export default {
         toolbarConfig: {
           pin: true,
         },
+        cdn: `${window.location.origin}/resource/vditor@3.9.3`,
         preview: {
           mode: 'both',
           hljs: {
