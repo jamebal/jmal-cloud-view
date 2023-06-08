@@ -1,7 +1,7 @@
 # JmalCloud Personal Netdisk ｜ [中文](https://github.com/jamebal/jmal-cloud-view/blob/master/README.md)
 JmalCloud It's a private cloud storage project that makes it simple and secure to manage your files in the cloud
 
-✅ Support OSS, Alibaba Cloud OSS and Tencent Cloud OSS
+✅ Support OSS, Alibaba Cloud OSS , Tencent Cloud OSS and MinIO
 
 ✅ Supports online preview of images, audio, video and other files
 
@@ -60,7 +60,7 @@ cd jmal-cloud-server
 ##### 5. Start the web-side with `npm run dev`
 
 ### Some screenshots:
-![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
+![image0](./doc/%E6%88%AA%E5%B1%8F%20192.png)
 ![image1](./doc/%E6%88%AA%E5%B1%8F%2028.png)
 ![image2](./doc/%E6%88%AA%E5%B1%8F%2029.png)
 ![image3](./doc/%E6%88%AA%E5%B1%8F%2030.png)
