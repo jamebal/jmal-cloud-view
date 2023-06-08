@@ -255,16 +255,21 @@ export default {
       const payload = $J.jsonParse(event.data)
       switch (payload.event) {
         case "init":
-          console.log('init')
           this.ready = true
           this.$emit('onReady')
           this.updateContent()
-          let helpMenu = doc.querySelector('.geMenubarContainer .geMenubar').childNodes[5]
-          doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
-          helpMenu.style.display = 'none'
-          let elementTheme = doc.querySelector('.geToolbarContainer').querySelector('[title="主题"][class="geButton geAdaptiveAsset"]');
-          if (elementTheme) {
-            elementTheme.addEventListener('click', this.onSwitchTheme)
+          let menuBar = doc.querySelector('.geMenubarContainer .geMenubar')
+          if (menuBar) {
+            let helpMenu = menuBar.childNodes[5]
+            doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
+            helpMenu.style.display = 'none'
+          }
+          let toolbar = doc.querySelector('.geToolbarContainer')
+          if (toolbar) {
+            let elementTheme = toolbar.querySelector('[title="主题"][class="geButton geAdaptiveAsset"]');
+            if (elementTheme) {
+              elementTheme.addEventListener('click', this.onSwitchTheme)
+            }
           }
           break
         case "load":

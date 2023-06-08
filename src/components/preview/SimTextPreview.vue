@@ -86,6 +86,7 @@
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
+              v-if="!this.shareId"
               :editableTabs="editableTabs"
               :editableTabsValue.sync="editableTabsValue"
               :contentsWidth="contentsWidth"
@@ -353,8 +354,10 @@
           this.requestStream(request, params, 0)
 
           this.editableTabsValue = pathname
-          // 加载历史版本
-          this.$refs.historyPopover.loadHistoryPathList(pathname)
+          if (!this.shareId) {
+            // 加载历史版本
+            this.$refs.historyPopover.loadHistoryPathList(pathname)
+          }
           // 界面的渲染后的初始化工作
           this.$nextTick(() => {
             this.onDialogDblClick()
@@ -375,7 +378,7 @@
         if(value.endsWith('.md')){
           this.previewMode = false
         }
-        this.hasHistoryVersion = this.editableVersionMap.get(value)
+        this.hasHistoryVersion = this.editableVersionMap.get(value) || false
         if (this.hasHistoryVersion) {
           let currentIndex = this.editableTabs.findIndex(editable => editable.name === value)
           const tab = this.editableTabs[currentIndex]
@@ -479,7 +482,14 @@
             url = "/api/public/s/preview/text/stream"
           }
           const abortController = new AbortController();
-          const response = await fetch(`${url}?${queryString}`, { signal: abortController.signal })
+          let headers = new Headers();
+          if (this.shareId) {
+            headers.append('share-token', this.$store.state.user.shareToken);
+          } else {
+            headers.append('jmal-token', this.$store.state.user.token);
+            headers.append('name', this.$store.state.user.name);
+          }
+          const response = await fetch(`${url}?${queryString}`, { signal: abortController.signal , headers: headers})
           let result = "";
           // 创建一个节流函数，限制更新频率为每 1500 毫秒一次
           const throttledUpdateContent = _.throttle(text => {
@@ -728,7 +738,6 @@
               }
             }
             this.editableTabsValue = row.path
-
             // 加载历史版本
             this.$refs.historyPopover.loadHistoryPathList(row.path)
           }).catch(() => {

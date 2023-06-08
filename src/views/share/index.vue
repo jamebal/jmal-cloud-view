@@ -138,7 +138,7 @@
           header-align="left"
         >
           <template slot-scope="scope">
-            <span>{{scope.row.expireDate?scope.row.expireDate:'永久有效'}}</span>
+            <span>{{expireInfo(scope.row)}}</span>
           </template>
         </pl-table-column>
       </template>
@@ -265,9 +265,20 @@
         shareDialogObject: {},
       }
     },
-    mounted() {
-    },
     methods: {
+      expireInfo(row) {
+        if (row.expireDate) {
+          let currentTime = new Date();
+          let targetTime = new Date(row.expireDate);
+          if (currentTime > targetTime) {
+            return '已过期'
+          } else {
+            return row.expireDate
+          }
+        } else {
+          return '永久有效'
+        }
+      },
       // 请求之前的准备
       beforeLoadData(onLoad){
         if (onLoad) {

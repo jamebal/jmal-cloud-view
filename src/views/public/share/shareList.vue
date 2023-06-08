@@ -1178,8 +1178,12 @@ export default {
 }
 
 .share-code {
-  > > > .el-input {
+  text-align: center;
+  >>>.el-input {
     width: 200px;
+    .el-input__inner {
+      text-align: center;
+    }
     ::placeholder {
       text-align: center;
     }
