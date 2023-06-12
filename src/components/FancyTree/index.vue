@@ -16,7 +16,7 @@
 
     <div class="dir-tools" style="min-width: 272px;">
       <el-button-group>
-        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" @click="upperLeve">上一级</el-button>
+        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" :disabled="this.currentPath.length === 0 || this.currentPath === '/'" @click="upperLeve">上一级</el-button>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
         <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus" @click="newFileAndFolder" v-contextmenu:clickContextmenu>新建</el-button>
         <el-popover
