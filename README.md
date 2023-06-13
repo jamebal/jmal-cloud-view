@@ -1,7 +1,7 @@
 # JmalCloud 个人网盘 ｜ [English](https://github.com/jamebal/jmal-cloud-view/blob/master/README_en_US.md)
 JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的云端文件
 
-✅ 支持OSS,阿里云OSS和腾讯云OSS
+✅ 支持OSS,阿里云OS、腾讯云OSS和MinIO
 
 ✅ 支持图片,音频,视频等文件的在线预览
 
@@ -57,7 +57,7 @@ cd jmal-cloud-server
 
 
 ### 部分截图:
-![image0](https://www.jmal.top/api/file/jmal/jmalcloud/releases/%E6%88%AA%E5%B1%8F%20192.png)
+![image0](./doc/%E6%88%AA%E5%B1%8F%20192.png)
 ![image1](./doc/%E6%88%AA%E5%B1%8F%2028.png)
 ![image2](./doc/%E6%88%AA%E5%B1%8F%2029.png)
 ![image3](./doc/%E6%88%AA%E5%B1%8F%2030.png)
