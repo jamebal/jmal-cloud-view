@@ -452,7 +452,7 @@
         return { html: this.loadSvg(this.findIconClass(data.node.data)) }
       },
       findIconClass(file){
-        if(!file || !file.contentType){
+        if(!file){
           return
         }
         if(file.isFolder){
