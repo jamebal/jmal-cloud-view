@@ -5,7 +5,7 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 
 ✅ 支持图片,音频,视频等文件的在线预览
 
-✅ 支持word、excel、ppt、流程和思维导图的编辑和预览
+✅ 支持Word、Excel、PPT、流程图和思维导图的编辑和预览
 
 ✅ 支持x86、arm64(Centos/Debian/Ubuntu/macOS)
 
