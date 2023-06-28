@@ -16,4 +16,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+RUN envsubst '$API_BASE_URL' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf
+
 CMD ["nginx", "-g", "daemon off;"]
