@@ -14,9 +14,12 @@ FROM nginx:latest
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
+COPY nginx.conf /etc/nginx/nginx.conf.template
+
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-RUN apt-get update && apt-get install -y gettext-base
-RUN envsubst '$API_BASE_URL' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
