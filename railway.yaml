@@ -1,0 +1,5 @@
+deployment:
+  - name: jmal-cloud-view
+    type: docker
+    configVars:
+      - PORT: 80
