@@ -48,9 +48,9 @@ export default {
   computed: {},
   data() {
     return {
-      imageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-      shareImageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?share-token=${this.$store.getters.shareToken}&id=`,
-      publicImageThumbnailUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail?id=',
+      imageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail`,
+      shareImageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail`,
+      publicImageThumbnailUrl: process.env.VUE_APP_BASE_API + '/public/s/view/thumbnail',
       currentSrc: '',
       images: [],
       imagesFristIndex: -1,
@@ -92,7 +92,7 @@ export default {
         this.imageFiles = this.fileList.filter(element => !element.isFolder && element.contentType.startsWith('image'))
         this.imageFiles.forEach((element) => {
           this.images.push({
-            thumbnail: this.getImageUrlbyThumbnail(element.id),
+            thumbnail: this.getImageUrlByThumbnail(element),
             source: this.getImageUrl(element)
           })
           if (this.file.id === element.id) {
@@ -121,14 +121,14 @@ export default {
       }
       return url
     },
-    getImageUrlbyThumbnail(fileId) {
+    getImageUrlByThumbnail(file) {
       if (this.$store.getters.token){
-        return this.imageThumbnailUrl + fileId
+        return `${this.imageThumbnailUrl}/${file.name}?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=${file.id}`
       } else {
         if (this.$store.getters.shareToken) {
-          return this.shareImageThumbnailUrl + fileId
+          return `${this.shareImageThumbnailUrl}/${file.name}?share-token=${this.$store.getters.shareToken}&id=${file.id}`
         }
-        return this.publicImageThumbnailUrl + fileId
+        return `${this.publicImageThumbnailUrl}/${file.name}?id=${file.id}`
       }
     },
     show(viewIndex) {
