@@ -443,23 +443,30 @@
       },
       // 取消分享
       cancelShare(row) {
-        let shareIds = []
-        if(row){
-          shareIds.push(row.id)
-        } else {
-          this.selectRowData.forEach(row => {
-            shareIds.push(row.id)
-          })
-        }
-        api.cancelShareLink({
-          userId: this.$store.state.user.userId,
-          shareId: shareIds
+        let title = row === false ? '确定要取消选中的' + this.selectRowData.length + '项分享吗？' : '确定要取消分享 "' + row.fileName + '" 吗?'
+        this.$confirm(title, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         }).then(() => {
-          if(shareIds.length === 1){
-            this.fileList.splice(row.index,1)
-          }else{
-            this.getFileList()
+          let shareIds = []
+          if(row){
+            shareIds.push(row.id)
+          } else {
+            this.selectRowData.forEach(row => {
+              shareIds.push(row.id)
+            })
           }
+          api.cancelShareLink({
+            userId: this.$store.state.user.userId,
+            shareId: shareIds
+          }).then(() => {
+            if(shareIds.length === 1){
+              this.fileList.splice(row.index,1)
+            }else{
+              this.getFileList()
+            }
+          })
         })
       },
       // 点击文件或文件夹
