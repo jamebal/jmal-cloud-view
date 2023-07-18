@@ -2969,7 +2969,7 @@ export default {
       }
       this.shareDialogObject = row
       this.shareDialogObject.fileId = row.id
-      this.shareDialogObject.shareBase = undefined
+      this.shareDialogObject.shareBase = row.shareBase
       this.shareDialogVisible = true
     },
     shareSuccess(shareBase) {
