@@ -2,7 +2,7 @@
   <div>
     <show-file
       :isCollectView="true"
-      :defaultGrid="false"
+      :defaultGrid="true"
       :sortable="sortable"
       :orderCustom="true"
       :defaultSort="sortable"
