@@ -810,23 +810,27 @@ export default {
     gridFilename() {
       return function (item) {
         let filename = item.name;
-        if (item.folder) {
+        if (item.isFolder) {
           return filename;
         }
 
         // 分离文件名和后缀
         let parts = filename.split(".");
-        let suffix = parts.pop();
+        let suffix = parts.length > 1 ? parts.pop() : "";
         let base = parts.join('.');
 
+        // 计算基础名的中文字符长度
         let chineseLength = Array.from(base).reduce((count, char) => count + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
 
-        let effectiveLength = chineseLength + suffix.length + 1; // 计算文件名的有效长度，包括后缀和点
+        // 如果有后缀，计算有效长度时要加上后缀和点，否则只需要基础名和后7位
+        let effectiveLength = suffix ? chineseLength + suffix.length + 1 : chineseLength + 7;
+
         if (effectiveLength <= 14) {
           return filename;
         }
 
-        let sliceLength = 14 - suffix.length - 2; // 2 是 "…" 的长度
+        // 计算应当截取的长度，如果有后缀，要留出空间给后缀和省略号
+        let sliceLength = 14 - (suffix ? suffix.length + 1 : 7);
 
         // 截取字符串时需要考虑中文字符
         let prev = '';
@@ -840,7 +844,8 @@ export default {
           prev += char;
         }
 
-        return prev + "…" + suffix;
+        // 如果有后缀，返回 prev + "…" + suffix，否则返回 prev + "…" + base 的后7位
+        return suffix ? prev + "…" + suffix : prev + "…" + base.slice(-7);
       }
     },
     getSummaries2() {
