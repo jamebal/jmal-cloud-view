@@ -5,100 +5,93 @@
     <div id='stars2'></div>
     <div id='stars3'></div>
 
-    <el-card class="box-card">
-      <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <div class="login-content">
+      <el-card class="box-card">
+        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
-        <div class="title-container">
-          <h3 v-if="!initialize">
-            <div  class="title">
-              <Logo v-model="webstieRecord.netdiskLogo" width="65"></Logo>
-              <div class="jmal-cloud-name">
-                <div>{{ webstieRecord.netdiskName ? webstieRecord.netdiskName : 'JmalCloud' }}</div>
+          <div class="title-container">
+            <h3 v-if="!initialize">
+              <div  class="title">
+                <Logo v-model="webstieRecord.netdiskLogo" width="65"></Logo>
+                <div class="jmal-cloud-name">
+                  <div>{{ webstieRecord.netdiskName ? webstieRecord.netdiskName : 'JmalCloud' }}</div>
+                </div>
               </div>
-            </div>
-          </h3>
-          <h3 v-if="initialize" class="title">创建管理员</h3>
-        </div>
+            </h3>
+            <h3 v-if="initialize" class="title">创建管理员</h3>
+          </div>
 
-        <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-          <el-input
-            ref="username"
-            v-model="loginForm.username"
-            placeholder="用户名"
-            name="username"
-            type="text"
-            tabindex="1"
-            auto-complete="on"
-          />
-        </el-form-item>
+          <el-form-item prop="username">
+          <span class="svg-container">
+            <svg-icon icon-class="user" />
+          </span>
+            <el-input
+              ref="username"
+              v-model="loginForm.username"
+              placeholder="用户名"
+              name="username"
+              type="text"
+              tabindex="1"
+              auto-complete="on"
+            />
+          </el-form-item>
 
-        <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-          <el-input
-            :key="passwordType"
-            ref="password"
-            v-model="loginForm.password"
-            :type="passwordType"
-            placeholder="密码"
-            name="password"
-            tabindex="2"
-            auto-complete="on"
-            @keyup.enter.native="handleLogin"
-          />
-          <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
-        </el-form-item>
+          <el-form-item prop="password">
+          <span class="svg-container">
+            <svg-icon icon-class="password" />
+          </span>
+            <el-input
+              :key="passwordType"
+              ref="password"
+              v-model="loginForm.password"
+              :type="passwordType"
+              placeholder="密码"
+              name="password"
+              tabindex="2"
+              auto-complete="on"
+              @keyup.enter.native="handleLogin"
+            />
+            <span class="show-pwd" @click="showPwd">
+            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+          </span>
+          </el-form-item>
 
-        <el-form-item v-if="!initialize" class="remember">
-          <!--<el-switch v-model="loginForm.rememberMe"></el-switch>-->
-          <el-checkbox label="记住我" v-model="loginForm.rememberMe"></el-checkbox>
-        </el-form-item>
+          <el-form-item v-if="!initialize" class="remember">
+            <!--<el-switch v-model="loginForm.rememberMe"></el-switch>-->
+            <el-checkbox label="记住我" v-model="loginForm.rememberMe"></el-checkbox>
+          </el-form-item>
 
-        <el-form-item v-if="initialize" prop="confirmPassword">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-          <el-input
-            :key="passwordType"
-            ref="password"
-            v-model="loginForm.confirmPassword"
-            :type="passwordType"
-            placeholder="确认密码"
-            name="password"
-            tabindex="2"
-            auto-complete="on"
-            @keyup.enter.native="handleLogin"
-          />
-          <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
-        </el-form-item>
-
-        <el-button :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?'创建':'登录'}}</el-button>
-
-        <!--<div class="tips">-->
-        <!--<span style="margin-right:20px;">username: admin</span>-->
-        <!--<span> password: any</span>-->
-        <!--</div>-->
-
-      </el-form>
-    </el-card>
-    <footer id="footer" class="clearfix">
-      <br><br><br>
+          <el-form-item v-if="initialize" prop="confirmPassword">
+          <span class="svg-container">
+            <svg-icon icon-class="password" />
+          </span>
+            <el-input
+              :key="passwordType"
+              ref="password"
+              v-model="loginForm.confirmPassword"
+              :type="passwordType"
+              placeholder="确认密码"
+              name="password"
+              tabindex="2"
+              auto-complete="on"
+              @keyup.enter.native="handleLogin"
+            />
+            <span class="show-pwd" @click="showPwd">
+            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+          </span>
+          </el-form-item>
+          <el-button :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?'创建':'登录'}}</el-button>
+        </el-form>
+      </el-card>
+      </div>
+    <footer id="footer" class="clearfix" style="font-size: 0.725rem;">
       <div class="copyright">
-        <p><span>{{ webstieRecord.copyright }}</span></p>
-        <p>
+        <div>{{ webstieRecord.copyright }}</div>
+        <span>
           <a target="_blank" href="https://beian.miit.gov.cn" >{{ webstieRecord.recordPermissionNum }}</a>
           <a target="_blank" :href="'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode='+webstieRecord.networkRecordNumber" ><img v-if="webstieRecord.networkRecordNumberStr" src="~@/assets/img/beian.png"/>{{ webstieRecord.networkRecordNumberStr }}</a>
-        </p>
+        </span>
       </div>
-      <br>
     </footer>
   </div>
 </template>
@@ -285,6 +278,7 @@ $cursor: #409eff;
 }
 
 .login-container {
+
   .el-input {
     display: inline-block;
     height: 47px;
@@ -332,12 +326,15 @@ $light_gray:#eee;
   overflow: hidden;
   background: linear-gradient(#002766,30%, #0040f4);
 
+  .login-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
   .box-card {
-    text-align: center;
     max-width: 316px;
-    margin-top: 128px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .login-form {
