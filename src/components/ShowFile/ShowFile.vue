@@ -800,7 +800,8 @@ export default {
       showUpdateDateItem: true,// 列表模式下是否显示修改时间
       showSizeItem: true,// 列表模式下是否显示文件大小
       stopSortChange: false,
-      draging: 0,// 是否正在拖拽中，0：没有拖拽，1：拖拽中
+      draging: 0,// 是否正在拖拽中，0：没有拖拽，1：拖拽中,
+      getFileListed: false,
     }
   },
   computed: {
@@ -938,6 +939,12 @@ export default {
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
 
     Bus.$on('msg/file/operation/fault', (msg) => this.onmessageFault(msg))
+
+    setTimeout(() => {
+      if (!this.getFileListed) {
+        this.getFileList()
+      }
+    }, 50)
   },
   beforeDestroy() {
     window.removeEventListener('keydown', this.keydown, false)
@@ -2120,6 +2127,7 @@ export default {
       this.path = this.path.replace(/\\/g, '/')
     },
     getFileList(onLoad) {
+      this.getFileListed = true
       this.beforeLoadData(onLoad)
       api.fileList({
         userId: this.$store.state.user.userId,
