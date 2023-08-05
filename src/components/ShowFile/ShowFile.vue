@@ -809,28 +809,38 @@ export default {
     ]),
     gridFilename() {
       return function (item) {
-        let filename = item.name
+        let filename = item.name;
         if (item.folder) {
-          return filename
+          return filename;
         }
-        let sliceLength = 9
-        let chineseLength = 0
-        for (let i = 0; i < 9; i++) {
-          let code = filename.charCodeAt(i);
-          if (code > 255) {
-            // 如果编码大于255，说明是中文
-            chineseLength++
+
+        // 分离文件名和后缀
+        let parts = filename.split(".");
+        let suffix = parts.pop();
+        let base = parts.join('.');
+
+        let chineseLength = Array.from(base).reduce((count, char) => count + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
+
+        let effectiveLength = chineseLength + suffix.length + 1; // 计算文件名的有效长度，包括后缀和点
+        if (effectiveLength <= 14) {
+          return filename;
+        }
+
+        let sliceLength = 14 - suffix.length - 2; // 2 是 "…" 的长度
+
+        // 截取字符串时需要考虑中文字符
+        let prev = '';
+        let currentLength = 0;
+        for (let char of Array.from(base)) {
+          let charLength = char.charCodeAt(0) > 255 ? 2 : 1;
+          if (currentLength + charLength > sliceLength) {
+            break;
           }
+          currentLength += charLength;
+          prev += char;
         }
-        sliceLength -= Math.ceil(chineseLength / 2)
-        let suffix = filename.split(".").pop()
-        let prev = filename.slice(0, sliceLength)
-        let next = filename.slice(-suffix.length - 1)
-        let abb = prev + "…" + next
-        if (abb.length + 1 >= filename.length) {
-          return filename
-        }
-        return prev + "…" + next
+
+        return prev + "…" + suffix;
       }
     },
     getSummaries2() {
