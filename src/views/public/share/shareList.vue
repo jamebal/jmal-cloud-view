@@ -10,7 +10,8 @@
           <span>{{ netdiskName }}</span>
         </div>
         <div class="share-header-content sharer" v-if="sharer">
-          <span><span class="user">{{ sharer.showName }}</span>的分享</span>
+          <el-button v-if="loginTitle.length > 0" type="primary" size="small" @click="loginOrMount"> {{ loginTitle }} </el-button>
+          <span class="user">{{ sharer.showName }}的分享</span>
           <el-avatar :src="sharerAvatarUrl"></el-avatar>
         </div>
       </div>
@@ -35,6 +36,15 @@
         </div>
       </el-breadcrumb>
     </div>
+
+    <el-dialog :title="'挂载到：' + selectTreeNode.showName" :visible.sync="mountToVisible">
+      <file-tree v-if="mountToVisible" :localFileMode="false" ref="fileTreeMount" @treeNodeClick="onTreeNodeClick"></file-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="fileTreeAndNewFolder" :disabled="fileTreeAndNewFolderDisabled"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button size="small" type="primary">挂载</el-button>
+      </div>
+    </el-dialog>
+
     <!--右键菜单-->
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
@@ -284,9 +294,11 @@ import Clipboard from "clipboard";
 import OfficePreview from "@/components/preview/OfficePreview";
 import Logo from "@/components/Logo";
 import store from "@/store";
+import FileTree from "@/components/FileTree";
 
 export default {
   components: {
+    FileTree,
     Logo,
     OfficePreview, IconFile, BreadcrumbFilePath, AlLoading,
     AudioPreview, VideoPreview, ImageViewer, SimTextPreview
@@ -368,6 +380,7 @@ export default {
       dialogMoveOrCopyVisible: false,
       directoryTreeData: [],
       selectTreeNode: {},
+      fileTreeAndNewFolderDisabled: false,
       directoryTreeProps: {
         label: 'name',
         children: 'children',
@@ -404,13 +417,16 @@ export default {
       audioPreviewVisible: false,
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
       showSizeItem: this.$pc,// 列表模式下是否显示文件大小
-      sharer: undefined,//分享者信息
+      sharer: undefined,//分享者信息,
+      loginTitle: '',
       sharerAvatarUrl: '',
       netdiskName: 'JmalCloud',
       netdiskLogo: '',
       showShareCode: false,
       shareData: {},
-      extractionCode: ''
+      extractionCode: '',
+      mountToVisible: false,
+      mountFileData: [],
     }
   },
   computed: {
@@ -674,6 +690,7 @@ export default {
     getSharer() {
       api.getSharer({shareId: this.shareId}).then(res => {
         this.sharer = res.data
+        this.setLoginTitle()
         if (res.data) {
           this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
           if (this.sharer.netdiskName) {
@@ -688,6 +705,17 @@ export default {
           this.$store.dispatch('user/setLogo', {netdiskName: this.netdiskName, netdiskLogo: this.netdiskLogo})
         }
       })
+    },
+    setLoginTitle() {
+      if (this.$store.getters.token) {
+        if (this.sharer.userId === this.$store.getters.userId) {
+          this.loginTitle = ''
+        } else {
+          this.loginTitle = '挂载到我的云盘'
+        }
+      } else {
+        this.loginTitle = '登录'
+      }
     },
     currentChange(pageIndex) {
       this.pagination.pageIndex = pageIndex
@@ -934,6 +962,31 @@ export default {
       }
       this.$refs.contextShow.hideMenu()
     },
+    /**
+     * 登录或挂载
+     */
+    loginOrMount() {
+      if (this.$store.getters.token) {
+        // 挂载
+        this.mountToVisible = true
+        const that = this
+        // setTimeout(function () {
+        //   that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
+        //   that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
+        // }, 100)
+      } else {
+        // 登录
+        this.$router.push({path: '/login', query: {redirect: this.$route.fullPath}})
+      }
+    },
+    fileTreeAndNewFolder() {
+      this.$refs.fileTreeMount.fileTreeAndNewFolder(this.selectTreeNode)
+    },
+    onTreeNodeClick(row) {
+      this.fileTreeAndNewFolderDisabled = row.hasOwnProperty('newFolder');
+      this.selectTreeNode = row
+      this.selectTreeNode.showName = ' "' + row.name + '"'
+    },
     downloadFile(copy) {
       let totalSize = 0
       if (this.indexList.length > 0) {
@@ -1085,8 +1138,12 @@ export default {
   text-align: center;
   font-size: 18px;
   font-weight: 500;
-  margin-top: 20px;
-  height: 45px;
+  margin-bottom: 10px;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  justify-content: space-between;
 
   .logo {
     font-size: 20px;
@@ -1109,7 +1166,6 @@ export default {
     font-size: 14px;
     float: right;
     top: 10px;
-    margin-top: -34px;
 
     > > > .el-avatar {
       margin: 0 0 0 10px;
@@ -1209,6 +1265,14 @@ export default {
   color: #25262b5c;
   font-size: 12px;
   margin-top: 10px;
+}
+
+>>> .el-input-tree {
+  width: 50% !important;
+}
+
+>>> .el-input-tree-button {
+  margin-left: 5px !important;
 }
 
 </style>
