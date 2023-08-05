@@ -485,7 +485,7 @@
       >
       </el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
+        <el-button size="small" @click="fileTreeAndNewFolder" :disabled="fileTreeAndNewFolderDisabled"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
         </el-button>
         <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
         <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
@@ -742,6 +742,7 @@ export default {
       titlePrefix: '',
       unzipOperating: false,
       dialogMoveOrCopyVisible: false,
+      fileTreeAndNewFolderDisabled: false,
       directoryTreeData: [],
       compressedFileVisible: false,
       compressedFileData: [],
@@ -2767,6 +2768,7 @@ export default {
     },
     // 点击文件树
     treeNodeClick(row, node, event) {
+      this.fileTreeAndNewFolderDisabled = row.hasOwnProperty('newFolder');
       this.selectTreeNode = row
       this.selectTreeNode.showName = ' "' + row.name + '"'
     },
