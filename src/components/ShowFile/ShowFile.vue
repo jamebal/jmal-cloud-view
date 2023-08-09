@@ -1,23 +1,42 @@
 <template>
   <div>
-    <div class="dashboard-container" v-resize="containerResize" onselectstart="return false">
+    <div
+      class="dashboard-container"
+      v-resize="containerResize"
+      onselectstart="return false"
+    >
       <v-contextmenu ref="homeContextmenu" :disabled="contextmenuDisabled">
         <div v-for="item of contextMenus" :key="item.operation">
           <!-- 一级菜单 -->
-          <v-contextmenu-item v-if="!item.child" :divider="item.divider?true:false"
-                              @click="contextmenuClick(item.operation)">
-            <svg-icon v-if="item.iconClass" :icon-class="item.iconClass"></svg-icon>
+          <v-contextmenu-item
+            v-if="!item.child"
+            :divider="item.divider ? true : false"
+            @click="contextmenuClick(item.operation)"
+          >
+            <svg-icon
+              v-if="item.iconClass"
+              :icon-class="item.iconClass"
+            ></svg-icon>
             {{ item.label }}
           </v-contextmenu-item>
           <v-contextmenu-submenu v-if="item.child" :title="item.label">
             <!-- 二级菜单 -->
             <div v-for="itemSecond of item.child" :key="itemSecond.operation">
-              <v-contextmenu-item v-if="!itemSecond.child" :divider="itemSecond.divider?true:false"
-                                  @click="contextmenuClick(itemSecond.operation)">
-                <svg-icon v-if="itemSecond.iconClass" :icon-class="itemSecond.iconClass"></svg-icon>
+              <v-contextmenu-item
+                v-if="!itemSecond.child"
+                :divider="itemSecond.divider ? true : false"
+                @click="contextmenuClick(itemSecond.operation)"
+              >
+                <svg-icon
+                  v-if="itemSecond.iconClass"
+                  :icon-class="itemSecond.iconClass"
+                ></svg-icon>
                 {{ itemSecond.label }}
               </v-contextmenu-item>
-              <v-contextmenu-submenu v-if="itemSecond.child" :title="itemSecond.label">
+              <v-contextmenu-submenu
+                v-if="itemSecond.child"
+                :title="itemSecond.label"
+              >
               </v-contextmenu-submenu>
             </div>
           </v-contextmenu-submenu>
@@ -26,20 +45,41 @@
 
       <el-breadcrumb class="app-breadcrumb" separator="">
         <transition-group name="breadcrumb" v-if="showNavigation">
-          <el-breadcrumb-item v-for="(item,index) in pathList" :key="item.folder+index">
-            <el-tooltip v-if="index===0 && pathList.length > 1" class="item" effect="dark" content="返回上一级"
-                        placement="top">
+          <el-breadcrumb-item
+            v-for="(item, index) in pathList"
+            :key="item.folder + index"
+          >
+            <el-tooltip
+              v-if="index === 0 && pathList.length > 1"
+              class="item"
+              effect="dark"
+              content="返回上一级"
+              placement="top"
+            >
               <a @click.prevent="lastLink()">
-                <svg-icon icon-class="back" style="font-size: 24px;margin-left: 20px;"/>&nbsp;</a>
+                <svg-icon
+                  icon-class="back"
+                  style="font-size: 24px;margin-left: 20px;"
+                />&nbsp;</a
+              >
             </el-tooltip>
-            <el-tooltip v-if="index===0 && pathList.length > 2" class="item" effect="dark" content="根目录"
-                        placement="top">
-              <a class="home-link" @click.prevent="handleLink(item,index)">
-                <svg-icon icon-class="home" style="font-size: 24px;"/>
+            <el-tooltip
+              v-if="index === 0 && pathList.length > 2"
+              class="item"
+              effect="dark"
+              content="根目录"
+              placement="top"
+            >
+              <a class="home-link" @click.prevent="handleLink(item, index)">
+                <svg-icon icon-class="home" style="font-size: 24px;" />
               </a>
             </el-tooltip>
-            <breadcrumb-file-path :pathList="pathList" :item="item" :index="index"
-                                  @clickLink="handleLink"></breadcrumb-file-path>
+            <breadcrumb-file-path
+              :pathList="pathList"
+              :item="item"
+              :index="index"
+              @clickLink="handleLink"
+            ></breadcrumb-file-path>
           </el-breadcrumb-item>
         </transition-group>
         <div class="search-content">
@@ -56,31 +96,40 @@
                 <ul>
                   <li @click="upload">
                     <label class="menuitem">
-                      <svg-icon icon-class="file-upload"/>
-                      <span class="menuitem text">{{ singleFileType !== '' ? singleFileType : '上传文件' }}</span>
+                      <svg-icon icon-class="file-upload" />
+                      <span class="menuitem text">{{
+                        singleFileType !== "" ? singleFileType : "上传文件"
+                      }}</span>
                     </label>
                   </li>
                   <li v-if="singleFileType === ''" @click="uploadFolder">
                     <label class="menuitem">
-                      <svg-icon icon-class="folder-upload"/>
+                      <svg-icon icon-class="folder-upload" />
                       <span class="menuitem text">上传文件夹</span>
                     </label>
                   </li>
                   <li v-if="singleFileType === ''" @click.prevent="newDocument">
                     <a href="#" class="menuitem">
-                      <svg-icon icon-class="md"/>
+                      <svg-icon icon-class="md" />
                       <span class="menuitem text">写文章</span>
                     </a>
                   </li>
                   <li v-if="singleFileType === ''" @click.prevent="newFolder">
                     <a href="#" class="menuitem">
-                      <svg-icon icon-class="folder-add"/>
+                      <svg-icon icon-class="folder-add" />
                       <span class="menuitem text">新建文件夹</span>
                     </a>
                   </li>
                   <div v-show="showNewFolder" class="folder-name-form">
-                    <el-input ref="newFolderName" v-model="newFolderName" placeholder="请输入文件夹名称" :clearable="true"
-                              @keyup.enter.native="newFolderNameClickEnter" @focus="setInputFocus" @blur="setInputBlur()">
+                    <el-input
+                      ref="newFolderName"
+                      v-model="newFolderName"
+                      placeholder="请输入文件夹名称"
+                      :clearable="true"
+                      @keyup.enter.native="newFolderNameClickEnter"
+                      @focus="setInputFocus"
+                      @blur="setInputBlur()"
+                    >
                       <el-button
                         slot="append"
                         v-loading="newFolderLoading"
@@ -94,46 +143,91 @@
                   </div>
                 </ul>
               </div>
-              <button-upload slot="reference" :name="''" @click.native="upload"
-                             style="margin-right: 5px"></button-upload>
+              <button-upload
+                slot="reference"
+                :name="''"
+                @click.native="upload"
+                style="margin-right: 5px"
+              ></button-upload>
             </el-popover>
 
-            <el-input v-show="showSearchButton" placeholder="搜索" v-model="searchFileName" :clearable="true"
-                      @keyup.enter.native="searchFile(searchFileName)" @focus="setInputFocus" @blur="setInputBlur()">
+            <el-input
+              v-show="showSearchButton"
+              placeholder="搜索"
+              v-model="searchFileName"
+              :clearable="true"
+              @keyup.enter.native="searchFile(searchFileName)"
+              @focus="setInputFocus"
+              @blur="setInputBlur()"
+            >
               <el-button slot="prepend" @click="searchFile(searchFileName)">
-                <svg-icon icon-class="search" style="font-size: 22px"/>
+                <svg-icon icon-class="search" style="font-size: 22px" />
               </el-button>
             </el-input>
-            <el-dropdown size="medium" style="height: 40px;" @command="contextmenuClick">
+            <el-dropdown
+              size="medium"
+              style="height: 40px;"
+              @command="contextmenuClick"
+            >
               <el-button type="text" class="sort">
-                <svg-icon icon-class="sort"/>
+                <svg-icon icon-class="sort" />
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="orderName">
-                  <span :class="{'al-file-sort-item': true, 'active': sortable.prop === 'name'}">
+                  <span
+                    :class="{
+                      'al-file-sort-item': true,
+                      active: sortable.prop === 'name'
+                    }"
+                  >
                     <i
-                      :class="{'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
+                      :class="{
+                        'al-file-sort-item-icon': true,
+                        'el-icon-top': sortable.order === 'ascending',
+                        'el-icon-bottom': sortable.order === 'descending'
+                      }"
+                    ></i>
                     <span>名称</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderSize">
-                  <span :class="{'al-file-sort-item': true, 'active': sortable.prop === 'size'}">
+                  <span
+                    :class="{
+                      'al-file-sort-item': true,
+                      active: sortable.prop === 'size'
+                    }"
+                  >
                     <i
-                      :class="{'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
+                      :class="{
+                        'al-file-sort-item-icon': true,
+                        'el-icon-top': sortable.order === 'ascending',
+                        'el-icon-bottom': sortable.order === 'descending'
+                      }"
+                    ></i>
                     <span>大小</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderUpdateDate">
-                  <span :class="{'al-file-sort-item': true, 'active': sortable.prop === 'updateDate'}">
+                  <span
+                    :class="{
+                      'al-file-sort-item': true,
+                      active: sortable.prop === 'updateDate'
+                    }"
+                  >
                     <i
-                      :class="{'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
+                      :class="{
+                        'al-file-sort-item-icon': true,
+                        'el-icon-top': sortable.order === 'ascending',
+                        'el-icon-bottom': sortable.order === 'descending'
+                      }"
+                    ></i>
                     <span>日期</span>
                   </span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <el-button type="text" class="vmode" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'list' : 'grid'"/>
+              <svg-icon :icon-class="grid ? 'list' : 'grid'" />
             </el-button>
           </div>
         </div>
@@ -142,38 +236,55 @@
         <!--统计信息-->
         <div class="info-statistics">
           <span v-if="tableLoading">获取更多数据...</span>
-          <span v-if="!tableLoading">{{ !finished ? '已加载 ' + getSummaries3 : '已全部加载 ' + getSummaries3 }}</span>
+          <span v-if="!tableLoading">{{
+            !finished
+              ? "已加载 " + getSummaries3
+              : "已全部加载 " + getSummaries3
+          }}</span>
         </div>
       </div>
 
       <!--右键菜单-->
-      <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
+      <e-vue-contextmenu
+        ref="contextShow"
+        class="newFileMenu"
+        :class="menuTriangle"
+        @ctx-show="show"
+        @ctx-hide="hide"
+      >
         <div class="popper-arrow"></div>
-        <ul v-for="(item,index) in menus" :key="item.label">
+        <ul v-for="(item, index) in menus" :key="item.label">
           <li
-            v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
+            v-if="
+              item.operation === 'unFavorite' || item.operation === 'favorite'
+            "
             @click="menusOperations(item.operation)"
-            @mouseover.prevent.stop="menuFavoriteOver(index,rowContextData.isFavorite)"
-            @mouseleave.prevent.stop="menuFavoriteLeave(index,rowContextData.isFavorite)"
+            @mouseover.prevent.stop="
+              menuFavoriteOver(index, rowContextData.isFavorite)
+            "
+            @mouseleave.prevent.stop="
+              menuFavoriteLeave(index, rowContextData.isFavorite)
+            "
           >
             <label class="menuitem">
-              <svg-icon :icon-class="item.iconClass"/>
+              <svg-icon :icon-class="item.iconClass" />
               <span class="menuitem text">{{ item.label }}</span>
             </label>
           </li>
-          <li
-            v-else
-            @click="menusOperations(item.operation)"
-          >
+          <li v-else @click="menusOperations(item.operation)">
             <label class="menuitem">
-              <svg-icon :icon-class="item.iconClass"/>
+              <svg-icon :icon-class="item.iconClass" />
               <span class="menuitem text">{{ item.label }}</span>
             </label>
           </li>
         </ul>
       </e-vue-contextmenu>
       <!--list布局-->
-      <div v-show="fileList.length > 0" id="v-draw-rectangle" :style="{'width':'100%','height': clientHeight +'px'}">
+      <div
+        v-show="fileList.length > 0"
+        id="v-draw-rectangle"
+        :style="{ width: '100%', height: clientHeight + 'px' }"
+      >
         <pl-table
           ref="fileListTable"
           v-show="!grid"
@@ -205,7 +316,7 @@
           @table-body-scroll="tableBodyScroll"
           @select="pinSelect"
         >
-          <template v-for="(item,index) in tableHead">
+          <template v-for="(item, index) in tableHead">
             <pl-table-column
               v-if="index === 1"
               :key="index"
@@ -215,7 +326,11 @@
               width="80"
             >
               <template slot-scope="scope">
-                <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
+                <icon-file
+                  :item="scope.row"
+                  :image-url="imageUrl"
+                  :audio-cover-url="audioCoverUrl"
+                ></icon-file>
               </template>
             </pl-table-column>
             <!--名称-->
@@ -228,43 +343,91 @@
               :prop="item.name"
               :label="item.label"
               :sort-orders="['ascending', 'descending']"
-              :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+              :sortable="
+                item.sortable ? (orderCustom ? 'custom' : true) : false
+              "
             >
               <template slot-scope="scope">
-                <el-input v-if="scope.row.index === editingIndex" :span="10"
-                          v-focus v-model="renameFileName" placeholder="" size="small"
-                          @focus="renameInputFocus($event.currentTarget,scope.row.suffix)"
-                          @blur="setInputBlur()"
-                          @keyup.enter.native="rowRename(renameFileName, scope.row)">
+                <el-input
+                  v-if="scope.row.index === editingIndex"
+                  :span="10"
+                  v-focus
+                  v-model="renameFileName"
+                  placeholder=""
+                  size="small"
+                  @focus="
+                    renameInputFocus($event.currentTarget, scope.row.suffix)
+                  "
+                  @blur="setInputBlur()"
+                  @keyup.enter.native="rowRename(renameFileName, scope.row)"
+                >
                 </el-input>
                 <div v-else class="table-file-name">
                   {{ scope.row.name }}
-                  <el-tag v-if="scope.row.ossPlatform" size="small" class="pc list oss-folder">{{ scope.row.ossPlatform }}</el-tag>
+                  <el-tag
+                    v-if="scope.row.ossPlatform"
+                    size="small"
+                    class="pc list oss-folder"
+                    >{{ scope.row.ossPlatform }}
+                  </el-tag>
                 </div>
               </template>
             </pl-table-column>
             <!--分享-->
-            <pl-table-column v-if="index === 3 && showShareItem" :key="index" width="50" :index="index" align="center"
-                             header-align="center" tooltip-effect="dark">
+            <pl-table-column
+              v-if="index === 3 && showShareItem"
+              :key="index"
+              width="50"
+              :index="index"
+              align="center"
+              header-align="center"
+              tooltip-effect="dark"
+            >
               <template slot-scope="scope">
-                <el-tooltip v-if="scope.row.index === cellMouseIndex" class="item" effect="light" content="分享"
-                            placement="top">
-                  <svg-icon title="分享" class="button-class" icon-class="share" @click.stop="share(scope.row)"/>
+                <el-tooltip
+                  v-if="scope.row.index === cellMouseIndex"
+                  class="item"
+                  effect="light"
+                  content="分享"
+                  placement="top"
+                >
+                  <svg-icon
+                    title="分享"
+                    class="button-class"
+                    icon-class="share"
+                    @click.stop="share(scope.row)"
+                  />
                 </el-tooltip>
               </template>
             </pl-table-column>
             <!--更多-->
-            <pl-table-column v-if="index === 4 && showMoreItem" :key="index" width="50" :prop="item.name"
-                             :label="item.label"
-                             :index="index" class="el-icon-more" align="center" header-align="center">
+            <pl-table-column
+              v-if="index === 4 && showMoreItem"
+              :key="index"
+              width="50"
+              :prop="item.name"
+              :label="item.label"
+              :index="index"
+              class="el-icon-more"
+              align="center"
+              header-align="center"
+            >
               <!-- 使用组件, 并传值到组件中 -->
               <template slot="header">
-                <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more"
-                          @click.stop="moreOperation($event)"/>
+                <svg-icon
+                  v-if="item.name !== ''"
+                  class="button-class"
+                  icon-class="more"
+                  @click.stop="moreOperation($event)"
+                />
               </template>
               <template slot-scope="scope">
-                <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more"
-                          @click.stop="moreClick(scope.row,$event)"/>
+                <svg-icon
+                  v-if="scope.row.index === cellMouseIndex"
+                  class="button-class"
+                  icon-class="more"
+                  @click.stop="moreClick(scope.row, $event)"
+                />
               </template>
             </pl-table-column>
             <!--文件大小-->
@@ -276,7 +439,9 @@
               :index="index"
               :label="item.label"
               :sort-orders="['ascending', 'descending']"
-              :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+              :sortable="
+                item.sortable ? (orderCustom ? 'custom' : true) : false
+              "
               :show-overflow-tooltip="true"
               align="left"
               header-align="left"
@@ -294,67 +459,132 @@
               :index="index"
               :label="item.label"
               :sort-orders="['ascending', 'descending']"
-              :sortable="item.sortable ? (orderCustom ?'custom':true) : false"
+              :sortable="
+                item.sortable ? (orderCustom ? 'custom' : true) : false
+              "
               :show-overflow-tooltip="true"
               align="left"
               header-align="left"
             >
               <template slot-scope="scope">
-
-                <el-tooltip class="item" effect="light" :content="scope.row.updateDate" placement="top">
-                  <span>&nbsp;&nbsp;&nbsp;{{ formatTime(scope.row.agoTime) }}</span>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  :content="scope.row.updateDate"
+                  placement="top"
+                >
+                  <span
+                    >&nbsp;&nbsp;&nbsp;{{ formatTime(scope.row.agoTime) }}</span
+                  >
                 </el-tooltip>
               </template>
             </pl-table-column>
           </template>
         </pl-table>
 
-
         <!--grid布局-->
-        <div v-show="grid" v-loading="tableLoading"
-             element-loading-text="文件加载中"
-             element-loading-spinner="el-icon-loading"
-             element-loading-background="#f6f7fa88">
-
-          <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-            <van-grid square :center="true" :column-num="gridColumnNum" :gutter="10" :border="false"
-                      :style="{'width':'100%','max-height': clientHeight-25+'px','overflow':'auto', 'box-shadow': fileListScrollTop > 0 ? '#a5a7a8 0px 0px 3px' : '#ffffff 0px 0px 0px'}">
-              <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
-                             :title="'大小：'+formatSize(item.size)+'\r\n'+(item.w && item.h ? '分辨率：'+item.w + 'x' + item.h +'\r\n' : '')+'名称：'+item.name+'\r\n'+'创建时间：'+item.uploadDate+'\r\n'+'修改时间：'+item.updateDate+'\r\n'+'路径：'+item.path"
+        <div
+          v-show="grid"
+          v-loading="tableLoading"
+          element-loading-text="文件加载中"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="#f6f7fa88"
+        >
+          <van-checkbox-group
+            v-model="selectRowData"
+            @change="handleSelectionChange"
+            ref="checkboxGroup"
+          >
+            <van-grid
+              square
+              :center="true"
+              :column-num="gridColumnNum"
+              :gutter="10"
+              :border="false"
+              :style="{
+                width: '100%',
+                'max-height': clientHeight - 25 + 'px',
+                overflow: 'auto',
+                'box-shadow':
+                  fileListScrollTop > 0
+                    ? '#a5a7a8 0px 0px 3px'
+                    : '#ffffff 0px 0px 0px'
+              }"
+            >
+              <van-grid-item
+                v-for="(item, index) in fileList"
+                ref="gridItem"
+                :key="item.id"
+                :title="
+                  '大小：' +
+                    formatSize(item.size) +
+                    '\r\n' +
+                    (item.w && item.h
+                      ? '分辨率：' + item.w + 'x' + item.h + '\r\n'
+                      : '') +
+                    '名称：' +
+                    item.name +
+                    '\r\n' +
+                    '创建时间：' +
+                    item.uploadDate +
+                    '\r\n' +
+                    '修改时间：' +
+                    item.updateDate +
+                    '\r\n' +
+                    '路径：' +
+                    item.path
+                "
               >
                 <div
                   class="grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
                   :style="{
-                  'background': selectRowData.includes(item)?'#caeaf991':'',
-                  'background-size': 'cover',
-                  'background-position': 'center',
-                  'border': selectRowData.includes(item)?'solid 1px #409eff':'',
+                    background: selectRowData.includes(item) ? '#caeaf991' : '',
+                    'background-size': 'cover',
+                    'background-position': 'center',
+                    border: selectRowData.includes(item)
+                      ? 'solid 1px #409eff'
+                      : ''
                   }"
                   @click="gridItemClick(item)"
                   @dblclick="fileClick(item)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
-                  <div class="grid-hover-back grid-hover van-grid-item__content van-grid-item__content--center van-grid-item__content--square">
-                  <div class="grid-item-icon">
-                    <icon-file :item="item" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :grid="true"
-                               :grid-width="gridColumnWidth"></icon-file>
+                  <div
+                    class="grid-hover-back grid-hover van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                  >
+                    <div class="grid-item-icon">
+                      <icon-file
+                        :item="item"
+                        :image-url="imageUrl"
+                        :audio-cover-url="audioCoverUrl"
+                        :grid="true"
+                        :grid-width="gridColumnWidth"
+                      ></icon-file>
+                    </div>
+                    <el-input
+                      v-if="item.index === editingIndex"
+                      v-focus
+                      v-model="renameFileName"
+                      class="grid-item-text"
+                      placeholder=""
+                      type="textarea"
+                      autosize
+                      size="small"
+                      @focus="
+                        renameInputFocus($event.currentTarget, item.suffix)
+                      "
+                      @blur="setInputBlur()"
+                      @keyup.enter.prevent.native="
+                        rowRename(renameFileName, item)
+                      "
+                    >
+                    </el-input>
+                    <div v-else>
+                      <div class="grid-item-text">
+                        <span>{{ gridFilename(item) }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <el-input v-if="item.index === editingIndex"
-                            v-focus
-                            v-model="renameFileName"
-                            class="grid-item-text"
-                            placeholder=""
-                            type="textarea"
-                            autosize
-                            size="small"
-                            @focus="renameInputFocus($event.currentTarget, item.suffix)"
-                            @blur="setInputBlur()"
-                            @keyup.enter.prevent.native="rowRename(renameFileName, item)">
-                  </el-input>
-                  <div v-else>
-                    <div class="grid-item-text"><span>{{ gridFilename(item) }}</span></div>
-                  </div>
-                </div>
                 </div>
               </van-grid-item>
             </van-grid>
@@ -368,59 +598,100 @@
         :emptyStatus="emptyStatus"
       >
       </empty-file>
-      <img id="dragImage" draggable="false" style="position: fixed;opacity: 0" src="~@/assets/img/hide.png">
+      <img
+        id="dragImage"
+        draggable="false"
+        style="position: fixed;opacity: 0"
+        src="~@/assets/img/hide.png"
+      />
       <div id="numberFiles" class="number-files" v-if="!selectFile">
-        <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: none"/>
+        <img
+          class="icon"
+          src="~@/assets/img/arrow1_left.png"
+          style="display: none"
+        />
         <div class="number" style="display: inline">1个文件</div>
         <div class="operate" style="display: none;white-space: nowrap;">
           移动到：
         </div>
         <div class="target">
-          <span class="folder" style="display: none;white-space: nowrap;">document</span>
+          <span class="folder" style="display: none;white-space: nowrap;"
+            >document</span
+          >
         </div>
       </div>
     </div>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
-    <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
-    <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
-    <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
-    <office-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></office-preview>
+    <sim-text-preview
+      :file.sync="textPreviewRow"
+      :status.sync="textPreviewVisible"
+    ></sim-text-preview>
+    <image-viewer
+      :fileList="fileList"
+      :file="imagePreviewRow"
+      :status.sync="imagePreviewVisible"
+    ></image-viewer>
+    <video-preview
+      :file="videoPreviewRow"
+      :status.sync="videoPreviewVisible"
+    ></video-preview>
+    <office-preview
+      :file="officePreviewRow"
+      :status.sync="officePreviewVisible"
+    ></office-preview>
     <!--文件详细信息-->
-    <el-drawer
-      :title="rowContextData.name"
-      :visible.sync="drawer">
+    <el-drawer :title="rowContextData.name" :visible.sync="drawer">
       <div class="drawer-icon">
-        <icon-file class="drawer-icon-font" :grid="true" :details="true" :item="rowContextData" :image-url="imageUrl"
-                   :audio-cover-url="audioCoverUrl"></icon-file>
+        <icon-file
+          class="drawer-icon-font"
+          :grid="true"
+          :details="true"
+          :item="rowContextData"
+          :image-url="imageUrl"
+          :audio-cover-url="audioCoverUrl"
+        ></icon-file>
       </div>
       <el-form class="details-form">
         <el-form-item label="名称:">
           <span>{{ rowContextData.name }}</span>
         </el-form-item>
         <el-form-item label="类型:" class="details-name">
-          <span>{{ rowContextData.isFolder ? '文件夹' : rowContextData.contentType }}</span>
+          <span>{{
+            rowContextData.isFolder ? "文件夹" : rowContextData.contentType
+          }}</span>
         </el-form-item>
         <div v-if="rowContextData.music">
           <el-form-item label="🎵 歌手:">
             <span>{{ rowContextData.music.singer }}</span>
           </el-form-item>
           <el-form-item label="🎵 专辑:">
-            <span>{{ '《' + rowContextData.music.album + '》' }}</span>
+            <span>{{ "《" + rowContextData.music.album + "》" }}</span>
           </el-form-item>
           <el-form-item label="🎵 歌名:">
-            <span>{{ '《' + rowContextData.music.songName + '》' }}</span>
+            <span>{{ "《" + rowContextData.music.songName + "》" }}</span>
           </el-form-item>
         </div>
-        <el-form-item v-show="rowContextData.w && rowContextData.h" label="分辨率:" class="details-resolution">
-          <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
+        <el-form-item
+          v-show="rowContextData.w && rowContextData.h"
+          label="分辨率:"
+          class="details-resolution"
+        >
+          <span>{{ rowContextData.w + " x " + rowContextData.h }}</span>
         </el-form-item>
         <el-form-item label="大小:">
-          <span> {{
-              rowContextData.size
-            }}字节 {{ rowContextData.size > 0 ? '(' + formatSize(rowContextData.size) + ')' : '' }}</span>
+          <span>
+            {{ rowContextData.size }}字节
+            {{
+              rowContextData.size > 0
+                ? "(" + formatSize(rowContextData.size) + ")"
+                : ""
+            }}</span
+          >
         </el-form-item>
         <el-form-item label="位置:" class="details-position">
-          <a :href="'/?path='+rowContextData.path">{{ rowContextData.path }}</a>
+          <a :href="'/?path=' + rowContextData.path">{{
+            rowContextData.path
+          }}</a>
         </el-form-item>
         <el-form-item label="创建时间:">
           <span>{{ rowContextData.uploadDate }}</span>
@@ -435,13 +706,25 @@
       class="open-file-dialog"
       title="提示"
       top="35vh"
-      :visible.sync="openCompressionVisible">
+      :visible.sync="openCompressionVisible"
+    >
       <svg-icon icon-class="open-folder"></svg-icon>
       <span class="dialog-msg">查看压缩文件</span>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="unzipTo(openingFile)">解压到...</el-button>
-      <el-button size="small" @click="unzip(openingFile,openingFile.id,false)">解压到当前目录</el-button>
-      <el-button size="small" type="primary" @click=compressionFilePreview(openingFile)>预览</el-button>
+        <el-button size="small" @click="unzipTo(openingFile)"
+          >解压到...</el-button
+        >
+        <el-button
+          size="small"
+          @click="unzip(openingFile, openingFile.id, false)"
+          >解压到当前目录</el-button
+        >
+        <el-button
+          size="small"
+          type="primary"
+          @click="compressionFilePreview(openingFile)"
+          >预览</el-button
+        >
       </span>
     </el-dialog>
 
@@ -458,13 +741,19 @@
     </message-dialog>
 
     <!--展示压缩文件-->
-    <el-dialog :title="'预览:'+compressedFileName" :visible.sync="compressedFileVisible">
-      <file-tree :directoryTreeData="compressedFileData" :tempDir="compressedFileTempDir"></file-tree>
+    <el-dialog
+      :title="'预览:' + compressedFileName"
+      :visible.sync="compressedFileVisible"
+    >
+      <file-tree
+        :directoryTreeData="compressedFileData"
+        :tempDir="compressedFileTempDir"
+      ></file-tree>
     </el-dialog>
 
     <!--移动或复制弹出框-->
     <el-dialog
-      :title="titlePrefix+selectTreeNode.showName"
+      :title="titlePrefix + selectTreeNode.showName"
       :visible.sync="dialogMoveOrCopyVisible"
       @close="clearTreeNode"
     >
@@ -485,46 +774,83 @@
       >
       </el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="fileTreeAndNewFolder" :disabled="fileTreeAndNewFolderDisabled"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
+        <el-button
+          size="small"
+          @click="fileTreeAndNewFolder"
+          :disabled="fileTreeAndNewFolderDisabled"
+          ><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
         </el-button>
-        <el-button v-if="!unzipOperating" size="small" type="primary" @click="moveFileTree">移 动</el-button>
-        <el-button v-if="!unzipOperating" size="small" type="primary" @click="copyFileTree">复制</el-button>
-        <el-button v-if="unzipOperating" size="small" type="primary" @click="confirmUnzip">解压</el-button>
-        <el-button size="small" @click="dialogMoveOrCopyVisible = false">取 消</el-button>
+        <el-button
+          v-if="!unzipOperating"
+          size="small"
+          type="primary"
+          @click="moveFileTree"
+          >移 动</el-button
+        >
+        <el-button
+          v-if="!unzipOperating"
+          size="small"
+          type="primary"
+          @click="copyFileTree"
+          >复制</el-button
+        >
+        <el-button
+          v-if="unzipOperating"
+          size="small"
+          type="primary"
+          @click="confirmUnzip"
+          >解压</el-button
+        >
+        <el-button size="small" @click="dialogMoveOrCopyVisible = false"
+          >取 消</el-button
+        >
       </div>
     </el-dialog>
 
-    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onSuccess="shareSuccess"></share-dialog>
+    <share-dialog
+      :file.sync="shareDialogObject"
+      :status.sync="shareDialogVisible"
+      @onSuccess="shareSuccess"
+    ></share-dialog>
     <el-dialog
       class="new-text-file-dialog"
       :title="newCreateFileDialogTitle"
       :close-on-click-modal="false"
-      :visible.sync="newCreateFileDialog">
+      :visible.sync="newCreateFileDialog"
+    >
       <el-input
-        ref="newCreateFileName" size="small"
+        ref="newCreateFileName"
+        size="small"
         v-model="newCreateFileName"
         class="dialog-msg"
-        @focus="renameInputFocus($event.currentTarget,'')" :clearable="true"
+        @focus="renameInputFocus($event.currentTarget, '')"
+        :clearable="true"
         @blur="setInputBlur()"
         @keyup.enter.native="createFile(newCreateFileName)"
       ></el-input>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="newCreateFileDialog=false">取消</el-button>
-        <el-button size="small" type="primary" @click="createFile(newCreateFileName)"
-                   v-loading="createFileLoading">确定</el-button>
+        <el-button size="small" @click="newCreateFileDialog = false"
+          >取消</el-button
+        >
+        <el-button
+          size="small"
+          type="primary"
+          @click="createFile(newCreateFileName)"
+          v-loading="createFileLoading"
+          >确定</el-button
+        >
       </span>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
-import {formatSize, formatTime} from '@/utils/number'
-import {getElementToPageLeft} from '@/utils/dom'
-import {suffix} from '@/utils/file-type'
-import Bus from '@/assets/js/bus'
-import api from '@/api/file-api'
+import { mapGetters } from "vuex";
+import { formatSize, formatTime } from "@/utils/number";
+import { getElementToPageLeft } from "@/utils/dom";
+import { suffix } from "@/utils/file-type";
+import Bus from "@/assets/js/bus";
+import api from "@/api/file-api";
 import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "@/components/Icon/IconFile";
 import EmptyFile from "@/components/EmptyFile";
@@ -535,37 +861,45 @@ import AudioPreview from "@/components/preview/AudioPreview";
 import ButtonUpload from "@/components/button/ButtonUpload";
 import MessageDialog from "@/components/message/MessageDialog";
 
-import FileTree from "@/components/FileTree"
+import FileTree from "@/components/FileTree";
 
-import '@/utils/directives.js'
+import "@/utils/directives.js";
 
-import fileConfig from '@/utils/file-config'
+import fileConfig from "@/utils/file-config";
 import EditElement from "@/views/markdown/EditElement";
 import OfficePreview from "@/components/preview/OfficePreview";
 import ShareDialog from "@/components/ShareDialog/index.vue";
 
 export default {
-  name: 'ShowFile',
+  name: "ShowFile",
   components: {
     ShareDialog,
     OfficePreview,
     EditElement,
-    MessageDialog, AudioPreview, VideoPreview, ImageViewer, SimTextPreview, IconFile, BreadcrumbFilePath, EmptyFile,
+    MessageDialog,
+    AudioPreview,
+    VideoPreview,
+    ImageViewer,
+    SimTextPreview,
+    IconFile,
+    BreadcrumbFilePath,
+    EmptyFile,
     ButtonUpload,
     FileTree
   },
   props: {
-    selectFile: { // 是否为选择文件模式
+    selectFile: {
+      // 是否为选择文件模式
       type: Boolean,
       defalut: false
     },
     lessClientHeight: {
       type: Number,
-      default: 106,
+      default: 106
     },
     showUploadButton: {
       type: Boolean,
-      default: true,
+      default: true
     },
     showSearchButton: {
       type: Boolean,
@@ -584,91 +918,83 @@ export default {
       default: false
     },
     emptyStatus: {
-      'type': String,
-      'default': '空空如也~',
+      type: String,
+      default: "空空如也~"
     },
     singleFileType: {
-      'type': String,
-      'default': '',
+      type: String,
+      default: ""
     },
     showNavigation: {
-      'type': Boolean,
-      'default': true,
+      type: Boolean,
+      default: true
     },
     queryFileType: {
-      'type': String,
-      'default': null
+      type: String,
+      default: null
     },
     defaultGrid: {
-      'type': Boolean,
-      'default': true
+      type: Boolean,
+      default: true
     },
     orderCustom: {
-      'type': Boolean,
-      'default': false
+      type: Boolean,
+      default: false
     },
     sortable: {
-      'type': Object,
-      'default': function () {
-        return {prop: '', order: null}
+      type: Object,
+      default: function() {
+        return { prop: "", order: null };
       }
     },
     queryCondition: {
-      'type': Object,
-      'default': function () {
-        return {isFolder: null}
+      type: Object,
+      default: function() {
+        return { isFolder: null };
       }
     },
     singleMenus: {
-      'type': Array,
-      'default': function () {
+      type: Array,
+      default: function() {
         return [
-          {iconClass: 'menu-open', label: '打开', operation: 'open'},
-          {iconClass: 'share', label: '分享', operation: 'share'},
-          {iconClass: 'menu-favorite', label: '收藏', operation: 'favorite'},
-          {iconClass: 'menu-details', label: '详细信息', operation: 'details'},
-          {iconClass: 'menu-rename', label: '重命名', operation: 'rename'},
-          {iconClass: 'menu-copy', label: '移动或复制', operation: 'copy'},
-          {iconClass: 'menu-download', label: '下载', operation: 'download'},
-          {iconClass: 'menu-remove', label: '删除', operation: 'remove'}
-        ]
-      }
-    },
-    singleMenusEdit: {
-      'type': Array,
-      'default': function () {
-        return [
-          {iconClass: 'menu-open', label: '打开', operation: 'open'},
-          {iconClass: 'share', label: '分享', operation: 'share'},
-          {iconClass: 'menu-favorite', label: '收藏', operation: 'favorite'},
-          {iconClass: 'menu-edit1', label: '编辑', operation: 'edit'},
-          {iconClass: 'menu-details', label: '详细信息', operation: 'details'},
-          {iconClass: 'menu-rename', label: '重命名', operation: 'rename'},
-          {iconClass: 'menu-copy', label: '移动或复制', operation: 'copy'},
-          {iconClass: 'menu-download', label: '下载', operation: 'download'},
-          {iconClass: 'menu-remove', label: '删除', operation: 'remove'}
-        ]
+          { iconClass: "menu-open", label: "打开", operation: "open" },
+          { iconClass: "share", label: "分享", operation: "share" },
+          { iconClass: "menu-favorite", label: "收藏", operation: "favorite" },
+          {
+            iconClass: "menu-details",
+            label: "详细信息",
+            operation: "details"
+          },
+          { iconClass: "menu-rename", label: "重命名", operation: "rename" },
+          { iconClass: "menu-copy", label: "移动或复制", operation: "copy" },
+          { iconClass: "menu-download", label: "下载", operation: "download" },
+          { iconClass: "menu-remove", label: "删除", operation: "remove" }
+        ];
       }
     },
     multipleMenus: {
-      'type': Array,
-      'default': function () {
+      type: Array,
+      default: function() {
         return [
-          {iconClass: 'menu-copy', label: '移动或复制', operation: 'copy'},
-          {iconClass: 'menu-download', label: '下载', operation: 'download'},
-          {iconClass: 'menu-remove', label: '删除', operation: 'remove'}
-        ]
+          { iconClass: "menu-copy", label: "移动或复制", operation: "copy" },
+          { iconClass: "menu-download", label: "下载", operation: "download" },
+          { iconClass: "menu-remove", label: "删除", operation: "remove" }
+        ];
       }
     },
     multipleRightMenus: {
-      'type': Array,
-      'default': function () {
+      type: Array,
+      default: function() {
         return [
-          {iconClass: 'menu-deselect', label: '取消选定', operation: 'deselect'},
-          {iconClass: 'menu-copy', label: '移动或复制', operation: 'copy'},
-          {iconClass: 'menu-download', label: '下载', operation: 'download'},
-          {iconClass: 'menu-remove', label: '删除', operation: 'remove'}
-        ]
+          {
+            iconClass: "menu-deselect",
+            label: "取消选定",
+            operation: "deselect"
+          },
+          { iconClass: "menu-copy", label: "移动或复制", operation: "copy" },
+          { iconClass: "menu-download", label: "下载", operation: "download" },
+          { iconClass: "menu-remove", label: "删除", operation: "remove" }
+        ];
       }
     },
     contextMenus: {
@@ -678,20 +1004,22 @@ export default {
   },
   data() {
     return {
-      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-      fileMenuActive: '',
+      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${
+        this.$store.state.user.token
+      }&name=${this.$store.state.user.name}&id=`,
+      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${
+        this.$store.state.user.token
+      }&name=${this.$store.state.user.name}&id=`,
+      fileMenuActive: "",
       path: this.$route.query.path,
       showNewFolder: false,
       isShowNewFolder: false,
       listModeSearch: false,
       listModeSearchOpenDir: false,
-      newFolderName: '新建文件夹',
-      renameFileName: '',
-      searchFileName: '',
-      pathList: [
-        {'folder': ''},
-      ],
+      newFolderName: "新建文件夹",
+      renameFileName: "",
+      searchFileName: "",
+      pathList: [{ folder: "" }],
       fileList: [],
       pageLoadCompleteList: [],
       pagination: {
@@ -706,25 +1034,43 @@ export default {
       // 表头数据
       tableHead: [
         {
-          name: '', label: '', index: 0
+          name: "",
+          label: "",
+          index: 0
         },
         {
-          name: '', label: '', index: 1
+          name: "",
+          label: "",
+          index: 1
         },
         {
-          name: 'name', label: '名称', sortable: true, index: 2
+          name: "name",
+          label: "名称",
+          sortable: true,
+          index: 2
         },
         {
-          name: '', label: '', index: 3
+          name: "",
+          label: "",
+          index: 3
         },
         {
-          name: '', label: '', more: true, index: 4
+          name: "",
+          label: "",
+          more: true,
+          index: 4
         },
         {
-          name: 'size', label: '大小', sortable: true, index: 5
+          name: "size",
+          label: "大小",
+          sortable: true,
+          index: 5
         },
         {
-          name: 'updateDate', label: '修改日期', sortable: true, index: 6
+          name: "updateDate",
+          label: "修改日期",
+          sortable: true,
+          index: 6
         }
       ],
       isJustHideMenus: false,
@@ -736,41 +1082,41 @@ export default {
       finished: false,
       newFolderLoading: false,
       renameLoading: false,
-      menuTriangle: '', // 三角菜单
+      menuTriangle: "", // 三角菜单
       cellMouseIndex: -1,
       editingIndex: -1,
-      titlePrefix: '',
+      titlePrefix: "",
       unzipOperating: false,
       dialogMoveOrCopyVisible: false,
       fileTreeAndNewFolderDisabled: false,
       directoryTreeData: [],
       compressedFileVisible: false,
       compressedFileData: [],
-      compressedFileName: '',
+      compressedFileName: "",
       compressedFileTempDir: false,
       selectTreeNode: {},
       directoryTreeProps: {
-        label: 'name',
-        children: 'children',
-        isLeaf: 'isLeaf'
+        label: "name",
+        children: "children",
+        isLeaf: "isLeaf"
       },
       dragLoop: null,
       positionX: 0,
       positionY: 0,
       grid: this.defaultGrid,
-      vmode: this.defaultGrid ? 'grid' : 'list',
+      vmode: this.defaultGrid ? "grid" : "list",
       gridColumnNum: -1,
       gridColumnWidth: 120,
       allChecked: false,
-      summaries: '',
+      summaries: "",
       shareDialogVisible: false,
       shareDialogObject: {},
       newCreateFileDialog: false,
-      newCreateFileName: '',
-      newCreateFileDialogTitle: '',
+      newCreateFileName: "",
+      newCreateFileDialogTitle: "",
       createFileLoading: false,
-      shareLink: '',
-      shareFileName: '',
+      shareLink: "",
+      shareFileName: "",
       textPreviewVisible: false,
       textPreviewRow: {},
       imagePreviewRow: {},
@@ -784,32 +1130,31 @@ export default {
       drawer: false,
       rowStyleExecuting: false,
       selectRowData: [],
-      selectOrgin: -1,// 选择起点(主要用于按住shift键多选)
-      selectEnd: -1,// 选择终点
-      selectPin: false,// 默认false,不按住
+      selectOrgin: -1, // 选择起点(主要用于按住shift键多选)
+      selectEnd: -1, // 选择终点
+      selectPin: false, // 默认false,不按住
       inputting: false, // 是否正在输入
-      isCmd: false,// 是否按住了command(control)键
+      isCmd: false, // 是否按住了command(control)键
       dragElementList: [],
       drawFlag: false,
       fileListScrollTop: 0,
       initFileListScrollTop: 0,
       notPreviewDialogVisible: false,
-      openingFile: '',
+      openingFile: "",
       openCompressionVisible: false,
-      stompClient: undefined,//websocket订阅集合
-      showUpdateDateItem: true,// 列表模式下是否显示修改时间
-      showSizeItem: true,// 列表模式下是否显示文件大小
+      stompClient: undefined, //websocket订阅集合
+      showUpdateDateItem: true, // 列表模式下是否显示修改时间
+      showSizeItem: true, // 列表模式下是否显示文件大小
       stopSortChange: false,
-      draging: 0,// 是否正在拖拽中，0：没有拖拽，1：拖拽中,
+      draging: 0, // 是否正在拖拽中，0：没有拖拽，1：拖拽中,
       getFileListed: false,
-    }
+      onCreateFilename: '',
+    };
   },
   computed: {
-    ...mapGetters([
-      'name'
-    ]),
+    ...mapGetters(["name"]),
     gridFilename() {
-      return function (item) {
+      return function(item) {
         let filename = item.name;
         if (item.isFolder) {
           return filename;
@@ -818,13 +1163,18 @@ export default {
         // 分离文件名和后缀
         let parts = filename.split(".");
         let suffix = parts.length > 1 ? parts.pop() : "";
-        let base = parts.join('.');
+        let base = parts.join(".");
 
         // 计算基础名的中文字符长度
-        let chineseLength = Array.from(base).reduce((count, char) => count + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
+        let chineseLength = Array.from(base).reduce(
+          (count, char) => count + (char.charCodeAt(0) > 255 ? 2 : 1),
+          0
+        );
 
         // 如果有后缀，计算有效长度时要加上后缀和点，否则只需要基础名和后7位
-        let effectiveLength = suffix ? chineseLength + suffix.length + 1 : chineseLength + 7;
+        let effectiveLength = suffix
+          ? chineseLength + suffix.length + 1
+          : chineseLength + 7;
 
         if (effectiveLength <= 14) {
           return filename;
@@ -834,7 +1184,7 @@ export default {
         let sliceLength = 14 - (suffix ? suffix.length + 1 : 7);
 
         // 截取字符串时需要考虑中文字符
-        let prev = '';
+        let prev = "";
         let currentLength = 0;
         for (let char of Array.from(base)) {
           let charLength = char.charCodeAt(0) > 255 ? 2 : 1;
@@ -847,134 +1197,139 @@ export default {
 
         // 如果有后缀，返回 prev + "…" + suffix，否则返回 prev + "…" + base 的后7位
         return suffix ? prev + "…" + suffix : prev + "…" + base.slice(-7);
-      }
+      };
     },
     getSummaries2() {
-      let totalSize = 0
+      let totalSize = 0;
       this.fileList.forEach(file => {
-        totalSize += file.size
-      })
-      const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
-      const sizeSum = this.getShowSumSize(totalSize)
-      this.summaries = sumFileAndFolder + sizeSum
-      return totalSize > 0 ? sumFileAndFolder + sizeSum : ''
+        totalSize += file.size;
+      });
+      const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList);
+      const sizeSum = this.getShowSumSize(totalSize);
+      this.summaries = sumFileAndFolder + sizeSum;
+      return totalSize > 0 ? sumFileAndFolder + sizeSum : "";
     },
     getSummaries3() {
-      let totalSize = 0
+      let totalSize = 0;
       this.fileList.forEach(file => {
-        totalSize += file.size
-      })
-      return totalSize > 0 ? this.fileList.length + '项 ' + this.getShowSumSize(totalSize) : ''
-    },
+        totalSize += file.size;
+      });
+      return totalSize > 0
+        ? this.fileList.length + "项 " + this.getShowSumSize(totalSize)
+        : "";
+    }
   },
-  created() {
-  },
+  created() {},
   mounted() {
-    Bus.$on('fileSuccess', () => {})
-    Bus.$on('loadFileFaild', () => {
-      this.notPreviewDialogVisible = true
-    })
-    Bus.$on('clickMore', (rows) => {
-      this.$refs.fileListTable.tableSelectData = rows
-      this.preliminaryRowData()
-    })
-    Bus.$on('renameRow', (row) => {
-      let index = this.fileList.findIndex((file) => file.name === row.oldName)
+    Bus.$on("fileSuccess", () => {});
+    Bus.$on("loadFileFaild", () => {
+      this.notPreviewDialogVisible = true;
+    });
+    Bus.$on("clickMore", rows => {
+      this.$refs.fileListTable.tableSelectData = rows;
+      this.preliminaryRowData();
+    });
+    Bus.$on("renameRow", row => {
+      let index = this.fileList.findIndex(file => file.name === row.oldName);
       if (index > -1) {
-        let newRow = this.fileList[index]
-        newRow.suffix = row.suffix
-        newRow.name = row.name
-        this.$refs.fileListTable.clearSelection()
+        let newRow = this.fileList[index];
+        newRow.suffix = row.suffix;
+        newRow.name = row.name;
+        this.$refs.fileListTable.clearSelection();
       }
-    })
+    });
     // 监听返回
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL);
-      window.addEventListener('popstate', this.goBack, false);
+      window.addEventListener("popstate", this.goBack, false);
     }
 
     // 获取键盘事件
-    window.addEventListener('keydown',  this.keydown)
-    window.addEventListener('keyup',  this.keyup)
+    window.addEventListener("keydown", this.keydown);
+    window.addEventListener("keyup", this.keyup);
 
     // 加载布局
     if (this.$route.query.vmode) {
-      this.vmode = this.$route.query.vmode
+      this.vmode = this.$route.query.vmode;
     } else {
       if (this.defaultGrid) {
-        this.vmode = 'grid'
+        this.vmode = "grid";
       } else {
-        this.vmode = 'list'
+        this.vmode = "list";
       }
     }
-    if (this.vmode === 'list') {
-      this.grid = false
+    if (this.vmode === "list") {
+      this.grid = false;
       if (!this.selectFile) {
-        this.lessClientHeight = 140
+        this.lessClientHeight = 140;
       }
     } else {
-      this.grid = true
+      this.grid = true;
       if (!this.selectFile) {
-        this.lessClientHeight = 106
+        this.lessClientHeight = 106;
       }
-      this.containerResize()
+      this.containerResize();
     }
     // 加载url上的path
-    if (this.$route.query.path !== '/') {
-      const path = decodeURI(this.$route.query.path)
-      this.pathList.splice(1, 1)
-      path.split('/').forEach((pathName, index) => {
+    if (this.$route.query.path !== "/") {
+      const path = decodeURI(this.$route.query.path);
+      this.pathList.splice(1, 1);
+      path.split("/").forEach((pathName, index) => {
         if (index > 0) {
-          const item = {}
-          item['folder'] = pathName
-          this.pathList.push(item)
+          const item = {};
+          item["folder"] = pathName;
+          this.pathList.push(item);
         }
-      })
+      });
     }
-    let that = this
-    window.onresize = function () {
-      that.clientHeight = document.documentElement.clientHeight - that.lessClientHeight
-    }
+    let that = this;
+    window.onresize = function() {
+      that.clientHeight =
+        document.documentElement.clientHeight - that.lessClientHeight;
+    };
 
-    Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
+    Bus.$on("msg/file/change", msg => this.onmessage(msg));
 
-    Bus.$on('msg/file/operation/fault', (msg) => this.onmessageFault(msg))
+    Bus.$on("msg/file/operation/fault", msg => this.onmessageFault(msg));
 
     setTimeout(() => {
       if (!this.getFileListed) {
-        this.getFileList()
+        this.getFileList();
       }
-    }, 50)
+    }, 50);
   },
   beforeDestroy() {
-    window.removeEventListener('keydown', this.keydown, false)
-    window.removeEventListener('keyup', this.keyup, false)
-    window.removeEventListener('popstate', this.goBack, false)
+    window.removeEventListener("keydown", this.keydown, false);
+    window.removeEventListener("keyup", this.keyup, false);
+    window.removeEventListener("popstate", this.goBack, false);
     if (this.stompClient) {
-      this.stompClient.unsubscribe()
+      this.stompClient.unsubscribe();
     }
   },
   directives: {
     // 注册一个局部的自定义指令 v-focus
     focus: {
       // 指令的定义
-      inserted: function (el) {
+      inserted: function(el) {
         // 聚焦元素
-        let input = el.querySelector('input')
+        let input = el.querySelector("input");
         if (!input) {
-          input = el.querySelector('textarea')
+          input = el.querySelector("textarea");
         }
-        input.focus()
+        input.focus();
       }
     },
-    resize: { // 指令的名称
-      bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
-        let width = '', height = '';
+    resize: {
+      // 指令的名称
+      bind(el, binding) {
+        // el为绑定的元素，binding为绑定给指令的对象
+        let width = "",
+          height = "";
 
         function isReize() {
           const style = document.defaultView.getComputedStyle(el);
           if (width !== style.width || height !== style.height) {
-            binding.value();  // 关键
+            binding.value(); // 关键
           }
           width = style.width;
           height = style.height;
@@ -989,397 +1344,445 @@ export default {
   },
   methods: {
     keydown(event) {
-      const isMac = navigator.platform.startsWith('Mac');
-      const {key, c, keyCode, ctrlKey, metaKey} = event;
-      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+      const isMac = navigator.platform.startsWith("Mac");
+      const { key, c, keyCode, ctrlKey, metaKey } = event;
+      this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey);
       // shift
       if (event.keyCode === 16 && event.shiftKey) {
-        this.selectPin = true
+        this.selectPin = true;
       }
       // ctrl + A / cmd + A
       if (this.isCmd && keyCode === 65) {
         if (this.inputting || this.editingIndex !== -1) {
-          event.target.select()
+          event.target.select();
         } else {
           this.$nextTick(() => {
             if (this.$refs.fileListTable) {
-              this.$refs.fileListTable.toggleAllSelection()
+              this.$refs.fileListTable.toggleAllSelection();
             }
-          })
-          event.preventDefault()
-          event.stopPropagation()
+          });
+          event.preventDefault();
+          event.stopPropagation();
         }
       }
     },
     keyup(event) {
-      const isMac = navigator.platform.startsWith('Mac');
-      const {key, c, keyCode, ctrlKey, metaKey} = event;
-      this.isCmd = isMac && metaKey || !isMac && ctrlKey;
+      const isMac = navigator.platform.startsWith("Mac");
+      const { key, c, keyCode, ctrlKey, metaKey } = event;
+      this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey);
       // 松开shift建
       if (event.keyCode === 16) {
-        this.selectPin = false
+        this.selectPin = false;
       }
     },
     onmessageFault(msg) {
-      if ('fault' === msg) {
-        this.getFileList()
+      if ("fault" === msg) {
+        this.getFileList();
       }
     },
     onmessage(msg) {
-      let fileDoc = JSON.parse(msg.body)
-      const url = msg.headers.url
-      let index = this.fileList.findIndex(file => file.id === fileDoc.id)
-      if ('updateFile' === url) {
+      let fileDoc = JSON.parse(msg.body);
+      const url = msg.headers.url;
+      let index = this.fileList.findIndex(file => file.id === fileDoc.id);
+      if ("updateFile" === url) {
         if (index > -1) {
           if (fileDoc.m3u8) {
-            this.fileList[index].m3u8 = fileDoc.m3u8
+            this.fileList[index].m3u8 = fileDoc.m3u8;
           }
-          this.fileList[index].size = fileDoc.size
-          this.fileList[index].agoTime = 1
-          this.fileList[index].updateDate = fileDoc.updateDate
+          this.fileList[index].size = fileDoc.size;
+          this.fileList[index].agoTime = 1;
+          this.fileList[index].updateDate = fileDoc.updateDate;
         }
       }
-      if ('deleteFile' === url) {
+      if ("deleteFile" === url) {
         if (index > -1) {
-          this.getFileList()
+          this.getFileList();
         }
       }
-      if ('createFile' === url) {
+      if ("createFile" === url) {
+        this.onCreateFilename = fileDoc.$set.name
         if (!this.path) {
-          this.path = ''
+          this.path = "";
         }
         if (fileDoc) {
           if (fileDoc.$set) {
-            let path = fileDoc.$set.path
-            path = path.replace(/\\/g, '/')
-            if (this.path + '/' === path) {
-              this.getFileList()
+            let path = fileDoc.$set.path;
+            path = path.replace(/\\/g, "/");
+            if (this.path + "/" === path) {
+              this.getFileList();
             }
           } else {
-            let path = fileDoc.path
-            path = path.replace(/\\/g, '/')
-            if (this.path + '/' === fileDoc.path) {
-              this.getFileList()
+            if (this.path + "/" === fileDoc.path) {
+              this.getFileList();
             }
           }
         }
+        setTimeout(() => {
+          this.onCreateFilename = "";
+        }, 5000)
       }
     },
     load() {
-      this.getFileList(true)
+      this.getFileList(true);
     },
     gridItemClick(row) {
       if (this.selectFile) {
-        this.fileClick(row)
+        this.fileClick(row);
       }
       if (this.isCmd) {
-        this.pinSelect(null, row)
-        this.$refs.fileListTable.toggleRowSelection([{row: row}])
-        return
+        this.pinSelect(null, row);
+        this.$refs.fileListTable.toggleRowSelection([{ row: row }]);
+        return;
       }
-      this.pinSelect(null, row)
+      this.pinSelect(null, row);
     },
     containerResize() {
-      const container = document.querySelector(".dashboard-container")
-      let clientWidth = container.clientWidth
-      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
-      if (this.queryFileType === 'image') {
-        this.gridColumnNum = Math.round((clientWidth - 10) / 165)
+      const container = document.querySelector(".dashboard-container");
+      let clientWidth = container.clientWidth;
+      this.clientHeight =
+        document.documentElement.clientHeight - this.lessClientHeight;
+      if (this.queryFileType === "image") {
+        this.gridColumnNum = Math.round((clientWidth - 10) / 165);
       } else {
-        this.gridColumnNum = Math.round((clientWidth - 10) / 135)
+        this.gridColumnNum = Math.round((clientWidth - 10) / 135);
       }
-      this.gridColumnWidth = (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5
+      this.gridColumnWidth =
+        (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5;
       if (clientWidth < 900) {
-        this.showUpdateDateItem = false
+        this.showUpdateDateItem = false;
       } else {
-        this.showUpdateDateItem = true
+        this.showUpdateDateItem = true;
       }
       if (clientWidth < 500) {
-        this.showSizeItem = false
+        this.showSizeItem = false;
       } else {
-        this.showSizeItem = true
+        this.showSizeItem = true;
       }
-      let gridRowNum = Math.round(this.clientHeight/ (clientWidth/this.gridColumnNum))
-      this.pagination.pageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
+      let gridRowNum = Math.round(
+        this.clientHeight / (clientWidth / this.gridColumnNum)
+      );
+      this.pagination.pageSize =
+        gridRowNum * this.gridColumnNum + this.gridColumnNum;
 
       // 使列表可拖拽
-      this.rowDrop()
-      this.darwRectangle()
+      this.rowDrop();
+      this.darwRectangle();
     },
     // 画矩形选区
     darwRectangle() {
-
-      let scrollDiv = document.querySelector('.el-table__body-wrapper')
+      let scrollDiv = document.querySelector(".el-table__body-wrapper");
       if (this.grid) {
-        scrollDiv = document.querySelector('.van-grid')
+        scrollDiv = document.querySelector(".van-grid");
       }
 
       // 添加scroll事件
-      scrollDiv.onscroll = (e) => {
-        this.tableBodyScroll(null, e)
-      }
+      scrollDiv.onscroll = e => {
+        this.tableBodyScroll(null, e);
+      };
 
       if (this.selectFile) {
-        return
+        return;
       }
-      const _this = this
-      let $$ = function (id) {
-        return document.getElementById(id)
-      }
-      let draw = $$("v-draw-rectangle")
-      let wId = "rectangle1"
-      let startX = 0, startY = 0
-      let retcLeft = 0, retcTop = 0, retcHeight = 0, retcWidth = 0
-      _this.drawFlag = false
-      let itemClassName = 'el-table__row'
+      const _this = this;
+      let $$ = function(id) {
+        return document.getElementById(id);
+      };
+      let draw = $$("v-draw-rectangle");
+      let wId = "rectangle1";
+      let startX = 0,
+        startY = 0;
+      let retcLeft = 0,
+        retcTop = 0,
+        retcHeight = 0,
+        retcWidth = 0;
+      _this.drawFlag = false;
+      let itemClassName = "el-table__row";
       if (_this.grid) {
-        itemClassName = 'grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+        itemClassName =
+          "grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square";
       }
-      draw.onmousedown = null
-      draw.onmousedown = function (e) {
-        let evt = window.event || e
-        const elPath = e.path || (e.composedPath && e.composedPath())
+      draw.onmousedown = null;
+      draw.onmousedown = function(e) {
+        let evt = window.event || e;
+        const elPath = e.path || (e.composedPath && e.composedPath());
         // 列表模式下点击表头，阻止点击事件
         if (!_this.grid && _this.selectRowData.length > 0) {
           const findIndex = elPath.findIndex(path => {
-            if (path.className === 'el-table__header-wrapper') {
-              return path
+            if (path.className === "el-table__header-wrapper") {
+              return path;
             }
-          })
+          });
           if (findIndex > -1) {
-            _this.stopSortChange = true
+            _this.stopSortChange = true;
           }
         }
         // 点击的区域是否为文件, throughRow 不为空就证明点到了文件
         let throughRow = elPath.find(path => {
-          if (path.className === itemClassName || path.className === 'el-table__row el-table__row--striped') {
-            return path
+          if (
+            path.className === itemClassName ||
+            path.className === "el-table__row el-table__row--striped"
+          ) {
+            return path;
           }
-        })
+        });
         if (throughRow) {
           // 鼠标按下时就选中文件
-          if (!_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])) {
-            _this.editingIndex = -1
+          if (
+            !_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])
+          ) {
+            _this.editingIndex = -1;
             if (!_this.isCmd && !_this.selectPin) {
-              _this.$refs.fileListTable.clearSelection()
-              _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[throughRow.rowIndex], selected: true}])
+              _this.$refs.fileListTable.clearSelection();
+              _this.$refs.fileListTable.toggleRowSelection([
+                { row: _this.fileList[throughRow.rowIndex], selected: true }
+              ]);
             }
           }
-          return
+          return;
         } else {
-          _this.editingIndex = -1
+          _this.editingIndex = -1;
         }
         if (evt.button !== 0) {
-          return
+          return;
         }
         if (!_this.isCmd && !_this.selectPin) {
-          const index = elPath.findIndex(el => el.className === itemClassName || el.className === 'el-table__row el-table__row--striped')
+          const index = elPath.findIndex(
+            el =>
+              el.className === itemClassName ||
+              el.className === "el-table__row el-table__row--striped"
+          );
           if (index < 0) {
-            _this.$refs.fileListTable.clearSelection()
+            _this.$refs.fileListTable.clearSelection();
           }
         }
-        let scrollTop = draw.scrollTop || draw.scrollTop
-        let scrollLeft = draw.scrollLeft || draw.scrollLeft
-        startX = evt.clientX + scrollLeft
-        startY = evt.clientY + scrollTop
+        let scrollTop = draw.scrollTop || draw.scrollTop;
+        let scrollLeft = draw.scrollLeft || draw.scrollLeft;
+        startX = evt.clientX + scrollLeft;
+        startY = evt.clientY + scrollTop;
 
-        let div = document.createElement("div")
-        div.id = wId
-        div.className = "draw-rectangle"
-        div.style.left = startX + "px"
-        div.style.top = startY + "px"
-        div.style.position = 'fixed'
-        div.style.border = '1px dashed #2898ff'
-        div.style.width = '0px'
-        div.style.height = '0px'
-        div.style.left = '0px'
-        div.style.top = '0px'
-        div.style.overflow = 'hidden'
-        draw.appendChild(div)
-        document.onmousemove = function (e) {
-          let evt = window.event || e
-          let scrollTop = document.body.scrollTop || document.documentElement.scrollTop
-          let scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft
-          retcLeft = (startX - evt.clientX - scrollLeft > 0 ? evt.clientX + scrollLeft : startX)
-          retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY)
-          retcHeight = Math.abs(startY - evt.clientY - scrollTop)
-          retcWidth = Math.abs(startX - evt.clientX - scrollLeft)
-          _this.drawFlag = true
-          if ((retcHeight + retcWidth) < 4) {
-            return
+        let div = document.createElement("div");
+        div.id = wId;
+        div.className = "draw-rectangle";
+        div.style.left = startX + "px";
+        div.style.top = startY + "px";
+        div.style.position = "fixed";
+        div.style.border = "1px dashed #2898ff";
+        div.style.width = "0px";
+        div.style.height = "0px";
+        div.style.left = "0px";
+        div.style.top = "0px";
+        div.style.overflow = "hidden";
+        draw.appendChild(div);
+        document.onmousemove = function(e) {
+          let evt = window.event || e;
+          let scrollTop =
+            document.body.scrollTop || document.documentElement.scrollTop;
+          let scrollLeft =
+            document.body.scrollLeft || document.documentElement.scrollLeft;
+          retcLeft =
+            startX - evt.clientX - scrollLeft > 0
+              ? evt.clientX + scrollLeft
+              : startX;
+          retcTop =
+            startY - evt.clientY - scrollTop > 0
+              ? evt.clientY + scrollTop
+              : startY;
+          retcHeight = Math.abs(startY - evt.clientY - scrollTop);
+          retcWidth = Math.abs(startX - evt.clientX - scrollLeft);
+          _this.drawFlag = true;
+          if (retcHeight + retcWidth < 4) {
+            return;
           }
-          const drawRectangle = document.getElementById(wId)
+          const drawRectangle = document.getElementById(wId);
           if (drawRectangle) {
-            drawRectangle.style.left = retcLeft + 'px'
-            drawRectangle.style.top = retcTop + 'px'
-            drawRectangle.style.width = retcWidth + 'px'
-            drawRectangle.style.height = retcHeight + 'px'
-            drawRectangle.style.backgroundColor = '#f2f5fa55'
+            drawRectangle.style.left = retcLeft + "px";
+            drawRectangle.style.top = retcTop + "px";
+            drawRectangle.style.width = retcWidth + "px";
+            drawRectangle.style.height = retcHeight + "px";
+            drawRectangle.style.backgroundColor = "#f2f5fa55";
           }
-          if (_this.drawFlag && (retcHeight + retcWidth) > 4) {
+          if (_this.drawFlag && retcHeight + retcWidth > 4) {
             if (!drawSelecting) {
-              drawSelect({x: retcLeft, y: retcTop + _this.fileListScrollTop, w: retcWidth, h: retcHeight})
+              drawSelect({
+                x: retcLeft,
+                y: retcTop + _this.fileListScrollTop,
+                w: retcWidth,
+                h: retcHeight
+              });
             }
           }
-        }
-        document.onmouseup = function (e) {
+        };
+        document.onmouseup = function(e) {
           document.onmousemove = null;
           document.onmouseup = null;
           if (_this.stopSortChange) {
-            _this.stopSortChange = false
+            _this.stopSortChange = false;
             setTimeout(() => {
-              _this.changeSelectedStyle(_this.selectRowData)
-            }, 200)
+              _this.changeSelectedStyle(_this.selectRowData);
+            }, 200);
           }
-          setTimeout(function () {
-            _this.drawFlag = false
-          }, 50)
-          const rectangle = document.getElementById(wId)
+          setTimeout(function() {
+            _this.drawFlag = false;
+          }, 50);
+          const rectangle = document.getElementById(wId);
           if (rectangle) {
-            draw.removeChild(rectangle)
+            draw.removeChild(rectangle);
           }
           if (!_this.grid) {
-            draw = document.getElementById('drag-table')
+            draw = document.getElementById("drag-table");
           }
-          const dragingDivs = Array.prototype.slice.call(draw.getElementsByClassName('dragingDiv'))
-          dragingDivs.forEach(el => draw.removeChild(el))
-        }
-      }
+          const dragingDivs = Array.prototype.slice.call(
+            draw.getElementsByClassName("dragingDiv")
+          );
+          dragingDivs.forEach(el => draw.removeChild(el));
+        };
+      };
 
-      let drawSelecting = false
-      let drawSelect = function (drawNode) {
-        drawSelecting = true
+      let drawSelecting = false;
+      let drawSelect = function(drawNode) {
+        drawSelecting = true;
         _this.dragElementList.forEach(element => {
           if (checkTouch(element, drawNode)) {
-            _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[element.rowIndex], selected: true}])
+            _this.$refs.fileListTable.toggleRowSelection([
+              { row: _this.fileList[element.rowIndex], selected: true }
+            ]);
           } else {
-            _this.$refs.fileListTable.toggleRowSelection([{row: _this.fileList[element.rowIndex], selected: false}])
+            _this.$refs.fileListTable.toggleRowSelection([
+              { row: _this.fileList[element.rowIndex], selected: false }
+            ]);
           }
-        })
-        setTimeout(() => drawSelecting = false, 10)
-      }
+        });
+        setTimeout(() => (drawSelecting = false), 10);
+      };
       //检查两个DIV是否有接触
-      let checkTouch = function (item, draw) {
+      let checkTouch = function(item, draw) {
         //得到左上角的绝对坐标
-        let x1 = item.x
-        let y1 = item.y
-        let x2 = draw.x
-        let y2 = draw.y
+        let x1 = item.x;
+        let y1 = item.y;
+        let x2 = draw.x;
+        let y2 = draw.y;
         let w1 = item.w;
         let h1 = item.h;
         let w2 = draw.w;
         let h2 = draw.h;
-        return ((x1 - x2 <= 0) && (x2 - x1 < w1) || (x1 - x2 >= 0) && (x1 - x2 < w2)) && ((y1 - y2 <= 0) && (y2 - y1 < h1) || (y1 - y2 >= 0) && (y1 - y2 < h2))
+        return (
+          ((x1 - x2 <= 0 && x2 - x1 < w1) || (x1 - x2 >= 0 && x1 - x2 < w2)) &&
+          ((y1 - y2 <= 0 && y2 - y1 < h1) || (y1 - y2 >= 0 && y1 - y2 < h2))
+        );
       };
     },
     // 行拖拽
     rowDrop() {
       if (this.selectFile) {
-        return
+        return;
       }
       // 目标元素的背景颜色
-      let dragEnterBackCorlor = null
+      let dragEnterBackCorlor = null;
       // 被拖拽元素的背景色
-      let dragBackCorlor = null
-      const _this = this
+      let dragBackCorlor = null;
+      const _this = this;
       // 被拖动的元素
       let dragged = null;
       // 被拖动的元素的索引
       let draggedIndex = -1;
 
-      let parentClassName = 'van-grid'
-      let itemClassName = 'van-grid-item van-grid-item--square'
-      let gridItemChildenClassName = 'grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square'
+      let parentClassName = "van-grid";
+      let itemClassName = "van-grid-item van-grid-item--square";
+      let gridItemChildenClassName =
+        "grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square";
       if (!_this.grid) {
-        itemClassName = 'el-table__row'
-        parentClassName = 'el-table__body'
+        itemClassName = "el-table__row";
+        parentClassName = "el-table__body";
       }
 
       // 正在拖动的元素
-      let dragingDiv = null
+      let dragingDiv = null;
 
-      let container = document.querySelector('.dashboard-container')
+      let container = document.querySelector(".dashboard-container");
 
       // 目标元素
-      let target = document.querySelector('.el-table__body-wrapper tbody')
+      let target = document.querySelector(".el-table__body-wrapper tbody");
       if (this.grid) {
-        target = document.querySelector('.van-checkbox-group .van-grid')
+        target = document.querySelector(".van-checkbox-group .van-grid");
       }
-      let draw = document.getElementById('v-draw-rectangle')
+      let draw = document.getElementById("v-draw-rectangle");
       if (!this.grid) {
-        draw = document.getElementById('drag-table')
+        draw = document.getElementById("drag-table");
       }
-      let rows = 0//行数
+      let rows = 0; //行数
 
-      let drawOffsetLeft = getElementToPageLeft(draw)
+      let drawOffsetLeft = getElementToPageLeft(draw);
 
-      let firstOver = 0 // 是否刚开始拖动
-      let moveTitle = ''
-      setTimeout(function () {
-        rows = target.childElementCount
-        _this.dragElementList = []
+      let firstOver = 0; // 是否刚开始拖动
+      let moveTitle = "";
+      setTimeout(function() {
+        rows = target.childElementCount;
+        _this.dragElementList = [];
         for (let i = 0; i < target.childElementCount; i++) {
-          let child = target.children[i]
+          let child = target.children[i];
           // 设置索引,表格自带rowIndex,这里我们设置grid的
           if (_this.grid) {
             if (child.rowIndex !== i) {
-              child.rowIndex = i
+              child.rowIndex = i;
             }
-            child.children[0].children[0].rowIndex = i
-            child = child.children[0].children[0]
+            child.children[0].children[0].rowIndex = i;
+            child = child.children[0].children[0];
           }
           // 为画矩形选取准备数据
-          let pos = getObjPos(child)
-          child.w = child.offsetWidth
-          child.h = child.offsetHeight
-          child.x = pos.x
-          child.y = pos.y
-          pos.rowIndex = child.rowIndex
-          _this.dragElementList.push(child)
+          let pos = getObjPos(child);
+          child.w = child.offsetWidth;
+          child.h = child.offsetHeight;
+          child.x = pos.x;
+          child.y = pos.y;
+          pos.rowIndex = child.rowIndex;
+          _this.dragElementList.push(child);
 
           // 使元素可拖动
-          child.draggable = true
+          child.draggable = true;
           // 给能拖动的元素加上标识,只有加上此标识才能被拖动,否则即使draggable = true,也无法拖动(在全局的ondragstart里拦截)
-          child.slot = 'jmal'
-          let childOfImg = child.querySelector('.el-avatar > img')
+          child.slot = "jmal";
+          let childOfImg = child.querySelector(".el-avatar > img");
           if (_this.grid) {
-            childOfImg = child.querySelector('.el-image > img')
+            childOfImg = child.querySelector(".el-image > img");
           }
           if (childOfImg) {
-            childOfImg.draggable = false
+            childOfImg.draggable = false;
           }
         }
-      }, 300)
+      }, 300);
 
       // 被拖动的元素正在那个容器里
-      let dragIndex = -1
+      let dragIndex = -1;
 
       // 判断经过了那个元素
-      let judgThroughDom = function (e, d) {
-        const elPath = e.path || (e.composedPath && e.composedPath())
-        if (d === 'enter') {
+      let judgThroughDom = function(e, d) {
+        const elPath = e.path || (e.composedPath && e.composedPath());
+        if (d === "enter") {
           // 这里进入其他容器后 清除上次进入的容器的状态
-          let node = null
-          const className = e.toElement.className
+          let node = null;
+          const className = e.toElement.className;
           if (_this.grid) {
             if (e.toElement.className === itemClassName) {
-              node = e.toElement
+              node = e.toElement;
             }
             if (e.toElement.className === parentClassName) {
-              node = e.fromElement
+              node = e.fromElement;
             }
           } else {
             // 列表模式
-            if (elPath[0].id === 'v-draw-rectangle' || elPath[0].className === 'el-table__virtual-wrapper') {
+            if (
+              elPath[0].id === "v-draw-rectangle" ||
+              elPath[0].className === "el-table__virtual-wrapper"
+            ) {
               // 超出列表底部
-              node = e.toElement
+              node = e.toElement;
             } else {
               // 超出列表顶部
               node = elPath.find(path => {
-                if (path.className === 'el-table__header-wrapper') {
-                  return path
+                if (path.className === "el-table__header-wrapper") {
+                  return path;
                 }
-              })
+              });
             }
           }
           if (node) {
@@ -1387,401 +1790,464 @@ export default {
             if (dragIndex > -1) {
               // 清除上次进入的容器的状态
               const last = target.children[dragIndex];
-              clearClass(last)
+              clearClass(last);
             }
             // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
             // leaveIndex = node.rowIndex
             // const leave = target.children[leaveIndex];
             // clearClass(leave)
-            dragIndex = -1
+            dragIndex = -1;
           }
         }
-        let throughRow = null
+        let throughRow = null;
         if (_this.grid) {
           if (elPath[0].className === gridItemChildenClassName) {
             // throughRow 表示被拖动的元素正在哪一行上
-            return throughRow
+            return throughRow;
           } else {
             throughRow = elPath.find(path => {
               if (path.className === gridItemChildenClassName) {
-                return path
+                return path;
               }
-            })
+            });
           }
-          return throughRow
+          return throughRow;
         } else {
-          if (elPath[0].tagName === 'TD') {
+          if (elPath[0].tagName === "TD") {
             // throughRow 表示被拖动的元素正在哪一行上
             throughRow = elPath.find(path => {
-              if (path.className === 'el-table__row el-table__row--striped' || path.className === 'el-table__row') {
-                return path
+              if (
+                path.className === "el-table__row el-table__row--striped" ||
+                path.className === "el-table__row"
+              ) {
+                return path;
               }
-            })
+            });
           }
-          return throughRow
+          return throughRow;
         }
-      }
+      };
 
       /***
        * 复原拖拽的dom
        * @param animation 是否显示动画
        */
-      let recoverDragDom = function (animation) {
+      let recoverDragDom = function(animation) {
         if (animation) {
           _this.selectRowData.forEach(row => {
-            let dragingDiv = document.getElementById('dragingDiv' + row.index)
-            dragingDiv.style.transition = 'all 0.3s'
-            dragingDiv.style.top = dragingDiv.original.top - (_this.fileListScrollTop - _this.initFileListScrollTop) + 'px'
-            dragingDiv.style.left = dragingDiv.original.left
-          })
+            let dragingDiv = document.getElementById("dragingDiv" + row.index);
+            dragingDiv.style.transition = "all 0.3s";
+            dragingDiv.style.top =
+              dragingDiv.original.top -
+              (_this.fileListScrollTop - _this.initFileListScrollTop) +
+              "px";
+            dragingDiv.style.left = dragingDiv.original.left;
+          });
           setTimeout(() => {
             _this.selectRowData.forEach(row => {
-              draw.removeChild(document.getElementById('dragingDiv' + row.index))
-            })
-          }, 300)
+              draw.removeChild(
+                document.getElementById("dragingDiv" + row.index)
+              );
+            });
+          }, 300);
         } else {
           _this.selectRowData.forEach(row => {
-            draw.removeChild(document.getElementById('dragingDiv' + row.index))
-          })
+            draw.removeChild(document.getElementById("dragingDiv" + row.index));
+          });
         }
         setTimeout(() => {
           if (!_this.grid) {
-            document.getElementsByClassName("el-table")[0].classList.add('el-table--enable-row-hover')
+            document
+              .getElementsByClassName("el-table")[0]
+              .classList.add("el-table--enable-row-hover");
           } else {
-            target.querySelectorAll('.grid-hover-back').forEach(e => {
-              e.classList.add('grid-hover')
-            })
+            target.querySelectorAll(".grid-hover-back").forEach(e => {
+              e.classList.add("grid-hover");
+            });
           }
-        }, 350)
-        _this.draging = 0
-      }
+        }, 350);
+        _this.draging = 0;
+      };
 
-      container.ondragend = function (e) {
-        Bus.$emit('onDragStart', false)
-        e.dataTransfer.effectAllowed = 'none'
+      container.ondragend = function(e) {
+        Bus.$emit("onDragStart", false);
+        e.dataTransfer.effectAllowed = "none";
         // console.log('child'+dragIndex+'拖拽结束');
         // 清除上次进入的容器的状态
         const last = target.children[dragIndex];
-        clearClass(last)
-        dragged.style.cursor = 'default'
-        e.target.parentNode.parentNode.title = moveTitle
-      }
+        clearClass(last);
+        dragged.style.cursor = "default";
+        e.target.parentNode.parentNode.title = moveTitle;
+      };
       // 开始拖拽
-      container.ondragstart = (e) => {
+      container.ondragstart = e => {
         // 正在选区获取按住关键键时禁止拖拽
         if (_this.drawFlag || _this.isCmd || _this.selectPin) {
-          e.preventDefault()
-          e.stopPropagation()
-          return
+          e.preventDefault();
+          e.stopPropagation();
+          return;
         }
         // 判断被拖拽dom是否有slot属性并且等于'jmal'
-        if (!e.target.slot || e.target.slot !== 'jmal') {
-          return true
+        if (!e.target.slot || e.target.slot !== "jmal") {
+          return true;
         }
         // 该文件正在重命名
         if (e.target.rowIndex === _this.editingIndex) {
-          e.preventDefault()
-          e.stopPropagation()
-          return
+          e.preventDefault();
+          e.stopPropagation();
+          return;
         }
-        e.target.style.cursor = 'no-drop'
+        e.target.style.cursor = "no-drop";
         // 复制被拖拽dom的title, 拖拽过程中移除, 拖拽完后还原
-        moveTitle = e.target.parentNode.parentNode.title
-        e.target.parentNode.parentNode.title = ''
+        moveTitle = e.target.parentNode.parentNode.title;
+        e.target.parentNode.parentNode.title = "";
         // 创建拖拽时的dom, 克隆自被拖拽dom
         _this.selectRowData.forEach((row, index) => {
-          const element = _this.dragElementList[row.index]
-          const rowIndex = element.rowIndex
-          dragingDiv = element.cloneNode(true)
-          dragingDiv.id = 'dragingDiv' + rowIndex
-          dragingDiv.classList.add('dragingDiv')
-          dragingDiv.classList.remove('el-table_row')
-          dragingDiv.style.transition = 'all 0.3s'
-          dragingDiv.style.zIndex = -1
-          dragingDiv.style.position = 'absolute'
-          const pos = _this.dragElementList[rowIndex]
-          dragingDiv.style.width = pos.w + 'px'
-          dragingDiv.style.height = pos.h + 'px'
-          dragingDiv.style.left = pos.x - drawOffsetLeft + 'px'
-          let dragingDivStyleTop = 0
+          const element = _this.dragElementList[row.index];
+          const rowIndex = element.rowIndex;
+          dragingDiv = element.cloneNode(true);
+          dragingDiv.id = "dragingDiv" + rowIndex;
+          dragingDiv.classList.add("dragingDiv");
+          dragingDiv.classList.remove("el-table_row");
+          dragingDiv.style.transition = "all 0.3s";
+          dragingDiv.style.zIndex = -1;
+          dragingDiv.style.position = "absolute";
+          const pos = _this.dragElementList[rowIndex];
+          dragingDiv.style.width = pos.w + "px";
+          dragingDiv.style.height = pos.h + "px";
+          dragingDiv.style.left = pos.x - drawOffsetLeft + "px";
+          let dragingDivStyleTop = 0;
           if (!_this.grid) {
-            dragingDiv.firstChild.style.textAlign = 'center'
-            let tds = Array.prototype.slice.call(dragingDiv.childNodes)
+            dragingDiv.firstChild.style.textAlign = "center";
+            let tds = Array.prototype.slice.call(dragingDiv.childNodes);
             tds.forEach((node, index) => {
               if (index === 4) {
-                node.style.borderRadius = '0 3px 3px 0'
-                node.style.borderRight = '1px solid #409eff'
-                node.firstChild.style.height = '44px'
-                node.firstChild.style.lineHeight = '44px'
-                node.firstChild.style.width = '80px'
-                return true
+                node.style.borderRadius = "0 3px 3px 0";
+                node.style.borderRight = "1px solid #409eff";
+                node.firstChild.style.height = "44px";
+                node.firstChild.style.lineHeight = "44px";
+                node.firstChild.style.width = "80px";
+                return true;
               }
               if (index !== 0 && index !== 1) {
-                dragingDiv.removeChild(node)
+                dragingDiv.removeChild(node);
               }
-            })
-            dragingDivStyleTop = pos.y - _this.fileListScrollTop - 51.5
+            });
+            dragingDivStyleTop = pos.y - _this.fileListScrollTop - 51.5;
           } else {
-            dragingDivStyleTop = pos.y - _this.fileListScrollTop - pos.h / 2 + 10
+            dragingDivStyleTop =
+              pos.y - _this.fileListScrollTop - pos.h / 2 + 10;
           }
-          dragingDiv.style.top = dragingDivStyleTop + 'px'
+          dragingDiv.style.top = dragingDivStyleTop + "px";
           if (index === 0) {
-            let numberFilesCopy = document.getElementById("numberFiles").cloneNode(true)
-            numberFilesCopy.id = 'numberFilesCopy'
-            numberFilesCopy.querySelector('.number').innerHTML = _this.selectRowData.length + '个文件'
-            dragingDiv.appendChild(numberFilesCopy)
+            let numberFilesCopy = document
+              .getElementById("numberFiles")
+              .cloneNode(true);
+            numberFilesCopy.id = "numberFilesCopy";
+            numberFilesCopy.querySelector(".number").innerHTML =
+              _this.selectRowData.length + "个文件";
+            dragingDiv.appendChild(numberFilesCopy);
           }
-          dragingDiv.original = {top: dragingDivStyleTop, left: dragingDiv.style.left}
-          _this.initFileListScrollTop = _this.fileListScrollTop
-          draw.appendChild(dragingDiv)
-        })
-        firstOver = 0
-        let dragImage = document.getElementById('dragImage');
-        e.dataTransfer.setDragImage(dragImage, 10, 10)
-        Bus.$emit('onDragStart', true)
+          dragingDiv.original = {
+            top: dragingDivStyleTop,
+            left: dragingDiv.style.left
+          };
+          _this.initFileListScrollTop = _this.fileListScrollTop;
+          draw.appendChild(dragingDiv);
+        });
+        firstOver = 0;
+        let dragImage = document.getElementById("dragImage");
+        e.dataTransfer.setDragImage(dragImage, 10, 10);
+        Bus.$emit("onDragStart", true);
         // 避免和画矩形选区冲突
-        _this.drawFlag = false
-        let rectangle = document.getElementById('rectangle1')
+        _this.drawFlag = false;
+        let rectangle = document.getElementById("rectangle1");
         if (rectangle) {
-          document.getElementById('v-draw-rectangle').removeChild(rectangle)
+          document.getElementById("v-draw-rectangle").removeChild(rectangle);
         }
-        dragged = e.target
-        draggedIndex = dragged.rowIndex
+        dragged = e.target;
+        draggedIndex = dragged.rowIndex;
         // 只有选中的才能拖拽
-        _this.cellMouseIndex = -1
-        dragBackCorlor = dragged.style.backgroundColor
+        _this.cellMouseIndex = -1;
+        dragBackCorlor = dragged.style.backgroundColor;
 
         if (!_this.grid) {
-          document.getElementsByClassName("el-table--enable-row-hover")[0].classList.remove('el-table--enable-row-hover')
+          document
+            .getElementsByClassName("el-table--enable-row-hover")[0]
+            .classList.remove("el-table--enable-row-hover");
         } else {
-          target.querySelectorAll('.grid-hover-back').forEach(e => {
-            e.classList.remove('grid-hover')
-          })
+          target.querySelectorAll(".grid-hover-back").forEach(e => {
+            e.classList.remove("grid-hover");
+          });
         }
-        _this.draging = 1
-      }
-      container.ondragenter = function (e) {
-        clearTimeout(loop)
+        _this.draging = 1;
+      };
+      container.ondragenter = function(e) {
+        clearTimeout(loop);
         // 由于被拖动的元素 经过区域内中的每一元素都会触发该事件, 但是我们只需要它正在那一行上就行了
-        let throughRow = judgThroughDom(e, 'enter')
+        let throughRow = judgThroughDom(e, "enter");
         if (throughRow) {
           if (dragIndex !== throughRow.rowIndex) {
             if (dragIndex > -1) {
               // 清除上次进入的容器的状态
               const last = target.children[dragIndex];
-              clearClass(last)
+              clearClass(last);
             }
             // console.log('拖动进入目标元素'+throughRow.rowIndex,'dragIndex:',dragIndex);
             // 不是自己或为文件夹时才改变状态
-            if (draggedIndex !== throughRow.rowIndex && _this.fileList[throughRow.rowIndex].isFolder && _this.selectRowData.findIndex(item => item.index === throughRow.rowIndex) === -1) {
+            if (
+              draggedIndex !== throughRow.rowIndex &&
+              _this.fileList[throughRow.rowIndex].isFolder &&
+              _this.selectRowData.findIndex(
+                item => item.index === throughRow.rowIndex
+              ) === -1
+            ) {
               // 改变本次进入的容器的状态
-              dragged.style.cursor = 'copy'
+              dragged.style.cursor = "copy";
 
-              let numberFilesCopy = document.getElementById('numberFilesCopy')
-              numberFilesCopy.style.backgroundColor = '#40a9ffc9'
-              numberFilesCopy.querySelector('.number').style.display = 'none'
-              numberFilesCopy.querySelector('.icon').style.display = 'inline'
-              numberFilesCopy.querySelector('.operate').style.display = 'inline'
-              let targetFolder = numberFilesCopy.querySelector('.target .folder')
-              targetFolder.style.display = 'inline'
-              targetFolder.innerHTML = _this.fileList[throughRow.rowIndex].name
+              let numberFilesCopy = document.getElementById("numberFilesCopy");
+              numberFilesCopy.style.backgroundColor = "#40a9ffc9";
+              numberFilesCopy.querySelector(".number").style.display = "none";
+              numberFilesCopy.querySelector(".icon").style.display = "inline";
+              numberFilesCopy.querySelector(".operate").style.display =
+                "inline";
+              let targetFolder = numberFilesCopy.querySelector(
+                ".target .folder"
+              );
+              targetFolder.style.display = "inline";
+              targetFolder.innerHTML = _this.fileList[throughRow.rowIndex].name;
 
-              dragEnterBackCorlor = throughRow.style.backgroundColor
+              dragEnterBackCorlor = throughRow.style.backgroundColor;
               // 当拖拽文件夹上时，文件夹当背景色
-              const color = '#9fcdfc99'
+              const color = "#9fcdfc99";
               if (_this.grid) {
-                throughRow.style.backgroundColor = color
+                throughRow.style.backgroundColor = color;
               } else {
-                throughRow.childNodes.forEach(node => node.style.backgroundColor = color)
+                throughRow.childNodes.forEach(
+                  node => (node.style.backgroundColor = color)
+                );
               }
             }
-            dragIndex = throughRow.rowIndex
+            dragIndex = throughRow.rowIndex;
           }
-          leaveIndex = -1
+          leaveIndex = -1;
         }
-      }
+      };
 
-      container.ondragover = function (e) {
+      container.ondragover = function(e) {
         _this.selectRowData.forEach((row, index) => {
-          const drawRectangle = document.getElementById('dragingDiv' + row.index)
+          const drawRectangle = document.getElementById(
+            "dragingDiv" + row.index
+          );
           if (drawRectangle) {
-            drawRectangle.style.left = e.clientX - drawOffsetLeft + index * 3 + 10 + 'px'
-            drawRectangle.style.top = e.clientY - 50 + index * 3 + 10 + 'px'
+            drawRectangle.style.left =
+              e.clientX - drawOffsetLeft + index * 3 + 10 + "px";
+            drawRectangle.style.top = e.clientY - 50 + index * 3 + 10 + "px";
             if (firstOver === 0) {
-              drawRectangle.style.zIndex = 999
+              drawRectangle.style.zIndex = 999;
               setTimeout(() => {
-                drawRectangle.style.transition = ''
-              }, 300)
+                drawRectangle.style.transition = "";
+              }, 300);
             }
           }
-        })
-        e.preventDefault()
-        leaveIndex = -1
-        firstOver++
-      }
+        });
+        e.preventDefault();
+        leaveIndex = -1;
+        firstOver++;
+      };
 
-      let loop = null
-      let leaveIndex = -1 // 是否拖出了整个table, -1表示还在table内
+      let loop = null;
+      let leaveIndex = -1; // 是否拖出了整个table, -1表示还在table内
 
-      container.ondragleave = function (e) {
-        clearTimeout(loop)
-        let throughRow = judgThroughDom(e, 'leave')
+      container.ondragleave = function(e) {
+        clearTimeout(loop);
+        let throughRow = judgThroughDom(e, "leave");
         if (throughRow) {
           if (!_this.grid) {
             if (throughRow.rowIndex === 0 || throughRow.rowIndex === rows - 1) {
               // 离开第一行或最后一行
-              leaveIndex = throughRow.rowIndex
-              loop = setTimeout(function () {
+              leaveIndex = throughRow.rowIndex;
+              loop = setTimeout(function() {
                 if (leaveIndex > -1) {
                   const leave = target.children[leaveIndex];
-                  clearClass(leave)
-                  dragIndex = -1
+                  clearClass(leave);
+                  dragIndex = -1;
                 }
-              }, 100)
+              }, 100);
             }
           }
         }
-      }
-      container.ondrop = function () {
-        const form = _this.fileList[draggedIndex]
-        const to = _this.fileList[dragIndex]
-        if (form && to && form.id !== to.id && to.isFolder && !_this.selectRowData.includes(to)) {
+      };
+      container.ondrop = function() {
+        const form = _this.fileList[draggedIndex];
+        const to = _this.fileList[dragIndex];
+        if (
+          form &&
+          to &&
+          form.id !== to.id &&
+          to.isFolder &&
+          !_this.selectRowData.includes(to)
+        ) {
           // 移动文件/文件夹
-          let forms = []
+          let forms = [];
           _this.selectRowData.forEach(row => {
-            forms.push(row.id)
-          })
-          _this.$confirm(`是否将选中的${_this.selectRowData.length}项移动到 ${to.name}?`, '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'info'
-          }).then(() => {
-            _this.copyOrMoveApi('move', forms, to.id)
-            recoverDragDom(false)
-          }).catch(() => {
-            recoverDragDom(true)
-          })
+            forms.push(row.id);
+          });
+          _this
+            .$confirm(
+              `是否将选中的${_this.selectRowData.length}项移动到 ${to.name}?`,
+              "提示",
+              {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "info"
+              }
+            )
+            .then(() => {
+              _this.copyOrMoveApi("move", forms, to.id);
+              recoverDragDom(false);
+            })
+            .catch(() => {
+              recoverDragDom(true);
+            });
         } else {
-          recoverDragDom(true)
+          recoverDragDom(true);
         }
-      }
+      };
       // 清除之前的样式
-      let clearClass = function (node) {
+      let clearClass = function(node) {
         if (!dragged) {
-          return
+          return;
         }
         if (node) {
           if (_this.grid) {
-            node = node.children[0].children[0]
+            node = node.children[0].children[0];
             // #9fcdfc99
-            if (node.style.backgroundColor === 'rgba(159, 205, 252, 0.6)') {
-              node.style.backgroundColor = null
+            if (node.style.backgroundColor === "rgba(159, 205, 252, 0.6)") {
+              node.style.backgroundColor = null;
             }
           } else {
             // #9fcdfc99
-            if (node.firstChild.style.backgroundColor === 'rgba(159, 205, 252, 0.6)') {
+            if (
+              node.firstChild.style.backgroundColor ===
+              "rgba(159, 205, 252, 0.6)"
+            ) {
               node.childNodes.forEach(node => {
-                node.style.backgroundColor = null
-              })
+                node.style.backgroundColor = null;
+              });
             }
           }
-          dragged.style.cursor = 'default'
+          dragged.style.cursor = "default";
 
-          let numberFilesCopy = document.getElementById('numberFilesCopy')
+          let numberFilesCopy = document.getElementById("numberFilesCopy");
           if (numberFilesCopy) {
-            numberFilesCopy.style.backgroundColor = '#d2eefa66'
-            numberFilesCopy.querySelector('.number').style.display = 'inline'
-            numberFilesCopy.querySelector('.icon').style.display = 'none'
-            numberFilesCopy.querySelector('.operate').style.display = 'none'
-            numberFilesCopy.querySelector('.target .folder').style.display = 'none'
+            numberFilesCopy.style.backgroundColor = "#d2eefa66";
+            numberFilesCopy.querySelector(".number").style.display = "inline";
+            numberFilesCopy.querySelector(".icon").style.display = "none";
+            numberFilesCopy.querySelector(".operate").style.display = "none";
+            numberFilesCopy.querySelector(".target .folder").style.display =
+              "none";
           }
         }
-        dragged.style.backgroundColor = dragBackCorlor
-      }
+        dragged.style.backgroundColor = dragBackCorlor;
+      };
 
       function getObjPos(obj) {
-        let pos = {x: 0, y: 0}
+        let pos = { x: 0, y: 0 };
         while (obj) {
-          pos.x += obj.offsetLeft
-          pos.y += obj.offsetTop
-          obj = obj.offsetParent
+          pos.x += obj.offsetLeft;
+          pos.y += obj.offsetTop;
+          obj = obj.offsetParent;
         }
-        return pos
+        return pos;
       }
     },
     // 格式化最近时间
     formatTime(time) {
-      return formatTime(time)
+      return formatTime(time);
     },
     // 格式化文件大小
     formatSize(size) {
-      return formatSize(size)
+      return formatSize(size);
     },
     upload() {
       // 打开文件选择框
-      Bus.$emit('openUploader', {
+      Bus.$emit("openUploader", {
         // 传入的参数
         currentDirectory: this.path,
         username: this.$store.state.user.name,
         userId: this.$store.state.user.userId
-      })
+      });
     },
     uploadFolder() {
       if (window.uploader.supportDirectory) {
         // 打开文件夹选择框
-        Bus.$emit('uploadFolder', {
+        Bus.$emit("uploadFolder", {
           // 传入的参数
           currentDirectory: this.path,
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
-        })
+        });
       } else {
         this.$message({
-          message: '该浏览器不支持上传文件夹',
-          type: 'warning'
+          message: "该浏览器不支持上传文件夹",
+          type: "warning"
         });
       }
     },
     // 浏览器的返回事件
     goBack() {
       if (this.pathList.length <= 1) {
-        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
-        return
+        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}`);
+        return;
       }
-      this.lastLink()
+      this.lastLink();
     },
     lastLink() {
-      this.handleLink(this.pathList[this.pathList.length - 2], this.pathList.length - 2)
+      this.handleLink(
+        this.pathList[this.pathList.length - 2],
+        this.pathList.length - 2
+      );
     },
     handleLink(item, index, unPushLink, unRefresh) {
       if (item && item.search) {
         if (item.searchKey) {
-          this.searchFileByKeyWord(item.searchKey)
+          this.searchFileByKeyWord(item.searchKey);
         } else if (item.row) {
-          this.searchFileAndOpenDir(item.row)
+          this.searchFileAndOpenDir(item.row);
         }
-        this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
+        this.pathList.splice(
+          this.pathList.findIndex((v, i) => i === index + 1),
+          this.pathList.length - (index + 1)
+        );
       } else {
-        this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
+        this.pathList.splice(
+          this.pathList.findIndex((v, i) => i === index + 1),
+          this.pathList.length - (index + 1)
+        );
         this.pathList.forEach((p, number) => {
           if (number === 0) {
-            this.path = ''
+            this.path = "";
           } else if (number === this.pathList.length) {
           } else {
-            this.path += '/' + this.pathList[number].folder
+            this.path += "/" + this.pathList[number].folder;
           }
-          this.path = this.path.replace(/\\/g, '/')
-        })
+          this.path = this.path.replace(/\\/g, "/");
+        });
         if (!unPushLink) {
           if (!this.$route.query.path) {
-            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
+            this.$router.push(
+              `?vmode=${this.vmode}&path=${encodeURI(this.path)}`
+            );
           } else {
-            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
+            this.$router.push(
+              `?vmode=${this.vmode}&path=${encodeURI(this.path)}`
+            );
           }
         }
         if (!unRefresh) {
-          this.pagination.pageIndex = 1
-          this.getFileList()
+          this.pagination.pageIndex = 1;
+          this.getFileList();
         }
       }
     },
@@ -1790,389 +2256,420 @@ export default {
       window.open(`/setting/website/manager-articles?operation=new`, "_blank");
     },
     newFolder() {
-      this.newFolderName = this.getNewFileName(this.fileList, '新建文件夹')
-      this.showNewFolder = true
+      this.newFolderName = this.getNewFileName(this.fileList, "新建文件夹");
+      this.showNewFolder = true;
       this.$nextTick(() => {
-        this.$refs.newFolderName.focus()
-        this.$refs.newFolderName.select()
-      })
+        this.$refs.newFolderName.focus();
+        this.$refs.newFolderName.select();
+      });
     },
     getNewFileName(fileList, newFileName) {
-      let append = 0
-      let filenameList = []
+      let append = 0;
+      let filenameList = [];
       fileList.forEach(file => {
-        let fileName = file.name || file.label
+        let fileName = file.name || file.label;
         // if (file.suffix) {
         //   fileName = fileName.substring(0, fileName.lastIndexOf(`.${file.suffix}`))
         // }
-        filenameList.push(fileName)
-      })
-      const newName = newFileName
+        filenameList.push(fileName);
+      });
+      const newName = newFileName;
       while (filenameList.includes(newFileName)) {
-        append += 1
-        if (newName.indexOf('.') > 0) {
-          const name = newName.substring(0, newName.lastIndexOf('.'))
-          const suffix = newName.substring(newName.lastIndexOf('.'))
-          newFileName = `${name}${append}${suffix}`
+        append += 1;
+        if (newName.indexOf(".") > 0) {
+          const name = newName.substring(0, newName.lastIndexOf("."));
+          const suffix = newName.substring(newName.lastIndexOf("."));
+          newFileName = `${name}${append}${suffix}`;
         } else {
-          newFileName = `${newName}${append}`
+          newFileName = `${newName}${append}`;
         }
       }
-      return newFileName
+      return newFileName;
     },
     hideNewFolderName() {
-      this.showNewFolder = false
-      this.isShowNewFolder = false
+      this.showNewFolder = false;
+      this.isShowNewFolder = false;
     },
     showNewFolderClick() {
-      this.isShowNewFolder = true
+      this.isShowNewFolder = true;
     },
     setInputFocus() {
-      this.inputting = true
+      this.inputting = true;
     },
     setInputBlur() {
-      this.inputting = false
+      this.inputting = false;
     },
     newFolderNameClickEnter() {
-      this.newFolderNameClick()
+      this.newFolderNameClick();
     },
     // 新建文件夹
     newFolderNameClick() {
       if (this.newFolderName) {
         if (/[\[\]\/\\"<>\?\*]/gi.test(this.newFolderName)) {
           this.$message({
-            message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
-            type: 'warning'
+            message: "文件名不能包含以下字符:<,>,|,*,?,,/,[,]",
+            type: "warning"
           });
           return;
         }
-        this.newFolderLoading = true
-        this.createFileLoading = true
-        api.uploadFolder({
-          isFolder: true,
-          filename: encodeURI(this.newFolderName),
-          currentDirectory: encodeURI(this.path),
-          username: this.$store.state.user.name,
-          userId: this.$store.state.user.userId
-        }).then((res) => {
-          if (res.data === 1) {
-            this.newFolderLoading = false
-            this.$message({
-              message: '该文件夹已存在',
-              type: 'warning'
-            });
-          } else {
-            this.createFileLoading = false
-            this.newCreateFileDialog = false
-            this.newFolderLoading = false
-            this.showNewFolder = false
-            this.isShowNewFolder = false
-            this.$notify({
-              title: '新建文件夹成功',
-              type: 'success',
-              duration: 1000
-            })
-            if (this.listModeSearch) {
-              this.getFileListBySearchMode()
+        this.newFolderLoading = true;
+        this.createFileLoading = true;
+        api
+          .uploadFolder({
+            isFolder: true,
+            filename: encodeURI(this.newFolderName),
+            currentDirectory: encodeURI(this.path),
+            username: this.$store.state.user.name,
+            userId: this.$store.state.user.userId
+          })
+          .then(res => {
+            if (res.data === 1) {
+              this.newFolderLoading = false;
+              this.$message({
+                message: "该文件夹已存在",
+                type: "warning"
+              });
             } else {
-              this.getFileList()
+              this.createFileLoading = false;
+              this.newCreateFileDialog = false;
+              this.newFolderLoading = false;
+              this.showNewFolder = false;
+              this.isShowNewFolder = false;
+              this.$notify({
+                title: "新建文件夹成功",
+                type: "success",
+                duration: 1000
+              });
+              if (this.listModeSearch) {
+                this.getFileListBySearchMode();
+              } else {
+                this.getFileList();
+              }
             }
-          }
-        }).catch(() => {
-          this.newFolderLoading = false
-          this.createFileLoading = false
-        })
+          })
+          .catch(() => {
+            this.newFolderLoading = false;
+            this.createFileLoading = false;
+          });
       } else {
-        this.newFolderLoading = false
+        this.newFolderLoading = false;
         this.$message({
-          message: '请输入文件夹名称',
-          type: 'warning'
+          message: "请输入文件夹名称",
+          type: "warning"
         });
       }
     },
     // 新建文件
     createFile(newFileName) {
       if (this.newCreateFileDialogTitle === "新建文件夹") {
-        this.newFolderName = newFileName
-        this.newFolderNameClick()
-        return
+        this.newFolderName = newFileName;
+        this.newFolderNameClick();
+        return;
       }
       if (newFileName) {
         if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
-            message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
-            type: 'warning'
-          })
-          return
+            message: "文件名不能包含以下字符:<,>,|,*,?,,/,[,]",
+            type: "warning"
+          });
+          return;
         }
-        this.createFileLoading = true
-        let parentPath = "/"
+        this.createFileLoading = true;
+        let parentPath = "/";
         if (this.path) {
           if (this.path.length > 0) {
-            parentPath = this.path
+            parentPath = this.path;
           }
         }
-        let suffix = newFileName.substring(newFileName.lastIndexOf('.') + 1);
-        api.addFile({
-          fileName: encodeURI(newFileName),
-          isFolder: false,
-          username: this.$store.state.user.name,
-          parentPath: encodeURI(parentPath)
-        }).then((res) => {
-          this.createFileLoading = false
-          switch (suffix) {
-            case 'txt':
-              // 打开编辑器
-              this.textPreviewRow = res.data
-              this.textPreviewVisible = true
-              break
-            case 'drawio':
-            case 'mind':
-            case 'docx':
-            case 'xlsx':
-            case 'pptx':
-              this.officePreviewRow = res.data
-              this.officePreviewVisible = true
-              break
-          }
-          const that = this
-          setTimeout(function () {
-            that.newCreateFileDialog = false
-          }, 200)
-        }).catch(() => {
-          this.createFileLoading = false
-        })
-
+        let suffix = newFileName.substring(newFileName.lastIndexOf(".") + 1);
+        api
+          .addFile({
+            fileName: encodeURI(newFileName),
+            isFolder: false,
+            username: this.$store.state.user.name,
+            parentPath: encodeURI(parentPath)
+          })
+          .then(res => {
+            this.createFileLoading = false;
+            switch (suffix) {
+              case "txt":
+                // 打开编辑器
+                this.textPreviewRow = res.data;
+                this.textPreviewVisible = true;
+                break;
+              case "drawio":
+              case "mind":
+              case "docx":
+              case "xlsx":
+              case "pptx":
+                this.officePreviewRow = res.data;
+                this.officePreviewVisible = true;
+                break;
+            }
+            const that = this;
+            setTimeout(function() {
+              that.newCreateFileDialog = false;
+            }, 200);
+          })
+          .catch(() => {
+            this.createFileLoading = false;
+          });
       }
     },
     searchFileByKeyWord(key) {
-      this.searchFile(key)
+      this.searchFile(key);
     },
     // 切换布局
     changeVmode() {
-      this.grid = !this.grid
-      this.vmode = 'list'
+      this.grid = !this.grid;
+      this.vmode = "list";
       if (this.grid) {
-        this.vmode = 'grid'
-        this.lessClientHeight = 106
+        this.vmode = "grid";
+        this.lessClientHeight = 106;
       } else {
-        this.lessClientHeight = 140
-        this.$refs.fileListTable.setHeight()
+        this.lessClientHeight = 140;
+        this.$refs.fileListTable.setHeight();
       }
-      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
+      this.clientHeight =
+        document.documentElement.clientHeight - this.lessClientHeight;
       if (!this.path) {
-        this.path = ''
+        this.path = "";
       }
-      this.editingIndex = -1
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
+      this.editingIndex = -1;
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}`);
       // 改变拖拽目标
-      this.rowDrop()
+      this.rowDrop();
       // 画矩形选取
-      this.darwRectangle()
-      this.loadContextMenus()
+      this.darwRectangle();
+      this.loadContextMenus();
     },
     // 加载菜单查看状态
     loadContextMenus() {
       if (this.contextMenus.length < 1) {
-        this.contextmenuDisabled = true
-        return
+        this.contextmenuDisabled = true;
+        return;
       }
-      let container = document.querySelector('.dashboard-container')
+      let container = document.querySelector(".dashboard-container");
       if (this.$refs.homeContextmenu.references.length === 0) {
-        this.$refs.homeContextmenu.addRef({el: container, vnode: container})
+        this.$refs.homeContextmenu.addRef({ el: container, vnode: container });
       }
-      const viewModeIndex = this.contextMenus.findIndex(item => item.operation === 'viewMode')
-      const arrangementModeIndex = this.contextMenus.findIndex(item => item.operation === 'arrangement')
+      const viewModeIndex = this.contextMenus.findIndex(
+        item => item.operation === "viewMode"
+      );
+      const arrangementModeIndex = this.contextMenus.findIndex(
+        item => item.operation === "arrangement"
+      );
       if (viewModeIndex > -1) {
-        const child = this.contextMenus[viewModeIndex].child
+        const child = this.contextMenus[viewModeIndex].child;
         if (this.grid) {
-          child[0].iconClass = 'menu-empty'
-          child[1].iconClass = 'menu-point'
+          child[0].iconClass = "menu-empty";
+          child[1].iconClass = "menu-point";
         } else {
-          child[0].iconClass = 'menu-point'
-          child[1].iconClass = 'menu-empty'
+          child[0].iconClass = "menu-point";
+          child[1].iconClass = "menu-empty";
         }
       }
       if (arrangementModeIndex > -1) {
-        const child = this.contextMenus[arrangementModeIndex].child
-        const prop = this.sortable.prop
+        const child = this.contextMenus[arrangementModeIndex].child;
+        const prop = this.sortable.prop;
         child.forEach(item => {
-          const orderProp = item.orderProp
+          const orderProp = item.orderProp;
           if (orderProp === prop) {
             child.map(item => {
               if (orderProp === item.orderProp) {
-                item.iconClass = 'menu-' + this.sortable.order
+                item.iconClass = "menu-" + this.sortable.order;
               } else {
-                item.iconClass = 'menu-null'
+                item.iconClass = "menu-null";
               }
-              return item
-            })
+              return item;
+            });
           }
-        })
+        });
       }
       // 加载顶部的排序下拉框
-
     },
     // 请求之前的准备
     beforeLoadData(onLoad) {
       if (onLoad) {
-        this.pagination.pageIndex++
+        this.pagination.pageIndex++;
       } else {
-        this.pagination.pageIndex = 1
+        this.pagination.pageIndex = 1;
       }
-      this.pageLoadCompleteList[this.pagination.pageIndex] = false
-      this.tableLoading = true
-      this.finished = false
+      this.pageLoadCompleteList[this.pagination.pageIndex] = false;
+      this.tableLoading = true;
+      this.finished = false;
     },
     // 填充数据
     loadData(res, onLoad) {
       if (!this.$refs.fileListTable) {
-        return
+        return;
       }
       if (onLoad) {
         res.data.forEach((file, number) => {
-          file['index'] = (this.pagination.pageIndex - 1) * this.pagination.pageSize + number
-          this.fileList.push(file)
+          file["index"] =
+            (this.pagination.pageIndex - 1) * this.pagination.pageSize + number;
+          this.fileList.push(file);
         });
       } else {
-        this.fileList = res.data
+        this.fileList = res.data;
         this.fileList.map((item, index) => {
-          item.index = index
-        })
-        this.$refs.fileListTable.reloadData(this.fileList)
+          item.index = index;
+        });
+        this.$refs.fileListTable.reloadData(this.fileList);
         setTimeout(() => {
-          this.$refs.fileListTable.reloadData(this.fileList)
-        }, 0)
+          this.$refs.fileListTable.reloadData(this.fileList);
+        }, 0);
       }
       // 数据全部加载完成
       if (this.fileList.length >= res.count) {
         this.finished = true;
       }
-      this.tableLoading = false
-      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
-      this.listModeSearch = false
-      this.pagination['total'] = res.count
+      this.tableLoading = false;
+      this.clientHeight =
+        document.documentElement.clientHeight - this.lessClientHeight;
+      this.listModeSearch = false;
+      this.pagination["total"] = res.count;
       this.$nextTick(() => {
-        this.containerResize()
-        this.tableLoading = false
-        this.pageLoadCompleteList[this.pagination.pageIndex] = true
-      })
+        this.containerResize();
+        this.tableLoading = false;
+        this.pageLoadCompleteList[this.pagination.pageIndex] = true;
+      });
       // 加载菜单状态
-      this.loadContextMenus()
+      this.loadContextMenus();
       // 使列表滑到顶部
-     //  if (!onLoad && !this.grid) {
-     //    if (this.fileListScrollTop > 0) {
-     //      this.$refs.fileListTable.pagingScrollTopLeft()
-     //    }
-     //  }
-     // this.fileListScrollTop = 0
+      //  if (!onLoad && !this.grid) {
+      //    if (this.fileListScrollTop > 0) {
+      //      this.$refs.fileListTable.pagingScrollTopLeft()
+      //    }
+      //  }
+      // this.fileListScrollTop = 0
+      // 高亮新增的文件
+      if (this.onCreateFilename && this.selectRowData.length < 1) {
+        let index = this.fileList.findIndex(item => item.name === this.onCreateFilename);
+        if (index > -1) {
+          let row = this.fileList[index];
+          this.rowContextData = row
+          this.selectRowData.push(row);
+        }
+      }
     },
     searchFile(key, onLoad) {
       if (key) {
-        this.beforeLoadData(onLoad)
-        this.pathList = [{'folder': ''}]
-        const item1 = {}
-        item1['folder'] = '搜索: ' + '"' + key + '"'
-        item1['search'] = true
-        item1['searchKey'] = key
-        this.pathList.push(item1)
-        this.$router.push(`?vmode=${this.vmode}&search-file=${key}`)
-        api.searchFile({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          keyword: key,
-          sortableProp: this.sortable.prop,
-          order: this.sortable.order,
-          currentDirectory: encodeURI(this.$route.query.path),
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
-        }).then(res => {
-          this.loadData(res, onLoad)
-          this.path = ''
-          this.listModeSearch = true
-          this.listModeSearchOpenDir = false
-        })
+        this.beforeLoadData(onLoad);
+        this.pathList = [{ folder: "" }];
+        const item1 = {};
+        item1["folder"] = "搜索: " + '"' + key + '"';
+        item1["search"] = true;
+        item1["searchKey"] = key;
+        this.pathList.push(item1);
+        this.$router.push(`?vmode=${this.vmode}&search-file=${key}`);
+        api
+          .searchFile({
+            userId: this.$store.state.user.userId,
+            username: this.$store.state.user.name,
+            keyword: key,
+            sortableProp: this.sortable.prop,
+            order: this.sortable.order,
+            currentDirectory: encodeURI(this.$route.query.path),
+            pageIndex: this.pagination.pageIndex,
+            pageSize: this.pagination.pageSize
+          })
+          .then(res => {
+            this.loadData(res, onLoad);
+            this.path = "";
+            this.listModeSearch = true;
+            this.listModeSearchOpenDir = false;
+          });
       }
     },
     searchFileAndOpenDir(row, onLoad) {
-      this.beforeLoadData(onLoad)
-      api.searchFileAndOpenDir({
-        userId: this.$store.state.user.userId,
-        username: this.$store.getters.name,
-        id: row.id,
-        currentDirectory: encodeURI(this.$route.query.path),
-        pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
-      }).then(res => {
-        this.loadData(res, onLoad)
-        this.listModeSearch = true
-        this.listModeSearchOpenDir = row
-      })
-      this.path = row.path + row.name
-      this.path = this.path.replace(/\\/g, '/')
+      this.beforeLoadData(onLoad);
+      api
+        .searchFileAndOpenDir({
+          userId: this.$store.state.user.userId,
+          username: this.$store.getters.name,
+          id: row.id,
+          currentDirectory: encodeURI(this.$route.query.path),
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
+        })
+        .then(res => {
+          this.loadData(res, onLoad);
+          this.listModeSearch = true;
+          this.listModeSearchOpenDir = row;
+        });
+      this.path = row.path + row.name;
+      this.path = this.path.replace(/\\/g, "/");
     },
     openDir(row, onLoad) {
-      this.beforeLoadData(onLoad)
-      api.searchFileAndOpenDir({
-        userId: this.$store.state.user.userId,
-        username: this.$store.getters.name,
-        id: row.id,
-        currentDirectory: encodeURI(this.$route.query.path),
-        pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
-      }).then(res => {
-        this.loadData(res, onLoad)
-      })
-      this.path = row.path + row.name
-      this.path = this.path.replace(/\\/g, '/')
+      this.beforeLoadData(onLoad);
+      api
+        .searchFileAndOpenDir({
+          userId: this.$store.state.user.userId,
+          username: this.$store.getters.name,
+          id: row.id,
+          currentDirectory: encodeURI(this.$route.query.path),
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
+        })
+        .then(res => {
+          this.loadData(res, onLoad);
+        });
+      this.path = row.path + row.name;
+      this.path = this.path.replace(/\\/g, "/");
     },
     getFileList(onLoad) {
-      this.getFileListed = true
-      this.beforeLoadData(onLoad)
-      api.fileList({
-        userId: this.$store.state.user.userId,
-        username: this.$store.state.user.name,
-        currentDirectory: encodeURI(this.$route.query.path),
-        queryFileType: this.queryFileType,
-        sortableProp: this.sortable.prop,
-        order: this.sortable.order,
-        isFolder: this.queryCondition.isFolder,
-        isFavorite: this.queryCondition.isFavorite,
-        queryCondition: this.queryCondition,
-        pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
-      }).then(res => {
-        this.loadData(res, onLoad)
-      })
+      this.getFileListed = true;
+      this.beforeLoadData(onLoad);
+      api
+        .fileList({
+          userId: this.$store.state.user.userId,
+          username: this.$store.state.user.name,
+          currentDirectory: encodeURI(this.$route.query.path),
+          queryFileType: this.queryFileType,
+          sortableProp: this.sortable.prop,
+          order: this.sortable.order,
+          isFolder: this.queryCondition.isFolder,
+          isFavorite: this.queryCondition.isFavorite,
+          queryCondition: this.queryCondition,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
+        })
+        .then(res => {
+          this.loadData(res, onLoad);
+        });
     },
     getFileListBySearchMode(onLoad) {
-      this.beforeLoadData(onLoad)
-      api.fileList({
-        userId: this.$store.state.user.userId,
-        username: this.$store.state.user.name,
-        currentDirectory: encodeURI(this.$route.query.path),
-        pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
-      }).then(res => {
-        this.loadData(res, onLoad)
-      })
+      this.beforeLoadData(onLoad);
+      api
+        .fileList({
+          userId: this.$store.state.user.userId,
+          username: this.$store.state.user.name,
+          currentDirectory: encodeURI(this.$route.query.path),
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
+        })
+        .then(res => {
+          this.loadData(res, onLoad);
+        });
     },
     tableBodyScroll(table, e) {
-      this.fileListScrollTop = e.target.scrollTop
-      let scrollBottom = e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop;
+      this.fileListScrollTop = e.target.scrollTop;
+      let scrollBottom =
+        e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop;
       if (scrollBottom < 200) {
         if (!this.finished) {
           if (!this.pageLoadCompleteList[this.pagination.pageIndex]) {
-            return
+            return;
           }
           if (this.listModeSearch) {
             if (this.listModeSearchOpenDir) {
-              this.searchFileAndOpenDir(this.listModeSearchOpenDir, true)
+              this.searchFileAndOpenDir(this.listModeSearchOpenDir, true);
             } else {
-              this.searchFile(this.searchFileName, true)
+              this.searchFile(this.searchFileName, true);
             }
           } else {
-            this.getFileList(true)
+            this.getFileList(true);
           }
         }
       }
@@ -2183,112 +2680,117 @@ export default {
     },
     pinSelect(rows, row) {
       if (this.selectPin && this.selectOrgin > -1) {
-        const orgin = this.selectOrgin
-        this.selectEnd = row.index
-        let diff = this.selectEnd - orgin
+        const orgin = this.selectOrgin;
+        this.selectEnd = row.index;
+        let diff = this.selectEnd - orgin;
         // 先清除选中
-        this.$refs.fileListTable.clearSelection()
+        this.$refs.fileListTable.clearSelection();
         if (diff === 0) {
-          this.selectOrgin = -1
+          this.selectOrgin = -1;
         }
         if (diff > 0) {
           for (let i = orgin; i <= this.selectEnd; i++) {
-            this.$refs.fileListTable.toggleRowSelection([{row: this.fileList[i], selected: true}])
-            this.$refs.fileListTable.tableSelectData.push(this.fileList[i])
+            this.$refs.fileListTable.toggleRowSelection([
+              { row: this.fileList[i], selected: true }
+            ]);
+            this.$refs.fileListTable.tableSelectData.push(this.fileList[i]);
           }
         }
         if (diff < 0) {
           for (let i = this.selectEnd; i <= orgin; i++) {
-            this.$refs.fileListTable.toggleRowSelection([{row: this.fileList[i], selected: true}])
-            this.$refs.fileListTable.tableSelectData.push(this.fileList[i])
+            this.$refs.fileListTable.toggleRowSelection([
+              { row: this.fileList[i], selected: true }
+            ]);
+            this.$refs.fileListTable.tableSelectData.push(this.fileList[i]);
           }
         }
       }
-      this.changeSelectedStyle(this.$refs.fileListTable.tableSelectData)
+      this.changeSelectedStyle(this.$refs.fileListTable.tableSelectData);
     },
     sortChangeOfMenu(prop, headerIndex) {
-      let tableHeader = document.querySelector('.el-table__header thead tr')
+      let tableHeader = document.querySelector(".el-table__header thead tr");
       // 去掉table-header上所有排序高亮
       tableHeader.childNodes.forEach(el => {
-        if (el.className.indexOf('is-sortable') > -1) {
-          this.removeClass(el, "descending")
-          this.removeClass(el, "ascending")
+        if (el.className.indexOf("is-sortable") > -1) {
+          this.removeClass(el, "descending");
+          this.removeClass(el, "ascending");
         }
-      })
+      });
       // 重新加上排序高亮
-      let order = this.sortable.order === 'ascending' ? 'descending' : 'ascending'
-      this.addClass(tableHeader.children[headerIndex], order)
-      this.orderCustom = true
-      this.sortChange({prop: prop, order: order})
+      let order =
+        this.sortable.order === "ascending" ? "descending" : "ascending";
+      this.addClass(tableHeader.children[headerIndex], order);
+      this.orderCustom = true;
+      this.sortChange({ prop: prop, order: order });
     },
     sortChange(column) {
-      let {prop, order} = column
+      let { prop, order } = column;
       if (this.orderCustom || this.listModeSearch) {
-        this.sortable.prop = prop
-        this.sortable.order = order
-        this.pagination.pageIndex = 1
+        this.sortable.prop = prop;
+        this.sortable.order = order;
+        this.pagination.pageIndex = 1;
         if (this.listModeSearch) {
-          this.searchFile(this.searchFileName)
+          this.searchFile(this.searchFileName);
         } else {
           this.getFileList();
         }
       }
     },
     removeClass(el, className) {
-      const str = el.className
+      const str = el.className;
       if (str.indexOf(className) > -1) {
-        el.className = str.replace(className, "")
+        el.className = str.replace(className, "");
       }
     },
     addClass(el, className) {
       if (el) {
-        const str = el.className
-        el.className = el.className + " " + className
+        const str = el.className;
+        el.className = el.className + " " + className;
       }
     },
     // 统计文件和文件夹
     getShowSumFileAndFolder(fileList) {
-      let folderSize = 0
-      let fileSize = 0
-      fileList.forEach((fileInfo) => {
+      let folderSize = 0;
+      let fileSize = 0;
+      fileList.forEach(fileInfo => {
         if (fileInfo.isFolder) {
-          folderSize += 1
+          folderSize += 1;
         } else {
-          fileSize += 1
+          fileSize += 1;
         }
-      })
-      let folderSum = ''
+      });
+      let folderSum = "";
       if (folderSize > 0) {
-        folderSum = folderSize + '个文件夹'
+        folderSum = folderSize + "个文件夹";
       }
-      let fileSum = ''
+      let fileSum = "";
       if (fileSize > 0) {
-        fileSum = fileSize + '个文件'
+        fileSum = fileSize + "个文件";
       }
-      return folderSum + ' ' + fileSum
+      return folderSum + " " + fileSum;
     },
     // 计算总大小
     getShowSumSize(totalSize) {
-      let sizeSum = ''
+      let sizeSum = "";
       if (totalSize < 1024) {
-        sizeSum += totalSize + 'B'
+        sizeSum += totalSize + "B";
       } else if (totalSize >= 1024 && totalSize < 1024 * 1024) {
-        sizeSum += (totalSize / 1024).toFixed(2) + 'K'
+        sizeSum += (totalSize / 1024).toFixed(2) + "K";
       } else if (totalSize >= 1024 * 1024 && totalSize < 1024 * 1024 * 1024) {
-        sizeSum += (totalSize / (1024 * 1024)).toFixed(2) + 'M'
+        sizeSum += (totalSize / (1024 * 1024)).toFixed(2) + "M";
       } else {
-        sizeSum += (totalSize / (1024 * 1024 * 1024)).toFixed(2) + 'G'
+        sizeSum += (totalSize / (1024 * 1024 * 1024)).toFixed(2) + "G";
       }
-      return sizeSum
+      return sizeSum;
     },
     selectAll(checked) {
-      this.isSelectAll = checked
+      this.isSelectAll = checked;
       if (checked) {
         this.fileList.forEach(row => {
-          this.selectRowData.push(row)
-        })
+          this.selectRowData.push(row);
+        });
       } else {
-        this.isIndeterminate = false
+        this.isIndeterminate = false;
       }
     },
     // 收集选中的index值作为数组 传递给rowRed判断变换样式
@@ -2296,160 +2798,174 @@ export default {
       // 起点
       if (rows.length > 0) {
         if (!this.selectPin) {
-          this.selectOrgin = rows[0].index
+          this.selectOrgin = rows[0].index;
         }
         if (this.selectPin) {
-          return
+          return;
         }
-        this.rowContextData = rows[0]
+        this.rowContextData = rows[0];
       }
-      this.$refs.fileListTable.tableSelectData = rows
-      this.selectRowData = rows
-      this.changeSelectedStyle(rows)
+      this.$refs.fileListTable.tableSelectData = rows;
+      this.selectRowData = rows;
+      this.changeSelectedStyle(rows);
     },
     changeSelectedStyle(rows) {
       if (this.stopSortChange) {
-        return
+        return;
       }
-      let selectTotalSize = 0
+      let selectTotalSize = 0;
       rows.forEach(item => {
-        selectTotalSize += item.size
-      })
-      const item_name = this.tableHead[2]
-      const item_more = this.tableHead[4]
-      const item_size = this.tableHead[5]
-      const item_date = this.tableHead[6]
+        selectTotalSize += item.size;
+      });
+      const item_name = this.tableHead[2];
+      const item_more = this.tableHead[4];
+      const item_size = this.tableHead[5];
+      const item_date = this.tableHead[6];
       if (rows.length > 0) {
-        const sumFileAndFolder = this.getShowSumFileAndFolder(rows)
-        const sizeSum = this.getShowSumSize(selectTotalSize)
-        item_name.label = sumFileAndFolder
-        item_name.sortable = false
-        item_more.name = 'more'
-        item_size.label = sizeSum
-        item_size.sortable = false
-        item_date.label = ''
-        item_date.sortable = false
+        const sumFileAndFolder = this.getShowSumFileAndFolder(rows);
+        const sizeSum = this.getShowSumSize(selectTotalSize);
+        item_name.label = sumFileAndFolder;
+        item_name.sortable = false;
+        item_more.name = "more";
+        item_size.label = sizeSum;
+        item_size.sortable = false;
+        item_date.label = "";
+        item_date.sortable = false;
       } else {
-        item_name.label = '名称'
-        item_name.sortable = true
-        item_more.name = ''
-        item_size.label = '大小'
-        item_size.sortable = true
-        item_date.label = '修改日期'
-        item_date.sortable = true
+        item_name.label = "名称";
+        item_name.sortable = true;
+        item_more.name = "";
+        item_size.label = "大小";
+        item_size.sortable = true;
+        item_date.label = "修改日期";
+        item_date.sortable = true;
       }
       if (this.selectRowData.length === this.fileList.length) {
-        this.allChecked = true
+        this.allChecked = true;
       } else {
-        this.allChecked = false
+        this.allChecked = false;
       }
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
-    rowStyle({row, column, rowIndex, columnIndex}) {
-      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === rowIndex) > -1) {
+    rowStyle({ row, column, rowIndex, columnIndex }) {
+      if (
+        this.$refs.fileListTable.tableSelectData.findIndex(
+          item => item.index === rowIndex
+        ) > -1
+      ) {
         if (columnIndex === 0) {
           return {
-            backgroundColor: '#e0f3fc !important',
-            borderRadius: '3px 0 0 3px',
-            borderLeft: '1px solid #409eff',
-            borderTop: '1px solid #409eff',
-            borderBottom: '1px solid #409eff'
-          }
+            backgroundColor: "#e0f3fc !important",
+            borderRadius: "3px 0 0 3px",
+            borderLeft: "1px solid #409eff",
+            borderTop: "1px solid #409eff",
+            borderBottom: "1px solid #409eff"
+          };
         }
         if (columnIndex === 5) {
           return {
-            backgroundColor: '#e0f3fc !important',
-            borderRadius: '0 3px 3px 0',
-            borderRight: '1px solid #409eff',
-            borderTop: '1px solid #409eff',
-            borderBottom: '1px solid #409eff'
-          }
+            backgroundColor: "#e0f3fc !important",
+            borderRadius: "0 3px 3px 0",
+            borderRight: "1px solid #409eff",
+            borderTop: "1px solid #409eff",
+            borderBottom: "1px solid #409eff"
+          };
         }
         return {
-          backgroundColor: '#e0f3fc !important',
-          borderTop: '1px solid #409eff',
-          borderBottom: '1px solid #409eff'
-        }
+          backgroundColor: "#e0f3fc !important",
+          borderTop: "1px solid #409eff",
+          borderBottom: "1px solid #409eff"
+        };
       }
     },
     // 动态添加index到row里面去
-    tableRowClassName({row, rowIndex}) {
+    tableRowClassName({ row, rowIndex }) {
       // row.index = rowIndex
     },
     // 选择某行预备数据#e0f3fc !important;
     preliminaryRowData(row) {
       if (row) {
         // this.$refs.fileListTable.tableSelectData[0] = row
-        this.rowContextData = row
+        this.rowContextData = row;
       }
-      const isFavorite = this.rowContextData.isFavorite
-      this.highlightFavorite(this.isCollectView ? true : isFavorite, false)
+      const isFavorite = this.rowContextData.isFavorite;
+      this.highlightFavorite(this.isCollectView ? true : isFavorite, false);
     },
     // 单元格hover进入时事件
     cellMouseEnter(row) {
       if (this.draging === 1) {
-        return
+        return;
       }
-      if (this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex !== row.index) {
-        this.$refs.contextShow.hideMenu()
+      if (
+        this.$refs.contextShow.locals.menuType === "moreClick" &&
+        this.$refs.contextShow.locals.rowIndex !== row.index
+      ) {
+        this.$refs.contextShow.hideMenu();
       }
       if (this.editingIndex === -1 && !this.$refs.contextShow.ctxVisible) {
         if (this.selectRowData.length <= 1) {
-          this.cellMouseIndex = row.index
+          this.cellMouseIndex = row.index;
         }
       }
     },
     // 单元格hover退出时事件
     cellMouseLeave(row) {
       if (this.draging === 1) {
-        return
+        return;
       }
-      if (this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex !== row.index) {
-        this.$refs.contextShow.hideMenu()
-        this.$refs.contextShow.locals = {}
-        return
+      if (
+        this.$refs.contextShow.locals.menuType === "moreClick" &&
+        this.$refs.contextShow.locals.rowIndex !== row.index
+      ) {
+        this.$refs.contextShow.hideMenu();
+        this.$refs.contextShow.locals = {};
+        return;
       }
-      if (this.$refs.contextShow.ctxVisible && this.$refs.contextShow.locals.menuType === 'moreClick' && this.$refs.contextShow.locals.rowIndex === row.index) {
-        return
+      if (
+        this.$refs.contextShow.ctxVisible &&
+        this.$refs.contextShow.locals.menuType === "moreClick" &&
+        this.$refs.contextShow.locals.rowIndex === row.index
+      ) {
+        return;
       }
-      this.cellMouseIndex = -1
+      this.cellMouseIndex = -1;
     },
     //双击
     dblclick(row) {
-      this.fileClick(row)
+      this.fileClick(row);
     },
     // 单元格点击事件
     cellClick(row, column) {
       if (this.selectFile) {
-        this.fileClick(row)
-        return
+        this.fileClick(row);
+        return;
       }
       clearTimeout(this.Loop);
       if (this.editingIndex === -1) {
-        const columnIndex = column.index
+        const columnIndex = column.index;
         if (columnIndex === 2) {
           if (this.selectRowData.length < 1) {
             if (row.index !== this.editingIndex) {
-              this.editingIndex = -1
+              this.editingIndex = -1;
             }
           }
         }
         if (this.isCmd) {
-          this.pinSelect(null, row)
-          this.$refs.fileListTable.toggleRowSelection([{row: row}])
-          return
+          this.pinSelect(null, row);
+          this.$refs.fileListTable.toggleRowSelection([{ row: row }]);
+          return;
         }
-        this.pinSelect(null, row)
+        this.pinSelect(null, row);
       }
     },
     // 选取输入框部分内容
     renameInputFocus(doc, suffix) {
-      this.setInputFocus()
-      doc.focus()
-      doc.selectionStart = 0
-      doc.selectionEnd = doc.value.length
+      this.setInputFocus();
+      doc.focus();
+      doc.selectionStart = 0;
+      doc.selectionEnd = doc.value.length;
       if (suffix) {
-        doc.selectionEnd -= suffix.length + 1
+        doc.selectionEnd -= suffix.length + 1;
       }
     },
     // 重命名
@@ -2459,839 +2975,930 @@ export default {
       if (newFileName) {
         if (/[\[\]\/\\"<>\?\*]/gi.test(newFileName)) {
           this.$message({
-            message: '文件名不能包含以下字符:<,>,|,*,?,,/,[,]',
-            type: 'warning'
+            message: "文件名不能包含以下字符:<,>,|,*,?,,/,[,]",
+            type: "warning"
           });
           return;
         }
-        let strFileName = newFileName.replace(/(.*\/)*([^.]+).*/ig, "$2");
+        let strFileName = newFileName.replace(/(.*\/)*([^.]+).*/gi, "$2");
         let newExt = newFileName.replace(/.+\./, "");
         if (!row.isFolder) {
           if (row.suffix !== newExt) {
-            this.$confirm(`您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`, '提示', {
-              type: 'warning',
-              showClose: false,
-              closeOnClickModal: false,
-              confirmButtonText: `保持.${row.suffix}`,
-              cancelButtonText: `使用.${newExt}`,
-            }).then(() => {
-              newFileName = strFileName + '.' + row.suffix
-            }).catch(() => {
-            }).then(() => {
-              this.rename(row, newFileName)
-            })
+            this.$confirm(
+              `您确定要将扩展名“.${row.suffix}”更改为“.${newExt}”吗？`,
+              "提示",
+              {
+                type: "warning",
+                showClose: false,
+                closeOnClickModal: false,
+                confirmButtonText: `保持.${row.suffix}`,
+                cancelButtonText: `使用.${newExt}`
+              }
+            )
+              .then(() => {
+                newFileName = strFileName + "." + row.suffix;
+              })
+              .catch(() => {})
+              .then(() => {
+                this.rename(row, newFileName);
+              });
           } else {
-            this.rename(row, newFileName)
+            this.rename(row, newFileName);
           }
         } else {
-          this.rename(row, newFileName)
+          this.rename(row, newFileName);
         }
       } else {
-        this.editingIndex = -1
+        this.editingIndex = -1;
       }
     },
     rename(row, newFileName) {
       if (row.name === newFileName) {
-        this.editingIndex = -1
-        return
+        this.editingIndex = -1;
+        return;
       }
-      this.renameLoading = true
+      this.renameLoading = true;
       const findIndex = this.fileList.findIndex(item => {
         if (newFileName === item.name) {
-          return item
+          return item;
         }
-      })
+      });
       if (findIndex > -1) {
-        let msg = '该文件已存在'
+        let msg = "该文件已存在";
         if (row.isFolder) {
-          msg = '该文件夹已存在'
+          msg = "该文件夹已存在";
         }
         this.$message({
           message: msg,
-          type: 'warning'
+          type: "warning"
         });
-        this.renameLoading = false
-        return
+        this.renameLoading = false;
+        return;
       }
-      api.rename({
-        newFileName: encodeURI(newFileName),
-        username: this.$store.state.user.name,
-        id: row.id
-      }).then(res => {
-        this.renameLoading = false
-        row.name = newFileName
-        row.suffix = newFileName.replace(/.+\./, "")
-        this.fileList[row.index] = row
-        this.editingIndex = -1
-        this.$message.success("重命名中...")
-      }).then(() => {
-        this.$refs.fileListTable.clearSelection()
-      }).catch(() => {
-        this.renameLoading = false
-        this.editingIndex = -1
-      })
+      api
+        .rename({
+          newFileName: encodeURI(newFileName),
+          username: this.$store.state.user.name,
+          id: row.id
+        })
+        .then(res => {
+          this.renameLoading = false;
+          row.name = newFileName;
+          row.suffix = newFileName.replace(/.+\./, "");
+          this.fileList[row.index] = row;
+          this.editingIndex = -1;
+          this.$message.success("重命名中...");
+        })
+        .then(() => {
+          this.$refs.fileListTable.clearSelection();
+        })
+        .catch(() => {
+          this.renameLoading = false;
+          this.editingIndex = -1;
+        });
     },
     // 更多操作(多选)
     moreOperation(event) {
-      this.menusIsMultiple = true
-      this.menus = this.multipleMenus
-      this.showOperationMenus(event)
+      this.menusIsMultiple = true;
+      this.menus = this.multipleMenus;
+      this.showOperationMenus(event);
+    },
+    setMenus(row) {
+      this.menus = JSON.parse(JSON.stringify(this.singleMenus));
+      if (row.suffix && row.suffix === "md") {
+        this.menus.splice(2, 0, { iconClass: "menu-edit1", label: "编辑", operation: "edit" })
+      }
+      if (!row.isFolder) {
+        this.menus.splice(5, 0, { iconClass: "duplicate", label: "创建副本", operation: "duplicate" })
+      }
+      this.preliminaryRowData(row);
     },
     // 更多操作(单选)
     moreClick(row, event) {
-      this.menusIsMultiple = false
-      if (row.contentType && row.contentType.includes("text")) {
-        this.menus = this.singleMenusEdit
-      } else {
-        this.menus = this.singleMenus
-      }
-      this.preliminaryRowData(row)
-      this.showOperationMenus(event, {'menuType': 'moreClick', rowIndex: row.index})
+      this.menusIsMultiple = false;
+      this.setMenus(row)
+      this.showOperationMenus(event, {
+        menuType: "moreClick",
+        rowIndex: row.index
+      });
     },
     // 鼠标右击
     rowContextmenu(row) {
       if (this.selectFile) {
-        return
+        return;
       }
-      if (this.$refs.fileListTable.tableSelectData.length > 1 && this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === row.index) > -1) {
-        this.menusIsMultiple = true
-        this.menus = this.multipleRightMenus
-        this.highlightFavorite(this.isCollectView, false)
+      if (
+        this.$refs.fileListTable.tableSelectData.length > 1 &&
+        this.$refs.fileListTable.tableSelectData.findIndex(
+          item => item.index === row.index
+        ) > -1
+      ) {
+        this.menusIsMultiple = true;
+        this.menus = this.multipleRightMenus;
+        this.highlightFavorite(this.isCollectView, false);
       } else {
-        this.$refs.fileListTable.clearSelection()
-        this.$refs.fileListTable.toggleRowSelection([{row: row}])
-        this.menusIsMultiple = false
-        if (row.suffix && row.suffix.includes("md")) {
-          this.menus = this.singleMenusEdit
-        } else {
-          this.menus = this.singleMenus
-        }
-        this.preliminaryRowData(row)
+        this.$refs.fileListTable.clearSelection();
+        this.$refs.fileListTable.toggleRowSelection([{ row: row }]);
+        this.menusIsMultiple = false;
+        this.setMenus(row)
       }
-      event.preventDefault()
-      this.menuTriangle = ''
-      const e = {}
-      e.pageX = event.pageX + 5
-      e.pageY = event.pageY + 2
-      e.clientX = event.clientX + 5
-      e.clientY = event.clientY + 2
-      this.$refs.contextShow.showMenu(e)
-      this.cellMouseIndex = -1
+      event.preventDefault();
+      this.menuTriangle = "";
+      const e = {};
+      e.pageX = event.pageX + 5;
+      e.pageY = event.pageY + 2;
+      e.clientX = event.clientX + 5;
+      e.clientY = event.clientY + 2;
+      this.$refs.contextShow.showMenu(e);
+      this.cellMouseIndex = -1;
     },
     // 显示操作菜单
     showOperationMenus(event, menuData) {
-      let offsetY = event.pageY
+      let offsetY = event.pageY;
       if (event.target.clientHeight > 0) {
-        offsetY += event.target.clientHeight / 2 - event.offsetY
+        offsetY += event.target.clientHeight / 2 - event.offsetY;
       }
-      const e = {}
+      const e = {};
       if (document.body.scrollHeight - offsetY > 400) {
-        this.menuTriangle = 'menu-triangle-top'
-        e.pageX = event.pageX - 78
-        e.pageY = offsetY + 25
+        this.menuTriangle = "menu-triangle-top";
+        e.pageX = event.pageX - 78;
+        e.pageY = offsetY + 25;
       } else {
-        this.menuTriangle = 'menu-triangle-bottom'
-        e.pageX = event.pageX - 78
-        e.pageY = offsetY - (this.menus.length * 38) - 36
+        this.menuTriangle = "menu-triangle-bottom";
+        e.pageX = event.pageX - 78;
+        e.pageY = offsetY - this.menus.length * 38 - 36;
       }
       if (!this.isJustHideMenus) {
-        this.$refs.contextShow.showMenu(e, menuData)
+        this.$refs.contextShow.showMenu(e, menuData);
       }
     },
     menuFavoriteOver(index, isFavorite) {
-      this.highlightFavorite(this.isCollectView ? true : isFavorite, false)
+      this.highlightFavorite(this.isCollectView ? true : isFavorite, false);
     },
     menuFavoriteLeave(index, isFavorite) {
-      this.highlightFavorite(this.isCollectView ? true : isFavorite, false)
+      this.highlightFavorite(this.isCollectView ? true : isFavorite, false);
     },
     // 是否高亮收藏图标
     highlightFavorite(isFavorite, isHover) {
       const item_menu = this.menus.find(item => {
-        if (item.operation === 'favorite' || item.operation === 'unFavorite') {
-          return item
+        if (item.operation === "favorite" || item.operation === "unFavorite") {
+          return item;
         }
-      })
+      });
       if (item_menu) {
         if (isFavorite) {
-          item_menu.label = '取消收藏'
-          item_menu.iconClass = 'menu-unfavorite-hover'
-          item_menu.operation = 'unFavorite'
+          item_menu.label = "取消收藏";
+          item_menu.iconClass = "menu-unfavorite-hover";
+          item_menu.operation = "unFavorite";
         } else {
           if (isHover) {
-            item_menu.iconClass = 'menu-favorite-hover'
+            item_menu.iconClass = "menu-favorite-hover";
           } else {
-            item_menu.iconClass = 'menu-favorite'
+            item_menu.iconClass = "menu-favorite";
           }
-          item_menu.label = '收藏'
-          item_menu.operation = 'favorite'
+          item_menu.label = "收藏";
+          item_menu.operation = "favorite";
         }
         // this.$set(this.menus, 0, item_menu)
       }
     },
     show() {
-      const that = this
-      this.contextmenuDisabled = true
-      setTimeout(function () {
-        that.contextmenuDisabled = false
-      }, 1000)
+      const that = this;
+      this.contextmenuDisabled = true;
+      setTimeout(function() {
+        that.contextmenuDisabled = false;
+      }, 1000);
     },
     hide() {
-      const that = this
-      this.isJustHideMenus = true
-      setTimeout(function () {
-        that.isJustHideMenus = false
-      }, 100)
-      this.cellMouseIndex = -1
+      const that = this;
+      this.isJustHideMenus = true;
+      setTimeout(function() {
+        that.isJustHideMenus = false;
+      }, 100);
+      this.cellMouseIndex = -1;
     },
     // 全局右键菜单操作
     contextmenuClick(operation) {
       switch (operation) {
-        case 'vmode-list':
+        case "vmode-list":
           this.grid = true;
-          this.changeVmode()
-          break
-        case 'vmode-grid':
+          this.changeVmode();
+          break;
+        case "vmode-grid":
           this.grid = false;
-          this.changeVmode()
-          break
-        case 'orderName':
-          this.sortChangeOfMenu('name', 2)
-          break
-        case 'orderSize':
-          this.sortChangeOfMenu('size', 5)
-          break
-        case 'orderUpdateDate':
-          this.sortChangeOfMenu('updateDate', 6)
-          break
-        case 'refresh':
-          this.getFileList()
-          break
-        case 'createTextFile':
-          this.newCreateFileDialogTitle = "新建文本文件"
-          this.createNewFile('txt')
-          break
-        case 'createFolder':
-          this.newCreateFileDialogTitle = "新建文件夹"
-          this.createNewFile('')
-          break
-        case 'createDrawioFile':
-          this.newCreateFileDialogTitle = "新建流程图"
-          this.createNewFile('drawio')
-          break
-        case 'createMinderFile':
-          this.newCreateFileDialogTitle = "新建思维导图"
-          this.createNewFile('mind')
-          break
-        case 'createWordFile':
-          this.newCreateFileDialogTitle = "新建Word文档"
-          this.createNewFile('docx')
-          break
-        case 'createExcelFile':
-          this.newCreateFileDialogTitle = "新建Excel工作表"
-          this.createNewFile('xlsx')
-          break
-        case 'createPPTFile':
-          this.newCreateFileDialogTitle = "新建PPT演示文档"
-          this.createNewFile('pptx')
-          break
-        case 'createMarkdownFile':
-          this.newDocument()
-          break
+          this.changeVmode();
+          break;
+        case "orderName":
+          this.sortChangeOfMenu("name", 2);
+          break;
+        case "orderSize":
+          this.sortChangeOfMenu("size", 5);
+          break;
+        case "orderUpdateDate":
+          this.sortChangeOfMenu("updateDate", 6);
+          break;
+        case "refresh":
+          this.getFileList();
+          break;
+        case "createTextFile":
+          this.newCreateFileDialogTitle = "新建文本文件";
+          this.createNewFile("txt");
+          break;
+        case "createFolder":
+          this.newCreateFileDialogTitle = "新建文件夹";
+          this.createNewFile("");
+          break;
+        case "createDrawioFile":
+          this.newCreateFileDialogTitle = "新建流程图";
+          this.createNewFile("drawio");
+          break;
+        case "createMinderFile":
+          this.newCreateFileDialogTitle = "新建思维导图";
+          this.createNewFile("mind");
+          break;
+        case "createWordFile":
+          this.newCreateFileDialogTitle = "新建Word文档";
+          this.createNewFile("docx");
+          break;
+        case "createExcelFile":
+          this.newCreateFileDialogTitle = "新建Excel工作表";
+          this.createNewFile("xlsx");
+          break;
+        case "createPPTFile":
+          this.newCreateFileDialogTitle = "新建PPT演示文档";
+          this.createNewFile("pptx");
+          break;
+        case "createMarkdownFile":
+          this.newDocument();
+          break;
       }
     },
     // 新建文件
     createNewFile(suffix) {
       if (this.newCreateFileDialogTitle === "新建文件夹") {
-        this.newCreateFileName = `新建文件夹`
+        this.newCreateFileName = `新建文件夹`;
       } else {
-        this.newCreateFileName = `未命名文件.${suffix}`
+        this.newCreateFileName = `未命名文件.${suffix}`;
       }
-      this.newCreateFileName = this.getNewFileName(this.fileList, this.newCreateFileName)
-      this.newCreateFileDialog = true
+      this.newCreateFileName = this.getNewFileName(
+        this.fileList,
+        this.newCreateFileName
+      );
+      this.newCreateFileDialog = true;
       this.$nextTick(() => {
-        let newFileNameInput = this.$refs.newCreateFileName.$el.querySelector('.el-input__inner')
-        this.renameInputFocus(newFileNameInput, suffix)
-      })
+        let newFileNameInput = this.$refs.newCreateFileName.$el.querySelector(
+          ".el-input__inner"
+        );
+        this.renameInputFocus(newFileNameInput, suffix);
+      });
     },
     // 列表右键菜单操作
     menusOperations(operation) {
       switch (operation) {
-        case 'share':
+        case "share":
           // 分享
-          this.share()
-          break
-        case 'favorite':
+          this.share();
+          break;
+        case "favorite":
           // 收藏
-          this.favoriteOperating(true)
-          break
-        case 'edit':
+          this.favoriteOperating(true);
+          break;
+        case "edit":
           // 编辑
-          window.open(`/setting/website/manager-articles?operation=editor&id=${this.rowContextData.id}`, '_blank')
-          break
-        case 'open':
+          window.open(
+            `/setting/website/manager-articles?operation=editor&id=${
+              this.rowContextData.id
+            }`,
+            "_blank"
+          );
+          break;
+        case "open":
           // 打开
-          this.fileClick(this.rowContextData)
-          break
-        case 'deselect':
+          this.fileClick(this.rowContextData);
+          break;
+        case "deselect":
           // 取消选定
-          this.$refs.fileListTable.clearSelection()
-          break
-        case 'unFavorite':
+          this.$refs.fileListTable.clearSelection();
+          break;
+        case "unFavorite":
           // 取消收藏
-          this.favoriteOperating(false)
-          break
-        case 'details':
-          this.drawer = true
-          break
-        case 'rename':
+          this.favoriteOperating(false);
+          break;
+        case "details":
+          this.drawer = true;
+          break;
+        case "rename":
           // 重命名
-          this.renameFileName = this.rowContextData.name
-          this.editingIndex = this.rowContextData.index
-          break
-        case 'copy':
+          this.renameFileName = this.rowContextData.name;
+          this.editingIndex = this.rowContextData.index;
+          break;
+        case "duplicate":
+          // 创建副本
+          this.duplicate();
+          break;
+        case "copy":
           // 移动或复制
-          this.moveOrCopy()
-          break
-        case 'download':
+          this.moveOrCopy();
+          break;
+        case "download":
           // 下载
-          this.downloadFile()
-          break
-        case 'remove':
+          this.downloadFile();
+          break;
+        case "remove":
           // 删除
-          this.deleteFile()
-          break
+          this.deleteFile();
+          break;
       }
-      this.$refs.contextShow.hideMenu()
+      this.$refs.contextShow.hideMenu();
     },
     clearTreeNode() {
       // 清空文件树
     },
     // 加载下一级文件树
     directoryTreeLoadNode(node, resolve) {
-      let fileId = null
+      let fileId = null;
       if (node.level === 0) {
-        const that = this
-        setTimeout(function () {
-          that.$refs.directoryTree.setCurrentKey('0')
-        }, 0)
-        return resolve([{'id': "0", 'name': '全部文件'}])
+        const that = this;
+        setTimeout(function() {
+          that.$refs.directoryTree.setCurrentKey("0");
+        }, 0);
+        return resolve([{ id: "0", name: "全部文件" }]);
       }
       if (node.level > 1) {
-        fileId = node.data.id
+        fileId = node.data.id;
       }
 
-      api.queryFileTree({
-        userId: this.$store.state.user.userId,
-        username: this.$store.state.user.name,
-        fileId: fileId,
-      }).then(res => {
-        const nextNodes = res.data
-        return resolve(nextNodes)
-      })
+      api
+        .queryFileTree({
+          userId: this.$store.state.user.userId,
+          username: this.$store.state.user.name,
+          fileId: fileId
+        })
+        .then(res => {
+          const nextNodes = res.data;
+          return resolve(nextNodes);
+        });
     },
     // 点击文件树
     treeNodeClick(row, node, event) {
-      this.fileTreeAndNewFolderDisabled = row.hasOwnProperty('newFolder');
-      this.selectTreeNode = row
-      this.selectTreeNode.showName = ' "' + row.name + '"'
+      this.fileTreeAndNewFolderDisabled = row.hasOwnProperty("newFolder");
+      this.selectTreeNode = row;
+      this.selectTreeNode.showName = ' "' + row.name + '"';
     },
     // 节点被展开时触发
-    treeNodeExpand(row, node, event) {
-    },
+    treeNodeExpand(row, node, event) {},
     // 文件树里新建文件夹
     fileTreeAndNewFolder() {
-      let newNodeId = 'newFolderNodeKey'
-      let node = this.$refs.directoryTree.getNode(newNodeId)
+      let newNodeId = "newFolderNodeKey";
+      let node = this.$refs.directoryTree.getNode(newNodeId);
       if (node !== null) {
-        this.$refs.directoryTree.remove(node)
+        this.$refs.directoryTree.remove(node);
       }
 
-      let childNodes = this.$refs.directoryTree.store.currentNode.childNodes
-      let newFolderName = this.getNewFileName(childNodes, '新建文件夹')
+      let childNodes = this.$refs.directoryTree.store.currentNode.childNodes;
+      let newFolderName = this.getNewFileName(childNodes, "新建文件夹");
       let newNode = {
         id: newNodeId,
         newFolder: true,
         name: newFolderName,
         showName: newFolderName,
         isLeaf: true
-      }
-      this.$refs.directoryTree.append(newNode, this.selectTreeNode)
-      const that = this
-      setTimeout(function () {
-        let treeInput = document.getElementById("treeInput")
+      };
+      this.$refs.directoryTree.append(newNode, this.selectTreeNode);
+      setTimeout(function() {
+        let treeInput = document.getElementById("treeInput");
         if (treeInput) {
-          treeInput.value = newFolderName
-          treeInput.focus()
-          treeInput.select()
+          treeInput.value = newFolderName;
+          treeInput.focus();
+          treeInput.select();
         }
-      }, 100)
+      }, 100);
     },
     // 移动文件
     moveFileTree() {
-      this.copyOrMove('move');
+      this.copyOrMove("move");
     },
     // 复制文件
     copyFileTree() {
-      this.copyOrMove('copy');
+      this.copyOrMove("copy");
     },
     // 解压文件
     confirmUnzip() {
-      this.unzip(this.openingFile, this.selectTreeNode.id, false)
+      this.unzip(this.openingFile, this.selectTreeNode.id, false);
     },
     showDialogMoveOrCopyVisible() {
-      this.dialogMoveOrCopyVisible = true
+      this.dialogMoveOrCopyVisible = true;
+    },
+    /**
+     * 创建副本
+     */
+    duplicate() {
+      const newFilename = this.getNewFileName(this.fileList, this.rowContextData.name)
+      api.duplicateFile({fileId: this.rowContextData.id, newFilename: newFilename}).then(res => {
+        this.$message.success('创建副本成功')
+      }).catch(err => {
+        this.$message.error('创建副本失败')
+      })
     },
     moveOrCopy() {
-      this.showDialogMoveOrCopyVisible()
+      this.showDialogMoveOrCopyVisible();
 
-      this.titlePrefix = '移动或复制到: '
-      this.unzipOperating = false
-      const that = this
-      setTimeout(function () {
-        that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
-        that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
-      }, 100)
+      this.titlePrefix = "移动或复制到: ";
+      this.unzipOperating = false;
+      const that = this;
+      setTimeout(function() {
+        that.selectTreeNode = that.$refs.directoryTree.getCurrentNode();
+        that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"';
+      }, 100);
     },
     copyOrMove(operating) {
-      let operation = '复制'
-      if (operating === 'move') {
-        operation = '移动'
+      let operation = "复制";
+      if (operating === "move") {
+        operation = "移动";
       }
-      let selectNodePath = '/'
+      let selectNodePath = "/";
       if (this.selectTreeNode.path) {
-        selectNodePath = this.selectTreeNode.path + this.selectTreeNode.name + "/"
+        selectNodePath =
+          this.selectTreeNode.path + this.selectTreeNode.name + "/";
       }
 
       let fileIds = [];
       if (this.menusIsMultiple || this.selectRowData.length > 1) {
         const exits = this.$refs.fileListTable.tableSelectData.some(value => {
-          fileIds.push(value.id)
-          const thisParentPath = value.path
+          fileIds.push(value.id);
+          const thisParentPath = value.path;
           if (thisParentPath === selectNodePath) {
             this.$message({
-              message: '不能将文件' + operation + '到自身或其子目录下',
-              type: 'warning'
+              message: "不能将文件" + operation + "到自身或其子目录下",
+              type: "warning"
             });
             return true;
           }
-        })
+        });
         if (exits) {
-          return
+          return;
         }
       } else {
         if (this.rowContextData.id) {
-          fileIds.push(this.rowContextData.id)
+          fileIds.push(this.rowContextData.id);
         } else {
-          fileIds.push(this.rowContextData[0].id)
+          fileIds.push(this.rowContextData[0].id);
         }
       }
-      this.copyOrMoveApi(operating, fileIds, this.selectTreeNode.id)
+      this.copyOrMoveApi(operating, fileIds, this.selectTreeNode.id);
     },
     copyOrMoveApi(operating, froms, to) {
-      let operation = '复制'
-      if (operating === 'move') {
-        operation = '移动'
+      let operation = "复制";
+      if (operating === "move") {
+        operation = "移动";
       }
       let copying = this.$message({
-        iconClass: 'el-icon-loading',
-        type: 'info',
+        iconClass: "el-icon-loading",
+        type: "info",
         duration: 0,
         dangerouslyUseHTMLString: true,
-        message: operation + '中...'
+        message: operation + "中..."
       });
-      this.dialogMoveOrCopyVisible = false
+      this.dialogMoveOrCopyVisible = false;
       api[operating]({
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
         froms: froms,
         to: to
-      }).then(() => {
-        copying.iconClass = null
-        copying.type = 'success'
-        copying.message = operation + '中...'
-        if (this.rowContextData.isFolder) {
-          this.$refs.directoryTree.append(this.rowContextData, to)
-        }
-        if (operating === 'move') {
-          // 移除列表
-          this.getFileList()
-        }
-        setTimeout(function () {
-          copying.close()
-        }, 1000)
-      }).catch(() => {
-        copying.close()
       })
+        .then(() => {
+          copying.iconClass = null;
+          copying.type = "success";
+          copying.message = operation + "中...";
+          if (this.rowContextData.isFolder) {
+            this.$refs.directoryTree.append(this.rowContextData, to);
+          }
+          if (operating === "move") {
+            // 移除列表
+            this.getFileList();
+          }
+          setTimeout(function() {
+            copying.close();
+          }, 1000);
+        })
+        .catch(() => {
+          copying.close();
+        });
     },
-    renderContent(h, {node, data, store}) {
+    renderContent(h, { node, data, store }) {
       if (data.newFolder) {
         return (
           <span class="custom-tree-node">
-            <span><svg-icon icon-class="folder"/></span>
             <span>
-            <div class="el-input el-input--mini el-input-tree">
-              <input type="text" autocomplete="on" value="新建文件夹" id="treeInput" class="el-input__inner"></input>
-            </div>
-            <button type="button" on-click={() => {
-              let path = '/'
-              let parentData = node.parent.data
-              if (parentData.path) {
-                path = parentData.path + parentData.name + path
-              }
-              let newFolderName = document.getElementById("treeInput").value
-              api.newFolder({
-                isFolder: true,
-                filename: encodeURI(newFolderName),
-                currentDirectory: encodeURI(path),
-                username: this.$store.state.user.name,
-                userId: this.$store.state.user.userId
-              }).then((res) => {
-                data.newFolder = false
-                data.name = newFolderName
-                data.id = res.data
-              }).catch(() => {
-                window.event.preventDefault()
-                window.event.stopPropagation()
-              })
-            }}
-                    class="el-button el-icon-check el-button--mini el-input-tree-button"
-                    element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
-            <button type="button" on-click={() => {
-              this.$refs.directoryTree.remove(node)
-              window.event.preventDefault()
-              window.event.stopPropagation()
-            }}
-                    class="el-button el-icon-close el-button--mini el-input-tree-button"
-                    element-loading-spinner="el-icon-loading" element-loading-background="#f6f7fa88"></button>
+              <svg-icon icon-class="folder" />
             </span>
-            </span>);
+            <span>
+              <div class="el-input el-input--mini el-input-tree">
+                <input
+                  type="text"
+                  autocomplete="on"
+                  value="新建文件夹"
+                  id="treeInput"
+                  class="el-input__inner"
+                />
+              </div>
+              <button
+                type="button"
+                on-click={() => {
+                  let path = "/";
+                  let parentData = node.parent.data;
+                  if (parentData.path) {
+                    path = parentData.path + parentData.name + path;
+                  }
+                  let newFolderName = document.getElementById("treeInput")
+                    .value;
+                  api
+                    .newFolder({
+                      isFolder: true,
+                      filename: encodeURI(newFolderName),
+                      currentDirectory: encodeURI(path),
+                      username: this.$store.state.user.name,
+                      userId: this.$store.state.user.userId
+                    })
+                    .then(res => {
+                      data.newFolder = false;
+                      data.name = newFolderName;
+                      data.id = res.data;
+                    })
+                    .catch(() => {
+                      window.event.preventDefault();
+                      window.event.stopPropagation();
+                    });
+                }}
+                class="el-button el-icon-check el-button--mini el-input-tree-button"
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="#f6f7fa88"
+              />
+              <button
+                type="button"
+                on-click={() => {
+                  this.$refs.directoryTree.remove(node);
+                  window.event.preventDefault();
+                  window.event.stopPropagation();
+                }}
+                class="el-button el-icon-close el-button--mini el-input-tree-button"
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="#f6f7fa88"
+              />
+            </span>
+          </span>
+        );
       }
       if (node.expanded) {
         return (
           <span class="custom-tree-node">
-            <svg-icon icon-class="open-folder"/>
+            <svg-icon icon-class="open-folder" />
             <span style="margin-left: 5px;">{node.label}</span>
-            <span>
-            </span>
-            </span>);
+            <span />
+          </span>
+        );
       } else {
         return (
           <span class="custom-tree-node">
-            <svg-icon icon-class="folder"/>
+            <svg-icon icon-class="folder" />
             <span style="margin-left: 5px;">{node.label}</span>
-            <span>
-            </span>
-            </span>);
+            <span />
+          </span>
+        );
       }
     },
     share(row) {
       if (!row || !row.id) {
         if (this.rowContextData.id) {
-          row = this.rowContextData
+          row = this.rowContextData;
         } else {
-          row = this.$refs.fileListTable.tableSelectData[0]
+          row = this.$refs.fileListTable.tableSelectData[0];
         }
       }
-      this.shareDialogObject = row
-      this.shareDialogObject.fileId = row.id
-      this.shareDialogObject.shareBase = row.shareBase
-      this.shareDialogVisible = true
+      this.shareDialogObject = row;
+      this.shareDialogObject.fileId = row.id;
+      this.shareDialogObject.shareBase = row.shareBase;
+      this.shareDialogVisible = true;
     },
     shareSuccess(shareBase) {
       // 这3行代码是为了让vue刷新数据
-      const isFavorite = this.rowContextData.isFavorite
-      this.rowContextData.isFavorite = !isFavorite
-      this.rowContextData.isFavorite = isFavorite
-      this.rowContextData.shareBase = shareBase
-      this.rowContextData.isShare = true
+      const isFavorite = this.rowContextData.isFavorite;
+      this.rowContextData.isFavorite = !isFavorite;
+      this.rowContextData.isFavorite = isFavorite;
+      this.rowContextData.shareBase = shareBase;
+      this.rowContextData.isShare = true;
     },
     downloadFile() {
-      let totalSize = 0
+      let totalSize = 0;
       if (this.$refs.fileListTable.tableSelectData.length > 0) {
         this.$refs.fileListTable.tableSelectData.forEach(item => {
-          totalSize += item.size
-        })
+          totalSize += item.size;
+        });
       } else {
-        totalSize += this.rowContextData.size
+        totalSize += this.rowContextData.size;
       }
       if (totalSize > 0) {
         var fileIds = [];
         if (this.$refs.fileListTable.tableSelectData.length > 0) {
           this.$refs.fileListTable.tableSelectData.forEach(value => {
-            fileIds.push(value.id)
-          })
+            fileIds.push(value.id);
+          });
         } else {
-          fileIds.push(this.rowContextData.id)
+          fileIds.push(this.rowContextData.id);
         }
         if (fileIds.length > 1 || this.rowContextData.isFolder) {
-          fileConfig.packageDownload(fileIds, this.$store.state.user.token, this.$store.state.user.name)
-          return
+          fileConfig.packageDownload(
+            fileIds,
+            this.$store.state.user.token,
+            this.$store.state.user.name
+          );
+          return;
         }
-        fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.getters.token)
+        fileConfig.download(
+          this.$store.state.user.name,
+          this.rowContextData,
+          this.$store.getters.token
+        );
       } else {
         this.$message({
-          message: '所选文件为空',
-          type: 'warning'
+          message: "所选文件为空",
+          type: "warning"
         });
       }
     },
     // 收藏/取消收藏
     favoriteOperating(isFavorite) {
-      const fileIds = this.getSelectIdList()
-      this.rowContextData.isFavorite = isFavorite
-      this.highlightFavorite(isFavorite, true)
-      api.favoriteUrl({
-        fileIds: fileIds,
-        isFavorite: isFavorite
-      }).then(res => {
-        // 收藏页面
-        if (!isFavorite && this.isCollectView) {
-          // 移除列表
-          this.removeSelectItme()
-        }
-      }).catch(() => {
-        this.rowContextData.isFavorite = !isFavorite
-      })
+      const fileIds = this.getSelectIdList();
+      this.rowContextData.isFavorite = isFavorite;
+      this.highlightFavorite(isFavorite, true);
+      api
+        .favoriteUrl({
+          fileIds: fileIds,
+          isFavorite: isFavorite
+        })
+        .then(res => {
+          // 收藏页面
+          if (!isFavorite && this.isCollectView) {
+            // 移除列表
+            this.removeSelectItme();
+          }
+        })
+        .catch(() => {
+          this.rowContextData.isFavorite = !isFavorite;
+        });
     },
     // 删除
     deleteFile() {
-      let fileList = []
-      const fileIds = []
+      let fileList = [];
+      const fileIds = [];
       if (this.menusIsMultiple || this.selectRowData.length > 1) {
-        fileList = this.$refs.fileListTable.tableSelectData
+        fileList = this.$refs.fileListTable.tableSelectData;
         this.$refs.fileListTable.tableSelectData.forEach(value => {
-          fileIds.push(value.id)
-        })
+          fileIds.push(value.id);
+        });
       } else {
-        fileIds.push(this.rowContextData.id)
+        fileIds.push(this.rowContextData.id);
       }
-      const str = this.getShowSumFileAndFolder(fileList)
-      this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      const str = this.getShowSumFileAndFolder(fileList);
+      this.$confirm("此操作将永久删除" + str + ", 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       }).then(() => {
-        api.delete({
-          currentDirectory: this.rowContextData.path,
-          username: this.$store.state.user.name,
-          fileIds: fileIds
-        }).then(() => {
-          // 移除列表
-          // this.removeSelectItme()
-        }).then(() => {
-          this.$notify({
-            title: '删除成功',
-            type: 'success',
-            duration: 1000
+        api
+          .delete({
+            currentDirectory: this.rowContextData.path,
+            username: this.$store.state.user.name,
+            fileIds: fileIds
           })
-        })
-      })
+          .then(() => {
+            // 移除列表
+            // this.removeSelectItme()
+          })
+          .then(() => {
+            this.$notify({
+              title: "删除成功",
+              type: "success",
+              duration: 1000
+            });
+          });
+      });
     },
     // 获取选中项id列表
     getSelectIdList() {
-      const fileIds = []
+      const fileIds = [];
       if (this.selectRowData.length > 1 || this.menusIsMultiple) {
         this.$refs.fileListTable.tableSelectData.forEach(value => {
-          fileIds.push(value.id)
-        })
+          fileIds.push(value.id);
+        });
       } else {
-        fileIds.push(this.rowContextData.id)
+        fileIds.push(this.rowContextData.id);
       }
-      return fileIds
+      return fileIds;
     },
     // 移除选中项
     removeSelectItme() {
-      let removeFileIndexList = []
+      let removeFileIndexList = [];
       if (this.$refs.fileListTable.tableSelectData.length > 0) {
         this.$refs.fileListTable.tableSelectData.forEach(item => {
-          let fileIndex = this.fileList.findIndex(file => file.id === item.id)
+          let fileIndex = this.fileList.findIndex(file => file.id === item.id);
           if (fileIndex > -1) {
-            removeFileIndexList.push(fileIndex)
+            removeFileIndexList.push(fileIndex);
           }
-        })
+        });
       }
       // 先清空之前选择的数据
-      this.$refs.fileListTable.doLayout()
-      this.$refs.fileListTable.clearSelection()
-      this.$refs.fileListTable.tableSelectData = []
+      this.$refs.fileListTable.doLayout();
+      this.$refs.fileListTable.clearSelection();
+      this.$refs.fileListTable.tableSelectData = [];
       // 倒序
-      removeFileIndexList = removeFileIndexList.sort((a, b) => b - a)
+      removeFileIndexList = removeFileIndexList.sort((a, b) => b - a);
       setTimeout(() => {
         // 再执行移除
         for (let i = 0; i < removeFileIndexList.length; i++) {
-          this.fileList.splice(removeFileIndexList[i], 1)
+          this.fileList.splice(removeFileIndexList[i], 1);
         }
         this.fileList.map((item, index) => {
-          item.index = index
-        })
+          item.index = index;
+        });
         // 改变拖拽目标
-        this.rowDrop()
+        this.rowDrop();
         // 画矩形选取
-        this.darwRectangle()
-      }, 300)
+        this.darwRectangle();
+      }, 300);
     },
     // 预览压缩文件
     compressionFilePreview(file) {
-      this.unzip(file, undefined, true)
+      this.unzip(file, undefined, true);
     },
     unzipTo(file) {
-      this.showDialogMoveOrCopyVisible()
-      this.titlePrefix = '解压到: '
-      this.unzipOperating = true
-      const that = this
-      setTimeout(function () {
-        that.openCompressionVisible = false
-        that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
-        that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
-      }, 100)
+      this.showDialogMoveOrCopyVisible();
+      this.titlePrefix = "解压到: ";
+      this.unzipOperating = true;
+      const that = this;
+      setTimeout(function() {
+        that.openCompressionVisible = false;
+        that.selectTreeNode = that.$refs.directoryTree.getCurrentNode();
+        that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"';
+      }, 100);
     },
     // 解压文件
     unzip(file, destFileId, tempDir) {
-      let status = '解压'
+      let status = "解压";
       let decompressing = this.$message({
-        iconClass: 'el-icon-loading',
-        type: 'info',
+        iconClass: "el-icon-loading",
+        type: "info",
         duration: 0,
         dangerouslyUseHTMLString: true,
-        message: '<span>&nbsp;&nbsp;正在' + status + '</span>'
+        message: "<span>&nbsp;&nbsp;正在" + status + "</span>"
       });
-      api.unzip({
-        fileId: file.id,
-        destFileId: destFileId
-      }).then((res) => {
-        decompressing.iconClass = null
-        decompressing.type = 'success'
-        decompressing.message = status + '成功'
+      api
+        .unzip({
+          fileId: file.id,
+          destFileId: destFileId
+        })
+        .then(res => {
+          decompressing.iconClass = null;
+          decompressing.type = "success";
+          decompressing.message = status + "成功";
 
-        if (tempDir) {
-          this.compressedFileData = res.data
-          this.compressedFileVisible = true
-          this.compressedFileName = file.name
-          this.compressedFileTempDir = tempDir
-        }
+          if (tempDir) {
+            this.compressedFileData = res.data;
+            this.compressedFileVisible = true;
+            this.compressedFileName = file.name;
+            this.compressedFileTempDir = tempDir;
+          }
 
-        const that = this
-        setTimeout(function () {
-          decompressing.close()
-          that.openCompressionVisible = false
-          if (file.id === destFileId) {
-            that.getFileList()
-          }
-          if (destFileId && file.id !== destFileId && !tempDir) {
-            that.dialogMoveOrCopyVisible = false
-          }
-        }, 1000)
-      }).catch(() => {
-        decompressing.close()
-      })
+          const that = this;
+          setTimeout(function() {
+            decompressing.close();
+            that.openCompressionVisible = false;
+            if (file.id === destFileId) {
+              that.getFileList();
+            }
+            if (destFileId && file.id !== destFileId && !tempDir) {
+              that.dialogMoveOrCopyVisible = false;
+            }
+          }, 1000);
+        })
+        .catch(() => {
+          decompressing.close();
+        });
     },
     // 点击文件或文件夹
     fileClick(row) {
       if (this.editingIndex === row.index) {
-        return
+        return;
       }
-      this.openingFile = row
+      this.openingFile = row;
       if (row.isFolder) {
-        this.editingIndex = -1
+        this.editingIndex = -1;
         // 打开文件夹
         if (this.listModeSearch) {
-          const item = {}
-          item['folder'] = row.name
-          item['search'] = true
-          item['row'] = row
-          this.pathList.push(item)
-          this.pagination.pageIndex = 1
-          this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`)
-          this.searchFileAndOpenDir(row)
+          const item = {};
+          item["folder"] = row.name;
+          item["search"] = true;
+          item["row"] = row;
+          this.pathList.push(item);
+          this.pagination.pageIndex = 1;
+          this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`);
+          this.searchFileAndOpenDir(row);
         } else {
           if (this.path) {
-            this.path += '/' + row.name
+            this.path += "/" + row.name;
           } else {
-            this.path = '/' + row.name
+            this.path = "/" + row.name;
           }
-          const item = {'folder': row.name, 'shareBase': row.shareBase}
-          this.pathList.push(item)
-          this.pagination.pageIndex = 1
+          const item = { folder: row.name, shareBase: row.shareBase };
+          this.pathList.push(item);
+          this.pagination.pageIndex = 1;
           const path = encodeURI(this.path);
-          this.$router.push(`?vmode=${this.vmode}&path=${path}`)
-          this.openDir(row)
+          this.$router.push(`?vmode=${this.vmode}&path=${path}`);
+          this.openDir(row);
         }
       } else {
         if (this.selectFile) {
-          let selectFile = row
-          const selectData = this.$refs.fileListTable.tableSelectData
+          let selectFile = row;
+          const selectData = this.$refs.fileListTable.tableSelectData;
           if (selectData.length < 1 || selectData[0].id !== row.id) {
-            this.$refs.fileListTable.clearSelection()
-            this.$refs.fileListTable.toggleRowSelection([{row: row}])
-            this.pinSelect(null, row)
+            this.$refs.fileListTable.clearSelection();
+            this.$refs.fileListTable.toggleRowSelection([{ row: row }]);
+            this.pinSelect(null, row);
           } else {
-            this.$refs.fileListTable.clearSelection()
-            selectFile = {}
+            this.$refs.fileListTable.clearSelection();
+            selectFile = {};
           }
-          this.$emit("selectedFile", selectFile)
-          return
+          this.$emit("selectedFile", selectFile);
+          return;
         }
-        if (row.contentType.startsWith('image')) {
+        if (row.contentType.startsWith("image")) {
           // 图片
-          this.imagePreviewVisible = true
-          this.imagePreviewRow = row
-          return
+          this.imagePreviewVisible = true;
+          this.imagePreviewRow = row;
+          return;
         }
         if (suffix.simText.includes(row.suffix)) {
           // 文本文件
-          this.textPreviewRow = row
-          this.textPreviewVisible = true
-          return
+          this.textPreviewRow = row;
+          this.textPreviewVisible = true;
+          return;
         }
-        if (row.contentType.indexOf('video') > -1) {
+        if (row.contentType.indexOf("video") > -1) {
           // 视频文件
-          this.videoPreviewVisible = true
-          this.videoPreviewRow = row
-          return
+          this.videoPreviewVisible = true;
+          this.videoPreviewRow = row;
+          return;
         }
-        if (row.contentType.indexOf('audio') > -1) {
+        if (row.contentType.indexOf("audio") > -1) {
           // 音频文件
-          Bus.$emit('onAddAudio', row, this.audioCoverUrl)
-          return
+          Bus.$emit("onAddAudio", row, this.audioCoverUrl);
+          return;
         }
         if (suffix.compressedFile.includes(row.suffix)) {
           // 压缩文件
-          this.openCompressionVisible = true
-          return
+          this.openCompressionVisible = true;
+          return;
         }
-        if (row.contentType.indexOf('office') > -1 || ['pdf','csv','drawio','mind'].includes(row.suffix)) {
+        if (
+          row.contentType.indexOf("office") > -1 ||
+          ["pdf", "csv", "drawio", "mind"].includes(row.suffix)
+        ) {
           // office文件
-          this.officePreviewVisible = true
-          this.officePreviewRow = row
-          return
+          this.officePreviewVisible = true;
+          this.officePreviewRow = row;
+          return;
         }
-        if (row.contentType.indexOf('utf-8') > -1) {
+        if (row.contentType.indexOf("utf-8") > -1) {
           // 文本文件
-          this.textPreviewRow = row
-          this.textPreviewVisible = true
-          return
+          this.textPreviewRow = row;
+          this.textPreviewVisible = true;
+          return;
         }
-        this.notPreviewDialogVisible = true
+        this.notPreviewDialogVisible = true;
       }
     },
     // 强行使用文本编辑器打开
     forciblyOpen(file) {
-      this.textPreviewRow = file
-      this.textPreviewVisible = true
-      const that = this
-      setTimeout(function () {
-        that.notPreviewDialogVisible = false
-      }, 100)
+      this.textPreviewRow = file;
+      this.textPreviewVisible = true;
+      const that = this;
+      setTimeout(function() {
+        that.notPreviewDialogVisible = false;
+      }, 100);
     },
     determineDownload(file) {
-      this.downLaod(file)
-      this.notPreviewDialogVisible = false
+      this.downLaod(file);
+      this.notPreviewDialogVisible = false;
     },
     downLaod(file) {
-      fileConfig.download(this.$store.state.user.name, file, this.$store.getters.token)
-    },
+      fileConfig.download(
+        this.$store.state.user.name,
+        file,
+        this.$store.getters.token
+      );
+    }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
