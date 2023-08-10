@@ -689,7 +689,7 @@
           >
         </el-form-item>
         <el-form-item label="位置:" class="details-position">
-          <a :href="'/?path=' + rowContextData.path">{{
+          <a :href="'/?path=' + rowContextData.path + '&highlight=' + rowContextData.name">{{
             rowContextData.path
           }}</a>
         </el-form-item>
