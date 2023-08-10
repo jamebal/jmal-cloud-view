@@ -1285,6 +1285,10 @@ export default {
         }
       });
     }
+    if (this.$route.query.highlight) {
+      this.onCreateFilename = this.$route.query.highlight
+      this.clearOnCreateFilename()
+    }
     let that = this;
     window.onresize = function() {
       that.clientHeight =
@@ -1444,10 +1448,14 @@ export default {
             }
           }
         }
-        setTimeout(() => {
-          this.onCreateFilename = "";
-        }, 5000)
+        this.clearOnCreateFilename()
       }
+    },
+    // 延时清空onCreateFilename
+    clearOnCreateFilename() {
+      setTimeout(() => {
+        this.onCreateFilename = "";
+      }, 3000);
     },
     load() {
       this.getFileList(true);
@@ -2500,6 +2508,13 @@ export default {
       // 画矩形选取
       this.darwRectangle();
       this.loadContextMenus();
+      // 使列表滑到顶部
+       if (!this.grid) {
+         if (this.fileListScrollTop > 0) {
+           this.$refs.fileListTable.pagingScrollTopLeft()
+         }
+       }
+      this.fileListScrollTop = 0
     },
     // 加载菜单查看状态
     loadContextMenus() {
@@ -2594,19 +2609,15 @@ export default {
       });
       // 加载菜单状态
       this.loadContextMenus();
-      // 使列表滑到顶部
-      //  if (!onLoad && !this.grid) {
-      //    if (this.fileListScrollTop > 0) {
-      //      this.$refs.fileListTable.pagingScrollTopLeft()
-      //    }
-      //  }
-      // this.fileListScrollTop = 0
       // 高亮新增的文件
       if (this.onCreateFilename) {
         let index = this.fileList.findIndex(item => item.name === this.onCreateFilename);
         if (index > -1) {
           let row = this.fileList[index];
-          this.selectRowData.push(row);
+          setTimeout(() => {
+            this.$refs.fileListTable.clearSelection()
+            this.$refs.fileListTable.toggleRowSelection([{ row: row ,selected: true}])
+          }, 0)
         }
       }
     },

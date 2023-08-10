@@ -205,13 +205,6 @@
         audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
         fileMenuActive: '',
         path: this.$route.query.path,
-        showNewFolder: false,
-        isShowNewFolder: false,
-        listModeSearch: false,
-        listModeSearchOpenDir: false,
-        newFolderName: '新建文件夹',
-        renameFileName: '',
-        searchFileName: '',
         pathList: [
           { 'folder': '', index: 0 },
           { 'folder': '+', index: 1 }
@@ -252,7 +245,6 @@
             name: 'expireDate', label: '过期时间', sortable: 'custom', index: 7
           }
         ],
-        rowContextData: {},
         selectRowData: [],
         tableLoading: false,
         finished: false,

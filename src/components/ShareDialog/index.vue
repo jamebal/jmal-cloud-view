@@ -10,7 +10,8 @@
                        :audio-cover-url="audioCoverUrl"></icon-file>
           </div>
           <div class="share-filename">
-            <span>{{ file.name }}</span>
+            <a v-if="this.file.shareId" :href="'/?path=' + filenamePath + '&highlight=' + file.name">{{ filename }}</a>
+            <span v-else>{{ filename }}</span>
           </div>
           <div>
             <el-form ref="form" class="share-option" :model="shareOption" label-width="82px" size="mini">
@@ -187,14 +188,27 @@ export default {
       shareOptionConfig: {
         shared: false,
         linkLabel: "选择有效期",
-      }
+      },
+      filename: '',// 文件名
+    }
+  },
+  computed: {
+    filenamePath() {
+      return this.filename.slice(0, this.filename.lastIndexOf('/'))
     }
   },
   watch: {
     status(visible) {
       if (visible) {
+        this.filename = this.file.name
         this.shareDialogVisible = true
         if (this.file.shareId) {
+          api.getFileInfoById({
+            id: this.file.fileId
+          }).then(res => {
+            this.filename = res.data.path + this.file.name
+          })
+
           this.shareOptionConfig.shared = true
           this.shareOptionConfig.linkLabel = '分享链接'
           this.setShareLink(this.getShareLink(this.file.shareId))
@@ -391,7 +405,7 @@ export default {
   .shared-expires-text {
     text-align: right;
     line-height: 32px;
-    padding-right: 5px;
+    padding-right: 10px;
   }
 }
 
