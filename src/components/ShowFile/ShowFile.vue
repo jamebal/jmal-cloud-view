@@ -1154,8 +1154,11 @@ export default {
   computed: {
     ...mapGetters(["name"]),
     gridFilename() {
+      // 优化文件名，如果文件名过长，则进行截取
       return function(item) {
         let filename = item.name;
+
+        // 如果是文件夹，直接返回文件夹名
         if (item.isFolder) {
           return filename;
         }
@@ -1165,38 +1168,38 @@ export default {
         let suffix = parts.length > 1 ? parts.pop() : "";
         let base = parts.join(".");
 
-        // 计算基础名的中文字符长度
-        let chineseLength = Array.from(base).reduce(
-          (count, char) => count + (char.charCodeAt(0) > 255 ? 2 : 1),
-          0
-        );
+        // 获取文件名的有效长度
+        let effectiveLength = this.getEffectiveLength(base, suffix);
 
-        // 如果有后缀，计算有效长度时要加上后缀和点，否则只需要基础名和后7位
-        let effectiveLength = suffix
-          ? chineseLength + suffix.length + 1
-          : chineseLength + 7;
-
+        // 如果有效长度小于或等于14，则直接返回文件名
         if (effectiveLength <= 14) {
           return filename;
         }
 
-        // 计算应当截取的长度，如果有后缀，要留出空间给后缀和省略号
-        let sliceLength = 14 - (suffix ? suffix.length + 1 : 7);
+        // 根据是否有后缀来确定需要截取的长度
+        let sliceLength = 14 - (suffix ? suffix.length + 1 + 1 : 0);  // 加1是为了“…”
 
-        // 截取字符串时需要考虑中文字符
         let prev = "";
         let currentLength = 0;
+
+        // 截取字符串，确保不会在中文字符中间断开
         for (let char of Array.from(base)) {
-          let charLength = char.charCodeAt(0) > 255 ? 2 : 1;
+          let charLength = this.getCharLength(char);
+
           if (currentLength + charLength > sliceLength) {
             break;
           }
+
           currentLength += charLength;
           prev += char;
         }
 
-        // 如果有后缀，返回 prev + "…" + suffix，否则返回 prev + "…" + base 的后7位
-        return suffix ? prev + "…" + suffix : prev + "…" + base.slice(-7);
+        // 根据是否有后缀返回相应的格式
+        if (suffix) {
+          return prev + "…" + suffix;
+        }
+
+        return prev + "…";
       };
     },
     getSummaries2() {
@@ -1343,6 +1346,25 @@ export default {
     }
   },
   methods: {
+    // 判断给定的字符是否是中文
+    isChineseChar(char) {
+      return char.charCodeAt(0) > 255;
+    },
+    // 获取字符的长度。中文字符长度为2，其他字符长度为1
+    getCharLength(char) {
+      return this.isChineseChar(char) ? 2 : 1;
+    },
+    // 获取有效长度。如果有后缀，则包括后缀和点的长度；否则是基础名称和后7位的长度
+    getEffectiveLength(base, suffix) {
+      let chineseLength = Array.from(base).reduce(
+          (count, char) => count + this.getCharLength(char),
+          0
+      );
+
+      return suffix
+          ? chineseLength + suffix.length + 1
+          : chineseLength;
+    },
     keydown(event) {
       const isMac = navigator.platform.startsWith("Mac");
       const { key, c, keyCode, ctrlKey, metaKey } = event;
@@ -1400,7 +1422,12 @@ export default {
         }
       }
       if ("createFile" === url) {
-        this.onCreateFilename = fileDoc.$set.name
+        if (fileDoc.$set) {
+          this.onCreateFilename = fileDoc.$set.name;
+        }
+        if (fileDoc && fileDoc.name) {
+          this.onCreateFilename = fileDoc.name;
+        }
         if (!this.path) {
           this.path = "";
         }
@@ -2268,9 +2295,6 @@ export default {
       let filenameList = [];
       fileList.forEach(file => {
         let fileName = file.name || file.label;
-        // if (file.suffix) {
-        //   fileName = fileName.substring(0, fileName.lastIndexOf(`.${file.suffix}`))
-        // }
         filenameList.push(fileName);
       });
       const newName = newFileName;
@@ -2285,6 +2309,40 @@ export default {
         }
       }
       return newFileName;
+    },
+    getDuplicateFileName(fileList, filename) {
+      let append = 0
+      let filenameList = []
+      fileList.forEach(file => {
+        let fileName = file.name || file.label
+        filenameList.push(fileName)
+      });
+      let newName = filename
+      while (filenameList.includes(filename)) {
+        append += 1;
+        if (newName.indexOf(".") > 0) {
+          let name = newName.substring(0, newName.lastIndexOf("."))
+          if (name.indexOf(" 副本") > 0) {
+            name = name.substring(0, name.lastIndexOf(" 副本"))
+          }
+          const suffix = newName.substring(newName.lastIndexOf("."))
+          if (append === 1) {
+            filename = `${name} 副本${suffix}`
+          } else {
+            filename = `${name} 副本${append}${suffix}`
+          }
+        } else {
+          if (newName.indexOf(" 副本") > 0) {
+            newName = newName.substring(0, newName.lastIndexOf(" 副本"))
+          }
+          if (append === 1) {
+            filename = `${newName} 副本`
+          } else {
+            filename = `${newName} 副本${append}`
+          }
+        }
+      }
+      return filename;
     },
     hideNewFolderName() {
       this.showNewFolder = false;
@@ -2544,11 +2602,10 @@ export default {
       //  }
       // this.fileListScrollTop = 0
       // 高亮新增的文件
-      if (this.onCreateFilename && this.selectRowData.length < 1) {
+      if (this.onCreateFilename) {
         let index = this.fileList.findIndex(item => item.name === this.onCreateFilename);
         if (index > -1) {
           let row = this.fileList[index];
-          this.rowContextData = row
           this.selectRowData.push(row);
         }
       }
@@ -3393,11 +3450,9 @@ export default {
      * 创建副本
      */
     duplicate() {
-      const newFilename = this.getNewFileName(this.fileList, this.rowContextData.name)
-      api.duplicateFile({fileId: this.rowContextData.id, newFilename: newFilename}).then(res => {
+      const newFilename = this.getDuplicateFileName(this.fileList, this.rowContextData.name)
+      api.duplicateFile({fileId: this.rowContextData.id, newFilename: newFilename}).then(() => {
         this.$message.success('创建副本成功')
-      }).catch(err => {
-        this.$message.error('创建副本失败')
       })
     },
     moveOrCopy() {
