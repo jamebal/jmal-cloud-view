@@ -225,7 +225,7 @@ export default {
           this.shareOptionConfig.linkLabel = '分享链接'
           this.setShareLink(this.getShareLink(this.file.shareId))
           this.shareOption.isPrivacy = this.file.isPrivacy
-          this.shareOption.operationPermissionList = this.file.operationPermissionList
+          this.shareOption.operationPermissionList = this.file.operationPermissionList || []
           if (this.file.expireDate) {
             this.shareOption.expiresDate = moment(this.file.expireDate).format('x')
           }
