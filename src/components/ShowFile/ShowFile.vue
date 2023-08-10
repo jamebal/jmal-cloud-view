@@ -2675,7 +2675,7 @@ export default {
         .searchFileAndOpenDir({
           userId: this.$store.state.user.userId,
           username: this.$store.getters.name,
-          id: row.id,
+          id: row.mountFileId || row.id,
           currentDirectory: encodeURI(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize

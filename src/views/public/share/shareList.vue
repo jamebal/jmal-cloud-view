@@ -9,7 +9,7 @@
           <Logo v-model="netdiskLogo" width="35"></Logo>
           <span>{{ netdiskName }}</span>
         </div>
-        <div class="share-header-content sharer" v-if="sharer">
+        <div class="share-header-content sharer" v-if="sharer && !showShareCode">
           <el-button v-if="loginTitle.length > 0" type="primary" size="small" @click="loginOrMount"> {{ loginTitle }} </el-button>
           <span class="user">{{ sharer.showName }}的分享</span>
           <el-avatar :src="sharerAvatarUrl"></el-avatar>
@@ -41,7 +41,7 @@
       <file-tree v-if="mountToVisible" :localFileMode="false" ref="fileTreeMount" @treeNodeClick="onTreeNodeClick"></file-tree>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="fileTreeAndNewFolder" :disabled="fileTreeAndNewFolderDisabled"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
-        <el-button size="small" type="primary">挂载</el-button>
+        <el-button size="small" type="primary" @click="mountFolder">挂载</el-button>
       </div>
     </el-dialog>
 
@@ -978,6 +978,18 @@ export default {
         // 登录
         this.$router.push({path: '/login', query: {redirect: this.$route.fullPath}})
       }
+    },
+    /**
+     * 挂载操作
+     */
+    mountFolder() {
+      api.mountFolder({
+        userId: this.$store.getters.userId,
+        shareId: this.shareId,
+        fileId: this.selectTreeNode.id
+      }).then(() => {
+        this.$message.success("挂载成功")
+      })
     },
     fileTreeAndNewFolder() {
       this.$refs.fileTreeMount.fileTreeAndNewFolder(this.selectTreeNode)

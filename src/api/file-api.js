@@ -191,6 +191,14 @@ export default {
       params
     })
   },
+  // 挂载文件夹
+  mountFolder: function(data) {
+    return request({
+      url: '/share/mount-folder',
+      method: 'put',
+      data: data
+    })
+  },
   // 验证提取码
   validShareCode: function(data) {
     return request({
