@@ -16,9 +16,9 @@
           <div>
             <el-form ref="form" class="share-option" :model="shareOption" label-width="82px" size="mini">
               <el-form-item :label="shareOptionConfig.linkLabel">
-                <el-col :span="9" class="share-expires-data" v-if="!shareOptionConfig.shared">
+                <el-col :span="shareOptionConfig.shared ? 9 : 20" class="share-expires-data" v-if="!shareOptionConfig.shared">
                   <el-form-item prop="expiresDateOption">
-                    <el-select size="small" v-model="shareOption.expiresDateOption" @change="expiresDateOptionChange">
+                    <el-select size="small" v-model="shareOption.expiresDateOption" @change="expiresDateOptionChange" style="width: 100%">
                       <el-option label="30天有效" :value="0"></el-option>
                       <el-option label="永久有效" :value="1"></el-option>
                       <el-option label="自定义" :value="2"></el-option>
@@ -46,8 +46,8 @@
                 </el-col>
               </el-form-item>
               <el-form-item v-if="!shareOptionConfig.shared" class="share-option-form" label="分享形式" width="100">
-                <el-col :span="9">
-                  <el-select size="small" v-model="shareOption.isPrivacy">
+                <el-col :span="20">
+                  <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%">
                     <el-option label="公开链接" :value="false"></el-option>
                     <el-option label="私密链接" :value="true"></el-option>
                   </el-select>
@@ -72,6 +72,17 @@
                           readonly="readonly" v-model="extractionCode">
                   <template slot="prepend">提取码</template>
                 </el-input>
+
+                <el-collapse accordion v-if="shareOptionConfig.shared && shareOption.isPrivacy">
+                  <el-collapse-item title="操作权限">
+                    <el-checkbox-group v-model="shareOption.operationPermissionList" @change="permissionActionChange">
+                      <el-checkbox label="UPLOAD">上传</el-checkbox>
+                      <el-checkbox label="PUT">修改</el-checkbox>
+                      <el-checkbox label="DELETE">删除</el-checkbox>
+                    </el-checkbox-group>
+                  </el-collapse-item>
+                </el-collapse>
+
               </el-col>
             </el-form>
           </div>
@@ -181,6 +192,7 @@ export default {
         expiresDateOption: 1,
         isPrivacy: false,
         expiresDate: '',
+        operationPermissionList: []
       },
       shareLink: "",
       qrCodeshareLink: "",
@@ -213,6 +225,7 @@ export default {
           this.shareOptionConfig.linkLabel = '分享链接'
           this.setShareLink(this.getShareLink(this.file.shareId))
           this.shareOption.isPrivacy = this.file.isPrivacy
+          this.shareOption.operationPermissionList = this.file.operationPermissionList
           if (this.file.expireDate) {
             this.shareOption.expiresDate = moment(this.file.expireDate).format('x')
           }
@@ -229,9 +242,13 @@ export default {
     }
   },
   methods: {
-    setShareLink(sahreLink) {
-      this.shareLink = sahreLink
-      QRCode.toDataURL(sahreLink)
+    permissionActionChange() {
+      console.log(this.shareOption.operationPermissionList)
+      this.createShare()
+    },
+    setShareLink(shareLink) {
+      this.shareLink = shareLink
+      QRCode.toDataURL(shareLink)
         .then(url => {
           this.qrCodeshareLink = url
         })
@@ -293,16 +310,18 @@ export default {
         fileId: this.file.fileId,
         isFolder: this.file.isFolder,
         expireDate: expireDate,
-        isPrivacy: this.shareOption.isPrivacy
+        isPrivacy: this.shareOption.isPrivacy,
+        operationPermissionList: this.shareOption.operationPermissionList
       }).then(res => {
         if (res.data) {
-          let {shareId, extractionCode} = res.data
+          let {shareId, extractionCode, operationPermissionList} = res.data
           this.setShareLink(this.getShareLink(shareId))
           this.generateShareLinkLoading = false
           this.shareOptionConfig.shared = true
           this.shareOption.expiresDateOption = 2
           this.shareOptionConfig.linkLabel = "分享链接"
           this.extractionCode = extractionCode
+          this.shareOption.operationPermissionList = operationPermissionList
           this.$emit('onSuccess', shareId)
           if (update) {
             if (!expireDate) {
@@ -399,6 +418,7 @@ export default {
   }
 
   > > > .el-form-item__label {
+    text-align: left;
     line-height: 32px;
   }
 
@@ -441,6 +461,10 @@ export default {
     background-color: #84858d14;
     text-align: center;
     padding: 0 10px;
+  }
+
+  >>> .el-collapse {
+    border-top: 0;
   }
 }
 </style>
