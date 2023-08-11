@@ -192,7 +192,7 @@ export default {
         expiresDateOption: 1,
         isPrivacy: false,
         expiresDate: '',
-        operationPermissionList: []
+        operationPermissionList: undefined
       },
       shareLink: "",
       qrCodeshareLink: "",
@@ -243,7 +243,6 @@ export default {
   },
   methods: {
     permissionActionChange() {
-      console.log(this.shareOption.operationPermissionList)
       this.createShare()
     },
     setShareLink(shareLink) {
@@ -278,6 +277,7 @@ export default {
     submitShare() {
       this.$refs.form.validate((valid) => {
         if (valid) {
+          this.shareOption.operationPermissionList = undefined
           this.createShare()
         } else {
           console.log('error submit!!');
@@ -321,7 +321,7 @@ export default {
           this.shareOption.expiresDateOption = 2
           this.shareOptionConfig.linkLabel = "分享链接"
           this.extractionCode = extractionCode
-          this.shareOption.operationPermissionList = operationPermissionList
+          this.shareOption.operationPermissionList = operationPermissionList || []
           this.$emit('onSuccess', shareId)
           if (update) {
             if (!expireDate) {
