@@ -44,6 +44,10 @@ export default {
     showFooter: {
       type: Boolean,
       default: false
+    },
+    hideMountFile: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -162,6 +166,7 @@ export default {
       api.queryFileTree({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
+          hideMountFile: this.hideMountFile,
           fileId: fileId
         }).then(res => {
           const nextNodes = res.data;

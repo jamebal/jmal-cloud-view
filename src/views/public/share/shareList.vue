@@ -989,6 +989,7 @@ export default {
         fileId: this.selectTreeNode.id
       }).then(() => {
         this.$message.success("挂载成功")
+        this.mountToVisible = false
       })
     },
     fileTreeAndNewFolder() {

@@ -103,7 +103,7 @@
         </div>
         <div class="editor-resize" :style="{marginLeft: panelReadOnly || moblie || contentsHide ?`0px`:`${contentsWidth}px`,transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i v-show="!panelReadOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="隐藏文件目录" @click="hideContents"/>
+          <i v-show="!panelReadOnly" class="editor-resize-conter" icon="el-icon-arrow-right" :title="contentsHide ? '展开目录' : '隐藏目录'" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab()">
@@ -204,6 +204,7 @@
         lineWrapping: false,
         moblie: false,
         panelReadOnly: true,
+        mountFileId: undefined,
         options: {
           fontSize: 14,
           contextmenu: true,
@@ -292,7 +293,7 @@
         }
         this.editableTabs = []
         this.checkMobile()
-        this.checkReadOnly(file.userId)
+        this.checkReadOnly(file)
         this.loadEditorSize()
         this.loading = this.$message({
           iconClass: 'el-icon-loading',
@@ -472,7 +473,7 @@
       },
       async requestStream(request, params, index) {
         try {
-          const readOnly = this.panelReadOnly
+          const readOnly = this.options.readOnly
           this.options.readOnly = true
           this.abortControllerAbort(index)
           const queryString = this.buildQueryString(params)
@@ -800,14 +801,22 @@
       checkMobile() {
         this.moblie = !this.$pc;
       },
-      checkReadOnly(fileUserId){
-        if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
+      checkReadOnly(file){
+        if(this.$store.state.user.token && this.$store.state.user.userId === file.userId){
           this.options.readOnly = false
           this.panelReadOnly = false
+          return
+        } else {
+          this.mountFileId = file.id
+        }
+        if (file.operationPermissionList && file.operationPermissionList.indexOf('PUT') > -1) {
+          this.options.readOnly = false
+          this.panelReadOnly = true
+          return
         }
         if (!this.$pc) {
-          this.options.readOnly = true
-          this.panelReadOnly = false
+          this.options.readOnly = false
+          this.panelReadOnly = true
         }
         if(this.panelReadOnly || this.moblie){
           this.$nextTick(()=> {
@@ -923,6 +932,7 @@
             relativePath: encodeURI(path),
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
+            mountFileId: this.mountFileId,
             contentText: value
           }).then(() => {
             this.updating = false

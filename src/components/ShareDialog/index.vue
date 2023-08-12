@@ -14,7 +14,7 @@
             <span v-else>{{ filename }}</span>
           </div>
           <div>
-            <el-form ref="form" class="share-option" :model="shareOption" label-width="82px" size="mini">
+            <el-form ref="form" class="share-option" :model="shareOption" label-width="86px" size="mini">
               <el-form-item :label="shareOptionConfig.linkLabel">
                 <el-col :span="shareOptionConfig.shared ? 9 : 20" class="share-expires-data" v-if="!shareOptionConfig.shared">
                   <el-form-item prop="expiresDateOption">

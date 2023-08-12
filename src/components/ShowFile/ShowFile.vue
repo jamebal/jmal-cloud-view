@@ -1224,7 +1224,13 @@ export default {
   },
   created() {},
   mounted() {
-    Bus.$on("fileSuccess", () => {});
+    Bus.$on("fileSuccess", (filename) => {
+      if (this.$route.query.folder) {
+        this.onCreateFilename = filename
+        this.getFileList()
+        this.clearOnCreateFilename()
+      }
+    });
     Bus.$on("loadFileFaild", () => {
       this.notPreviewDialogVisible = true;
     });
@@ -1457,8 +1463,8 @@ export default {
     // 延时清空onCreateFilename
     clearOnCreateFilename() {
       setTimeout(() => {
-        this.onCreateFilename = "";
-      }, 3000);
+        this.onCreateFilename = '';
+      }, 2000);
     },
     load() {
       this.getFileList(true);
@@ -2212,6 +2218,7 @@ export default {
       // 打开文件选择框
       Bus.$emit("openUploader", {
         // 传入的参数
+        folder: this.$route.query.folder,
         currentDirectory: this.path,
         username: this.$store.state.user.name,
         userId: this.$store.state.user.userId
@@ -2222,6 +2229,7 @@ export default {
         // 打开文件夹选择框
         Bus.$emit("uploadFolder", {
           // 传入的参数
+          folder: this.$route.query.folder,
           currentDirectory: this.path,
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
@@ -2391,6 +2399,7 @@ export default {
             isFolder: true,
             filename: encodeURI(this.newFolderName),
             currentDirectory: encodeURI(this.path),
+            folder: this.$route.query.folder,
             username: this.$store.state.user.name,
             userId: this.$store.state.user.userId
           })
@@ -2458,12 +2467,13 @@ export default {
           .addFile({
             fileName: encodeURI(newFileName),
             isFolder: false,
+            folder: this.$route.query.folder,
             username: this.$store.state.user.name,
             parentPath: encodeURI(parentPath)
           })
           .then(res => {
             this.createFileLoading = false;
-            switch (suffix) {
+            switch (suffix && !this.$route.query.folder) {
               case "txt":
                 // 打开编辑器
                 this.textPreviewRow = res.data;
@@ -2479,9 +2489,14 @@ export default {
                 break;
             }
             const that = this;
+            if (this.$route.query.folder) {
+              this.onCreateFilename = newFileName
+              this.getFileList()
+              this.clearOnCreateFilename()
+            }
             setTimeout(function() {
               that.newCreateFileDialog = false;
-            }, 200);
+            }, 200)
           })
           .catch(() => {
             this.createFileLoading = false;
@@ -3115,6 +3130,7 @@ export default {
         .rename({
           newFileName: encodeURI(newFileName),
           username: this.$store.state.user.name,
+          folder: this.$route.query.folder,
           id: row.id
         })
         .then(res => {
@@ -3123,7 +3139,6 @@ export default {
           row.suffix = newFileName.replace(/.+\./, "");
           this.fileList[row.index] = row;
           this.editingIndex = -1;
-          this.$message.success("重命名中...");
         })
         .then(() => {
           this.$refs.fileListTable.clearSelection();
@@ -3591,6 +3606,7 @@ export default {
                       isFolder: true,
                       filename: encodeURI(newFolderName),
                       currentDirectory: encodeURI(path),
+                      folder: this.$route.query.folder,
                       username: this.$store.state.user.name,
                       userId: this.$store.state.user.userId
                     })
@@ -3746,8 +3762,10 @@ export default {
             fileIds: fileIds
           })
           .then(() => {
-            // 移除列表
-            // this.removeSelectItme()
+            // 刷新列表
+            if (this.$route.query.folder) {
+              this.getFileList()
+            }
           })
           .then(() => {
             this.$notify({

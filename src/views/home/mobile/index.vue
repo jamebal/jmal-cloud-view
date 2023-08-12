@@ -588,6 +588,7 @@ export default {
         api.rename({
           newFileName: encodeURI(newFileName),
           username: this.$store.state.user.name,
+          folder: this.$route.query.folder,
           id: row.id
         }).then(() => {
           this.renameLoading = false
@@ -1205,6 +1206,7 @@ export default {
         // 打开文件选择框
         Bus.$emit('openUploader', {
           // 传入的参数
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
@@ -1215,6 +1217,7 @@ export default {
         // 打开文件夹选择框
         Bus.$emit('uploadFolder', {
           // 传入的参数
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
@@ -1228,6 +1231,7 @@ export default {
         api.uploadFolder({
           isFolder: true,
           filename: encodeURI(this.newFolderName),
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId

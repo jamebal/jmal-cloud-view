@@ -261,7 +261,8 @@ export default {
       this.params = {
         currentDirectory: this.$route.query.path || '/',
         username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId
+        userId: this.$store.state.user.userId,
+        folder: this.$route.query.folder
       }
     },
     onFilesAdded(files) {
@@ -280,6 +281,7 @@ export default {
             isFolder: true,
             folderPath: encodeURI(folder.parent.path),
             filename: encodeURI(folder.name),
+            folder: this.$route.query.folder,
             currentDirectory: encodeURI(this.params.currentDirectory),
             username: this.params.username,
             userId: this.params.userId
@@ -359,6 +361,7 @@ export default {
           filename: encodeURI(file.name),
           relativePath: encodeURI(file.relativePath),
           identifier: file.uniqueIdentifier,
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.params.currentDirectory),
           username: this.params.username,
           userId: this.params.userId,
@@ -367,7 +370,7 @@ export default {
         }).then(() => {
           // console.log('文件合并成功', res)
           // 文件合并成功
-          Bus.$emit('fileSuccess')
+          Bus.$emit('fileSuccess', file.name)
           this.statusRemove(file.id)
           this.statusSet(file.id, 'success')
           // file.removeFile(file)
@@ -376,7 +379,7 @@ export default {
         })
         // 不需要合并
       } else {
-        Bus.$emit('fileSuccess')
+        Bus.$emit('fileSuccess', file.name)
         // 完成后从文件列表移除
         // file.removeFile(file)
         // console.log('上传成功')
