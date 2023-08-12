@@ -1285,6 +1285,9 @@ export default {
         }
       });
     }
+    if (this.$route.query.folder && this.path) {
+      localStorage.setItem(this.path, this.$route.query.folder)
+    }
     if (this.$route.query.highlight) {
       this.onCreateFilename = this.$route.query.highlight
       this.clearOnCreateFilename()
@@ -2242,7 +2245,7 @@ export default {
       this.handleLink(
         this.pathList[this.pathList.length - 2],
         this.pathList.length - 2
-      );
+      )
     },
     handleLink(item, index, unPushLink, unRefresh) {
       if (item && item.search) {
@@ -2268,15 +2271,18 @@ export default {
             this.path += "/" + this.pathList[number].folder;
           }
           this.path = this.path.replace(/\\/g, "/");
-        });
+        })
+
+        let queryFolder = localStorage.getItem(this.path)
+
         if (!unPushLink) {
           if (!this.$route.query.path) {
             this.$router.push(
-              `?vmode=${this.vmode}&path=${encodeURI(this.path)}`
+              `?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`
             );
           } else {
             this.$router.push(
-              `?vmode=${this.vmode}&path=${encodeURI(this.path)}`
+              `?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`
             );
           }
         }
@@ -2502,7 +2508,7 @@ export default {
         this.path = "";
       }
       this.editingIndex = -1;
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path}`);
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${this.$route.query.folder ? '&folder='+this.$route.query.folder : ''}`);
       // 改变拖拽目标
       this.rowDrop();
       // 画矩形选取
@@ -2694,6 +2700,7 @@ export default {
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
           currentDirectory: encodeURI(this.$route.query.path),
+          folder: this.$route.query.folder,
           queryFileType: this.queryFileType,
           sortableProp: this.sortable.prop,
           order: this.sortable.order,
@@ -2714,6 +2721,7 @@ export default {
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
           currentDirectory: encodeURI(this.$route.query.path),
+          folder: this.$route.query.folder,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         })
@@ -3879,7 +3887,13 @@ export default {
           this.pathList.push(item);
           this.pagination.pageIndex = 1;
           const path = encodeURI(this.path);
-          this.$router.push(`?vmode=${this.vmode}&path=${path}`);
+          if (this.$store.getters.userId !== row.userId) {
+              row.mountFileId = row.id
+          }
+          if (row.mountFileId) {
+            localStorage.setItem(this.path, row.mountFileId)
+          }
+          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}`);
           this.openDir(row);
         }
       } else {
