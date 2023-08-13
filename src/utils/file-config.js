@@ -21,9 +21,11 @@ export default {
   },
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
-    let owner = username
-    if (username !== store.getters.username) {
+    let owner
+    if (username !== store.getters.name) {
       owner = localStorage.getItem('mountFileOwner')
+    } else {
+      owner = username
     }
     let fileUrl = `${this.baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
     fileUrl = fileUrl.replace(/%5C/g, '/')
