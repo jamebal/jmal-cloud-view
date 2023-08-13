@@ -809,7 +809,7 @@
         } else {
           this.mountFileId = file.id
         }
-        if (file.operationPermissionList && file.operationPermissionList.indexOf('PUT') > -1) {
+        if (this.$store.state.user.token && file.operationPermissionList && file.operationPermissionList.indexOf('PUT') > -1) {
           this.options.readOnly = false
           this.panelReadOnly = true
           return

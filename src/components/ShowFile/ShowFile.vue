@@ -869,6 +869,7 @@ import fileConfig from "@/utils/file-config";
 import EditElement from "@/views/markdown/EditElement";
 import OfficePreview from "@/components/preview/OfficePreview";
 import ShareDialog from "@/components/ShareDialog/index.vue";
+import {getUsername} from "@/api/user";
 
 export default {
   name: "ShowFile",
@@ -2621,8 +2622,25 @@ export default {
         this.pageLoadCompleteList[this.pagination.pageIndex] = true;
       });
       // 加载菜单状态
-      this.loadContextMenus();
+      this.loadContextMenus()
       // 高亮新增的文件
+      this.highlightNewFile()
+      // 设置挂载文件的用户名(文件的所有者)
+      this.setMountFileOwner()
+    },
+    // 设置挂载文件的用户名(文件的所有者)
+    setMountFileOwner() {
+      if (this.$route.query.folder && this.fileList.length > 0) {
+        let firstFile = this.fileList[0]
+        if (firstFile.userId !== this.$store.getters.userId) {
+          getUsername({userId: firstFile.userId}).then(res => {
+            localStorage.setItem('mountFileOwner', res.data)
+          })
+        }
+      }
+    },
+    // 高亮新增文件
+    highlightNewFile() {
       if (this.onCreateFilename) {
         let index = this.fileList.findIndex(item => item.name === this.onCreateFilename);
         if (index > -1) {
