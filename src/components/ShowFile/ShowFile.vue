@@ -1225,11 +1225,7 @@ export default {
   created() {},
   mounted() {
     Bus.$on("fileSuccess", (filename) => {
-      if (this.$route.query.folder) {
-        this.onCreateFilename = filename
-        this.getFileList()
-        this.clearOnCreateFilename()
-      }
+      this.setOnCreateFilename(filename)
     });
     Bus.$on("loadFileFaild", () => {
       this.notPreviewDialogVisible = true;
@@ -2489,11 +2485,7 @@ export default {
                 break;
             }
             const that = this;
-            if (this.$route.query.folder) {
-              this.onCreateFilename = newFileName
-              this.getFileList()
-              this.clearOnCreateFilename()
-            }
+            this.setOnCreateFilename(newFileName)
             setTimeout(function() {
               that.newCreateFileDialog = false;
             }, 200)
@@ -3142,11 +3134,19 @@ export default {
         })
         .then(() => {
           this.$refs.fileListTable.clearSelection();
+          this.setOnCreateFilename(newFileName)
         })
         .catch(() => {
           this.renameLoading = false;
           this.editingIndex = -1;
         });
+    },
+    setOnCreateFilename(newFileName) {
+      if (this.$route.query.folder) {
+        this.onCreateFilename = newFileName
+        this.getFileList()
+        this.clearOnCreateFilename()
+      }
     },
     // 更多操作(多选)
     moreOperation(event) {
@@ -3156,13 +3156,42 @@ export default {
     },
     setMenus(row) {
       this.menus = JSON.parse(JSON.stringify(this.singleMenus));
-      if (row.suffix && row.suffix === "md") {
-        this.menus.splice(2, 0, { iconClass: "menu-edit1", label: "编辑", operation: "edit" })
-      }
-      if (!row.isFolder) {
-        this.menus.splice(5, 0, { iconClass: "duplicate", label: "创建副本", operation: "duplicate" })
+      // 挂载的文件
+      if (this.$route.query.folder) {
+        // 根据权限设置菜单
+        this.setMenusByPermission(row);
+      } else {
+        if (row.suffix && row.suffix === "md") {
+          this.menus.splice(2, 0, { iconClass: "menu-edit1", label: "编辑", operation: "edit" })
+        }
+        if (row.isFolder && row.mountFileId) {
+          const indicesToDelete = [6, 5, 4, 3, 1];
+          for(let i of indicesToDelete) {
+            this.menus.splice(i, 1);
+          }
+        }
+        if (!row.isFolder) {
+          this.menus.splice(-2, 0, { iconClass: "duplicate", label: "创建副本", operation: "duplicate" })
+        }
       }
       this.preliminaryRowData(row);
+    },
+    setMenusByPermission(file) {
+      const indicesToDelete = [7, 5, 4, 3, 2, 1];
+      for(let i of indicesToDelete) {
+        this.menus.splice(i, 1);
+      }
+      if (file.operationPermissionList && file.operationPermissionList.length > 0) {
+        if (file.operationPermissionList.indexOf('PUT') > -1) {
+          this.menus.splice(this.menus.length - 1, 0, { iconClass: "menu-rename", label: "重命名", operation: "rename" })
+        }
+        if (file.operationPermissionList.indexOf('UPLOAD') > -1 && !file.isFolder) {
+          this.menus.splice(this.menus.length - 1, 0, { iconClass: "duplicate", label: "创建副本", operation: "duplicate" })
+        }
+        if (file.operationPermissionList.indexOf('DELETE') > -1) {
+          this.menus.splice(this.menus.length, 0, { iconClass: "menu-remove", label: "删除", operation: "remove" })
+        }
+      }
     },
     // 更多操作(单选)
     moreClick(row, event) {
@@ -3487,6 +3516,7 @@ export default {
       const newFilename = this.getDuplicateFileName(this.fileList, this.rowContextData.name)
       api.duplicateFile({fileId: this.rowContextData.id, newFilename: newFilename}).then(() => {
         this.$message.success('创建副本成功')
+        this.setOnCreateFilename(newFilename)
       })
     },
     moveOrCopy() {
