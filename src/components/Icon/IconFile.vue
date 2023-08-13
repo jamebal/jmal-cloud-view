@@ -10,6 +10,16 @@
           <svg-icon v-if="grid" class="mobile grid icon-favorite" icon-class="Favoritestarrate"/>
         </div>
     </div>
+    <div v-if="item.mountFileId">
+        <div v-if="pc">
+          <svg-icon v-if="!grid" class="pc list icon-share" icon-class="guazai"/>
+          <svg-icon v-if="grid" class="pc grid icon-share" icon-class="guazai"/>
+        </div>
+        <div v-else>
+          <svg-icon v-if="!grid" class="mobile list icon-share" icon-class="guazai"/>
+          <svg-icon v-if="grid" class="mobile grid icon-share" icon-class="guazai"/>
+        </div>
+    </div>
     <div v-if="item.isShare && item.shareBase && !public">
         <div v-if="pc">
           <svg-icon v-if="!grid" class="pc list icon-share" icon-class="share"/>

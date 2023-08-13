@@ -124,9 +124,6 @@ export default {
         secretKey: [
           {required: true, message: '请填写secretKey', trigger: 'submit'}
         ],
-        region: [
-          {required: true, message: '请填写region', trigger: 'submit'}
-        ],
         bucket: [
           {required: true, message: '请填写bucket', trigger: 'submit'}
         ],

@@ -55,16 +55,16 @@
 
           <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
 
-<!--          <el-button-->
-<!--            v-if="editableTabsValue.endsWith('.md')"-->
-<!--            :class="lightTheme?'':'dark-button'"-->
-<!--            size="small"-->
-<!--            circle-->
-<!--            @click="changePreviewMode"-->
-<!--            :title="previewMode?'编辑':'预览'"-->
-<!--          >-->
-<!--            <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>-->
-<!--          </el-button>-->
+          <el-button
+            v-if="editableTabsValue.endsWith('.md') && editableTabs.length > 0"
+            :class="lightTheme?'':'dark-button'"
+            size="small"
+            circle
+            @click="changePreviewMode"
+            :title="previewMode?'编辑':'预览'"
+          >
+            <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
+          </el-button>
           <el-button
             :class="lightTheme?'':'dark-button'"
             size="small"
@@ -82,7 +82,7 @@
         </div>
       </div>
       <div class="content" :style="{height: editorHieght+26+'px'}">
-        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: panelReadOnly || moblie ?`-${contentsWidth}px`:`0px`}">
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: panelReadOnly || moblie || contentsHide ?`-${contentsWidth}px`:`0px`}">
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
@@ -101,12 +101,12 @@
             </fancy-tree>
           </div>
         </div>
-        <div class="editor-resize" :style="{marginLeft: panelReadOnly || moblie ?`0px`:`${contentsWidth}px`,transition: transition}">
+        <div class="editor-resize" :style="{marginLeft: panelReadOnly || moblie || contentsHide ?`0px`:`${contentsWidth}px`,transition: transition}">
           <div class="darg-resize-conter"></div>
-          <i v-show="!panelReadOnly && !moblie " class="editor-resize-conter" icon="el-icon-arrow-right" title="隐藏文件目录" @click="hideContents"/>
+          <i v-show="!panelReadOnly" class="editor-resize-conter" icon="el-icon-arrow-right" :title="contentsHide ? '展开目录' : '隐藏目录'" @click="hideContents"/>
         </div>
         <div :style="{width: editorWidth-2+'px'}">
-          <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab">
+          <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab()">
             <el-tab-pane
               v-for="(item,index) in editableTabs"
               :key="item.name"
@@ -199,11 +199,12 @@
     data(){
       return{
         lightTheme: true,
-        contentsHide: false,
+        contentsHide: true,
         defalutLanguage: 'redis',
         lineWrapping: false,
         moblie: false,
         panelReadOnly: true,
+        mountFileId: undefined,
         options: {
           fontSize: 14,
           contextmenu: true,
@@ -292,7 +293,7 @@
         }
         this.editableTabs = []
         this.checkMobile()
-        this.checkReadOnly(file.userId)
+        this.checkReadOnly(file)
         this.loadEditorSize()
         this.loading = this.$message({
           iconClass: 'el-icon-loading',
@@ -402,6 +403,7 @@
       },
       // loading
       viewHistoryFile({historyInfo, diff, recovery}) {
+        this.previewMode = false
         const pathname = this.editableTabsValue
         let currentIndex = this.editableTabs.findIndex(editable => editable.name === pathname)
         const tab = this.editableTabs[currentIndex]
@@ -471,7 +473,7 @@
       },
       async requestStream(request, params, index) {
         try {
-          const readOnly = this.panelReadOnly
+          const readOnly = this.options.readOnly
           this.options.readOnly = true
           this.abortControllerAbort(index)
           const queryString = this.buildQueryString(params)
@@ -590,7 +592,7 @@
                 that.dialogWidth = dialogWidth + moveX
                 that.editorWidth = editorWidth + moveX
                 that.editorHieght = editorHieght + (endY - startY)
-                that.loadConterSize()
+                that.loadContentSize()
               }
             }
             // 鼠标松开事件
@@ -714,7 +716,7 @@
             fileName: row.name,
             username: this.$store.state.user.name
           }
-          api.previewTextByPath(params).then((res)=>{
+          api.previewTextByPath(params).then(()=>{
             this.loading.close()
             // 添加一个tab
             let tab = {
@@ -797,20 +799,24 @@
         this.loadEditorSize()
       },
       checkMobile() {
-        if (!this.$pc) {
-          this.moblie = true
-        } else {
-          this.moblie = false
-        }
+        this.moblie = !this.$pc;
       },
-      checkReadOnly(fileUserId){
-        if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
+      checkReadOnly(file){
+        if(this.$store.state.user.token && this.$store.state.user.userId === file.userId){
           this.options.readOnly = false
           this.panelReadOnly = false
+          return
+        } else {
+          this.mountFileId = file.id
+        }
+        if (this.$store.state.user.token && file.operationPermissionList && file.operationPermissionList.indexOf('PUT') > -1) {
+          this.options.readOnly = false
+          this.panelReadOnly = true
+          return
         }
         if (!this.$pc) {
-          this.options.readOnly = true
-          this.panelReadOnly = false
+          this.options.readOnly = false
+          this.panelReadOnly = true
         }
         if(this.panelReadOnly || this.moblie){
           this.$nextTick(()=> {
@@ -827,12 +833,12 @@
           this.editorWidth = this.dialogWidth - this.contentsWidth
         }
         this.editorHieght = document.body.clientHeight * this.dialogWidthPercent - 76
-        this.loadConterSize()
+        this.loadContentSize()
       },
-      loadConterSize(){
-        let conter = document.querySelector('.editor-resize .editor-resize-conter');
-        if(conter){
-          conter.style.marginTop = ((this.editorHieght+26)/2 - conter.clientHeight/2) + 'px'
+      loadContentSize(){
+        let content = document.querySelector('.editor-resize .editor-resize-conter');
+        if(content){
+          content.style.marginTop = ((this.editorHieght+26)/2 - content.clientHeight/2) + 'px'
         }
       },
       handleClose(done) {
@@ -866,6 +872,7 @@
         }
       },
       closeDialog() {
+        this.previewMode = false
         this.textPreviewVisible = false
         this.$emit('update:status', this.textPreviewVisible)
         this.isSaveDialogVisible = false
@@ -925,6 +932,7 @@
             relativePath: encodeURI(path),
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
+            mountFileId: this.mountFileId,
             contentText: value
           }).then(() => {
             this.updating = false
@@ -1037,8 +1045,10 @@
         this.clickTab()
       },
       clickTab() {
-        // this.editorWidth += 0.001
-        // this.editorHieght += 0.001
+        this.editorWidth += 0.001
+        this.editorHieght += 0.001
+        // 加载历史版本
+        this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
       },
       removeTab(targetName) {
         let tabs = this.editableTabs;
@@ -1534,12 +1544,19 @@
       .nwse-resize {
         z-index: 99999;
         position: fixed;
-        width: 15px;
-        background: #00000000;
+        width: 12px;
+        margin-left: 3px;
+        background: #f0f0f0;
         height: 15px;
         margin-top: -15px;
         float: right;
         cursor: nwse-resize;
+      }
+      .nwse-resize::before {
+        content: "⠿";
+        display: inline-block;
+        padding-right: 5px;
+        vertical-align: middle;
       }
       .el-button--small.is-circle {
         padding: 9px 9px;

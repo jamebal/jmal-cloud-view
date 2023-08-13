@@ -153,6 +153,17 @@ export default {
       }
     })
   },
+  /**
+   * 创建副本
+   * @param params
+   */
+  duplicateFile(params) {
+    return request({
+      url: 'duplicate',
+      method: 'get',
+      params
+    })
+  },
   // 生成分享链接
   generate: function(data) {
     return request({
@@ -178,6 +189,14 @@ export default {
       url: '/share/list',
       method: 'get',
       params
+    })
+  },
+  // 挂载文件夹
+  mountFolder: function(data) {
+    return request({
+      url: '/share/mount-folder',
+      method: 'put',
+      data: data
     })
   },
   // 验证提取码
@@ -302,5 +321,5 @@ export default {
       method: 'get',
       params
     })
-  },
+  }
 }

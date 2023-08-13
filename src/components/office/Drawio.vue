@@ -101,7 +101,7 @@ export default {
         }
         this.xml = ''
         let request = 'previewText'
-        if(this.readOnly){
+        if (!this.$store.state.user.token) {
           request = 'sharePreviewText'
         }
         api[request]({
@@ -221,6 +221,7 @@ export default {
         relativePath: encodeURI(this.file.path + this.file.name),
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
+        mountFileId: this.$store.state.user.userId !== this.file.userId ? this.file.id : '',
         contentText: value
       }).then(() => {
         this.saveBtnUpdating = false

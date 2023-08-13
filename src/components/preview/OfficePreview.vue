@@ -93,7 +93,7 @@ export default {
         this.$nextTick(() => {
           this.previewDocument = document.querySelector('.preview-block')
         })
-        this.checkReadOnly(this.file.userId)
+        this.checkReadOnly(this.file)
         // 12秒后还没加载出来视为加载失败
         let that = this
         this.delayClosing = setTimeout(function () {
@@ -208,10 +208,13 @@ export default {
     },
     /**
      * 检查要预览调文件是否为只读
-     * @param fileUserId userId
+     * @param file userId
      */
-    checkReadOnly(fileUserId){
-      if(this.$store.state.user.token && this.$store.state.user.userId === fileUserId){
+    checkReadOnly(file){
+      if(this.$store.state.user.token && this.$store.state.user.userId === file.userId){
+        this.readOnly = false
+      }
+      if (this.$store.state.user.token && file.operationPermissionList && file.operationPermissionList.indexOf('PUT') > -1) {
         this.readOnly = false
       }
       if (!this.$pc && this.fileType === 'office') {

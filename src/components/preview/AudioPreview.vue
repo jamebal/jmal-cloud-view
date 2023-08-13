@@ -57,7 +57,6 @@ export default {
         this.show = true
       }
       this.$nextTick(() => {
-        console.log('this.$refs', this.$refs)
         let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
         if (this.$store.getters.token === undefined) {
           url = fileConfig.publicPreviewUrl(newFile, window.shareId, this.$store.getters.shareToken);
@@ -77,7 +76,6 @@ export default {
           this.list.push(this.currentMusic)
         }
         this.$refs.audioPlayer.thenPlay()
-        console.log(this.$refs.audioPlayer.repeat, this.$refs.audioPlayer.shuffle);
       })
     })
   },

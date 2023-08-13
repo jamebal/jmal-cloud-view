@@ -70,6 +70,9 @@ export default {
       if(this.$route.path.startsWith('/setting')){
         this.isShow = true
       }
+      if (this.$route.path.startsWith('/s/')) {
+        this.isShow = false
+      }
     }else{
       this.isShow = false
     }

@@ -428,7 +428,9 @@ export default {
         }
       })
     }
-
+    if (this.$route.query.folder && this.path) {
+      localStorage.setItem(this.path, this.$route.query.folder)
+    }
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL)
       window.addEventListener('popstate', this.goBack, false)
@@ -586,6 +588,7 @@ export default {
         api.rename({
           newFileName: encodeURI(newFileName),
           username: this.$store.state.user.name,
+          folder: this.$route.query.folder,
           id: row.id
         }).then(() => {
           this.renameLoading = false
@@ -809,7 +812,7 @@ export default {
       if (!this.path) {
         this.path = ''
       }
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path}`)
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${this.$route.query.folder ? '&folder='+this.$route.query.folder : ''}`)
     },
     showSortSheet() {
       this.actionSortSheetShow = true
@@ -850,11 +853,12 @@ export default {
             this.path += '/' + this.pathList[number].folder
           }
         })
+        let queryFolder = localStorage.getItem(this.path)
         if (!unPushLink) {
           if (!this.$route.query.path) {
-            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`)
           } else {
-            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`)
           }
         }
         if (!unRefresh) {
@@ -881,12 +885,12 @@ export default {
       this.getFileList();
     },
     getFileList(onLoad) {
-      console.log("getFileList", onLoad)
       this.beforeLoadData(onLoad)
       api.fileList({
         username: this.$store.state.user.name,
         userId: this.$store.state.user.userId,
         currentDirectory: encodeURI(this.$route.query.path),
+        folder: this.$route.query.folder,
         queryFileType: this.queryFileType,
         sortableProp: this.sortableProp,
         order: this.order,
@@ -1069,7 +1073,14 @@ export default {
           item['folder'] = row.name
           item['index'] = this.pathList.length - 1
           this.pathList.push(item)
-          this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
+          const path = encodeURI(this.path);
+          if (this.$store.getters.userId !== row.userId) {
+            row.mountFileId = row.id
+          }
+          if (row.mountFileId) {
+            localStorage.setItem(this.path, row.mountFileId)
+          }
+          this.$router.push(`/_m?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}`)
           this.getFileList()
         } else {
           if (row.contentType.startsWith('image')) {
@@ -1195,6 +1206,7 @@ export default {
         // 打开文件选择框
         Bus.$emit('openUploader', {
           // 传入的参数
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
@@ -1205,6 +1217,7 @@ export default {
         // 打开文件夹选择框
         Bus.$emit('uploadFolder', {
           // 传入的参数
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
@@ -1218,6 +1231,7 @@ export default {
         api.uploadFolder({
           isFolder: true,
           filename: encodeURI(this.newFolderName),
+          folder: this.$route.query.folder,
           currentDirectory: encodeURI(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
