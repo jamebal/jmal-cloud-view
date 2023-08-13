@@ -385,7 +385,7 @@
             >
               <template slot-scope="scope">
                 <el-tooltip
-                  v-if="scope.row.index === cellMouseIndex"
+                  v-if="scope.row.index === cellMouseIndex && (!scope.row.isShare || scope.row.shareBase)"
                   class="item"
                   effect="light"
                   content="分享"
@@ -3190,6 +3190,13 @@ export default {
         }
         if (!row.isFolder) {
           this.menus.splice(-2, 0, { iconClass: "duplicate", label: "创建副本", operation: "duplicate" })
+        }
+        if (row.isShare && !row.shareBase) {
+          // 删除分享选项
+          let index = this.menus.findIndex(item => item.operation === "share")
+          if (index > -1) {
+            this.menus.splice(index, 1)
+          }
         }
       }
       this.preliminaryRowData(row);
