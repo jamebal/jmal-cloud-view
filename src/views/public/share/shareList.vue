@@ -356,12 +356,12 @@ export default {
       singleMenus: [
         {iconClass: 'menu-open', label: '打开', operation: 'open'},
         {iconClass: 'menu-download', label: '下载', operation: 'download'},
-        {iconClass: 'menu-fuzhi', label: '复制下载连接', operation: 'copyDownloadUrl'},
+        {iconClass: 'menu-fuzhi', label: '复制下载链接', operation: 'copyDownloadUrl'},
       ],
       singleMenusEdit: [
         {iconClass: 'menu-open', label: '打开', operation: 'open'},
         {iconClass: 'menu-download', label: '下载', operation: 'download'},
-        {iconClass: 'menu-fuzhi', label: '复制下载连接', operation: 'copyDownloadUrl'},
+        {iconClass: 'menu-fuzhi', label: '复制下载链接', operation: 'copyDownloadUrl'},
       ],
       multipleMenus: [
         {iconClass: 'menu-download', label: '下载', operation: 'download'},
@@ -1042,7 +1042,7 @@ export default {
         });
       }
     },
-    // 复制下载连接
+    // 复制下载链接
     copyDownloadLink(url) {
       let clipboard = new Clipboard('.menu-option', {
         text: function () {

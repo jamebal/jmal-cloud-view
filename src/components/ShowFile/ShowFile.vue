@@ -258,6 +258,7 @@
             v-if="
               item.operation === 'unFavorite' || item.operation === 'favorite'
             "
+            class="menu-option"
             @click="menusOperations(item.operation)"
             @mouseover.prevent.stop="
               menuFavoriteOver(index, rowContextData.isFavorite)
@@ -870,6 +871,7 @@ import EditElement from "@/views/markdown/EditElement";
 import OfficePreview from "@/components/preview/OfficePreview";
 import ShareDialog from "@/components/ShareDialog/index.vue";
 import {getUsername} from "@/api/user";
+import Clipboard from "clipboard";
 
 export default {
   name: "ShowFile",
@@ -2690,7 +2692,8 @@ export default {
           id: row.id,
           currentDirectory: encodeURI(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
+          pageSize: this.pagination.pageSize,
+          folder: this.$route.query.folder
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -2709,7 +2712,8 @@ export default {
           id: row.mountFileId || row.id,
           currentDirectory: encodeURI(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
+          pageSize: this.pagination.pageSize,
+          folder: this.$route.query.folder
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -3191,12 +3195,16 @@ export default {
         if (!row.isFolder) {
           this.menus.splice(-2, 0, { iconClass: "duplicate", label: "创建副本", operation: "duplicate" })
         }
-        if (row.isShare && !row.shareBase) {
+        if ((row.isShare && !row.shareBase) || row.ossFolder) {
           // 删除分享选项
           let index = this.menus.findIndex(item => item.operation === "share")
           if (index > -1) {
             this.menus.splice(index, 1)
           }
+        }
+        if (row.isShare && !row.isPrivacy) {
+          // 添加复制下载链接选项
+          this.menus.splice(-2, 0, { iconClass: "menu-fuzhi", label: "复制下载链接", operation: "copyDownloadLink" })
         }
       }
       this.preliminaryRowData(row);
@@ -3448,6 +3456,10 @@ export default {
         case "download":
           // 下载
           this.downloadFile();
+          break;
+        case "copyDownloadLink":
+          // 复制下载链接
+          this.copyDownloadLink(this.rowContextData)
           break;
         case "remove":
           // 删除
@@ -3770,6 +3782,25 @@ export default {
           type: "warning"
         });
       }
+    },
+    // 复制下载链接
+    copyDownloadLink(row) {
+      let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, undefined)
+      let clipboard = new Clipboard('.newFileMenu', {
+        text: function () {
+          return url
+        }
+      })
+      clipboard.on('success', e => {
+        this.$message({message: '复制成功', type: 'success', duration: 1000});
+        // 释放内存
+        clipboard.destroy()
+      })
+      clipboard.on('error', e => {
+        // 不支持复制
+        this.$message({message: '该浏览器不支持自动复制', type: 'warning', duration: 1000});
+        clipboard.destroy()
+      })
     },
     // 收藏/取消收藏
     favoriteOperating(isFavorite) {
