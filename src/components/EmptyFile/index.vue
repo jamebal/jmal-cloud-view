@@ -47,18 +47,14 @@
 <style lang="scss" scoped>
   .container {
     width: 100%;
-    /*min-height: calc(100vh - 50px);*/
+    min-height: calc(100vh - 101px);
   }
   .share-empty {
-    /*height: 30%;*/
-    /*width: 50%;*/
     color: #6e6e6e;
-    margin: 20%;
-    /*left: 50%;*/
-    /*position: absolute;*/
-    /*top: 50%;*/
-    /*left: 50%;*/
-    /*margin: -15% 0 0 -25%;*/
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
  }
  .share-empty-icon {
    width: 268px;

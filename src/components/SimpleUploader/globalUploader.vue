@@ -2,6 +2,7 @@
   <div id="global-uploader">
     <!-- 上传 -->
     <uploader
+      v-if="showUploader"
       ref="uploader"
       :options="options"
       :file-status-text="statusText"
@@ -20,22 +21,41 @@
         <span>上传文件到当前目录下</span>
       </uploader-drop>
 
-      <uploader-btn id="global-uploader-btn" ref="uploadBtn" :attrs="attrs">选择文件</uploader-btn>
+      <uploader-btn id="global-uploader-btn" ref="uploadBtn" :attrs="attrs"
+        >选择文件</uploader-btn
+      >
 
-      <uploader-btn id="folder-uploader-btn" ref="folderBtn" :directory="true">选择文件夹</uploader-btn>
+      <uploader-btn id="folder-uploader-btn" ref="folderBtn" :directory="true"
+        >选择文件夹</uploader-btn
+      >
 
       <uploader-list v-show="panelShow">
-        <div slot-scope="props" class="file-panel" :class="{'collapse': collapse}" :style="filePanel">
+        <div
+          slot-scope="props"
+          class="file-panel"
+          :class="{ collapse: collapse }"
+          :style="filePanel"
+        >
           <div class="file-title">
             <h2 class="files-title">文件列表</h2>
             <div class="operate">
-              <el-button v-if="fileListLength > 0" type="text" class="button-collapse" @click="shrink">
+              <el-button
+                v-if="fileListLength > 0"
+                type="text"
+                class="button-collapse"
+                @click="shrink"
+              >
                 <i class="iconfont el-icon-position"></i>
               </el-button>
               <!--<el-button type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">-->
               <!--<i class="iconfont" :class="collapse ? 'el-icon-circle-plus-outline': 'el-icon-remove-outline'"></i>-->
               <!--</el-button>-->
-              <el-button type="text" class="button-collapse" title="关闭" @click="close">
+              <el-button
+                type="text"
+                class="button-collapse"
+                title="关闭"
+                @click="close"
+              >
                 <i class="iconfont el-icon-circle-close"></i>
               </el-button>
             </div>
@@ -43,20 +63,30 @@
 
           <ul class="file-list">
             <li v-for="file in props.fileList" :key="file.id">
-              <uploader-file ref="files" :class="'file_' + file.id" :file="file" :list="true"></uploader-file>
+              <uploader-file
+                ref="files"
+                :class="'file_' + file.id"
+                :file="file"
+                :list="true"
+              ></uploader-file>
             </li>
-            <div v-if="!props.fileList.length" class="no-file"><i class="iconfont icon-empty-file"></i> 暂无待上传文件
+            <div v-if="!props.fileList.length" class="no-file">
+              <i class="iconfont icon-empty-file"></i> 暂无待上传文件
             </div>
           </ul>
         </div>
       </uploader-list>
-
     </uploader>
 
-    <div class="process-area" id="drag-ball" @click="expand" :style="processAreaClass">
+    <div
+      class="process-area"
+      id="drag-ball"
+      @click="expand"
+      :style="processAreaClass"
+    >
       <div class="process-anime">
-        <div class="cube-a" :style="{'top': -process-65+'%'}"></div>
-        <div class="cube-b" :style="{'top': -process-65+'%'}"></div>
+        <div class="cube-a" :style="{ top: -process - 65 + '%' }"></div>
+        <div class="cube-b" :style="{ top: -process - 65 + '%' }"></div>
 
         <div v-if="process < 100" class="process-info">
           <div class="process">{{ process }}%</div>
@@ -66,14 +96,17 @@
         <div v-if="process >= 100" class="done">
           <svg xmlns="http://www.w3.org/2000/svg" class="done-icon checkmark">
             <!--"M 14.1 27.2 l 7.1 7.2 l 16.7 -16.8"-->
-            <path d="M 13.1 21.2 l 5.1 5.2 l 12.7 -12.8" class="checkmark__check" style="fill: transparent;"></path>
+            <path
+              d="M 13.1 21.2 l 5.1 5.2 l 12.7 -12.8"
+              class="checkmark__check"
+              style="fill: transparent;"
+            ></path>
             <!--<path v-if="pc" d="M 13.1 21.2 l 5.1 5.2 l 12.7 -12.8" class="checkmark__check" style="fill: transparent;"></path>-->
             <!--<path v-if="!pc" d="M 15.5 20.2 l 3.5 3.6 l 7.7 -7.8" class="checkmark__check" style="fill: transparent;"></path>-->
           </svg>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -96,6 +129,7 @@ export default {
   components: {},
   data() {
     return {
+      showUploader: true,
       username: this.$store.state.user.name,
       options: {
         target: api.simpleUploadURL,
@@ -121,11 +155,11 @@ export default {
         },
         parseTimeRemaining: function (timeRemaining, parsedTimeRemaining) {
           return parsedTimeRemaining
-            .replace(/\syears?/, '年')
-            .replace(/\days?/, '天')
-            .replace(/\shours?/, '小时')
-            .replace(/\sminutes?/, '分钟')
-            .replace(/\sseconds?/, '秒')
+              .replace(/\syears?/, '年')
+              .replace(/\days?/, '天')
+              .replace(/\shours?/, '小时')
+              .replace(/\sminutes?/, '分钟')
+              .replace(/\sseconds?/, '秒')
         },
         headers: {
           'jmal-token': this.$store.state.user.token,
@@ -161,12 +195,7 @@ export default {
       dragoverLoop: null,
       successMsg: null,
       enableDragUplaod: false,// 是否启用拖拽上传
-    }
-  },
-  computed: {
-    // Uploader实例
-    uploader() {
-      return this.$refs.uploader.uploader
+      uploader: null,
     }
   },
   watch: {
@@ -219,6 +248,20 @@ export default {
       that.dragover = false
     }, false);
 
+    Bus.$on('storageTypeChange', storageType => {
+      if (storageType === 'File') {
+        if (this.options.chunkSize === 1024 * 1024) {
+          return
+        }
+        this.updateChunkSize(1024 * 1024)
+      } else {
+        if (this.options.chunkSize === 5 * 1024 * 1024) {
+          return
+        }
+        this.updateChunkSize(5 * 1024 * 1024)
+      }
+    })
+
     Bus.$on('fileListScrollTop', fileListScrollTop => {
       this.fileListScrollTop = fileListScrollTop
     })
@@ -245,11 +288,7 @@ export default {
         this.shrink()
       }
     })
-
-    this.$nextTick(() => {
-      window.uploader = this.$refs.uploader.uploader
-    })
-
+    this.initUploader()
   },
   destroyed() {
     Bus.$off('openUploader')
@@ -257,6 +296,26 @@ export default {
     Bus.$off('uploadFileListBack')
   },
   methods: {
+    initUploader() {
+      this.$nextTick(() => {
+        this.uploader = this.$refs.uploader.uploader
+        window.uploader = this.uploader
+      })
+    },
+    updateChunkSize(chunkSize) {
+      // 更新 options
+      this.options.chunkSize = chunkSize;
+      console.log('updateChunkSize', chunkSize)
+      // 重新渲染 uploader 组件
+      this.showUploader = false;
+      this.$nextTick(() => {
+        this.showUploader = true;
+        this.$nextTick(() => {
+          this.uploader = this.$refs.uploader.uploader
+          window.uploader = this.uploader
+        });
+      });
+    },
     onDragenter(e) {
       this.params = {
         currentDirectory: this.$route.query.path || '/',
@@ -310,10 +369,6 @@ export default {
       })
     },
     onFileProgress(rootFile, file, chunk) {
-      // const fileList = window.uploader.fileList
-      // fileList.forEach(file => {
-      //   file.currentSpeed
-      // })
       this.netSpeed = formatNetSpeed(file.currentSpeed)
       this.process = Math.trunc(window.uploader.progress() * 100)
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
@@ -659,7 +714,7 @@ export default {
   .file-panel {
     background-color: #fff;
     border: 1px solid #e2e2e2;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 
     right: 2%;
     bottom: 2%;
@@ -671,8 +726,8 @@ export default {
     background-size: 100% 100%;
     border-radius: 7px 7px 0 0;
     position: fixed;
-    -webkit-transition: all .5s ease-in-out 0s;
-    transition: all .5s ease-in-out 0s;
+    -webkit-transition: all 0.5s ease-in-out 0s;
+    transition: all 0.5s ease-in-out 0s;
 
     ul {
       white-space: nowrap;
@@ -680,7 +735,7 @@ export default {
       overflow-x: auto;
       overflow-y: hidden;
       padding: 0 0.1rem;
-      margin-bottom: -.2rem;
+      margin-bottom: -0.2rem;
       overflow: -moz-scrollbars-none;
       overflow: -moz-scrollbars-none;
     }
@@ -732,7 +787,7 @@ export default {
 
     &.collapse {
       .file-title {
-        background-color: #E7ECF2;
+        background-color: #e7ecf2;
       }
     }
   }
@@ -745,49 +800,49 @@ export default {
     font-size: 16px;
   }
 
-  > > > .uploader-file-icon {
+  > .uploader-file-icon {
     &:before {
-      content: '' !important;
+      content: "" !important;
     }
 
     background: url(./images/file.svg);
 
-    &[icon=image] {
+    &[icon="image"] {
       background: url(./images/image.svg);
     }
 
-    &[icon=video] {
+    &[icon="video"] {
       background: url(./images/video.svg);
     }
 
-    &[icon=document] {
+    &[icon="document"] {
       background: url(./images/docment.svg);
     }
 
-    &[icon=audio] {
+    &[icon="audio"] {
       background: url(./images/audio.svg);
     }
 
-    &[icon=folder] {
+    &[icon="folder"] {
       background: url(./images/folder.svg);
     }
   }
 
-  > > > .uploader-file-actions > span {
+  > .uploader-file-actions > span {
     margin-right: 6px;
   }
 }
 
-> > > .uploader-file-status {
+> .uploader-file-status {
   width: 32%;
   text-indent: 20px;
 }
 
-> > > .uploader-file-meta {
+> .uploader-file-meta {
   width: 0;
 }
 
-> > > .uploader-file-icon {
+> .uploader-file-icon {
   width: 32px;
   height: 32px;
   display: inline-block;
@@ -796,7 +851,7 @@ export default {
   margin-right: 8px;
 }
 
-> > > .uploader-file-actions > span {
+> .uploader-file-actions > span {
   margin-right: 6px;
   margin-left: 8px;
 }
@@ -811,7 +866,6 @@ export default {
   position: absolute;
   clip: rect(0, 0, 0, 0);
 }
-
 
 .process-area {
   right: 66px;
@@ -829,8 +883,8 @@ export default {
   position: fixed;
   /*animation: load-process-area .5s 1 linear forwards;*/
   /*transition: all .5s;*/
-  -webkit-transition: all .5s ease-in-out 0s;
-  transition: all .5s ease-in-out 0s;
+  -webkit-transition: all 0.5s ease-in-out 0s;
+  transition: all 0.5s ease-in-out 0s;
 }
 
 .process-area .process-info {
@@ -846,7 +900,7 @@ export default {
 }
 
 .process-area .process-info .net-speed {
-  font-size: .7rem;
+  font-size: 0.7rem;
   white-space: nowrap;
 }
 
@@ -866,13 +920,13 @@ export default {
 .process-anime .cube-a {
   position: absolute;
   left: 50%;
-  background: rgba(53, 53, 53, .3);
+  background: rgba(53, 53, 53, 0.3);
   width: 130px;
   height: 130px;
   border-radius: 50px;
   animation: fx-rotate 15s infinite linear;
   transform-origin: 50% 50%;
-  transition: .5s;
+  transition: 0.5s;
 }
 
 .process-anime .cube-b {
@@ -884,7 +938,7 @@ export default {
   border-radius: 50px;
   animation: fx-rotate 10s infinite reverse linear;
   transform-origin: 50% 50%;
-  transition: .5s;
+  transition: 0.5s;
 }
 
 /**成功**/
@@ -906,7 +960,8 @@ export default {
   stroke: #fff;
   stroke-miterlimit: 10;
   box-shadow: inset 0 0 0 #fdda65;
-  animation: fill-data .4s ease-in-out .4s forwards, scale-data .3s ease-in-out .9s both;
+  animation: fill-data 0.4s ease-in-out 0.4s forwards,
+    scale-data 0.3s ease-in-out 0.9s both;
 }
 
 .process-anime .done .checkmark__check {
@@ -914,7 +969,7 @@ export default {
   transform-origin: 50% 50%;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  animation: stroke-data .3s cubic-bezier(.65, 0, .45, 1) .8s forwards;
+  animation: stroke-data 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
 
 @keyframes fx-rotate {
@@ -927,7 +982,8 @@ export default {
 }
 
 @keyframes scale-data {
-  0%, 100% {
+  0%,
+  100% {
     transform: none;
   }
   50% {
