@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <el-dialog class="dialog-form" width="600px" :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
-      <el-form size="medium" ref="managerForm" label-width="90px"  :model="form" :rules="rules">
+      <el-form size="medium" ref="managerForm" label-width="90px"  :model="form" :rules="rules" v-if="dialogVisible">
         <el-row :gutter="10">
           <el-col :sm="12">
             <el-form-item label="用户账号:" prop="username">
@@ -87,6 +87,15 @@ import roleApi from '@/api/role'
 import CropperDialog from '@/components/Cropper/dialog'
 import TableList from "@/components/table/TableList";
 
+const initForm = {
+  username: '',
+  password: '',
+  showName: '',
+  roles: [],
+  checkPass: '',
+  quota: 10,
+}
+
 export default {
     name: 'cusomerManager',
     components: {
@@ -114,14 +123,7 @@ export default {
         dialogTitle: '',
         userUpdateLoading: false,
         valid: true,
-        form: {
-          username: '',
-          password: '',
-          showName: '',
-          roles: [],
-          checkPass: '',
-          quota: 10,
-        },
+        form: initForm,
         // 分页信息
         pagination: {
           pageIndex: 1,
@@ -227,11 +229,12 @@ export default {
       },
       async add() {
         this.dialogVisible = true
-        this.dialogTitle = '添加用户'
-        this.editMove = 1
-        this.form.showName = ''
         await this.$nextTick()
         this.$refs.managerForm.resetFields()
+        this.dialogTitle = '添加用户'
+        this.editMove = 1
+        this.form = initForm
+        await this.$nextTick()
       },
       // 设置formData
       setFormData() {
