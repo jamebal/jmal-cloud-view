@@ -305,7 +305,6 @@ export default {
     updateChunkSize(chunkSize) {
       // 更新 options
       this.options.chunkSize = chunkSize;
-      console.log('updateChunkSize', chunkSize)
       // 重新渲染 uploader 组件
       this.showUploader = false;
       this.$nextTick(() => {
