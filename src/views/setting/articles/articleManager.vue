@@ -287,10 +287,8 @@ export default {
     },
     handleDelete() {
       let fileIds = []
-      let currentDirectory = ''
       if (this.multipleSelection.length > 0) {
         this.multipleSelection.forEach(value => {
-          currentDirectory = value.path
           fileIds.push(value.id)
         })
       }
@@ -300,7 +298,7 @@ export default {
         type: 'warning'
       }).then(() => {
         api.delete({
-          currentDirectory: currentDirectory,
+          currentDirectory: '',
           username: this.$store.state.user.name,
           fileIds: fileIds
         }).then(() => {
