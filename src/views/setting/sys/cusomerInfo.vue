@@ -14,13 +14,13 @@
     <el-dialog class="dialog-cm" width="400px" :title="passwordFormTitle" :visible.sync="dialogChangePassword">
       <el-form ref="passwordForm" size="medium" :model="passwordForm" :rules="rules" label-width="100px" @submit.native.prevent>
         <el-form-item v-show="!validOldPass" label="旧密码" prop="oldPassword">
-          <el-input type="password" v-model="passwordForm.oldPassword" @keyup.enter.native="onSavePassword"/>
+          <el-input type="password" v-model="passwordForm.oldPassword" @keyup.enter.native="onSavePassword" show-password />
         </el-form-item>
         <el-form-item v-show="validOldPass" label="新密码" prop="password">
-          <el-input ref="newPasswordInput" type="password" v-model="passwordForm.password"/>
+          <el-input ref="newPasswordInput" type="password" v-model="passwordForm.password" show-password/>
         </el-form-item>
         <el-form-item v-show="validOldPass" label="确认新密码" prop="checkPass">
-          <el-input type="password" v-model="passwordForm.checkPass" @keyup.enter.native="onSavePassword"/>
+          <el-input type="password" v-model="passwordForm.checkPass" @keyup.enter.native="onSavePassword" show-password/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
