@@ -16,11 +16,11 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 ✅ supports WebDAV
 
 ### Online Demo:
-[View Demo](https://demo.zhujunhao.top) , username:demo, password:demo1234
+[View Demo](https://jmal.cc/demo) , username:demo, password:demo1234
 
 
 ### deployment(Recommend)
-[docker deployment](https://jmal.cc/mv572)
+[docker deployment](https://jmal.cc/zsi5sq)
 - You must install: 'Docker' and 'Docker Compose V2.0 +'
 
 ```shell
@@ -40,7 +40,7 @@ cd jmal-cloud-server
 ./jc.sh update
 
 ```
-[Other ways deployment](https://jmal.cc/b75gm)
+[Other ways deployment](https://jmal.cc/ujh5Wl)
 
 ### Dev
 #### Environment Requirements:
