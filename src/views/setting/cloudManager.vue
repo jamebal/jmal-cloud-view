@@ -76,7 +76,11 @@
                   <el-input placeholder="例如: ldap.test.com:389" v-model="ldapFormData.ldapServer"></el-input>
                 </el-form-item>
                 <el-form-item label="Base DN" prop="baseDN">
-                  <el-input placeholder="例如: cn=admin,dc=test,dc=com" v-model="ldapFormData.baseDN" autocomplete="off"></el-input>
+                  <el-input placeholder="例如: dc=test,dc=com" v-model="ldapFormData.baseDN" autocomplete="off"></el-input>
+                </el-form-item>
+
+                <el-form-item label="账号" prop="userDN">
+                  <el-input placeholder="管理员账号,例如: cn=admin,dc=test,dc=com" v-model="ldapFormData.userDN" autocomplete="off"></el-input>
                 </el-form-item>
 
                 <el-form-item label="密码" prop="password">
@@ -147,6 +151,7 @@ export default {
         ldapServer: '',
         defaultRoleList: [],
         baseDN: '',
+        userDN: '',
         password: '',
         loginName: ''
       },
@@ -167,6 +172,9 @@ export default {
         ],
         baseDN: [
           {required: true, message: '请填写 Base DN', trigger: 'submit'}
+        ],
+        userDN: [
+          {required: true, message: '请填写 管理员账号', trigger: 'submit'}
         ],
         loginName: [
           {required: true, message: '请填写登录名', trigger: 'submit'}
