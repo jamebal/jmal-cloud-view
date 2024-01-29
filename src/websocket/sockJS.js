@@ -45,14 +45,14 @@ function connect(username,token){
               title: `${doc.operation}成功`,
               dangerouslyUseHTMLString: true,
               message: `
-<div>
-  <p>form:</p>
-  <pre style="word-break: break-all;white-space: pre-wrap;font-size: 12px;">${doc.from}</pre>
-</div>
-<div>
-  <p>to:</p>
-  <pre style="word-break: break-all;white-space: pre-wrap;font-size: 12px;">${doc.to}</pre>
-</div>`,
+                <div>
+                  <p>form:</p>
+                  <pre style="word-break: break-all;white-space: pre-wrap;font-size: 12px;">${doc.from}</pre>
+                </div>
+                <div>
+                  <p>to:</p>
+                  <pre style="word-break: break-all;white-space: pre-wrap;font-size: 12px;">${doc.to}</pre>
+                </div>`,
               type: 'success',
             });
           } else {

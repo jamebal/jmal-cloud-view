@@ -17,6 +17,7 @@
       </app-link>
       <div class="right-username">{{showName}}</div>
       <div class="right-menu">
+        <el-badge v-if="newVersion" value="new" class="new-version"/>
         <el-dropdown class="avatar-container" trigger="click">
           <div class="avatar-wrapper">
             <el-avatar :src="avatar ? imageUrl + avatar : defaultAvatar" icon="el-icon-user-solid"></el-avatar>
@@ -29,6 +30,7 @@
               :to="resolvePath(route.path)"
             >
               <el-dropdown-item>
+                <el-badge v-if="route.path === '/setting/user' && newVersion" is-dot class="new-version-dot"/>
                 <svg-icon :icon-class="route.children[0].meta.icon"></svg-icon>
                 {{route.children[0].name}}
               </el-dropdown-item>
@@ -39,7 +41,6 @@
           </el-dropdown-menu>
         </el-dropdown>
       </div>
-
     </div>
 
   </div>
@@ -51,7 +52,6 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import Icon from '@/components/Icon/Icon.vue'
 import AppLink from './Sidebar/Link'
-import store from "@/store"
 import {isExternal} from "@/utils/validate";
 import path from "path";
 
@@ -74,7 +74,8 @@ export default {
     ...mapGetters([
       'sidebar',
       'avatar',
-      'showName'
+      'showName',
+      'newVersion'
     ]),
     routes() {
       let routes = {}
@@ -120,6 +121,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.new-version {
+  position: absolute;
+  right: 0;
+  top: 5px;
+}
+.new-version-dot {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+}
 .navbar {
   height: 50px;
   overflow: hidden;

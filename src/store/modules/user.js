@@ -35,6 +35,7 @@ const getDefaultState = () => {
     menuList: [],
     netdiskName: '',
     netdiskLogo: '',
+    newVersion: ''
   }
 }
 
@@ -73,6 +74,9 @@ const mutations = {
   },
   SET_NETDISK_LOGO:(state,netdiskLogo) => {
     state.netdiskLogo = netdiskLogo;
+  },
+  SET_NEW_VERSION:(state,newVersion) => {
+    state.newVersion = newVersion;
   }
 }
 
@@ -148,7 +152,7 @@ const actions = {
           // reject('Verification failed, please Login again.')
         }
 
-        const { id, username, showName, avatar, netdiskName, netdiskLogo} = data
+        const { id, username, showName, avatar, netdiskName, netdiskLogo, newVersion} = data
 
         commit('SET_NAME', username)
         commit('SET_SHOW_NAME', showName)
@@ -157,6 +161,11 @@ const actions = {
         commit('SET_USER_INFO', data)
         commit('SET_NETDISK_NAME', netdiskName)
         commit('SET_NETDISK_LOGO', netdiskLogo)
+        if (newVersion) {
+          commit('SET_NEW_VERSION', newVersion)
+        } else {
+          commit('SET_NEW_VERSION', '')
+        }
         setLogo(netdiskName, netdiskLogo)
         sessionStorage.setItem('store', JSON.stringify(state))
         resolve(data)

@@ -43,7 +43,7 @@
           将图片转换为webp格式存储，在不降低图片质量的情况下，极大降低图片文件的体积，建议开启.
           <a href="https://baike.baidu.com/item/webp%E6%A0%BC%E5%BC%8F" target="_blank">什么是webp?</a>
           </span>
-              <div class="config-itme-label">网盘同步：
+              <div class="config-itme-label">重建索引：
                 <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
                   class="el-icon-refresh"></i>
                 </el-button>
@@ -56,6 +56,14 @@
                   <i class="el-icon-refresh-left"></i></el-button>
               </div>
               <span class="instruction">一般用于初始化角色、菜单数据</span>
+
+              <div class="config-itme-label">当前版本：v{{currentVersion}}
+                <el-badge v-if="newVersion" value="new" class="item"/>
+              </div>
+              <span class="instruction">最新版本：{{newVersion ? newVersion : 'v' + currentVersion}}
+                <a href="https://github.com/jamebal/jmal-cloud-view/releases" target="_blank">在github上更新</a>
+              </span>
+
             </div>
           </el-tab-pane>
           <el-tab-pane label="LDAP认证" name="2" class="setting-tab-panel">
@@ -122,6 +130,7 @@
 
 <script>
 
+import config from '@/../package.json'
 import settingApi, {getSetting} from "@/api/setting-api";
 import Bus from "@/assets/js/bus";
 import Logo from "@/components/Logo";
@@ -129,6 +138,7 @@ import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
 import roleApi from "@/api/role";
 import { loadLdapConfig, testLdapConfig, updateLdapConfig} from '@/api/user'
+import {mapGetters} from "vuex";
 
 export default {
   components: {UploadImageInput, Logo},
@@ -155,6 +165,7 @@ export default {
         password: '',
         loginName: ''
       },
+      currentVersion: config.version,
       roleList: [],
       ldapStatusOptions: [{
         value: true,
@@ -207,6 +218,9 @@ export default {
     Bus.$off()
   },
   computed: {
+    ...mapGetters([
+      'newVersion'
+    ]),
     ldapTestBtn() {
       return !(this.ldapFormData.ldapServer.length > 0 && this.ldapFormData.baseDN.length > 0 && (this.ldapFormData.password ? this.ldapFormData.password.length > 0 : false))
     },

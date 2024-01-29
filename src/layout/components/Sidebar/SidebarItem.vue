@@ -3,12 +3,10 @@
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" />
+          <el-badge value="new" v-if="item.path === '/setting/cloudManager' && newVersion" class="new-version"/>
+          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
         </el-menu-item>
       </app-link>
-<!--      <el-menu-item v-if="onlyOneChild.path === '/setting/manager-users'">-->
-<!--        <item title="sdf"/>-->
-<!--      </el-menu-item>-->
     </template>
 
     <el-submenu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
@@ -28,6 +26,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import path from 'path'
 import { isExternal } from '@/utils/validate'
 import Item from './Item'
@@ -56,6 +55,11 @@ export default {
   data() {
     this.onlyOneChild = null
     return {}
+  },
+  computed: {
+    ...mapGetters([
+      'newVersion'
+    ]),
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
@@ -94,3 +98,11 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.new-version {
+  float: right;
+  >>>.el-badge__content {
+    line-height: 16px;
+  }
+}
+</style>
