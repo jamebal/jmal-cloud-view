@@ -285,6 +285,7 @@ import VideoPreview from "@/components/preview/VideoPreview";
 import SimTextPreview from "@/components/preview/SimTextPreview";
 import {suffix} from "@/utils/file-type";
 import OfficePreview from "@/components/preview/OfficePreview";
+import Clipboard from "clipboard";
 
 let pinyin = require("pinyin");
 
@@ -342,8 +343,7 @@ export default {
       newFolderName: '新建文件夹',
       Loop: null,
       isJustHideMenus: false,
-      menus: [
-        // { iconClass: 'menu-open', label: '打开', operation: 'open' },
+      singleMenus: [
         {iconClass: 'menu-select', label: '选择', operation: 'select'},
         {iconClass: 'menu-favorite', label: '收藏', operation: 'favorite'},
         {iconClass: 'menu-rename', label: '重命名', operation: 'rename'},
@@ -351,6 +351,7 @@ export default {
         {iconClass: 'menu-download', label: '下载', operation: 'download'},
         {iconClass: 'menu-remove', label: '删除', operation: 'remove'}
       ],
+      menus: [],
       rowContextData: {},
       selectRowData: [],
       checkboxGroup: [],
@@ -479,6 +480,7 @@ export default {
     },
     // 长按事件
     rowContextmenu(row, target, touchClientX) {
+      this.menus = JSON.parse(JSON.stringify(this.singleMenus));
       // 改变菜单
       if (this.selectStatus && this.selectIndexList.includes(row.index)) {
         if (this.selectIndexList.includes(row.index)) {
@@ -488,6 +490,11 @@ export default {
       } else {
         const item = {iconClass: 'menu-select', label: '选择', operation: 'select'}
         this.menus.splice(0, 1, item)
+      }
+
+      if (row.isShare && !row.isPrivacy) {
+        // 添加复制下载链接选项
+        this.menus.splice(-2, 0, { iconClass: "menu-fuzhi", label: "复制下载链接", operation: "copyDownloadLink" })
       }
 
       this.preliminaryRowData(row)
@@ -547,6 +554,10 @@ export default {
         case 'download':
           this.downloadFile()
           break
+        case "copyDownloadLink":
+          // 复制下载链接
+          this.copyDownloadLink(this.rowContextData)
+          break;
         case 'remove':
           this.deleteFile()
           break
@@ -629,6 +640,25 @@ export default {
           type: 'warning'
         });
       }
+    },
+    // 复制下载链接
+    copyDownloadLink(row) {
+      let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, undefined)
+      let clipboard = new Clipboard('.newFileMenu', {
+        text: function () {
+          return url
+        }
+      })
+      clipboard.on('success', e => {
+        this.$message({message: '复制成功', type: 'success', duration: 1000});
+        // 释放内存
+        clipboard.destroy()
+      })
+      clipboard.on('error', e => {
+        // 不支持复制
+        this.$message({message: '该浏览器不支持自动复制', type: 'warning', duration: 1000});
+        clipboard.destroy()
+      })
     },
     // 收藏/取消收藏
     favoriteOperating(isFavorite) {
