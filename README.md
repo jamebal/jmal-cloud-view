@@ -18,27 +18,23 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 ### 线上Demo:
 [查看 Demo](https://jmal.cc/demo) , 用户名:demo, 密码:demo1234
 
-### docker部署(推荐)
-[docker部署](https://jmal.cc/zsi5sq)
+### 部署
 - 必须安装：`Docker` 和 `Docker Compose v2.0+`
 
+参考[docker-compose.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.example2.yml)
+
 ```shell
-# 1、克隆项目到您的本地或服务器
-git clone --depth=1 https://github.com/jamebal/jmal-cloud-server.git
-# 或者
-git clone --depth=1 https://gitee.com/jmal/jmal-cloud-server.git
-
-# 2、进入目录
-cd jmal-cloud-server
-
-# 3、一键安装
-./jc.sh install
-
-# 4、更新
-./jc.sh pull
-./jc.sh update
+docker compose up -d
 ```
-[其它方式部署](https://jmal.cc/ujh5Wl)
+
+#### 重启管理员密码
+```shell
+# 1. 重置密码
+docker exec -it jmalcloud_mongodb mongo jmalcloud --eval "db.getCollection('user').update({ 'creator': true }, {\$set: { 'password': '1000:c5b705ea13a1221f5e59110947ed806f8a978e955fbd2ed6:22508de12228c34a235454a0caf3bcaa5552858543258e56' }}, { 'multi': false, 'upsert': false })"
+# 2. 重启容器
+docker restart jmalcloud_server
+# 重置后的密码为: jmalcloud
+```
 
 ### dev
 #### 环境准备:

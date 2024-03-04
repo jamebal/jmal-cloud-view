@@ -19,28 +19,23 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 [View Demo](https://jmal.cc/demo) , username:demo, password:demo1234
 
 
-### deployment(Recommend)
-[docker deployment](https://jmal.cc/zsi5sq)
-- You must install: 'Docker' and 'Docker Compose V2.0 +'
+### Deploy
+- Prerequisites：`Docker` and `Docker Compose v2.0+`
+
+Refer to [docker-compose.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.example2.yml)
 
 ```shell
-# 1、Clone the project to your local or server
-git clone --depth=1 https://github.com/jamebal/jmal-cloud-server.git
-# Or
-git clone --depth=1 https://gitee.com/jmal/jmal-cloud-server.git
-
-# 2、Enter the directory
-cd jmal-cloud-server
-
-# 3、A key to install
-./jc.sh install
-
-# 4、Update
-./jc.sh pull
-./jc.sh update
-
+docker compose up -d
 ```
-[Other ways deployment](https://jmal.cc/ujh5Wl)
+
+#### Resetting Administrator Password
+```shell
+# 1. Reset the password
+docker exec -it jmalcloud_mongodb mongo jmalcloud --eval "db.getCollection('user').update({ 'creator': true }, {\$set: { 'password': '1000:c5b705ea13a1221f5e59110947ed806f8a978e955fbd2ed6:22508de12228c34a235454a0caf3bcaa5552858543258e56' }}, { 'multi': false, 'upsert': false })"
+# 2. Restart the container
+docker restart jmalcloud_server
+# The password after resetting is: jmalcloud
+```
 
 ### Dev
 #### Environment Requirements:
