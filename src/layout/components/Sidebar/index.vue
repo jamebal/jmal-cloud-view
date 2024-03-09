@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     onmessage(msg) {
-      const takeUpSpace = msg.headers.space
+      const takeUpSpace = msg.space
       if (takeUpSpace) {
         this.takeUpSpace = takeUpSpace
         const space = takeUpSpace/1024/1024/1024

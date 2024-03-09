@@ -20,8 +20,6 @@ import { resetRouter } from '@/router'
 import router from '@/router'
 import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
-import api from "@/api/file-api";
-import {disconnect} from "@/websocket/sockJS";
 
 const getDefaultState = () => {
   return {
@@ -179,7 +177,6 @@ const actions = {
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        disconnect()
         removeToken()
         removeConsumerId()
         removeRememberName()

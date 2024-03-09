@@ -1415,8 +1415,8 @@ export default {
       }
     },
     onmessage(msg) {
-      let fileDoc = JSON.parse(msg.body);
-      const url = msg.headers.url;
+      let fileDoc = msg.body
+      const url = msg.url;
       let index = this.fileList.findIndex(file => file.id === fileDoc.id);
       if ("updateFile" === url) {
         if (index > -1) {
