@@ -48,6 +48,14 @@ export function testLdapConfig(data) {
 
 export function getInfo(params) {
   return request({
+    url: 'user/info',
+    method: 'get',
+    params
+  })
+}
+
+export function getUserInfo(params) {
+  return request({
     url: 'user/userInfo',
     method: 'get',
     params

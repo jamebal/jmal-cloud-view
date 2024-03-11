@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import {addUser, delUser, getInfo, resetPass, userList, userUpdate} from '@/api/user'
+import {addUser, delUser, getUserInfo, resetPass, userList, userUpdate} from '@/api/user'
 import roleApi from '@/api/role'
 import CropperDialog from '@/components/Cropper/dialog'
 import TableList from "@/components/table/TableList";
@@ -269,7 +269,7 @@ export default {
         this.editMove = 2
         this.dialogVisible = true
         this.dialogTitle = '修改用户'
-        getInfo({
+        getUserInfo({
           id: id,
         }).then(res => {
           this.form = res.data

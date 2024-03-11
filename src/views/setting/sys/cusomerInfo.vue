@@ -172,10 +172,7 @@
         }
       },
       getInfo(){
-        getInfo({
-          id: this.$store.state.user.userId,
-          takeUpSpace: true,
-        }).then(async res => {
+        getInfo().then(async res => {
           this.userInfo = res.data
           if (this.userInfo.roles && this.userInfo.roles.includes('admin')) {
             this.$emit('isAdmin', true)
