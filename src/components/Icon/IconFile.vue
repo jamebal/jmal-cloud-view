@@ -32,14 +32,12 @@
     </div>
     <div v-if="item.tags && item.tags.length > 0 && !public">
         <div v-if="pc">
-          <svg-icon v-if="!grid" class="pc list icon-tag" icon-class="tag2"/>
-          <span v-if="grid">
-            <svg-icon class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index -9 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 7)" :key="index"/>
-          </span>
+          <svg-icon v-if="grid" class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index -9 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 7)" :key="index"/>
+          <svg-icon v-else class="pc list icon-tag" icon-class="tag2" :style="{left: 14 * index + 3 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 5)" :key="index"/>
         </div>
         <div v-else>
-          <svg-icon v-if="!grid" class="mobile list icon-tag" icon-class="tag2"/>
-          <svg-icon v-if="grid" class="mobile grid icon-tag" icon-class="tag2"/>
+          <svg-icon v-if="grid" class="mobile grid icon-tag" icon-class="tag2" :style="{left: 1 * index + 'rem', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 5)" :key="index"/>
+          <svg-icon v-else class="mobile list icon-tag" icon-class="tag2" :style="{left: 1 * index + 'rem', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="index"/>
         </div>
     </div>
     <div v-if="item.ossFolder && !public">
@@ -256,23 +254,27 @@ export default {
 .pc.grid.icon-tag {
   font-size: 14px;
   left: 0;
-  bottom: -18px;
+  bottom: -10px;
 }
 
 .mobile.grid.icon-tag {
-  width: 1.3rem;
-  height: 1.3rem;
-  margin-left: 2.8rem;
+  width: 1rem;
+  height: 1rem;
+  left: 0;
+  bottom: 1.6rem;
 }
 
 .pc.list.icon-tag {
-  font-size: 1rem;
-  right: 1.3rem;
+  font-size: 12px;
+  left: 3px;
+  bottom: 3px;
 }
 
 .mobile.list.icon-tag {
-  font-size: 0.5rem;
-  margin-left: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  left: 0;
+  bottom: 0;
 }
 
 .oss-folder {

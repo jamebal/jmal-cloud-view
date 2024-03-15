@@ -4175,6 +4175,9 @@ export default {
   >>> .icon-share {
     display: none;
   }
+  >>> .icon-tag {
+    display: none;
+  }
 }
 
 .drawer-icon-font >>> .svg-icon {

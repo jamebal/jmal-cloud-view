@@ -382,11 +382,15 @@ export default {
   text-align: center;
   position: relative;
 
-  > > > .icon-favorite {
+  >>>.icon-favorite {
     display: none;
   }
 
-  > > > .icon-share {
+  >>>.icon-share {
+    display: none;
+  }
+
+  >>>.icon-tag {
     display: none;
   }
 
