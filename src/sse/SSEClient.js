@@ -13,8 +13,12 @@ export function connectToSSE(username) {
     });
     eventSource.addEventListener('error', function (event) {
       eventSource.close()
-      connectToSSE(username)
     });
+    // 清除定时器
+    if (timer) {
+      clearInterval(timer);
+    }
+    // 15s检测一次连接状态
     timer = setInterval(() => {
       if (eventSource.readyState === 2) {
         connectToSSE(username);
