@@ -30,6 +30,18 @@
           <svg-icon v-if="grid" class="mobile grid icon-share" icon-class="share"/>
         </div>
     </div>
+    <div v-if="item.tags && item.tags.length > 0 && !public">
+        <div v-if="pc">
+          <svg-icon v-if="!grid" class="pc list icon-tag" icon-class="tag2"/>
+          <span v-if="grid">
+            <svg-icon class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index -9 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 7)" :key="index"/>
+          </span>
+        </div>
+        <div v-else>
+          <svg-icon v-if="!grid" class="mobile list icon-tag" icon-class="tag2"/>
+          <svg-icon v-if="grid" class="mobile grid icon-tag" icon-class="tag2"/>
+        </div>
+    </div>
     <div v-if="item.ossFolder && !public">
         <div v-if="pc">
           <el-tag v-if="!grid" size="small" class="pc list oss-folder">{{ item.ossPlatform }}</el-tag>
@@ -231,6 +243,34 @@ export default {
 }
 
 .mobile.list.icon-share {
+  font-size: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.icon-tag {
+  color: #52c41a;
+  position: absolute;
+  z-index: 1;
+}
+
+.pc.grid.icon-tag {
+  font-size: 14px;
+  left: 0;
+  bottom: -18px;
+}
+
+.mobile.grid.icon-tag {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-left: 2.8rem;
+}
+
+.pc.list.icon-tag {
+  font-size: 1rem;
+  right: 1.3rem;
+}
+
+.mobile.list.icon-tag {
   font-size: 0.5rem;
   margin-left: 0.5rem;
 }

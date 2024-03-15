@@ -807,7 +807,8 @@
         >
       </div>
     </el-dialog>
-
+    <tag-dialog :fileList.sync="tagDialogObjectList"
+                :status.sync="tagDialogVisible" @onSuccess="allocateTagSuccess"/>
     <share-dialog
       :file.sync="shareDialogObject"
       :status.sync="shareDialogVisible"
@@ -872,10 +873,12 @@ import OfficePreview from "@/components/preview/OfficePreview";
 import ShareDialog from "@/components/ShareDialog/index.vue";
 import {getUsername} from "@/api/user";
 import Clipboard from "clipboard";
+import TagDialog from "@/components/TagDialog/index.vue";
 
 export default {
   name: "ShowFile",
   components: {
+    TagDialog,
     ShareDialog,
     OfficePreview,
     EditElement,
@@ -962,12 +965,9 @@ export default {
         return [
           { iconClass: "menu-open", label: "打开", operation: "open" },
           { iconClass: "share", label: "分享", operation: "share" },
+          { iconClass: "tag", label: "标签", operation: "tag" },
           { iconClass: "menu-favorite", label: "收藏", operation: "favorite" },
-          {
-            iconClass: "menu-details",
-            label: "详细信息",
-            operation: "details"
-          },
+          { iconClass: "menu-details", label: "详细信息", operation: "details" },
           { iconClass: "menu-rename", label: "重命名", operation: "rename" },
           { iconClass: "menu-copy", label: "移动或复制", operation: "copy" },
           { iconClass: "menu-download", label: "下载", operation: "download" },
@@ -994,6 +994,7 @@ export default {
             label: "取消选定",
             operation: "deselect"
           },
+          { iconClass: "tag", label: "标签", operation: "tag" },
           { iconClass: "menu-copy", label: "移动或复制", operation: "copy" },
           { iconClass: "menu-download", label: "下载", operation: "download" },
           { iconClass: "menu-remove", label: "删除", operation: "remove" }
@@ -1114,6 +1115,8 @@ export default {
       summaries: "",
       shareDialogVisible: false,
       shareDialogObject: {},
+      tagDialogVisible: false,
+      tagDialogObjectList: [],
       newCreateFileDialog: false,
       newCreateFileName: "",
       newCreateFileDialogTitle: "",
@@ -2673,8 +2676,7 @@ export default {
         item1["searchKey"] = key;
         this.pathList.push(item1);
         this.$router.push(`?vmode=${this.vmode}&search-file=${key}`);
-        api
-          .searchFile({
+        api.searchFile({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             keyword: key,
@@ -3418,8 +3420,12 @@ export default {
     menusOperations(operation) {
       switch (operation) {
         case "share":
-          // 分享
+          // 分配标签
           this.share();
+          break;
+        case "tag":
+          // 分配标签
+          this.allocateTag();
           break;
         case "favorite":
           // 收藏
@@ -3732,6 +3738,13 @@ export default {
           </span>
         );
       }
+    },
+    allocateTag() {
+      this.tagDialogObjectList = this.$refs.fileListTable.tableSelectData;
+      this.tagDialogVisible = true
+    },
+    allocateTagSuccess() {
+      this.getFileList();
     },
     share(row) {
       if (!row || !row.id) {

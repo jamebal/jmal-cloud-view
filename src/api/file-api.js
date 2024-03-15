@@ -64,6 +64,18 @@ export default {
       })
     }
   },
+  // 为文件分配标签
+  setTags: function(params, data) {
+    return request({
+      url: 'setTag',
+      method: 'post',
+      data: data,
+      params: params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
   // 将文件设为公共文件
   setPublic: function(params) {
     return request({
