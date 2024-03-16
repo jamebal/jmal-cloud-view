@@ -807,7 +807,7 @@
         >
       </div>
     </el-dialog>
-    <tag-dialog :fileList.sync="tagDialogObjectList"
+    <tag-dialog :fileList="tagDialogObjectList"
                 :status.sync="tagDialogVisible" @onSuccess="allocateTagSuccess"/>
     <share-dialog
       :file.sync="shareDialogObject"
@@ -3740,7 +3740,10 @@ export default {
       }
     },
     allocateTag() {
-      this.tagDialogObjectList = this.$refs.fileListTable.tableSelectData;
+      // 将this.$refs.fileListTable.tableSelectData拷贝给tagDialogObjectList而不是赋值
+      this.tagDialogObjectList = JSON.parse(
+        JSON.stringify(this.$refs.fileListTable.tableSelectData)
+      );
       this.tagDialogVisible = true
     },
     allocateTagSuccess() {

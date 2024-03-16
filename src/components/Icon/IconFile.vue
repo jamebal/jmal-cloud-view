@@ -32,12 +32,13 @@
     </div>
     <div v-if="item.tags && item.tags.length > 0 && !public">
         <div v-if="pc">
-          <svg-icon v-if="grid" class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index -9 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 7)" :key="index"/>
-          <svg-icon v-else class="pc list icon-tag" icon-class="tag2" :style="{left: 14 * index + 3 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 5)" :key="index"/>
+          <svg-icon v-if="grid" class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="tag.tagId"/>
+          <!--     列表模式下只能显示一个标签     -->
+          <svg-icon v-else class="pc list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
         </div>
         <div v-else>
-          <svg-icon v-if="grid" class="mobile grid icon-tag" icon-class="tag2" :style="{left: 1 * index + 'rem', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 5)" :key="index"/>
-          <svg-icon v-else class="mobile list icon-tag" icon-class="tag2" :style="{left: 1 * index + 'rem', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="index"/>
+          <svg-icon v-if="grid" class="mobile grid icon-tag" icon-class="tag2" :style="{left: 1 * index + 'rem', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="tag.tagId"/>
+          <svg-icon v-else class="mobile list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
         </div>
     </div>
     <div v-if="item.ossFolder && !public">
@@ -51,7 +52,7 @@
         </div>
     </div>
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
-    <div v-else-if="item.contentType.indexOf('video') > -1">
+    <div v-else-if="item.contentType && item.contentType.indexOf('video') > -1">
       <div v-if="item.mediaCover === undefined || item.mediaCover === 'true'">
         <div v-if="grid && pc" class="grid-play-icon">
           <svg-icon icon-class="play1"/>
@@ -71,7 +72,7 @@
       </div>
       <svg-icon v-else icon-class="video"/>
     </div>
-    <div v-else-if="item.contentType.indexOf('audio') > -1">
+    <div v-else-if="item.contentType && item.contentType.indexOf('audio') > -1">
       <div v-if="item.music !== undefined">
         <div v-if="item.music.name !== null">
           <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
@@ -90,7 +91,7 @@
       </div>
       <svg-icon v-else icon-class="audio"/>
     </div>
-    <div v-else-if="item.contentType.startsWith('image')">
+    <div v-else-if="item.contentType && item.contentType.startsWith('image')">
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot">
@@ -254,27 +255,27 @@ export default {
 .pc.grid.icon-tag {
   font-size: 14px;
   left: 0;
-  bottom: -10px;
+  bottom: 0;
 }
 
 .mobile.grid.icon-tag {
   width: 1rem;
   height: 1rem;
   left: 0;
-  bottom: 1.6rem;
+  bottom: 1rem;
 }
 
 .pc.list.icon-tag {
   font-size: 12px;
-  left: 3px;
-  bottom: 3px;
+  left: 10px;
+  bottom: 10px;
 }
 
 .mobile.list.icon-tag {
   width: 1rem;
   height: 1rem;
-  left: 0;
-  bottom: 0;
+  left: 0.5rem;
+  bottom: 0.5rem;
 }
 
 .oss-folder {

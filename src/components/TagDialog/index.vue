@@ -7,7 +7,7 @@
             v-for="tag in tags"
             closable
             :disable-transitions="false"
-            @close="handleClose(tag.id)">
+            @close="handleClose(tag.name)">
 
             <el-popover
               placement="bottom"
@@ -33,6 +33,19 @@
           >
           </el-input>
           <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 新标签</el-button>
+
+          <div class="tag-list">
+            <p>现有标签: </p>
+           <el-button
+             size="small"
+             :key="tag.name"
+             v-for="tag in existingTags"
+             @click="addTag(tag)">
+             <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
+             {{tag.name}}
+           </el-button>
+          </div>
+
         </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" type="primary" @click="submitTag" v-loading="saveLoading">保存
@@ -44,7 +57,8 @@
 
 <script>
 
-import api from '@/api/file-api'
+import fileApi from '@/api/file-api'
+import tagApi from '@/api/tag'
 import { Sketch } from 'vue-color'
 
 export default {
@@ -69,6 +83,8 @@ export default {
       inputVisible: false,
       inputValue: '',
       tags: [],
+      existingTags: [],
+      tagList: [],
       defaultTagColor: '#f56c6c',
       saveLoading: false,
       colors: {
@@ -99,14 +115,34 @@ export default {
             })
           })
         }
-        this.showName = this.fileList.length + '项目'
+
+        // 加载已有标签列表
+        tagApi.tagList({userId: this.$store.state.user.userId,}).then(res => {
+          this.tagList = res.data
+          this.updateExistingTags()
+        })
+
+        if (this.fileList.length === 1) {
+          this.showName = this.fileList[0].name
+        } else {
+          this.showName = this.fileList.length + '项目'
+        }
         this.tagDialogVisible = true
       }
     }
   },
   methods: {
-    handleClose(tag) {
-      this.tags.splice(this.tags.indexOf(tag), 1);
+    updateExistingTags() {
+      this.existingTags = this.tagList.filter(item => {
+        return !this.tags.some(tag => tag.name === item.name)
+      })
+    },
+    handleClose(tagName) {
+      // 删除tags, 找出tags中的tag.name, 删除
+      // 找出tags中的tag.name的索引
+      let index = this.tags.findIndex(item => item.name === tagName)
+      this.tags.splice(index, 1)
+      this.updateExistingTags()
     },
     showInput() {
       this.inputVisible = true;
@@ -128,6 +164,11 @@ export default {
       this.inputVisible = false;
       this.inputValue = '';
     },
+    addTag(tag) {
+      // 是否有相同的标签
+      this.tags.push({ name: tag.name, color: tag.color });
+      this.updateExistingTags()
+    },
     tagDialogClose() {
       this.$emit('update:status', this.tagDialogVisible)
     },
@@ -135,7 +176,7 @@ export default {
       this.saveLoading = true
       // 提取出文件id
       const fileIdList = this.fileList.map(item => item.id)
-      api.setTags({fileIds: fileIdList}, this.tags).then(() => {
+      fileApi.setTags({fileIds: fileIdList}, this.tags).then(() => {
         this.saveLoading = false
         this.$message.success('保存成功');
         this.$emit('onSuccess')
@@ -167,21 +208,21 @@ export default {
   }
 
   .el-tag {
-    margin-left: 10px;
-    margin-top: 10px;
+    margin-left: 5px;
+    margin-top: 5px;
   }
   .button-new-tag {
-    margin-top: 10px;
-    margin-left: 10px;
+    margin-top: 5px;
+    margin-left: 5px;
     height: 32px;
     line-height: 30px;
     padding-top: 0;
     padding-bottom: 0;
   }
   .input-new-tag {
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-left: 5px;
     width: 90px;
-    margin-left: 10px;
     vertical-align: bottom;
   }
   .button-tab-icon {
@@ -192,6 +233,20 @@ export default {
 
   .el-loading-spinner .circular {
     width: 25px !important;
+  }
+
+  .tag-list {
+    p {
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+    .el-button {
+      margin-left: 5px;
+      margin-top: 5px;
+    }
+    .el-button+.el-button {
+      margin-left: 5px;
+    }
   }
 
 }
