@@ -1,31 +1,59 @@
 <template>
   <div :class="{'has-logo':showLogo}">
-    <logo v-if="showLogo" :collapse="isCollapse" />
-    <el-scrollbar wrap-class="scrollbar-wrapper">
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        :background-color="variables.menuBg"
-        :text-color="variables.menuText"
-        :unique-opened="false"
-        :active-text-color="variables.menuActiveText"
-        :collapse-transition="false"
-        mode="vertical"
-      >
-        <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path" />
-      </el-menu>
-    </el-scrollbar>
-    <div class="quota-space">
-      <el-progress v-show="percentage > 0" :class="{'collapse': isCollapse}" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
+    <div class="scrollbar-head">
+      <logo v-if="showLogo" :collapse="isCollapse" />
+      <el-scrollbar wrap-class="scrollbar-wrapper">
+        <el-menu
+          :default-active="activeMenu"
+          :collapse="isCollapse"
+          :background-color="variables.menuBg"
+          :text-color="variables.menuText"
+          :unique-opened="false"
+          :active-text-color="variables.menuActiveText"
+          :collapse-transition="false"
+          mode="vertical"
+        >
+          <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path" />
+        </el-menu>
+      </el-scrollbar>
     </div>
-    <div class="webdav">
-      <div :class="{'normal': true, 'collapse': isCollapse}" @mousemove="showCopyBtn = true" @mouseleave="showCopyBtn = false">
-        <svg-icon class="webdav-icon" icon-class="disk-drive"></svg-icon>
-        <div class="wedav-text">WebDAV   </div>
-        <el-tooltip placement="right" v-if="showCopyBtn">
-          <div slot="content">点击复制WebDAV地址<br/>{{webdavUrl}}</div>
-          <svg-icon class="copy-btn" icon-class="menu-fuzhi" @click="copyWebDAVLink('.copy-btn')" :data-clipboard-text="webdavUrl"></svg-icon>
-        </el-tooltip>
+    <div class="scrollbar-tag" :class="{'collapse': isCollapse}">标签</div>
+    <div class="scroll-decoration-top"></div>
+    <el-scrollbar class="tag-list" wrap-class="scrollbar-wrapper">
+        <div v-if="isCollapse">
+          <ul class="infinite-list">
+            <el-tooltip class="item" effect="dark" :content="tag.name" placement="right" v-for="tag in tagList" :key="tag.tagId">
+              <li class="infinite-list-item collapse">
+                <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
+              </li>
+            </el-tooltip>
+          </ul>
+        </div>
+        <div v-else>
+          <ul class="infinite-list">
+              <li v-for="tag in tagList" :key="tag.id" class="infinite-list-item">
+                <router-link :to="'/tag?tagId=' + tag.id" @click.native="tagClick(tag)">
+                  <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
+                  <span>{{ tag.name }}</span>
+                </router-link>
+              </li>
+          </ul>
+        </div>
+    </el-scrollbar>
+    <div class="scroll-decoration-bottom"></div>
+    <div class="scrollbar-footer">
+      <div class="quota-space">
+        <el-progress v-show="percentage > 0" :class="{'collapse': isCollapse}" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
+      </div>
+      <div class="webdav">
+        <div :class="{'normal': true, 'collapse': isCollapse}" @mousemove="showCopyBtn = true" @mouseleave="showCopyBtn = false">
+          <svg-icon class="webdav-icon" icon-class="disk-drive"></svg-icon>
+          <div class="wedav-text">WebDAV   </div>
+          <el-tooltip placement="right" v-if="showCopyBtn">
+            <div slot="content">点击复制WebDAV地址<br/>{{webdavUrl}}</div>
+            <svg-icon class="copy-btn" icon-class="menu-fuzhi" @click="copyWebDAVLink('.copy-btn')" :data-clipboard-text="webdavUrl"></svg-icon>
+          </el-tooltip>
+        </div>
       </div>
     </div>
   </div>
@@ -40,9 +68,11 @@ import variables from '@/styles/variables.scss'
 import {formatSize} from "@/utils/number";
 import fileConfig from "@/utils/file-config";
 import Clipboard from "clipboard";
+import tagApi from '@/api/tag'
+import AppLink from './Link'
 
 export default {
-  components: { SidebarItem, Logo },
+  components: { SidebarItem, Logo, AppLink },
   data() {
     return {
       percentage: 0,
@@ -56,6 +86,7 @@ export default {
       ],
       showCopyBtn: false,
       takeUpSpace: 0,
+      tagList: [],
     }
   },
   computed: {
@@ -87,7 +118,6 @@ export default {
     activeMenu() {
       const route = this.$route
       const { meta, path } = route
-      // if set path, the sidebar will highlight the path you set
       if (meta.activeMenu) {
         return meta.activeMenu
       }
@@ -108,6 +138,10 @@ export default {
     }
   },
   mounted() {
+    tagApi.tagList({userId: this.$store.state.user.userId,}).then(res => {
+      this.tagList = res.data
+      console.log(this.tagList)
+    })
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
   methods: {
@@ -132,6 +166,10 @@ export default {
         this.$message({message: '该浏览器不支持自动复制', type: 'warning', duration: 1000})
         clipboard.destroy()
       })
+    },
+    tagClick(tag) {
+      console.log('tagClick', tag.tagId)
+      Bus.$emit('tagPageChange', tag.tagId)
     },
     mouseleave() {
     },
@@ -158,8 +196,63 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar-container.has-logo {
-  >>>.el-scrollbar {
-    height: calc(100% - 132px) !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  .scrollbar-tag {
+    height: 30px;
+    line-height: 30px;
+    padding-left: 20px;
+    font-size: 14px;
+    font-weight: 900;
+    color: #a4a4a4;
+  }
+  .scrollbar-tag.collapse {
+    padding-left: unset;
+    text-align: center;
+  }
+  .tag-list {
+    overflow-y: auto;
+    flex: 1;
+    .infinite-list {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    .infinite-list-item {
+      height: 30px;
+      line-height: 30px;
+      padding-left: 10px;
+      font-size: 14px;
+      color: #606266;
+      cursor: pointer;
+      margin: 0 8px 0 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      .svg-icon {
+        margin-right: 5px !important;
+      }
+      &:hover {
+        background-color: #d9d9d9 !important;
+        border-radius: 4px;
+      }
+    }
+    .infinite-list-item.collapse {
+      padding-left: unset;
+      text-align: center;
+      .svg-icon {
+        margin-right: unset !important;
+      }
+    }
+  }
+  .scrollbar-footer {
+    margin-top: 15px;
+  }
+}
+.scrollbar-head {
+  .el-scrollbar {
+    padding-bottom: 15px;
   }
 }
 .quota-space {

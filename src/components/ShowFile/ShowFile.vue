@@ -2746,6 +2746,7 @@ export default {
           order: this.sortable.order,
           isFolder: this.queryCondition.isFolder,
           isFavorite: this.queryCondition.isFavorite,
+          tagId: this.queryCondition.tagId,
           queryCondition: this.queryCondition,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize

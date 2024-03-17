@@ -41,7 +41,6 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
   {
     path: '/404',
     component: () => import('@/views/404'),
@@ -83,6 +82,18 @@ export const dynamicRouters = [
         path: '',
         name: 's_m',
         component: () => import('@/views/public/share/shareList'),
+      }
+    ]
+  },
+  {
+    path: '/tag',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'tag',
+        component: () => import('@/views/tag/index'),
+        meta: { title: '标签', menuType: 0, keepAlive: false }
       }
     ]
   }

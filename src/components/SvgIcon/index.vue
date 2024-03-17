@@ -19,6 +19,10 @@ export default {
     className: {
       type: String,
       default: ''
+    },
+    slot: {
+      type: String,
+      default: ''
     }
   },
   computed: {
