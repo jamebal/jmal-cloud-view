@@ -22,7 +22,6 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
     let owner
-    console.log('username', username, 'store.getters.name', store.getters.name)
     if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== undefined) {
       owner = localStorage.getItem('mountFileOwner')
     } else {

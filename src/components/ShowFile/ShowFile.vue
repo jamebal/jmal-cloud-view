@@ -1301,7 +1301,6 @@ export default {
           this.pathList.push(item);
         }
       });
-      console.log('this.pathList', this.pathList)
     }
     if (this.$route.query.folder && this.path) {
       localStorage.setItem(this.path, this.$route.query.folder)
