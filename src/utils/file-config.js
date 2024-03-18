@@ -22,11 +22,13 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
     let owner
-    if (username !== store.getters.name) {
+    console.log('username', username, 'store.getters.name', store.getters.name)
+    if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== undefined) {
       owner = localStorage.getItem('mountFileOwner')
     } else {
       owner = username
     }
+    console.log('owner', owner)
     let fileUrl = `${this.baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
     fileUrl = fileUrl.replace(/%5C/g, '/')
     if (token) {

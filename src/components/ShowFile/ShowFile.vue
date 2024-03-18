@@ -3808,7 +3808,7 @@ export default {
         totalSize += this.rowContextData.size;
       }
       if (totalSize > 0) {
-        var fileIds = [];
+        let fileIds = [];
         if (this.$refs.fileListTable.tableSelectData.length > 0) {
           this.$refs.fileListTable.tableSelectData.forEach(value => {
             fileIds.push(value.id);
@@ -4131,10 +4131,10 @@ export default {
       }, 100);
     },
     determineDownload(file) {
-      this.downLaod(file);
+      this.download(file);
       this.notPreviewDialogVisible = false;
     },
-    downLaod(file) {
+    download(file) {
       fileConfig.download(
         this.$store.state.user.name,
         file,
