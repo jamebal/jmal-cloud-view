@@ -483,6 +483,8 @@ export default {
   },
   destroyed() {
     window.removeEventListener('popstate', this.goBack, false)
+    Bus.$off('fileSuccess')
+    Bus.$off('clickMore')
   },
   directives: {
     // 注册一个局部的自定义指令 v-focus

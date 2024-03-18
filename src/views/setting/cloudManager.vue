@@ -215,7 +215,7 @@ export default {
     }
   },
   destroyed() {
-    Bus.$off()
+    Bus.$off('msg/synced')
   },
   computed: {
     ...mapGetters([

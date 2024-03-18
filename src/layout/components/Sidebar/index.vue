@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'has-logo':showLogo}">
+  <div :class="{ 'has-logo': showLogo }">
     <div class="scrollbar-head">
       <logo v-if="showLogo" :collapse="isCollapse" />
       <el-scrollbar wrap-class="scrollbar-wrapper">
@@ -13,45 +13,83 @@
           :collapse-transition="false"
           mode="vertical"
         >
-          <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path" />
+          <sidebar-item
+            v-for="route in routes"
+            :key="route.path"
+            :item="route"
+            :base-path="route.path"
+          />
         </el-menu>
       </el-scrollbar>
     </div>
-    <div class="scrollbar-tag" :class="{'collapse': isCollapse}">标签</div>
+    <div class="scrollbar-tag" :class="{ collapse: isCollapse }">标签</div>
     <div class="scroll-decoration-top"></div>
     <el-scrollbar class="tag-list" wrap-class="scrollbar-wrapper">
-        <div v-if="isCollapse">
-          <ul class="infinite-list">
-            <el-tooltip class="item" effect="dark" :content="tag.name" placement="right" v-for="tag in tagList" :key="tag.tagId">
-              <li class="infinite-list-item collapse">
-                <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
-              </li>
-            </el-tooltip>
-          </ul>
-        </div>
-        <div v-else>
-          <ul class="infinite-list">
-              <li v-for="tag in tagList" :key="tag.id" class="infinite-list-item">
-                <router-link :to="'/tag?tagId=' + tag.id" @click.native="tagClick(tag)">
-                  <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
-                  <span>{{ tag.name }}</span>
-                </router-link>
-              </li>
-          </ul>
-        </div>
+      <div v-if="isCollapse">
+        <ul class="infinite-list">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="tag.name"
+            placement="right"
+            v-for="tag in tagList"
+            :key="tag.tagId"
+          >
+            <li class="infinite-list-item collapse">
+              <svg-icon
+                :style="{ color: tag.color, fontSize: '14px' }"
+                icon-class="tag2"
+              ></svg-icon>
+            </li>
+          </el-tooltip>
+        </ul>
+      </div>
+      <div v-else>
+        <ul class="infinite-list">
+          <li
+            v-for="tag in tagList"
+            :key="tag.id"
+            class="infinite-list-item"
+            @click="tagClick(tag)"
+          >
+            <!--                <router-link :to="'/tag?tagId=' + tag.id" @click.native="tagClick(tag)">-->
+            <svg-icon
+              :style="{ color: tag.color, fontSize: '14px' }"
+              icon-class="tag2"
+            ></svg-icon>
+            <span>{{ tag.name }}</span>
+            <!--                </router-link>-->
+          </li>
+        </ul>
+      </div>
     </el-scrollbar>
     <div class="scroll-decoration-bottom"></div>
     <div class="scrollbar-footer">
       <div class="quota-space">
-        <el-progress v-show="percentage > 0" :class="{'collapse': isCollapse}" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
+        <el-progress
+          v-show="percentage > 0"
+          :class="{ collapse: isCollapse }"
+          :percentage="percentage"
+          :format="progressFormat"
+          :color="customColors"
+        ></el-progress>
       </div>
       <div class="webdav">
-        <div :class="{'normal': true, 'collapse': isCollapse}" @mousemove="showCopyBtn = true" @mouseleave="showCopyBtn = false">
+        <div
+          :class="{ normal: true, collapse: isCollapse }"
+          @mousemove="showCopyBtn = true"
+          @mouseleave="showCopyBtn = false"
+        >
           <svg-icon class="webdav-icon" icon-class="disk-drive"></svg-icon>
-          <div class="wedav-text">WebDAV   </div>
+          <div class="wedav-text">WebDAV</div>
           <el-tooltip placement="right" v-if="showCopyBtn">
-            <div slot="content">点击复制WebDAV地址<br/>{{webdavUrl}}</div>
-            <svg-icon class="copy-btn" icon-class="menu-fuzhi" @click="copyWebDAVLink('.copy-btn')" :data-clipboard-text="webdavUrl"></svg-icon>
+            <div slot="content">点击复制WebDAV地址<br />{{ webdavUrl }}</div>
+            <svg-icon
+              class="copy-btn"
+              icon-class="menu-fuzhi"
+              @click="copyWebDAVLink('.copy-btn')"
+              :data-clipboard-text="webdavUrl"
+            ></svg-icon>
           </el-tooltip>
         </div>
       </div>
@@ -144,6 +182,9 @@ export default {
     })
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
+  destroyed() {
+    Bus.$off('msg/file/change')
+  },
   methods: {
     onmessage(msg) {
       const takeUpSpace = msg.space
@@ -168,8 +209,9 @@ export default {
       })
     },
     tagClick(tag) {
-      console.log('tagClick', tag.tagId)
-      Bus.$emit('tagPageChange', tag.tagId)
+      console.log('tagClick', tag.id)
+      this.$router.push(`/tag?tagId=${tag.id}`);
+      Bus.$emit('tagPageChange', tag.id)
     },
     mouseleave() {
     },
@@ -259,20 +301,20 @@ export default {
   font-size: 14px;
   height: 32px;
   line-height: 32px;
-  >>>.el-progress-bar {
+  >>> .el-progress-bar {
     padding-right: 40px;
     margin-left: 20px;
   }
-  >>>.el-progress__text {
+  >>> .el-progress__text {
     margin-left: 20px;
-    font-size: 12px!important;
+    font-size: 12px !important;
   }
   .collapse {
-    >>>.el-progress-bar {
+    >>> .el-progress-bar {
       padding-right: 4px;
       margin-left: 2px;
     }
-    >>>.el-progress__text {
+    >>> .el-progress__text {
       margin-left: 5px;
       display: block;
     }
@@ -287,7 +329,7 @@ export default {
     padding-left: 20px;
     .webdav-icon {
       margin-top: 12px;
-      margin-right: 0!important;
+      margin-right: 0 !important;
     }
     .copy-btn {
       margin-top: 10px;

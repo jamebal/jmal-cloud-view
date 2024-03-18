@@ -386,7 +386,10 @@
             >
               <template slot-scope="scope">
                 <el-tooltip
-                  v-if="scope.row.index === cellMouseIndex && (!scope.row.isShare || scope.row.shareBase)"
+                  v-if="
+                    scope.row.index === cellMouseIndex &&
+                      (!scope.row.isShare || scope.row.shareBase)
+                  "
                   class="item"
                   effect="light"
                   content="分享"
@@ -690,9 +693,15 @@
           >
         </el-form-item>
         <el-form-item label="位置:" class="details-position">
-          <a :href="'/?path=' + rowContextData.path + '&highlight=' + rowContextData.name">{{
-            rowContextData.path
-          }}</a>
+          <a
+            :href="
+              '/?path=' +
+                rowContextData.path +
+                '&highlight=' +
+                rowContextData.name
+            "
+            >{{ rowContextData.path }}</a
+          >
         </el-form-item>
         <el-form-item label="创建时间:">
           <span>{{ rowContextData.uploadDate }}</span>
@@ -807,8 +816,11 @@
         >
       </div>
     </el-dialog>
-    <tag-dialog :fileList="tagDialogObjectList"
-                :status.sync="tagDialogVisible" @onSuccess="allocateTagSuccess"/>
+    <tag-dialog
+      :fileList="tagDialogObjectList"
+      :status.sync="tagDialogVisible"
+      @onSuccess="allocateTagSuccess"
+    />
     <share-dialog
       :file.sync="shareDialogObject"
       :status.sync="shareDialogVisible"
@@ -1316,6 +1328,14 @@ export default {
       }
     }, 50);
   },
+  destroyed() {
+    Bus.$off("fileSuccess");
+    Bus.$off("loadFileFaild");
+    Bus.$off("clickMore");
+    Bus.$off("renameRow");
+    Bus.$off("msg/file/change");
+    Bus.$off("msg/file/operation/fault");
+  },
   beforeDestroy() {
     window.removeEventListener("keydown", this.keydown, false);
     window.removeEventListener("keyup", this.keyup, false);
@@ -1381,6 +1401,7 @@ export default {
           : chineseLength;
     },
     keydown(event) {
+      console.log('sdf')
       const isMac = navigator.platform.startsWith("Mac");
       const { key, c, keyCode, ctrlKey, metaKey } = event;
       this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey);
@@ -4166,7 +4187,7 @@ export default {
   }
 
   a:hover {
-    color: #409EFF;
+    color: #409eff;
   }
 }
 
@@ -4198,7 +4219,7 @@ export default {
 
 >>> .plTableBox .el-table .el-table__header {
   th {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
   }
 
   .is-sortable:hover {
@@ -4218,7 +4239,7 @@ export default {
 }
 
 .home-link:hover {
-  color: #409EFF;
+  color: #409eff;
 }
 
 .info-statistics {
@@ -4247,7 +4268,7 @@ export default {
   margin-left: 5px !important;
 }
 
-> > > .open-file-dialog {
+> .open-file-dialog {
   .el-dialog {
     width: 420px;
   }
@@ -4261,13 +4282,13 @@ export default {
   }
 }
 
-> > > .v-contextmenu-item {
+> .v-contextmenu-item {
   .svg-icon {
     font-size: 14px;
   }
 }
 
-> > > .new-text-file-dialog {
+> .new-text-file-dialog {
   height: 350px;
   top: calc(50% - 175px);
 
@@ -4291,7 +4312,7 @@ export default {
   }
 }
 
-> > > .van-grid-item__content {
+> .van-grid-item__content {
   background-size: cover;
   background-position: center;
   padding: 0;
@@ -4356,4 +4377,3 @@ export default {
   }
 }
 </style>
-

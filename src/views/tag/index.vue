@@ -36,6 +36,9 @@ export default {
       console.log('tagPageChange', tagId)
       this.queryCondition.tagId = tagId
     })
+  },
+  destroyed() {
+    Bus.$off('tagPageChange')
   }
 }
 </script>

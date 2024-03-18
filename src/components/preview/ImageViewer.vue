@@ -1,14 +1,16 @@
 <template>
   <div>
-    <viewer v-show="pc"
-            :options="options"
-            :images="images"
-            @inited="inited"
-            class="viewer" ref="viewer"
+    <viewer
+      v-show="pc"
+      :options="options"
+      :images="images"
+      @inited="inited"
+      class="viewer"
+      ref="viewer"
     >
       <template slot-scope="scope">
-        <div v-for="(image,index) in scope.images" :key="index">
-          <img :src="image.thumbnail" :data-src="image.source">
+        <div v-for="(image, index) in scope.images" :key="index">
+          <img :src="image.thumbnail" :data-src="image.source" />
         </div>
       </template>
     </viewer>
@@ -109,6 +111,9 @@ export default {
       this.imagesLastIndex = -1
       this.$emit('update:status', false)
     })
+  },
+  destroyed() {
+    Bus.$off("updateImageViewerStatus")
   },
   methods: {
     inited(viewer) {

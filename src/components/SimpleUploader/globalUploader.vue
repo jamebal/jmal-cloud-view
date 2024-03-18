@@ -294,6 +294,9 @@ export default {
     Bus.$off('openUploader')
     Bus.$off('uploadFolder')
     Bus.$off('uploadFileListBack')
+    Bus.$off('fileListScrollTop')
+    Bus.$off('onDragStart')
+    Bus.$off('storageTypeChange')
   },
   methods: {
     initUploader() {
