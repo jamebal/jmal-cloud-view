@@ -1016,6 +1016,7 @@ export default {
       }&name=${this.$store.state.user.name}&id=`,
       fileMenuActive: "",
       path: this.$route.query.path,
+      basePath: '/',
       showNewFolder: false,
       isShowNewFolder: false,
       listModeSearch: false,
@@ -1300,6 +1301,7 @@ export default {
           this.pathList.push(item);
         }
       });
+      console.log('this.pathList', this.pathList)
     }
     if (this.$route.query.folder && this.path) {
       localStorage.setItem(this.path, this.$route.query.folder)
@@ -2237,7 +2239,7 @@ export default {
       Bus.$emit("openUploader", {
         // 传入的参数
         folder: this.$route.query.folder,
-        currentDirectory: this.path,
+        currentDirectory: this.getQueryPath(),
         username: this.$store.state.user.name,
         userId: this.$store.state.user.userId
       });
@@ -2248,7 +2250,7 @@ export default {
         Bus.$emit("uploadFolder", {
           // 传入的参数
           folder: this.$route.query.folder,
-          currentDirectory: this.path,
+          currentDirectory: this.getQueryPath(),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         });
@@ -2262,7 +2264,8 @@ export default {
     // 浏览器的返回事件
     goBack() {
       if (this.pathList.length <= 1) {
-        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}`);
+        const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryTagId}`);
         return;
       }
       this.lastLink();
@@ -2302,14 +2305,11 @@ export default {
         let queryFolder = localStorage.getItem(this.path)
 
         if (!unPushLink) {
+          const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
           if (!this.$route.query.path) {
-            this.$router.push(
-              `?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`
-            );
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}`);
           } else {
-            this.$router.push(
-              `?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`
-            );
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}`);
           }
         }
         if (!unRefresh) {
@@ -2416,7 +2416,7 @@ export default {
           .uploadFolder({
             isFolder: true,
             filename: encodeURI(this.newFolderName),
-            currentDirectory: encodeURI(this.path),
+            currentDirectory: this.getQueryPath(),
             folder: this.$route.query.folder,
             username: this.$store.state.user.name,
             userId: this.$store.state.user.userId
@@ -2537,7 +2537,8 @@ export default {
         this.path = "";
       }
       this.editingIndex = -1;
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${this.$route.query.folder ? '&folder='+this.$route.query.folder : ''}`);
+      const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${this.$route.query.folder ? '&folder='+this.$route.query.folder : ''}${queryTagId}`);
       // 改变拖拽目标
       this.rowDrop();
       // 画矩形选取
@@ -2691,14 +2692,15 @@ export default {
         item1["search"] = true;
         item1["searchKey"] = key;
         this.pathList.push(item1);
-        this.$router.push(`?vmode=${this.vmode}&search-file=${key}`);
+        const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+        this.$router.push(`?vmode=${this.vmode}&search-file=${key}${queryTagId}`);
         api.searchFile({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
           keyword: key,
           sortableProp: this.sortable.prop,
           order: this.sortable.order,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: this.getQueryPath(),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         })
@@ -2717,7 +2719,7 @@ export default {
           userId: this.$store.state.user.userId,
           username: this.$store.getters.name,
           id: row.id,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: this.getQueryPath(),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
           folder: this.$route.query.folder
@@ -2737,7 +2739,7 @@ export default {
           userId: this.$store.state.user.userId,
           username: this.$store.getters.name,
           id: row.mountFileId || row.id,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: this.getQueryPath(),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
           folder: this.$route.query.folder
@@ -2755,7 +2757,7 @@ export default {
         .fileList({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: this.getQueryPath(),
           folder: this.$route.query.folder,
           queryFileType: this.queryFileType,
           sortableProp: this.sortable.prop,
@@ -2777,7 +2779,7 @@ export default {
         .fileList({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: this.getQueryPath(),
           folder: this.$route.query.folder,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
@@ -2785,6 +2787,16 @@ export default {
         .then(res => {
           this.loadData(res, onLoad);
         });
+    },
+    getQueryPath() {
+      // 去掉this.$route.query.basePath最后的/
+      let basePath = this.$route.query.basePath ? this.$route.query.basePath : "/";
+      if (basePath) {
+        if (basePath.lastIndexOf("/") === basePath.length - 1) {
+          basePath = basePath.substring(0, basePath.length - 1);
+        }
+      }
+      return encodeURI(basePath + this.$route.query.path);
     },
     tableBodyScroll(table, e) {
       this.fileListScrollTop = e.target.scrollTop;
@@ -3704,7 +3716,7 @@ export default {
                     .newFolder({
                       isFolder: true,
                       filename: encodeURI(newFolderName),
-                      currentDirectory: encodeURI(path),
+                      currentDirectory: this.getQueryPath(),
                       folder: this.$route.query.folder,
                       username: this.$store.state.user.name,
                       userId: this.$store.state.user.userId
@@ -3885,7 +3897,7 @@ export default {
       }).then(() => {
         api
           .delete({
-            currentDirectory: this.rowContextData.path,
+            currentDirectory: this.getQueryPath(),
             username: this.$store.state.user.name,
             fileIds: fileIds
           })
@@ -4013,6 +4025,7 @@ export default {
       this.openingFile = row;
       if (row.isFolder) {
         this.editingIndex = -1;
+        const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
         // 打开文件夹
         if (this.listModeSearch) {
           const item = {};
@@ -4021,14 +4034,20 @@ export default {
           item["row"] = row;
           this.pathList.push(item);
           this.pagination.pageIndex = 1;
-          this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}`);
+          this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}${queryTagId}`);
           this.searchFileAndOpenDir(row);
         } else {
+          let notHomePage = this.$route.path.length > 1
+          if (notHomePage && this.basePath.length === 1) {
+            this.basePath = row.path
+          }
           if (this.path) {
             this.path += "/" + row.name;
           } else {
-            this.path = "/" + row.name;
+            this.path = this.basePath + row.name;
           }
+          // 去掉this.path开头的this.basePath
+          this.path = this.path.replace(this.basePath, '/')
           const item = { folder: row.name, shareBase: row.shareBase };
           this.pathList.push(item);
           this.pagination.pageIndex = 1;
@@ -4039,7 +4058,7 @@ export default {
           if (row.mountFileId) {
             localStorage.setItem(this.path, row.mountFileId)
           }
-          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}`);
+          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}${queryTagId}${this.basePath.length > 1 ? '&basePath='+this.basePath : ''}`);
           this.openDir(row);
         }
       } else {

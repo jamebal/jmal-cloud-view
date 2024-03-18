@@ -166,7 +166,6 @@ export default {
     isCollapse(val){
     },
     $route(to) {
-      console.log(to.meta.menuType)
       this.showTag = to.meta !== undefined && to.meta.menuType !== undefined && to.meta.menuType === 0;
     }
   },

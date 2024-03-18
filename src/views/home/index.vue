@@ -19,7 +19,7 @@ export default {
       sortable: {
         prop: 'name', order: 'ascending'
       },
-      contextMenus: [ // contextmenuClick
+      contextMenus: [
         { label: '查看', operation: 'viewMode' ,child: [
             { iconClass: this.grid?'':'menu-point', label: '列表', operation: 'vmode-list'},
             { iconClass: this.grid?'menu-point':'', label: '缩略图', operation: 'vmode-grid'},
