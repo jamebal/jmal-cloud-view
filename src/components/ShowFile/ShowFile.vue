@@ -98,8 +98,8 @@
                     <label class="menuitem">
                       <svg-icon icon-class="file-upload" />
                       <span class="menuitem text">{{
-                        singleFileType !== "" ? singleFileType : "上传文件"
-                      }}</span>
+                          singleFileType !== "" ? singleFileType : "上传文件"
+                        }}</span>
                     </label>
                   </li>
                   <li v-if="singleFileType === ''" @click="uploadFolder">
@@ -237,10 +237,10 @@
         <div class="info-statistics">
           <span v-if="tableLoading">获取更多数据...</span>
           <span v-if="!tableLoading">{{
-            !finished
-              ? "已加载 " + getSummaries3
-              : "已全部加载 " + getSummaries3
-          }}</span>
+              !finished
+                ? "已加载 " + getSummaries3
+                : "已全部加载 " + getSummaries3
+            }}</span>
         </div>
       </div>
 
@@ -369,7 +369,7 @@
                     v-if="scope.row.ossPlatform"
                     size="small"
                     class="pc list oss-folder"
-                    >{{ scope.row.ossPlatform }}
+                  >{{ scope.row.ossPlatform }}
                   </el-tag>
                 </div>
               </template>
@@ -386,10 +386,7 @@
             >
               <template slot-scope="scope">
                 <el-tooltip
-                  v-if="
-                    scope.row.index === cellMouseIndex &&
-                      (!scope.row.isShare || scope.row.shareBase)
-                  "
+                  v-if="scope.row.index === cellMouseIndex && (!scope.row.isShare || scope.row.shareBase)"
                   class="item"
                   effect="light"
                   content="分享"
@@ -478,7 +475,7 @@
                   placement="top"
                 >
                   <span
-                    >&nbsp;&nbsp;&nbsp;{{ formatTime(scope.row.agoTime) }}</span
+                  >&nbsp;&nbsp;&nbsp;{{ formatTime(scope.row.agoTime) }}</span
                   >
                 </el-tooltip>
               </template>
@@ -620,7 +617,7 @@
         </div>
         <div class="target">
           <span class="folder" style="display: none;white-space: nowrap;"
-            >document</span
+          >document</span
           >
         </div>
       </div>
@@ -661,8 +658,8 @@
         </el-form-item>
         <el-form-item label="类型:" class="details-name">
           <span>{{
-            rowContextData.isFolder ? "文件夹" : rowContextData.contentType
-          }}</span>
+              rowContextData.isFolder ? "文件夹" : rowContextData.contentType
+            }}</span>
         </el-form-item>
         <div v-if="rowContextData.music">
           <el-form-item label="🎵 歌手:">
@@ -693,15 +690,9 @@
           >
         </el-form-item>
         <el-form-item label="位置:" class="details-position">
-          <a
-            :href="
-              '/?path=' +
-                rowContextData.path +
-                '&highlight=' +
-                rowContextData.name
-            "
-            >{{ rowContextData.path }}</a
-          >
+          <a :href="'/?path=' + rowContextData.path + '&highlight=' + rowContextData.name">{{
+              rowContextData.path
+            }}</a>
         </el-form-item>
         <el-form-item label="创建时间:">
           <span>{{ rowContextData.uploadDate }}</span>
@@ -722,18 +713,18 @@
       <span class="dialog-msg">查看压缩文件</span>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="unzipTo(openingFile)"
-          >解压到...</el-button
+        >解压到...</el-button
         >
         <el-button
           size="small"
           @click="unzip(openingFile, openingFile.id, false)"
-          >解压到当前目录</el-button
+        >解压到当前目录</el-button
         >
         <el-button
           size="small"
           type="primary"
           @click="compressionFilePreview(openingFile)"
-          >预览</el-button
+        >预览</el-button
         >
       </span>
     </el-dialog>
@@ -788,39 +779,36 @@
           size="small"
           @click="fileTreeAndNewFolder"
           :disabled="fileTreeAndNewFolderDisabled"
-          ><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
+        ><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
         </el-button>
         <el-button
           v-if="!unzipOperating"
           size="small"
           type="primary"
           @click="moveFileTree"
-          >移 动</el-button
+        >移 动</el-button
         >
         <el-button
           v-if="!unzipOperating"
           size="small"
           type="primary"
           @click="copyFileTree"
-          >复制</el-button
+        >复制</el-button
         >
         <el-button
           v-if="unzipOperating"
           size="small"
           type="primary"
           @click="confirmUnzip"
-          >解压</el-button
+        >解压</el-button
         >
         <el-button size="small" @click="dialogMoveOrCopyVisible = false"
-          >取 消</el-button
+        >取 消</el-button
         >
       </div>
     </el-dialog>
-    <tag-dialog
-      :fileList="tagDialogObjectList"
-      :status.sync="tagDialogVisible"
-      @onSuccess="allocateTagSuccess"
-    />
+    <tag-dialog :fileList="tagDialogObjectList"
+                :status.sync="tagDialogVisible" @onSuccess="allocateTagSuccess"/>
     <share-dialog
       :file.sync="shareDialogObject"
       :status.sync="shareDialogVisible"
@@ -844,14 +832,14 @@
       ></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="newCreateFileDialog = false"
-          >取消</el-button
+        >取消</el-button
         >
         <el-button
           size="small"
           type="primary"
           @click="createFile(newCreateFileName)"
           v-loading="createFileLoading"
-          >确定</el-button
+        >确定</el-button
         >
       </span>
     </el-dialog>
@@ -1241,11 +1229,19 @@ export default {
     }
   },
   created() {},
+  watch: {
+    $route(to) {
+      if (to.query.tagId && this.queryCondition.tagId !== this.$route.query.tagId) {
+        this.queryCondition.tagId = this.$route.query.tagId;
+        this.getFileList();
+      }
+    }
+  },
   mounted() {
     Bus.$on("fileSuccess", (filename) => {
       this.setOnCreateFilename(filename)
     });
-    Bus.$on("loadFileFaild", () => {
+    Bus.$on("loadFileFailed", () => {
       this.notPreviewDialogVisible = true;
     });
     Bus.$on("clickMore", rows => {
@@ -1330,7 +1326,7 @@ export default {
   },
   destroyed() {
     Bus.$off("fileSuccess");
-    Bus.$off("loadFileFaild");
+    Bus.$off("loadFileFailed");
     Bus.$off("clickMore");
     Bus.$off("renameRow");
     Bus.$off("msg/file/change");
@@ -1392,16 +1388,15 @@ export default {
     // 获取有效长度。如果有后缀，则包括后缀和点的长度；否则是基础名称和后7位的长度
     getEffectiveLength(base, suffix) {
       let chineseLength = Array.from(base).reduce(
-          (count, char) => count + this.getCharLength(char),
-          0
+        (count, char) => count + this.getCharLength(char),
+        0
       );
 
       return suffix
-          ? chineseLength + suffix.length + 1
-          : chineseLength;
+        ? chineseLength + suffix.length + 1
+        : chineseLength;
     },
     keydown(event) {
-      console.log('sdf')
       const isMac = navigator.platform.startsWith("Mac");
       const { key, c, keyCode, ctrlKey, metaKey } = event;
       this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey);
@@ -2549,11 +2544,11 @@ export default {
       this.darwRectangle();
       this.loadContextMenus();
       // 使列表滑到顶部
-       if (!this.grid) {
-         if (this.fileListScrollTop > 0) {
-           this.$refs.fileListTable.pagingScrollTopLeft()
-         }
-       }
+      if (!this.grid) {
+        if (this.fileListScrollTop > 0) {
+          this.$refs.fileListTable.pagingScrollTopLeft()
+        }
+      }
       this.fileListScrollTop = 0
     },
     // 加载菜单查看状态
@@ -2698,15 +2693,15 @@ export default {
         this.pathList.push(item1);
         this.$router.push(`?vmode=${this.vmode}&search-file=${key}`);
         api.searchFile({
-            userId: this.$store.state.user.userId,
-            username: this.$store.state.user.name,
-            keyword: key,
-            sortableProp: this.sortable.prop,
-            order: this.sortable.order,
-            currentDirectory: encodeURI(this.$route.query.path),
-            pageIndex: this.pagination.pageIndex,
-            pageSize: this.pagination.pageSize
-          })
+          userId: this.$store.state.user.userId,
+          username: this.$store.state.user.name,
+          keyword: key,
+          sortableProp: this.sortable.prop,
+          order: this.sortable.order,
+          currentDirectory: encodeURI(this.$route.query.path),
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize
+        })
           .then(res => {
             this.loadData(res, onLoad);
             this.path = "";
@@ -4039,7 +4034,7 @@ export default {
           this.pagination.pageIndex = 1;
           const path = encodeURI(this.path);
           if (this.$store.getters.userId !== row.userId) {
-              row.mountFileId = row.id
+            row.mountFileId = row.id
           }
           if (row.mountFileId) {
             localStorage.setItem(this.path, row.mountFileId)
@@ -4187,7 +4182,7 @@ export default {
   }
 
   a:hover {
-    color: #409eff;
+    color: #409EFF;
   }
 }
 
@@ -4219,7 +4214,7 @@ export default {
 
 >>> .plTableBox .el-table .el-table__header {
   th {
-    background-color: #ffffff;
+    background-color: #FFFFFF;
   }
 
   .is-sortable:hover {
@@ -4239,7 +4234,7 @@ export default {
 }
 
 .home-link:hover {
-  color: #409eff;
+  color: #409EFF;
 }
 
 .info-statistics {
@@ -4268,7 +4263,7 @@ export default {
   margin-left: 5px !important;
 }
 
-> .open-file-dialog {
+> > > .open-file-dialog {
   .el-dialog {
     width: 420px;
   }
@@ -4282,13 +4277,13 @@ export default {
   }
 }
 
-> .v-contextmenu-item {
+> > > .v-contextmenu-item {
   .svg-icon {
     font-size: 14px;
   }
 }
 
-> .new-text-file-dialog {
+> > > .new-text-file-dialog {
   height: 350px;
   top: calc(50% - 175px);
 
@@ -4312,7 +4307,7 @@ export default {
   }
 }
 
-> .van-grid-item__content {
+> > > .van-grid-item__content {
   background-size: cover;
   background-position: center;
   padding: 0;
@@ -4377,3 +4372,4 @@ export default {
   }
 }
 </style>
+

@@ -178,7 +178,6 @@ export default {
   mounted() {
     tagApi.tagList({userId: this.$store.state.user.userId,}).then(res => {
       this.tagList = res.data
-      console.log(this.tagList)
     })
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
@@ -209,9 +208,7 @@ export default {
       })
     },
     tagClick(tag) {
-      console.log('tagClick', tag.id)
       this.$router.push(`/tag?tagId=${tag.id}`);
-      Bus.$emit('tagPageChange', tag.id)
     },
     mouseleave() {
     },

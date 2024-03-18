@@ -28,17 +28,11 @@ export default {
     }
   },
   mounted() {
-    console.log('tag mounted')
     if (this.$route.query.tagId) {
       this.queryCondition.tagId = this.$route.query.tagId
     }
-    Bus.$on('tagPageChange', (tagId) => {
-      console.log('tagPageChange', tagId)
-      this.queryCondition.tagId = tagId
-    })
   },
   destroyed() {
-    Bus.$off('tagPageChange')
   }
 }
 </script>

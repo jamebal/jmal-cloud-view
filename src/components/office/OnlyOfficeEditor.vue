@@ -96,7 +96,7 @@ export default {
         $J.loadScript($J.apiUrl(officeApiUrl), (e) => {
           if (e !== null) {
             this.$emit('onClose')
-            Bus.$emit('loadFileFaild')
+            Bus.$emit('loadFileFailed')
             return
           }
           if(this.$store.state.user.token && this.$store.state.user.userId === this.file.userId){

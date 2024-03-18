@@ -98,7 +98,7 @@ export default {
         let that = this
         this.delayClosing = setTimeout(function () {
           if (!that.readyShow) {
-            that.loadFileFaild()
+            that.loadFileFailed()
           }
         },12000)
       }
@@ -129,9 +129,9 @@ export default {
     /**
      * 加载失败
      */
-    loadFileFaild() {
+    loadFileFailed() {
       this.close()
-      Bus.$emit('loadFileFaild')
+      Bus.$emit('loadFileFailed')
       this.readyShow = true
     },
     /**

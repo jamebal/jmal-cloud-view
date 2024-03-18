@@ -140,11 +140,11 @@ export default {
           this.drawioUrlValid = true
         } else {
           this.$emit('onClose')
-          Bus.$emit('loadFileFaild')
+          Bus.$emit('loadFileFailed')
         }
       }).catch(() => {
         this.$emit('onClose')
-        Bus.$emit('loadFileFaild')
+        Bus.$emit('loadFileFailed')
       })
     },
     viewHistoryFile({historyInfo, recovery}) {
