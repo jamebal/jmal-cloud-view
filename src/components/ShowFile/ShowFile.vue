@@ -3250,10 +3250,9 @@ export default {
       this.preliminaryRowData(row);
     },
     setMenusByPermission(file) {
-      const indicesToDelete = [7, 5, 4, 3, 2, 1];
-      for(let i of indicesToDelete) {
-        this.menus.splice(i, 1);
-      }
+      const reservations = ['open', 'download']
+      // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
+      this.menus = this.menus.filter(item => reservations.includes(item.operation))
       if (file.operationPermissionList && file.operationPermissionList.length > 0) {
         if (file.operationPermissionList.indexOf('PUT') > -1) {
           this.menus.splice(this.menus.length - 1, 0, { iconClass: "menu-rename", label: "重命名", operation: "rename" })
