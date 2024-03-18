@@ -13,7 +13,7 @@
           <el-tab-pane label="基本设置" name="1">
             <div v-if="activeName === '1'">
               <div class="config-itme-label">网盘名称：
-                <el-input placeholder="请输入网盘名称" v-model="netdiskName" minlength="1" maxlength="8" size="medium"
+                <el-input placeholder="请输入网盘名称" v-model="netdiskName" minlength="1" maxlength="10" size="medium"
                           :style="{width: inputNetdiskNameWidth+'px'}"
                           @keyup.enter.native="updateNetdiskName" @input="inputNetdiskName">
                   <el-button v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>

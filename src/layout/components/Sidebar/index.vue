@@ -22,43 +22,33 @@
         </el-menu>
       </el-scrollbar>
     </div>
-    <div class="scrollbar-tag" :class="{ collapse: isCollapse }">标签</div>
+    <div v-if="showTag && tagList.length > 0" class="scrollbar-tag" :class="{ collapse: isCollapse }">标签</div>
     <div class="scroll-decoration-top"></div>
     <el-scrollbar class="tag-list" wrap-class="scrollbar-wrapper">
       <div v-if="isCollapse">
         <ul class="infinite-list">
-          <el-tooltip
-            class="item"
+          <el-tooltip class="item"
+            v-if="showTag"
             effect="dark"
             :content="tag.name"
             placement="right"
             v-for="tag in tagList"
-            :key="tag.tagId"
-          >
+            :key="tag.tagId">
             <li class="infinite-list-item collapse">
-              <svg-icon
-                :style="{ color: tag.color, fontSize: '14px' }"
-                icon-class="tag2"
-              ></svg-icon>
+              <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
             </li>
           </el-tooltip>
         </ul>
       </div>
       <div v-else>
         <ul class="infinite-list">
-          <li
-            v-for="tag in tagList"
+          <li v-for="tag in tagList"
+              v-if="showTag"
             :key="tag.id"
             class="infinite-list-item"
-            @click="tagClick(tag)"
-          >
-            <!--                <router-link :to="'/tag?tagId=' + tag.id" @click.native="tagClick(tag)">-->
-            <svg-icon
-              :style="{ color: tag.color, fontSize: '14px' }"
-              icon-class="tag2"
-            ></svg-icon>
+            @click="tagClick(tag)">
+            <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
             <span>{{ tag.name }}</span>
-            <!--                </router-link>-->
           </li>
         </ul>
       </div>
@@ -125,6 +115,7 @@ export default {
       showCopyBtn: false,
       takeUpSpace: 0,
       tagList: [],
+      showTag: false
     }
   },
   computed: {
@@ -173,18 +164,28 @@ export default {
   },
   watch: {
     isCollapse(val){
+    },
+    $route(to) {
+      console.log(to.meta.menuType)
+      this.showTag = to.meta !== undefined && to.meta.menuType !== undefined && to.meta.menuType === 0;
     }
   },
   mounted() {
-    tagApi.tagList({userId: this.$store.state.user.userId,}).then(res => {
-      this.tagList = res.data
-    })
+    this.getTagList()
     Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
   },
   destroyed() {
     Bus.$off('msg/file/change')
   },
   methods: {
+    getTagList() {
+      if (this.$route.meta.menuType === 0) {
+        this.showTag = true
+      }
+      tagApi.tagList({userId: this.$store.state.user.userId}).then(res => {
+        this.tagList = res.data
+      })
+    },
     onmessage(msg) {
       const takeUpSpace = msg.space
       if (takeUpSpace) {
@@ -292,6 +293,24 @@ export default {
 .scrollbar-head {
   .el-scrollbar {
     padding-bottom: 15px;
+  }
+  >>> .submenu-title-noDropdown {
+    padding-left: 15px !important;
+    padding-right: 10px !important;
+  }
+  >>> .el-submenu__title {
+    padding-left: 15px !important;
+    padding-right: 10px !important;
+    .el-submenu__icon-arrow {
+      right: 15px;
+    }
+  }
+  >>> .nest-menu {
+    .el-menu-item {
+      padding-left: 25px !important;
+      padding-right: 20px !important;
+      min-width: unset;
+    }
   }
 }
 .quota-space {
