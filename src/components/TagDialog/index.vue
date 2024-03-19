@@ -195,6 +195,11 @@ export default {
         }
         this.hasChange = true
         this.tags.push({ name: inputValue, color: this.defaultTagColor});
+        // 查看existingTags中是否有相同的标签
+        let index = this.existingTags.findIndex(item => item.name === inputValue)
+        if (index !== -1) {
+          this.existingTags.splice(index, 1)
+        }
       }
       this.inputVisible = false;
       this.inputValue = '';
@@ -222,6 +227,9 @@ export default {
       this.tagDialogVisible = false
       this.$emit('update:status', this.tagDialogVisible)
       this.isEditMode = false
+      this.inputVisible = false
+      this.inputValue = ''
+      this.tags = []
     },
     editMode() {
       this.isEditMode = !this.isEditMode
