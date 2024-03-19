@@ -1239,7 +1239,6 @@ export default {
       }
     },
     message(msg) {
-      console.log('msg.event', msg.event, msg)
       switch (msg.event) {
           case 'msg/file/operation/fault':
             this.getFileList();

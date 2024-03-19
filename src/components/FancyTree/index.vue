@@ -434,7 +434,6 @@
           row.oldName = node.data.name
           row.name = newFileName
           row.suffix = newFileName.replace(/.+\./,"")
-          console.log('renameRow',row)
           store.dispatch('updateMessage', {
             event: 'renameRow',
             data: row
