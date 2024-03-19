@@ -11,9 +11,22 @@ const store = new Vuex.Store({
   modules: {
     app,
     settings,
-    user
+    user,
   },
-  getters
+  getters,
+  state: {
+    message: null,
+  },
+  mutations: {
+    setMessage(state, message) {
+      state.message = message;
+    },
+  },
+  actions: {
+    updateMessage({ commit }, message) {
+      commit('setMessage', message);
+    },
+  }
 })
 
 export default store

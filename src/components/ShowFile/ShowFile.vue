@@ -847,7 +847,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { formatSize, formatTime } from "@/utils/number";
 import { getElementToPageLeft } from "@/utils/dom";
 import { suffix } from "@/utils/file-type";
@@ -1159,6 +1159,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(["message"]),
     ...mapGetters(["name"]),
     gridFilename() {
       // 优化文件名，如果文件名过长，则进行截取
@@ -1236,28 +1237,39 @@ export default {
         this.queryCondition.tagId = this.$route.query.tagId;
         this.getFileList();
       }
+    },
+    message(msg) {
+      console.log('msg.event', msg.event, msg)
+      switch (msg.event) {
+          case 'msg/file/operation/fault':
+            this.getFileList();
+            break;
+          case 'fileSuccess':
+            this.setOnCreateFilename(msg.data)
+            break;
+          case 'loadFileFailed':
+            this.notPreviewDialogVisible = true;
+            break;
+          case 'clickMore':
+            this.$refs.fileListTable.tableSelectData = msg.data;
+            this.preliminaryRowData();
+            break;
+          case 'renameRow':
+            let index = this.fileList.findIndex(file => file.name === msg.data.oldName);
+            if (index > -1) {
+              let newRow = this.fileList[index];
+              newRow.suffix = msg.data.suffix;
+              newRow.name = msg.data.name;
+              this.$refs.fileListTable.clearSelection();
+            }
+            break;
+          case 'msg/file/change':
+            this.onmessage(msg.data)
+            break;
+      }
     }
   },
   mounted() {
-    Bus.$on("fileSuccess", (filename) => {
-      this.setOnCreateFilename(filename)
-    });
-    Bus.$on("loadFileFailed", () => {
-      this.notPreviewDialogVisible = true;
-    });
-    Bus.$on("clickMore", rows => {
-      this.$refs.fileListTable.tableSelectData = rows;
-      this.preliminaryRowData();
-    });
-    Bus.$on("renameRow", row => {
-      let index = this.fileList.findIndex(file => file.name === row.oldName);
-      if (index > -1) {
-        let newRow = this.fileList[index];
-        newRow.suffix = row.suffix;
-        newRow.name = row.name;
-        this.$refs.fileListTable.clearSelection();
-      }
-    });
     // 监听返回
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL);
@@ -1315,23 +1327,11 @@ export default {
         document.documentElement.clientHeight - that.lessClientHeight;
     };
 
-    Bus.$on("msg/file/change", msg => this.onmessage(msg));
-
-    Bus.$on("msg/file/operation/fault", msg => this.onmessageFault(msg));
-
     setTimeout(() => {
       if (!this.getFileListed) {
         this.getFileList();
       }
     }, 50);
-  },
-  destroyed() {
-    Bus.$off("fileSuccess");
-    Bus.$off("loadFileFailed");
-    Bus.$off("clickMore");
-    Bus.$off("renameRow");
-    Bus.$off("msg/file/change");
-    Bus.$off("msg/file/operation/fault");
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.keydown, false);
@@ -1427,11 +1427,6 @@ export default {
       // 松开shift建
       if (event.keyCode === 16) {
         this.selectPin = false;
-      }
-    },
-    onmessageFault(msg) {
-      if ("fault" === msg) {
-        this.getFileList();
       }
     },
     onmessage(msg) {
@@ -1933,7 +1928,7 @@ export default {
       };
 
       container.ondragend = function(e) {
-        Bus.$emit("onDragStart", false);
+        _this.$store.dispatch('updateMessage', { event: 'onDragStart', data: false})
         e.dataTransfer.effectAllowed = "none";
         // console.log('child'+dragIndex+'拖拽结束');
         // 清除上次进入的容器的状态
@@ -2021,7 +2016,7 @@ export default {
         firstOver = 0;
         let dragImage = document.getElementById("dragImage");
         e.dataTransfer.setDragImage(dragImage, 10, 10);
-        Bus.$emit("onDragStart", true);
+        _this.$store.dispatch('updateMessage', { event: 'onDragStart', data: true})
         // 避免和画矩形选区冲突
         _this.drawFlag = false;
         let rectangle = document.getElementById("rectangle1");
@@ -2235,24 +2230,23 @@ export default {
     },
     upload() {
       // 打开文件选择框
-      Bus.$emit("openUploader", {
-        // 传入的参数
-        folder: this.$route.query.folder,
-        currentDirectory: this.getQueryPath(),
-        username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId
-      });
-    },
-    uploadFolder() {
-      if (window.uploader.supportDirectory) {
-        // 打开文件夹选择框
-        Bus.$emit("uploadFolder", {
+      this.$store.dispatch('updateMessage', { event: 'openUploader', data: {
           // 传入的参数
           folder: this.$route.query.folder,
           currentDirectory: this.getQueryPath(),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
-        });
+        }})
+    },
+    uploadFolder() {
+      if (window.uploader.supportDirectory) {
+        this.$store.dispatch('updateMessage', { event: 'uploadFolder', data: {
+            // 传入的参数
+            folder: this.$route.query.folder,
+            currentDirectory: this.getQueryPath(),
+            username: this.$store.state.user.name,
+            userId: this.$store.state.user.userId
+          }})
       } else {
         this.$message({
           message: "该浏览器不支持上传文件夹",
@@ -2656,7 +2650,7 @@ export default {
           storageType = 'File'
         }
       }
-      Bus.$emit('storageTypeChange', storageType)
+      this.$store.dispatch('updateMessage', {event: 'storageTypeChange', data: storageType})
     },
     // 设置挂载文件的用户名(文件的所有者)
     setMountFileOwner() {
@@ -4094,7 +4088,7 @@ export default {
         }
         if (row.contentType.indexOf("audio") > -1) {
           // 音频文件
-          Bus.$emit("onAddAudio", row, this.audioCoverUrl);
+          this.$store.dispatch('updateMessage', { event: 'onAddAudio', data: { row: row, audioCoverUrl: this.audioCoverUrl } })
           return;
         }
         if (suffix.compressedFile.includes(row.suffix)) {

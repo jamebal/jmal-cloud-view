@@ -18,7 +18,7 @@
 </template>
 <script>
 import fileConfig from '@/utils/file-config'
-import Bus from '@/assets/js/bus'
+import {mapState} from 'vuex'
 
 export default {
   name: "ImageViewer",
@@ -47,7 +47,9 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    ...mapState(['message'])
+  },
   data() {
     return {
       imageThumbnailUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail`,
@@ -72,7 +74,7 @@ export default {
         hide: function (e) {
         },
         hidden: function () {
-          Bus.$emit('updateImageViewerStatus', false)
+          this.$store.dispatch('updateMessage', { event: 'updateImageViewerStatus' })
         },
         view: function (e) {
         },
@@ -103,17 +105,14 @@ export default {
         })
         this.show(viewIndex)
       }
+    },
+    message(msg) {
+      if (msg.event === 'updateImageViewerStatus') {
+        this.imagesFristIndex = -1
+        this.imagesLastIndex = -1
+        this.$emit('update:status', false)
+      }
     }
-  },
-  mounted() {
-    Bus.$on('updateImageViewerStatus', () => {
-      this.imagesFristIndex = -1
-      this.imagesLastIndex = -1
-      this.$emit('update:status', false)
-    })
-  },
-  destroyed() {
-    Bus.$off("updateImageViewerStatus")
   },
   methods: {
     inited(viewer) {
@@ -157,7 +156,7 @@ export default {
         images: imageUrls,
         startPosition: viewIndex,
         onClose() {
-          Bus.$emit('updateImageViewerStatus', false)
+          this.$store.dispatch('updateMessage', { event: 'updateImageViewerStatus'})
         }
       })
     }

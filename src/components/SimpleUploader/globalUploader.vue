@@ -111,19 +111,14 @@
 </template>
 
 <script>
-/**
- *   全局上传插件
- *   调用方法：Bus.$emit('openUploader', {}) 打开文件选择框，参数为需要传递的额外参数
- *   监听函数：Bus.$on('fileAdded', fn); 文件选择后的回调
- *            Bus.$on('fileSuccess', fn); 文件上传成功的回调
- */
 
 // import { ACCEPT_CONFIG } from '@/assets/js/config'
-import Bus from '@/assets/js/bus'
+import store from '@/store'
 import $ from 'jquery'
 import SparkMD5 from 'spark-md5'
 import api from '@/api/file-api'
 import {formatNetSpeed} from '@/utils/number'
+import {mapState} from 'vuex'
 
 export default {
   components: {},
@@ -198,10 +193,43 @@ export default {
       uploader: null,
     }
   },
+  computed: {
+    ...mapState(['message'])
+  },
   watch: {
     $route(route) {
       // 只有首页才启用拖拽上传
       this.enableDragUplaod = route.path === '/'
+    },
+    message(msg) {
+      switch (msg.event) {
+        case 'storageTypeChange':
+          this.onStorageTypeChange(msg.data)
+          break
+        case 'fileListScrollTop':
+          this.fileListScrollTop = msg.data
+          break
+        case 'onDragStart':
+          this.isDragStart = msg.data
+          break
+        case 'uploadFileListBack':
+          if (this.process !== -10 && this.process !== 100 && this.fileListLength !== 0) {
+            this.shrink()
+          }
+          break
+        case 'openUploader':
+          this.params = msg.data || {}
+          if (this.$refs.uploadBtn) {
+            $('#global-uploader-btn').click()
+          }
+          break
+        case 'uploadFolder':
+          this.params = msg.data || {}
+          if (this.$refs.folderBtn) {
+            $('#folder-uploader-btn').click()
+          }
+          break
+      }
     }
   },
   mounted() {
@@ -247,8 +275,12 @@ export default {
       e.preventDefault();
       that.dragover = false
     }, false);
-
-    Bus.$on('storageTypeChange', storageType => {
+    this.initUploader()
+  },
+  destroyed() {
+  },
+  methods: {
+    onStorageTypeChange(storageType) {
       if (storageType === 'File') {
         if (this.options.chunkSize === 1024 * 1024) {
           return
@@ -260,45 +292,7 @@ export default {
         }
         this.updateChunkSize(5 * 1024 * 1024)
       }
-    })
-
-    Bus.$on('fileListScrollTop', fileListScrollTop => {
-      this.fileListScrollTop = fileListScrollTop
-    })
-
-    Bus.$on('onDragStart', isDragStart => {
-      this.isDragStart = isDragStart
-    })
-
-    Bus.$on('openUploader', query => {
-      this.params = query || {}
-      if (this.$refs.uploadBtn) {
-        $('#global-uploader-btn').click()
-      }
-    })
-    Bus.$on('uploadFolder', query => {
-      this.params = query || {}
-      if (this.$refs.folderBtn) {
-        $('#folder-uploader-btn').click()
-      }
-    })
-
-    Bus.$on('uploadFileListBack', () => {
-      if (this.process !== -10 && this.process !== 100 && this.fileListLength !== 0) {
-        this.shrink()
-      }
-    })
-    this.initUploader()
-  },
-  destroyed() {
-    Bus.$off('openUploader')
-    Bus.$off('uploadFolder')
-    Bus.$off('uploadFileListBack')
-    Bus.$off('fileListScrollTop')
-    Bus.$off('onDragStart')
-    Bus.$off('storageTypeChange')
-  },
-  methods: {
+    },
     initUploader() {
       this.$nextTick(() => {
         this.uploader = this.$refs.uploader.uploader
@@ -367,7 +361,7 @@ export default {
             ...this.params
           }
         })
-        Bus.$emit('fileAdded')
+        store.dispatch('updateMessage', {event: 'fileAdded', data: null})
       })
     },
     onFileProgress(rootFile, file, chunk) {
@@ -427,7 +421,7 @@ export default {
         }).then(() => {
           // console.log('文件合并成功', res)
           // 文件合并成功
-          Bus.$emit('fileSuccess', file.name)
+          store.dispatch('updateMessage', {event: 'fileSuccess', data: file.name})
           this.statusRemove(file.id)
           this.statusSet(file.id, 'success')
           // file.removeFile(file)
@@ -436,7 +430,7 @@ export default {
         })
         // 不需要合并
       } else {
-        Bus.$emit('fileSuccess', file.name)
+        store.dispatch('updateMessage', {event: 'fileSuccess', data: file.name})
         // 完成后从文件列表移除
         // file.removeFile(file)
         // console.log('上传成功')

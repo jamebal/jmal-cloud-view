@@ -39,7 +39,7 @@
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
   import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
   import fancytree from 'jquery.fancytree';
-  import Bus from '@/assets/js/bus'
+  import store from '@/store'
 
   import api from '@/api/file-api'
   export default {
@@ -431,20 +431,22 @@
           username: this.$store.state.user.name,
           path: encodeURI(node.data.path)
         }).then(res => {
-          if (res.data) {
-            row.oldName = node.data.name
-            row.name = newFileName
-            row.suffix = newFileName.replace(/.+\./,"")
-            Bus.$emit('renameRow',row)
-            row.oldPath = row.path
-            row.path = row.path.substring(0,row.path.length - row.oldName.length) + newFileName
-            node.setTitle(newFileName)
-            this.addRef(node)
-            this.$message.success("修改成功！")
-            this.$emit('onRename', row)
-            if(this.editableTabsValue === row.oldPath){
-              this.$emit('update:editableTabsValue', row.path)
-            }
+          row.oldName = node.data.name
+          row.name = newFileName
+          row.suffix = newFileName.replace(/.+\./,"")
+          console.log('renameRow',row)
+          store.dispatch('updateMessage', {
+            event: 'renameRow',
+            data: row
+          })
+          row.oldPath = row.path
+          row.path = row.path.substring(0,row.path.length - row.oldName.length) + newFileName
+          node.setTitle(newFileName)
+          this.addRef(node)
+          this.$message.success("修改成功！")
+          this.$emit('onRename', row)
+          if(this.editableTabsValue === row.oldPath){
+            this.$emit('update:editableTabsValue', row.path)
           }
         })
       },

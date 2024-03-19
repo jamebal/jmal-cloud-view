@@ -132,13 +132,13 @@
 
 import config from '@/../package.json'
 import settingApi, {getSetting} from "@/api/setting-api";
-import Bus from "@/assets/js/bus";
 import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
 import roleApi from "@/api/role";
 import { loadLdapConfig, testLdapConfig, updateLdapConfig} from '@/api/user'
-import {mapGetters} from "vuex";
+import {mapGetters, mapState} from "vuex";
+import store from "@/store";
 
 export default {
   components: {UploadImageInput, Logo},
@@ -200,12 +200,6 @@ export default {
     this.getWebsiteSetting()
     this.getInfo()
     this.getIsSync()
-    Bus.$on('msg/synced', (msg) => {
-      this.syncPercent = msg.body
-      if (this.syncPercent >= 100) {
-        this.syncLoading = false
-      }
-    })
     if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab
       if (this.activeName === '2') {
@@ -214,10 +208,8 @@ export default {
       }
     }
   },
-  destroyed() {
-    Bus.$off('msg/synced')
-  },
   computed: {
+    ...mapState(['message']),
     ...mapGetters([
       'newVersion'
     ]),
@@ -226,6 +218,16 @@ export default {
     },
     ldapSaveBtn() {
       return !(!this.ldapTestBtn && this.ldapFormData.defaultRoleList.length > 0 && this.ldapFormData.loginName.length > 0)
+    }
+  },
+  watch: {
+    message(msg) {
+      if (msg.url === 'synced') {
+        this.syncPercent = msg.body
+        if (this.syncPercent >= 100) {
+          this.syncLoading = false
+        }
+      }
     }
   },
   methods: {
@@ -263,7 +265,7 @@ export default {
           netdiskName: this.netdiskName,
           netdiskLogo: this.logoFileName
         }).then(() => {
-          Bus.$emit('updateLogo')
+          store.dispatch('updateMessage', {event: 'updateLogo'})
         })
       } else {
         this.$message.error(res.message)
@@ -329,7 +331,7 @@ export default {
             netdiskName: this.netdiskName,
             netdiskLogo: this.logoFileName
           }).then(() => {
-            Bus.$emit('updateLogo')
+            store.dispatch('updateMessage', {event: 'updateLogo'})
             document.title = getPageTitle(this.$route.meta.title)
           })
           this.$message.success("网盘名称 修改成功")

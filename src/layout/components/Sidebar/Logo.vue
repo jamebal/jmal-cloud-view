@@ -25,6 +25,7 @@
 <script>
 import Bus from "@/assets/js/bus";
 import Logo from "@/components/Logo";
+import { mapState } from "vuex";
 
 export default {
   name: 'SidebarLogo',
@@ -36,6 +37,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['message']),
     title() {
       if (this.$store.state.user.netdiskName) {
         return this.$store.state.user.netdiskName
@@ -49,13 +51,14 @@ export default {
       return ''
     }
   },
-  mounted() {
-    Bus.$on('updateLogo', () => {
-      this.netdiskLogo = this.$store.state.user.netdiskLogo
-    })
+  watch: {
+    message(msg) {
+      if (msg.event === 'updateLogo') {
+        this.netdiskLogo = this.$store.state.user.netdiskLogo
+      }
+    }
   },
-  destroyed() {
-    Bus.$off('updateLogo')
+  mounted() {
   },
   data() {
     return {

@@ -27,16 +27,18 @@
 
 <script>
 import '@/utils/directives.js'
-import Bus from '@/assets/js/bus'
 import VueAPlayer from 'vue-aplayer'
 VueAPlayer.disableVersionBadge = true
 import fileConfig from '@/utils/file-config'
+import {mapState} from 'vuex'
 
 export default {
   name: 'AudioPreview',
   components: {VueAPlayer},
   props: {},
-  computed: {},
+  computed: {
+    ...mapState(['message'])
+  },
   data() {
     return {
       pc: this.$pc,
@@ -51,33 +53,37 @@ export default {
       shuffle: false
     }
   },
-  mounted() {
-    Bus.$on('onAddAudio', (newFile, audioCoverUrl) => {
-      if (!this.show) {
-        this.show = true
+  watch: {
+    message(msg) {
+      if (msg.event === 'onAddAudio') {
+        const newFile = msg.data.row
+        const audioCoverUrl = msg.data.audioCoverUrl
+        if (!this.show) {
+          this.show = true
+        }
+        this.$nextTick(() => {
+          let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
+          if (this.$store.getters.token === undefined) {
+            url = fileConfig.publicPreviewUrl(newFile, window.shareId, this.$store.getters.shareToken);
+          }
+          let music = newFile.music
+          let fileName = newFile.name.substring(0, newFile.name.length - newFile.suffix.length - 1)
+          this.currentMusic = {
+            id: newFile.id,
+            src: url,
+            title: music ? music.songName || fileName : fileName,
+            artist: music ? music.singer || fileName : fileName,
+            pic: music ? audioCoverUrl + newFile.id : '',
+            theme: 'pic'
+          }
+          let musicIndex = this.list.findIndex(item => item.id === newFile.id)
+          if (musicIndex < 0) {
+            this.list.push(this.currentMusic)
+          }
+          this.$refs.audioPlayer.thenPlay()
+        })
       }
-      this.$nextTick(() => {
-        let url = fileConfig.previewUrl(this.$store.state.user.name, newFile, this.$store.getters.token)
-        if (this.$store.getters.token === undefined) {
-          url = fileConfig.publicPreviewUrl(newFile, window.shareId, this.$store.getters.shareToken);
-        }
-        let music = newFile.music
-        let fileName = newFile.name.substring(0, newFile.name.length - newFile.suffix.length - 1)
-        this.currentMusic = {
-          id: newFile.id,
-          src: url,
-          title: music ? music.songName || fileName : fileName,
-          artist: music ? music.singer || fileName : fileName,
-          pic: music ? audioCoverUrl + newFile.id : '',
-          theme: 'pic'
-        }
-        let musicIndex = this.list.findIndex(item => item.id === newFile.id)
-        if (musicIndex < 0) {
-          this.list.push(this.currentMusic)
-        }
-        this.$refs.audioPlayer.thenPlay()
-      })
-    })
+    }
   },
   methods: {
     close() {
@@ -90,9 +96,6 @@ export default {
         that.closeBarShow = false
       }, 2500)
     }
-  },
-  destroyed() {
-    Bus.$off('onAddAudio')
   }
 }
 </script>

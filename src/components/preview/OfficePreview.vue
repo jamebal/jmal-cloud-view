@@ -131,7 +131,7 @@ export default {
      */
     loadFileFailed() {
       this.close()
-      Bus.$emit('loadFileFailed')
+      this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
       this.readyShow = true
     },
     /**
@@ -197,7 +197,7 @@ export default {
      */
     saveAndClose() {
       // 通知插件保存
-      Bus.$emit('previewSaveAndClose')
+      this.$store.dispatch('updateMessage', { event: 'previewSaveAndClose'})
       this.isSaveDialogVisible = false
     },
     /**

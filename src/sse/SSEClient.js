@@ -1,4 +1,5 @@
 import Bus from "@/assets/js/bus";
+import store from "@/store";
 
 let eventSource = null;
 let timer = null;
@@ -33,13 +34,13 @@ export function connectToSSE(username) {
 function onMessage(msg) {
   const url = msg.url
   if (url === 'synced') {
-    Bus.$emit('msg/synced', msg)
+    store.dispatch('updateMessage', {event: 'msg/synced', data: msg})
   } else {
-    Bus.$emit('msg/file/change', msg)
+    store.dispatch('updateMessage', {event: 'msg/file/change', data: msg})
     if ('operationFile' === url) {
       let doc = msg.body
       if (doc.code === 0) {
-        Bus.$notify({
+        Bus.notify({
           title: `${doc.operation}成功`,
           dangerouslyUseHTMLString: true,
           message: `
@@ -54,8 +55,8 @@ function onMessage(msg) {
           type: 'success',
         });
       } else {
-        Bus.$emit('msg/file/operation/fault', 'fault')
-        Bus.$notify({
+        store.dispatch('updateMessage', {event: 'msg/file/operation/fault', data: msg});
+        Bus.notify({
           title: `${doc.operation}失败`,
           dangerouslyUseHTMLString: true,
           message: `<span style="font-size: 12px;">${doc.msg}</span>`,

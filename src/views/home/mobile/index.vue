@@ -278,7 +278,6 @@ import {formatSize, formatTime} from '@/utils/number'
 import {getElementToPageLeft, getElementToPageTop} from '@/utils/dom'
 import api from '@/api/file-api'
 import IconFile from "../../../components/Icon/IconFile";
-import Bus from '@/assets/js/bus'
 import fileConfig from "@/utils/file-config";
 import ImageViewer from "@/components/preview/ImageViewer";
 import VideoPreview from "@/components/preview/VideoPreview";
@@ -1133,7 +1132,7 @@ export default {
           }
           if (row.contentType.indexOf('audio') > -1) {
             // 音频文件
-            Bus.$emit('onAddAudio', row, this.audioCoverUrl)
+            this.$store.dispatch('updateMessage', { event: 'onAddAudio', data: { row: row, audioCoverUrl: this.audioCoverUrl } })
             return
           }
           if (row.contentType.indexOf('office') > -1 || row.suffix === 'csv') {
@@ -1234,24 +1233,24 @@ export default {
       // 上传文件
       if (action.name === '上传文件') {
         // 打开文件选择框
-        Bus.$emit('openUploader', {
-          // 传入的参数
-          folder: this.$route.query.folder,
-          currentDirectory: encodeURI(this.path),
-          username: this.$store.state.user.name,
-          userId: this.$store.state.user.userId
-        })
+        this.$store.dispatch('updateMessage', { event: 'openUploader', data: {
+            // 传入的参数
+            folder: this.$route.query.folder,
+            currentDirectory: encodeURI(this.path),
+            username: this.$store.state.user.name,
+            userId: this.$store.state.user.userId
+          }})
       }
       // 上传文件夹
       if (action.name === '上传文件夹') {
         // 打开文件夹选择框
-        Bus.$emit('uploadFolder', {
-          // 传入的参数
-          folder: this.$route.query.folder,
-          currentDirectory: encodeURI(this.path),
-          username: this.$store.state.user.name,
-          userId: this.$store.state.user.userId
-        })
+        this.$store.dispatch('updateMessage', { event: 'uploadFolder', data: {
+            // 传入的参数
+            folder: this.$route.query.folder,
+            currentDirectory: encodeURI(this.path),
+            username: this.$store.state.user.name,
+            userId: this.$store.state.user.userId
+          }})
       }
     },
     // 新建文件夹

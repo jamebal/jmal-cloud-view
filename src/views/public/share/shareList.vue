@@ -275,9 +275,8 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters,mapState} from 'vuex'
 import {formatTime, formatSize} from '@/utils/number'
-import Bus from '@/assets/js/bus'
 import api from '@/api/file-api'
 import BreadcrumbFilePath from "@/components/Breadcrumb/BreadcrumbFilePath";
 import IconFile from "@/components/Icon/IconFile";
@@ -430,6 +429,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['message']),
     ...mapGetters([
       'name'
     ]),
@@ -450,41 +450,38 @@ export default {
         `${process.env.VUE_APP_BASE_API}/public/s/view/cover?name=${this.sharer.username}&share-token=${this.$store.getters.shareToken}&id=`
     }
   },
+  watch: {
+    message(msg) {
+      if (msg.event === 'fileSuccess') {
+        this.getFileList()
+      }
+      if (msg.event === 'clickMore') {
+        this.selectRowData = msg.data
+        this.preliminaryRowData()
+      }
+    }
+  },
   created() {
     this.getFileList()
     this.getSharer();
   },
   mounted() {
-    Bus.$on('fileSuccess', () => {
-      this.getFileList()
-    })
-    Bus.$on('clickMore', (selectRowData) => {
-      this.selectRowData = selectRowData
-      this.preliminaryRowData()
-    })
-
     if (window.history && window.history.pushState) {
       history.pushState(null, null, document.URL);
       window.addEventListener('popstate', this.goBack, false);
     }
-
-
     const that = this
     window.onresize = function temp() {
       that.loadClientHeight()
     }
-
     // 加载布局
     if (this.$route.query.vmode) {
       this.vmode = this.$route.query.vmode
       this.grid = this.vmode !== 'list';
     }
-
   },
   destroyed() {
     window.removeEventListener('popstate', this.goBack, false)
-    Bus.$off('fileSuccess')
-    Bus.$off('clickMore')
   },
   directives: {
     // 注册一个局部的自定义指令 v-focus
@@ -1096,7 +1093,7 @@ export default {
         }
         // 音频文件
         if (row.contentType.indexOf('audio') > -1) {
-          Bus.$emit('onAddAudio', row, this.audioCoverUrl)
+          this.$store.dispatch('updateMessage', { event: 'onAddAudio', data: { row: row, audioCoverUrl: this.audioCoverUrl } })
           return
         }
         // office文件

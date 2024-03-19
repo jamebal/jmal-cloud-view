@@ -32,6 +32,7 @@ import txtApi from "@/api/markdown-api"
 import Bus from "@/assets/js/bus";
 import HistoryPopover from "@/components/HistoryPopover/index.vue";
 import historyApi from "@/api/file-history";
+import {mapState} from "vuex";
 
 export default {
   name: "Drawio",
@@ -74,6 +75,9 @@ export default {
       lightTheme: true
     }
   },
+  computed: {
+    ...mapState(['message'])
+  },
   created() {
     let language = 'zh'
     let lightbox = this.readOnly ? 1 : 0
@@ -84,14 +88,12 @@ export default {
     this.url = $J.apiUrl(`../drawio/webapp/${query}`)
   },
   mounted() {
-    Bus.$on('previewSaveAndClose', this.saveAndClose)
     window.addEventListener('message', this.handleMessage)
   },
   beforeDestroy() {
     window.removeEventListener('message', this.handleMessage)
   },
   destroyed() {
-    Bus.$off('previewSaveAndClose')
   },
   watch: {
     'file.id': {
@@ -132,6 +134,11 @@ export default {
       immediate: true,
       deep: true,
     },
+    message(msg) {
+      if (msg.event === 'previewSaveAndClose') {
+        this.saveAndClose()
+      }
+    }
   },
   methods: {
     async checkDrawioUrl() {
@@ -140,11 +147,11 @@ export default {
           this.drawioUrlValid = true
         } else {
           this.$emit('onClose')
-          Bus.$emit('loadFileFailed')
+          this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
         }
       }).catch(() => {
         this.$emit('onClose')
-        Bus.$emit('loadFileFailed')
+        this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
       })
     },
     viewHistoryFile({historyInfo, recovery}) {

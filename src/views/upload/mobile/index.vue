@@ -26,9 +26,8 @@
 </template>
 <script>
 
-  import { strlen, substring10, formatTime, formatSize } from '@/utils/number'
   import IconFile from "../../../components/Icon/IconFile";
-  import Bus from '@/assets/js/bus'
+  import store from '@/store'
   export default {
     components: {IconFile},
     data() {
@@ -47,7 +46,10 @@
     methods: {
       onClickLeft() {
         this.$router.push(`/_m`)
-        Bus.$emit('uploadFileListBack', true)
+        store.dispatch('updateMessage', {
+          event: 'uploadFileListBack',
+          data: true
+        })
       }
     }
   }

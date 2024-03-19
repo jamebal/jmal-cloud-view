@@ -27,7 +27,6 @@ export default {
     } else {
       owner = username
     }
-    console.log('owner', owner)
     let fileUrl = `${this.baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
     fileUrl = fileUrl.replace(/%5C/g, '/')
     if (token) {

@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import Bus from '@/assets/js/bus'
+import store from '@/store'
 export default {
   name: 'MenuPopover',
   props: {
@@ -73,7 +73,10 @@ export default {
   methods: {
     showMenu(row, selects) {
       selects[0] = row
-      Bus.$emit('clickMore', selects)
+      store.dispatch('updateMessage', {
+        event: 'clickMore',
+        data: selects
+      })
     },
     test() {
     }

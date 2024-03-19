@@ -110,9 +110,9 @@ import 'vue-kityminder-ggg/examples/styles/minder.css';
 import JSPDF from 'jspdf';
 import api from "@/api/file-api";
 import txtApi from "@/api/markdown-api";
-import Bus from "@/assets/js/bus";
 import historyApi from "@/api/file-history";
 import HistoryPopover from "@/components/HistoryPopover/index.vue";
+import {mapState} from "vuex";
 
 
 export default {
@@ -139,6 +139,7 @@ export default {
     },
   },
   computed: {
+    ...mapState(['message']),
     hasReadOnly() {
       return this.readOnly || this.viewHistory
     },
@@ -207,14 +208,17 @@ export default {
     },
     zoom(val) {
       this.execCommand('Zoom', val)
+    },
+    message(msg) {
+      if (msg.event === 'previewSaveAndClose') {
+        this.saveAndClose()
+      }
     }
   },
   mounted() {
-    Bus.$on('previewSaveAndClose', this.saveAndClose)
     document.addEventListener('keydown', this.ctrlAndS)
   },
   destroyed() {
-    Bus.$off('previewSaveAndClose')
     document.removeEventListener('keydown', this.ctrlAndS)
   },
   methods: {

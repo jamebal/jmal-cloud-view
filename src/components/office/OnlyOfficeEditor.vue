@@ -23,9 +23,9 @@
 
 import api from "@/api/file-api"
 import fileConfig from "@/utils/file-config";
-import Bus from "@/assets/js/bus";
 import SparkMD5 from 'spark-md5'
 import HistoryPopover from "@/components/HistoryPopover/index.vue";
+import {mapState} from "vuex";
 
 export default {
   name: "OnlyOfficeEditor",
@@ -82,6 +82,7 @@ export default {
     this.destroyEditor()
   },
   computed: {
+    ...mapState(['message']),
     fileType() {
       return this.getType(this.file.suffix)
     },
@@ -96,7 +97,7 @@ export default {
         $J.loadScript($J.apiUrl(officeApiUrl), (e) => {
           if (e !== null) {
             this.$emit('onClose')
-            Bus.$emit('loadFileFailed')
+            this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
             return
           }
           if(this.$store.state.user.token && this.$store.state.user.userId === this.file.userId){
@@ -123,15 +124,14 @@ export default {
           versionBtn.style.display = 'none'
         }
       }
+    },
+    message(msg) {
+      if (msg.event === 'previewSaveAndClose') {
+        this.requestClose()
+      }
     }
   },
-  mounted() {
-    Bus.$on('previewSaveAndClose', () => {
-      this.requestClose()
-    })
-  },
   destroyed() {
-    Bus.$off('previewSaveAndClose')
   },
   methods: {
     viewHistoryFile({historyInfo}) {
@@ -174,7 +174,6 @@ export default {
       }
     },
     recoverySuccess({result}) {
-      console.log('recoverySuccess', result)
       this.reloadDocument(`${result.data}-${SparkMD5.hash(this.file.id)}`)
       this.$message({message: '恢复成功',type: 'success'})
       this.historyListPopoverVisible = false

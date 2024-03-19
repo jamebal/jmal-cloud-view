@@ -88,8 +88,7 @@
 </template>
 
 <script>
-import Bus from '@/assets/js/bus'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
 import variables from '@/styles/variables.scss'
@@ -119,6 +118,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['message']),
     ...mapGetters([
       'sidebar',
       'name',
@@ -167,14 +167,18 @@ export default {
     },
     $route(to) {
       this.showTag = to.meta !== undefined && to.meta.menuType !== undefined && to.meta.menuType === 0;
-    }
+    },
+    message(msg) {
+      if (msg.event === 'msg/file/change') {
+        this.onmessage(msg.data)
+        if (msg.data.url === 'updateTags') {
+          this.setTagListData(msg.data.body)
+        }
+      }
+    },
   },
   mounted() {
     this.getTagList()
-    Bus.$on('msg/file/change', (msg) => this.onmessage(msg))
-  },
-  destroyed() {
-    Bus.$off('msg/file/change')
   },
   methods: {
     getTagList() {
@@ -196,9 +200,6 @@ export default {
         const space = takeUpSpace/1024/1024/1024
         const percentage = Number((space/this.userInfo.quota * 100).toFixed(1))
         this.percentage = percentage > 100 ? 100 : percentage
-      }
-      if (msg.url === 'updateTags') {
-        this.setTagListData(msg.body)
       }
     },
     copyWebDAVLink(className) {
