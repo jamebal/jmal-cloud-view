@@ -18,12 +18,12 @@ export function connectToSSE(username) {
     if (timer) {
       clearInterval(timer);
     }
-    // 15s检测一次连接状态
+    // 1s检测一次连接状态
     timer = setInterval(() => {
       if (eventSource.readyState === 2) {
         connectToSSE(username);
       }
-    }, 15000);
+    }, 1000);
 
   } else {
     console.error('EventSource is not supported by the browser');

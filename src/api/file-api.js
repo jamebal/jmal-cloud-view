@@ -65,15 +65,11 @@ export default {
     }
   },
   // 为文件分配标签
-  setTags: function(params, data) {
+  setTags: function(data) {
     return request({
       url: 'setTag',
       method: 'post',
-      data: data,
-      params: params,
-      paramsSerializer: function(params) {
-        return qs.stringify(params, { arrayFormat: 'repeat' })
-      }
+      data
     })
   },
   // 将文件设为公共文件

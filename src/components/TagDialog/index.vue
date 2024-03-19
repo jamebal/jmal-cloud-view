@@ -1,6 +1,16 @@
 <template>
   <di>
-    <el-dialog :title='"将标签分配给 \"" + showName + "\""' style="{'font-weight': 600}" :visible.sync="tagDialogVisible" @close="tagDialogClose">
+    <message-dialog
+      title="确认信息"
+      content="检测到未保存的内容，是否在离开前保存修改？"
+      :show.sync="isSaveDialogVisible"
+      operatButtonText="放弃修改"
+      confirmButtonText="保存"
+      @operating="closeConfirmDialog"
+      @confirm="confirmUpdate"
+    >
+    </message-dialog>
+    <el-dialog :title='"将标签分配给 \"" + showName + "\""' style="{'font-weight': 600}" :visible.sync="tagDialogVisible" :before-close="beforeClose" @close="tagDialogClose">
         <div class="tag-content">
           <el-tag
             :key="tag.name"
@@ -35,8 +45,9 @@
           <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 新标签</el-button>
 
           <div class="tag-list">
-            <p>现有标签: </p>
+            <p v-if="existingTags.length > 0">现有标签: </p>
            <el-button
+             v-if="!isEditMode"
              size="small"
              :key="tag.name"
              v-for="tag in existingTags"
@@ -44,12 +55,23 @@
              <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
              {{tag.name}}
            </el-button>
+            <div v-if="isEditMode">
+              <el-tag
+                :key="tag.name"
+                v-for="tag in existingTags"
+                :closable="isEditMode"
+                :disable-transitions="false"
+                @close="handleCloseCurrentTags(tag.name)">
+                <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
+                {{tag.name}}
+              </el-tag>
+            </div>
           </div>
 
         </div>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" type="primary" @click="submitTag" v-loading="saveLoading">保存
-        </el-button>
+        <el-button v-if="existingTags.length > 0 || isEditMode" size="small" @click="editMode" >{{ isEditMode ? '取消编辑' : '编辑现有标签' }}</el-button>
+        <el-button size="small" type="primary" @click="submitTag" v-loading="saveLoading">保存</el-button>
       </div>
     </el-dialog>
   </di>
@@ -60,10 +82,12 @@
 import fileApi from '@/api/file-api'
 import tagApi from '@/api/tag'
 import { Sketch } from 'vue-color'
+import MessageDialog from "@/components/message/MessageDialog.vue";
 
 export default {
   name: "TagDialog",
   components: {
+    MessageDialog,
     'sketch-picker': Sketch
   },
   props: {
@@ -89,7 +113,11 @@ export default {
       saveLoading: false,
       colors: {
         hex: '#f56c6c',
-      }
+      },
+      isEditMode: false,
+      remoteTagIdList: [],
+      isSaveDialogVisible: false,
+      hasChange: false,
     }
   },
   watch: {
@@ -144,6 +172,12 @@ export default {
       this.tags.splice(index, 1)
       this.updateExistingTags()
     },
+    handleCloseCurrentTags(tagName) {
+      let index = this.existingTags.findIndex(item => item.name === tagName)
+      const removeTag = this.existingTags.splice(index, 1)
+      this.remoteTagIdList.push(removeTag[0].id)
+      this.hasChange = true
+    },
     showInput() {
       this.inputVisible = true;
       this.$nextTick(_ => {
@@ -159,34 +193,64 @@ export default {
           this.$message.error('标签已存在');
           return;
         }
+        this.hasChange = true
         this.tags.push({ name: inputValue, color: this.defaultTagColor});
       }
       this.inputVisible = false;
       this.inputValue = '';
     },
     addTag(tag) {
+      this.hasChange = true
       // 是否有相同的标签
       this.tags.push({ name: tag.name, color: tag.color });
       this.updateExistingTags()
     },
+    closeConfirmDialog() {
+      this.isSaveDialogVisible = false
+      this.hasChange = true
+      this.tagDialogClose();
+    },
+    beforeClose(done) {
+      if (this.hasChange) {
+        this.isSaveDialogVisible = true
+      } else {
+        done()
+        this.isSaveDialogVisible = false
+      }
+    },
     tagDialogClose() {
+      this.tagDialogVisible = false
       this.$emit('update:status', this.tagDialogVisible)
+      this.isEditMode = false
+    },
+    editMode() {
+      this.isEditMode = !this.isEditMode
+      if (!this.isEditMode) {
+        this.remoteTagIdList = []
+      }
+      this.updateExistingTags()
+    },
+    confirmUpdate() {
+      this.submitTag()
     },
     submitTag() {
       this.saveLoading = true
       // 提取出文件id
       const fileIdList = this.fileList.map(item => item.id)
-      fileApi.setTags({fileIds: fileIdList}, this.tags).then(() => {
+      fileApi.setTags({fileIds: fileIdList, tagList: this.tags, removeTagIds: this.remoteTagIdList}).then(() => {
         this.saveLoading = false
         this.$message.success('保存成功');
         this.$emit('onSuccess')
+        this.hasChange = false
         this.tagDialogVisible = false
+        this.isSaveDialogVisible = false
         this.tagDialogClose()
       }).catch(() => {
         this.saveLoading = false
       })
     },
     updateColor(color, tag) {
+      this.hasChange = true
       // 更新tags
       this.tags.forEach(item => {
         if (item.name === tag.name) {

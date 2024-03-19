@@ -182,8 +182,12 @@ export default {
         this.showTag = true
       }
       tagApi.tagList({userId: this.$store.state.user.userId}).then(res => {
-        this.tagList = res.data
+        this.setTagListData(res.data)
       })
+    },
+    setTagListData(tagList) {
+      this.tagList = tagList
+      this.showTag = this.tagList.length > 0
     },
     onmessage(msg) {
       const takeUpSpace = msg.space
@@ -192,6 +196,9 @@ export default {
         const space = takeUpSpace/1024/1024/1024
         const percentage = Number((space/this.userInfo.quota * 100).toFixed(1))
         this.percentage = percentage > 100 ? 100 : percentage
+      }
+      if (msg.url === 'updateTags') {
+        this.setTagListData(msg.body)
       }
     },
     copyWebDAVLink(className) {
