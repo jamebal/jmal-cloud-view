@@ -19,6 +19,7 @@
 <script>
 import fileConfig from '@/utils/file-config'
 import {mapState} from 'vuex'
+import store from '@/store'
 
 export default {
   name: "ImageViewer",
@@ -74,7 +75,7 @@ export default {
         hide: function (e) {
         },
         hidden: function () {
-          this.$store.dispatch('updateMessage', { event: 'updateImageViewerStatus' })
+          store.dispatch('updateMessage', { event: 'updateImageViewerStatus' })
         },
         view: function (e) {
         },
