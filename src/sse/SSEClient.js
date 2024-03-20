@@ -1,16 +1,23 @@
 import Bus from "@/assets/js/bus";
 import store from "@/store";
+import {generateUUID} from "ant-design-vue/lib/vc-select/util";
 
 let eventSource = null;
 let timer = null;
+let lastHeartbeat = new Date().getTime();
 
 export function connectToSSE(username) {
   if (typeof (EventSource) !== 'undefined') {
-    const url = `/api/events?username=${username}`;
+    const url = `/api/events?username=${username}&uuid=${generateUUID()}`;
     eventSource = new EventSource(url);
     eventSource.addEventListener('message', function (event) {
-      const msg = JSON.parse( event.data);
-      onMessage(msg)
+      if (event.data === 'h') {
+        // 心跳包, 超过5s没有收到心跳包, 则关闭连接
+        lastHeartbeat = new Date().getTime()
+      } else {
+        const msg = JSON.parse( event.data);
+        onMessage(msg)
+      }
     });
     eventSource.addEventListener('error', function (event) {
       eventSource.close()
@@ -19,12 +26,18 @@ export function connectToSSE(username) {
     if (timer) {
       clearInterval(timer);
     }
-    // 1s检测一次连接状态
+    // 3s检测一次连接状态
     timer = setInterval(() => {
+      if (eventSource.readyState === 1) {
+        // 心跳包, 超过5s没有收到心跳包, 则关闭连接
+        if (new Date().getTime() - lastHeartbeat > 5000) {
+          eventSource.close()
+        }
+      }
       if (eventSource.readyState === 2) {
         connectToSSE(username);
       }
-    }, 1000);
+    }, 3000);
 
   } else {
     console.error('EventSource is not supported by the browser');
