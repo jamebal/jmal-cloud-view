@@ -27,6 +27,8 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 docker compose up -d
 ```
 
+等待启动后访问: http://{your_ip}:7070
+
 #### 重启管理员密码
 ```shell
 # 1. 重置密码
