@@ -1,4 +1,5 @@
 import Bus from "@/assets/js/bus";
+import _ from "lodash";
 import store from "@/store";
 import {generateUUID} from "ant-design-vue/lib/vc-select/util";
 
@@ -6,9 +7,11 @@ let eventSource = null;
 let timer = null;
 let lastHeartbeat = new Date().getTime();
 
-export function connectToSSE(username) {
+const uuid = generateUUID();
+
+const throttledConnectSSE = _.throttle(username => {
   if (typeof (EventSource) !== 'undefined') {
-    const url = `/api/events?username=${username}&uuid=${generateUUID()}`;
+    const url = `/api/events?username=${username}&uuid=${uuid}`;
     eventSource = new EventSource(url);
     eventSource.addEventListener('message', function (event) {
       if (event.data === 'h') {
@@ -39,10 +42,13 @@ export function connectToSSE(username) {
         connectToSSE(username);
       }
     }, 3000);
-
   } else {
     console.error('EventSource is not supported by the browser');
   }
+}, 3000);
+
+export function connectToSSE(username) {
+  throttledConnectSSE(username);
 }
 
 function onMessage(msg) {
