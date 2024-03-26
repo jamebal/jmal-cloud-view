@@ -119,6 +119,7 @@ import SparkMD5 from 'spark-md5'
 import api from '@/api/file-api'
 import {formatNetSpeed} from '@/utils/number'
 import {mapState} from 'vuex'
+import {encodeIfNeeded} from "@/utils/path";
 
 export default {
   components: {},
@@ -334,10 +335,10 @@ export default {
           // 上传文件夹
           api.uploadFolder({
             isFolder: true,
-            folderPath: encodeURI(folder.parent.path),
-            filename: encodeURI(folder.name),
+            folderPath: encodeIfNeeded(folder.parent.path),
+            filename: encodeIfNeeded(folder.name),
             folder: this.$route.query.folder,
-            currentDirectory: encodeURI(this.params.currentDirectory),
+            currentDirectory: encodeIfNeeded(this.params.currentDirectory),
             username: this.params.username,
             userId: this.params.userId
           }).then(() => {
