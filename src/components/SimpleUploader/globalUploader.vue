@@ -410,11 +410,11 @@ export default {
         // 文件状态设为“合并中”
         this.statusSet(file.id, 'merging')
         api.mergeSimpleUpload({
-          filename: encodeURI(file.name),
-          relativePath: encodeURI(file.relativePath),
+          filename: encodeIfNeeded(file.name),
+          relativePath: encodeIfNeeded(file.relativePath),
           identifier: file.uniqueIdentifier,
           folder: this.$route.query.folder,
-          currentDirectory: encodeURI(this.params.currentDirectory),
+          currentDirectory: encodeIfNeeded(this.params.currentDirectory),
           username: this.params.username,
           userId: this.params.userId,
           totalSize: file.size,
