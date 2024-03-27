@@ -129,6 +129,7 @@ export default {
         if (this.shareId) {
           videoUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
         }
+        const originUrl = videoUrl
         if (this.file.m3u8) {
           videoUrl = `${fileConfig.baseUrl}/video/hls/${this.file.m3u8}`
           if (this.shareId) {
@@ -138,6 +139,20 @@ export default {
         }
         this.option.url = videoUrl
         if (this.file.m3u8) {
+          const supported = ['flv', 'mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov']
+          if (supported.includes(this.file.suffix.toLowerCase())) {
+            this.option.quality = [
+              {
+                default: true,
+                html: 'HD',
+                url: this.option.url,
+              },
+              {
+                html: '原文件',
+                url: originUrl,
+              }
+            ]
+          }
           this.option.customType = {
             m3u8: this.playM3u8
           }
