@@ -32,7 +32,6 @@ function isEncoded(str) {
 }
 
 export function encodeIfNeeded(str) {
-  console.log('str:', str, isEncoded(str))
   if (isEncoded(str)) {
     return str;
   } else {
