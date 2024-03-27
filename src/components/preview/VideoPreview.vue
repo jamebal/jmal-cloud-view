@@ -132,7 +132,8 @@ export default {
         if (this.file.m3u8) {
           videoUrl = `${fileConfig.baseUrl}/video/hls/${this.file.m3u8}`
           if (this.shareId) {
-            videoUrl = `${fileConfig.baseUrl}/public/video/hls/${this.file.m3u8}`
+            const shareToken = this.$store.getters.shareToken ? this.$store.getters.shareToken : 'token'
+            videoUrl = `${fileConfig.baseUrl}/public/video/hls/${window.shareId}/${shareToken}/${this.file.m3u8}`
           }
         }
         this.option.url = videoUrl
@@ -187,8 +188,7 @@ export default {
       iina.href = `iina://weblink?url=${this.videoLink}`
       // nplayer
       const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
-      const link = `nplayer-${this.videoLink}`
-      nplayer.href = link
+      nplayer.href = `nplayer-${this.videoLink}`
       // infuse
       const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
       infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
