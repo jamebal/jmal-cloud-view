@@ -222,8 +222,8 @@ export default {
   },
   watch: {
     message(msg) {
-      if (msg.url === 'synced') {
-        this.syncPercent = msg.body
+      if (msg.event === 'msg/synced') {
+        this.syncPercent = msg.data.body
         if (this.syncPercent >= 100) {
           this.syncLoading = false
         }
