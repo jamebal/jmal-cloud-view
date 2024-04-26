@@ -143,7 +143,7 @@ export default {
             })
           })
         }
-
+        this.remoteTagIdList = []
         // 加载已有标签列表
         tagApi.tagList({userId: this.$store.state.user.userId,}).then(res => {
           this.tagList = res.data
