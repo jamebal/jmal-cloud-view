@@ -936,7 +936,7 @@ export default {
     searchFile(key, onLoad) {
       if (key) {
         this.beforeLoadData(onLoad)
-        this.$router.push(`?vmode=${this.vmode}&search-file=${key}`)
+        this.$router.push(`?vmode=${this.vmode}&keyword=${key}`)
         api.searchFile({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
@@ -1660,6 +1660,8 @@ input {
 .search-result {
   font-weight: 600;
   font-size: 20px;
+  height: unset;
+  margin-top: unset;
 }
 
 .search-result-no {

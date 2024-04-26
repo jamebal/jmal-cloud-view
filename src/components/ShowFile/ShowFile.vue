@@ -2678,14 +2678,27 @@ export default {
     searchFile(key, onLoad) {
       if (key) {
         this.beforeLoadData(onLoad);
-        this.pathList = [{ folder: "" }];
-        const item1 = {};
-        item1["folder"] = "搜索: " + '"' + key + '"';
-        item1["search"] = true;
-        item1["searchKey"] = key;
-        this.pathList.push(item1);
+        // this.pathList = [{ folder: "" }];
+        // 查找this.pathList中是否已经有搜索的路径
+        let isExist = false;
+        this.pathList.forEach(item => {
+          if (item.search) {
+            // 修改搜索的路径
+            item.folder = "搜索: " + '"' + key + '"';
+            isExist = true;
+          }
+        });
+        if (!isExist) {
+          const item1 = {};
+          item1["folder"] = "搜索: " + '"' + key + '"';
+          item1["search"] = true;
+          item1["searchKey"] = key;
+          this.pathList.push(item1);
+        }
         const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
-        this.$router.push(`?vmode=${this.vmode}&search-file=${key}${queryTagId}`);
+        const keyword = key ? `&keyword=${key}` : ''
+        const path = this.path ? encodeURI(this.path) : "/";
+        this.$router.push(`?vmode=${this.vmode}&path=${path}${keyword}${queryTagId}`);
         api.searchFile({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
@@ -2693,15 +2706,22 @@ export default {
           sortableProp: this.sortable.prop,
           order: this.sortable.order,
           currentDirectory: this.getQueryPath(),
+          tagId: this.$route.query.tagId,
+          isFolder: this.queryCondition.isFolder,
+          isFavorite: this.queryCondition.isFavorite,
+          queryFileType: this.queryFileType,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         })
           .then(res => {
             this.loadData(res, onLoad);
-            this.path = "";
             this.listModeSearch = true;
             this.listModeSearchOpenDir = false;
           });
+      } else {
+        if (this.listModeSearch) {
+          this.lastLink()
+        }
       }
     },
     searchFileAndOpenDir(row, onLoad) {
@@ -2743,27 +2763,35 @@ export default {
       this.path = this.path.replace(/\\/g, "/");
     },
     getFileList(onLoad) {
-      this.getFileListed = true;
-      this.beforeLoadData(onLoad);
-      api
-        .fileList({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          currentDirectory: this.getQueryPath(),
-          folder: this.$route.query.folder,
-          queryFileType: this.queryFileType,
-          sortableProp: this.sortable.prop,
-          order: this.sortable.order,
-          isFolder: this.queryCondition.isFolder,
-          isFavorite: this.queryCondition.isFavorite,
-          tagId: this.queryCondition.tagId,
-          queryCondition: this.queryCondition,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
-        })
-        .then(res => {
-          this.loadData(res, onLoad);
-        });
+      if (this.$route.query.keyword) {
+        if (this.$route.query.keyword !== "undefined") {
+          this.searchFileName = this.$route.query.keyword;
+        }
+        this.searchFile(this.searchFileName)
+      } else {
+        this.searchFileName = ""
+        this.getFileListed = true
+        this.beforeLoadData(onLoad)
+        api
+          .fileList({
+            userId: this.$store.state.user.userId,
+            username: this.$store.state.user.name,
+            currentDirectory: this.getQueryPath(),
+            folder: this.$route.query.folder,
+            queryFileType: this.queryFileType,
+            sortableProp: this.sortable.prop,
+            order: this.sortable.order,
+            isFolder: this.queryCondition.isFolder,
+            isFavorite: this.queryCondition.isFavorite,
+            tagId: this.queryCondition.tagId,
+            queryCondition: this.queryCondition,
+            pageIndex: this.pagination.pageIndex,
+            pageSize: this.pagination.pageSize
+          })
+          .then(res => {
+            this.loadData(res, onLoad);
+          });
+      }
     },
     getFileListBySearchMode(onLoad) {
       this.beforeLoadData(onLoad);
@@ -4025,7 +4053,9 @@ export default {
           item["row"] = row;
           this.pathList.push(item);
           this.pagination.pageIndex = 1;
-          this.$router.push(`?vmode=${this.vmode}&search-file=${row.id}${queryTagId}`);
+          const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
+          const folder = row.id ? `&folder=${row.id}` : ''
+          this.$router.push(`?vmode=${this.vmode}${keyword}${folder}${queryTagId}`);
           this.searchFileAndOpenDir(row);
         } else {
           let notHomePage = this.$route.path.length > 1
