@@ -142,6 +142,14 @@ export default {
           if (!res) {
             return []
           }
+          console.log('checkChunkUploadedByResponse', res)
+          if (res.duplicate) {
+            if (confirm("文件已存在, 确定要覆盖吗？")) {
+              return true
+            } else {
+              return []
+            }
+          }
           if (res.pass) {
             // 秒传
             return true
@@ -322,6 +330,7 @@ export default {
       }
     },
     onFilesAdded(files) {
+      console.log('onFilesAdded', files)
       if (files.length === 0) {
         return
       }
@@ -395,6 +404,18 @@ export default {
         return;
       }
       const data = res.data
+
+      // if (data.duplicate) {
+      //   console.log(this.uploader)
+      //   this.$refs.uploader.fileRemoved(file)
+      //   if (confirm("文件已存在, 确定要覆盖吗？")) {
+      //     this.$refs.uploader.fileAdded(file)
+      //     this.$refs.uploader.uploadStart()
+      //   } else {
+      //     return;
+      //   }
+      // }
+
       // 服务器自定义的错误（即虽返回200，但是是错误的情况），这种错误是Uploader无法拦截的
       if (!data.upload) {
         // this.$message({ message: res.message, type: 'error' })
