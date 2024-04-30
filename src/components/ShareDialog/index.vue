@@ -73,8 +73,8 @@
                   <template slot="prepend">提取码</template>
                 </el-input>
 
-                <el-collapse accordion v-if="shareOptionConfig.shared && shareOption.isPrivacy">
-                  <el-collapse-item title="操作权限">
+                <el-collapse v-if="shareOptionConfig.shared && shareOption.isPrivacy" v-model="activeName">
+                  <el-collapse-item title="操作权限" name="1">
                     <el-checkbox-group v-model="shareOption.operationPermissionList" @change="permissionActionChange">
                       <el-checkbox label="UPLOAD">上传</el-checkbox>
                       <el-checkbox label="PUT">修改</el-checkbox>
@@ -194,6 +194,7 @@ export default {
         expiresDate: '',
         operationPermissionList: undefined
       },
+      activeName: "1",
       shareLink: "",
       qrCodeshareLink: "",
       extractionCode: '',
