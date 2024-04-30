@@ -22,7 +22,7 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
     let owner = null
-    if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== undefined) {
+    if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== null) {
       owner = localStorage.getItem('mountFileOwner')
     } else {
       owner = username

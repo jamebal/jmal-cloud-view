@@ -2653,6 +2653,7 @@ export default {
     },
     // 设置挂载文件的用户名(文件的所有者)
     setMountFileOwner() {
+      localStorage.removeItem('mountFileOwner')
       if (this.$route.query.folder && this.fileList.length > 0) {
         let firstFile = this.fileList[0]
         if (firstFile.userId !== this.$store.getters.userId) {
