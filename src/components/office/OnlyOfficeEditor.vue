@@ -100,7 +100,7 @@ export default {
             this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
             return
           }
-          if (!this.shareId) {
+          if (this.shareId) {
             api.getPublicFileInfoById({fileId: this.file.id, shareId: this.shareId}).then(res => {
               this.file = res.data
               this.loadFile()
