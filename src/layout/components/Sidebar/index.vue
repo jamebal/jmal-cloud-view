@@ -356,7 +356,7 @@ export default {
     }
     .copy-btn {
       margin-top: 10px;
-      margin-left: 50px;
+      margin-left: 34px;
     }
     .copy-btn:hover {
       cursor: pointer;
