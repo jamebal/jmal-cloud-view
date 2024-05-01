@@ -6,7 +6,7 @@
       ref="uploader"
       :options="options"
       :file-status-text="statusText"
-      :auto-start="true"
+      :auto-start="false"
       class="uploader-app"
       @files-added="onFilesAdded"
       @file-success="onFileSuccess"
@@ -321,10 +321,43 @@ export default {
         folder: this.$route.query.folder
       }
     },
-    onFilesAdded(files) {
+    isPath(str) {
+      // 这个正则表达式检测路径中的斜杠字符
+      return /[/\\]/.test(str);
+    },
+    async onFilesAdded(files) {
       if (files.length === 0) {
         return
       }
+      let filenames = files.map(file => file.name)
+      const paths = Object.keys(this.uploader.filePaths)
+      paths.forEach(path => {
+        if (this.isPath(path)) {
+          // 取第一级
+          const folder = path.split('/')[0]
+          filenames.push(folder)
+        }
+      })
+      const query = {
+        filenames: filenames,
+        ...this.params
+      }
+      const res = await api.checkExist(query)
+      if (res.data.exist) {
+        this.$confirm('文件已存在，是否覆盖？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.doUploadBefore(files)
+        }).catch(() => {
+          this.uploader.cancel()
+        })
+      } else {
+        this.doUploadBefore(files)
+      }
+    },
+    doUploadBefore(files) {
       this.fileListLength = this.uploader.fileList.length
       const filePaths = this.uploader.filePaths
       const paths = Object.keys(filePaths)
@@ -362,7 +395,9 @@ export default {
             ...this.params
           }
         })
-        store.dispatch('updateMessage', {event: 'fileAdded', data: null})
+      })
+      this.$nextTick(() => {
+        this.uploader.resume()
       })
     },
     onFileProgress(rootFile, file, chunk) {

@@ -1,5 +1,6 @@
-import request from '@/utils/request'
-const qs = require('qs')
+import request from "@/utils/request";
+
+const qs = require("qs");
 
 export default {
   // 上传
@@ -11,6 +12,14 @@ export default {
     return request({
       url: 'merge',
       method: 'post',
+      params
+    })
+  },
+  // 检查文件是否存在
+  checkExist: function (params) {
+    return request({
+      url: "checkExist",
+      method: "post",
       params
     })
   },
