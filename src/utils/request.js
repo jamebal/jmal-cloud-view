@@ -92,8 +92,12 @@ service.interceptors.response.use(
     }
   },
   error => {
+    let msg = '哎呀！服务器出错了，请稍后再试！'
+    if (error.response && error.response.status === 403) {
+      msg = '您的请求被服务器拒绝！'
+    }
     Vue.prototype.$message({
-      message: '哎呀！服务器出错了，请稍后再试！',
+      message: msg,
       type: 'error',
       duration: 5 * 1000
     })
