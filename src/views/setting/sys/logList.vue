@@ -21,12 +21,12 @@
               </el-col>
               <el-col :sm="12" :md="isLoginType ? 8 : 5">
                 <el-form-item label="账号:">
-                  <el-input clearable placeholder="请输入" v-model="queryCondition.username"/>
+                  <el-input clearable placeholder="请输入" v-model="queryCondition.username" @keyup.enter.native="queryLogList" @clear="queryLogList"/>
                 </el-form-item>
               </el-col>
               <el-col v-if="!isLoginType" :sm="12" :md="isLoginType ? 8 : 5">
                 <el-form-item label="ip:">
-                  <el-input clearable placeholder="请输入" v-model="queryCondition.ip"/>
+                  <el-input clearable placeholder="请输入" v-model="queryCondition.ip" @keyup.enter.native="queryLogList" @clear="queryLogList"/>
                 </el-form-item>
               </el-col>
               <el-col :sm="12" :md="isLoginType ? 8 : 5">
@@ -110,9 +110,6 @@ export default {
         value: 'LOGIN',
         label: '登录'
       }, {
-        value: 'BROWSE',
-        label: '足迹👣'
-      }, {
         value: 'OPERATION',
         label: '操作'
       }, {
@@ -195,6 +192,11 @@ export default {
       this.queryLogList()
     },
     queryLogList() {
+      if (this.queryCondition.username) {
+        this.queryCondition.excludeUsername = null;
+      } else {
+        this.queryCondition.excludeUsername = 'other';
+      }
       this.$refs.tableList.initPageIndex()
       this.getLogList()
     },
