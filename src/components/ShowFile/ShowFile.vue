@@ -685,12 +685,7 @@
         </el-form-item>
         <el-form-item label="大小:">
           <span>
-            {{ rowContextData.size }}字节
-            {{
-              rowContextData.size > 0
-                ? "(" + formatSize(rowContextData.size) + ")"
-                : ""
-            }}</span
+            {{formatSize(rowContextData.size)}}</span
           >
         </el-form-item>
         <el-form-item label="位置:" class="details-position">
@@ -1112,6 +1107,7 @@ export default {
       dragLoop: null,
       positionX: 0,
       positionY: 0,
+      showFolderSize: false,
       grid: this.defaultGrid,
       vmode: this.defaultGrid ? "grid" : "list",
       gridColumnNum: -1,
@@ -2585,6 +2581,11 @@ export default {
           child[0].iconClass = "menu-point";
           child[1].iconClass = "menu-empty";
         }
+        if (this.showFolderSize) {
+          child[2].iconClass = "duigou";
+        } else {
+          child[2].iconClass = "menu-empty";
+        }
       }
       if (arrangementModeIndex > -1) {
         const child = this.contextMenus[arrangementModeIndex].child;
@@ -2728,7 +2729,8 @@ export default {
           isFavorite: this.queryCondition.isFavorite,
           queryFileType: this.queryFileType,
           pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
+          pageSize: this.pagination.pageSize,
+          showFolderSize: this.showFolderSize
         })
           .then(res => {
             this.loadData(res, onLoad);
@@ -2751,7 +2753,8 @@ export default {
           currentDirectory: this.getQueryPath(),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
-          folder: this.$route.query.folder
+          folder: this.$route.query.folder,
+          showFolderSize: this.showFolderSize
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -2771,7 +2774,8 @@ export default {
           currentDirectory: this.getQueryPath(),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
-          folder: this.$route.query.folder
+          folder: this.$route.query.folder,
+          showFolderSize: this.showFolderSize
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -2803,7 +2807,8 @@ export default {
             tagId: this.queryCondition.tagId,
             queryCondition: this.queryCondition,
             pageIndex: this.pagination.pageIndex,
-            pageSize: this.pagination.pageSize
+            pageSize: this.pagination.pageSize,
+            showFolderSize: this.showFolderSize
           })
           .then(res => {
             this.loadData(res, onLoad);
@@ -2819,7 +2824,8 @@ export default {
           currentDirectory: this.getQueryPath(),
           folder: this.$route.query.folder,
           pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize
+          pageSize: this.pagination.pageSize,
+          showFolderSize: this.showFolderSize
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -3416,6 +3422,10 @@ export default {
         case "vmode-grid":
           this.grid = false;
           this.changeVmode();
+          break;
+        case "show-folder-size":
+          this.showFolderSize = !this.showFolderSize;
+          this.getFileList();
           break;
         case "orderName":
           this.sortChangeOfMenu("name", 2);

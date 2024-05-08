@@ -23,6 +23,7 @@ export default {
         { label: '查看', operation: 'viewMode' ,child: [
             { iconClass: this.grid?'':'menu-point', label: '列表', operation: 'vmode-list'},
             { iconClass: this.grid?'menu-point':'', label: '缩略图', operation: 'vmode-grid'},
+            { label: '显示文件夹大小', operation: 'show-folder-size'},
           ]
         },
         { label: '排列方式', operation: 'arrangement' ,child: [
