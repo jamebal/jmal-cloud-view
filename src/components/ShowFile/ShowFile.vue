@@ -169,9 +169,13 @@
               style="height: 40px;"
               @command="contextmenuClick"
             >
-              <el-button type="text" class="sort">
-                <svg-icon icon-class="sort" />
-              </el-button>
+              <div>
+                <el-button type="text" class="sort">
+                  <svg-icon v-if="sortable.order === 'descending'" icon-class="sort-amount-down-solid"/>
+                  <svg-icon v-else icon-class="sort-amount-up-alt-solid"/>
+                  <span class="sort-name">{{sortName}}</span>
+                </el-button>
+              </div>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="orderName">
                   <span
@@ -1161,6 +1165,18 @@ export default {
   computed: {
     ...mapState(["message"]),
     ...mapGetters(["name"]),
+    sortName() {
+      switch (this.sortable.prop) {
+        case "name":
+          return "名称";
+        case "size":
+          return "大小";
+        case "updateDate":
+          return "日期";
+        default:
+          return "名称";
+      }
+    },
     gridFilename() {
       // 优化文件名，如果文件名过长，则进行截取
       return function(item) {
