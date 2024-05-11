@@ -611,34 +611,19 @@ export default {
       }
     },
     downloadFile() {
-      let totalSize = 0
+      let fileIds = [];
       if (this.selectRowData.length > 0) {
-        this.selectRowData.forEach(item => {
-          totalSize += item.size
+        this.selectRowData.forEach(value => {
+          fileIds.push(value.id)
         })
       } else {
-        totalSize += this.rowContextData.size
+        fileIds.push(this.rowContextData.id)
       }
-      if (totalSize > 0) {
-        let fileIds = [];
-        if (this.selectRowData.length > 0) {
-          this.selectRowData.forEach(value => {
-            fileIds.push(value.id)
-          })
-        } else {
-          fileIds.push(this.rowContextData.id)
-        }
-        if (fileIds.length > 1 || this.rowContextData.isFolder) {
-          fileConfig.packageDownload(fileIds, this.$store.state.user.token, this.$store.state.user.name)
-          return
-        }
-        fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.state.user.token)
-      } else {
-        this.$message({
-          message: '所选文件夹为空',
-          type: 'warning'
-        });
+      if (fileIds.length > 1 || this.rowContextData.isFolder) {
+        fileConfig.packageDownload(fileIds, this.$store.state.user.token, this.$store.state.user.name)
+        return
       }
+      fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.state.user.token)
     },
     // 复制下载链接
     copyDownloadLink(row) {

@@ -3846,42 +3846,19 @@ export default {
       this.rowContextData.isShare = true;
     },
     downloadFile() {
-      let totalSize = 0;
+      let fileIds = [];
       if (this.$refs.fileListTable.tableSelectData.length > 0) {
-        this.$refs.fileListTable.tableSelectData.forEach(item => {
-          totalSize += item.size;
+        this.$refs.fileListTable.tableSelectData.forEach(value => {
+          fileIds.push(value.id);
         });
       } else {
-        totalSize += this.rowContextData.size;
+        fileIds.push(this.rowContextData.id);
       }
-      if (totalSize > 0) {
-        let fileIds = [];
-        if (this.$refs.fileListTable.tableSelectData.length > 0) {
-          this.$refs.fileListTable.tableSelectData.forEach(value => {
-            fileIds.push(value.id);
-          });
-        } else {
-          fileIds.push(this.rowContextData.id);
-        }
-        if (fileIds.length > 1 || this.rowContextData.isFolder) {
-          fileConfig.packageDownload(
-            fileIds,
-            this.$store.state.user.token,
-            this.$store.state.user.name
-          );
-          return;
-        }
-        fileConfig.download(
-          this.$store.state.user.name,
-          this.rowContextData,
-          this.$store.getters.token
-        );
-      } else {
-        this.$message({
-          message: "所选文件为空",
-          type: "warning"
-        });
+      if (fileIds.length > 1 || this.rowContextData.isFolder) {
+        fileConfig.packageDownload(fileIds,this.$store.state.user.token,this.$store.state.user.name)
+        return;
       }
+      fileConfig.download(this.$store.state.user.name,this.rowContextData,this.$store.getters.token)
     },
     // 复制下载链接
     copyDownloadLink(row) {

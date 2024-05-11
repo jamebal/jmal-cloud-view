@@ -1000,45 +1000,30 @@ export default {
       this.selectTreeNode.showName = ' "' + row.name + '"'
     },
     downloadFile(copy) {
-      let totalSize = 0
-      if (this.indexList.length > 0) {
-        this.selectRowData.forEach(item => {
-          totalSize += item.size
+      let fileIds = [];
+      if (this.menusIsMultiple) {
+        this.selectRowData.forEach(value => {
+          fileIds.push(value.id)
         })
       } else {
-        totalSize = this.rowContextData.size
+        fileIds.push(this.rowContextData.id)
       }
-      if (totalSize > 0) {
-        let fileIds = [];
-        if (this.menusIsMultiple) {
-          this.selectRowData.forEach(value => {
-            fileIds.push(value.id)
-          })
-        } else {
-          fileIds.push(this.rowContextData.id)
-        }
-        if (fileIds.length > 1 || this.rowContextData.isFolder) {
-          if (copy) {
-            this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
-          } else {
-            fileConfig.publicPackageDownload(this.shareId, fileIds, this.$store.getters.shareToken)
-          }
-          return
-        }
+      if (fileIds.length > 1 || this.rowContextData.isFolder) {
         if (copy) {
-          if (this.rowContextData.isShare) {
-            this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData, undefined, this.$store.getters.shareToken))
-          } else {
-            this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
-          }
+          this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
         } else {
-          fileConfig.publicDownload(this.shareId, this.rowContextData, this.$store.getters.shareToken)
+          fileConfig.publicPackageDownload(this.shareId, fileIds, this.$store.getters.shareToken)
+        }
+        return
+      }
+      if (copy) {
+        if (this.rowContextData.isShare) {
+          this.copyDownloadLink(window.location.origin + fileConfig.previewUrl(this.sharer.username, this.rowContextData, undefined, this.$store.getters.shareToken))
+        } else {
+          this.copyDownloadLink(fileConfig.publicPackageDownloadUrl(this.shareId, fileIds, this.$store.getters.shareToken))
         }
       } else {
-        this.$message({
-          message: '所选文件为空',
-          type: 'warning'
-        });
+        fileConfig.publicDownload(this.shareId, this.rowContextData, this.$store.getters.shareToken)
       }
     },
     // 复制下载链接
