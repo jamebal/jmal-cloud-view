@@ -9,7 +9,7 @@ export default {
   },
   // webDAV的url
   webDAVUrl: function(username) {
-    return window.location.origin + `${this.baseUrl}/webDAV/${username}`
+    return window.location.origin + `/webDAV/${username}`
   },
   // office api url
   officeApiUrl: function() {
