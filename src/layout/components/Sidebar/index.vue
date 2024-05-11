@@ -184,7 +184,11 @@ export default {
     getTagList() {
       if (this.$route.meta.menuType === 0) {
         this.showTag = true
+      } else {
+        this.showTag = false
+        return
       }
+      console.log(this.$route.meta.menuType)
       tagApi.tagList({userId: this.$store.state.user.userId}).then(res => {
         this.setTagListData(res.data)
       })
