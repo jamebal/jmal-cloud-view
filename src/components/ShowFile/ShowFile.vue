@@ -1107,7 +1107,6 @@ export default {
       dragLoop: null,
       positionX: 0,
       positionY: 0,
-      showFolderSize: false,
       grid: this.defaultGrid,
       vmode: this.defaultGrid ? "grid" : "list",
       gridColumnNum: -1,
@@ -2581,7 +2580,7 @@ export default {
           child[0].iconClass = "menu-point";
           child[1].iconClass = "menu-empty";
         }
-        if (this.showFolderSize) {
+        if (localStorage.getItem('showFolderSize') === 'true') {
           child[2].iconClass = "duigou";
         } else {
           child[2].iconClass = "menu-empty";
@@ -2730,7 +2729,7 @@ export default {
           queryFileType: this.queryFileType,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
-          showFolderSize: this.showFolderSize
+          showFolderSize: localStorage.getItem('showFolderSize')
         })
           .then(res => {
             this.loadData(res, onLoad);
@@ -2754,7 +2753,7 @@ export default {
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
           folder: this.$route.query.folder,
-          showFolderSize: this.showFolderSize
+          showFolderSize: localStorage.getItem('showFolderSize')
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -2775,7 +2774,7 @@ export default {
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
           folder: this.$route.query.folder,
-          showFolderSize: this.showFolderSize
+          showFolderSize: localStorage.getItem('showFolderSize')
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -2808,7 +2807,7 @@ export default {
             queryCondition: this.queryCondition,
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize,
-            showFolderSize: this.showFolderSize
+            showFolderSize: localStorage.getItem('showFolderSize')
           })
           .then(res => {
             this.loadData(res, onLoad);
@@ -2825,7 +2824,7 @@ export default {
           folder: this.$route.query.folder,
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
-          showFolderSize: this.showFolderSize
+          showFolderSize: localStorage.getItem('showFolderSize')
         })
         .then(res => {
           this.loadData(res, onLoad);
@@ -3424,7 +3423,8 @@ export default {
           this.changeVmode();
           break;
         case "show-folder-size":
-          this.showFolderSize = !this.showFolderSize;
+          const showFolderSize = localStorage.getItem('showFolderSize')
+          localStorage.setItem('showFolderSize', showFolderSize === 'false')
           this.getFileList();
           break;
         case "orderName":
