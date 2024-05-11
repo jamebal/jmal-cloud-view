@@ -17,7 +17,7 @@ export default {
   },
   // office回调url
   officeCallBackUrl: function(token, username, fileId) {
-    return `${window.location.origin}${this.baseUrl}/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
+    return `http://jmalcloud:8088/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
