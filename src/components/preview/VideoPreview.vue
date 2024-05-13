@@ -67,7 +67,6 @@ export default {
             tooltip: 'IINA',
             style: {
               marginRight: this.$pc ? '20px' : '0px',
-              display: this.$pc ? 'block' : 'none'
             },
             html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/iina.webp")}"></a>`,
             index: 1,
