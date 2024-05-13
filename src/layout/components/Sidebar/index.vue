@@ -188,7 +188,6 @@ export default {
         this.showTag = false
         return
       }
-      console.log(this.$route.meta.menuType)
       tagApi.tagList({userId: this.$store.state.user.userId}).then(res => {
         this.setTagListData(res.data)
       })
@@ -360,7 +359,8 @@ export default {
     }
     .copy-btn {
       margin-top: 10px;
-      margin-left: 34px;
+      margin-right: 0 !important;
+      margin-left: 16px;
     }
     .copy-btn:hover {
       cursor: pointer;
@@ -368,10 +368,8 @@ export default {
     .wedav-text {
       font-size: 12px;
       margin-left: 20px;
+      cursor: default;
     }
-  }
-  .normal:hover {
-    cursor: pointer;
   }
   .collapse {
     padding-left: 15px;
