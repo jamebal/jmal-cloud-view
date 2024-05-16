@@ -19,7 +19,7 @@
             ></svg-icon>
             {{ item.label }}
           </v-contextmenu-item>
-          <v-contextmenu-submenu v-if="item.child" :title="item.label">
+          <v-contextmenu-submenu v-if="item.child" :disabled="item.homeDisable && (!path || path.length < 2)" :title="item.label">
             <!-- 二级菜单 -->
             <div v-for="itemSecond of item.child" :key="itemSecond.operation">
               <v-contextmenu-item
@@ -2268,7 +2268,9 @@ export default {
     goBack() {
       if (this.pathList.length <= 1) {
         const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
-        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryTagId}`);
+        const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
+        const basePath = this.getBasePath()
+        this.$router.push(`/?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryTagId}${basePath}${keyword}`);
         return;
       }
       this.lastLink();
@@ -2309,10 +2311,12 @@ export default {
 
         if (!unPushLink) {
           const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+          const basePath = this.getBasePath()
+          const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
           if (!this.$route.query.path) {
-            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}`);
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}${basePath}${keyword}`);
           } else {
-            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}`);
+            this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}${basePath}${keyword}`);
           }
         }
         if (!unRefresh) {
@@ -2320,6 +2324,13 @@ export default {
           this.getFileList();
         }
       }
+    },
+    getBasePath() {
+      let basePath = this.$route.query.basePath ? `&basePath=${this.$route.query.basePath}` : ''
+      if (!this.path || this.path.length < 2) {
+        return ''
+      }
+      return basePath
     },
     // 新建文档
     newDocument() {
@@ -2541,7 +2552,9 @@ export default {
       }
       this.editingIndex = -1;
       const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${this.$route.query.folder ? '&folder='+this.$route.query.folder : ''}${queryTagId}`);
+      const basePath = this.getBasePath()
+      const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${this.$route.query.folder ? '&folder='+this.$route.query.folder : ''}${queryTagId}${basePath}${keyword}`);
       // 改变拖拽目标
       this.rowDrop();
       // 画矩形选取
@@ -2713,9 +2726,10 @@ export default {
           this.pathList.push(item1);
         }
         const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+        const basePath = this.getBasePath()
         const keyword = key ? `&keyword=${key}` : ''
         const path = this.path ? encodeURI(this.path) : "/";
-        this.$router.push(`?vmode=${this.vmode}&path=${path}${keyword}${queryTagId}`);
+        this.$router.push(`?vmode=${this.vmode}&path=${path}${keyword}${queryTagId}${basePath}`);
         api.searchFile({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
@@ -4049,6 +4063,7 @@ export default {
       if (row.isFolder) {
         this.editingIndex = -1;
         const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+        const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
         // 打开文件夹
         if (this.listModeSearch) {
           const item = {};
@@ -4057,9 +4072,8 @@ export default {
           item["row"] = row;
           this.pathList.push(item);
           this.pagination.pageIndex = 1;
-          const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
           const folder = row.id ? `&folder=${row.id}` : ''
-          this.$router.push(`?vmode=${this.vmode}${keyword}${folder}${queryTagId}`);
+          this.$router.push(`?vmode=${this.vmode}${keyword}${folder}${queryTagId}${basePath}`);
           this.searchFileAndOpenDir(row);
         } else {
           let notHomePage = this.$route.path.length > 1
@@ -4083,7 +4097,8 @@ export default {
           if (row.mountFileId) {
             localStorage.setItem(this.path, row.mountFileId)
           }
-          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}${queryTagId}${this.basePath.length > 1 ? '&basePath='+this.basePath : ''}`);
+          const basePath = this.basePath.length > 1 ? '&basePath='+this.basePath : ''
+          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}${queryTagId}${basePath}${keyword}`);
           this.openDir(row);
         }
       } else {

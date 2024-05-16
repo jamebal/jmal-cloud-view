@@ -29,6 +29,7 @@ export default {
         { label: '查看', operation: 'viewMode' ,child: [
             { iconClass: this.grid?'':'menu-point', label: '列表', operation: 'vmode-list'},
             { iconClass: this.grid?'menu-point':'', label: '缩略图', operation: 'vmode-grid'},
+            { label: '显示文件夹大小', operation: 'show-folder-size'},
           ]
         },
         { label: '排列方式', operation: 'arrangement' ,child: [
@@ -39,7 +40,7 @@ export default {
         },
         { label: '刷新', operation: 'refresh'},
         { divider: true, operation: 'divider' },
-        { label: '新建', operation: 'create' ,child: [
+        { label: '新建', operation: 'create' , homeDisable: true, child: [
             { label: '文件夹', operation: 'createFolder', iconClass: 'folder'},
             { divider: true, operation: 'divider' },
             { label: '文本', operation: 'createTextFile', iconClass: 'file-txt'},
