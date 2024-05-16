@@ -4077,7 +4077,6 @@ export default {
           this.searchFileAndOpenDir(row);
         } else {
           let notHomePage = this.$route.path.length > 1
-          console.log('notHomePage', notHomePage, 'this.basePath.length', this.basePath.length)
           if (notHomePage && this.basePath.length === 1) {
             this.basePath = row.path
           }
