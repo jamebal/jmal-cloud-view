@@ -1,0 +1,19 @@
+# .github/release-drafter.yml
+name-template: 'v$NEXT_PATCH_VERSION 🌟'
+tag-template: 'v$NEXT_PATCH_VERSION'
+categories:
+  - title: '新功能 ✨'
+    labels:
+      - 'feature'
+  - title: '修复 🐛'
+    labels:
+      - 'bug'
+  - title: '优化 🎨️'
+    labels:
+      - 'improvement'
+change-template: '- $TITLE (#$NUMBER)'
+no-changes-template: '- No changes'
+template: |
+  ## Changes in this release:
+
+  $CHANGES
