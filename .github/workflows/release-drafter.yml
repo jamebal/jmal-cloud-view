@@ -1,0 +1,20 @@
+# .github/workflows/release-drafter.yml
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [closed]
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
