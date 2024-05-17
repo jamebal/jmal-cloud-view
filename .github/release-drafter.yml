@@ -14,6 +14,19 @@ categories:
 change-template: '- $TITLE (#$NUMBER)'
 no-changes-template: '- No changes'
 template: |
+
+  [docker-docker.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.example2.yml)
+
+  #### 更新前备份数据库
+
+  ```shell
+  docker exec -it jmalcloud_mongodb mongodump -d jmalcloud -o /dump/$PREVIOUS_TAG --gzip --quiet
+  ```
+
+  ```shell
+  docker-compose pull && docker-compose up -d
+  ```
+
   ## Changes in this release:
 
   $CHANGES
