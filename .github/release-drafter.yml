@@ -1,5 +1,5 @@
 # .github/release-drafter.yml
-name-template: 'v$NEXT_PATCH_VERSION 🌟'
+name-template: 'v$NEXT_PATCH_VERSION'
 tag-template: 'v$NEXT_PATCH_VERSION'
 categories:
   - title: '新功能 ✨'
@@ -17,3 +17,5 @@ template: |
   ## Changes in this release:
 
   $CHANGES
+
+  **Full Changelog**: [$PREVIOUS_TAG...v$NEXT_PATCH_VERSION](https://github.com/jamebal/jmal-cloud-view/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION)
