@@ -2296,8 +2296,6 @@ export default {
       this.handleLink(this.pathList[this.pathList.length - 2],this.pathList.length - 2, undefined, undefined, keywordQuery)
     },
     handleLink(item, index, unPushLink, unRefresh, keywordQuery) {
-      console.log('handleLink item', item)
-      console.log('handleLink: this.pathList', this.pathList)
       this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1),this.pathList.length - (index + 1))
       if (item && item.search) {
         if (item.searchKey) {
@@ -2329,7 +2327,6 @@ export default {
           if (searchPathIndex < 0) {
             keywordQuery = ''
           }
-          console.log('keywordQuery', keywordQuery)
           this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}${queryTagId}${basePath}${keywordQuery}`);
         }
         if (!unRefresh) {
@@ -2690,15 +2687,11 @@ export default {
         }
       }
 
-      console.log('loadData1: this.path', this.path)
-
       const path = this.$route.query.path ? this.$route.query.path : '/'
       const basePath = this.$route.query.basePath ? this.$route.query.basePath : '/'
       this.path = basePath + path
       this.path = this.path.replace(/\\/g, '/')
       this.path = this.path.replace(/\/\//g, '/')
-
-      console.log('loadData2: this.path', this.path)
 
       this.$store.dispatch('updateMessage', {event: 'storageTypeChange', data: storageType})
     },
@@ -2740,12 +2733,10 @@ export default {
           item1["searchKey"] = key
           this.pathList.push(item1)
         }
-        console.log('searchFile: this.pathList', this.pathList)
         const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
         const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
         const basePath = this.getBasePath()
         const keyword = key ? `&keyword=${key}` : ''
-        console.log('this.path', this.path, this.$route.query.path)
         const path = this.path ? encodeURI(this.path.replace(this.basePath, '/')) : "/"
         this.$router.push(`?vmode=${this.vmode}&path=${path}${keyword}${queryTagId}${basePath}${folder}`)
         api.searchFile({
@@ -4089,16 +4080,11 @@ export default {
           this.pagination.pageIndex = 1;
           const folder = row.id ? `&folder=${row.id}` : ''
           const path = this.$route.query.path ? `&path=${this.$route.query.path}` : ''
-          console.log('this.listModeSearch: this.path', this.path)
-          console.log('this.listModeSearch: this.pathList', this.pathList)
           const basePath = this.getBasePath()
           this.$router.push(`?vmode=${this.vmode}${path}${keyword}${folder}${queryTagId}${basePath}`);
           this.searchFileAndOpenDir(row.id);
         } else {
           let notHomePage = this.$route.path.length > 1
-          console.log('notHomePage', notHomePage)
-          console.log('this.path', this.path)
-          console.log('row.path', row.path)
           if (notHomePage && this.path + "/" !== row.path && this.basePath.length === 1) {
             this.basePath = row.path
           }
