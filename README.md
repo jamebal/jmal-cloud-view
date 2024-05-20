@@ -37,7 +37,6 @@ docker exec -it jmalcloud_mongodb mongo jmalcloud --eval "db.getCollection('user
 docker restart jmalcloud_server
 # 重置后的密码为: jmalcloud
 ```
-
 ### 备份/恢复 数据库
 #### 备份数据库
 ```shell
@@ -45,7 +44,7 @@ docker restart jmalcloud_server
  ```
 #### 恢复数据库
 ```shell
-  docker exec -it jmalcloud_mongodb mongodump -d jmalcloud -o /dump/xxx --gzip --quiet
+  docker exec -it jmalcloud_mongodb mongorestore -d jmalcloud --dir /dump/xxx --gzip --quiet
   ```
 
 ### dev
