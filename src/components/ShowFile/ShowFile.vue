@@ -3289,7 +3289,8 @@ export default {
     setMenus(row) {
       this.menus = JSON.parse(JSON.stringify(this.singleMenus));
       // 挂载的文件
-      if (this.$route.query.folder) {
+      const owner = localStorage.getItem('mountFileOwner')
+      if (this.$route.query.folder && owner) {
         // 根据权限设置菜单
         this.setMenusByPermission(row);
       } else {
