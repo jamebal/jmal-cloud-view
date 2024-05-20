@@ -894,10 +894,10 @@
         }else{
           if(editableTabValue.copyTitle === editableTabValue.title){
             editableTabValue.title += '*'
-            editableTabValue.status = 'Modifying'
-            this.isShowUpdateBtn = true
-            editableTabValue.change = value
           }
+          editableTabValue.status = 'Modifying'
+          this.isShowUpdateBtn = true
+          editableTabValue.change = value
         }
       },
       saveAll(isClose){
