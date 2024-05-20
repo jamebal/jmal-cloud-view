@@ -53,7 +53,7 @@
           >
           </history-popover>
 
-          <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">保存所有</el-button>
+          <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">{{saveTitle}}</el-button>
 
           <el-button
             v-if="editableTabsValue.endsWith('.md') && editableTabs.length > 0"
@@ -205,6 +205,7 @@
         moblie: false,
         panelReadOnly: true,
         mountFileId: undefined,
+        saveTitle: '',
         options: {
           fontSize: 14,
           contextmenu: true,
@@ -899,6 +900,19 @@
           this.isShowUpdateBtn = true
           editableTabValue.change = value
         }
+        this.updateSaveTitle()
+      },
+      updateSaveTitle(){
+        // 判断this.editableTabs中的status是否有Modifying的数量
+        const modifyingTags = this.editableTabs.filter(editable => editable.status === 'Modifying')
+        if (modifyingTags) {
+          let modifyingLength = modifyingTags.length
+          if(modifyingLength > 1) {
+            this.saveTitle = '保存全部'
+            return
+          }
+        }
+        this.saveTitle = '保存'
       },
       saveAll(isClose){
         this.editableTabs.forEach((tab,index) => {
@@ -957,6 +971,7 @@
                 this.isShowUpdateBtn = false
               }
             }
+            this.updateSaveTitle()
             if(!this.modifyMsg){
               this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
               this.modifyMsg = this.$message({
