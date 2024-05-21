@@ -4073,7 +4073,7 @@ export default {
           this.pathList.push(item);
           this.pagination.pageIndex = 1;
           const folder = row.id ? `&folder=${row.id}` : ''
-          this.$router.push(`?vmode=${this.vmode}${keyword}${folder}${queryTagId}${basePath}`);
+          this.$router.push(`?vmode=${this.vmode}${keyword}${folder}${queryTagId}${this.basePath}`);
           this.searchFileAndOpenDir(row);
         } else {
           let notHomePage = this.$route.path.length > 1
