@@ -241,7 +241,8 @@ export default {
           lang: "zh",
           user: {
             id: this.$store.state.user.userId,
-            name: this.$store.state.user.name
+            name: this.$store.state.user.name,
+            image: `${window.location.origin}${process.env.VUE_APP_BASE_API}/public/s/view/thumbnail?id=${this.$store.state.user.avatar}`
           },
           customization: {
             autosave: false,

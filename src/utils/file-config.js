@@ -13,11 +13,13 @@ export default {
   },
   // office api url
   officeApiUrl: function() {
-    return `${window.location.origin}/office/web-apps/apps/api/documents/api.js`
+    const url = window._env_.API_OFFICE_URL || process.env.API_OFFICE_URL || `${window.location.origin}/office`
+    return `${url}/web-apps/apps/api/documents/api.js`
   },
   // office回调url
   officeCallBackUrl: function(token, username, fileId) {
-    return `http://jmalcloud:8088/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
+    const url = window._env_.API_URL || process.env.API_URL || 'http://jmalcloud:8088'
+    return `${url}/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken) {
