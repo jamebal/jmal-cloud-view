@@ -322,7 +322,7 @@ export default {
   top: 2.5rem;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 2.5rem);
 
   >>>.dark-button {
     background: #3e3e3e;

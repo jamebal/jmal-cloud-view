@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
-
-# 使用envsubst命令替换nginx.conf.template文件中的环境变量
-envsubst '$API_BASE_URL $API_DRAWIO_URL $API_OFFICE_URL' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
-
-# 启动Nginx
+echo "API_URL: $API_URL"
+echo "API_OFFICE_URL: $API_OFFICE_URL"
+envsubst '${API_URL} ${API_OFFICE_URL}' < /var/www/public/config.js.template > /var/www/public/config.js
+cat /var/www/public/config.js
 exec "$@"
