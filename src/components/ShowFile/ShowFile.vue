@@ -3298,7 +3298,7 @@ export default {
             this.menus.splice(index, 1)
           }
         }
-        if (row.isShare && !row.isPrivacy) {
+        if (row.isShare && !row.isPrivacy && !row.isFolder) {
           // 添加复制下载链接选项
           this.menus.splice(-2, 0, { iconClass: "menu-fuzhi", label: "复制下载链接", operation: "copyDownloadLink" })
         }
