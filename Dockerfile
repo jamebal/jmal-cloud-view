@@ -6,7 +6,7 @@ COPY nginx.conf /etc/nginx/nginx.conf.template
 
 COPY dist /var/www/public
 
-COPY config.js /var/www/public
+COPY config.js.template /var/www/public/config.js.template
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
