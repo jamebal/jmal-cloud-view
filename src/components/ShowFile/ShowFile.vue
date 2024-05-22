@@ -3457,7 +3457,7 @@ export default {
           break;
         case "show-folder-size":
           const showFolderSize = localStorage.getItem('showFolderSize')
-          localStorage.setItem('showFolderSize', showFolderSize === 'false')
+          localStorage.setItem('showFolderSize', showFolderSize ? false : true)
           this.getFileList();
           break;
         case "orderName":
