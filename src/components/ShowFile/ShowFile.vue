@@ -2803,8 +2803,8 @@ export default {
         }).then(res => {
           this.loadData(res, onLoad);
         });
-      this.path = row.path + row.name
-      this.path = this.path.replace(/\\/g, '/')
+      // this.path = row.path + row.name
+      // this.path = this.path.replace(/\\/g, '/')
     },
     getFileList(onLoad) {
       if (this.$route.query.keyword) {
