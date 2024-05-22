@@ -158,7 +158,9 @@
               :clearable="true"
               @keyup.enter.native="searchFile(searchFileName)"
               @focus="setInputFocus"
+              @input="searchFile(searchFileName)"
               @blur="setInputBlur()"
+              @clear="searchFile(searchFileName)"
             >
               <el-button slot="prepend" @click="searchFile(searchFileName)">
                 <svg-icon icon-class="search" style="font-size: 22px" />
@@ -239,12 +241,9 @@
       <div>
         <!--统计信息-->
         <div class="info-statistics">
+          <span v-if="listModeSearch">{{this.pagination["total"]}}个结果:&nbsp;</span>
           <span v-if="tableLoading">获取更多数据...</span>
-          <span v-if="!tableLoading">{{
-              !finished
-                ? "已加载 " + getSummaries3
-                : "已全部加载 " + getSummaries3
-            }}</span>
+          <span v-if="!tableLoading">{{ !finished ? "已加载 " + getSummaries3 : "已全部加载 " + getSummaries3 }}</span>
         </div>
       </div>
 
