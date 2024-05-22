@@ -1,4 +1,4 @@
-name: Build and Push Multi-Platform Docker Image
+name: Build Docker Image
 
 on:
   workflow_dispatch:

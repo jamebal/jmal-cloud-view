@@ -1,4 +1,4 @@
-name: Build and Push Multi-Platform Docker Image
+name: Build Nightly Docker Image
 
 on:
   push:
