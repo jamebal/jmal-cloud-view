@@ -2690,6 +2690,9 @@ export default {
       this.path = basePath + path
       this.path = this.path.replace(/\\/g, '/')
       this.path = this.path.replace(/\/\//g, '/')
+      if (this.path === '/') {
+        this.path = ''
+      }
 
       this.$store.dispatch('updateMessage', {event: 'storageTypeChange', data: storageType})
     },
