@@ -34,7 +34,7 @@
       v-model="loading"
       :finished="finished"
       :finished-text="statistics()"
-      @load="searchStatus && searchValue.length>0?searchFile(searchValue,true):getFileList(true)"
+      @load="getFileList(true)"
     >
       <van-checkbox-group v-model="selectRowData" @change="checkboxChange" ref="checkboxGroup">
         <van-cell-group>
@@ -807,10 +807,13 @@ export default {
       searchAction.style.marginRight = '-44px'
       searchAction.style.visibility = 'hidden'
       this.searchValue = ''
+      this.pathList.splice(1, this.pathList.length - 1)
+      this.$router.push(`?vmode=${this.vmode}`)
       this.getFileList()
     },
     onSearch() {
       if (this.searchValue.length < 1) {
+        this.$router.push(`?vmode=${this.vmode}`)
         this.getFileList()
       } else {
         this.searchFile(this.searchValue)
@@ -898,25 +901,53 @@ export default {
       this.loading = true;
       this.getFileList();
     },
-    getFileList(onLoad) {
-      this.beforeLoadData(onLoad)
-      api.fileList({
-        username: this.$store.state.user.name,
+    searchFileAndOpenDir(fileId, onLoad) {
+      this.beforeLoadData(onLoad);
+      api.searchFileAndOpenDir({
         userId: this.$store.state.user.userId,
-        currentDirectory: encodeURI(this.$route.query.path),
-        folder: this.$route.query.folder,
-        queryFileType: this.queryFileType,
-        sortableProp: this.sortableProp,
-        order: this.order,
-        isFolder: this.queryCondition.isFolder,
-        isFavorite: this.queryCondition.isFavorite,
-        queryCondition: this.queryCondition,
+        username: this.$store.getters.name,
+        id: fileId,
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
+        folder: this.$route.query.folder,
+        showFolderSize: localStorage.getItem('showFolderSize')
       }).then(res => {
-        this.loadData(res, onLoad)
-      }).catch(e => {
-      })
+          this.loadData(res, onLoad)
+          this.listModeSearch = true
+        })
+    },
+    getFileList(onLoad) {
+      this.beforeLoadData(onLoad)
+      if (this.$route.query.keyword) {
+        if (this.$route.query.keyword !== "undefined") {
+          this.searchValue = this.$route.query.keyword
+        }
+        const searchPathIndex = this.pathList.findIndex(item => item.search)
+        if (this.$route.query.folder && searchPathIndex > -1) {
+          this.searchFileAndOpenDir(this.$route.query.folder, false)
+        } else {
+          this.searchFile(this.searchValue, onLoad)
+        }
+      } else {
+        this.beforeLoadData(onLoad)
+        api.fileList({
+          username: this.$store.state.user.name,
+          userId: this.$store.state.user.userId,
+          currentDirectory: encodeURI(this.$route.query.path),
+          folder: this.$route.query.folder,
+          queryFileType: this.queryFileType,
+          sortableProp: this.sortableProp,
+          order: this.order,
+          isFolder: this.queryCondition.isFolder,
+          isFavorite: this.queryCondition.isFavorite,
+          queryCondition: this.queryCondition,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize,
+        }).then(res => {
+          this.loadData(res, onLoad)
+        }).catch(e => {
+        })
+      }
     },
     searchFile(key, onLoad) {
       if (key) {
@@ -933,7 +964,6 @@ export default {
           this.loadData(res, onLoad)
           this.path = ''
           this.listModeSearch = true
-          this.listModeSearchOpenDir = false
         })
       }
     },
@@ -943,9 +973,9 @@ export default {
         this.pagination.pageIndex++
       } else {
         this.pagination.pageIndex = 1
+        this.fileList = []
       }
       this.finished = false;
-      this.fileList = []
     },
     // 填充数据
     loadData(res, onLoad) {
@@ -1087,15 +1117,29 @@ export default {
           item['folder'] = row.name
           item['index'] = this.pathList.length - 1
           this.pathList.push(item)
-          const path = encodeURI(this.path);
-          if (this.$store.getters.userId !== row.userId) {
-            row.mountFileId = row.id
+          const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
+          if (this.listModeSearch) {
+            const item = {};
+            item["folder"] = row.name;
+            item["search"] = true;
+            item["row"] = row;
+            this.pathList.push(item);
+            this.pagination.pageIndex = 1;
+            const folder = row.id ? `&folder=${row.id}` : ''
+            const path = this.$route.query.path ? `&path=${this.$route.query.path}` : ''
+            this.$router.push(`?vmode=${this.vmode}${path}${keyword}${folder}`);
+            this.getFileList()
+          } else {
+            const path = encodeURI(this.path);
+            if (this.$store.getters.userId !== row.userId) {
+              row.mountFileId = row.id
+            }
+            if (row.mountFileId) {
+              localStorage.setItem(this.path, row.mountFileId)
+            }
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${path}${keyword}${row.mountFileId ? '&folder='+row.mountFileId : ''}`)
+            this.getFileList()
           }
-          if (row.mountFileId) {
-            localStorage.setItem(this.path, row.mountFileId)
-          }
-          this.$router.push(`/_m?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}`)
-          this.getFileList()
         } else {
           if (row.contentType.startsWith('image')) {
             // 图片
