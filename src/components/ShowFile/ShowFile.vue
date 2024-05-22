@@ -2725,16 +2725,23 @@ export default {
         this.beforeLoadData(onLoad);
         // this.pathList = [{ folder: "" }]
         // 查找this.pathList中是否已经有搜索的路径
+
+        const item = {}
+        item["folder"] = `搜索: ${key}`
+        item["search"] = true
+        item["searchKey"] = key
+
+        let folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
+
         const searchPathIndex = this.pathList.findIndex(item => item.search)
         if (searchPathIndex < 0) {
-          const item1 = {}
-          item1["folder"] = `搜索: ${key}`
-          item1["search"] = true
-          item1["searchKey"] = key
-          this.pathList.push(item1)
+          this.pathList.push(item)
+        } else {
+          this.pathList.splice(searchPathIndex, this.pathList.length - searchPathIndex)
+          this.pathList.push(item)
+          folder = ''
         }
         const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
-        const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
         const basePath = this.getBasePath()
         const keyword = key ? `&keyword=${key}` : ''
         const path = this.path ? encodeURI(this.path.replace(this.basePath, '/')) : "/"
