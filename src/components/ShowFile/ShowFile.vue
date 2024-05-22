@@ -1324,7 +1324,7 @@ export default {
         }
       });
     }
-    if (this.$route.query.folder && this.path) {
+    if (this.$route.query.folder && this.path && !this.$route.query.keyword) {
       localStorage.setItem(this.path, this.$route.query.folder)
     }
     if (this.$route.query.highlight) {
@@ -2297,6 +2297,7 @@ export default {
     },
     handleLink(item, index, unPushLink, unRefresh, keywordQuery) {
       this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1),this.pathList.length - (index + 1))
+      console.log('handleLink', item)
       if (item && item.search) {
         if (item.searchKey) {
           this.searchFileByKeyword(item.searchKey);
@@ -2313,8 +2314,7 @@ export default {
           }
           this.path = this.path.replace(/\\/g, "/");
         })
-        let queryFolder = localStorage.getItem(this.path)
-
+        let queryFolder = localStorage.getItem("mountFileOwner") ? localStorage.getItem(this.path) : this.$route.query.folder
         if (!unPushLink) {
           const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
           const basePath = this.getBasePath()
@@ -2773,6 +2773,14 @@ export default {
     },
     searchFileAndOpenDir(fileId, onLoad) {
       this.beforeLoadData(onLoad);
+
+      const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+      const path = this.$route.query.path ? `&path=${this.$route.query.path}` : ''
+      const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
+      const basePath = this.getBasePath()
+      const folder = `&folder=${fileId}`
+      this.$router.push(`?vmode=${this.vmode}${path}${keyword}${queryTagId}${basePath}${folder}`)
+
       api.searchFileAndOpenDir({
           userId: this.$store.state.user.userId,
           username: this.$store.getters.name,
@@ -3102,7 +3110,7 @@ export default {
         this.rowContextData = row;
       }
       const isFavorite = this.rowContextData.isFavorite;
-      this.highlightFavorite(this.isCollectView ? true : isFavorite, false);
+      this.highlightFavorite(isFavorite, false);
     },
     // 单元格hover进入时事件
     cellMouseEnter(row) {
@@ -3356,7 +3364,7 @@ export default {
       ) {
         this.menusIsMultiple = true;
         this.menus = this.multipleRightMenus;
-        this.highlightFavorite(this.isCollectView, false);
+        this.highlightFavorite(false, false);
       } else {
         this.$refs.fileListTable.clearSelection();
         this.$refs.fileListTable.toggleRowSelection([{ row: row }]);
@@ -3394,10 +3402,10 @@ export default {
       }
     },
     menuFavoriteOver(index, isFavorite) {
-      this.highlightFavorite(this.isCollectView ? true : isFavorite, false);
+      this.highlightFavorite(isFavorite, false);
     },
     menuFavoriteLeave(index, isFavorite) {
-      this.highlightFavorite(this.isCollectView ? true : isFavorite, false);
+      this.highlightFavorite(isFavorite, false);
     },
     // 是否高亮收藏图标
     highlightFavorite(isFavorite, isHover) {
@@ -3911,19 +3919,17 @@ export default {
       const fileIds = this.getSelectIdList();
       this.rowContextData.isFavorite = isFavorite;
       this.highlightFavorite(isFavorite, true);
-      api
-        .favoriteUrl({
+      api.favoriteUrl({
           fileIds: fileIds,
           isFavorite: isFavorite
-        })
-        .then(res => {
+        }).then(() => {
           // 收藏页面
-          if (!isFavorite && this.isCollectView) {
+          const homePage = !this.$route.query.path || this.$route.query.length <= 1
+          if (!isFavorite && this.isCollectView && homePage) {
             // 移除列表
             this.removeSelectItme();
           }
-        })
-        .catch(() => {
+        }).catch(() => {
           this.rowContextData.isFavorite = !isFavorite;
         });
     },
@@ -4118,8 +4124,8 @@ export default {
           if (row.mountFileId) {
             localStorage.setItem(this.path, row.mountFileId)
           }
-          const basePath = this.basePath ? `&basePath=${this.basePath}` : ''
-          this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(path)}${row.mountFileId ? '&folder='+row.mountFileId : ''}${queryTagId}${basePath}${keyword}`);
+          const basePath = this.basePath && this.basePath.length > 1 ? `&basePath=${this.basePath}` : ''
+          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder='+row.mountFileId : ''}${queryTagId}${basePath}${keyword}`);
           this.openDir(row);
         }
       } else {
