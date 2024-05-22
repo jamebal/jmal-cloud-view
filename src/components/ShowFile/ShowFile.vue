@@ -2297,7 +2297,6 @@ export default {
     },
     handleLink(item, index, unPushLink, unRefresh, keywordQuery) {
       this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1),this.pathList.length - (index + 1))
-      console.log('handleLink', item)
       if (item && item.search) {
         if (item.searchKey) {
           this.searchFileByKeyword(item.searchKey);
