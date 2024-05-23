@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span :style="{position: grid ? 'relative': 'unset'}">
     <div v-if="item.isFavorite && !public">
         <div v-if="pc">
           <svg-icon v-if="!grid" class="pc list icon-favorite" icon-class="Favoritestarrate"/>
@@ -32,7 +32,7 @@
     </div>
     <div v-if="item.tags && item.tags.length > 0 && !public">
         <div v-if="pc">
-          <svg-icon v-if="grid" class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="tag.tagId"/>
+          <svg-icon v-if="grid" class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index + 10 + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="tag.tagId"/>
           <!--     列表模式下只能显示一个标签     -->
           <svg-icon v-else class="pc list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
         </div>
@@ -59,7 +59,7 @@
         </div>
         <el-image lazy v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
                   :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
-          <div slot="error" class="image-slot">
+          <div slot="error" class="image-slot-error">
             <svg-icon icon-class="video"/>
           </div>
         </el-image>
@@ -77,7 +77,7 @@
         <div v-if="item.music.name !== null">
           <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
                     :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
-          <div slot="error" class="image-slot">
+          <div slot="error" class="image-slot-error">
             <svg-icon icon-class="audio"/>
           </div>
         </el-image>
@@ -94,7 +94,7 @@
     <div v-else-if="item.contentType && item.contentType.startsWith('image')">
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
-        <div slot="error" class="image-slot">
+        <div slot="error" class="image-slot-error">
           <svg-icon icon-class="image"/>
         </div>
       </el-image>
@@ -189,6 +189,10 @@ export default {
   height: 35px;
   width: 35px;
   line-height: 35px;
+}
+
+>>> .image-slot-error {
+  margin-top: 10px;
 }
 
 .icon-favorite {
