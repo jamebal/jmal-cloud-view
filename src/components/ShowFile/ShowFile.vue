@@ -516,10 +516,8 @@
             ref="checkboxGroup"
           >
             <van-grid
-              square
               :center="true"
               :column-num="gridColumnNum"
-              :gutter="10"
               :border="false"
               :style="{
                 width: '100%',
@@ -554,10 +552,14 @@
                     '路径：' +
                     item.path
                 "
+                :style="{paddingTop: 100/gridColumnNum + '%'}"
               >
                 <div
                   class="grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
                   :style="{
+                    right: gridPaddingRight + 'px',
+                    bottom: '10px',
+                    height: gridItemWidth - 5 + 'px',
                     background: selectRowData.includes(item) ? '#caeaf991' : '',
                     'background-size': 'cover',
                     'background-position': 'center',
@@ -578,14 +580,14 @@
                         :image-url="imageUrl"
                         :audio-cover-url="audioCoverUrl"
                         :grid="true"
-                        :grid-width="gridColumnWidth"
+                        :grid-width="gridItemWidth"
                       ></icon-file>
                     </div>
                     <el-input
                       v-if="item.index === editingIndex"
                       v-focus
                       v-model="renameFileName"
-                      class="grid-item-text"
+                      class="grid-item-text-input"
                       placeholder=""
                       type="textarea"
                       autosize
@@ -599,10 +601,8 @@
                       "
                     >
                     </el-input>
-                    <div v-else>
-                      <div class="grid-item-text">
-                        <span>{{ gridFilename(item) }}</span>
-                      </div>
+                    <div v-if="item.index !== editingIndex" class="grid-item-text">
+                      <span>{{ gridFilename(item) }}</span>
                     </div>
                   </div>
                 </div>
@@ -1136,7 +1136,8 @@ export default {
       grid: this.defaultGrid,
       vmode: this.defaultGrid ? 'grid' : 'list',
       gridColumnNum: -1,
-      gridColumnWidth: 120,
+      gridPaddingRight: 0,
+      gridItemWidth: 125,
       allChecked: false,
       summaries: '',
       shareDialogVisible: false,
@@ -1201,61 +1202,42 @@ export default {
     gridFilename() {
       // 优化文件名，如果文件名过长，则进行截取
       return function(item) {
-        let filename = item.name
-
+        let filename = item.name;
         // 如果是文件夹，直接返回文件夹名
-        if (item.isFolder) {
-          return filename
+        if (item.isFolder || !this.grid) {
+          return filename;
         }
-
+        const singleLine = item.contentType && item.contentType.indexOf('audio') > -1 || item.contentType.indexOf('video') > -1 || item.contentType.startsWith('image')
+        const gridFilenameLength = singleLine ? 14 : 32
         // 分离文件名和后缀
-        let parts = filename.split('.')
-        let suffix = parts.length > 1 ? parts.pop() : ''
-        let base = parts.join('.')
-
+        let parts = filename.split('.');
+        let suffix = parts.length > 1 ? parts.pop() : '';
+        let base = parts.join('.');
         // 获取文件名的有效长度
-        let effectiveLength = this.getEffectiveLength(base, suffix)
-
-        // 如果有效长度小于或等于14，则直接返回文件名
-        if (effectiveLength <= 14) {
-          return filename
+        let effectiveLength = this.getEffectiveLength(base, suffix);
+        // 如果有效长度小于或等于规定的长度，则直接返回文件名
+        if (effectiveLength <= gridFilenameLength) {
+          return filename;
         }
-
         // 根据是否有后缀来确定需要截取的长度
-        let sliceLength = 14 - (suffix ? suffix.length + 1 + 1 : 0) // 加1是为了“…”
-
-        let prev = ''
-        let currentLength = 0
-
+        let sliceLength = gridFilenameLength - (suffix ? suffix.length + 2 : 1); // +2 是为了“…”和分隔符
+        let prev = '';
+        let currentLength = 0;
         // 截取字符串，确保不会在中文字符中间断开
         for (let char of Array.from(base)) {
-          let charLength = this.getCharLength(char)
-
+          let charLength = this.getCharLength(char);
           if (currentLength + charLength > sliceLength) {
-            break
+            break;
           }
-
-          currentLength += charLength
-          prev += char
+          currentLength += charLength;
+          prev += char;
         }
-
         // 根据是否有后缀返回相应的格式
         if (suffix) {
-          return prev + '…' + suffix
+          return prev + '…' + '.' + suffix;
         }
-
-        return prev + '…'
-      }
-    },
-    getSummaries2() {
-      let totalSize = 0
-      this.fileList.forEach(file => {
-        totalSize += file.size
-      })
-      const sumFileAndFolder = this.getShowSumFileAndFolder(this.fileList)
-      const sizeSum = this.getShowSumSize(totalSize)
-      this.summaries = sumFileAndFolder + sizeSum
-      return totalSize > 0 ? sumFileAndFolder + sizeSum : ''
+        return prev + '…';
+      };
     },
     getSummaries3() {
       let totalSize = 0
@@ -1548,25 +1530,18 @@ export default {
     containerResize() {
       const container = document.querySelector('.dashboard-container')
       let clientWidth = container.clientWidth
-      this.clientHeight =
-        document.documentElement.clientHeight - this.lessClientHeight
+      this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
+      this.gridItemWidth = 125
       if (this.queryFileType === 'image') {
-        this.gridColumnNum = Math.round((clientWidth - 10) / 165)
+        this.gridItemWidth = 165
+        this.gridColumnNum = Math.trunc((clientWidth - 10) / this.gridItemWidth)
       } else {
-        this.gridColumnNum = Math.round((clientWidth - 10) / 135)
+        this.gridColumnNum = Math.trunc((clientWidth - 10) / this.gridItemWidth)
       }
-      this.gridColumnWidth =
-        (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5
-      if (clientWidth < 900) {
-        this.showUpdateDateItem = false
-      } else {
-        this.showUpdateDateItem = true
-      }
-      if (clientWidth < 500) {
-        this.showSizeItem = false
-      } else {
-        this.showSizeItem = true
-      }
+      const gridWidth = (clientWidth - 10) / this.gridColumnNum
+      this.gridPaddingRight = gridWidth - this.gridItemWidth + 10
+      this.showUpdateDateItem = clientWidth >= 900;
+      this.showSizeItem = clientWidth >= 500;
       let gridRowNum = Math.round(
         this.clientHeight / (clientWidth / this.gridColumnNum)
       )
@@ -4557,7 +4532,7 @@ export default {
   margin-left: 5px !important;
 }
 
-> .open-file-dialog {
+>>> .open-file-dialog {
   .el-dialog {
     width: 420px;
   }
@@ -4571,13 +4546,13 @@ export default {
   }
 }
 
-> .v-contextmenu-item {
+>>> .v-contextmenu-item {
   .svg-icon {
     font-size: 14px;
   }
 }
 
-> .new-text-file-dialog {
+>>> .new-text-file-dialog {
   height: 350px;
   top: calc(50% - 175px);
 
@@ -4601,11 +4576,11 @@ export default {
   }
 }
 
-> .van-grid-item__content {
+>>> .van-grid-item__content {
   background-size: cover;
   background-position: center;
-  padding: 0;
   border-radius: 5px !important;
+  padding: 0;
 }
 
 .vmode {

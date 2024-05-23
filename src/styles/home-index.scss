@@ -293,6 +293,21 @@
 }
 
 >>> .grid-item-text {
+  margin-top: 5px;
+  cursor: default;
+  text-align: center;
+  color: #606266;
+  font-size: smaller;
+  //flex: 1;
+  //align-items: center;
+  justify-content: space-evenly;
+  display: flex;
+  word-break: break-word;
+  display: -webkit-box;
+  overflow: hidden;
+}
+
+>>> .grid-item-text-input {
   cursor: default;
   text-align: center;
   color: #606266;
@@ -330,20 +345,16 @@
 }
 >>> .grid-item {
   border-radius: 5px;
-  padding: 0 8px;
   border: solid 1px #ccc0;
   .grid-item-icon{
-    text-align: center;
-    position: absolute;
-    top: 5px;
-    //margin: 9px auto 0;
-    //width: 84px;
-    //height: 84px;
+    //text-align: center;
+    //position: absolute;
+    //top: 0;
   }
   .grid-item-icon-image {
     width: 100%;
     height: 100%;
-    top: 0px;
+    top: 0;
     border-radius: 5px;
     margin: 0;
     -webkit-backdrop-filter: contrast(0.5);
