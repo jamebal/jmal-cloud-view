@@ -607,7 +607,8 @@ export default {
         share: this.shareId,
         fileId: fileId,
         pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        showFolderSize: true
       }).then(res => {
         this.isLoading = false
         this.fileList = res.data
@@ -628,7 +629,8 @@ export default {
       api.accessShare({
         share: this.shareId,
         pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        showFolderSize: true
       }).then(res => {
         this.isLoading = false
         if (Object.getPrototypeOf(res.data) === String.prototype) {
