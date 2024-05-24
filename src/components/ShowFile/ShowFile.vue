@@ -3424,7 +3424,7 @@ export default {
             this.menus.splice(index, 1)
           }
         }
-        if (row.isShare && !row.isPrivacy && !row.isFolder) {
+        if (row.isShare && !row.isPrivacy) {
           // 添加复制下载链接选项
           this.menus.splice(-2, 0, {
             iconClass: 'menu-fuzhi',
@@ -4049,6 +4049,10 @@ export default {
           undefined,
           undefined
         )
+      if (row.isFolder) {
+        url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip')
+      }
+      console.log('url', url)
       let clipboard = new Clipboard('.newFileMenu', {
         text: function() {
           return url
