@@ -302,6 +302,9 @@ export default {
     },
     // 切换分享形式
     shareFormChange() {
+      if (!this.shareOption.isPrivacy) {
+        this.shareOption.operationPermissionList = []
+      }
       this.createShare('shareFormChange')
     },
     // 取消分享
@@ -469,6 +472,7 @@ export default {
 .share-filename {
   margin: 25px 0 50px 0;
   text-align: center;
+  word-break: break-word;
 }
 
 .share-option {

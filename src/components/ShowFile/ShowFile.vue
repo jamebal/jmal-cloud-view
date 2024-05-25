@@ -1546,8 +1546,12 @@ export default {
       let gridRowNum = Math.round(
         this.clientHeight / (clientWidth / this.gridColumnNum)
       )
-      this.pagination.pageSize =
-        gridRowNum * this.gridColumnNum + this.gridColumnNum
+      const lastPageSize = this.pagination.pageSize
+      const thisPageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
+      if (thisPageSize !== lastPageSize) {
+        this.pagination.pageSize = thisPageSize
+        this.getFileList()
+      }
 
       // 使列表可拖拽
       this.rowDrop()
@@ -4061,7 +4065,6 @@ export default {
       if (row.isFolder) {
         url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip')
       }
-      console.log('url', url)
       let clipboard = new Clipboard('.newFileMenu', {
         text: function() {
           return url

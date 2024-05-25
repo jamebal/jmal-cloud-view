@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onUpdateExpireData="onUpdateExpireData" @onUpdateShareForm="onUpdateShareForm"></share-dialog>
+    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onUpdateExpireData="onUpdateExpireData" @onUpdateShareForm="onUpdateShareForm" @onCancelShare="onCancelShare"></share-dialog>
     <!--list布局-->
     <div v-show="fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">
     <pl-table
@@ -473,6 +473,9 @@
             }
           })
         })
+      },
+      onCancelShare() {
+        this.getFileList()
       },
       // 点击文件或文件夹
       fileClick(row) {
