@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onUpdateExpireData="onUpdateExpireData"></share-dialog>
+    <share-dialog :file.sync="shareDialogObject" :status.sync="shareDialogVisible" @onUpdateExpireData="onUpdateExpireData" @onUpdateShareForm="onUpdateShareForm"></share-dialog>
     <!--list布局-->
     <div v-show="fileList.length > 0" :style="{'width':'100%','height': clientHeight+'px'}">
     <pl-table
@@ -138,7 +138,7 @@
           header-align="left"
         >
           <template slot-scope="scope">
-            <span>{{expireInfo(scope.row)}}</span>
+            <span :style="{color: expireColor(scope.row)}">{{expireInfo(scope.row)}}</span>
           </template>
         </pl-table-column>
       </template>
@@ -269,6 +269,19 @@
           }
         } else {
           return '永久有效'
+        }
+      },
+      expireColor(row) {
+        if (row.expireDate) {
+          let currentTime = new Date();
+          let targetTime = new Date(row.expireDate);
+          if (currentTime > targetTime) {
+            return '#F56C6C'
+          } else {
+            return '#606266'
+          }
+        } else {
+          return '#67C23A'
         }
       },
       // 请求之前的准备
@@ -474,6 +487,12 @@
         share.expireDate = expireDate
         this.fileList.splice(index, 1, share)
       },
+      onUpdateShareForm(shareId, isPrivacy) {
+        let index = this.fileList.findIndex(item => item.id === shareId)
+        let share = this.fileList[index]
+        share.isPrivacy = isPrivacy
+        this.fileList.splice(index, 1, share)
+      }
     }
   }
 </script>

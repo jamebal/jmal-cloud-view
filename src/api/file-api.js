@@ -241,9 +241,9 @@ export default {
     })
   },
   // 获取分享信息
-  getShare: function(params) {
+  getShareByFileId: function(params) {
     return request({
-      url: '/get/share',
+      url: '/get/share/by/fileId',
       method: 'get',
       params
     })

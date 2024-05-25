@@ -834,6 +834,7 @@
       :file.sync="shareDialogObject"
       :status.sync="shareDialogVisible"
       @onSuccess="shareSuccess"
+      @onCancelShare="onCancelShare"
     ></share-dialog>
     <el-dialog
       class="new-text-file-dialog"
@@ -4009,12 +4010,20 @@ export default {
       this.shareDialogVisible = true
     },
     shareSuccess(shareBase) {
+      this.updateRowContextData()
+      this.rowContextData.shareBase = shareBase
+      this.rowContextData.isShare = true
+    },
+    onCancelShare() {
+      this.updateRowContextData()
+      delete this.rowContextData.shareBase
+      delete this.rowContextData.isShare
+    },
+    updateRowContextData() {
       // 这3行代码是为了让vue刷新数据
       const isFavorite = this.rowContextData.isFavorite
       this.rowContextData.isFavorite = !isFavorite
       this.rowContextData.isFavorite = isFavorite
-      this.rowContextData.shareBase = shareBase
-      this.rowContextData.isShare = true
     },
     downloadFile() {
       let fileIds = []
