@@ -1548,7 +1548,7 @@ export default {
       )
       const lastPageSize = this.pagination.pageSize
       const thisPageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
-      if (thisPageSize !== lastPageSize) {
+      if (thisPageSize !== lastPageSize && this.$route.path === '/') {
         this.pagination.pageSize = thisPageSize
         this.getFileList()
       }
