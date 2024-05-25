@@ -1208,7 +1208,7 @@ export default {
         if (item.isFolder || !this.grid) {
           return filename;
         }
-        const singleLine = item.contentType && item.contentType.indexOf('audio') > -1 || item.contentType.indexOf('video') > -1 || item.contentType.startsWith('image')
+        const singleLine = item.contentType && item.contentType.startsWith('image')
         const gridFilenameLength = singleLine ? 14 : 32
         // 分离文件名和后缀
         let parts = filename.split('.');
