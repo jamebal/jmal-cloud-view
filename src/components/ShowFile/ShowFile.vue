@@ -4061,7 +4061,6 @@ export default {
       if (row.isFolder) {
         url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip')
       }
-      console.log('url', url)
       let clipboard = new Clipboard('.newFileMenu', {
         text: function() {
           return url
