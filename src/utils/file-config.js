@@ -98,6 +98,12 @@ export default {
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}&share-token=${shareToken}`
+    const queryShareId = shareId ? `&shareId=${shareId}` : ''
+    const queryShareToken = shareToken ? `&share-token=${shareToken}` : ''
+    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?fileIds=${fileIds}${queryShareId}${queryShareToken}`
+  },
+  // 文件打包下载Url
+  packageDownloadUrl: function(fileId, downloadName) {
+    return window.location.origin + `${this.baseUrl}/public/s/${fileId}/packageDownload/${downloadName}`
   },
 }
