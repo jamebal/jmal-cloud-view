@@ -1546,8 +1546,12 @@ export default {
       let gridRowNum = Math.round(
         this.clientHeight / (clientWidth / this.gridColumnNum)
       )
-      this.pagination.pageSize =
-        gridRowNum * this.gridColumnNum + this.gridColumnNum
+      const lastPageSize = this.pagination.pageSize
+      const thisPageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
+      if (thisPageSize !== lastPageSize) {
+        this.pagination.pageSize = thisPageSize
+        this.getFileList()
+      }
 
       // 使列表可拖拽
       this.rowDrop()
