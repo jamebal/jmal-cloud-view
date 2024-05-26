@@ -929,7 +929,6 @@ export default {
           this.searchFile(this.searchValue, onLoad)
         }
       } else {
-        this.beforeLoadData(onLoad)
         api.fileList({
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId,
