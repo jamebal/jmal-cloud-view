@@ -207,6 +207,7 @@
         mountFileId: undefined,
         saveTitle: '',
         options: {
+          tabSize: 2,
           fontSize: 14,
           contextmenu: true,
           codeLens: true,
