@@ -1253,10 +1253,7 @@ export default {
   created() {},
   watch: {
     $route(to) {
-      if (
-        to.query.tagId &&
-        this.queryCondition.tagId !== this.$route.query.tagId
-      ) {
+      if (to.query.tagId && this.queryCondition.tagId !== this.$route.query.tagId) {
         this.queryCondition.tagId = this.$route.query.tagId
         this.getFileList()
       }
@@ -1514,9 +1511,6 @@ export default {
         this.onCreateFilename = ''
       }, 2000)
     },
-    load() {
-      this.getFileList(true)
-    },
     gridItemClick(row) {
       if (this.selectFile) {
         this.fileClick(row)
@@ -1548,8 +1542,11 @@ export default {
       )
       const lastPageSize = this.pagination.pageSize
       const thisPageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
-      if (thisPageSize !== lastPageSize && this.$route.path === '/') {
+      if (thisPageSize !== lastPageSize) {
         this.pagination.pageSize = thisPageSize
+        if (this.$route.query.tagId) {
+          this.queryCondition.tagId = this.$route.query.tagId
+        }
         this.getFileList()
       }
 
@@ -2714,7 +2711,9 @@ export default {
         })
         this.$refs.fileListTable.reloadData(this.fileList)
         setTimeout(() => {
-          this.$refs.fileListTable.reloadData(this.fileList)
+          if (this.$refs.fileListTable) {
+            this.$refs.fileListTable.reloadData(this.fileList)
+          }
         }, 0)
       }
       // 数据全部加载完成
@@ -3055,7 +3054,7 @@ export default {
         if (this.listModeSearch) {
           this.searchFile(this.searchFileName)
         } else {
-          this.getFileList()
+          this.containerResize()
         }
       }
     },
