@@ -1,5 +1,6 @@
 // import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
+import _ from "lodash";
 import {getShareId, getShareToken, getToken, getUsername} from '@/utils/auth'
 
 // create an axios instance
@@ -12,6 +13,7 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
+    store.dispatch('updateMessage', {event: 'request', data: 1})
     // do something before request is sent
     if (store.getters.token) {
       config.headers['jmal-token'] = getToken()
@@ -31,12 +33,24 @@ service.interceptors.request.use(
   }
 )
 
+const responseErr = _.throttle((error) => {
+  let msg = '哎呀！服务器出错了，请稍后再试！'
+  if (error.response && error.response.status === 403) {
+    msg = '您的请求被服务器拒绝！'
+  }
+  Vue.prototype.$message({
+    message: msg,
+    type: 'error',
+    duration: 5 * 1000
+  })
+}, 3000)
+
 // response interceptor
 service.interceptors.response.use(
   /**
    * If you want to get http information such as headers or status
    * Please return  response => response
-  */
+   */
 
   /**
    * Determine the request status by custom code
@@ -44,6 +58,7 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    store.dispatch('updateMessage', {event: 'request', data: 0})
     const res = response.data
     if (res.code !== 0) {
       if (res.code === -2) {
@@ -56,7 +71,7 @@ service.interceptors.response.use(
         // to re-login
         setTimeout(function () {
           const hasToken = getToken()
-          if(hasToken){
+          if (hasToken) {
             Vue.prototype.$confirm('登录已失效，请重新登录', '确认登出', {
               confirmButtonText: '重新登录',
               cancelButtonText: '取消',
@@ -67,7 +82,7 @@ service.interceptors.response.use(
               })
             })
           }
-        },200)
+        }, 200)
       } else {
         Vue.prototype.$message({
           message: res.message || '服务器开小差了...',
@@ -78,10 +93,10 @@ service.interceptors.response.use(
       return Promise.reject()
     } else {
       let message = ''
-      if(res.message){
+      if (res.message) {
         message = res.message.toString()
       }
-      if(message !== 'true'){
+      if (message !== 'true') {
         Vue.prototype.$message({
           message: res.message,
           type: 'success',
@@ -92,15 +107,7 @@ service.interceptors.response.use(
     }
   },
   error => {
-    let msg = '哎呀！服务器出错了，请稍后再试！'
-    if (error.response && error.response.status === 403) {
-      msg = '您的请求被服务器拒绝！'
-    }
-    Vue.prototype.$message({
-      message: msg,
-      type: 'error',
-      duration: 5 * 1000
-    })
+    responseErr(error)
     return Promise.reject(error)
   }
 )

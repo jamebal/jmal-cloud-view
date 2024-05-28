@@ -17,7 +17,7 @@
     >
       <uploader-unsupport></uploader-unsupport>
 
-      <uploader-drop v-if="dragover && enableDragUplaod" class="uploader-drop">
+      <uploader-drop v-if="dragover && enableDragUpload" class="uploader-drop">
         <span>上传文件到当前目录下</span>
       </uploader-drop>
 
@@ -112,7 +112,6 @@
 
 <script>
 
-// import { ACCEPT_CONFIG } from '@/assets/js/config'
 import store from '@/store'
 import $ from 'jquery'
 import SparkMD5 from 'spark-md5'
@@ -133,7 +132,7 @@ export default {
         // speedSmoothingFactor: 0.1,
         // progressCallbacksInterval: 500,
         maxChunkRetries: 3, // 最大重试次数
-        simultaneousUploads: 5, // 并发上传数
+        simultaneousUploads: 3, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
         // 服务器分片校验函数，秒传及断点续传基础
         checkChunkUploadedByResponse: function (chunk, message) {
@@ -190,7 +189,7 @@ export default {
       fileListScrollTop: 0,
       dragoverLoop: null,
       successMsg: null,
-      enableDragUplaod: false,// 是否启用拖拽上传
+      enableDragUpload: false,// 是否启用拖拽上传
       uploader: null,
     }
   },
@@ -200,7 +199,7 @@ export default {
   watch: {
     $route(route) {
       // 只有首页才启用拖拽上传
-      this.enableDragUplaod = route.path === '/'
+      this.enableDragUpload = route.path === '/'
     },
     message(msg) {
       switch (msg.event) {
@@ -230,16 +229,27 @@ export default {
             $('#folder-uploader-btn').click()
           }
           break
+        case 'request':
+          if (msg.data === 0) {
+            if (this.uploader.fileList.length  === 0 && this.panelShow) {
+              this.fileListLength = this.uploader.fileList.length
+              this.process = 100
+              this.setPageTitle()
+              this.uploader.cancel()
+              this.displayPanel(false)
+            }
+          }
+          break
       }
     }
   },
   mounted() {
-    this.enableDragUplaod = this.$route.path === '/'
+    this.enableDragUpload = this.$route.path === '/'
     let that = this
     let dropbox = document.body
 
     document.body.ondragstart = function (e) {
-      if (that.enableDragUplaod) {
+      if (that.enableDragUpload) {
         if (e.target.slot === 'jmal') {
           that.isDragStart = true
         }
@@ -357,6 +367,9 @@ export default {
         this.doUploadBefore(files)
       }
     },
+    displayPanel(display) {
+      this.panelShow = display
+    },
     doUploadBefore(files) {
       this.fileListLength = this.uploader.fileList.length
       const filePaths = this.uploader.filePaths
@@ -374,15 +387,12 @@ export default {
             currentDirectory: encodeIfNeeded(this.params.currentDirectory),
             username: this.params.username,
             userId: this.params.userId
-          }).then(() => {
-            this.getFileList()
-          }).catch(e => {
           })
         })
       }
       if (window.pc) {
         this.pc = true
-        this.panelShow = true
+        this.displayPanel(true)
       } else {
         this.pc = false
         this.shrink()
@@ -399,6 +409,13 @@ export default {
       this.$nextTick(() => {
         this.uploader.resume()
       })
+    },
+    setPageTitle() {
+      if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
+        document.title = `${this.$route.meta.title}`
+      } else {
+        document.title = `${this.process}% | ${this.$route.meta.title}`
+      }
     },
     onFileProgress(rootFile, file, chunk) {
       this.netSpeed = formatNetSpeed(file.currentSpeed)
@@ -490,7 +507,7 @@ export default {
       }
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
         this.uploader.cancel()
-        this.panelShow = false
+        this.displayPanel(false)
       }
     },
     onFileError(rootFile, file, response) {
@@ -641,7 +658,7 @@ export default {
     close() {
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
         this.uploader.cancel()
-        this.panelShow = false
+        this.displayPanel(false)
       } else {
         this.$confirm('还有文件正在上传, 确定要关闭吗？', '提示', {
           confirmButtonText: '确定',
@@ -649,7 +666,7 @@ export default {
           type: 'warning'
         }).then(() => {
           this.uploader.cancel()
-          this.panelShow = false
+          this.displayPanel(false)
         })
       }
     },
