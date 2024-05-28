@@ -286,8 +286,6 @@ import {suffix} from "@/utils/file-type";
 import OfficePreview from "@/components/preview/OfficePreview";
 import Clipboard from "clipboard";
 
-let pinyin = require("pinyin");
-
 export default {
   components: {
     OfficePreview,
@@ -409,11 +407,7 @@ export default {
     // 加载布局
     if (this.$route.query.vmode) {
       this.vmode = this.$route.query.vmode
-      if (this.vmode === 'list') {
-        this.grid = false
-      } else {
-        this.grid = true
-      }
+      this.grid = this.vmode !== 'list';
     }
     // 加载url上的path
     if (this.$route.query.path !== '/') {
