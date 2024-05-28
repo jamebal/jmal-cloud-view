@@ -75,6 +75,17 @@ export const dynamicRouters = [
     }]
   },
   {
+    path: '/upload/index_m',
+    component: Layout,
+    redirect: '/upload/index_m',
+    children: [{
+      path: '',
+      name: 'Home_m',
+      component: () => import('@/views/upload/mobile/index'),
+      meta: { title: '文件传输' }
+    }]
+  },
+  {
     path: '/s_m',
     component: Layout,
     children: [
