@@ -1490,6 +1490,9 @@ export default {
           this.path = ''
         }
         if (fileDoc) {
+          if (this.$store.state.uploaderState) {
+            return
+          }
           if (fileDoc.$set) {
             let path = fileDoc.$set.path
             path = path.replace(/\\/g, '/')

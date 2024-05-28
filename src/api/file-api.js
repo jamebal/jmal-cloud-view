@@ -16,11 +16,11 @@ export default {
     })
   },
   // 检查文件是否存在
-  checkExist: function (params) {
+  checkExist: function (data) {
     return request({
       url: "checkExist",
       method: "post",
-      params
+      data
     })
   },
   // 上传文件夹
