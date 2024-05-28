@@ -16,22 +16,15 @@ const store = new Vuex.Store({
   getters,
   state: {
     message: null,
-    uploaderState: null,
   },
   mutations: {
     setMessage(state, message) {
       state.message = message;
     },
-    setUploaderState(state, uploaderState) {
-      state.uploaderState = uploaderState;
-    },
   },
   actions: {
     updateMessage({ commit }, message) {
       commit('setMessage', message);
-    },
-    updateUploaderState({ commit }, uploaderState) {
-      commit('setUploaderState', uploaderState);
     },
   }
 })
