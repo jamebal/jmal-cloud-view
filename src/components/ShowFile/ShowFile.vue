@@ -2736,15 +2736,6 @@ export default {
       this.highlightNewFile()
       // 设置挂载文件的用户名(文件的所有者)
       this.setMountFileOwner()
-      // 存储类型
-      let storageType = 'Object'
-      if (this.fileList.length > 0) {
-        const pathRegex = /([a-zA-Z]:\\[^*|"<>?\n]*)|(\/[^*|"<>?\n]*)/
-        if (!pathRegex.test(this.fileList[0].id)) {
-          storageType = 'File'
-        }
-      }
-
       const path = this.$route.query.path ? this.$route.query.path : '/'
       const basePath = this.$route.query.basePath
         ? this.$route.query.basePath
@@ -2755,11 +2746,6 @@ export default {
       if (this.path === '/') {
         this.path = ''
       }
-
-      this.$store.dispatch('updateMessage', {
-        event: 'storageTypeChange',
-        data: storageType,
-      })
     },
     // 设置挂载文件的用户名(文件的所有者)
     setMountFileOwner() {

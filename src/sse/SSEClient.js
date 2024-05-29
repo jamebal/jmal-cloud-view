@@ -55,6 +55,8 @@ function onMessage(msg) {
   const url = msg.url
   if (url === 'synced') {
     store.dispatch('updateMessage', {event: 'msg/synced', data: msg})
+  } else if (url === 'uploaderChunkSize') {
+    store.dispatch('updateMessage', {event: 'uploaderChunkSize', data: msg.body})
   } else {
     store.dispatch('updateMessage', {event: 'msg/file/change', data: msg})
     if ('operationFile' === url) {

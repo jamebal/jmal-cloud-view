@@ -128,11 +128,11 @@ export default {
       username: this.$store.state.user.name,
       options: {
         target: api.simpleUploadURL,
-        chunkSize: 5 * 1024 * 1024,
+        chunkSize: localStorage.getItem('uploader_chunk_size') || 1024 * 1024,
         // speedSmoothingFactor: 0.1,
         // progressCallbacksInterval: 500,
         maxChunkRetries: 3, // 最大重试次数
-        simultaneousUploads: 3, // 并发上传数
+        simultaneousUploads: 5, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
         // 服务器分片校验函数，秒传及断点续传基础
         checkChunkUploadedByResponse: function (chunk, message) {
@@ -203,7 +203,7 @@ export default {
     },
     message(msg) {
       switch (msg.event) {
-        case 'storageTypeChange':
+        case 'uploaderChunkSize':
           this.onStorageTypeChange(msg.data)
           break
         case 'fileListScrollTop':
@@ -227,17 +227,6 @@ export default {
           this.params = msg.data || {}
           if (this.$refs.folderBtn) {
             $('#folder-uploader-btn').click()
-          }
-          break
-        case 'request':
-          if (msg.data === 0) {
-            if (this.uploader.fileList.length  === 0 && this.panelShow) {
-              this.fileListLength = this.uploader.fileList.length
-              this.process = 100
-              this.setPageTitle()
-              this.uploader.cancel()
-              this.displayPanel(false)
-            }
           }
           break
       }
@@ -291,17 +280,10 @@ export default {
   destroyed() {
   },
   methods: {
-    onStorageTypeChange(storageType) {
-      if (storageType === 'File') {
-        if (this.options.chunkSize === 1024 * 1024) {
-          return
-        }
-        this.updateChunkSize(1024 * 1024)
-      } else {
-        if (this.options.chunkSize === 5 * 1024 * 1024) {
-          return
-        }
-        this.updateChunkSize(5 * 1024 * 1024)
+    onStorageTypeChange(chunkSize) {
+      localStorage.setItem('uploader_chunk_size', chunkSize)
+      if (this.options.chunkSize !== chunkSize && !this.panelShow) {
+        this.updateChunkSize(chunkSize)
       }
     },
     initUploader() {
@@ -361,10 +343,18 @@ export default {
         }).then(() => {
           this.doUploadBefore(files)
         }).catch(() => {
-          this.uploader.cancel()
+          this.uploaderCancel()
         })
       } else {
         this.doUploadBefore(files)
+      }
+    },
+    uploaderCancel() {
+      this.uploader.cancel()
+      this.displayPanel(false)
+      const chunkSize = localStorage.getItem('uploader_chunk_size');
+      if (chunkSize !== this.uploader.opts.chunkSize) {
+        this.updateChunkSize(Number.parseInt(chunkSize))
       }
     },
     displayPanel(display) {
@@ -442,7 +432,6 @@ export default {
           message: res.message,
           type: 'error'
         })
-        this.uploader.cancel()
         this.close()
         return;
       }
@@ -506,8 +495,7 @@ export default {
 
       }
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
-        this.uploader.cancel()
-        this.displayPanel(false)
+        this.uploaderCancel()
       }
     },
     onFileError(rootFile, file, response) {
@@ -657,16 +645,14 @@ export default {
     },
     close() {
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
-        this.uploader.cancel()
-        this.displayPanel(false)
+        this.uploaderCancel()
       } else {
         this.$confirm('还有文件正在上传, 确定要关闭吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.uploader.cancel()
-          this.displayPanel(false)
+          this.uploaderCancel()
         })
       }
     },
@@ -829,7 +815,7 @@ export default {
       padding: 0;
       margin: 0;
 
-      > li {
+      >>> li {
         background-color: #fff;
       }
     }
@@ -849,7 +835,7 @@ export default {
     font-size: 16px;
   }
 
-  > .uploader-file-icon {
+  >>> .uploader-file-icon {
     &:before {
       content: "" !important;
     }
@@ -877,21 +863,21 @@ export default {
     }
   }
 
-  > .uploader-file-actions > span {
+  >>> .uploader-file-actions > span {
     margin-right: 6px;
   }
 }
 
-> .uploader-file-status {
+>>> .uploader-file-status {
   width: 32%;
   text-indent: 20px;
 }
 
-> .uploader-file-meta {
+>>> .uploader-file-meta {
   width: 0;
 }
 
-> .uploader-file-icon {
+>>> .uploader-file-icon {
   width: 32px;
   height: 32px;
   display: inline-block;
@@ -900,7 +886,7 @@ export default {
   margin-right: 8px;
 }
 
-> .uploader-file-actions > span {
+>>> .uploader-file-actions > span {
   margin-right: 6px;
   margin-left: 8px;
 }
