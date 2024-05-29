@@ -57,7 +57,6 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    store.dispatch('updateMessage', {event: 'request', data: 0})
     const res = response.data
     if (res.code !== 0) {
       if (res.code === -2) {
