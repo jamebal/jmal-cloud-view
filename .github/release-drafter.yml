@@ -27,6 +27,11 @@ template: |
   docker-compose pull && docker-compose up -d
   ```
 
+  #### 清理旧镜像
+  ```shell
+  docker images --filter=reference='jmal/jmalcloud*' --filter "dangling=true" -q | xargs -r docker rmi
+  ```
+
   ## Changes in this release:
 
   $CHANGES

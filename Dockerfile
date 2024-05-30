@@ -2,8 +2,6 @@ FROM nginx:latest
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY nginx.conf /etc/nginx/nginx.conf.template
-
 COPY dist /var/www/public
 
 COPY config.js.template /var/www/public/config.js.template
