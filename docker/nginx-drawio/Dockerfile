@@ -10,4 +10,8 @@ RUN unzip /var/www/draw.war -d /var/www/draw
 
 RUN rm -rf /var/www/draw.war /var/www/draw/META-INF /var/www/draw/WEB-INF
 
+RUN apt-get remove -y unzip wget && \
+        apt-get autoremove -y && \
+        apt-get clean
+
 COPY docker/nginx-drawio/drawio.conf /etc/nginx/servers/drawio.conf
