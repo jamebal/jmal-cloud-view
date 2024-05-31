@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM jmal/nginx-drawio:latest
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
