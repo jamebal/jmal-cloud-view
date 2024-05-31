@@ -1,8 +1,6 @@
 name: Build nginx with Draw.io Docker Image
 
 on:
-  push:
-    branches: [ master ]
   workflow_dispatch:
 
 jobs:
