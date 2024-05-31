@@ -2,9 +2,9 @@ FROM nginx:latest
 
 RUN apt-get update && apt-get install -y unzip wget
 
-RUN wget https://github.com/jgraph/drawio/releases/download/v24.4.10/draw.war -O /var/www/draw.war
-
 RUN mkdir -p /etc/nginx/servers /var/www
+
+RUN wget https://github.com/jgraph/drawio/releases/download/v24.4.10/draw.war -O /var/www/draw.war
 
 RUN unzip /var/www/draw.war -d /var/www/draw
 
