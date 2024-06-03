@@ -66,7 +66,8 @@ export default {
   // 打包下载文件
   packageDownload: function(fileIds, token, username) {
     fileApi.isAllowDownload().then(() => {
-      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}&jmal-token=${token}&name=${username}`, '_self')
+      fileIds = fileIds.join(',')
+      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}`, '_self')
     })
   },
   // 共享文件下载

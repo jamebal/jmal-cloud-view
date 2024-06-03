@@ -1530,7 +1530,6 @@ export default {
       const container = document.querySelector('.dashboard-container')
       let clientWidth = container.clientWidth
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
-      console.log('containerResize', clientWidth, this.clientHeight)
       this.gridItemWidth = 125
       if (this.queryFileType === 'image') {
         this.gridItemWidth = 165
