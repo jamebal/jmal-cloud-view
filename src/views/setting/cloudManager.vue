@@ -47,9 +47,10 @@
                 <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
                   class="el-icon-refresh"></i>
                 </el-button>
-                <span v-show="syncPercent < 100">{{ syncPercent }}%</span>
+                <span v-show="syncPercent < 100">正在同步文件基本信息: {{ syncPercent }}%</span>
+                <span v-show="indexingPercent < 100">正在为文件内容创建索引: {{ indexingPercent }}%</span>
               </div>
-              <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
+              <span class="instruction">重建索引分为两步: 1.同步文件基本信息, 2.为文件内容创建索引</span>
               <div class="config-itme-label">重置角色、菜单：
                 <el-button class="sync-button" size="mini" :loading="resetLoading" type="danger"
                            @click="resetMenuAndRole()">
@@ -148,6 +149,7 @@ export default {
       uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}`,
       title: '网盘管理',
       syncLoading: false,
+      indexingPercent: 100,
       syncPercent: 100,
       resetLoading: false,
       webpEnabled: false,
@@ -224,7 +226,10 @@ export default {
     message(msg) {
       if (msg.event === 'msg/synced') {
         this.syncPercent = msg.data.body
-        if (this.syncPercent >= 100) {
+      }
+      if (msg.event === 'msg/indexing') {
+        this.indexingPercent = msg.data.body
+        if (this.indexingPercent >= 100) {
           this.syncLoading = false
         }
       }
@@ -351,8 +356,9 @@ export default {
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
         this.syncLoading = true;
-        this.syncPercent = res.data
-        this.syncLoading = this.syncPercent < 100;
+        this.syncPercent = res.data.syncPercent
+        this.indexingPercent = res.data.indexingPercent
+        this.syncLoading = !(this.syncPercent === 100 && this.indexingPercent === 100);
       })
     },
     sync() {

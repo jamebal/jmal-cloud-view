@@ -51,6 +51,5 @@ export function formatExif(exifInfo) {
   if (exifInfo['latitude']) {
     exifStr += `纬度: ${exifInfo['latitude']}\r\n`
   }
-  console.log(exifStr)
   return exifStr
 }
