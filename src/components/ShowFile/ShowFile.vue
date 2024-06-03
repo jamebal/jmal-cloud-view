@@ -538,7 +538,7 @@
                     formatSize(item.size) +
                     '\r\n' +
                     (item.w && item.h
-                      ? '分辨率：' + item.w + 'x' + item.h + '\r\n'
+                      ? '尺寸：' + item.w + 'x' + item.h + '\r\n'
                       : '') +
                     '名称：' +
                     item.name +
@@ -550,7 +550,8 @@
                     item.updateDate +
                     '\r\n' +
                     '路径：' +
-                    item.path
+                    item.path +
+                    '\r\n' + formatExif(item.exif)
                 "
                 :style="{paddingTop: 100/gridColumnNum + '%'}"
               >
@@ -693,7 +694,7 @@
         </div>
         <el-form-item
           v-show="rowContextData.w && rowContextData.h"
-          label="分辨率:"
+          label="尺寸:"
           class="details-resolution"
         >
           <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
@@ -717,6 +718,9 @@
         </el-form-item>
         <el-form-item label="修改时间:">
           <span>{{ rowContextData.updateDate }}</span>
+        </el-form-item>
+        <el-form-item label="Exif:">
+          <span style="white-space: break-spaces;">{{ formatExif(rowContextData.exif) }}</span>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -873,7 +877,7 @@ import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
 import { getElementToPageLeft } from '@/utils/dom'
 import { suffix } from '@/utils/file-type'
-import Bus from '@/assets/js/bus'
+import { formatExif } from '@/utils/image'
 import api from '@/api/file-api'
 import BreadcrumbFilePath from '@/components/Breadcrumb/BreadcrumbFilePath'
 import IconFile from '@/components/Icon/IconFile'
@@ -2260,6 +2264,9 @@ export default {
     // 格式化文件大小
     formatSize(size) {
       return formatSize(size)
+    },
+    formatExif(exifInfo) {
+      return formatExif(exifInfo)
     },
     upload() {
       // 打开文件选择框
@@ -4433,6 +4440,11 @@ export default {
     white-space: normal;
     word-break: break-all;
     word-wrap: break-word;
+    line-height: 25px;
+  }
+
+  >>> .el-form-item__label {
+    line-height: 25px;
   }
 
   >>> .el-form-item {
@@ -4444,6 +4456,7 @@ export default {
 
     .el-form-item__content {
       line-height: 20px;
+      color: #84a0c3;
     }
 
     .el-form-item__label {
