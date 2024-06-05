@@ -660,70 +660,8 @@
       :file="officePreviewRow"
       :status.sync="officePreviewVisible"
     ></office-preview>
-    <!--文件详细信息-->
-    <el-drawer :title="rowContextData.name" :visible.sync="drawer">
-      <div class="drawer-icon">
-        <icon-file
-          class="drawer-icon-font"
-          :grid="true"
-          :details="true"
-          :item="rowContextData"
-          :image-url="imageUrl"
-          :audio-cover-url="audioCoverUrl"
-        ></icon-file>
-      </div>
-      <el-form class="details-form">
-        <el-form-item label="名称:">
-          <span>{{ rowContextData.name }}</span>
-        </el-form-item>
-        <el-form-item label="类型:" class="details-name">
-          <span>{{
-            rowContextData.isFolder ? '文件夹' : rowContextData.contentType
-          }}</span>
-        </el-form-item>
-        <div v-if="rowContextData.music">
-          <el-form-item label="🎵 歌手:">
-            <span>{{ rowContextData.music.singer }}</span>
-          </el-form-item>
-          <el-form-item label="🎵 专辑:">
-            <span>{{ '《' + rowContextData.music.album + '》' }}</span>
-          </el-form-item>
-          <el-form-item label="🎵 歌名:">
-            <span>{{ '《' + rowContextData.music.songName + '》' }}</span>
-          </el-form-item>
-        </div>
-        <el-form-item
-          v-show="rowContextData.w && rowContextData.h"
-          label="尺寸:"
-          class="details-resolution"
-        >
-          <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
-        </el-form-item>
-        <el-form-item label="大小:">
-          <span> {{ formatSize(rowContextData.size) }}</span>
-        </el-form-item>
-        <el-form-item label="位置:" class="details-position">
-          <a
-            :href="
-              '/?path=' +
-                rowContextData.path +
-                '&highlight=' +
-                rowContextData.name
-            "
-            >{{ rowContextData.path }}</a
-          >
-        </el-form-item>
-        <el-form-item label="创建时间:">
-          <span>{{ rowContextData.uploadDate }}</span>
-        </el-form-item>
-        <el-form-item label="修改时间:">
-          <span>{{ rowContextData.updateDate }}</span>
-        </el-form-item>
-        <el-form-item label="Exif:">
-          <span style="white-space: break-spaces;">{{ formatExif(rowContextData.exif) }}</span>
-        </el-form-item>
-      </el-form>
-    </el-drawer>
+
+    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :row-context-data="rowContextData" :visible.sync="drawer"></file-details>
 
     <el-dialog
       class="open-file-dialog"
@@ -900,10 +838,12 @@ import ShareDialog from '@/components/ShareDialog/index.vue'
 import { getUsername } from '@/api/user'
 import Clipboard from 'clipboard'
 import TagDialog from '@/components/TagDialog/index.vue'
+import FileDetails from "@/components/preview/FileDetails.vue";
 
 export default {
   name: 'ShowFile',
   components: {
+    FileDetails,
     TagDialog,
     ShareDialog,
     OfficePreview,
@@ -4406,9 +4346,6 @@ export default {
 <style lang="scss" scoped>
 @import 'src/styles/index';
 @import 'src/styles/home-index';
-/*overflow: hidden;*/
-/*white-space: nowrap;*/
-/*text-overflow: ellipsis;*/
 .dashboard-container {
   min-width: 498px;
   height: 100%;
@@ -4420,70 +4357,6 @@ export default {
 
 >>> :focus {
   outline: 0;
-}
-
->>> .el-drawer__header {
-  color: #000000;
-
-  span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-}
-
-.details-form {
-  margin: 20px 10px 0 20px;
-
-  >>> .el-form-item__content {
-    white-space: normal;
-    word-break: break-all;
-    word-wrap: break-word;
-    line-height: 25px;
-  }
-
-  >>> .el-form-item__label {
-    line-height: 25px;
-  }
-
-  >>> .el-form-item {
-    margin-bottom: 0;
-  }
-
-  >>> .details-position {
-    margin: 10px 0;
-
-    .el-form-item__content {
-      line-height: 20px;
-      color: #84a0c3;
-    }
-
-    .el-form-item__label {
-      line-height: 20px;
-    }
-  }
-
-  a:hover {
-    color: #409eff;
-  }
-}
-
-.drawer-icon {
-  text-align: center;
-  position: relative;
-  >>> .icon-favorite {
-    display: none;
-  }
-  >>> .icon-share {
-    display: none;
-  }
-  >>> .icon-tag {
-    display: none;
-  }
-}
-
-.drawer-icon-font >>> .svg-icon {
-  font-size: 8rem;
 }
 
 .list-item {

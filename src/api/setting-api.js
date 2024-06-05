@@ -1,9 +1,16 @@
 import request from '@/utils/request'
 
 export default {
-  sync(params) {
+  syncUser(params) {
     return request({
       url: '/user/setting/sync',
+      method: 'get',
+      params
+    })
+  },
+  syncCloud(params) {
+    return request({
+      url: '/cloud/setting/sync',
       method: 'get',
       params
     })
