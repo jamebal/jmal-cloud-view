@@ -124,13 +124,25 @@
         </el-tabs>
       </div>
     </el-card>
+    <el-card class="box-card">
+      <div slot="header">
+        <div class="box-card-header">
+          <div class="clearfix card-header-back">
+            <span>任务进度</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <task-progress :data="taskProgressDataList"></task-progress>
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script>
 
 import config from '@/../package.json'
-import settingApi, {getSetting} from "@/api/setting-api";
+import settingApi, { getSetting, getTaskProgress } from "@/api/setting-api";
 import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
@@ -138,9 +150,10 @@ import roleApi from "@/api/role";
 import { loadLdapConfig, testLdapConfig, updateLdapConfig} from '@/api/user'
 import {mapGetters, mapState} from "vuex";
 import store from "@/store";
+import TaskProgress from "@/components/TaskProgress/index.vue";
 
 export default {
-  components: {UploadImageInput, Logo},
+  components: {TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',
@@ -150,6 +163,7 @@ export default {
       clickSync: false,
       indexingPercent: 100,
       syncPercent: 100,
+      taskProgressDataList: [],
       resetLoading: false,
       webpEnabled: false,
       logoFileName: '',
@@ -208,6 +222,10 @@ export default {
         this.getLdapConfig()
       }
     }
+    getTaskProgress().then(res => {
+      this.taskProgressDataList = res.data
+      this.taskProgressChange(this.taskProgressDataList.length)
+    })
   },
   computed: {
     ...mapState(['message']),
@@ -405,7 +423,7 @@ export default {
       }).catch(() => {
         this.webpEnabled = !this.webpEnabled
       })
-    }
+    },
   }
 }
 </script>

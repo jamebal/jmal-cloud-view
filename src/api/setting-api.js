@@ -103,3 +103,11 @@ export function getHeartwings(params) {
     params
   })
 }
+
+export function getTaskProgress(params) {
+  return request({
+    url: '/cloud/task/progress',
+    method: 'get',
+    params
+  })
+}
