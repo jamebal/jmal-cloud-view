@@ -44,11 +44,9 @@
           <a href="https://baike.baidu.com/item/webp%E6%A0%BC%E5%BC%8F" target="_blank">什么是webp?</a>
           </span>
               <div class="config-itme-label">重建索引：
-                <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
-                  class="el-icon-refresh"></i>
-                </el-button>
+                <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
                 <span v-show="syncPercent < 100">正在同步文件基本信息: {{ syncPercent }}%</span>
-                <span v-show="indexingPercent < 100">正在为文件内容创建索引: {{ indexingPercent }}%</span>
+                <span v-show="indexingPercent > 0 && indexingPercent < 100">正在为文件内容创建索引: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
               </div>
               <span class="instruction">重建索引分为两步: 1.同步文件基本信息, 2.为文件内容创建索引</span>
               <div class="config-itme-label">重置角色、菜单：
@@ -149,6 +147,7 @@ export default {
       uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}`,
       title: '网盘管理',
       syncLoading: false,
+      clickSync: false,
       indexingPercent: 100,
       syncPercent: 100,
       resetLoading: false,
@@ -225,13 +224,7 @@ export default {
   watch: {
     message(msg) {
       if (msg.event === 'msg/synced') {
-        this.syncPercent = msg.data.body
-      }
-      if (msg.event === 'msg/indexing') {
-        this.indexingPercent = msg.data.body
-        if (this.indexingPercent >= 100) {
-          this.syncLoading = false
-        }
+        this.updateSyncStatus(msg.data.body)
       }
     }
   },
@@ -355,22 +348,36 @@ export default {
     },
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
-        this.syncLoading = true;
-        this.syncPercent = res.data.syncPercent
-        this.indexingPercent = res.data.indexingPercent
-        this.syncLoading = !(this.syncPercent === 100 && this.indexingPercent === 100);
+        this.updateSyncStatus(res.data)
       })
     },
+    updateSyncStatus(dataPercent) {
+      const {syncPercent, indexingPercent} = dataPercent
+      if (syncPercent) {
+        this.syncPercent = syncPercent
+      } else {
+        this.syncPercent = 0
+      }
+      if (indexingPercent) {
+        this.indexingPercent = indexingPercent
+      } else {
+        this.indexingPercent = 0
+      }
+      this.syncLoading = !((this.syncPercent === 100 && this.indexingPercent === 100) || (this.syncPercent === 0 && this.indexingPercent === 0));
+    },
     sync() {
-      this.$confirm('是否开始同步? ', '提示', {
+      this.$confirm('是否开始扫描? ', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.syncLoading = true
         this.syncPercent = 0
-        settingApi.sync({username: this.$store.state.user.name}).then(() => {
-          this.$message.success("开始同步...")
+        this.clickSync = true
+        settingApi.syncCloud({username: this.$store.state.user.name}).then(() => {
+          this.clickSync = false
+        }).catch(() => {
+          this.clickSync = false
         })
       })
     },
