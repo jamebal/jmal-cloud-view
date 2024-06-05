@@ -162,7 +162,7 @@ export default {
           }
         }
 
-        this.videoLink = window.location.origin + videoUrl
+        this.videoLink = window.location.origin + originUrl
         this.title = this.file.name
         this.option.id = this.file.id
         this.show = true
