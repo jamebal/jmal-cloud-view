@@ -2784,6 +2784,7 @@ export default {
           })
       } else {
         if (this.listModeSearch) {
+          this.listModeSearch = false
           this.lastLink()
         }
       }
