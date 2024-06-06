@@ -224,7 +224,6 @@ export default {
     }
     getTaskProgress().then(res => {
       this.taskProgressDataList = res.data
-      this.taskProgressChange(this.taskProgressDataList.length)
     })
   },
   computed: {

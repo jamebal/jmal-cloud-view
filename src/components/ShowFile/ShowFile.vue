@@ -551,7 +551,7 @@
                     '\r\n' +
                     '路径：' +
                     item.path +
-                    '\r\n' + formatExif(item.exif)
+                    extendedInfo(item)
                 "
                 :style="{paddingTop: 100/gridColumnNum + '%'}"
               >
@@ -815,7 +815,7 @@ import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
 import { getElementToPageLeft } from '@/utils/dom'
 import { suffix } from '@/utils/file-type'
-import { formatExif } from '@/utils/image'
+import { formatExif,formatVideo } from '@/utils/media'
 import api from '@/api/file-api'
 import BreadcrumbFilePath from '@/components/Breadcrumb/BreadcrumbFilePath'
 import IconFile from '@/components/Icon/IconFile'
@@ -2204,8 +2204,11 @@ export default {
     formatSize(size) {
       return formatSize(size)
     },
-    formatExif(exifInfo) {
-      return formatExif(exifInfo)
+    extendedInfo(file) {
+      if (!file.exif && !file.video) {
+        return
+      }
+      return "\r\n" + formatExif(file.exif) + formatVideo(file.video)
     },
     upload() {
       // 打开文件选择框
