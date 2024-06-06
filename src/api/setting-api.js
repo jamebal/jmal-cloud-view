@@ -1,6 +1,20 @@
 import request from '@/utils/request'
 
 export default {
+  getTranscodeConfig(params) {
+    return request({
+      url: '/cloud/setting/transcode/config',
+      method: 'get',
+      params
+    })
+  },
+  setTranscodeConfig(data) {
+    return request({
+      url: '/cloud/setting/transcode/config',
+      method: 'put',
+      data
+    })
+  },
   syncUser(params) {
     return request({
       url: '/user/setting/sync',
