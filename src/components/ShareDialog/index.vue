@@ -264,7 +264,7 @@ export default {
     showSharedPage(shareObject) {
       this.shareOptionConfig.shared = true
       this.shareOptionConfig.linkLabel = '分享链接'
-      this.setShareLink(this.getShareLink(shareObject.shareId))
+      this.setShareLink(this.getShareLink(shareObject.shareId, shareObject.shortId))
       this.shareOption.isPrivacy = shareObject.isPrivacy
       this.shareOption.operationPermissionList = shareObject.operationPermissionList || []
       if (shareObject.expireDate) {
@@ -339,8 +339,11 @@ export default {
     timeFormat(time) {
       return moment(time).format("yyyy-MM-DD HH:mm")
     },
-    getShareLink(shareId) {
-      return window.location.origin + '/s?s=' + shareId
+    getShareLink(shareId, shortId) {
+      if (!shortId) {
+        shortId = shareId
+      }
+      return `${window.location.origin}/s/${shortId}`
     },
     createShare(update) {
       this.generateShareLinkLoading = true
@@ -368,8 +371,8 @@ export default {
         operationPermissionList: this.shareOption.operationPermissionList
       }).then(res => {
         if (res.data) {
-          let {shareId, extractionCode, operationPermissionList} = res.data
-          this.setShareLink(this.getShareLink(shareId))
+          let {shareId, shortId, extractionCode, operationPermissionList} = res.data
+          this.setShareLink(this.getShareLink(shareId, shortId))
           this.shareId = shareId
           this.generateShareLinkLoading = false
           this.shareOptionConfig.shared = true

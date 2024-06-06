@@ -6,7 +6,7 @@
 
 <script>
 const pcList = ['/', '/s']
-const mobileList = ['/_m', '/_m/', '/s_m', '/s_m/']
+const mobileList = ['/_m', '/_m/']
 export default {
   name: 'App',
   components: {},
