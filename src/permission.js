@@ -7,7 +7,7 @@ import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress配置
 
-const whiteList = ['/login','/s','/s/','/s_m','/s_m/'] // 白名单
+const whiteList = ['/login','/s','/s/'] // 白名单
 
 router.beforeEach(async(to, from, next) => {
   // 开始进度条
@@ -51,7 +51,7 @@ router.beforeEach(async(to, from, next) => {
     }
   } else {
     // 没有登录的情况
-    if (whiteList.indexOf(to.path) !== -1) {
+    if (hasWhiteList(to.path)) {
       //  没有token但是在白名单中，直接进入
       next()
     } else {
@@ -64,6 +64,15 @@ router.beforeEach(async(to, from, next) => {
     }
   }
 })
+
+function hasWhiteList(path) {
+  for (let i = 0; i < whiteList.length; i++) {
+    if (path.indexOf(whiteList[i]) !== -1) {
+      return true
+    }
+  }
+  return false
+}
 
 function setMenuList(next, to){
   if(store.getters.menuList.length === 0){
