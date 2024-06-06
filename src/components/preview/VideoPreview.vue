@@ -45,6 +45,7 @@ export default {
     return {
       pc: this.$pc,
       art: null,
+      switchQuality: false,
       option: {
         url: '',
         title: '', // 视频标题，目前会出现在 视频截图 和 迷你模式 下
@@ -137,8 +138,9 @@ export default {
           }
         }
         this.option.url = videoUrl
+
         if (this.file.m3u8) {
-          const supported = ['flv', 'mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov']
+          const supported = ['mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov']
           if (supported.includes(this.file.suffix.toLowerCase())) {
             this.option.quality = [
               {
@@ -156,7 +158,10 @@ export default {
             m3u8: this.playM3u8
           }
         }
+
         if (this.file.contentType.indexOf('flv') > -1) {
+          this.option.url = originUrl
+          this.option.quality = []
           this.option.customType = {
             flv: this.playFlv
           }
@@ -166,6 +171,11 @@ export default {
         this.title = this.file.name
         this.option.id = this.file.id
         this.show = true
+        this.switchQuality = true
+      } else {
+        this.option.url = ''
+        this.videoLink = ''
+        this.option.quality = []
       }
     }
   },
