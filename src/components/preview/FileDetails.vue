@@ -56,8 +56,11 @@
         <el-form-item label="修改时间:">
           <span>{{ rowContextData.updateDate }}</span>
         </el-form-item>
-        <el-form-item v-if="rowContextData.exif" label="Exif:">
+        <el-form-item v-if="rowContextData.exif" label="">
           <span style="white-space: break-spaces;">{{ formatExif(rowContextData.exif) }}</span>
+        </el-form-item>
+        <el-form-item v-if="rowContextData.video" label="">
+          <span style="white-space: break-spaces;">{{ formatVideo(rowContextData.video) }}</span>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -68,7 +71,7 @@
 import { formatSize } from '@/utils/number'
 import IconFile from '@/components/Icon/IconFile'
 import {mapState} from "vuex";
-import {formatExif} from "@/utils/image";
+import {formatExif,formatVideo} from "@/utils/media";
 import settingApi from "@/api/setting-api";
 
 export default {
@@ -126,6 +129,9 @@ export default {
     },
     formatExif(exifInfo) {
       return formatExif(exifInfo)
+    },
+    formatVideo(videoInfo) {
+      return formatVideo(videoInfo)
     },
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
