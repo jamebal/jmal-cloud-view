@@ -78,25 +78,13 @@
         </el-tabs>
       </div>
     </el-card>
-    <el-card class="box-card progress">
-      <div slot="header">
-        <div class="box-card-header">
-          <div class="clearfix card-header-back">
-            <span>任务进度</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <task-progress :data="taskProgressDataList"></task-progress>
-      </div>
-    </el-card>
   </div>
 </template>
 
 <script>
 
 import config from '@/../package.json'
-import settingApi, { getSetting, getTaskProgress } from "@/api/setting-api";
+import settingApi, { getSetting } from "@/api/setting-api";
 import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
@@ -117,7 +105,6 @@ export default {
       clickSync: false,
       indexingPercent: 100,
       syncPercent: 100,
-      taskProgressDataList: [],
       resetLoading: false,
       webpEnabled: false,
       logoFileName: '',
@@ -137,9 +124,6 @@ export default {
       if (this.activeName === '2') {
       }
     }
-    getTaskProgress().then(res => {
-      this.taskProgressDataList = res.data
-    })
   },
   computed: {
     ...mapState(['message']),
