@@ -1,4 +1,4 @@
-name: Build Nightly Docker Image
+name: Build Test Docker Image
 
 on:
   push:
