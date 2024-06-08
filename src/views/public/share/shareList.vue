@@ -255,7 +255,7 @@
     <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow"
                   :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
-    <office-preview :file="officePreviewRow" :shareId="shareId" :status.sync="officePreviewVisible"></office-preview>
+    <office-preview :file="officePreviewRow" :shareId="shareId" :sharer="sharerUsername" :status.sync="officePreviewVisible"></office-preview>
     <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center"><i
       class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
     </el-divider>
@@ -418,6 +418,7 @@ export default {
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
       showSizeItem: this.$pc,// 列表模式下是否显示文件大小
       sharer: undefined,//分享者信息,
+      sharerUsername: undefined,
       loginTitle: '',
       sharerAvatarUrl: '',
       netdiskName: 'JmalCloud',
@@ -698,6 +699,7 @@ export default {
           if (this.sharer.netdiskName) {
             this.netdiskName = this.sharer.netdiskName
           }
+          this.sharerUsername = this.sharer.username
           if (this.sharer.netdiskLogo) {
             this.netdiskLogo = this.sharer.netdiskLogo
           }

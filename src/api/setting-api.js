@@ -83,6 +83,21 @@ export default {
       url: '/user/setting/resetMenuAndRole',
       method: 'put',
     })
+  },
+  // 获取office配置
+  getOfficeConfig: function() {
+    return request({
+      url: '/office/config',
+      method: 'get'
+    })
+  },
+  // 更新office配置
+  updateOfficeConfig: function(data) {
+    return request({
+      url: '/office/config',
+      method: 'put',
+      data
+    })
   }
 }
 

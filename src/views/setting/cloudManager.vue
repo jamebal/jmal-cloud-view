@@ -65,13 +65,18 @@
 
             </div>
           </el-tab-pane>
+          <el-tab-pane label="OnlyOffice" name="2" class="setting-tab-panel">
+            <div v-if="activeName === '2'">
+              <office-config></office-config>
+            </div>
+          </el-tab-pane>
           <el-tab-pane label="视频转码" name="3" class="setting-tab-panel">
             <div v-if="activeName === '3'">
               <transcode-config></transcode-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="LDAP认证" name="2" class="setting-tab-panel">
-            <div v-if="activeName === '2'">
+          <el-tab-pane label="LDAP认证" name="4" class="setting-tab-panel">
+            <div v-if="activeName === '4'">
               <ldap-config></ldap-config>
             </div>
           </el-tab-pane>
@@ -91,11 +96,12 @@ import UploadImageInput from "@/components/input/UploadImageInput.vue";
 import {mapGetters, mapState} from "vuex";
 import store from "@/store";
 import TaskProgress from "@/components/TaskProgress/index.vue";
-import LdapConfig from "@/views/setting/ldapConfig.vue";
-import TranscodeConfig from "@/views/setting/transcodeConfig.vue";
+import LdapConfig from "@/views/setting/cloudSetting/ldapConfig.vue";
+import TranscodeConfig from "@/views/setting/cloudSetting/transcodeConfig.vue";
+import OfficeConfig from "@/views/setting/cloudSetting/officeConfig.vue";
 
 export default {
-  components: {TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
+  components: {OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',

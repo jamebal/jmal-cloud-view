@@ -338,5 +338,22 @@ export default {
       method: 'get',
       params
     })
-  }
+  },
+  // 获取office jwt
+  getOfficeJwt: function(data) {
+    return request({
+      url: '/office/signature',
+      method: 'post',
+      data
+    })
+  },
+  // 获取office jwt
+  getPublicOfficeJwt: function(params, data) {
+    return request({
+      url: '/public/office/signature',
+      method: 'post',
+      params,
+      data
+    })
+  },
 }
