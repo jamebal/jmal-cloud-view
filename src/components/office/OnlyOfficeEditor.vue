@@ -192,11 +192,15 @@ export default {
       this.docEditor = new DocsAPI.DocEditor(this.id, this.docEditorConfig)
     },
     onRequestHistoryData(event, historyInfo, url) {
-      this.docEditor.setHistoryData({
+      let historyConfig = {
         "fileType": this.fileType,
         "key": `${new Date(historyInfo.metadata.time).getTime()}-${SparkMD5.hash(this.file.id)}`,
         "url":  url,
         "version": historyInfo.metadata.time,
+      }
+      api.getOfficeJwt(historyConfig).then(res => {
+        historyConfig.token = res.data
+        this.docEditor.setHistoryData(historyConfig)
       })
     },
     onRequestHistory() {
@@ -341,6 +345,7 @@ export default {
       if (this.hasHistoryVersion && !doc.getElementById('box-doc-name-history-btn')) {
         const toolbar = doc.getElementById('box-doc-name')
         toolbar.style.justifyContent = 'right'
+        toolbar.style.padding = '0'
         let versionButton = document.createElement("button")
         versionButton.classList.add('btn', 'btn-header')
         versionButton.setAttribute('id', 'box-doc-name-history-btn')
