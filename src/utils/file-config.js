@@ -13,7 +13,7 @@ export default {
   },
   // office api url
   officeApiUrl: function(documentServer) {
-    let serverUrl = documentServer || window._env_.API_URL || process.env.API_URL || `${window.location.origin}/office`
+    let serverUrl = documentServer || `${window.location.origin}/office`
     if (!serverUrl.endsWith('/')) {
       serverUrl = serverUrl + "/"
     }
@@ -21,7 +21,7 @@ export default {
   },
   // office回调url
   officeCallBackUrl: function(callbackServer, token, username, fileId) {
-    let callbackServerUrl = callbackServer || window._env_.API_URL || process.env.API_URL || 'http://jmalcloud:8088'
+    let callbackServerUrl = callbackServer || 'http://jmalcloud:8088'
     if (!callbackServerUrl.endsWith('/')) {
       callbackServerUrl = callbackServerUrl + "/"
     }
