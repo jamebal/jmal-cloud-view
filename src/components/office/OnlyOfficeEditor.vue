@@ -49,6 +49,10 @@ export default {
       type: String,
       default: ''
     },
+    sharer: {
+      type: String,
+      default: undefined
+    },
     file: {
       type: Object,
       default: function () {
@@ -221,11 +225,14 @@ export default {
         this.$refs.historyPopover.loadHistoryList(this.file.id)
       })
       this.destroyEditor()
-      this.fileUrl = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
+
+      const file_username = this.sharer ? this.sharer : this.$store.state.user.name
+      this.fileUrl = window.location.origin + fileConfig.previewUrl(file_username, this.file, this.$store.getters.token)
+      this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id)}`
       if (this.readOnly && window.shareId) {
         this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
+        this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(window.shareId)}`
       }
-      this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id)}`
 
       let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.$store.getters.name, this.file.id)
 
@@ -261,6 +268,22 @@ export default {
           callbackUrl: callbackUrl,
         }
       }
+
+      if (this.readOnly && window.shareId) {
+        const shareToken = this.$store.getters.shareToken ? this.$store.getters.shareToken : 'token'
+        this.docEditorConfig.editorConfig.callbackUrl = null
+        api.getPublicOfficeJwt({shareId: window.shareId, shareToken: shareToken}, this.docEditorConfig).then(res => {
+          this.loadOffice(res.data)
+        })
+      } else {
+        api.getOfficeJwt(this.docEditorConfig).then(res => {
+          this.loadOffice(res.data)
+        })
+      }
+
+    },
+    loadOffice(token) {
+      this.docEditorConfig.token = token
       if (!this.$pc) {
         this.docEditorConfig.type = 'mobile'
       }
@@ -277,6 +300,7 @@ export default {
           this.docEditorConfig.editorConfig.user.name = "Visitor_" + visitor
         }
       }
+
       this.docEditorConfig.events = {
         "onAppReady": this.onAppReady,
         "onDocumentReady": this.onDocumentReady,

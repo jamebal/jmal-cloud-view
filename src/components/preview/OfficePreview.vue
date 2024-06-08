@@ -19,7 +19,7 @@
             <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
-            <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
+            <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
     </div>
@@ -30,7 +30,6 @@
 
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
-import Bus from "@/assets/js/bus";
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
 import Drawio from "@/components/office/Drawio";
@@ -53,6 +52,10 @@ export default {
       }
     },
     shareId: {
+      type: String,
+      default: undefined
+    },
+    sharer: {
       type: String,
       default: undefined
     },
@@ -207,7 +210,7 @@ export default {
       this.$message.info('请手动保存')
     },
     /**
-     * 检查要预览调文件是否为只读
+     * 检查要预览的文件是否为只读
      * @param file userId
      */
     checkReadOnly(file){
