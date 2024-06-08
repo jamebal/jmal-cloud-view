@@ -22,6 +22,7 @@
 <script>
 
 import api from "@/api/file-api"
+import settingApi from "@/api/setting-api"
 import fileConfig from "@/utils/file-config";
 import SparkMD5 from 'spark-md5'
 import HistoryPopover from "@/components/HistoryPopover/index.vue";
@@ -79,7 +80,12 @@ export default {
       historyPageIndex: 1,
       historyPageSize: 50,
       viewHistory: false,
-      historyOperationLoading: false
+      historyOperationLoading: false,
+      officeServerConfig: {
+        documentServer: undefined,
+        callbackServer: undefined,
+        tokenEnabled: false
+      }
     }
   },
   beforeDestroy() {
@@ -97,24 +103,9 @@ export default {
         if (!id) {
           return
         }
-        let officeApiUrl = fileConfig.officeApiUrl()
-        $J.loadScript($J.apiUrl(officeApiUrl), (e) => {
-          if (e !== null) {
-            this.$emit('onClose')
-            this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
-            return
-          }
-          if (this.shareId) {
-            api.getPublicFileInfoById({fileId: this.file.id, shareId: this.shareId}).then(res => {
-              this.file = res.data
-              this.loadFile()
-            })
-          } else {
-            api.getFileInfoById({id: this.file.id}).then(res => {
-              this.file = res.data
-              this.loadFile()
-            })
-          }
+        settingApi.getOfficeConfig().then(res => {
+          this.officeServerConfig = res.data
+          this.loadOfficeApi()
         })
       },
       immediate: true,
@@ -138,6 +129,27 @@ export default {
   destroyed() {
   },
   methods: {
+    loadOfficeApi() {
+      let officeApiUrl = fileConfig.officeApiUrl(this.officeServerConfig.documentServer)
+      $J.loadScript($J.apiUrl(officeApiUrl), (e) => {
+        if (e !== null) {
+          this.$emit('onClose')
+          this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
+          return
+        }
+        if (this.shareId) {
+          api.getPublicFileInfoById({fileId: this.file.id, shareId: this.shareId}).then(res => {
+            this.file = res.data
+            this.loadFile()
+          })
+        } else {
+          api.getFileInfoById({id: this.file.id}).then(res => {
+            this.file = res.data
+            this.loadFile()
+          })
+        }
+      })
+    },
     viewHistoryFile({historyInfo}) {
       const historyUrl = window.location.origin + fileConfig.previewHistoryUrl(historyInfo.id, this.$store.state.user.name, this.$store.state.user.token)
       this.onRequestHistoryData(null, historyInfo, historyUrl)
@@ -231,15 +243,23 @@ export default {
       this.destroyEditor()
 
       const file_username = this.sharer ? this.sharer : this.$store.state.user.name
-      this.fileUrl = window.location.origin + fileConfig.previewUrl(file_username, this.file, this.$store.getters.token)
-      this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id)}`
-      if (this.readOnly && window.shareId) {
-        this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
-        this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(window.shareId)}`
+
+      let callbackServer = this.officeServerConfig.callbackServer
+      if (callbackServer) {
+        if (callbackServer.endsWith('/')) {
+          // 去掉最后的/
+          callbackServer = callbackServer.substring(0, this.officeServerConfig.callbackServer.length - 1)
+        }
+      } else {
+        callbackServer = window.location.origin
       }
-
-      let callbackUrl = fileConfig.officeCallBackUrl(this.$store.getters.token, this.$store.getters.name, this.file.id)
-
+      this.fileUrl = fileConfig.previewUrl(file_username, this.file, this.$store.getters.token, undefined, callbackServer)
+      this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id + callbackServer)}`
+      if (this.readOnly && window.shareId) {
+        this.fileUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken, callbackServer)
+        this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(window.shareId + callbackServer)}`
+      }
+      let callbackUrl = fileConfig.officeCallBackUrl(this.officeServerConfig.callbackServer, this.$store.getters.token, this.$store.getters.name, this.file.id)
       this.docEditorConfig = {
         document: {
           fileType: this.fileType,
@@ -280,14 +300,20 @@ export default {
           this.loadOffice(res.data)
         })
       } else {
-        api.getOfficeJwt(this.docEditorConfig).then(res => {
-          this.loadOffice(res.data)
-        })
+        if (this.officeServerConfig.tokenEnabled) {
+          api.getOfficeJwt(this.docEditorConfig).then(res => {
+            this.loadOffice(res.data)
+          })
+        } else {
+          this.loadOffice()
+        }
       }
 
     },
     loadOffice(token) {
-      this.docEditorConfig.token = token
+      if (token) {
+        this.docEditorConfig.token = token
+      }
       if (!this.$pc) {
         this.docEditorConfig.type = 'mobile'
       }

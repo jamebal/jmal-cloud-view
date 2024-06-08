@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <el-form :rules="rules" ref="transcodeConfigform" :model="configFormData" label-width="120px" size="small"
+    <el-form :rules="rules" ref="transcodeConfigForm" :model="configFormData" label-width="120px" size="small"
              style="width: 520px" autocomplete="off">
       <el-form-item label="功能状态" prop="enable">
         <el-select v-model="configFormData.enable">
@@ -74,8 +74,12 @@ export default {
       })
     },
     saveConfig() {
+      this.saveConfigLoading = true
       settingApi.setTranscodeConfig(this.configFormData).then(() => {
+        this.saveConfigLoading = false
         this.$message.success('保存成功')
+      }).catch(() => {
+        this.saveConfigLoading = false
       })
     }
   }

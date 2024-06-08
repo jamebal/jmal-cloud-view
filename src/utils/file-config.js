@@ -12,17 +12,23 @@ export default {
     return window.location.origin + `/webDAV/${username}`
   },
   // office api url
-  officeApiUrl: function() {
-    const url = window._env_.API_OFFICE_URL || process.env.API_OFFICE_URL || `${window.location.origin}/office`
-    return `${url}/web-apps/apps/api/documents/api.js`
+  officeApiUrl: function(documentServer) {
+    let serverUrl = documentServer || window._env_.API_URL || process.env.API_URL || `${window.location.origin}/office`
+    if (!serverUrl.endsWith('/')) {
+      serverUrl = serverUrl + "/"
+    }
+    return serverUrl + "web-apps/apps/api/documents/api.js"
   },
   // office回调url
-  officeCallBackUrl: function(token, username, fileId) {
-    const url = window._env_.API_URL || process.env.API_URL || 'http://jmalcloud:8088'
-    return `${url}/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
+  officeCallBackUrl: function(callbackServer, token, username, fileId) {
+    let callbackServerUrl = callbackServer || window._env_.API_URL || process.env.API_URL || 'http://jmalcloud:8088'
+    if (!callbackServerUrl.endsWith('/')) {
+      callbackServerUrl = callbackServerUrl + "/"
+    }
+    return `${callbackServerUrl}office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
-  previewUrl: function(username, file, token, shareToken) {
+  previewUrl: function(username, file, token, shareToken, serverUrl) {
     let owner = null
     if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== null) {
       owner = localStorage.getItem('mountFileOwner')
@@ -32,7 +38,8 @@ export default {
     if (owner == null) {
       owner = store.getters.name
     }
-    let fileUrl = `${this.baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
+    let baseUrl = serverUrl || this.baseUrl
+    let fileUrl = `${baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
     fileUrl = fileUrl.replace(/%5C/g, '/')
     if (token) {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
@@ -80,11 +87,12 @@ export default {
     window.open(url, '_blank')
   },
   // 共享文件预览Url
-  publicPreviewUrl: function(file, shareId, shareToken) {
+  publicPreviewUrl: function(file, shareId, shareToken, serverUrl) {
     if (!shareToken) {
       shareToken = "none"
     }
-    return `${this.baseUrl}/public/s/preview/${file.name}?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
+    let baseUrl = serverUrl || this.baseUrl
+    return `${baseUrl}/public/s/preview/${file.name}?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载
   publicPackageDownload: function(shareId, fileIds, shareToken) {

@@ -2206,7 +2206,7 @@ export default {
     },
     extendedInfo(file) {
       if (!file.exif && !file.video) {
-        return
+        return ''
       }
       return "\r\n" + formatExif(file.exif) + formatVideo(file.video)
     },
