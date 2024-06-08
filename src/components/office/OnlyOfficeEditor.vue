@@ -251,7 +251,7 @@ export default {
           callbackServer = callbackServer.substring(0, this.officeServerConfig.callbackServer.length - 1)
         }
       } else {
-        callbackServer = window.location.origin
+        callbackServer = 'http://jmalcloud:8088'
       }
       this.fileUrl = fileConfig.previewUrl(file_username, this.file, this.$store.getters.token, undefined, callbackServer)
       this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id + callbackServer)}`
