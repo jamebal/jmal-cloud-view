@@ -153,11 +153,12 @@ export default {
       this.images.forEach(image => {
         imageUrls.push(image.source)
       })
+      const that = this
       this.vantImagePreview = vant.ImagePreview({
         images: imageUrls,
         startPosition: viewIndex,
         onClose() {
-          this.$store.dispatch('updateMessage', { event: 'updateImageViewerStatus'})
+          that.$store.dispatch('updateMessage', { event: 'updateImageViewerStatus'})
         }
       })
     }
