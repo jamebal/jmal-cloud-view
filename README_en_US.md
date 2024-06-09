@@ -16,13 +16,13 @@ JmalCloud It's a private cloud storage project that makes it simple and secure t
 ✅ supports WebDAV
 
 ### Online Demo:
-[View Demo](https://jmal.cc/demo) , username:demo, password:demo1234
+[Live Demo](https://jmal.cc/demo) , username:demo, password:demo1234
 
 
 ### Deploy
 - Prerequisites：`Docker` and `Docker Compose v2.0+`
 
-Refer to [docker-compose.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.example2.yml)
+Refer to [docker-compose.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.base.yml)
 
 ```shell
 docker compose up -d
