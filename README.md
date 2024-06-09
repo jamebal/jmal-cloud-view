@@ -21,7 +21,7 @@ JmalCloud 是一款私有云存储网盘项目，能够简单安全管理您的�
 ### 部署
 - 必须安装：`Docker` 和 `Docker Compose v2.0+`
 
-参考[docker-compose.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.example2.yml)
+参考[docker-compose.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.base.yml)
 
 ```shell
 docker compose up -d
