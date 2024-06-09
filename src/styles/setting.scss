@@ -197,4 +197,21 @@ a:hover {
     }
   }
 }
+.setting-title-desc {
+  .setting-title-desc-text {
+    padding: 5px 0 20px 0;
+  }
+  >>>.el-divider--horizontal {
+    margin: 0;
+  }
+}
+>>> .el-form {
+  .form-instruction {
+    color: #9a9a9a;
+    font-size: .8125rem;
+    a {
+      color: #1890ff;
+    }
+  }
+}
 

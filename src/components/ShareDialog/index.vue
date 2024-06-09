@@ -86,7 +86,7 @@
                   <el-collapse-item title="操作权限" name="1">
                     <el-checkbox-group v-model="shareOption.operationPermissionList" @change="permissionActionChange">
                       <el-checkbox label="UPLOAD">上传</el-checkbox>
-                      <el-checkbox label="PUT">修改</el-checkbox>
+                      <el-checkbox label="PUT">编辑</el-checkbox>
                       <el-checkbox label="DELETE">删除</el-checkbox>
                     </el-checkbox-group>
                   </el-collapse-item>

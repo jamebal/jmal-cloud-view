@@ -89,7 +89,8 @@
         <div class="search-content">
           <div class="search-class">
             <el-popover
-              v-show="showUploadButton"
+              v-if="showUploadButton"
+              v-show="!(pathList.length < 2 && homeHidden)"
               v-model="isShowNewFolder"
               placement="bottom"
               trigger="hover"
@@ -869,6 +870,10 @@ export default {
       type: Number,
       default: 106,
     },
+    homeHidden: {
+      type: Boolean,
+      default: false,
+    },
     showUploadButton: {
       type: Boolean,
       default: true,
@@ -1199,6 +1204,7 @@ export default {
     $route(to) {
       if (to.query.tagId && this.queryCondition.tagId !== this.$route.query.tagId) {
         this.queryCondition.tagId = this.$route.query.tagId
+        this.pathList = [{ folder: "" }]
         this.getFileList()
       }
     },

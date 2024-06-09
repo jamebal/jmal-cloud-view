@@ -9,6 +9,10 @@
         </div>
       </div>
       <div>
+        <div class="setting-title-desc">
+          <div class="setting-title-desc-text">OCR识别任务和视频转码任务</div>
+          <el-divider></el-divider>
+        </div>
         <task-progress :data="taskProgressDataList"></task-progress>
       </div>
     </el-card>

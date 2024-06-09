@@ -8,6 +8,7 @@
       :defaultSort="sortable"
       :queryCondition="queryCondition"
       :contextMenus="contextMenus"
+      homeHidden
     >
     </show-file>
   </div>
