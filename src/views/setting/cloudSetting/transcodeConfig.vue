@@ -13,10 +13,12 @@
         </el-select>
       </el-form-item>
       <el-form-item label="目标码率(kbps)" prop="bitrate">
-        <el-input placeholder="默认2500 kbps,小于该值则不转码" v-model.number="configFormData.bitrate"></el-input>
+        <el-input placeholder="2500" v-model.number="configFormData.bitrate"></el-input>
+        <span class="form-instruction">默认2500 kbps,小于该值则不转码</span>
       </el-form-item>
       <el-form-item label="目标高度" prop="height">
-        <el-input placeholder="默认720,小于该值则不转码(视频宽度则默认随高度等比例缩放)" v-model.number="configFormData.height"></el-input>
+        <el-input placeholder="720" v-model.number="configFormData.height"></el-input>
+        <span class="form-instruction">默认720,小于该值则不转码(视频宽度则默认随高度等比例缩放)</span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" v-loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>

@@ -37,8 +37,10 @@
         </div>
       </div>
       <div>
-        <div class="token-title-desc">您可以使用这些以生成的令牌来操作 JmalCloud API。</div>
-        <el-divider></el-divider>
+        <div class="setting-title-desc">
+          <div class="setting-title-desc-text">您可以使用这些以生成的令牌来操作 JmalCloud API。</div>
+          <el-divider></el-divider>
+        </div>
         <div>
           <ul v-if="accessTokenList.length > 0">
             <li v-for="token in accessTokenList" :key="token.id">
@@ -144,9 +146,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
->>>.el-divider--horizontal {
-  margin: 0;
-}
 >>>.el-alert {
   margin-bottom: 15px;
   .el-alert__content {
@@ -155,9 +154,6 @@ export default {
   .el-alert__title{
     font-size: 1rem;
   }
-}
-.token-title-desc {
-  padding: 5px 0 20px 0;
 }
 .token-item {
   display: flex;
