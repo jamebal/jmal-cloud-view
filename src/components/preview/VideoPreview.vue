@@ -79,7 +79,7 @@ export default {
             style: {
               marginRight: this.$pc ? '20px' : '0px',
             },
-            html: `<a href="nplayer-videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/nplayer.webp")}"></a>`,
+            html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/nplayer.webp")}"></a>`,
             index: 2,
           },
           {
@@ -89,7 +89,7 @@ export default {
             style: {
               marginRight: this.$pc ? '20px' : '0px',
             },
-            html: `<a href="infuse://x-callback-url/play?url=videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/infuse.webp")}"></a>`,
+            html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/infuse.webp")}"></a>`,
             index: 3,
           },
           {
@@ -125,6 +125,12 @@ export default {
   watch: {
     status: function (visible) {
       if (visible) {
+
+        if (!this.$pc) {
+          // 去掉this.option.controls中name为 name: 'iina'
+          this.option.controls = this.option.controls.filter(item => item.name === 'nplayer' || item.name === 'infuse')
+        }
+
         let videoUrl = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
         if (this.shareId) {
           videoUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
@@ -207,15 +213,24 @@ export default {
     getInstance(art) {
       this.art = art
       let doc = this.art.controls.$parent
-      // iina
-      const iina = doc.querySelector('[data-index="1"]').querySelector('a');
-      iina.href = `iina://weblink?url=${this.videoLink}`
-      // nplayer
-      const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
-      nplayer.href = `nplayer-${this.videoLink}`
-      // infuse
-      const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
-      infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
+      if (this.$pc)  {
+        // iina
+        const iina = doc.querySelector('[data-index="1"]').querySelector('a');
+        iina.href = `iina://weblink?url=${this.videoLink}`
+        // nplayer
+        const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
+        nplayer.href = `nplayer-${this.videoLink}`
+        // infuse
+        const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
+        infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
+      } else {
+        // nplayer
+        const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
+        nplayer.href = `nplayer-${this.videoLink}`
+        // infuse
+        const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
+        infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
+      }
     },
     playM3u8(video, url, art) {
       if (Hls.isSupported()) {
