@@ -41,24 +41,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Aliyun Container Registry
+      - name: Log in to Aliyun Container Registry guangzhou
         uses: docker/login-action@v3
         with:
           registry: registry.cn-guangzhou.aliyuncs.com
           username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
           password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
 
+      - name: Log in to Aliyun Container Registry beijing
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-beijing.aliyuncs.com
+          username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+          password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
+
       - name: Set tag for amd64
         if: matrix.arch == 'amd64'
         run: |
-          echo "TAG_LATEST=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest" >> $GITHUB_ENV
-          echo "TAG_VERSION=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}" >> $GITHUB_ENV
+          echo "TAG_LATEST_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest" >> $GITHUB_ENV
+          echo "TAG_VERSION_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}" >> $GITHUB_ENV
+          echo "TAG_LATEST_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest" >> $GITHUB_ENV
+          echo "TAG_VERSION_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}" >> $GITHUB_ENV
 
       - name: Set tag for non-amd64
         if: matrix.arch != 'amd64'
         run: |
-          echo "TAG_LATEST=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest-${{ matrix.arch }}" >> $GITHUB_ENV
-          echo "TAG_VERSION=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_LATEST_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_VERSION_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_LATEST_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_VERSION_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -68,7 +79,9 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           push: true
           tags: |
-            ${{ env.TAG_LATEST }}
-            ${{ env.TAG_VERSION }}
+            ${{ env.TAG_LATEST_0 }}
+            ${{ env.TAG_VERSION_0 }}
+            ${{ env.TAG_LATEST_1 }}
+            ${{ env.TAG_VERSION_1 }}
           build-args: |
             VERSION=${{ env.PROJECT_VERSION }}
