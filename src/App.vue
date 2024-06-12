@@ -1,85 +1,63 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
+<!--------------------------------
+ - @Author: Ronnie Zhang
+ - @LastEditor: Ronnie Zhang
+ - @LastEditTime: 2023/12/16 18:49:42
+ - @Email: zclzone@outlook.com
+ - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
+ --------------------------------->
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <n-config-provider
+    class="wh-full"
+    :locale="zhCN"
+    :date-locale="dateZhCN"
+    :theme="appStore.isDark ? darkTheme : undefined"
+    :theme-overrides="appStore.naiveThemeOverrides"
+  >
+    <router-view v-if="Layout" v-slot="{ Component, route: curRoute }">
+      <component :is="Layout">
+        <KeepAlive :include="keepAliveNames">
+          <component :is="Component" v-if="!tabStore.reloading" :key="curRoute.fullPath" />
+        </KeepAlive>
+      </component>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+      <LayoutSetting v-if="layoutSettingVisible" class="fixed right-12 top-1/2 z-999" />
+    </router-view>
+  </n-config-provider>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<script setup>
+import { darkTheme, dateZhCN, zhCN } from 'naive-ui'
+import { layoutSettingVisible } from './settings'
+import { LayoutSetting } from '@/components'
+import { useAppStore, useTabStore } from '@/store'
+
+const layouts = new Map()
+function getLayout(name) {
+  // 利用map将加载过的layout缓存起来，防止重新加载layout导致页面闪烁
+  if (layouts.get(name))
+    return layouts.get(name)
+  const layout = markRaw(defineAsyncComponent(() => import(`@/layouts/${name}/index.vue`)))
+  layouts.set(name, layout)
+  return layout
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+const route = useRoute()
+const appStore = useAppStore()
+if (appStore.layout === 'default')
+  appStore.setLayout('')
+const Layout = computed(() => {
+  if (!route.matched?.length)
+    return null
+  return getLayout(route.meta?.layout || appStore.layout)
+})
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+const tabStore = useTabStore()
+const keepAliveNames = computed(() => {
+  return tabStore.tabs.filter(item => item.keepAlive).map(item => item.name)
+})
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+watchEffect(() => {
+  appStore.setThemeColor(appStore.primaryColor, appStore.isDark)
+})
+</script>
