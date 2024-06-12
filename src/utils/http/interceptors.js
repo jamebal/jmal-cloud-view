@@ -17,10 +17,10 @@ export function setupInterceptors(axiosInstance) {
       return config
     }
 
-    const { accessToken } = useAuthStore()
-    if (accessToken) {
-      // token: Bearer + xxx
-      config.headers.Authorization = `Bearer ${accessToken}`
+    const { jmalToken, username } = useAuthStore()
+    if (jmalToken && username) {
+      config.headers['jmal-token'] = jmalToken
+      config.headers.name = username
     }
 
     return config

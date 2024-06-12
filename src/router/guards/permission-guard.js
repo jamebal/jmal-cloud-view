@@ -8,13 +8,13 @@
 
 import { useAuthStore, usePermissionStore, useUserStore } from '@/store'
 import api from '@/api'
-import { getPermissions, getUserInfo } from '@/store/helper'
+import { getMenus, getUserInfo } from '@/store/helper'
 
 const WHITE_LIST = ['/login', '/404']
 export function createPermissionGuard(router) {
   router.beforeEach(async (to) => {
     const authStore = useAuthStore()
-    const token = authStore.accessToken
+    const token = authStore.jmalToken
 
     /** 没有token */
     if (!token) {
@@ -32,9 +32,9 @@ export function createPermissionGuard(router) {
     const userStore = useUserStore()
     const permissionStore = usePermissionStore()
     if (!userStore.userInfo) {
-      const [user, permissions] = await Promise.all([getUserInfo(), getPermissions()])
+      const [user, menus] = await Promise.all([getUserInfo(), getMenus()])
       userStore.setUser(user)
-      permissionStore.setPermissions(permissions)
+      permissionStore.setPermissions(menus)
       const routeComponents = import.meta.glob('@/views/**/*.vue')
       permissionStore.accessRoutes.forEach((route) => {
         route.component = routeComponents[route.component] || undefined

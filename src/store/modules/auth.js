@@ -11,11 +11,13 @@ import { usePermissionStore, useRouterStore, useTabStore, useUserStore } from '@
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    accessToken: undefined,
+    jmalToken: undefined,
+    username: undefined,
   }),
   actions: {
-    setToken({ accessToken }) {
-      this.accessToken = accessToken
+    setToken({ jmalToken, username }) {
+      this.jmalToken = jmalToken
+      this.username = username
     },
     resetToken() {
       this.$reset()

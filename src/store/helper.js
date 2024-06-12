@@ -3,24 +3,22 @@ import api from '@/api'
 
 export async function getUserInfo() {
   const res = await api.getUser()
-  const { id, username, profile, roles, currentRole } = res.data || {}
+  const { id, username, showName, avatar, netdiskName, netdiskLogo, newVersion } = res.data || {}
   return {
     id,
     username,
-    avatar: profile?.avatar,
-    nickName: profile?.nickName,
-    gender: profile?.gender,
-    address: profile?.address,
-    email: profile?.email,
-    roles,
-    currentRole,
+    avatar,
+    showName,
+    netdiskName,
+    netdiskLogo,
+    newVersion,
   }
 }
 
-export async function getPermissions() {
+export async function getMenus() {
   let asyncPermissions = []
   try {
-    const res = await api.getRolePermissions()
+    const res = await api.getMenus()
     asyncPermissions = res?.data || []
   }
   catch (error) {

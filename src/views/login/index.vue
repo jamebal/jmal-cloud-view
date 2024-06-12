@@ -17,7 +17,7 @@
 
       <div class="w-320 flex-col px-20 py-32">
         <h2 class="f-c-c text-24 text-#6a6a6a font-normal">
-          <img src="@/assets/images/logo.png" class="mr-12 h-50">
+          <img src="@/assets/images/logo.png" class="mr-12 h-50" alt="">
           {{ title }}
         </h2>
         <n-input
@@ -44,28 +44,6 @@
             <i class="i-fe:lock mr-12 opacity-20" />
           </template>
         </n-input>
-
-        <div class="mt-20 flex items-center">
-          <n-input
-            v-model:value="loginInfo.captcha"
-            class="h-40 items-center"
-            palceholder="请输入验证码"
-            :maxlength="4"
-            @keydown.enter="handleLogin()"
-          >
-            <template #prefix>
-              <i class="i-fe:key mr-12 opacity-20" />
-            </template>
-          </n-input>
-          <img
-            v-if="captchaUrl"
-            :src="captchaUrl"
-            alt="验证码"
-            height="40"
-            class="ml-12 w-80 cursor-pointer"
-            @click="initCaptcha"
-          >
-        </div>
 
         <n-checkbox
           class="mt-20"
@@ -103,7 +81,8 @@
 <script setup>
 import { useStorage } from '@vueuse/core'
 import api from './api'
-import { lStorage, throttle } from '@/utils'
+import { TheFooter } from '@/components/index.js'
+import { lStorage } from '@/utils'
 import { useAuthStore } from '@/store'
 
 const authStore = useAuthStore()
@@ -116,50 +95,31 @@ const loginInfo = ref({
   password: '',
 })
 
-const captchaUrl = ref('')
-const initCaptcha = throttle(() => {
-  captchaUrl.value = `${import.meta.env.VITE_AXIOS_BASE_URL}/auth/captcha?${Date.now()}`
-}, 500)
-
 const localLoginInfo = lStorage.get('loginInfo')
 if (localLoginInfo) {
   loginInfo.value.username = localLoginInfo.username || ''
   loginInfo.value.password = localLoginInfo.password || ''
 }
-initCaptcha()
 
 function quickLogin() {
   loginInfo.value.username = 'admin'
   loginInfo.value.password = '123456'
-  handleLogin(true)
+  handleLogin()
 }
 
 const isRemember = useStorage('isRemember', true)
 const loading = ref(false)
-async function handleLogin(isQuick) {
-  const { username, password, captcha } = loginInfo.value
+async function handleLogin() {
+  const { username, password } = loginInfo.value
   if (!username || !password)
     return $message.warning('请输入用户名和密码')
-  if (!isQuick && !captcha)
-    return $message.warning('请输入验证码')
   try {
     loading.value = true
     $message.loading('正在验证，请稍后...', { key: 'login' })
-    const { data } = await api.login({ username, password: password.toString(), captcha, isQuick })
-    if (isRemember.value) {
-      lStorage.set('loginInfo', { username, password })
-    }
-    else {
-      lStorage.remove('loginInfo')
-    }
-    onLoginSuccess(data)
+    const { data } = await api.login({ username, password: password.toString(), rememberMe: isRemember.value })
+    await onLoginSuccess(data)
   }
   catch (error) {
-    // 10003为验证码错误专属业务码
-    if (error?.code === 10003) {
-      // 为防止爆破，验证码错误则刷新验证码
-      initCaptcha()
-    }
     $message.destroy('login')
     console.error(error)
   }
