@@ -17,6 +17,13 @@ const throttledConnectSSE = _.throttle((username) => {
 }, 3000);
 
 function connectToSSE(username) {
+
+  if (eventSource) {
+    // 移除之前的事件监听器
+    eventSource.removeEventListener('message', handleMessage);
+    eventSource.removeEventListener('error', handleError.bind(null, username));
+  }
+
   const url = `/api/events?username=${username}&uuid=${uuid}`;
   eventSource = new EventSource(url);
 
