@@ -19,6 +19,7 @@
             <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
+            <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></model-preview>
             <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
           </div>
         </div>
@@ -28,6 +29,7 @@
 
 <script>
 
+import ModelPreview from '@/components/office/ModelPreview.vue'
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
 import fileConfig from "@/utils/file-config";
@@ -37,7 +39,7 @@ import MyMindEditor from "@/components/Minder/minder"
 
 export default {
   name: 'OfficePreview',
-  components: {Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor, MyMindEditor},
+  components: { ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor, MyMindEditor},
   props: {
     id: {
       type: String,
@@ -125,6 +127,9 @@ export default {
           return 'pdf'
         case 'mind':
           return 'mind'
+        case 'gltf':
+        case 'glb':
+          return 'glTF/GLB'
         default:
           return 'office'
       }
