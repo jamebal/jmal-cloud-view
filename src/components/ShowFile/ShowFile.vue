@@ -168,7 +168,6 @@
               @blur="setInputBlur()"
               @clear="searchFile(searchFileName)"
             >
-              <kbd v-show="!inputting" slot="suffix">f</kbd>
               <el-button slot="prepend" @click="searchFile(searchFileName)">
                 <svg-icon icon-class="search" style="font-size: 22px" />
               </el-button>
@@ -1286,8 +1285,8 @@ export default {
         }
       })
     }
-    if (this.$route.query.folder && this.path && !this.$route.query.keyword) {
-      localStorage.setItem(this.path, this.$route.query.folder)
+    if (this.$route.query.searchOpenFolder && this.path && !this.$route.query.keyword) {
+      localStorage.setItem(this.path, this.$route.query.searchOpenFolder)
     }
     if (this.$route.query.highlight) {
       this.onCreateFilename = this.$route.query.highlight
@@ -1299,9 +1298,9 @@ export default {
     }
 
     // remove query.folder
-    if (this.$route.query.folder && this.$route.query.keyword) {
+    if (this.$route.query.searchOpenFolder && this.$route.query.keyword) {
       const query = { ...this.$route.query }
-      delete query.folder
+      delete query.searchOpenFolder
       this.$router.replace({ query })
     }
 
@@ -1401,14 +1400,6 @@ export default {
           event.stopPropagation()
         }
       }
-      // f键
-      if (keyCode === 70) {
-        if (!this.inputting && this.editingIndex === -1) {
-          this.$refs.searchInput.focus()
-          event.preventDefault()
-          event.stopPropagation()
-        }
-      }
     },
     keyup(event) {
       const isMac = navigator.platform.startsWith('Mac')
@@ -1417,13 +1408,6 @@ export default {
       // 松开shift键
       if (keyCode === 16) {
         this.selectPin = false
-      }
-      // f键
-      if (keyCode === 70) {
-        if (!this.inputting && this.editingIndex === -1) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
       }
     },
     onmessage(msg) {
@@ -2238,7 +2222,7 @@ export default {
         event: 'openUploader',
         data: {
           // 传入的参数
-          folder: this.$route.query.folder,
+          folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
           currentDirectory: this.getQueryPath(),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId,
@@ -2251,7 +2235,7 @@ export default {
           event: 'uploadFolder',
           data: {
             // 传入的参数
-            folder: this.$route.query.folder,
+            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             currentDirectory: this.getQueryPath(),
             username: this.$store.state.user.name,
             userId: this.$store.state.user.userId,
@@ -2318,9 +2302,8 @@ export default {
           }
           this.path = this.path.replace(/\\/g, '/')
         })
-        let queryFolder = localStorage.getItem('mountFileOwner')
-          ? localStorage.getItem(this.path)
-          : this.$route.query.folder
+        let queryFolder = localStorage.getItem('mountFileOwner') ? localStorage.getItem(this.path) : this.$route.query.folder
+        const searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
         if (!unPushLink) {
           const queryTagId = this.$route.query.tagId
             ? `&tagId=${this.$route.query.tagId}`
@@ -2337,11 +2320,7 @@ export default {
           if (searchPathIndex < 0) {
             keywordQuery = ''
           }
-          this.$router.push(
-            `?vmode=${this.vmode}&path=${encodeURI(this.path)}${
-              queryFolder ? '&folder=' + queryFolder : ''
-            }${queryTagId}${basePath}${keywordQuery}`
-          )
+          this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
         }
         if (!unRefresh) {
           this.pagination.pageIndex = 1
@@ -2458,7 +2437,7 @@ export default {
             isFolder: true,
             filename: encodeURI(this.newFolderName),
             currentDirectory: this.getQueryPath(),
-            folder: this.$route.query.folder,
+            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             username: this.$store.state.user.name,
             userId: this.$store.state.user.userId,
           })
@@ -2480,11 +2459,7 @@ export default {
                 type: 'success',
                 duration: 1000,
               })
-              if (this.listModeSearch) {
-                this.getFileListBySearchMode()
-              } else {
-                this.getFileList()
-              }
+              this.getFileList()
             }
           })
           .catch(() => {
@@ -2526,7 +2501,7 @@ export default {
           .addFile({
             fileName: encodeURI(newFileName),
             isFolder: false,
-            folder: this.$route.query.folder,
+            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             username: this.$store.state.user.name,
             parentPath: encodeURI(parentPath),
           })
@@ -2585,11 +2560,9 @@ export default {
       const keyword = this.$route.query.keyword
         ? `&keyword=${this.$route.query.keyword}`
         : ''
-      this.$router.push(
-        `?vmode=${this.vmode}&path=${this.path}${
-          this.$route.query.folder ? '&folder=' + this.$route.query.folder : ''
-        }${queryTagId}${basePath}${keyword}`
-      )
+      const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
+      const searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${folder}${queryTagId}${basePath}${keyword}${searchOpenFolder}`)
       // 改变拖拽目标
       this.rowDrop()
       // 画矩形选取
@@ -2755,7 +2728,7 @@ export default {
         item['search'] = true
         item['searchKey'] = key
 
-        let folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
+        let searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
 
         const searchPathIndex = this.pathList.findIndex(item => item.search)
         if (searchPathIndex < 0) {
@@ -2763,10 +2736,12 @@ export default {
         } else {
           this.pathList.splice(searchPathIndex,this.pathList.length - searchPathIndex)
           this.pathList.push(item)
+          searchOpenFolder = ''
         }
         const queryTagId = this.$route.query.tagId
           ? `&tagId=${this.$route.query.tagId}`
           : ''
+        const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
         const basePath = this.getBasePath()
         const keyword = key ? `&keyword=${key}` : ''
         const path = this.path
@@ -2775,7 +2750,7 @@ export default {
         this.$router.push(
           `?vmode=${
             this.vmode
-          }&path=${path}${keyword}${queryTagId}${basePath}${folder}`
+          }&path=${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`
         )
         api
           .searchFile({
@@ -2785,6 +2760,7 @@ export default {
             sortableProp: this.sortable.prop,
             order: this.sortable.order,
             currentDirectory: this.getQueryPath(),
+            folder: this.$route.query.folder,
             tagId: this.$route.query.tagId,
             isFolder: this.queryCondition.isFolder,
             isFavorite: this.queryCondition.isFavorite,
@@ -2818,10 +2794,9 @@ export default {
         ? `&keyword=${this.$route.query.keyword}`
         : ''
       const basePath = this.getBasePath()
-      const folder = `&folder=${fileId}`
-      this.$router.push(
-        `?vmode=${this.vmode}${path}${keyword}${queryTagId}${basePath}${folder}`
-      )
+      const searchOpenFolder = `&searchOpenFolder=${fileId}`
+      const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
+      this.$router.push(`?vmode=${this.vmode}${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`)
 
       api
         .searchFileAndOpenDir({
@@ -2865,8 +2840,8 @@ export default {
           this.searchFileName = this.$route.query.keyword
         }
         const searchPathIndex = this.pathList.findIndex(item => item.search)
-        if (this.$route.query.folder && searchPathIndex > -1) {
-          this.searchFileAndOpenDir(this.$route.query.folder, onLoad)
+        if (this.$route.query.searchOpenFolder && searchPathIndex > -1) {
+          this.searchFileAndOpenDir(this.$route.query.searchOpenFolder, onLoad)
         } else {
           this.searchFile(this.searchFileName)
         }
@@ -2895,22 +2870,6 @@ export default {
             this.loadData(res, onLoad)
           })
       }
-    },
-    getFileListBySearchMode(onLoad) {
-      this.beforeLoadData(onLoad)
-      api
-        .fileList({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          currentDirectory: this.getQueryPath(),
-          folder: this.$route.query.folder,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize,
-          showFolderSize: localStorage.getItem('showFolderSize'),
-        })
-        .then(res => {
-          this.loadData(res, onLoad)
-        })
     },
     getQueryPath() {
       // 去掉this.$route.query.basePath最后的/
@@ -3310,7 +3269,7 @@ export default {
         .rename({
           newFileName: encodeURI(newFileName),
           username: this.$store.state.user.name,
-          folder: this.$route.query.folder,
+          folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
           id: row.id,
         })
         .then(res => {
@@ -3358,7 +3317,7 @@ export default {
           })
         }
         if (row.isFolder && row.mountFileId) {
-          const indicesToDelete = [6, 5, 4, 3, 1]
+          const indicesToDelete = [7, 6, 5, 4, 1]
           for (let i of indicesToDelete) {
             this.menus.splice(i, 1)
           }
@@ -3887,7 +3846,7 @@ export default {
                       isFolder: true,
                       filename: encodeURI(newFolderName),
                       currentDirectory: this.getQueryPath(),
-                      folder: this.$route.query.folder,
+                      folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
                       username: this.$store.state.user.name,
                       userId: this.$store.state.user.userId,
                     })
@@ -4204,12 +4163,8 @@ export default {
       this.openingFile = row
       if (row.isFolder) {
         this.editingIndex = -1
-        const queryTagId = this.$route.query.tagId
-          ? `&tagId=${this.$route.query.tagId}`
-          : ''
-        const keyword = this.$route.query.keyword
-          ? `&keyword=${this.$route.query.keyword}`
-          : ''
+        const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+        const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
         // 打开文件夹
         if (this.listModeSearch) {
           const item = {}
@@ -4218,15 +4173,14 @@ export default {
           item['row'] = row
           this.pathList.push(item)
           this.pagination.pageIndex = 1
-          const folder = row.id ? `&folder=${row.id}` : ''
-          const path = this.$route.query.path
-            ? `&path=${this.$route.query.path}`
-            : ''
+          const searchOpenFolder = row.id ? `&searchOpenFolder=${row.id}` : ''
+          const path = this.$route.query.path ? `&path=${this.$route.query.path}` : ''
+          const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
           const basePath = this.getBasePath()
           this.$router.push(
             `?vmode=${
               this.vmode
-            }${path}${keyword}${folder}${queryTagId}${basePath}`
+            }${path}${keyword}${searchOpenFolder}${folder}${queryTagId}${basePath}`
           )
           this.searchFileAndOpenDir(row.id)
         } else {
@@ -4261,15 +4215,9 @@ export default {
           if (row.mountFileId) {
             localStorage.setItem(this.path, row.mountFileId)
           }
-          const basePath =
-            this.basePath && this.basePath.length > 1
-              ? `&basePath=${this.basePath}`
-              : ''
-          this.$router.push(
-            `?vmode=${this.vmode}&path=${path}${
-              row.mountFileId ? '&folder=' + row.mountFileId : ''
-            }${queryTagId}${basePath}${keyword}`
-          )
+          const basePath = this.basePath && this.basePath.length > 1 ? `&basePath=${this.basePath}` : ''
+          const searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
+          this.$router.push(`?vmode=${this.vmode}&path=${path}${row.mountFileId ? '&folder=' + row.mountFileId : ''}${queryTagId}${basePath}${keyword}${searchOpenFolder}`)
           this.openDir(row)
         }
       } else {
@@ -4335,15 +4283,6 @@ export default {
         }
         this.notPreviewDialogVisible = true
       }
-    },
-    // 强行使用文本编辑器打开
-    forciblyOpen(file) {
-      this.textPreviewRow = file
-      this.textPreviewVisible = true
-      const that = this
-      setTimeout(function() {
-        that.notPreviewDialogVisible = false
-      }, 100)
     },
     determineDownload(file) {
       this.download(file)
