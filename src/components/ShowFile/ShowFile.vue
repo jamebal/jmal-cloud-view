@@ -158,6 +158,7 @@
 
             <el-input
               v-show="showSearchButton"
+              ref="searchInput"
               placeholder="搜索"
               v-model="searchFileName"
               :clearable="true"
@@ -167,6 +168,7 @@
               @blur="setInputBlur()"
               @clear="searchFile(searchFileName)"
             >
+              <kbd v-show="!inputting" slot="suffix">f</kbd>
               <el-button slot="prepend" @click="searchFile(searchFileName)">
                 <svg-icon icon-class="search" style="font-size: 22px" />
               </el-button>
@@ -836,7 +838,6 @@ import fileConfig from '@/utils/file-config'
 import EditElement from '@/views/markdown/EditElement'
 import OfficePreview from '@/components/preview/OfficePreview'
 import ShareDialog from '@/components/ShareDialog/index.vue'
-import { getUsername } from '@/api/user'
 import Clipboard from 'clipboard'
 import TagDialog from '@/components/TagDialog/index.vue'
 import FileDetails from "@/components/preview/FileDetails.vue";
@@ -1400,14 +1401,29 @@ export default {
           event.stopPropagation()
         }
       }
+      // f键
+      if (keyCode === 70) {
+        if (!this.inputting && this.editingIndex === -1) {
+          this.$refs.searchInput.focus()
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
     },
     keyup(event) {
       const isMac = navigator.platform.startsWith('Mac')
-      const { key, c, keyCode, ctrlKey, metaKey } = event
+      const { keyCode, ctrlKey, metaKey } = event
       this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey)
-      // 松开shift建
-      if (event.keyCode === 16) {
+      // 松开shift键
+      if (keyCode === 16) {
         this.selectPin = false
+      }
+      // f键
+      if (keyCode === 70) {
+        if (!this.inputting && this.editingIndex === -1) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
       }
     },
     onmessage(msg) {
@@ -2690,7 +2706,7 @@ export default {
       // 高亮新增的文件
       this.highlightNewFile()
       // 设置挂载文件的用户名(文件的所有者)
-      this.setMountFileOwner()
+      this.setMountFileOwner(res.props)
       const path = this.$route.query.path ? this.$route.query.path : '/'
       const basePath = this.$route.query.basePath
         ? this.$route.query.basePath
@@ -2703,14 +2719,11 @@ export default {
       }
     },
     // 设置挂载文件的用户名(文件的所有者)
-    setMountFileOwner() {
+    setMountFileOwner(props) {
       localStorage.removeItem('mountFileOwner')
-      if (this.$route.query.folder && this.fileList.length > 0) {
-        let firstFile = this.fileList[0]
-        if (firstFile.userId !== this.$store.getters.userId) {
-          getUsername({ userId: firstFile.userId }).then(res => {
-            localStorage.setItem('mountFileOwner', res.data)
-          })
+      if (this.$route.query.folder) {
+        if (props && props.fileUsername && props.fileUsername !== this.$store.getters.name) {
+          localStorage.setItem('mountFileOwner', props.fileUsername)
         }
       }
     },
@@ -2742,20 +2755,14 @@ export default {
         item['search'] = true
         item['searchKey'] = key
 
-        let folder = this.$route.query.folder
-          ? `&folder=${this.$route.query.folder}`
-          : ''
+        let folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
 
         const searchPathIndex = this.pathList.findIndex(item => item.search)
         if (searchPathIndex < 0) {
           this.pathList.push(item)
         } else {
-          this.pathList.splice(
-            searchPathIndex,
-            this.pathList.length - searchPathIndex
-          )
+          this.pathList.splice(searchPathIndex,this.pathList.length - searchPathIndex)
           this.pathList.push(item)
-          folder = ''
         }
         const queryTagId = this.$route.query.tagId
           ? `&tagId=${this.$route.query.tagId}`
