@@ -2222,7 +2222,7 @@ export default {
         event: 'openUploader',
         data: {
           // 传入的参数
-          folder: this.$route.query.folder,
+          folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
           currentDirectory: this.getQueryPath(),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId,
@@ -2235,7 +2235,7 @@ export default {
           event: 'uploadFolder',
           data: {
             // 传入的参数
-            folder: this.$route.query.folder,
+            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             currentDirectory: this.getQueryPath(),
             username: this.$store.state.user.name,
             userId: this.$store.state.user.userId,
@@ -2437,7 +2437,7 @@ export default {
             isFolder: true,
             filename: encodeURI(this.newFolderName),
             currentDirectory: this.getQueryPath(),
-            folder: this.$route.query.folder,
+            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             username: this.$store.state.user.name,
             userId: this.$store.state.user.userId,
           })
@@ -2459,11 +2459,7 @@ export default {
                 type: 'success',
                 duration: 1000,
               })
-              if (this.listModeSearch) {
-                this.getFileListBySearchMode()
-              } else {
-                this.getFileList()
-              }
+              this.getFileList()
             }
           })
           .catch(() => {
@@ -2505,7 +2501,7 @@ export default {
           .addFile({
             fileName: encodeURI(newFileName),
             isFolder: false,
-            folder: this.$route.query.folder,
+            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             username: this.$store.state.user.name,
             parentPath: encodeURI(parentPath),
           })
@@ -2735,7 +2731,6 @@ export default {
         let searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
 
         const searchPathIndex = this.pathList.findIndex(item => item.search)
-        console.log('searchPathIndex', searchPathIndex)
         if (searchPathIndex < 0) {
           this.pathList.push(item)
         } else {
@@ -2875,22 +2870,6 @@ export default {
             this.loadData(res, onLoad)
           })
       }
-    },
-    getFileListBySearchMode(onLoad) {
-      this.beforeLoadData(onLoad)
-      api
-        .fileList({
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          currentDirectory: this.getQueryPath(),
-          folder: this.$route.query.folder,
-          pageIndex: this.pagination.pageIndex,
-          pageSize: this.pagination.pageSize,
-          showFolderSize: localStorage.getItem('showFolderSize'),
-        })
-        .then(res => {
-          this.loadData(res, onLoad)
-        })
     },
     getQueryPath() {
       // 去掉this.$route.query.basePath最后的/
@@ -3290,7 +3269,7 @@ export default {
         .rename({
           newFileName: encodeURI(newFileName),
           username: this.$store.state.user.name,
-          folder: this.$route.query.folder,
+          folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
           id: row.id,
         })
         .then(res => {
@@ -3338,7 +3317,6 @@ export default {
           })
         }
         if (row.isFolder && row.mountFileId) {
-          console.log('this.menus', this.menus)
           const indicesToDelete = [7, 6, 5, 4, 1]
           for (let i of indicesToDelete) {
             this.menus.splice(i, 1)
@@ -3868,7 +3846,7 @@ export default {
                       isFolder: true,
                       filename: encodeURI(newFolderName),
                       currentDirectory: this.getQueryPath(),
-                      folder: this.$route.query.folder,
+                      folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
                       username: this.$store.state.user.name,
                       userId: this.$store.state.user.userId,
                     })
