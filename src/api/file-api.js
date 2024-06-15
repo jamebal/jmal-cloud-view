@@ -189,6 +189,14 @@ export default {
       data: data
     })
   },
+  // 生成shareToken
+  generateShareToken: function(params) {
+    return request({
+      url: '/share/generate/share-token',
+      method: 'get',
+      params
+    })
+  },
   // 取消分享
   cancelShareLink: function(params) {
     return request({

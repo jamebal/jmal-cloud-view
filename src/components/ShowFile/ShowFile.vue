@@ -1056,6 +1056,7 @@ export default {
       isJustHideMenus: false,
       menusIsMultiple: false,
       menus: [],
+      shareToken: undefined,
       contextmenuDisabled: false,
       rowContextData: {},
       tableLoading: true,
@@ -3336,16 +3337,35 @@ export default {
             this.menus.splice(index, 1)
           }
         }
-        if (row.isShare && !row.isPrivacy) {
-          // 添加复制下载链接选项
-          this.menus.splice(-2, 0, {
-            iconClass: 'menu-fuzhi',
-            label: '复制下载链接',
-            operation: 'copyDownloadLink',
-          })
-        }
+        this.setMenusCopyDownLoadLinks(row)
       }
       this.preliminaryRowData(row)
+    },
+    setMenusCopyDownLoadLinks(row) {
+      if (row.isShare) {
+        // 获取this.menus中download的索引
+        const downloadIndex = this.menus.findIndex(
+          item => item.operation === 'download'
+        )
+        this.shareToken = undefined
+        // 在download之前添加复制下载链接选项
+        if (row.isPrivacy) {
+          // 如果是私密分享需要先获取shareToken
+          api.generateShareToken({fileId: row.id}).then(res => {
+            this.shareToken = res.data
+            this.addMenusCopyDownLoadLinks(downloadIndex)
+          })
+        } else {
+          this.addMenusCopyDownLoadLinks(downloadIndex)
+        }
+      }
+    },
+    addMenusCopyDownLoadLinks(index) {
+      this.menus.splice(index, 0, {
+        iconClass: 'menu-fuzhi',
+        label: '复制下载链接',
+        operation: 'copyDownloadLink',
+      })
     },
     setMenusByPermission(file) {
       const reservations = ['open', 'download']
@@ -3353,10 +3373,7 @@ export default {
       this.menus = this.menus.filter(item =>
         reservations.includes(item.operation)
       )
-      if (
-        file.operationPermissionList &&
-        file.operationPermissionList.length > 0
-      ) {
+      if (file.operationPermissionList && file.operationPermissionList.length > 0) {
         if (file.operationPermissionList.indexOf('PUT') > -1) {
           this.menus.splice(this.menus.length - 1, 0, {
             iconClass: 'menu-rename',
@@ -3382,6 +3399,7 @@ export default {
           })
         }
       }
+      this.setMenusCopyDownLoadLinks(file)
     },
     // 更多操作(单选)
     moreClick(row, event) {
@@ -3961,16 +3979,9 @@ export default {
     },
     // 复制下载链接
     copyDownloadLink(row) {
-      let url =
-        window.location.origin +
-        fileConfig.previewUrl(
-          this.$store.getters.name,
-          row,
-          undefined,
-          undefined
-        )
+      let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, this.shareToken)
       if (row.isFolder) {
-        url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip')
+        url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip', this.shareToken)
       }
       let clipboard = new Clipboard('.newFileMenu', {
         text: function() {
