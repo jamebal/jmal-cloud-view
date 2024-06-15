@@ -112,7 +112,8 @@ export default {
     return window.location.origin + `${this.baseUrl}/public/s/packageDownload?fileIds=${fileIds}${queryShareId}${queryShareToken}`
   },
   // 文件打包下载Url
-  packageDownloadUrl: function(fileId, downloadName) {
-    return window.location.origin + `${this.baseUrl}/public/s/${fileId}/packageDownload/${downloadName}`
+  packageDownloadUrl: function(fileId, downloadName, shareToken) {
+    const queryShareToken = shareToken ? `?share-token=${shareToken}` : ''
+    return window.location.origin + `${this.baseUrl}/public/s/${fileId}/packageDownload/${downloadName}${queryShareToken}`
   },
 }

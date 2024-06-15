@@ -10,7 +10,10 @@ const uuid = generateUUID();
 
 const throttledConnectSSE = _.throttle((username) => {
   if (typeof EventSource !== 'undefined') {
-    connectToSSE(username);
+    // 判断cookie中是否有token
+    if (store.getters.name) {
+      connectToSSE(username);
+    }
   } else {
     console.error('EventSource is not supported by the browser');
   }
