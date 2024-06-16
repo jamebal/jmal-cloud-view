@@ -143,17 +143,18 @@ export function formatSize(size) {
 /**
  * formatNetSpeed
  * @param {*} size
+ * @param space
  */
-export function formatNetSpeed(size) {
+export function formatNetSpeed(size, space) {
   if (size === 0) {
-    return '0B/s'
+    return space ? '0 B / s' : '0B/s'
   } else if (size < 1024) {
-    return size + 'B/s'
+    return size + (space ? ' B / s' : 'B/s')
   } else if (size < 1024 * 1024) {
-    return (size/1024).toFixed(2) + 'KB/s'
+    return (size/1024).toFixed(2) + (space ? ' KB / s' : 'KB/s')
   } else if (size < 1024 * 1024 * 1024) {
-    return (size/(1024 * 1024)).toFixed(2) + 'MB/s'
+    return (size/(1024 * 1024)).toFixed(2) + (space ? ' MB / s' : 'MB/s')
   } else {
-    return (size/(1024 * 1024 * 1024)).toFixed(2) + 'GB/s'
+    return (size/(1024 * 1024 * 1024)).toFixed(2) + (space ? ' GB / s' : 'GB/s')
   }
 }

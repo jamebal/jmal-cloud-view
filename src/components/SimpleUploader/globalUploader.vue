@@ -132,7 +132,7 @@ export default {
         // speedSmoothingFactor: 0.1,
         // progressCallbacksInterval: 500,
         maxChunkRetries: 3, // 最大重试次数
-        simultaneousUploads: 2, // 并发上传数
+        simultaneousUploads: 3, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
         // 服务器分片校验函数，秒传及断点续传基础
         checkChunkUploadedByResponse: function (chunk, message) {
@@ -408,12 +408,11 @@ export default {
       }
     },
     onFileProgress(rootFile, file, chunk) {
-      this.netSpeed = formatNetSpeed(file.currentSpeed)
+      this.netSpeed = formatNetSpeed(file.currentSpeed, false)
       this.process = Math.trunc(window.uploader.progress() * 100)
-      if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
-        document.title = `${this.$route.meta.title}`
-      } else {
-        document.title = `${this.process}% | ${this.$route.meta.title}`
+      this.setPageTitle()
+      if (rootFile.isFolder && this.process < 100) {
+        this.statusSet(rootFile.id, 'progress', formatNetSpeed(file.currentSpeed, true))
       }
       if (this.process > 0 && this.process < 100 && window.uploader.fileList.length > 0) {
         window.onbeforeunload = function () {
@@ -662,8 +661,12 @@ export default {
      * @param id
      * @param status
      */
-    statusSet(id, status) {
+    statusSet(id, status, progressText) {
       const statusMap = {
+        progress: {
+          text: progressText,
+          bgc: '#ffffff00'
+        },
         md5: {
           text: '校验MD5',
           bgc: '#fff'
@@ -684,6 +687,11 @@ export default {
           text: '上传成功',
           bgc: '#e2eeff'
         }
+      }
+
+      if (status === 'progress') {
+        $('.uploader-file-status').find('span:eq(1) em').text(progressText)
+        return
       }
 
       this.$nextTick(() => {
