@@ -3318,10 +3318,11 @@ export default {
           })
         }
         if (row.isFolder && row.mountFileId) {
-          const indicesToDelete = [7, 6, 5, 4, 1]
-          for (let i of indicesToDelete) {
-            this.menus.splice(i, 1)
-          }
+          const reservations = ['open', 'tag', 'favorite', 'remove']
+          // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
+          this.menus = this.menus.filter(item =>
+            reservations.includes(item.operation)
+          )
         }
         if (!row.isFolder) {
           this.menus.splice(-2, 0, {
@@ -3375,28 +3376,18 @@ export default {
       )
       if (file.operationPermissionList && file.operationPermissionList.length > 0) {
         if (file.operationPermissionList.indexOf('PUT') > -1) {
-          this.menus.splice(this.menus.length - 1, 0, {
-            iconClass: 'menu-rename',
-            label: '重命名',
-            operation: 'rename',
-          })
+          this.menus.splice(this.menus.length - 1, 0, { iconClass: 'menu-rename', label: '重命名', operation: 'rename'})
         }
-        if (
-          file.operationPermissionList.indexOf('UPLOAD') > -1 &&
-          !file.isFolder
-        ) {
-          this.menus.splice(this.menus.length - 1, 0, {
-            iconClass: 'duplicate',
-            label: '创建副本',
-            operation: 'duplicate',
-          })
+        if (file.operationPermissionList.indexOf('UPLOAD') > -1) {
+          if (file.operationPermissionList.indexOf('DELETE') > -1) {
+            this.menus.splice(this.menus.length - 1, 0, { iconClass: 'menu-copy',label: '移动或复制', operation: 'copy'})
+          }
+          if (!file.isFolder) {
+            this.menus.splice(this.menus.length - 1, 0, { iconClass: 'duplicate', label: '创建副本', operation: 'duplicate'})
+          }
         }
         if (file.operationPermissionList.indexOf('DELETE') > -1) {
-          this.menus.splice(this.menus.length, 0, {
-            iconClass: 'menu-remove',
-            label: '删除',
-            operation: 'remove',
-          })
+          this.menus.splice(this.menus.length, 0, { iconClass: 'menu-remove', label: '删除', operation: 'remove'})
         }
       }
       this.setMenusCopyDownLoadLinks(file)
@@ -3666,16 +3657,13 @@ export default {
         return resolve([{ id: '0', name: '全部文件' }])
       }
       if (node.level > 1) {
-        fileId = node.data.id
+        fileId = node.data.mountFileId || node.data.id
       }
-
-      api
-        .queryFileTree({
+      api.queryFileTree({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
           fileId: fileId,
-        })
-        .then(res => {
+        }).then(res => {
           const nextNodes = res.data
           return resolve(nextNodes)
         })
