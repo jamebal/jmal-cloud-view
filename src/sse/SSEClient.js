@@ -5,7 +5,6 @@ import { generateUUID } from "ant-design-vue/lib/vc-select/util";
 
 let eventSource = null;
 let timer = null;
-let lastHeartbeat = new Date().getTime();
 const uuid = generateUUID();
 
 const throttledConnectSSE = _.throttle((username) => {
@@ -32,16 +31,11 @@ function connectToSSE(username) {
 
   eventSource.addEventListener('message', handleMessage);
   eventSource.addEventListener('error', handleError.bind(null, username));
-  startHeartbeatCheck(username);
 }
 
 function handleMessage(event) {
-  if (event.data === 'h') {
-    lastHeartbeat = new Date().getTime();
-  } else {
-    const msg = JSON.parse(event.data);
-    onMessage(msg);
-  }
+  const msg = JSON.parse(event.data);
+  onMessage(msg);
 }
 
 function handleError(username) {
@@ -53,18 +47,6 @@ function clearExistingTimer() {
   if (timer) {
     clearInterval(timer);
   }
-}
-
-function startHeartbeatCheck(username) {
-  clearExistingTimer();
-  timer = setInterval(() => {
-    if (eventSource.readyState === 1 && new Date().getTime() - lastHeartbeat > 5000) {
-      eventSource.close();
-    }
-    if (eventSource.readyState === 2) {
-      throttledConnectSSE(username);
-    }
-  }, 3000);
 }
 
 function onMessage(msg) {
