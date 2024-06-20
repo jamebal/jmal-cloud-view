@@ -85,6 +85,14 @@ export default {
     })
   },
   // 获取office配置
+  getPublicOfficeConfig: function(params) {
+    return request({
+      url: 'public/office/config',
+      method: 'get',
+      params
+    })
+  },
+  // 获取office配置
   getOfficeConfig: function() {
     return request({
       url: '/office/config',

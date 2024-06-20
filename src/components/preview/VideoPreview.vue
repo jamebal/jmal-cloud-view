@@ -16,6 +16,7 @@
 <script>
 import fileConfig from '@/utils/file-config'
 import Artplayer from "@/components/preview/Artplayer.vue";
+import artplayerPluginVttThumbnail from './artplayer-plugin-vtt-thumbnail';
 import Hls from "hls.js";
 import FlvJs from "flv.js";
 
@@ -102,7 +103,7 @@ export default {
             },
             click: () => this.copyToClipboard(this.videoLink),
           }
-        ],
+        ]
       },
       videoLink: '',
       style: {
@@ -163,6 +164,11 @@ export default {
           this.option.customType = {
             m3u8: this.playM3u8
           }
+          this.option.plugins = [
+            artplayerPluginVttThumbnail({
+              vtt: videoUrl.replace(/m3u8/g, 'vtt'),
+            })
+          ]
         }
 
         if (this.file.contentType.indexOf('flv') > -1) {
