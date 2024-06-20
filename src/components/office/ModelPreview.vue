@@ -8,6 +8,8 @@
 
 <script>
 
+import { loadScript } from '@/utils/load-script'
+
 export default {
   name: "ModelPreview",
   components: {},
@@ -44,23 +46,9 @@ export default {
   },
   mounted() {
     const modelViewerJsUrl = window.location.origin + '/resource/model-viewer.min.js';
-
-    // 检查是否已经加载了相同的脚本
-    const existingScript = Array.from(document.head.getElementsByTagName('script')).find(
-      script => script.src === modelViewerJsUrl
-    )
-
-    if (existingScript) {
-      this.onRead()
-    } else {
-      const script = document.createElement('script');
-      script.src = modelViewerJsUrl;
-      script.type = 'module';
-      script.onload = () => {
-        this.onRead()
-      };
-      document.head.appendChild(script);
-    }
+    loadScript(modelViewerJsUrl, 'module').then(() => {
+      this.onRead();
+    })
   },
   beforeDestroy() {
   },
