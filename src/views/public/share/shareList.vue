@@ -255,7 +255,7 @@
     <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow"
                   :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
-    <office-preview :file="officePreviewRow" :shareId="shareId" :sharer="sharerUsername" :status.sync="officePreviewVisible"></office-preview>
+    <iframe-preview :file="officePreviewRow" :shareId="shareId" :sharer="sharerUsername" :status.sync="officePreviewVisible"></iframe-preview>
     <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center"><i
       class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
     </el-divider>
@@ -290,7 +290,7 @@ import VideoPreview from "@/components/preview/VideoPreview";
 import AudioPreview from "@/components/preview/AudioPreview";
 import fileConfig from "@/utils/file-config";
 import Clipboard from "clipboard";
-import OfficePreview from "@/components/preview/OfficePreview";
+import IframePreview from "@/components/preview/IframePreview.vue";
 import Logo from "@/components/Logo";
 import store from "@/store";
 import FileTree from "@/components/FileTree";
@@ -299,7 +299,7 @@ export default {
   components: {
     FileTree,
     Logo,
-    OfficePreview, IconFile, BreadcrumbFilePath, AlLoading,
+    IframePreview, IconFile, BreadcrumbFilePath, AlLoading,
     AudioPreview, VideoPreview, ImageViewer, SimTextPreview
   },
   data() {

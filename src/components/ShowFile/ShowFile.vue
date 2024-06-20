@@ -658,10 +658,11 @@
       :file="videoPreviewRow"
       :status.sync="videoPreviewVisible"
     ></video-preview>
-    <office-preview
-      :file="officePreviewRow"
-      :status.sync="officePreviewVisible"
-    ></office-preview>
+    <iframe-preview
+      :file="iframePreviewRow"
+      :fileHandler="fileHandler"
+      :status.sync="iframePreviewVisible"
+    ></iframe-preview>
 
     <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :row-context-data="rowContextData" :visible.sync="drawer"></file-details>
 
@@ -835,7 +836,7 @@ import '@/utils/directives.js'
 
 import fileConfig from '@/utils/file-config'
 import EditElement from '@/views/markdown/EditElement'
-import OfficePreview from '@/components/preview/OfficePreview'
+import IframePreview from '@/components/preview/IframePreview.vue'
 import ShareDialog from '@/components/ShareDialog/index.vue'
 import Clipboard from 'clipboard'
 import TagDialog from '@/components/TagDialog/index.vue'
@@ -847,7 +848,7 @@ export default {
     FileDetails,
     TagDialog,
     ShareDialog,
-    OfficePreview,
+    IframePreview,
     EditElement,
     MessageDialog,
     AudioPreview,
@@ -1107,9 +1108,21 @@ export default {
       imagePreviewVisible: false,
       videoPreviewRow: {},
       videoPreviewVisible: false,
-      officePreviewRow: {},
-      officePreviewVisible: false,
+      iframePreviewRow: {},
+      fileHandler: {},
+      iframePreviewVisible: false,
       audioPreviewRow: {},
+      fileHandlers: {
+        "pdf": {
+          "PDF.js": "https://alist-org.github.io/pdf.js/web/viewer.html?file=$e_url",
+        },
+        "epub": {
+          "EPUB.js": "https://alist-org.github.io/static/epub.js/viewer.html?url=$e_url",
+        },
+        "dwg": {
+          "kkPreview": "http://192.168.0.233:8012/onlinePreview?url=$eb_url",
+        }
+      },
       audioPreviewVisible: false,
       drawer: false,
       rowStyleExecuting: false,
@@ -2519,8 +2532,8 @@ export default {
               case 'docx':
               case 'xlsx':
               case 'pptx':
-                this.officePreviewRow = res.data
-                this.officePreviewVisible = true
+                this.iframePreviewRow = res.data
+                this.iframePreviewVisible = true
                 break
             }
             const that = this
@@ -4234,6 +4247,14 @@ export default {
           this.$emit('selectedFile', selectFile)
           return
         }
+        const fileHandler = this.hasIframePreview(row.suffix, this.fileHandlers)
+        if (fileHandler !== null) {
+          // iframe 预览
+          this.iframePreviewVisible = true
+          this.iframePreviewRow = row
+          this.fileHandler = {}
+          return
+        }
         if (row.contentType.startsWith('image')) {
           // 图片
           this.imagePreviewVisible = true
@@ -4265,13 +4286,11 @@ export default {
           this.openCompressionVisible = true
           return
         }
-        if (
-          row.contentType.indexOf('office') > -1 ||
-          ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf', 'glTF'].includes(row.suffix)
-        ) {
-          // office文件
-          this.officePreviewVisible = true
-          this.officePreviewRow = row
+        if (row.contentType.indexOf('office') > -1 || ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf'].includes(row.suffix)) {
+          // iframe 预览
+          this.iframePreviewVisible = true
+          this.iframePreviewRow = row
+          this.fileHandler = {}
           return
         }
         if (row.contentType.indexOf('utf-8') > -1) {
@@ -4282,6 +4301,15 @@ export default {
         }
         this.notPreviewDialogVisible = true
       }
+    },
+    hasIframePreview(suffix, fileHandlers) {
+      for (let key in fileHandlers) {
+        const extensions = key.split(',')
+        if (extensions.includes(suffix)) {
+          return fileHandlers[key]
+        }
+      }
+      return null
     },
     determineDownload(file) {
       this.download(file)
