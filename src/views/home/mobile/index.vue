@@ -268,7 +268,7 @@
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
-    <office-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></office-preview>
+    <iframe-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></iframe-preview>
   </div>
 </template>
 <script>
@@ -283,12 +283,12 @@ import ImageViewer from "@/components/preview/ImageViewer";
 import VideoPreview from "@/components/preview/VideoPreview";
 import SimTextPreview from "@/components/preview/SimTextPreview";
 import {suffix} from "@/utils/file-type";
-import OfficePreview from "@/components/preview/OfficePreview";
+import IframePreview from "@/components/preview/IframePreview.vue";
 import Clipboard from "clipboard";
 
 export default {
   components: {
-    OfficePreview,
+    IframePreview,
     SimTextPreview,
     VideoPreview,
     ImageViewer, IconFile,

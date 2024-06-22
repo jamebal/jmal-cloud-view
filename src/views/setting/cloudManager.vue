@@ -75,8 +75,13 @@
               <transcode-config></transcode-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="LDAP认证" name="4" class="setting-tab-panel">
+          <el-tab-pane label="预览配置" name="4" class="setting-tab-panel">
             <div v-if="activeName === '4'">
+              <preview-config></preview-config>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="LDAP认证" name="5" class="setting-tab-panel">
+            <div v-if="activeName === '5'">
               <ldap-config></ldap-config>
             </div>
           </el-tab-pane>
@@ -93,6 +98,7 @@ import settingApi, { getSetting } from "@/api/setting-api";
 import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
+import PreviewConfig from '@/views/setting/cloudSetting/previewConfig.vue'
 import {mapGetters, mapState} from "vuex";
 import store from "@/store";
 import TaskProgress from "@/components/TaskProgress/index.vue";
@@ -101,7 +107,7 @@ import TranscodeConfig from "@/views/setting/cloudSetting/transcodeConfig.vue";
 import OfficeConfig from "@/views/setting/cloudSetting/officeConfig.vue";
 
 export default {
-  components: {OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
+  components: { PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',

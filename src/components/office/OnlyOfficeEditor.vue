@@ -103,10 +103,18 @@ export default {
         if (!id) {
           return
         }
-        settingApi.getOfficeConfig().then(res => {
-          this.officeServerConfig = res.data
-          this.loadOfficeApi()
-        })
+
+        if (window.shareId) {
+          settingApi.getPublicOfficeConfig({shareId: window.shareId, shareToken: this.$store.getters.shareToken}).then(res => {
+            this.officeServerConfig = res.data
+            this.loadOfficeApi()
+          })
+        } else {
+          settingApi.getOfficeConfig().then(res => {
+            this.officeServerConfig = res.data
+            this.loadOfficeApi()
+          })
+        }
       },
       immediate: true,
     },
