@@ -70,19 +70,13 @@ export default {
             this.services.push({label: service, value: this.url})
           }
         }
-      } else {
-        this.url = undefined
-        this.services = []
-      }
-      const iframe = this.$refs.iframeContent;
-      if (iframe.attachEvent) {
-        iframe.attachEvent('onload', () => {
+        this.$nextTick(() => {
           this.onReady()
         })
       } else {
-        iframe.onload = () => {
-          this.onReady()
-        }
+        this.url = undefined
+        this.services = []
+        this.$emit('loadFileFailed')
       }
     },
     base64EncodeUnicode(str) {
