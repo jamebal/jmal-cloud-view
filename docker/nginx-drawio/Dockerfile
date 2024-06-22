@@ -14,3 +14,4 @@ RUN apt-get update && \
 
 COPY docker/nginx-drawio/drawio.conf /etc/nginx/servers/drawio.conf
 COPY docker/nginx-drawio/pdfjs.conf /etc/nginx/servers/pdfjs.conf
+COPY docker/nginx-drawio/mime.types /etc/nginx/mime.types
