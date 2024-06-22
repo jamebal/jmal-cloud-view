@@ -1,6 +1,20 @@
 import request from '@/utils/request'
 
 export default {
+  getPreviewConfig(params) {
+    return request({
+      url: '/cloud/setting/preview/config',
+      method: 'get',
+      params
+    })
+  },
+  updatePreviewConfig(data) {
+    return request({
+      url: '/cloud/setting/preview/config',
+      method: 'put',
+      data
+    })
+  },
   getTranscodeConfig(params) {
     return request({
       url: '/cloud/setting/transcode/config',

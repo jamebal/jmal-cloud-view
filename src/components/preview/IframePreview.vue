@@ -58,7 +58,7 @@ export default {
     },
     fileHandler: {
       type: Object,
-      default: undefined
+      default: {}
     },
     shareId: {
       type: String,
@@ -127,7 +127,7 @@ export default {
       }
     },
     getType(suffix) {
-      if (this.fileHandler.length > 0) {
+      if (Object.keys(this.fileHandler).length > 0) {
         return 'other'
       }
       if (this.file.contentType.indexOf('office') > -1) {

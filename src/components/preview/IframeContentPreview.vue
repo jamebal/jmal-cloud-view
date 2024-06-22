@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="iframe-content">
-      <iframe ref="iframeContent" name="Iframe Content Preview" :title="file.name" :src="url"></iframe>
+      <iframe ref="iframeContent" name="Iframe Content Preview" :title="file.name" :src="url" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
     </div>
   </div>
 </template>
@@ -55,7 +55,6 @@ export default {
   methods: {
     iframeLoad() {
       if (this.fileHandler) {
-        console.log('this.fileHandler', this.fileHandler);
         for (let service in this.fileHandler) {
           const urlTemplate = this.fileHandler[service]
           if (!urlTemplate) {
@@ -70,7 +69,6 @@ export default {
             this.url = urlTemplate.replace('$eb_url', encodeURIComponent(this.base64EncodeUnicode(url)))
             this.services.push({label: service, value: this.url})
           }
-          console.log('services', this.services)
         }
       } else {
         this.url = undefined
@@ -112,6 +110,7 @@ export default {
 <style lang="scss" scoped>
 .top-bar {
   width: 100%;
+  top: 0;
   position: absolute;
   display: flex;
   flex-wrap: nowrap;

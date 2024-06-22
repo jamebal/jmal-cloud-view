@@ -1112,17 +1112,6 @@ export default {
       fileHandler: {},
       iframePreviewVisible: false,
       audioPreviewRow: {},
-      fileHandlers: {
-        "pdf": {
-          "PDF.js": "https://alist-org.github.io/pdf.js/web/viewer.html?file=$e_url",
-        },
-        "epub": {
-          "EPUB.js": "https://alist-org.github.io/static/epub.js/viewer.html?url=$e_url",
-        },
-        "dwg": {
-          "kkPreview": "http://192.168.0.233:8012/onlinePreview?url=$eb_url",
-        }
-      },
       audioPreviewVisible: false,
       drawer: false,
       rowStyleExecuting: false,
@@ -4247,12 +4236,12 @@ export default {
           this.$emit('selectedFile', selectFile)
           return
         }
-        const fileHandler = this.hasIframePreview(row.suffix, this.fileHandlers)
+        const fileHandler = this.hasIframePreview(row.suffix, this.$store.getters.iframePreviewConfig)
         if (fileHandler !== null) {
           // iframe 预览
           this.iframePreviewVisible = true
           this.iframePreviewRow = row
-          this.fileHandler = {}
+          this.fileHandler = fileHandler
           return
         }
         if (row.contentType.startsWith('image')) {
