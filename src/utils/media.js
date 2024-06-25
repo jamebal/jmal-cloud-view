@@ -65,11 +65,23 @@ export function formatVideo(videoInfo) {
   if (videoInfo['bitrate']) {
     videoStr += `\r\n码率: ${videoInfo['bitrate']}`
   }
+  if (videoInfo['frameRate']) {
+    videoStr += `\r\n帧率: ${videoInfo['frameRate']} fps`
+  }
   if (videoInfo['format']) {
     videoStr += `\r\n格式: ${videoInfo['format']}`
   }
   if (videoInfo['duration']) {
     videoStr += `\r\n时长: ${videoInfo['duration']}`
+  }
+  if (videoInfo['toBitrate']) {
+    videoStr += `\r\n转码后的码率: ${videoInfo['toBitrate']} kbps`
+  }
+  if (videoInfo['toFrameRate']) {
+    videoStr += `\r\n转码后的帧率: ${videoInfo['toFrameRate']} fps`
+  }
+  if (videoInfo['toHeight']) {
+    videoStr += `\r\n转码后的高度: ${videoInfo['toHeight']}`
   }
   return videoStr
 }

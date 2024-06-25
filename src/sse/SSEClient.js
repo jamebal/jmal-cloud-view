@@ -54,6 +54,7 @@ function onMessage(msg) {
   const eventMapping = {
     synced: 'msg/synced',
     taskProgress: 'msg/taskProgress',
+    transcodeStatus: 'msg/transcodeStatus',
     uploaderChunkSize: 'uploaderChunkSize',
   };
 

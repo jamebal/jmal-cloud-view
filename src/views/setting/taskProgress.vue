@@ -10,7 +10,13 @@
       </div>
       <div>
         <div class="setting-title-desc">
-          <div class="setting-title-desc-text">OCR识别任务和视频转码任务</div>
+          <div class="title-status">
+            <div class="setting-title-desc-text">OCR识别任务和视频转码任务</div>
+            <div>
+              <span v-if="transcodeStatus.waitingTranscodingCount > 0"><b>{{transcodeStatus.waitingTranscodingCount}}</b>个视频等待转码 </span>
+              <span v-if="transcodeStatus.transcodingCount > 0"> <b>{{transcodeStatus.transcodingCount}}</b>个视频正在转码中</span>
+            </div>
+          </div>
           <el-divider></el-divider>
         </div>
         <task-progress :data="taskProgressDataList"></task-progress>
@@ -22,23 +28,37 @@
 <script>
 
 import TaskProgress from "@/components/TaskProgress/index.vue";
-import {getTaskProgress} from "@/api/setting-api";
+import { getTaskProgress, getTranscodeStatus } from '@/api/setting-api'
+import { mapState } from 'vuex'
 
 export default {
   components: { TaskProgress },
   data() {
     return {
       taskProgressDataList: [],
+      transcodeStatus: {
+        waitingTranscodingCount: 0,
+        transcodingCount: 0
+      }
     }
   },
   mounted() {
     getTaskProgress().then(res => {
       this.taskProgressDataList = res.data
     })
+    getTranscodeStatus().then(res => {
+      this.transcodeStatus = res.data
+    })
   },
   computed: {
+    ...mapState(['message'])
   },
   watch: {
+    message(msg) {
+      if (msg.event === 'msg/transcodeStatus') {
+        this.transcodeStatus = msg.data.body
+      }
+    }
   },
   methods: {
   }
@@ -47,7 +67,11 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
-
+.title-status {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
 .progress {
   margin-top: 5px;
   >>> .el-card__header {
