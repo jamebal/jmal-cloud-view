@@ -45,7 +45,7 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item label="目标帧率" prop="height">
+      <el-form-item label="帧率" prop="height">
         <div class="form-item-flex">
           <el-input placeholder="30" v-model.number="configFormData.frameRateCond"></el-input>
           <div>
