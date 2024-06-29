@@ -196,7 +196,10 @@ export default {
     },
     saveConfig() {
       this.saveConfigLoading = true
-      settingApi.setTranscodeConfig(this.configFormData).then(() => {
+      settingApi.setTranscodeConfig(this.configFormData).then((res) => {
+        if (res.data > 0) {
+          this.transcodeStatus.waitingTranscodingCount = res.data
+        }
         this.saveConfigLoading = false
         this.$message.success('保存成功')
       }).catch(() => {
