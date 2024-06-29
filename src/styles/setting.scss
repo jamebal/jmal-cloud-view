@@ -214,4 +214,11 @@ a:hover {
     }
   }
 }
-
+.form-item-flex {
+  display: flex;
+  align-items: center;
+  >>> .el-icon-question {
+    padding: 5px;
+    font-size: 1rem;
+  }
+}

@@ -29,6 +29,13 @@ export default {
       data
     })
   },
+  cancelTranscodeTask(data) {
+    return request({
+      url: '/cloud/setting/transcode/cancel-task',
+      method: 'put',
+      data
+    })
+  },
   syncUser(params) {
     return request({
       url: '/user/setting/sync',
@@ -158,6 +165,14 @@ export function getHeartwings(params) {
 export function getTaskProgress(params) {
   return request({
     url: '/cloud/task/progress',
+    method: 'get',
+    params
+  })
+}
+
+export function getTranscodeStatus(params) {
+  return request({
+    url: '/cloud/transcode/status',
     method: 'get',
     params
   })
