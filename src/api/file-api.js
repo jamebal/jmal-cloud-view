@@ -100,6 +100,35 @@ export default {
       }
     })
   },
+  // 返回原处
+  restore: function(params) {
+    return request({
+      url: 'restore',
+      method: 'post',
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
+  // 彻底删除
+  sweep: function(params) {
+    return request({
+      url: 'sweep',
+      method: 'delete',
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
+  // 清空回收站
+  clearTrash: function() {
+    return request({
+      url: 'clear-trash',
+      method: 'delete'
+    })
+  },
   // 重名名
   rename: function(params) {
     return request({

@@ -434,15 +434,6 @@
               align="center"
               header-align="center"
             >
-              <!-- 使用组件, 并传值到组件中 -->
-              <template slot="header">
-                <svg-icon
-                  v-if="item.name !== ''"
-                  class="button-class"
-                  icon-class="more"
-                  @click.stop="moreOperation($event)"
-                />
-              </template>
               <template slot-scope="scope">
                 <svg-icon
                   v-if="scope.row.index === cellMouseIndex"
@@ -945,16 +936,6 @@ export default {
             operation: 'details',
           },
           { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
-        ]
-      },
-    },
-    multipleMenus: {
-      type: Array,
-      default: function() {
-        return [
           { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
           { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
@@ -1922,6 +1903,11 @@ export default {
       }
       // 开始拖拽
       container.ondragstart = e => {
+        if (this.queryFileType === 'trash') {
+          e.preventDefault()
+          e.stopPropagation()
+          return false
+        }
         // 正在选区获取按住关键键时禁止拖拽
         if (_this.drawFlag || _this.isCmd || _this.selectPin) {
           e.preventDefault()
@@ -2604,10 +2590,12 @@ export default {
           child[0].iconClass = 'menu-point'
           child[1].iconClass = 'menu-empty'
         }
-        if (localStorage.getItem('showFolderSize') === 'true') {
-          child[2].iconClass = 'duigou'
-        } else {
-          child[2].iconClass = 'menu-empty'
+        if (child[2]) {
+          if (localStorage.getItem('showFolderSize') === 'true') {
+            child[2].iconClass = 'duigou'
+          } else {
+            child[2].iconClass = 'menu-empty'
+          }
         }
       }
       if (arrangementModeIndex > -1) {
@@ -2863,6 +2851,7 @@ export default {
             order: this.sortable.order,
             isFolder: this.queryCondition.isFolder,
             isFavorite: this.queryCondition.isFavorite,
+            isTrash: this.queryCondition.isTrash,
             tagId: this.queryCondition.tagId,
             queryCondition: this.queryCondition,
             pageIndex: this.pagination.pageIndex,
@@ -3000,7 +2989,8 @@ export default {
       if (fileSize > 0) {
         fileSum = fileSize + '个文件'
       }
-      return folderSum + ' ' + fileSum
+      const stand = folderSize > 0 && fileSize > 0 ? '、' : ''
+      return folderSum + stand + fileSum
     },
     // 计算总大小
     getShowSumSize(totalSize) {
@@ -3298,12 +3288,6 @@ export default {
         this.clearOnCreateFilename()
       }
     },
-    // 更多操作(多选)
-    moreOperation(event) {
-      this.menusIsMultiple = true
-      this.menus = this.multipleMenus
-      this.showOperationMenus(event)
-    },
     setMenus(row) {
       this.menus = JSON.parse(JSON.stringify(this.singleMenus))
       // 挂载的文件
@@ -3326,12 +3310,8 @@ export default {
             reservations.includes(item.operation)
           )
         }
-        if (!row.isFolder) {
-          this.menus.splice(-2, 0, {
-            iconClass: 'duplicate',
-            label: '创建副本',
-            operation: 'duplicate',
-          })
+        if (!row.isFolder && this.queryFileType !== 'trash') {
+          this.menus.splice(-2, 0, { iconClass: 'duplicate', label: '创建副本', operation: 'duplicate'})
         }
         if ((row.isShare && !row.shareBase) || row.ossFolder) {
           // 删除分享选项
@@ -3557,6 +3537,9 @@ export default {
         case 'createMarkdownFile':
           this.newDocument()
           break
+        case 'clearTrash':
+          this.clearTrash()
+          break
       }
     },
     // 新建文件
@@ -3641,6 +3624,14 @@ export default {
         case 'remove':
           // 删除
           this.deleteFile()
+          break
+        case 'sweep':
+          // 清空回收站
+          this.sweepFile()
+          break
+        case 'restore':
+          // 返回原处
+          this.restoreFile()
           break
       }
       this.$refs.contextShow.hideMenu()
@@ -4027,32 +4018,55 @@ export default {
         })
       } else {
         fileIds.push(this.rowContextData.id)
+        fileList.push(this.rowContextData)
       }
       const str = this.getShowSumFileAndFolder(fileList)
-      this.$confirm('此操作将永久删除' + str + ', 是否继续?', '提示', {
+      this.$confirm('将 ' + str + ' 移至回收站, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       }).then(() => {
-        api
-          .delete({
+        api.delete({
             currentDirectory: this.getQueryPath(),
             username: this.$store.state.user.name,
             fileIds: fileIds,
-          })
-          .then(() => {
+          }).then(() => {
             // 刷新列表
             if (this.$route.query.folder) {
               this.getFileList()
             }
           })
-          .then(() => {
-            this.$notify({
-              title: '删除成功',
-              type: 'success',
-              duration: 1000,
-            })
-          })
+      })
+    },
+    restoreFile() {
+      const fileIds = this.getSelectIdList()
+      api.restore({fileIds: fileIds}).then(() => {
+        this.getFileList()
+      })
+    },
+    sweepFile() {
+      const fileIds = this.getSelectIdList()
+      this.$confirm(`此操作将永久删除 ${fileIds.length}个文件, 是否继续?`, '提示', {
+        confirmButtonText: '彻底删除',
+        confirmButtonClass: 'el-button--danger',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        api.sweep({fileIds: fileIds}).then(() => {
+          this.getFileList()
+        })
+      })
+    },
+    clearTrash() {
+      this.$confirm(`是否清空回收站? 此操作将无法还原!!!`, '提示', {
+        confirmButtonText: '清空',
+        confirmButtonClass: 'el-button--danger',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        api.clearTrash().then(() => {
+          this.getFileList()
+        })
       })
     },
     // 获取选中项id列表
@@ -4158,6 +4172,9 @@ export default {
     },
     // 点击文件或文件夹
     fileClick(row) {
+      if (this.queryFileType === 'trash') {
+        return
+      }
       if (this.editingIndex === row.index) {
         return
       }
