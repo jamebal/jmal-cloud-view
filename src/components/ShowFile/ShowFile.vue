@@ -2323,7 +2323,7 @@ export default {
           if (searchPathIndex < 0) {
             keywordQuery = ''
           }
-          this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
+          this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path).replaceAll('#', '%23')}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
         }
         if (!unRefresh) {
           this.pagination.pageIndex = 1
@@ -2559,13 +2559,11 @@ export default {
       const queryTagId = this.$route.query.tagId
         ? `&tagId=${this.$route.query.tagId}`
         : ''
-      const basePath = this.getBasePath()
-      const keyword = this.$route.query.keyword
-        ? `&keyword=${this.$route.query.keyword}`
-        : ''
+      const basePath = this.getBasePath().replaceAll('#', '%23')
+      const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
       const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
       const searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path}${folder}${queryTagId}${basePath}${keyword}${searchOpenFolder}`)
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path.replaceAll('#', '%23')}${folder}${queryTagId}${basePath}${keyword}${searchOpenFolder}`)
       // 改变拖拽目标
       this.rowDrop()
       // 画矩形选取
@@ -2790,9 +2788,7 @@ export default {
       const queryTagId = this.$route.query.tagId
         ? `&tagId=${this.$route.query.tagId}`
         : ''
-      const path = this.$route.query.path
-        ? `&path=${this.$route.query.path}`
-        : ''
+      const path = this.$route.query.path ? `&path=${this.$route.query.path}`.replaceAll('#', '%23') : ''
       const keyword = this.$route.query.keyword
         ? `&keyword=${this.$route.query.keyword}`
         : ''
@@ -4199,14 +4195,8 @@ export default {
           this.path = this.path.replace(/\/\//g, '/')
           // 去掉this.path开头的this.basePath
           this.path = this.path.replace(this.basePath, '/')
-          const path = encodeURI(this.path)
+          const path = encodeURI(this.path).replaceAll('#', '%23')
 
-          // if (this.path) {
-          //   this.path += "/" + row.name;
-          // } else {
-          //   this.path = this.basePath + row.name;
-          // }
-          // // 去掉this.path开头的this.basePath
           const item = { folder: row.name, shareBase: row.shareBase }
           this.pathList.push(item)
           this.pagination.pageIndex = 1
