@@ -8,7 +8,7 @@ export const suffix = {
     'cmake','db','gradle','bat','conf','dart','plist'
   ],
   compressedFile: [
-    'zip','tar','jar','tar.gz','tgz','tar.bz2'
+    'zip','tar','7z', 'rar', 'jar','tar.gz','tgz','tar.bz2'
   ],
 }
 
@@ -65,6 +65,7 @@ iconClass.set('pdf','file-pdf')
 iconClass.set('mind','file-mind')
 iconClass.set('zip','zip')
 iconClass.set('rar','zip')
+iconClass.set('7z','zip')
 iconClass.set('iml','file-idea')
 iconClass.set('key','file-key')
 iconClass.set('pem','file-pem')
