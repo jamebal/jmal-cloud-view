@@ -329,8 +329,6 @@
           @row-contextmenu="rowContextmenu"
           @cell-click="cellClick"
           @row-dblclick="dblclick"
-          @cell-mouse-enter="cellMouseEnter"
-          @cell-mouse-leave="cellMouseLeave"
           @sort-change="sortChange"
           @table-body-scroll="tableBodyScroll"
           @select="pinSelect"
@@ -392,60 +390,9 @@
                 </div>
               </template>
             </pl-table-column>
-            <!--分享-->
-            <pl-table-column
-              v-if="index === 3 && showShareItem"
-              :key="index"
-              width="50"
-              :index="index"
-              align="center"
-              header-align="center"
-              tooltip-effect="dark"
-            >
-              <template slot-scope="scope">
-                <el-tooltip
-                  v-if="
-                    scope.row.index === cellMouseIndex &&
-                      (!scope.row.isShare || scope.row.shareBase)
-                  "
-                  class="item"
-                  effect="light"
-                  content="分享"
-                  placement="top"
-                >
-                  <svg-icon
-                    title="分享"
-                    class="button-class"
-                    icon-class="share"
-                    @click.stop="share(scope.row)"
-                  />
-                </el-tooltip>
-              </template>
-            </pl-table-column>
-            <!--更多-->
-            <pl-table-column
-              v-if="index === 4 && showMoreItem"
-              :key="index"
-              width="50"
-              :prop="item.name"
-              :label="item.label"
-              :index="index"
-              class="el-icon-more"
-              align="center"
-              header-align="center"
-            >
-              <template slot-scope="scope">
-                <svg-icon
-                  v-if="scope.row.index === cellMouseIndex"
-                  class="button-class"
-                  icon-class="more"
-                  @click.stop="moreClick(scope.row, $event)"
-                />
-              </template>
-            </pl-table-column>
             <!--文件大小-->
             <pl-table-column
-              v-if="index === 5 && showSizeItem"
+              v-if="index === 3 && showSizeItem"
               :key="index"
               width="200"
               :prop="item.name"
@@ -465,7 +412,7 @@
             </pl-table-column>
             <!--修改时间-->
             <pl-table-column
-              v-if="index === 6 && showUpdateDateItem"
+              v-if="index === 4 && showUpdateDateItem"
               :key="index"
               width="250"
               :prop="item.name"
@@ -874,14 +821,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    showShareItem: {
-      type: Boolean,
-      default: true,
-    },
-    showMoreItem: {
-      type: Boolean,
-      default: true,
-    },
     isCollectView: {
       type: Boolean,
       default: false,
@@ -1012,27 +951,16 @@ export default {
           index: 2,
         },
         {
-          name: '',
-          label: '',
-          index: 3,
-        },
-        {
-          name: '',
-          label: '',
-          more: true,
-          index: 4,
-        },
-        {
           name: 'size',
           label: '大小',
           sortable: true,
-          index: 5,
+          index: 3,
         },
         {
           name: 'updateDate',
           label: '修改日期',
           sortable: true,
-          index: 6,
+          index: 4,
         },
       ],
       isJustHideMenus: false,
@@ -1811,10 +1739,6 @@ export default {
               const last = target.children[dragIndex]
               clearClass(last)
             }
-            // console.log("离开了",leaveIndex,"dragIndex:",dragIndex)
-            // leaveIndex = node.rowIndex
-            // const leave = target.children[leaveIndex];
-            // clearClass(leave)
             dragIndex = -1
           }
         }
@@ -1894,7 +1818,6 @@ export default {
           data: false,
         })
         e.dataTransfer.effectAllowed = 'none'
-        // console.log('child'+dragIndex+'拖拽结束');
         // 清除上次进入的容器的状态
         const last = target.children[dragIndex]
         clearClass(last)
@@ -1947,8 +1870,9 @@ export default {
           if (!_this.grid) {
             dragingDiv.firstChild.style.textAlign = 'center'
             let tds = Array.prototype.slice.call(dragingDiv.childNodes)
+            console.log(tds)
             tds.forEach((node, index) => {
-              if (index === 4) {
+              if (index === 2) {
                 node.style.borderRadius = '0 3px 3px 0'
                 node.style.borderRight = '1px solid #409eff'
                 node.firstChild.style.height = '44px'
@@ -1962,8 +1886,7 @@ export default {
             })
             dragingDivStyleTop = pos.y - _this.fileListScrollTop - 51.5
           } else {
-            dragingDivStyleTop =
-              pos.y - _this.fileListScrollTop - pos.h / 2 + 10
+            dragingDivStyleTop = pos.y - _this.fileListScrollTop - pos.h / 2 + 10
           }
           dragingDiv.style.top = dragingDivStyleTop + 'px'
           if (index === 0) {
@@ -3041,15 +2964,13 @@ export default {
         selectTotalSize += item.size
       })
       const item_name = this.tableHead[2]
-      const item_more = this.tableHead[4]
-      const item_size = this.tableHead[5]
-      const item_date = this.tableHead[6]
+      const item_size = this.tableHead[3]
+      const item_date = this.tableHead[4]
       if (rows.length > 0) {
         const sumFileAndFolder = this.getShowSumFileAndFolder(rows)
         const sizeSum = this.getShowSumSize(selectTotalSize)
         item_name.label = sumFileAndFolder
         item_name.sortable = false
-        item_more.name = 'more'
         item_size.label = sizeSum
         item_size.sortable = false
         item_date.label = ''
@@ -3057,17 +2978,12 @@ export default {
       } else {
         item_name.label = '名称'
         item_name.sortable = true
-        item_more.name = ''
         item_size.label = '大小'
         item_size.sortable = true
         item_date.label = '修改日期'
         item_date.sortable = true
       }
-      if (this.selectRowData.length === this.fileList.length) {
-        this.allChecked = true
-      } else {
-        this.allChecked = false
-      }
+      this.allChecked = this.selectRowData.length === this.fileList.length;
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowStyle({ row, column, rowIndex, columnIndex }) {
@@ -3085,7 +3001,7 @@ export default {
             borderBottom: '1px solid #409eff',
           }
         }
-        if (columnIndex === 5) {
+        if (columnIndex === 3) {
           return {
             backgroundColor: '#e0f3fc !important',
             borderRadius: '0 3px 3px 0',
@@ -3113,45 +3029,6 @@ export default {
       }
       const isFavorite = this.rowContextData.isFavorite
       this.highlightFavorite(isFavorite, false)
-    },
-    // 单元格hover进入时事件
-    cellMouseEnter(row) {
-      if (this.draging === 1) {
-        return
-      }
-      if (
-        this.$refs.contextShow.locals.menuType === 'moreClick' &&
-        this.$refs.contextShow.locals.rowIndex !== row.index
-      ) {
-        this.$refs.contextShow.hideMenu()
-      }
-      if (this.editingIndex === -1 && !this.$refs.contextShow.ctxVisible) {
-        if (this.selectRowData.length <= 1) {
-          this.cellMouseIndex = row.index
-        }
-      }
-    },
-    // 单元格hover退出时事件
-    cellMouseLeave(row) {
-      if (this.draging === 1) {
-        return
-      }
-      if (
-        this.$refs.contextShow.locals.menuType === 'moreClick' &&
-        this.$refs.contextShow.locals.rowIndex !== row.index
-      ) {
-        this.$refs.contextShow.hideMenu()
-        this.$refs.contextShow.locals = {}
-        return
-      }
-      if (
-        this.$refs.contextShow.ctxVisible &&
-        this.$refs.contextShow.locals.menuType === 'moreClick' &&
-        this.$refs.contextShow.locals.rowIndex === row.index
-      ) {
-        return
-      }
-      this.cellMouseIndex = -1
     },
     //双击
     dblclick(row) {
@@ -3374,15 +3251,6 @@ export default {
       }
       this.setMenusCopyDownLoadLinks(file)
     },
-    // 更多操作(单选)
-    moreClick(row, event) {
-      this.menusIsMultiple = false
-      this.setMenus(row)
-      this.showOperationMenus(event, {
-        menuType: 'moreClick',
-        rowIndex: row.index,
-      })
-    },
     // 鼠标右击
     rowContextmenu(row) {
       if (this.selectFile) {
@@ -3412,26 +3280,6 @@ export default {
       e.clientY = event.clientY + 2
       this.$refs.contextShow.showMenu(e)
       this.cellMouseIndex = -1
-    },
-    // 显示操作菜单
-    showOperationMenus(event, menuData) {
-      let offsetY = event.pageY
-      if (event.target.clientHeight > 0) {
-        offsetY += event.target.clientHeight / 2 - event.offsetY
-      }
-      const e = {}
-      if (document.body.scrollHeight - offsetY > 400) {
-        this.menuTriangle = 'menu-triangle-top'
-        e.pageX = event.pageX - 78
-        e.pageY = offsetY + 25
-      } else {
-        this.menuTriangle = 'menu-triangle-bottom'
-        e.pageX = event.pageX - 78
-        e.pageY = offsetY - this.menus.length * 38 - 36
-      }
-      if (!this.isJustHideMenus) {
-        this.$refs.contextShow.showMenu(e, menuData)
-      }
     },
     menuFavoriteOver(index, isFavorite) {
       this.highlightFavorite(isFavorite, false)

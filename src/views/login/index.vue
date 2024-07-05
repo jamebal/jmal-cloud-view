@@ -209,9 +209,11 @@ export default {
             let data = new FormData()
             data.append('username',this.loginForm.username)
             data.append('password',this.loginForm.password)
+            this.loading = true
             initialization(data).then(()=>{
                 this.initialize = false
                 this.$message.success('创建成功')
+                this.loading = false
             })
           }else{
             // 登录
