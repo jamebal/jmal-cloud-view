@@ -3865,7 +3865,7 @@ export default {
         fileList.push(this.rowContextData)
       }
       const str = this.getShowSumFileAndFolder(fileList)
-      this.$confirm('将 ' + str + ' 移至回收站, 是否继续?', '提示', {
+      this.$confirm('是否删除 ' + str + '?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
