@@ -40,7 +40,8 @@ export default {
     }
     let baseUrl = serverUrl || this.baseUrl
     let fileUrl = `${baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
-    fileUrl = fileUrl.replace(/%5C/g, '/')
+    fileUrl = fileUrl.replaceAll('#', '%23')
+    fileUrl = fileUrl.replaceAll(/%5C/g, '/')
     if (token) {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
     }
