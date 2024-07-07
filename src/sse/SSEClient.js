@@ -93,6 +93,18 @@ function handleFileChangeMessage(msg, url, body) {
       store.dispatch('updateMessage', { event: 'msg/file/operation/fault', data: msg });
     }
   }
+
+  if (url === 'operationTips') {
+    const { operation, success, msg: message } = body
+    const notificationOptions = {
+      title: `${operation} ${success ? '成功' : '失败'}`,
+      dangerouslyUseHTMLString: true,
+      message: success ? '' : message ? `<span style="font-size: 12px;">${message}</span>` : '',
+      type: success ? 'success' : 'error',
+    }
+    Bus.notify(notificationOptions)
+  }
+
 }
 
 export function initiateSSE(username) {
