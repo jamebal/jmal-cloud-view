@@ -37,7 +37,7 @@ export default {
       tableHeader: [
         {prop: 'type', width: 100, label: '任务类型'},
         {prop: 'name', minWidth: 100, label: '名称'},
-        {prop: 'progress', width: 100, label: '进度'},
+        {prop: 'progress', width: 200, label: '进度'},
       ]
     }
   },
