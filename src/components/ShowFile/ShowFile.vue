@@ -294,6 +294,9 @@
             <label class="menuitem">
               <svg-icon :icon-class="item.iconClass" />
               <span class="menuitem text">{{ item.label }}</span>
+              <span v-if="item.shortcut" style="position: absolute;right: 10px;">
+                <kbd>{{ item.shortcut }}</kbd>
+              </span>
             </label>
           </li>
         </ul>
@@ -905,10 +908,11 @@ export default {
           { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
           {
             iconClass: 'menu-details',
-            label: '详细信息',
+            label: '详情',
+            shortcut: "space",
             operation: 'details',
           },
-          { iconClass: 'menu-rename', label: '重命名', operation: 'rename' },
+          { iconClass: 'menu-rename', label: '重命名', operation: 'rename', shortcut: 'F2' },
           { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
           { iconClass: 'menu-download', label: '下载', operation: 'download' },
           { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
@@ -1057,6 +1061,7 @@ export default {
       audioPreviewRow: {},
       audioPreviewVisible: false,
       drawer: false,
+      drawerShowTime: 0, // drawer显示的时间
       rowStyleExecuting: false,
       selectRowData: [],
       selectOrgin: -1, // 选择起点(主要用于按住shift键多选)
@@ -1078,11 +1083,11 @@ export default {
       draging: 0, // 是否正在拖拽中，0：没有拖拽，1：拖拽中,
       getFileListed: false,
       onCreateFilename: '',
-      deleteConfirmVisible: false,
-      permanentDelete: false,
-      permanentDeleteDisable: false,
-      selectDeleteFile: [],
-      deleteLoading: false,
+      deleteConfirmVisible: false, // 删除确认弹窗
+      permanentDelete: false, // 是否永久删除
+      permanentDeleteDisable: false, // 是否禁用永久删除选项
+      selectDeleteFile: [], // 选中的删除文件
+      deleteLoading: false, // 删除loading
     }
   },
   computed: {
@@ -1331,11 +1336,34 @@ export default {
     },
     keydown(event) {
       const isMac = navigator.platform.startsWith('Mac')
-      const { key, c, keyCode, ctrlKey, metaKey } = event
+      const { keyCode, ctrlKey, metaKey } = event
       this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey)
+      console.log(keyCode)
       // shift
       if (event.keyCode === 16 && event.shiftKey) {
         this.selectPin = true
+      }
+      // space
+      if (keyCode === 32) {
+        if (this.inputting || this.editingIndex !== -1) {
+          event.target.select()
+        } else {
+          if (this.selectRowData.length > 0 && !this.drawer) {
+            this.drawer = true
+            this.drawerShowTime = Date.now()
+          }
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
+      // F2
+      if (keyCode === 113) {
+        if (this.selectRowData.length > 0 && !this.drawer) {
+          this.renameFileName = this.rowContextData.name
+          this.editingIndex = this.rowContextData.index
+        }
+        event.preventDefault()
+        event.stopPropagation()
       }
       // ctrl + A / cmd + A
       if (this.isCmd && keyCode === 65) {
@@ -1359,6 +1387,12 @@ export default {
       // 松开shift键
       if (keyCode === 16) {
         this.selectPin = false
+      }
+      // space
+      if (keyCode === 32) {
+        if (this.drawer && Date.now() - this.drawerShowTime >= 500) {
+          this.drawer = false
+        }
       }
     },
     onmessage(msg) {
