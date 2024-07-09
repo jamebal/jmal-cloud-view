@@ -91,3 +91,31 @@ iconClass.set('plist','file-plist')
 iconClass.set('iso','file-iso')
 iconClass.set('glb','file-glb')
 iconClass.set('gltf','file-glb')
+
+export function findIconClass(file){
+  if(!file){
+    return
+  }
+  if(file.isFolder){
+    return 'folder'
+  }
+  if (file.contentType) {
+    if(file.contentType.indexOf('video') > -1){
+      return 'video'
+    }
+    if(file.contentType.startsWith('image')){
+      return 'image'
+    }
+    if(file.contentType.indexOf('audio') > -1){
+      return 'audio'
+    }
+  }
+  let suffix = file.suffix;
+  if(!suffix && file.name){
+    suffix = file.name.substring(file.name.lastIndexOf('.') + 1)
+  }
+  if(iconClass.has(suffix)){
+    return iconClass.get(suffix)
+  }
+  return 'file'
+}

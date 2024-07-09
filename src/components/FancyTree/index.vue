@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-  import { iconClass,suffix } from '@/utils/file-type'
+  import { findIconClass,suffix } from '@/utils/file-type'
   import 'jquery.fancytree/dist/skin-win8/ui.fancytree.less';
   import 'jquery.fancytree/dist/modules/jquery.fancytree.edit';
   import fancytree from 'jquery.fancytree';
@@ -450,34 +450,7 @@
         })
       },
       icon(event,data) {
-        return { html: this.loadSvg(this.findIconClass(data.node.data)) }
-      },
-      findIconClass(file){
-        if(!file){
-          return
-        }
-        if(file.isFolder){
-          return 'folder'
-        }
-        if (file.contentType) {
-          if(file.contentType.indexOf('video') > -1){
-            return 'video'
-          }
-          if(file.contentType.startsWith('image')){
-            return 'image'
-          }
-          if(file.contentType.indexOf('audio') > -1){
-            return 'audio'
-          }
-        }
-        let suffix = file.suffix;
-        if(!suffix && file.name){
-          suffix = file.name.substring(file.name.lastIndexOf('.') + 1)
-        }
-        if(iconClass.has(suffix)){
-          return iconClass.get(suffix)
-        }
-        return 'file'
+        return { html: this.loadSvg(findIconClass(data.node.data)) }
       },
       loadSvg(svgName){
         if(svgName){
