@@ -44,7 +44,7 @@ docker restart jmalcloud_server
  ```
 #### 恢复数据库
 ```shell
-  docker exec -it jmalcloud_mongodb mongorestore -d jmalcloud --dir /dump/xxx --gzip --quiet
+  docker exec -it jmalcloud_mongodb mongorestore --gzip --nsInclude=jmalcloud.* --dir /dump/xxx --quiet
   ```
 
 ### dev
