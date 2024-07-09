@@ -1,7 +1,10 @@
 <template>
   <div>
     <!--文件详细信息-->
-    <el-drawer :title="rowContextData.name" :visible.sync="visible">
+<!--    <el-drawer :title="rowContextData.name" :visible.sync="visible">-->
+<!--      -->
+<!--    </el-drawer>-->
+    <el-dialog :visible.sync="visible" width="420px">
       <div class="drawer-icon">
         <icon-file
           class="drawer-icon-font"
@@ -18,52 +21,56 @@
           <span v-show="syncPercent < 100">正在同步文件基本信息: {{ syncPercent }}%</span>
           <span v-show="indexingPercent > 0 && indexingPercent < 100">正在为文件内容创建索引: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
         </el-form-item>
-        <el-form-item label="名称:">
-          <span>{{ rowContextData.name }}</span>
-        </el-form-item>
-        <el-form-item label="类型:" class="details-name">
+
+        <el-scrollbar wrap-class="scrollbar-wrapper" class="details-form-list">
+          <el-form-item label="名称:">
+            <span>{{ rowContextData.name }}</span>
+          </el-form-item>
+          <el-form-item label="类型:">
           <span>{{
               rowContextData.isFolder ? '文件夹' : rowContextData.contentType
             }}</span>
-        </el-form-item>
-        <div v-if="rowContextData.music">
-          <el-form-item label="🎵 歌手:">
-            <span>{{ rowContextData.music.singer }}</span>
           </el-form-item>
-          <el-form-item label="🎵 专辑:">
-            <span>{{ '《' + rowContextData.music.album + '》' }}</span>
+          <div v-if="rowContextData.music">
+            <el-form-item label="🎵 歌手:">
+              <span>{{ rowContextData.music.singer }}</span>
+            </el-form-item>
+            <el-form-item label="🎵 专辑:">
+              <span>{{ '《' + rowContextData.music.album + '》' }}</span>
+            </el-form-item>
+            <el-form-item label="🎵 歌名:">
+              <span>{{ '《' + rowContextData.music.songName + '》' }}</span>
+            </el-form-item>
+          </div>
+          <el-form-item
+            v-show="rowContextData.w && rowContextData.h"
+            label="尺寸:"
+            class="details-resolution"
+          >
+            <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
           </el-form-item>
-          <el-form-item label="🎵 歌名:">
-            <span>{{ '《' + rowContextData.music.songName + '》' }}</span>
+          <el-form-item label="大小:">
+            <span> {{ formatSize(rowContextData.size) }}</span>
           </el-form-item>
-        </div>
-        <el-form-item
-          v-show="rowContextData.w && rowContextData.h"
-          label="尺寸:"
-          class="details-resolution"
-        >
-          <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
-        </el-form-item>
-        <el-form-item label="大小:">
-          <span> {{ formatSize(rowContextData.size) }}</span>
-        </el-form-item>
-        <el-form-item label="位置:" class="details-position">
-          <a :href="'/?path=' + rowContextData.path + '&highlight=' + rowContextData.name">{{ rowContextData.path }}</a>
-        </el-form-item>
-        <el-form-item label="创建时间:">
-          <span>{{ rowContextData.uploadDate }}</span>
-        </el-form-item>
-        <el-form-item label="修改时间:">
-          <span>{{ rowContextData.updateDate }}</span>
-        </el-form-item>
-        <el-form-item v-if="rowContextData.exif" label="">
-          <span style="white-space: break-spaces;">{{ formatExif(rowContextData.exif) }}</span>
-        </el-form-item>
-        <el-form-item v-if="rowContextData.video" label="">
-          <span style="white-space: break-spaces;">{{ formatVideo(rowContextData.video) }}</span>
-        </el-form-item>
+          <el-form-item label="位置:" class="details-position">
+            <a :href="'/?path=' + rowContextData.path + '&highlight=' + rowContextData.name">{{ rowContextData.path }}</a>
+          </el-form-item>
+          <el-form-item label="创建时间:">
+            <span>{{ rowContextData.uploadDate }}</span>
+          </el-form-item>
+          <el-form-item label="修改时间:">
+            <span>{{ rowContextData.updateDate }}</span>
+          </el-form-item>
+          <el-form-item v-if="rowContextData.exif" label="">
+            <span style="white-space: break-spaces;">{{ formatExif(rowContextData.exif) }}</span>
+          </el-form-item>
+          <el-form-item v-if="rowContextData.video" label="">
+            <span style="white-space: break-spaces;">{{ formatVideo(rowContextData.video) }}</span>
+          </el-form-item>
+        </el-scrollbar>
+
       </el-form>
-    </el-drawer>
+    </el-dialog>
   </div>
 </template>
 
@@ -187,7 +194,11 @@ export default {
 }
 
 .details-form {
-  margin: 20px 10px 0 20px;
+  padding: 20px 0;
+
+  >>> .el-scrollbar__view {
+    max-height: 50vh;
+  }
 
   >>> .el-form-item__content {
     white-space: normal;
@@ -205,6 +216,7 @@ export default {
   }
 
   >>> .details-scan {
+    margin-bottom: 10px;
     .el-button--mini, .el-button--mini.is-round {
       padding: 5px 15px;
     }
