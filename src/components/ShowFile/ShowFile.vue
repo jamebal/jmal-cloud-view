@@ -748,6 +748,40 @@
         >
       </span>
     </el-dialog>
+
+    <el-dialog
+      title="删除"
+      :visible.sync="deleteConfirmVisible"
+      width="420px">
+      <el-row>
+        <div class="el-message-box__container delete-attention el-alert--warning is-light">
+          <div class="el-message-box__status el-icon-warning"></div>
+          <div class="el-message-box__message">
+            <p>确定删除所选的{{selectDeleteFile.length}}个文件？默认进入回收站</p>
+          </div>
+        </div>
+        <div class="delete-attention mt-5">
+          <el-checkbox v-model="permanentDelete" :disabled="permanentDeleteDisable">永久删除文件（不进入回收站，直接删除）</el-checkbox>
+        </div>
+        <el-scrollbar wrap-class="scrollbar-wrapper">
+          <div class="delete-file-list">
+            <div v-for="file in selectDeleteFile" :key="file.id">
+              <div class="del-file-item">
+                <div>
+                  <icon-file :item="file" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
+                </div>
+                <div class="del-file-name">{{file.name}}</div>
+              </div>
+            </div>
+          </div>
+        </el-scrollbar>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
+        <el-button type="primary" size="small" @click="deleteFile" :loading="deleteLoading">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -1044,6 +1078,11 @@ export default {
       draging: 0, // 是否正在拖拽中，0：没有拖拽，1：拖拽中,
       getFileListed: false,
       onCreateFilename: '',
+      deleteConfirmVisible: false,
+      permanentDelete: false,
+      permanentDeleteDisable: false,
+      selectDeleteFile: [],
+      deleteLoading: false,
     }
   },
   computed: {
@@ -3467,7 +3506,9 @@ export default {
           break
         case 'remove':
           // 删除
-          this.deleteFile()
+          this.permanentDelete = false
+          this.selectDeleteFile = this.getSelectDeleteList()
+          this.deleteConfirmVisible = true
           break
         case 'sweep':
           // 清空回收站
@@ -3853,33 +3894,24 @@ export default {
     },
     // 删除
     deleteFile() {
-      let fileList = []
-      const fileIds = []
-      if (this.menusIsMultiple || this.selectRowData.length > 1) {
-        fileList = this.$refs.fileListTable.tableSelectData
-        this.$refs.fileListTable.tableSelectData.forEach(value => {
-          fileIds.push(value.id)
-        })
-      } else {
-        fileIds.push(this.rowContextData.id)
-        fileList.push(this.rowContextData)
-      }
-      const str = this.getShowSumFileAndFolder(fileList)
-      this.$confirm('是否删除 ' + str + '?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
+      // 提取出selectDeleteFile中的id
+      const fileIds = this.selectDeleteFile.map(item => item.id)
+      this.deleteLoading = true
+      api.delete({
+        currentDirectory: this.getQueryPath(),
+        username: this.$store.state.user.name,
+        fileIds: fileIds,
+        sweep: this.permanentDelete,
       }).then(() => {
-        api.delete({
-            currentDirectory: this.getQueryPath(),
-            username: this.$store.state.user.name,
-            fileIds: fileIds,
-          }).then(() => {
-            // 刷新列表
-            if (this.$route.query.folder) {
-              this.getFileList()
-            }
-          })
+        this.deleteLoading = false
+        this.deleteConfirmVisible = false
+        // 刷新列表
+        if (this.$route.query.folder) {
+          this.getFileList()
+        }
+      }).catch(() => {
+        this.deleteLoading = false
+        this.deleteConfirmVisible = false
       })
     },
     restoreFile() {
@@ -3924,6 +3956,26 @@ export default {
         fileIds.push(this.rowContextData.id)
       }
       return fileIds
+    },
+    getSelectDeleteList() {
+      const fileList = []
+      this.permanentDeleteDisable = false
+      if (this.selectRowData.length > 1 || this.menusIsMultiple) {
+        this.$refs.fileListTable.tableSelectData.forEach(value => {
+          this.checkPermanentDelete(value.id)
+          fileList.push({id: value.id, suffix: value.suffix, name: value.name, contentType: value.contentType, isFolder: value.isFolder, music: value.music, video: value.video})
+        })
+      } else {
+        this.checkPermanentDelete(this.rowContextData.id)
+        fileList.push({id: this.rowContextData.id, suffix: this.rowContextData.suffix, name: this.rowContextData.name, contentType: this.rowContextData.contentType, isFolder: this.rowContextData.isFolder, music: this.rowContextData.music, video: this.rowContextData.video})
+      }
+      return fileList
+    },
+    checkPermanentDelete(fileId) {
+      if (/\//.test(fileId)) {
+        this.permanentDeleteDisable = true
+        this.permanentDelete = true
+      }
     },
     // 移除选中项
     removeSelectItme() {
@@ -4351,6 +4403,35 @@ export default {
 >>> .el-table {
   th.gutter {
     display: table-cell !important;
+  }
+}
+.delete-attention {
+  padding: 10px 10px;
+  border-radius: 4px;
+  .el-checkbox {
+    color: #606266;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+  }
+}
+.mt-5 {
+  margin-top: 5px;
+}
+.delete-file-list {
+  max-height: 50vh;
+  .del-file-item {
+    display: flex;
+    margin: 5px 0;
+    .del-file-name {
+      align-content: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 10px;
+    }
   }
 }
 </style>
