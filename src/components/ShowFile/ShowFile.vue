@@ -1338,7 +1338,6 @@ export default {
       const isMac = navigator.platform.startsWith('Mac')
       const { keyCode, ctrlKey, metaKey } = event
       this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey)
-      console.log(keyCode)
       // shift
       if (event.keyCode === 16 && event.shiftKey) {
         this.selectPin = true
@@ -1943,7 +1942,6 @@ export default {
           if (!_this.grid) {
             dragingDiv.firstChild.style.textAlign = 'center'
             let tds = Array.prototype.slice.call(dragingDiv.childNodes)
-            console.log(tds)
             tds.forEach((node, index) => {
               if (index === 2) {
                 node.style.borderRadius = '0 3px 3px 0'
