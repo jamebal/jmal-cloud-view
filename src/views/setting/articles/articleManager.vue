@@ -300,16 +300,11 @@ export default {
         api.delete({
           currentDirectory: '',
           username: this.$store.state.user.name,
-          fileIds: fileIds
+          fileIds: fileIds,
+          sweep: true
         }).then(() => {
           // 移除列表
           this.getArticleList()
-        }).then(() => {
-          this.$notify({
-            title: '删除成功',
-            type: 'success',
-            duration: 1000
-          })
         })
       })
     },

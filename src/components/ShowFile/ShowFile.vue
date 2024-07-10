@@ -3240,7 +3240,7 @@ export default {
         // 根据权限设置菜单
         this.setMenusByPermission(row)
       } else {
-        if (row.suffix && row.suffix === 'md') {
+        if (row.suffix && row.suffix === 'md' && this.queryFileType !== 'trash') {
           this.menus.splice(2, 0, {
             iconClass: 'menu-edit1',
             label: '编辑',
