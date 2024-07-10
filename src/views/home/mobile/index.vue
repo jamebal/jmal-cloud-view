@@ -670,7 +670,8 @@ export default {
         api.delete({
           currentDirectory: this.rowContextData.path,
           username: this.$store.state.user.name,
-          fileIds: fileIds
+          fileIds: fileIds,
+          sweep: true
         }).then(() => {
           // 刷新列表
           this.getFileList()
