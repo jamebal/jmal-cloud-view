@@ -305,12 +305,6 @@ export default {
         }).then(() => {
           // 移除列表
           this.getArticleList()
-        }).then(() => {
-          this.$notify({
-            title: '删除成功',
-            type: 'success',
-            duration: 1000
-          })
         })
       })
     },
