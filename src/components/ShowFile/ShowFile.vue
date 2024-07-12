@@ -162,13 +162,13 @@
               placeholder="搜索"
               v-model="searchFileName"
               :clearable="true"
-              @keyup.enter.native="searchFile(searchFileName)"
+              @keyup.enter.native="searchFileEnter(searchFileName)"
               @focus="setInputFocus"
-              @input="searchFile(searchFileName)"
+              @input="searchFileEnter(searchFileName)"
               @blur="setInputBlur()"
-              @clear="searchFile(searchFileName)"
+              @clear="searchFileEnter(searchFileName)"
             >
-              <el-button slot="prepend" @click="searchFile(searchFileName)">
+              <el-button slot="prepend" @click="searchFileEnter(searchFileName)">
                 <svg-icon icon-class="search" style="font-size: 22px" />
               </el-button>
             </el-input>
@@ -809,6 +809,8 @@ import FileTree from '@/components/FileTree'
 
 import '@/utils/directives.js'
 
+import _ from "lodash";
+
 import fileConfig from '@/utils/file-config'
 import EditElement from '@/views/markdown/EditElement'
 import IframePreview from '@/components/preview/IframePreview.vue'
@@ -1088,6 +1090,7 @@ export default {
       permanentDeleteDisable: false, // 是否禁用永久删除选项
       selectDeleteFile: [], // 选中的删除文件
       deleteLoading: false, // 删除loading
+      debounceSearch: null,// 搜索防抖
     }
   },
   computed: {
@@ -1155,7 +1158,11 @@ export default {
         : ''
     },
   },
-  created() {},
+  created() {
+    this.debounceSearch = _.debounce((key, onLoad) => {
+      this.searchFile(key, onLoad)
+    }, 200)
+  },
   watch: {
     $route(to) {
       if (to.query.tagId && this.queryCondition.tagId !== this.$route.query.tagId) {
@@ -2695,6 +2702,9 @@ export default {
           }, 0)
         }
       }
+    },
+    searchFileEnter(key, onLoad) {
+      this.debounceSearch(key, onLoad)
     },
     searchFile(key, onLoad) {
       if (key) {
