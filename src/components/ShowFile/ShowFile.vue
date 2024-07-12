@@ -1344,9 +1344,7 @@ export default {
       }
       // space
       if (keyCode === 32) {
-        if (this.inputting || this.editingIndex !== -1) {
-          event.target.select()
-        } else {
+        if (!this.inputting) {
           if (this.selectRowData.length > 0 && !this.drawer) {
             this.drawer = true
             this.drawerShowTime = Date.now()
