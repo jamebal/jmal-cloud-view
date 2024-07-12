@@ -1344,11 +1344,9 @@ export default {
       }
       // space
       if (keyCode === 32) {
-        if (!this.inputting) {
-          if (this.selectRowData.length > 0 && !this.drawer) {
-            this.drawer = true
-            this.drawerShowTime = Date.now()
-          }
+        if (!this.inputting && this.selectRowData.length > 0 && !this.drawer) {
+          this.drawer = true
+          this.drawerShowTime = Date.now()
           event.preventDefault()
           event.stopPropagation()
         }
