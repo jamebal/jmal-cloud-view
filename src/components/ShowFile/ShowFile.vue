@@ -2752,8 +2752,7 @@ export default {
             this.vmode
           }&path=${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`
         )
-        api
-          .searchFile({
+        api.searchFile({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             keyword: key,
@@ -2768,11 +2767,12 @@ export default {
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize,
             showFolderSize: localStorage.getItem('showFolderSize'),
-          })
-          .then(res => {
+          }).then(res => {
             this.loadData(res, onLoad)
             this.listModeSearch = true
             this.listModeSearchOpenDir = false
+          }).catch(() => {
+            this.tableLoading = false
           })
       } else {
         if (this.listModeSearch) {
@@ -2811,7 +2811,9 @@ export default {
           this.loadData(res, onLoad)
           this.listModeSearch = true
           this.listModeSearchOpenDir = fileId
-        })
+        }).catch(() => {
+        this.tableLoading = false
+      })
     },
     openDir(row, onLoad) {
       this.beforeLoadData(onLoad)
@@ -2828,6 +2830,8 @@ export default {
         })
         .then(res => {
           this.loadData(res, onLoad)
+        }).catch(() => {
+          this.tableLoading = false
         })
       // this.path = row.path + row.name
       // this.path = this.path.replace(/\\/g, '/')
@@ -2867,7 +2871,9 @@ export default {
           })
           .then(res => {
             this.loadData(res, onLoad)
-          })
+          }).catch(() => {
+          this.tableLoading = false
+        })
       }
     },
     getQueryPath() {
