@@ -8,7 +8,7 @@ export const suffix = {
     'cmake','db','gradle','bat','conf','dart','plist'
   ],
   compressedFile: [
-    'zip','tar','jar','tar.gz','tgz','tar.bz2'
+    'zip','tar','7z', 'rar', 'jar','tar.gz','tgz','tar.bz2'
   ],
 }
 
@@ -25,6 +25,7 @@ export const lineWrapping = [
 
 export const iconClass = new Map()
 iconClass.set('php','file-php')
+iconClass.set('c','file-c')
 iconClass.set('js','file-js')
 iconClass.set('vue','file-vue')
 iconClass.set('xml','file-xml')
@@ -64,10 +65,12 @@ iconClass.set('pdf','file-pdf')
 iconClass.set('mind','file-mind')
 iconClass.set('zip','zip')
 iconClass.set('rar','zip')
+iconClass.set('7z','zip')
 iconClass.set('iml','file-idea')
 iconClass.set('key','file-key')
 iconClass.set('pem','file-pem')
 iconClass.set('gz','file-gzip')
+iconClass.set('tar.gz','file-gzip')
 iconClass.set('json','file-json')
 iconClass.set('tar','file-tar')
 iconClass.set('sh','file-shell')
@@ -83,5 +86,36 @@ iconClass.set('gradle','file-gradle')
 iconClass.set('bat','file-bat')
 iconClass.set('swift','file-swift')
 iconClass.set('yml','file-yml')
+iconClass.set('yaml','file-yml')
 iconClass.set('plist','file-plist')
 iconClass.set('iso','file-iso')
+iconClass.set('glb','file-glb')
+iconClass.set('gltf','file-glb')
+
+export function findIconClass(file){
+  if(!file){
+    return
+  }
+  if(file.isFolder){
+    return 'folder'
+  }
+  if (file.contentType) {
+    if(file.contentType.indexOf('video') > -1){
+      return 'video'
+    }
+    if(file.contentType.startsWith('image')){
+      return 'image'
+    }
+    if(file.contentType.indexOf('audio') > -1){
+      return 'audio'
+    }
+  }
+  let suffix = file.suffix;
+  if(!suffix && file.name){
+    suffix = file.name.substring(file.name.lastIndexOf('.') + 1)
+  }
+  if(iconClass.has(suffix)){
+    return iconClass.get(suffix)
+  }
+  return 'file'
+}

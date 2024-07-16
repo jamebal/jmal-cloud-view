@@ -17,7 +17,7 @@
     >
       <uploader-unsupport></uploader-unsupport>
 
-      <uploader-drop v-if="dragover && enableDragUplaod" class="uploader-drop">
+      <uploader-drop v-if="dragover && enableDragUpload" class="uploader-drop">
         <span>上传文件到当前目录下</span>
       </uploader-drop>
 
@@ -112,7 +112,6 @@
 
 <script>
 
-// import { ACCEPT_CONFIG } from '@/assets/js/config'
 import store from '@/store'
 import $ from 'jquery'
 import SparkMD5 from 'spark-md5'
@@ -129,11 +128,11 @@ export default {
       username: this.$store.state.user.name,
       options: {
         target: api.simpleUploadURL,
-        chunkSize: 5 * 1024 * 1024,
+        chunkSize: localStorage.getItem('uploader_chunk_size') || 1024 * 1024,
         // speedSmoothingFactor: 0.1,
         // progressCallbacksInterval: 500,
         maxChunkRetries: 3, // 最大重试次数
-        simultaneousUploads: 5, // 并发上传数
+        simultaneousUploads: 3, // 并发上传数
         testChunks: true, // 是否开启服务器分片校验
         // 服务器分片校验函数，秒传及断点续传基础
         checkChunkUploadedByResponse: function (chunk, message) {
@@ -190,7 +189,7 @@ export default {
       fileListScrollTop: 0,
       dragoverLoop: null,
       successMsg: null,
-      enableDragUplaod: false,// 是否启用拖拽上传
+      enableDragUpload: false,// 是否启用拖拽上传
       uploader: null,
     }
   },
@@ -200,12 +199,12 @@ export default {
   watch: {
     $route(route) {
       // 只有首页才启用拖拽上传
-      this.enableDragUplaod = route.path === '/'
+      this.enableDragUpload = route.path === '/'
     },
     message(msg) {
       switch (msg.event) {
-        case 'storageTypeChange':
-          this.onStorageTypeChange(msg.data)
+        case 'uploaderChunkSize':
+          this.onStorageTypeChange(msg.data.body)
           break
         case 'fileListScrollTop':
           this.fileListScrollTop = msg.data
@@ -234,12 +233,12 @@ export default {
     }
   },
   mounted() {
-    this.enableDragUplaod = this.$route.path === '/'
+    this.enableDragUpload = this.$route.path === '/'
     let that = this
     let dropbox = document.body
 
     document.body.ondragstart = function (e) {
-      if (that.enableDragUplaod) {
+      if (that.enableDragUpload) {
         if (e.target.slot === 'jmal') {
           that.isDragStart = true
         }
@@ -281,17 +280,10 @@ export default {
   destroyed() {
   },
   methods: {
-    onStorageTypeChange(storageType) {
-      if (storageType === 'File') {
-        if (this.options.chunkSize === 1024 * 1024) {
-          return
-        }
-        this.updateChunkSize(1024 * 1024)
-      } else {
-        if (this.options.chunkSize === 5 * 1024 * 1024) {
-          return
-        }
-        this.updateChunkSize(5 * 1024 * 1024)
+    onStorageTypeChange(chunkSize) {
+      localStorage.setItem('uploader_chunk_size', chunkSize)
+      if (this.options.chunkSize !== chunkSize && !this.panelShow) {
+        this.updateChunkSize(chunkSize)
       }
     },
     initUploader() {
@@ -351,11 +343,22 @@ export default {
         }).then(() => {
           this.doUploadBefore(files)
         }).catch(() => {
-          this.uploader.cancel()
+          this.uploaderCancel()
         })
       } else {
         this.doUploadBefore(files)
       }
+    },
+    uploaderCancel() {
+      this.uploader.cancel()
+      this.displayPanel(false)
+      const chunkSize = localStorage.getItem('uploader_chunk_size');
+      if (chunkSize !== this.uploader.opts.chunkSize) {
+        this.updateChunkSize(Number.parseInt(chunkSize))
+      }
+    },
+    displayPanel(display) {
+      this.panelShow = display
     },
     doUploadBefore(files) {
       this.fileListLength = this.uploader.fileList.length
@@ -374,15 +377,12 @@ export default {
             currentDirectory: encodeIfNeeded(this.params.currentDirectory),
             username: this.params.username,
             userId: this.params.userId
-          }).then(() => {
-            this.getFileList()
-          }).catch(e => {
           })
         })
       }
       if (window.pc) {
         this.pc = true
-        this.panelShow = true
+        this.displayPanel(true)
       } else {
         this.pc = false
         this.shrink()
@@ -400,13 +400,19 @@ export default {
         this.uploader.resume()
       })
     },
-    onFileProgress(rootFile, file, chunk) {
-      this.netSpeed = formatNetSpeed(file.currentSpeed)
-      this.process = Math.trunc(window.uploader.progress() * 100)
+    setPageTitle() {
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
         document.title = `${this.$route.meta.title}`
       } else {
         document.title = `${this.process}% | ${this.$route.meta.title}`
+      }
+    },
+    onFileProgress(rootFile, file, chunk) {
+      this.netSpeed = formatNetSpeed(file.currentSpeed, false)
+      this.process = Math.trunc(window.uploader.progress() * 100)
+      this.setPageTitle()
+      if (rootFile.isFolder && this.process < 100) {
+        this.statusSet(rootFile.id, 'progress', formatNetSpeed(file.currentSpeed, true))
       }
       if (this.process > 0 && this.process < 100 && window.uploader.fileList.length > 0) {
         window.onbeforeunload = function () {
@@ -425,7 +431,6 @@ export default {
           message: res.message,
           type: 'error'
         })
-        this.uploader.cancel()
         this.close()
         return;
       }
@@ -489,8 +494,7 @@ export default {
 
       }
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
-        this.uploader.cancel()
-        this.panelShow = false
+        this.uploaderCancel()
       }
     },
     onFileError(rootFile, file, response) {
@@ -640,16 +644,14 @@ export default {
     },
     close() {
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
-        this.uploader.cancel()
-        this.panelShow = false
+        this.uploaderCancel()
       } else {
         this.$confirm('还有文件正在上传, 确定要关闭吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.uploader.cancel()
-          this.panelShow = false
+          this.uploaderCancel()
         })
       }
     },
@@ -659,8 +661,12 @@ export default {
      * @param id
      * @param status
      */
-    statusSet(id, status) {
+    statusSet(id, status, progressText) {
       const statusMap = {
+        progress: {
+          text: progressText,
+          bgc: '#ffffff00'
+        },
         md5: {
           text: '校验MD5',
           bgc: '#fff'
@@ -681,6 +687,11 @@ export default {
           text: '上传成功',
           bgc: '#e2eeff'
         }
+      }
+
+      if (status === 'progress') {
+        $('.uploader-file-status').find('span:eq(1) em').text(progressText)
+        return
       }
 
       this.$nextTick(() => {
@@ -812,7 +823,7 @@ export default {
       padding: 0;
       margin: 0;
 
-      > li {
+      >>> li {
         background-color: #fff;
       }
     }
@@ -832,7 +843,7 @@ export default {
     font-size: 16px;
   }
 
-  > .uploader-file-icon {
+  >>> .uploader-file-icon {
     &:before {
       content: "" !important;
     }
@@ -860,21 +871,21 @@ export default {
     }
   }
 
-  > .uploader-file-actions > span {
+  >>> .uploader-file-actions > span {
     margin-right: 6px;
   }
 }
 
-> .uploader-file-status {
+>>> .uploader-file-status {
   width: 32%;
   text-indent: 20px;
 }
 
-> .uploader-file-meta {
+>>> .uploader-file-meta {
   width: 0;
 }
 
-> .uploader-file-icon {
+>>> .uploader-file-icon {
   width: 32px;
   height: 32px;
   display: inline-block;
@@ -883,7 +894,7 @@ export default {
   margin-right: 8px;
 }
 
-> .uploader-file-actions > span {
+>>> .uploader-file-actions > span {
   margin-right: 6px;
   margin-left: 8px;
 }

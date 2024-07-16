@@ -33,7 +33,8 @@ const getDefaultState = () => {
     menuList: [],
     netdiskName: '',
     netdiskLogo: '',
-    newVersion: ''
+    newVersion: '',
+    iframePreviewConfig: {}
   }
 }
 
@@ -75,6 +76,9 @@ const mutations = {
   },
   SET_NEW_VERSION:(state,newVersion) => {
     state.newVersion = newVersion;
+  },
+  SET_IFRAME_PREVIEW:(state, iframePreviewConfig) => {
+    state.iframePreviewConfig = iframePreviewConfig;
   }
 }
 
@@ -147,7 +151,7 @@ const actions = {
           // reject('Verification failed, please Login again.')
         }
 
-        const { id, username, showName, avatar, netdiskName, netdiskLogo, newVersion} = data
+        const { id, username, showName, avatar, netdiskName, netdiskLogo, newVersion, iframe} = data
 
         commit('SET_NAME', username)
         commit('SET_SHOW_NAME', showName)
@@ -156,6 +160,11 @@ const actions = {
         commit('SET_USER_INFO', data)
         commit('SET_NETDISK_NAME', netdiskName)
         commit('SET_NETDISK_LOGO', netdiskLogo)
+        if (iframe) {
+          commit('SET_IFRAME_PREVIEW', JSON.parse(iframe))
+        } else {
+          commit('SET_IFRAME_PREVIEW', {})
+        }
         if (newVersion) {
           commit('SET_NEW_VERSION', newVersion)
         } else {

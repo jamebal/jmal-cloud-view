@@ -223,7 +223,7 @@
         </van-grid>
       </van-checkbox-group>
     </div>
-    <div v-if="linkFailed && !showShareCode" class="share-header">
+    <div v-if="linkFailed && !showShareCode" class="share-header-prompt">
       <p v-if="prompt !== ''">温馨提示：</p>
       <p>{{ prompt }}</p>
     </div>
@@ -255,7 +255,7 @@
     <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow"
                   :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
-    <office-preview :file="officePreviewRow" :shareId="shareId" :status.sync="officePreviewVisible"></office-preview>
+    <iframe-preview :file="officePreviewRow" :shareId="shareId" :sharer="sharerUsername" :status.sync="officePreviewVisible"></iframe-preview>
     <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center"><i
       class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
     </el-divider>
@@ -290,7 +290,7 @@ import VideoPreview from "@/components/preview/VideoPreview";
 import AudioPreview from "@/components/preview/AudioPreview";
 import fileConfig from "@/utils/file-config";
 import Clipboard from "clipboard";
-import OfficePreview from "@/components/preview/OfficePreview";
+import IframePreview from "@/components/preview/IframePreview.vue";
 import Logo from "@/components/Logo";
 import store from "@/store";
 import FileTree from "@/components/FileTree";
@@ -299,7 +299,7 @@ export default {
   components: {
     FileTree,
     Logo,
-    OfficePreview, IconFile, BreadcrumbFilePath, AlLoading,
+    IframePreview, IconFile, BreadcrumbFilePath, AlLoading,
     AudioPreview, VideoPreview, ImageViewer, SimTextPreview
   },
   data() {
@@ -401,7 +401,8 @@ export default {
       shareLink: '',
       shareFileName: '',
       generateShareLinkLoading: true,
-      shareId: this.$route.query.s,
+      shareId: '',
+      shortId: this.$route.params.id,
       currentDirName: '',
       linkFailed: true,
       textPreviewVisible: false,
@@ -417,6 +418,7 @@ export default {
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
       showSizeItem: this.$pc,// 列表模式下是否显示文件大小
       sharer: undefined,//分享者信息,
+      sharerUsername: undefined,
       loginTitle: '',
       sharerAvatarUrl: '',
       netdiskName: 'JmalCloud',
@@ -584,7 +586,7 @@ export default {
       if (index === 0) {
         this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
         this.getFileList(null, true);
-        this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
+        this.pushRouter()
       }
       if (item && item.fileId) {
         this.accessShareOpenDir(item.fileId)
@@ -598,8 +600,7 @@ export default {
       if (this.grid) {
         this.vmode = 'grid'
       }
-      let f = ''
-      this.$router.push(`/s?s=${this.shareId}&vmode=${this.vmode}`)
+      this.pushRouter()
     },
     accessShareOpenDir(fileId) {
       this.tableLoading = true
@@ -607,7 +608,8 @@ export default {
         share: this.shareId,
         fileId: fileId,
         pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        showFolderSize: true
       }).then(res => {
         this.isLoading = false
         this.fileList = res.data
@@ -626,9 +628,10 @@ export default {
     getFileList(pagination, overload) {
       this.tableLoading = true
       api.accessShare({
-        share: this.shareId,
+        share: this.shortId,
         pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        showFolderSize: true
       }).then(res => {
         this.isLoading = false
         if (Object.getPrototypeOf(res.data) === String.prototype) {
@@ -687,14 +690,16 @@ export default {
       })
     },
     getSharer() {
-      api.getSharer({shareId: this.shareId}).then(res => {
+      api.getSharer({shareId: this.shortId}).then(res => {
         this.sharer = res.data
         this.setLoginTitle()
         if (res.data) {
+          this.shareId = res.data.shareId
           this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
           if (this.sharer.netdiskName) {
             this.netdiskName = this.sharer.netdiskName
           }
+          this.sharerUsername = this.sharer.username
           if (this.sharer.netdiskLogo) {
             this.netdiskLogo = this.sharer.netdiskLogo
           }
@@ -1044,6 +1049,9 @@ export default {
         clipboard.destroy()
       })
     },
+    pushRouter() {
+      this.$router.push(`/s/${this.shortId}/?vmode=${this.vmode}`)
+    },
     // 点击文件或文件夹
     fileClick(row) {
       window.shareId = this.shareId
@@ -1055,7 +1063,7 @@ export default {
         item['index'] = this.pathList.length
         this.pathList.push(item)
         this.pagination.pageIndex = 1
-        this.$router.push(`?s=${this.shareId}&vmode=${this.vmode}`)
+        this.pushRouter()
         this.accessShareOpenDir(row.id)
       } else {
         if (row.contentType.startsWith('image')) {
@@ -1129,6 +1137,13 @@ export default {
 
 .share-h {
   padding: 0 15px;
+}
+
+.share-header-prompt {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
 }
 
 .share-header {

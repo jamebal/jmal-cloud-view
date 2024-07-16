@@ -123,7 +123,7 @@ export default {
       isLoginType: this.type === 'LOGIN',
       // 查询条件
       queryCondition: {
-        excludeUsername: 'other',
+        excludeUsername: undefined,
         username: undefined,
         ip: undefined,
         type: this.type,
@@ -191,12 +191,7 @@ export default {
       }
       this.queryLogList()
     },
-    queryLogList() {
-      if (this.queryCondition.username) {
-        this.queryCondition.excludeUsername = null;
-      } else {
-        this.queryCondition.excludeUsername = 'other';
-      }
+    queryLogList(val) {
       this.$refs.tableList.initPageIndex()
       this.getLogList()
     },

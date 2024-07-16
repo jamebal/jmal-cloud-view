@@ -15,7 +15,7 @@ change-template: '- $TITLE (#$NUMBER)'
 no-changes-template: '- No changes'
 template: |
 
-  [docker-docker.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.example2.yml)
+  [docker-docker.yml](https://github.com/jamebal/jmal-cloud-server/blob/master/docker-compose.base.yml)
 
   #### 更新前备份数据库
 
@@ -25,6 +25,11 @@ template: |
 
   ```shell
   docker-compose pull && docker-compose up -d
+  ```
+
+  #### 清理旧镜像
+  ```shell
+  docker images --filter=reference='jmal/jmalcloud*' --filter "dangling=true" -q | xargs -r docker rmi
   ```
 
   ## Changes in this release:

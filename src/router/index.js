@@ -47,12 +47,12 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/s',
+    path: '/s/:id',
     component: Layout,
     children: [
       {
         path: '',
-        name: 's',
+        name: 'share',
         component: () => import('@/views/public/share/shareList'),
       }
     ]
@@ -75,15 +75,15 @@ export const dynamicRouters = [
     }]
   },
   {
-    path: '/s_m',
+    path: '/upload/index_m',
     component: Layout,
-    children: [
-      {
-        path: '',
-        name: 's_m',
-        component: () => import('@/views/public/share/shareList'),
-      }
-    ]
+    redirect: '/upload/index_m',
+    children: [{
+      path: '',
+      name: 'Home_m',
+      component: () => import('@/views/upload/mobile/index'),
+      meta: { title: '文件传输' }
+    }]
   },
   {
     path: '/tag',

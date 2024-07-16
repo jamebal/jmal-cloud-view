@@ -221,10 +221,6 @@ export default {
     tagClick(tag) {
       this.$router.push(`/tag?tagId=${tag.id}`);
     },
-    mouseleave() {
-    },
-    onmousemove() {
-    },
     progressFormat() {
       if (this.takeUpSpace === 0) {
         this.takeUpSpace = this.userInfo.takeUpSpace

@@ -28,23 +28,32 @@
                 <el-col :span="12" v-if="shareOptionConfig.shared" class="shared-expires-text">到期时间</el-col>
                 <el-col :span="1" v-if="!shareOptionConfig.shared">&nbsp</el-col>
                 <el-col v-if="shareOption.expiresDateOption === 2" :span="12" class="share-expires-data">
-                  <el-form-item prop="expiresDate">
-                    <el-date-picker
-                      ref="expiresDatePicker"
-                      size="small"
-                      :clearable="false"
-                      v-model="shareOption.expiresDate"
-                      type="date"
-                      :placeholder="!shareOption.expiresDate ? '永久有效' : '选择到期时间'"
-                      align="right"
-                      format="yyyy-MM-dd HH:mm"
-                      value-format="timestamp"
-                      @change="pickerChange"
-                      :picker-options="pickerOptions">
-                    </el-date-picker>
-                  </el-form-item>
+                  <el-date-picker
+                    ref="expiresDatePicker"
+                    size="small"
+                    :clearable="false"
+                    v-model="shareOption.expiresDate"
+                    type="date"
+                    :placeholder="!shareOption.expiresDate ? '永久有效' : '选择到期时间'"
+                    align="right"
+                    format="yyyy-MM-dd HH:mm"
+                    value-format="timestamp"
+                    @change="pickerChange"
+                    :picker-options="pickerOptions">
+                  </el-date-picker>
                 </el-col>
               </el-form-item>
+
+              <el-form-item v-if="shareOptionConfig.shared" label="">
+                <el-col :span="12" class="shared-expires-text">分享形式</el-col>
+                <el-col :span="12">
+                  <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%" @change="shareFormChange">
+                    <el-option label="公开链接" :value="false"></el-option>
+                    <el-option label="私密链接" :value="true"></el-option>
+                  </el-select>
+                </el-col>
+              </el-form-item>
+
               <el-form-item v-if="!shareOptionConfig.shared" class="share-option-form" label="分享形式" width="100">
                 <el-col :span="20">
                   <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%">
@@ -77,7 +86,7 @@
                   <el-collapse-item title="操作权限" name="1">
                     <el-checkbox-group v-model="shareOption.operationPermissionList" @change="permissionActionChange">
                       <el-checkbox label="UPLOAD">上传</el-checkbox>
-                      <el-checkbox label="PUT">修改</el-checkbox>
+                      <el-checkbox label="PUT">编辑</el-checkbox>
                       <el-checkbox label="DELETE">删除</el-checkbox>
                     </el-checkbox-group>
                   </el-collapse-item>
@@ -89,6 +98,7 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
+        <el-button size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare">取消分享</el-button>
         <el-button size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare"
                    v-loading="generateShareLinkLoading">创建分享
         </el-button>
@@ -202,7 +212,8 @@ export default {
         shared: false,
         linkLabel: "选择有效期",
       },
-      filename: '',// 文件名
+      filename: '',
+      shareId: ''
     }
   },
   computed: {
@@ -221,23 +232,17 @@ export default {
           }).then(res => {
             this.filename = res.data.path + this.file.name
           })
-
-          this.shareOptionConfig.shared = true
-          this.shareOptionConfig.linkLabel = '分享链接'
-          this.setShareLink(this.getShareLink(this.file.shareId))
-          this.shareOption.isPrivacy = this.file.isPrivacy
-          this.shareOption.operationPermissionList = this.file.operationPermissionList || []
-          if (this.file.expireDate) {
-            this.shareOption.expiresDate = moment(this.file.expireDate).format('x')
-          }
-          this.shareOption.expiresDateOption = 2
-          this.extractionCode = this.file.extractionCode
+          this.showSharedPage(this.file)
         } else {
-          this.shareOptionConfig.shared = false
-          this.shareOptionConfig.linkLabel = '选择有效期'
-          this.shareOption.isPrivacy = false
-          this.shareOption.expiresDate = null
-          this.shareOption.expiresDateOption = 1
+          if (this.file.shareBase) {
+            api.getShareByFileId({fileId: this.file.fileId}).then(res => {
+              const shareObject = res.data
+              shareObject.shareId = res.data.id
+              this.showSharedPage(shareObject)
+            })
+          } else {
+            this.showNotSharedPage()
+          }
         }
       }
     }
@@ -256,6 +261,26 @@ export default {
           console.error(error)
         })
     },
+    showSharedPage(shareObject) {
+      this.shareOptionConfig.shared = true
+      this.shareOptionConfig.linkLabel = '分享链接'
+      this.setShareLink(this.getShareLink(shareObject.shareId, shareObject.shortId))
+      this.shareOption.isPrivacy = shareObject.isPrivacy
+      this.shareOption.operationPermissionList = shareObject.operationPermissionList || []
+      if (shareObject.expireDate) {
+        this.shareOption.expiresDate = moment(shareObject.expireDate).format('x')
+      }
+      this.shareOption.expiresDateOption = 2
+      this.extractionCode = shareObject.extractionCode
+      this.shareId = shareObject.shareId
+    },
+    showNotSharedPage() {
+      this.shareOptionConfig.shared = false
+      this.shareOptionConfig.linkLabel = '选择有效期'
+      this.shareOption.isPrivacy = false
+      this.shareOption.expiresDate = null
+      this.shareOption.expiresDateOption = 1
+    },
     shareDialogClose() {
       this.shareOptionConfig.shared = false
       this.$emit('update:status', this.shareDialogVisible)
@@ -272,8 +297,33 @@ export default {
         this.shareOption.expiresDate = null
       }
       if (this.shareOptionConfig.shared) {
-        this.createShare(true)
+        this.createShare('pickerChange')
       }
+    },
+    // 切换分享形式
+    shareFormChange() {
+      if (!this.shareOption.isPrivacy) {
+        this.shareOption.operationPermissionList = []
+      }
+      this.createShare('shareFormChange')
+    },
+    // 取消分享
+    cancelShare() {
+      let title = '确定要取消分享 "' + this.filename + '" 吗?'
+      this.$confirm(title, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        api.cancelShareLink({
+          userId: this.$store.state.user.userId,
+          shareId: [this.shareId]
+        }).then(() => {
+          this.$emit('onCancelShare')
+          this.shareDialogVisible = false
+          this.shareDialogClose()
+        })
+      })
     },
     submitShare() {
       this.$refs.form.validate((valid) => {
@@ -289,8 +339,11 @@ export default {
     timeFormat(time) {
       return moment(time).format("yyyy-MM-DD HH:mm")
     },
-    getShareLink(shareId) {
-      return window.location.origin + '/s?s=' + shareId
+    getShareLink(shareId, shortId) {
+      if (!shortId) {
+        shortId = shareId
+      }
+      return `${window.location.origin}/s/${shortId}`
     },
     createShare(update) {
       this.generateShareLinkLoading = true
@@ -303,6 +356,9 @@ export default {
           break
         case 2:
           if (this.shareOption.expiresDate) {
+            if (typeof this.shareOption.expiresDate === 'string') {
+              this.shareOption.expiresDate = Number(this.shareOption.expiresDate)
+            }
             expireDate = this.timeFormat(this.shareOption.expiresDate)
           }
       }
@@ -315,8 +371,9 @@ export default {
         operationPermissionList: this.shareOption.operationPermissionList
       }).then(res => {
         if (res.data) {
-          let {shareId, extractionCode, operationPermissionList} = res.data
-          this.setShareLink(this.getShareLink(shareId))
+          let {shareId, shortId, extractionCode, operationPermissionList} = res.data
+          this.setShareLink(this.getShareLink(shareId, shortId))
+          this.shareId = shareId
           this.generateShareLinkLoading = false
           this.shareOptionConfig.shared = true
           this.shareOption.expiresDateOption = 2
@@ -324,22 +381,37 @@ export default {
           this.extractionCode = extractionCode
           this.shareOption.operationPermissionList = operationPermissionList || []
           this.$emit('onSuccess', shareId)
-          if (update) {
-            if (!expireDate) {
-              expireDate = '永久有效'
-            }
-            this.$emit("onUpdateExpireData", shareId, expireDate);
-            this.$message({
-              duration: 3000,
-              dangerouslyUseHTMLString: true,
-              iconClass: 'el-icon-success',
-              message: '<strong>&nbsp;&nbsp;有效期已设置为: <span>' + expireDate + '</span> </strong>'
-            });
+          if (update === 'pickerChange') {
+            this.afterPickerChange(shareId, expireDate)
+          }
+          if (update === 'shareFormChange') {
+            this.afterShareFormChange(shareId)
           }
         }
       }).catch(() => {
         this.generateShareLinkLoading = false
       })
+    },
+    afterPickerChange (shareId, expireDate) {
+      if (!expireDate) {
+        expireDate = '永久有效'
+      }
+      this.$emit("onUpdateExpireData", shareId, expireDate);
+      this.$message({
+        duration: 3000,
+        dangerouslyUseHTMLString: true,
+        iconClass: 'el-icon-success',
+        message: '<strong>&nbsp;&nbsp;有效期已设置为: <span>' + expireDate + '</span> </strong>'
+      });
+    },
+    afterShareFormChange(shareId) {
+      this.$emit("onUpdateShareForm", shareId, this.shareOption.isPrivacy);
+      this.$message({
+        duration: 3000,
+        dangerouslyUseHTMLString: true,
+        iconClass: 'el-icon-success',
+        message: '<strong>&nbsp;&nbsp;链接已设置为: <span>' + (this.shareOption.isPrivacy ? '私密链接' : '公开链接') + '</span> </strong>'
+      });
     },
     // 复制分享链接
     copyShareLink(msg) {
@@ -370,7 +442,7 @@ export default {
 
 <style lang="scss" scoped>
 
-> > > .el-dialog {
+>>> .el-dialog {
   max-width: 460px;
 
   .el-dialog__title {
@@ -395,7 +467,7 @@ export default {
     display: none;
   }
 
-  .share-icon-font > > > .svg-icon {
+  .share-icon-font >>> .svg-icon {
     font-size: 8rem;
   }
 }
@@ -403,26 +475,27 @@ export default {
 .share-filename {
   margin: 25px 0 50px 0;
   text-align: center;
+  word-break: break-word;
 }
 
 .share-option {
 
-  > > > .el-form-item--mini.el-form-item {
+  >>> .el-form-item--mini.el-form-item {
     margin-bottom: 10px;
   }
 
   .share-expires-data {
-    > > > .el-input__inner {
+    >>> .el-input__inner {
       cursor: pointer;
       padding-right: 0;
     }
 
-    > > > .el-date-editor.el-input {
+    >>> .el-date-editor.el-input {
       width: 100%;
     }
   }
 
-  > > > .el-form-item__label {
+  >>> .el-form-item__label {
     text-align: left;
     line-height: 32px;
   }
@@ -434,21 +507,20 @@ export default {
   }
 }
 
-> > > .dialog-footer {
+>>> .dialog-footer {
   .el-loading-spinner .circular {
     width: 25px !important;
   }
 }
 
 .share-link {
-  margin-top: -10px;
   margin-bottom: 25px;
 
   .share-link-code {
     width: 130px;
     margin-top: 10px;
 
-    > > > .el-input-group__prepend {
+    >>> .el-input-group__prepend {
       padding: 0 10px;
       font-weight: 500;
     }
@@ -462,7 +534,7 @@ export default {
     font-size: 1.5rem;
   }
 
-  > > > .el-input__inner {
+  >>> .el-input__inner {
     background-color: #84858d14;
     text-align: center;
     padding: 0 10px;

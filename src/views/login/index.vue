@@ -209,9 +209,11 @@ export default {
             let data = new FormData()
             data.append('username',this.loginForm.username)
             data.append('password',this.loginForm.password)
+            this.loading = true
             initialization(data).then(()=>{
                 this.initialize = false
                 this.$message.success('创建成功')
+                this.loading = false
             })
           }else{
             // 登录
@@ -330,7 +332,7 @@ $light_gray:#eee;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: calc(100vh - 6px);
   }
 
   .box-card {

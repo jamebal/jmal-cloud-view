@@ -1,0 +1,107 @@
+<template>
+  <div class="container">
+    <el-form :rules="rules" ref="previewConfigForm" :model="configFormData" label-width="120px" size="small"
+             style="width: 860px" autocomplete="off">
+      <el-form-item label="iframe 预览" prop="iframe">
+        <span class="form-instruction"><a href="https://alist.nn.ci/zh/config/preview.html#iframe-%E9%A2%84%E8%A7%88" target="_blank"><svg-icon icon-class="wailian"/>参考Alist的iframe预览 </a> </span>
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 2}"
+          :placeholder="defaultIframeConfig"
+          v-model="configFormData.iframe">
+        </el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" v-loading="saveConfigLoading" @click="submitForm">保存配置</el-button>
+        <el-button type="warning" @click="resetConfig">重置</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<script>
+
+import settingApi from '@/api/setting-api'
+
+export default {
+  name: 'PreviewConfig',
+  props: {
+    data: {
+      type: Array,
+      default: [],
+    },
+  },
+  computed: {},
+  data() {
+    const validateIframeFormat = async (rule, value, callback) => {
+      if (!value) {
+        callback()
+      } else {
+        try {
+          this.configFormData.iframe = JSON.stringify(JSON.parse(value), null, 4)
+        } catch (e) {
+          callback(new Error('json格式错误'))
+        }
+        callback()
+      }
+    }
+    return {
+      saveConfigLoading: false,
+      defaultIframeConfig: '{\n' +
+        '    "pdf": {\n' +
+        '        "PDF.js": "/pdf.js/web/viewer.html?file=$e_url"\n' +
+        '    },\n' +
+        '    "epub": {\n' +
+        '        "epub.js": "/resource/epubjs/viewer.html?url=$e_url"\n' +
+        '    }\n' +
+        '}',
+      configFormData: {
+        iframe: '',
+      },
+      rules: {
+        iframe: [
+          { required: false, validator: validateIframeFormat, trigger: 'submit'}
+        ],
+      }
+    }
+  },
+  mounted() {
+    this.getPreviewConfig()
+  },
+  methods: {
+    getPreviewConfig() {
+      settingApi.getPreviewConfig().then(res => {
+        this.configFormData = res.data
+      })
+    },
+    submitForm() {
+      this.$refs.previewConfigForm.validate((valid) => {
+        if (valid) {
+          this.saveConfig()
+        } else {
+          return false
+        }
+      });
+    },
+    resetConfig() {
+      this.configFormData.iframe = this.defaultIframeConfig
+    },
+    saveConfig() {
+      this.saveConfigLoading = true
+      settingApi.updatePreviewConfig(this.configFormData).then(() => {
+        this.saveConfigLoading = false
+        this.$message.success('保存成功')
+        this.$store.dispatch('user/getInfo')
+      }).catch(() => {
+        this.saveConfigLoading = false
+      })
+    },
+  },
+}
+</script>
+
+<style lang="scss" scoped>
+.container {
+  padding: 0 !important;
+}
+</style>

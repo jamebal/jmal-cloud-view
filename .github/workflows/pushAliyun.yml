@@ -1,0 +1,87 @@
+name: Build and Push Docker Image to Aliyun
+
+on:
+  workflow_dispatch:
+  release:
+    types: [ published ]
+    tags: [ v* ]
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - amd64
+          - arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 16.20.2
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16.20.2
+
+      - name: Install dependencies
+        run: npm install && npm install --save core-js@2
+
+      - name: Build
+        run: npm run build:prod
+
+      - name: Extract project version from package.json
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Aliyun Container Registry guangzhou
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-guangzhou.aliyuncs.com
+          username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+          password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
+
+      - name: Log in to Aliyun Container Registry beijing
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-beijing.aliyuncs.com
+          username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+          password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
+
+      - name: Set tag for amd64
+        if: matrix.arch == 'amd64'
+        run: |
+          echo "TAG_LATEST_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest" >> $GITHUB_ENV
+          echo "TAG_VERSION_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}" >> $GITHUB_ENV
+          echo "TAG_LATEST_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest" >> $GITHUB_ENV
+          echo "TAG_VERSION_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}" >> $GITHUB_ENV
+
+      - name: Set tag for non-amd64
+        if: matrix.arch != 'amd64'
+        run: |
+          echo "TAG_LATEST_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_VERSION_0=registry.cn-guangzhou.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_LATEST_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:latest-${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "TAG_VERSION_1=registry.cn-beijing.aliyuncs.com/jmalcloud/jmalcloud-nginx:${{ env.PROJECT_VERSION }}-${{ matrix.arch }}" >> $GITHUB_ENV
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/${{ matrix.arch }}
+          push: true
+          tags: |
+            ${{ env.TAG_LATEST_0 }}
+            ${{ env.TAG_VERSION_0 }}
+            ${{ env.TAG_LATEST_1 }}
+            ${{ env.TAG_VERSION_1 }}
+          build-args: |
+            VERSION=${{ env.PROJECT_VERSION }}

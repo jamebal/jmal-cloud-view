@@ -21,7 +21,7 @@ import ResizeMixin from './mixin/ResizeHandler'
 import { getToken } from '@/utils/auth'
 import AudioPreview from "@/components/preview/AudioPreview";
 import globalUploader from '@/components/SimpleUploader/globalUploader.vue'
-import { connectToSSE } from '@/sse/SSEClient'
+import { initiateSSE } from '@/sse/SSEClient'
 
 export default {
   name: 'Layout',
@@ -62,7 +62,7 @@ export default {
     if(getToken()){
       this.isShow = window.pc;
       // 与服务器建立sse连接
-      connectToSSE(this.$store.state.user.name)
+      initiateSSE(this.$store.state.user.name)
       if(this.$route.path.startsWith('/setting')){
         this.isShow = true
       }

@@ -16,11 +16,11 @@ export default {
     })
   },
   // 检查文件是否存在
-  checkExist: function (params) {
+  checkExist: function (data) {
     return request({
       url: "checkExist",
       method: "post",
-      params
+      data
     })
   },
   // 上传文件夹
@@ -98,6 +98,35 @@ export default {
       paramsSerializer: function(params) {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
+    })
+  },
+  // 返回原处
+  restore: function(params) {
+    return request({
+      url: 'restore',
+      method: 'post',
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
+  // 彻底删除
+  sweep: function(params) {
+    return request({
+      url: 'sweep',
+      method: 'delete',
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
+  // 清空回收站
+  clearTrash: function() {
+    return request({
+      url: 'clear-trash',
+      method: 'delete'
     })
   },
   // 重名名
@@ -189,6 +218,14 @@ export default {
       data: data
     })
   },
+  // 生成shareToken
+  generateShareToken: function(params) {
+    return request({
+      url: '/share/generate/share-token',
+      method: 'get',
+      params
+    })
+  },
   // 取消分享
   cancelShareLink: function(params) {
     return request({
@@ -241,9 +278,9 @@ export default {
     })
   },
   // 获取分享信息
-  getShare: function(params) {
+  getShareByFileId: function(params) {
     return request({
-      url: '/get/share',
+      url: '/get/share/by/fileId',
       method: 'get',
       params
     })
@@ -338,5 +375,22 @@ export default {
       method: 'get',
       params
     })
-  }
+  },
+  // 获取office jwt
+  getOfficeJwt: function(data) {
+    return request({
+      url: '/office/signature',
+      method: 'post',
+      data
+    })
+  },
+  // 获取office jwt
+  getPublicOfficeJwt: function(params, data) {
+    return request({
+      url: '/public/office/signature',
+      method: 'post',
+      params,
+      data
+    })
+  },
 }

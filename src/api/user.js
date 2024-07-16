@@ -62,14 +62,6 @@ export function getUserInfo(params) {
   })
 }
 
-export function getUsername(params) {
-  return request({
-    url: 'user/username',
-    method: 'get',
-    params
-  })
-}
-
 export function userList(params) {
   return request({
     url: 'user/userList',

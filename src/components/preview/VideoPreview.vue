@@ -16,6 +16,7 @@
 <script>
 import fileConfig from '@/utils/file-config'
 import Artplayer from "@/components/preview/Artplayer.vue";
+import artplayerPluginVttThumbnail from './artplayer-plugin-vtt-thumbnail';
 import Hls from "hls.js";
 import FlvJs from "flv.js";
 
@@ -45,6 +46,7 @@ export default {
     return {
       pc: this.$pc,
       art: null,
+      switchQuality: false,
       option: {
         url: '',
         title: '', // 视频标题，目前会出现在 视频截图 和 迷你模式 下
@@ -78,7 +80,7 @@ export default {
             style: {
               marginRight: this.$pc ? '20px' : '0px',
             },
-            html: `<a href="nplayer-videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/nplayer.webp")}"></a>`,
+            html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/nplayer.webp")}"></a>`,
             index: 2,
           },
           {
@@ -88,7 +90,7 @@ export default {
             style: {
               marginRight: this.$pc ? '20px' : '0px',
             },
-            html: `<a href="infuse://x-callback-url/play?url=videLink"><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/infuse.webp")}"></a>`,
+            html: `<a><img style="width: 1.9rem;height: 1.9rem;line-height: 1.9rem" src="${require("@/assets/img/infuse.webp")}"></a>`,
             index: 3,
           },
           {
@@ -101,7 +103,7 @@ export default {
             },
             click: () => this.copyToClipboard(this.videoLink),
           }
-        ],
+        ]
       },
       videoLink: '',
       style: {
@@ -124,6 +126,12 @@ export default {
   watch: {
     status: function (visible) {
       if (visible) {
+
+        if (!this.$pc) {
+          // 去掉this.option.controls中name为 name: 'iina'
+          this.option.controls = this.option.controls.filter(item => item.name === 'nplayer' || item.name === 'infuse')
+        }
+
         let videoUrl = fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
         if (this.shareId) {
           videoUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
@@ -137,8 +145,9 @@ export default {
           }
         }
         this.option.url = videoUrl
+
         if (this.file.m3u8) {
-          const supported = ['flv', 'mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov']
+          const supported = ['mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov']
           if (supported.includes(this.file.suffix.toLowerCase())) {
             this.option.quality = [
               {
@@ -155,17 +164,30 @@ export default {
           this.option.customType = {
             m3u8: this.playM3u8
           }
+          this.option.plugins = [
+            artplayerPluginVttThumbnail({
+              vtt: videoUrl.replace(/m3u8/g, 'vtt'),
+            })
+          ]
         }
+
         if (this.file.contentType.indexOf('flv') > -1) {
+          this.option.url = originUrl
+          this.option.quality = []
           this.option.customType = {
             flv: this.playFlv
           }
         }
 
-        this.videoLink = window.location.origin + videoUrl
+        this.videoLink = window.location.origin + originUrl
         this.title = this.file.name
         this.option.id = this.file.id
         this.show = true
+        this.switchQuality = true
+      } else {
+        this.option.url = ''
+        this.videoLink = ''
+        this.option.quality = []
       }
     }
   },
@@ -197,15 +219,24 @@ export default {
     getInstance(art) {
       this.art = art
       let doc = this.art.controls.$parent
-      // iina
-      const iina = doc.querySelector('[data-index="1"]').querySelector('a');
-      iina.href = `iina://weblink?url=${this.videoLink}`
-      // nplayer
-      const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
-      nplayer.href = `nplayer-${this.videoLink}`
-      // infuse
-      const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
-      infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
+      if (this.$pc)  {
+        // iina
+        const iina = doc.querySelector('[data-index="1"]').querySelector('a');
+        iina.href = `iina://weblink?url=${this.videoLink}`
+        // nplayer
+        const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
+        nplayer.href = `nplayer-${this.videoLink}`
+        // infuse
+        const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
+        infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
+      } else {
+        // nplayer
+        const nplayer = doc.querySelector('[data-index="2"]').querySelector('a');
+        nplayer.href = `nplayer-${this.videoLink}`
+        // infuse
+        const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
+        infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
+      }
     },
     playM3u8(video, url, art) {
       if (Hls.isSupported()) {

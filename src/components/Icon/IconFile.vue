@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <div :style="{position: grid ? 'relative': 'unset'}">
     <div v-if="item.isFavorite && !public">
         <div v-if="pc">
           <svg-icon v-if="!grid" class="pc list icon-favorite" icon-class="Favoritestarrate"/>
@@ -57,9 +57,9 @@
         <div v-if="grid && pc" class="grid-play-icon">
           <svg-icon icon-class="play1"/>
         </div>
-        <el-image lazy v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
+        <el-image lazy v-if="grid" :style="{'height':details?'110px':(gridWidth-50) + 'px'}" fit="contain"
                   :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
-          <div slot="error" class="image-slot">
+          <div slot="error" class="image-slot-error">
             <svg-icon icon-class="video"/>
           </div>
         </el-image>
@@ -75,9 +75,9 @@
     <div v-else-if="item.contentType && item.contentType.indexOf('audio') > -1">
       <div v-if="item.music !== undefined">
         <div v-if="item.music.name !== null">
-          <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-35) + 'px'}" fit="contain"
+          <el-image v-if="grid" :style="{'height':details?'110px':(gridWidth-50) + 'px'}" fit="contain"
                     :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
-          <div slot="error" class="image-slot">
+          <div slot="error" class="image-slot-error">
             <svg-icon icon-class="audio"/>
           </div>
         </el-image>
@@ -94,7 +94,7 @@
     <div v-else-if="item.contentType && item.contentType.startsWith('image')">
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
-        <div slot="error" class="image-slot">
+        <div slot="error" class="image-slot-error">
           <svg-icon icon-class="image"/>
         </div>
       </el-image>
@@ -102,12 +102,8 @@
       <el-avatar v-if="!grid" shape="square"
                  :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)"></el-avatar>
     </div>
-    <!--<svg-icon v-else-if="item.contentType.indexOf('application/pdf') > -1" icon-class="file-pdf"/>-->
-    <!--<svg-icon v-else-if="item.contentType.indexOf('word') > -1" icon-class="file-word"/>-->
-    <!--<svg-icon v-else-if="item.contentType.indexOf('zip') > -1" icon-class="zip"/>-->
-    <!--<svg-icon v-else-if="item.contentType.indexOf('excel') > -1" icon-class="file-excel"/>-->
     <svg-icon v-else :icon-class="findIconClass"/>
-  </span>
+  </div>
 </template>
 <script>
 import {iconClass} from '@/utils/file-type'
@@ -189,6 +185,9 @@ export default {
   height: 35px;
   width: 35px;
   line-height: 35px;
+}
+
+>>> .image-slot-error {
 }
 
 .icon-favorite {

@@ -12,15 +12,23 @@ export default {
     return window.location.origin + `/webDAV/${username}`
   },
   // office api url
-  officeApiUrl: function() {
-    return `${window.location.origin}/office/web-apps/apps/api/documents/api.js`
+  officeApiUrl: function(documentServer) {
+    let serverUrl = documentServer || `${window.location.origin}/office`
+    if (!serverUrl.endsWith('/')) {
+      serverUrl = serverUrl + "/"
+    }
+    return serverUrl + "web-apps/apps/api/documents/api.js"
   },
   // office回调url
-  officeCallBackUrl: function(token, username, fileId) {
-    return `http://jmalcloud:8088/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
+  officeCallBackUrl: function(callbackServer, token, username, fileId) {
+    let callbackServerUrl = callbackServer || 'http://jmalcloud:8088'
+    if (!callbackServerUrl.endsWith('/')) {
+      callbackServerUrl = callbackServerUrl + "/"
+    }
+    return `${callbackServerUrl}office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
-  previewUrl: function(username, file, token, shareToken) {
+  previewUrl: function(username, file, token, shareToken, serverUrl) {
     let owner = null
     if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== null) {
       owner = localStorage.getItem('mountFileOwner')
@@ -30,8 +38,10 @@ export default {
     if (owner == null) {
       owner = store.getters.name
     }
-    let fileUrl = `${this.baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
-    fileUrl = fileUrl.replace(/%5C/g, '/')
+    let baseUrl = serverUrl || this.baseUrl
+    let fileUrl = `${baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
+    fileUrl = fileUrl.replaceAll('#', '%23')
+    fileUrl = fileUrl.replaceAll(/%5C/g, '/')
     if (token) {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
     }
@@ -64,7 +74,8 @@ export default {
   // 打包下载文件
   packageDownload: function(fileIds, token, username) {
     fileApi.isAllowDownload().then(() => {
-      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}&jmal-token=${token}&name=${username}`, '_self')
+      fileIds = fileIds.join(',')
+      window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}`, '_self')
     })
   },
   // 共享文件下载
@@ -77,11 +88,12 @@ export default {
     window.open(url, '_blank')
   },
   // 共享文件预览Url
-  publicPreviewUrl: function(file, shareId, shareToken) {
+  publicPreviewUrl: function(file, shareId, shareToken, serverUrl) {
     if (!shareToken) {
       shareToken = "none"
     }
-    return `${this.baseUrl}/public/s/preview/${file.name}?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
+    let baseUrl = serverUrl || this.baseUrl
+    return `${baseUrl}/public/s/preview/${file.name}?fileId=${file.id}&shareId=${shareId}&shareToken=${shareToken}`
   },
   // 共享文件打包下载
   publicPackageDownload: function(shareId, fileIds, shareToken) {
@@ -96,6 +108,13 @@ export default {
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?shareId=${shareId}&fileIds=${fileIds}&share-token=${shareToken}`
+    const queryShareId = shareId ? `&shareId=${shareId}` : ''
+    const queryShareToken = shareToken ? `&share-token=${shareToken}` : ''
+    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?fileIds=${fileIds}${queryShareId}${queryShareToken}`
+  },
+  // 文件打包下载Url
+  packageDownloadUrl: function(fileId, downloadName, shareToken) {
+    const queryShareToken = shareToken ? `?share-token=${shareToken}` : ''
+    return window.location.origin + `${this.baseUrl}/public/s/${fileId}/packageDownload/${downloadName}${queryShareToken}`
   },
 }

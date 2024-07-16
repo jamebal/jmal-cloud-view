@@ -16,10 +16,13 @@
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
+            <div>{{fileType}}</div>
             <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
-            <only-office-editor ref="officeEditor" v-else :file="file" :file-url="fileUrl" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
+            <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></model-preview>
+            <only-office-editor ref="officeEditor" v-else-if="fileType === 'office'" :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
+            <iframe-content-preview v-else :file="file" :fileHandler="fileHandler" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></iframe-content-preview>
           </div>
         </div>
     </div>
@@ -28,17 +31,18 @@
 
 <script>
 
+import ModelPreview from '@/components/office/ModelPreview.vue'
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
-import Bus from "@/assets/js/bus";
+import IframeContentPreview from '@/components/preview/IframeContentPreview.vue'
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
 import Drawio from "@/components/office/Drawio";
 import MyMindEditor from "@/components/Minder/minder"
 
 export default {
-  name: 'OfficePreview',
-  components: {Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor, MyMindEditor},
+  name: 'IframePreview',
+  components: { IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor, MyMindEditor},
   props: {
     id: {
       type: String,
@@ -52,7 +56,15 @@ export default {
         return {}
       }
     },
+    fileHandler: {
+      type: Object,
+      default: {}
+    },
     shareId: {
+      type: String,
+      default: undefined
+    },
+    sharer: {
       type: String,
       default: undefined
     },
@@ -115,6 +127,12 @@ export default {
       }
     },
     getType(suffix) {
+      if (Object.keys(this.fileHandler).length > 0) {
+        return 'other'
+      }
+      if (this.file.contentType.indexOf('office') > -1) {
+        return 'office'
+      }
       switch (suffix) {
         case 'drawio':
           return 'drawio'
@@ -122,8 +140,14 @@ export default {
           return 'pdf'
         case 'mind':
           return 'mind'
-        default:
+        case 'gltf':
+        case 'glb':
+          return 'glTF/GLB'
+        case 'office':
+        case 'csv':
           return 'office'
+        default:
+          return 'other'
       }
     },
     /**
@@ -207,7 +231,7 @@ export default {
       this.$message.info('请手动保存')
     },
     /**
-     * 检查要预览调文件是否为只读
+     * 检查要预览的文件是否为只读
      * @param file userId
      */
     checkReadOnly(file){

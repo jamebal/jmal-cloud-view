@@ -84,7 +84,7 @@ export default {
     let chrome = this.readOnly ? 0 : 1
     let theme = 'kennedy'
     let title = this.file.name ? encodeURIComponent(this.file.name) : ''
-    let query = `?title=${title}&chrome=${chrome}&lightbox=${lightbox}&ui=${theme}&lang=${language}&offline=1&pwa=0&embed=1&noLangIcon=1&noExitBtn=1&noSaveBtn=1&saveAndExit=0&spin=1&proto=json`
+    let query = `?title=${title}&chrome=${chrome}&lightbox=${lightbox}&ui=${theme}&lang=${language}&offline=0&pwa=0&embed=1&noLangIcon=1&noExitBtn=1&noSaveBtn=1&saveAndExit=0&spin=1&proto=json`
     this.url = $J.apiUrl(`../drawio/webapp/${query}`)
   },
   mounted() {
@@ -322,7 +322,7 @@ export default {
   top: 2.5rem;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 2.5rem);
 
   >>>.dark-button {
     background: #3e3e3e;

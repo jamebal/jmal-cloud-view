@@ -268,7 +268,7 @@
     <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
     <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible"></video-preview>
-    <office-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></office-preview>
+    <iframe-preview :file="officePreviewRow" :status.sync="officePreviewVisible"></iframe-preview>
   </div>
 </template>
 <script>
@@ -283,14 +283,12 @@ import ImageViewer from "@/components/preview/ImageViewer";
 import VideoPreview from "@/components/preview/VideoPreview";
 import SimTextPreview from "@/components/preview/SimTextPreview";
 import {suffix} from "@/utils/file-type";
-import OfficePreview from "@/components/preview/OfficePreview";
+import IframePreview from "@/components/preview/IframePreview.vue";
 import Clipboard from "clipboard";
-
-let pinyin = require("pinyin");
 
 export default {
   components: {
-    OfficePreview,
+    IframePreview,
     SimTextPreview,
     VideoPreview,
     ImageViewer, IconFile,
@@ -409,11 +407,7 @@ export default {
     // 加载布局
     if (this.$route.query.vmode) {
       this.vmode = this.$route.query.vmode
-      if (this.vmode === 'list') {
-        this.grid = false
-      } else {
-        this.grid = true
-      }
+      this.grid = this.vmode !== 'list';
     }
     // 加载url上的path
     if (this.$route.query.path !== '/') {
@@ -676,7 +670,8 @@ export default {
         api.delete({
           currentDirectory: this.rowContextData.path,
           username: this.$store.state.user.name,
-          fileIds: fileIds
+          fileIds: fileIds,
+          sweep: true
         }).then(() => {
           // 刷新列表
           this.getFileList()
@@ -929,7 +924,6 @@ export default {
           this.searchFile(this.searchValue, onLoad)
         }
       } else {
-        this.beforeLoadData(onLoad)
         api.fileList({
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId,

@@ -44,12 +44,11 @@
           <a href="https://baike.baidu.com/item/webp%E6%A0%BC%E5%BC%8F" target="_blank">什么是webp?</a>
           </span>
               <div class="config-itme-label">重建索引：
-                <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i
-                  class="el-icon-refresh"></i>
-                </el-button>
-                <span v-show="syncPercent < 100">{{ syncPercent }}%</span>
+                <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
+                <span v-show="syncPercent < 100">正在同步文件基本信息: {{ syncPercent }}%</span>
+                <span v-show="indexingPercent > 0 && indexingPercent < 100">正在为文件内容创建索引: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
               </div>
-              <span class="instruction">一般用于初始化操作, 将文件数据同步到数据库</span>
+              <span class="instruction">重建索引分为两步: 1.同步文件基本信息, 2.为文件内容创建索引</span>
               <div class="config-itme-label">重置角色、菜单：
                 <el-button class="sync-button" size="mini" :loading="resetLoading" type="danger"
                            @click="resetMenuAndRole()">
@@ -66,60 +65,24 @@
 
             </div>
           </el-tab-pane>
-          <el-tab-pane label="LDAP认证" name="2" class="setting-tab-panel">
+          <el-tab-pane label="OnlyOffice" name="2" class="setting-tab-panel">
             <div v-if="activeName === '2'">
-              <el-form :rules="rules" ref="form" :model="ldapFormData" label-width="120px" size="small"
-                       style="width: 450px" autocomplete="off">
-                <el-form-item label="功能状态" prop="enable">
-                  <el-select v-model="ldapFormData.enable">
-                    <el-option
-                      v-for="item in ldapStatusOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="LDAP 服务器" prop="ldapServer">
-                  <el-input placeholder="例如: ldap.test.com:389" v-model="ldapFormData.ldapServer"></el-input>
-                </el-form-item>
-                <el-form-item label="Base DN" prop="baseDN">
-                  <el-input placeholder="例如: dc=test,dc=com" v-model="ldapFormData.baseDN" autocomplete="off"></el-input>
-                </el-form-item>
-
-                <el-form-item label="账号" prop="userDN">
-                  <el-input placeholder="管理员账号,例如: cn=admin,dc=test,dc=com" v-model="ldapFormData.userDN" autocomplete="off"></el-input>
-                </el-form-item>
-
-                <el-form-item label="密码" prop="password">
-                  <el-input type="password" placeholder="管理员密码" v-model="ldapFormData.password" autocomplete="off"></el-input>
-                </el-form-item>
-
-                <el-form-item>
-                  <el-button type="primary" :disabled="ldapTestBtn" v-loading="testLdapConfigLoading" @click="doTestLdapConfig">测试链接</el-button>
-                  <span v-if="testLdapConfigResult === 0" class="el-icon-check" style="color: #67C23A"></span>
-                  <span v-if="testLdapConfigResult > 0" class="el-icon-close" style="color: #F56C6C"></span>
-                </el-form-item>
-
-                <el-form-item label="登录名" prop="loginName">
-                  <el-input placeholder="LDAP服务器中对应个人用户名的字段, 例如: uid" v-model="ldapFormData.loginName"></el-input>
-                </el-form-item>
-
-                <el-form-item label="默认角色" prop="defaultRoleList">
-                  <el-select ref="selectRole" v-model="ldapFormData.defaultRoleList" multiple placeholder="请选择角色">
-                    <el-option
-                      v-for="item in roleList"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-
-                <el-form-item>
-                  <el-button type="primary" :disabled="ldapSaveBtn" v-loading="saveLdapConfigLoading" @click="saveLdapConfig">保存配置</el-button>
-                </el-form-item>
-              </el-form>
+              <office-config></office-config>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="视频转码" name="3" class="setting-tab-panel">
+            <div v-if="activeName === '3'">
+              <transcode-config></transcode-config>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="预览配置" name="4" class="setting-tab-panel">
+            <div v-if="activeName === '4'">
+              <preview-config></preview-config>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="LDAP认证" name="5" class="setting-tab-panel">
+            <div v-if="activeName === '5'">
+              <ldap-config></ldap-config>
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -131,23 +94,28 @@
 <script>
 
 import config from '@/../package.json'
-import settingApi, {getSetting} from "@/api/setting-api";
+import settingApi, { getSetting } from "@/api/setting-api";
 import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
-import roleApi from "@/api/role";
-import { loadLdapConfig, testLdapConfig, updateLdapConfig} from '@/api/user'
+import PreviewConfig from '@/views/setting/cloudSetting/previewConfig.vue'
 import {mapGetters, mapState} from "vuex";
 import store from "@/store";
+import TaskProgress from "@/components/TaskProgress/index.vue";
+import LdapConfig from "@/views/setting/cloudSetting/ldapConfig.vue";
+import TranscodeConfig from "@/views/setting/cloudSetting/transcodeConfig.vue";
+import OfficeConfig from "@/views/setting/cloudSetting/officeConfig.vue";
 
 export default {
-  components: {UploadImageInput, Logo},
+  components: { PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',
       uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}`,
       title: '网盘管理',
       syncLoading: false,
+      clickSync: false,
+      indexingPercent: 100,
       syncPercent: 100,
       resetLoading: false,
       webpEnabled: false,
@@ -156,44 +124,7 @@ export default {
       showAckBtn: false,
       inputNetdiskNameWidth: 150,
       logoFileTypeList: ['image/svg+xml', 'image/jpg', 'image/png', 'image/jpeg'],
-      ldapFormData: {
-        enable: true,
-        ldapServer: '',
-        defaultRoleList: [],
-        baseDN: '',
-        userDN: '',
-        password: '',
-        loginName: ''
-      },
       currentVersion: config.version,
-      roleList: [],
-      ldapStatusOptions: [{
-        value: true,
-        label: '启用'
-      }, {
-        value: false,
-        label: '禁用'
-      }],
-      rules: {
-        ldapServer: [
-          {required: true, message: '请填写LDAP服务器', trigger: 'submit'}
-        ],
-        defaultRoleList: [
-          {required: true, message: '请选择默认角色', trigger: 'submit'}
-        ],
-        baseDN: [
-          {required: true, message: '请填写 Base DN', trigger: 'submit'}
-        ],
-        userDN: [
-          {required: true, message: '请填写 管理员账号', trigger: 'submit'}
-        ],
-        loginName: [
-          {required: true, message: '请填写登录名', trigger: 'submit'}
-        ]
-      },
-      testLdapConfigLoading: false,
-      saveLdapConfigLoading: false,
-      testLdapConfigResult: -1,
     }
   },
   mounted() {
@@ -203,8 +134,6 @@ export default {
     if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab
       if (this.activeName === '2') {
-        this.getRoleList()
-        this.getLdapConfig()
       }
     }
   },
@@ -213,50 +142,17 @@ export default {
     ...mapGetters([
       'newVersion'
     ]),
-    ldapTestBtn() {
-      return !(this.ldapFormData.ldapServer.length > 0 && this.ldapFormData.baseDN.length > 0 && (this.ldapFormData.password ? this.ldapFormData.password.length > 0 : false))
-    },
-    ldapSaveBtn() {
-      return !(!this.ldapTestBtn && this.ldapFormData.defaultRoleList.length > 0 && this.ldapFormData.loginName.length > 0)
-    }
   },
   watch: {
     message(msg) {
       if (msg.event === 'msg/synced') {
-        this.syncPercent = msg.data.body
-        if (this.syncPercent >= 100) {
-          this.syncLoading = false
-        }
+        this.updateSyncStatus(msg.data.body)
       }
     }
   },
   methods: {
-    doTestLdapConfig() {
-      this.testLdapConfigLoading = true
-      testLdapConfig(this.ldapFormData).then(() => {
-        this.testLdapConfigLoading = false
-        this.testLdapConfigResult = 0
-        this.$message.success("连接成功")
-      }).catch(() => {
-        this.testLdapConfigResult = 1
-        this.testLdapConfigLoading = false
-      });
-    },
-    saveLdapConfig() {
-      this.saveLdapConfigLoading = true
-      updateLdapConfig(this.ldapFormData).then(() => {
-        this.saveLdapConfigLoading = false
-        this.$message.success("保存成功")
-      }).catch(() => {
-        this.saveLdapConfigLoading = false
-      });
-    },
     handleClick(tab) {
       this.$router.push({query: {tab: tab.name}})
-      if (tab.name === '2') {
-        this.getRoleList()
-        this.getLdapConfig()
-      }
     },
     handleAvatarSuccess(res) {
       if (res.code === 0) {
@@ -292,18 +188,6 @@ export default {
           if (res.data.netdiskName) {
             this.netdiskName = res.data.netdiskName
           }
-        }
-      })
-    },
-    getRoleList() {
-      roleApi.roleList().then(res => {
-        this.roleList = res.data;
-      })
-    },
-    getLdapConfig() {
-      loadLdapConfig().then(res => {
-        if (res.data) {
-          this.ldapFormData = res.data;
         }
       })
     },
@@ -350,21 +234,36 @@ export default {
     },
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
-        this.syncLoading = true;
-        this.syncPercent = res.data
-        this.syncLoading = this.syncPercent < 100;
+        this.updateSyncStatus(res.data)
       })
     },
+    updateSyncStatus(dataPercent) {
+      const {syncPercent, indexingPercent} = dataPercent
+      if (syncPercent) {
+        this.syncPercent = syncPercent
+      } else {
+        this.syncPercent = 0
+      }
+      if (indexingPercent) {
+        this.indexingPercent = indexingPercent
+      } else {
+        this.indexingPercent = 0
+      }
+      this.syncLoading = !((this.syncPercent === 100 && this.indexingPercent === 100) || (this.syncPercent === 0 && this.indexingPercent === 0));
+    },
     sync() {
-      this.$confirm('是否开始同步? ', '提示', {
+      this.$confirm('是否开始扫描? ', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.syncLoading = true
         this.syncPercent = 0
-        settingApi.sync({username: this.$store.state.user.name}).then(() => {
-          this.$message.success("开始同步...")
+        this.clickSync = true
+        settingApi.syncCloud({username: this.$store.state.user.name}).then(() => {
+          this.clickSync = false
+        }).catch(() => {
+          this.clickSync = false
         })
       })
     },
@@ -392,7 +291,7 @@ export default {
       }).catch(() => {
         this.webpEnabled = !this.webpEnabled
       })
-    }
+    },
   }
 }
 </script>
@@ -400,7 +299,7 @@ export default {
 <style lang="scss" scoped>
 @import "src/styles/setting";
 
-> > > .el-textarea {
+>>> .el-textarea {
   max-width: 1080px;
 }
 
@@ -413,7 +312,7 @@ export default {
   width: 220px;
 }
 
-.avatar-uploader > > > .el-upload {
+.avatar-uploader >>> .el-upload {
   display: block;
 
   .avatar {
@@ -432,11 +331,11 @@ export default {
   }
 }
 
-> > > .el-card__body {
+>>> .el-card__body {
   padding: 0;
 }
 
-> > > .el-tabs__header {
+>>> .el-tabs__header {
   margin: 0;
   @media screen and (min-width: 768px) {
     .el-tabs__nav {
@@ -448,7 +347,7 @@ export default {
   }
 }
 
-> > > .el-form-item__content {
+>>> .el-form-item__content {
   .el-select {
     width: 100%;
   }
@@ -459,6 +358,13 @@ export default {
 
   >>> .el-loading-spinner .circular {
     width: 25px !important;
+  }
+}
+
+.progress {
+  margin-top: 5px;
+  >>> .el-card__header {
+    padding: 8px 20px;
   }
 }
 
