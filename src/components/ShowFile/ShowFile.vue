@@ -784,11 +784,12 @@
         <el-button type="primary" size="small" @click="deleteFile" :loading="deleteLoading">确 定</el-button>
       </span>
     </el-dialog>
-
+    <search-dialog :status.sync="searchDialogVisible"></search-dialog>
   </div>
 </template>
 
 <script>
+import SearchDialog from '@/components/SearchDialog/index.vue'
 import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
 import { getElementToPageLeft } from '@/utils/dom'
@@ -822,6 +823,7 @@ import FileDetails from "@/components/preview/FileDetails.vue";
 export default {
   name: 'ShowFile',
   components: {
+    SearchDialog,
     FileDetails,
     TagDialog,
     ShareDialog,
@@ -1091,6 +1093,7 @@ export default {
       selectDeleteFile: [], // 选中的删除文件
       deleteLoading: false, // 删除loading
       debounceSearch: null,// 搜索防抖
+      searchDialogVisible: false
     }
   },
   computed: {
@@ -1377,6 +1380,14 @@ export default {
               this.$refs.fileListTable.toggleAllSelection()
             }
           })
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
+      // ctrl + P / cmd + P
+      if (this.isCmd && keyCode === 80) {
+        if (!this.inputting && this.editingIndex === -1) {
+          this.searchDialogVisible = true
           event.preventDefault()
           event.stopPropagation()
         }
@@ -2741,8 +2752,7 @@ export default {
             this.vmode
           }&path=${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`
         )
-        api
-          .searchFile({
+        api.searchFile({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             keyword: key,
@@ -2757,11 +2767,12 @@ export default {
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize,
             showFolderSize: localStorage.getItem('showFolderSize'),
-          })
-          .then(res => {
+          }).then(res => {
             this.loadData(res, onLoad)
             this.listModeSearch = true
             this.listModeSearchOpenDir = false
+          }).catch(() => {
+            this.tableLoading = false
           })
       } else {
         if (this.listModeSearch) {
@@ -2800,7 +2811,9 @@ export default {
           this.loadData(res, onLoad)
           this.listModeSearch = true
           this.listModeSearchOpenDir = fileId
-        })
+        }).catch(() => {
+        this.tableLoading = false
+      })
     },
     openDir(row, onLoad) {
       this.beforeLoadData(onLoad)
@@ -2817,6 +2830,8 @@ export default {
         })
         .then(res => {
           this.loadData(res, onLoad)
+        }).catch(() => {
+          this.tableLoading = false
         })
       // this.path = row.path + row.name
       // this.path = this.path.replace(/\\/g, '/')
@@ -2856,7 +2871,9 @@ export default {
           })
           .then(res => {
             this.loadData(res, onLoad)
-          })
+          }).catch(() => {
+          this.tableLoading = false
+        })
       }
     },
     getQueryPath() {

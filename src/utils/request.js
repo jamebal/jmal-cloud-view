@@ -79,6 +79,10 @@ service.interceptors.response.use(
                 location.reload()
               })
             })
+          } else {
+            store.dispatch('user/resetToken').then(() => {
+              location.reload()
+            })
           }
         }, 200)
       } else {
@@ -90,6 +94,9 @@ service.interceptors.response.use(
       }
       return Promise.reject()
     } else {
+      if (response.headers['jmal-token']) {
+        store.dispatch('user/setToken', response.headers['jmal-token'])
+      }
       let message = ''
       if (res.message) {
         message = res.message.toString()
