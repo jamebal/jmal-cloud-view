@@ -277,7 +277,7 @@
               item.operation === 'unFavorite' || item.operation === 'favorite'
             "
             class="menu-option"
-            @click="menusOperations(item.operation)"
+            @click="menusOperations(item.operation, $event)"
             @mouseover.prevent.stop="
               menuFavoriteOver(index, rowContextData.isFavorite)
             "
@@ -290,17 +290,18 @@
               <span class="menuitem text">{{ item.label }}</span>
             </label>
           </li>
-          <li v-else @click="menusOperations(item.operation)">
+          <li v-else @click="menusOperations(item.operation, $event)">
             <label class="menuitem">
               <svg-icon :icon-class="item.iconClass" />
               <span class="menuitem text">{{ item.label }}</span>
               <span v-if="item.shortcut" style="position: absolute;right: 10px;">
-                <kbd>{{ item.shortcut }}</kbd>
+                <kbd v-for="key in item.shortcut" :style="{fontSize: key === '⌘' ? '14px' : '12px'}">{{ key }}</kbd>
               </span>
             </label>
           </li>
         </ul>
       </e-vue-contextmenu>
+
       <!--list布局-->
       <div
         v-show="fileList.length > 0"
@@ -334,7 +335,6 @@
           @row-dblclick="dblclick"
           @sort-change="sortChange"
           @table-body-scroll="tableBodyScroll"
-          @select="pinSelect"
         >
           <template v-for="(item, index) in tableHead">
             <pl-table-column
@@ -511,8 +511,8 @@
                       ? 'solid 1px #409eff'
                       : '',
                   }"
-                  @click="gridItemClick(item)"
-                  @dblclick="fileClick(item)"
+                  @click="gridItemClick(item, $event)"
+                  @dblclick="fileClick(item, $event)"
                   @contextmenu.prevent="rowContextmenu(item)"
                 >
                   <div
@@ -790,6 +790,7 @@
 
 <script>
 import SearchDialog from '@/components/SearchDialog/index.vue'
+import { fileOperations } from '@/utils/file-operations'
 import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
 import { getElementToPageLeft } from '@/utils/dom'
@@ -906,20 +907,20 @@ export default {
       type: Array,
       default: function() {
         return [
-          { iconClass: 'menu-open', label: '打开', operation: 'open' },
+          fileOperations.open,
           { iconClass: 'share', label: '分享', operation: 'share' },
           { iconClass: 'tag', label: '标签', operation: 'tag' },
           { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
           {
             iconClass: 'menu-details',
             label: '详情',
-            shortcut: "space",
+            shortcut: ["space"],
             operation: 'details',
           },
-          { iconClass: 'menu-rename', label: '重命名', operation: 'rename', shortcut: 'F2' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
+          fileOperations.rename,
+          fileOperations.copy,
+          fileOperations.download,
+          fileOperations.remove,
         ]
       },
     },
@@ -933,9 +934,9 @@ export default {
             operation: 'deselect',
           },
           { iconClass: 'tag', label: '标签', operation: 'tag' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
+          fileOperations.copy,
+          fileOperations.download,
+          fileOperations.remove,
         ]
       },
     },
@@ -1068,11 +1069,9 @@ export default {
       drawerShowTime: 0, // drawer显示的时间
       rowStyleExecuting: false,
       selectRowData: [],
-      selectOrgin: -1, // 选择起点(主要用于按住shift键多选)
+      selectOrigin: -1, // 选择起点(主要用于按住shift键多选)
       selectEnd: -1, // 选择终点
-      selectPin: false, // 默认false,不按住
       inputting: false, // 是否正在输入
-      isCmd: false, // 是否按住了command(control)键
       dragElementList: [],
       drawFlag: false,
       fileListScrollTop: 0,
@@ -1344,14 +1343,15 @@ export default {
 
       return suffix ? chineseLength + suffix.length + 1 : chineseLength
     },
-    keydown(event) {
+    checkCmdKey(event) {
       const isMac = navigator.platform.startsWith('Mac')
-      const { keyCode, ctrlKey, metaKey } = event
-      this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey)
-      // shift
-      if (event.keyCode === 16 && event.shiftKey) {
-        this.selectPin = true
-      }
+      const { ctrlKey, metaKey } = event
+      return (isMac && metaKey) || (!isMac && ctrlKey)
+    },
+    keydown(event) {
+      const { keyCode } = event
+      const isCmd = this.checkCmdKey(event)
+      console.log('keydown', 'keyCode', keyCode, 'isCmd', isCmd)
       // space
       if (keyCode === 32) {
         if (!this.inputting && this.selectRowData.length > 0 && !this.drawer) {
@@ -1370,8 +1370,16 @@ export default {
         event.preventDefault()
         event.stopPropagation()
       }
+      // Del
+      if (keyCode === 8) {
+        if (!this.inputting && this.selectRowData.length > 0) {
+          this.removeOperation()
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
       // ctrl + A / cmd + A
-      if (this.isCmd && keyCode === 65) {
+      if (isCmd && keyCode === 65) {
         if (this.inputting || this.editingIndex !== -1) {
           event.target.select()
         } else {
@@ -1385,22 +1393,16 @@ export default {
         }
       }
       // ctrl + P / cmd + P
-      if (this.isCmd && keyCode === 80) {
-        if (!this.inputting && this.editingIndex === -1) {
-          this.searchDialogVisible = true
-          event.preventDefault()
-          event.stopPropagation()
-        }
-      }
+      // if (isCmd && keyCode === 80) {
+      //   if (!this.inputting && this.editingIndex === -1) {
+      //     this.searchDialogVisible = true
+      //     event.preventDefault()
+      //     event.stopPropagation()
+      //   }
+      // }
     },
     keyup(event) {
-      const isMac = navigator.platform.startsWith('Mac')
-      const { keyCode, ctrlKey, metaKey } = event
-      this.isCmd = (isMac && metaKey) || (!isMac && ctrlKey)
-      // 松开shift键
-      if (keyCode === 16) {
-        this.selectPin = false
-      }
+      const { keyCode } = event
       // space
       if (keyCode === 32) {
         if (this.drawer && Date.now() - this.drawerShowTime >= 500) {
@@ -1459,16 +1461,16 @@ export default {
         this.onCreateFilename = ''
       }, 2000)
     },
-    gridItemClick(row) {
+    gridItemClick(row, event) {
       if (this.selectFile) {
-        this.fileClick(row)
+        this.fileClick(row, event)
       }
-      if (this.isCmd) {
-        this.pinSelect(null, row)
+      if (this.checkCmdKey(event)) {
+        this.pinSelect(row, event)
         this.$refs.fileListTable.toggleRowSelection([{ row: row }])
         return
       }
-      this.pinSelect(null, row)
+      this.pinSelect(row, event)
     },
     containerResize() {
       const container = document.querySelector('.dashboard-container')
@@ -1564,7 +1566,7 @@ export default {
             !_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])
           ) {
             _this.editingIndex = -1
-            if (!_this.isCmd && !_this.selectPin) {
+            if (!_this.checkCmdKey(e) && !e.shiftKey) {
               _this.$refs.fileListTable.clearSelection()
               _this.$refs.fileListTable.toggleRowSelection([
                 { row: _this.fileList[throughRow.rowIndex], selected: true },
@@ -1578,7 +1580,7 @@ export default {
         if (evt.button !== 0) {
           return
         }
-        if (!_this.isCmd && !_this.selectPin) {
+        if (!_this.checkCmdKey(e) && !e.shiftKey) {
           const index = elPath.findIndex(
             el =>
               el.className === itemClassName ||
@@ -1918,7 +1920,7 @@ export default {
           return false
         }
         // 正在选区获取按住关键键时禁止拖拽
-        if (_this.drawFlag || _this.isCmd || _this.selectPin) {
+        if (_this.drawFlag || _this.checkCmdKey(e) || e.shiftKey) {
           e.preventDefault()
           e.stopPropagation()
           return
@@ -2913,18 +2915,18 @@ export default {
       // // 画矩形选取
       // this.darwRectangle()
     },
-    pinSelect(rows, row) {
-      if (this.selectPin && this.selectOrgin > -1) {
-        const orgin = this.selectOrgin
+    pinSelect(row, event) {
+      if (event.shiftKey && this.selectOrigin > -1) {
+        const origin = this.selectOrigin
         this.selectEnd = row.index
-        let diff = this.selectEnd - orgin
+        let diff = this.selectEnd - origin
         // 先清除选中
         this.$refs.fileListTable.clearSelection()
         if (diff === 0) {
-          this.selectOrgin = -1
+          this.selectOrigin = -1
         }
         if (diff > 0) {
-          for (let i = orgin; i <= this.selectEnd; i++) {
+          for (let i = origin; i <= this.selectEnd; i++) {
             this.$refs.fileListTable.toggleRowSelection([
               { row: this.fileList[i], selected: true },
             ])
@@ -2932,7 +2934,7 @@ export default {
           }
         }
         if (diff < 0) {
-          for (let i = this.selectEnd; i <= orgin; i++) {
+          for (let i = this.selectEnd; i <= origin; i++) {
             this.$refs.fileListTable.toggleRowSelection([
               { row: this.fileList[i], selected: true },
             ])
@@ -3019,26 +3021,11 @@ export default {
       }
       return sizeSum
     },
-    selectAll(checked) {
-      this.isSelectAll = checked
-      if (checked) {
-        this.fileList.forEach(row => {
-          this.selectRowData.push(row)
-        })
-      } else {
-        this.isIndeterminate = false
-      }
-    },
     // 收集选中的index值作为数组 传递给rowRed判断变换样式
     handleSelectionChange(rows) {
       // 起点
       if (rows.length > 0) {
-        if (!this.selectPin) {
-          this.selectOrgin = rows[0].index
-        }
-        if (this.selectPin) {
-          return
-        }
+        this.selectOrigin = rows[0].index
         this.rowContextData = rows[0]
       }
       this.$refs.fileListTable.tableSelectData = rows
@@ -3121,13 +3108,14 @@ export default {
       this.highlightFavorite(isFavorite, false)
     },
     //双击
-    dblclick(row) {
-      this.fileClick(row)
+    dblclick(row, column, cell, event) {
+      this.fileClick(row, event)
     },
     // 单元格点击事件
-    cellClick(row, column) {
+    cellClick(row, column, cell, event) {
+      console.log('cellClick', row, column, cell, event)
       if (this.selectFile) {
-        this.fileClick(row)
+        this.fileClick(row, event)
         return
       }
       clearTimeout(this.Loop)
@@ -3140,12 +3128,12 @@ export default {
             }
           }
         }
-        if (this.isCmd) {
-          this.pinSelect(null, row)
+        if (this.checkCmdKey(event)) {
+          this.pinSelect(row, event)
           this.$refs.fileListTable.toggleRowSelection([{ row: row }])
           return
         }
-        this.pinSelect(null, row)
+        this.pinSelect(row, event)
       }
     },
     // 选取输入框部分内容
@@ -3278,7 +3266,7 @@ export default {
           )
         }
         if (!row.isFolder && this.queryFileType !== 'trash') {
-          this.menus.splice(-2, 0, { iconClass: 'duplicate', label: '创建副本', operation: 'duplicate'})
+          this.menus.splice(-2, 0, fileOperations.duplicate)
         }
         if ((row.isShare && !row.shareBase) || row.ossFolder) {
           // 删除分享选项
@@ -3325,18 +3313,18 @@ export default {
       )
       if (file.operationPermissionList && file.operationPermissionList.length > 0) {
         if (file.operationPermissionList.indexOf('PUT') > -1) {
-          this.menus.splice(this.menus.length - 1, 0, { iconClass: 'menu-rename', label: '重命名', operation: 'rename'})
+          this.menus.splice(this.menus.length - 1, 0, fileOperations.rename)
         }
         if (file.operationPermissionList.indexOf('UPLOAD') > -1) {
           if (file.operationPermissionList.indexOf('DELETE') > -1) {
-            this.menus.splice(this.menus.length - 1, 0, { iconClass: 'menu-copy',label: '移动或复制', operation: 'copy'})
+            this.menus.splice(this.menus.length - 1, 0, fileOperations.copy)
           }
           if (!file.isFolder) {
-            this.menus.splice(this.menus.length - 1, 0, { iconClass: 'duplicate', label: '创建副本', operation: 'duplicate'})
+            this.menus.splice(this.menus.length - 1, 0, fileOperations.duplicate)
           }
         }
         if (file.operationPermissionList.indexOf('DELETE') > -1) {
-          this.menus.splice(this.menus.length, 0, { iconClass: 'menu-remove', label: '删除', operation: 'remove'})
+          this.menus.splice(this.menus.length, 0, fileOperations.remove)
         }
       }
       this.setMenusCopyDownLoadLinks(file)
@@ -3500,7 +3488,7 @@ export default {
       })
     },
     // 列表右键菜单操作
-    menusOperations(operation) {
+    menusOperations(operation, event) {
       switch (operation) {
         case 'share':
           // 分配标签
@@ -3525,7 +3513,7 @@ export default {
           break
         case 'open':
           // 打开
-          this.fileClick(this.rowContextData)
+          this.fileClick(this.rowContextData, event)
           break
         case 'deselect':
           // 取消选定
@@ -3561,9 +3549,7 @@ export default {
           break
         case 'remove':
           // 删除
-          this.permanentDelete = false
-          this.selectDeleteFile = this.getSelectDeleteList()
-          this.deleteConfirmVisible = true
+          this.removeOperation()
           break
         case 'sweep':
           // 清空回收站
@@ -3578,6 +3564,11 @@ export default {
     },
     clearTreeNode() {
       // 清空文件树
+    },
+    removeOperation() {
+      this.permanentDelete = false
+      this.selectDeleteFile = this.getSelectDeleteList()
+      this.deleteConfirmVisible = true
     },
     // 加载下一级文件树
     directoryTreeLoadNode(node, resolve) {
@@ -4122,7 +4113,7 @@ export default {
         })
     },
     // 点击文件或文件夹
-    fileClick(row) {
+    fileClick(row, event) {
       if (this.queryFileType === 'trash') {
         return
       }
@@ -4190,7 +4181,7 @@ export default {
           if (selectData.length < 1 || selectData[0].id !== row.id) {
             this.$refs.fileListTable.clearSelection()
             this.$refs.fileListTable.toggleRowSelection([{ row: row }])
-            this.pinSelect(null, row)
+            this.pinSelect(row, event)
           } else {
             this.$refs.fileListTable.clearSelection()
             selectFile = {}
