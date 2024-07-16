@@ -1,7 +1,78 @@
 <template>
   <div>
-    <el-dialog style="{'font-weight': 600}" :visible.sync="searchDialogVisible" @close="searchDialogClose">
-      <div>
+    <el-dialog style="{'font-weight': 600}" :show-close="false" :visible.sync="searchDialogVisible" @close="searchDialogClose">
+      <div class="search-container">
+        <div class="header column">
+          header
+        </div>
+        <div class="operation column">
+          operation
+        </div>
+        <div class="content column">
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div>
+          <div>
+            content1
+          </div><div>
+          content1
+        </div><div>
+          content1
+        </div>
+          <div>
+            content1
+          </div>
+
+
+        </div>
+        <div class="footer column">
+          footer
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -52,10 +123,24 @@ export default {
 <style lang="scss" scoped>
 
 >>> .el-dialog {
+  .el-dialog__body {
+    padding: 0;
+  }
+  .el-dialog__header {
+    display: none;
+  }
   max-width: 460px;
 
   .el-dialog__title {
     font-weight: 600;
+  }
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  .column {
+    padding: 20px;
   }
 }
 </style>
