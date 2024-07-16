@@ -17,7 +17,19 @@
       </div>
       <el-form class="details-form">
         <el-form-item label="重建索引:" class="details-scan">
-          <el-button type="primary" size="mini" :loading="syncLoading" @click="scanDirectory(rowContextData)" ><i class="el-icon-refresh"></i></el-button>
+          <el-popover
+            placement="bottom"
+            trigger="click">
+            <p class="el-popconfirm__main">
+              <i class="el-popconfirm__icon el-icon-question" style="color: rgb(255, 153, 0);"></i>
+              是否开始扫描?
+            </p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="cancelScan()">取消</el-button>
+              <el-button type="primary" size="mini" @click="scanDirectory(rowContextData)">确定</el-button>
+            </div>
+            <el-button slot="reference" id="scanDirectoryBtn-file" type="primary" size="small" :loading="syncLoading"><i class="el-icon-refresh"></i></el-button>
+          </el-popover>
           <span v-show="syncPercent < 100">正在同步文件基本信息: {{ syncPercent }}%</span>
           <span v-show="indexingPercent > 0 && indexingPercent < 100">正在为文件内容创建索引: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
         </el-form-item>
@@ -162,20 +174,18 @@ export default {
       }
       this.syncLoading = !((this.syncPercent === 100 && this.indexingPercent === 100) || (this.syncPercent === 0 && this.indexingPercent === 0));
     },
+    cancelScan() {
+      document.getElementById('scanDirectoryBtn-file').click()
+    },
     scanDirectory(file) {
-      this.$confirm('是否开始扫描? ', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.syncLoading = true
-        this.syncPercent = 0
-        this.clickSync = true
-        settingApi.syncUser({username: this.$store.state.user.name, path: decodeURIComponent(file.path + file.name)}).then(() => {
-          this.clickSync = false
-        }).catch(() => {
-          this.clickSync = false
-        })
+      this.cancelScan()
+      this.syncLoading = true
+      this.syncPercent = 0
+      this.clickSync = true
+      settingApi.syncUser({username: this.$store.state.user.name, path: decodeURIComponent(file.path + file.name)}).then(() => {
+        this.clickSync = false
+      }).catch(() => {
+        this.clickSync = false
       })
     },
   }
@@ -216,6 +226,9 @@ export default {
   }
 
   >>> .details-scan {
+    .el-form-item__label {
+      line-height: 32.5px;
+    }
     margin-bottom: 10px;
     .el-button--mini, .el-button--mini.is-round {
       padding: 5px 15px;
