@@ -295,12 +295,13 @@
               <svg-icon :icon-class="item.iconClass" />
               <span class="menuitem text">{{ item.label }}</span>
               <span v-if="item.shortcut" style="position: absolute;right: 10px;">
-                <kbd>{{ item.shortcut }}</kbd>
+                <kbd v-for="key in item.shortcut" :style="{fontSize: key === '⌘' ? '14px' : '12px'}">{{ key }}</kbd>
               </span>
             </label>
           </li>
         </ul>
       </e-vue-contextmenu>
+
       <!--list布局-->
       <div
         v-show="fileList.length > 0"
@@ -789,6 +790,7 @@
 
 <script>
 import SearchDialog from '@/components/SearchDialog/index.vue'
+import { fileOperations } from '@/utils/file-operations'
 import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
 import { getElementToPageLeft } from '@/utils/dom'
@@ -905,20 +907,20 @@ export default {
       type: Array,
       default: function() {
         return [
-          { iconClass: 'menu-open', label: '打开', operation: 'open' },
+          fileOperations.open,
           { iconClass: 'share', label: '分享', operation: 'share' },
           { iconClass: 'tag', label: '标签', operation: 'tag' },
           { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
           {
             iconClass: 'menu-details',
             label: '详情',
-            shortcut: "space",
+            shortcut: ["space"],
             operation: 'details',
           },
-          { iconClass: 'menu-rename', label: '重命名', operation: 'rename', shortcut: 'F2' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
+          fileOperations.rename,
+          fileOperations.copy,
+          fileOperations.download,
+          fileOperations.remove,
         ]
       },
     },
@@ -932,9 +934,9 @@ export default {
             operation: 'deselect',
           },
           { iconClass: 'tag', label: '标签', operation: 'tag' },
-          { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
-          { iconClass: 'menu-download', label: '下载', operation: 'download' },
-          { iconClass: 'menu-remove', label: '删除', operation: 'remove' },
+          fileOperations.copy,
+          fileOperations.download,
+          fileOperations.remove,
         ]
       },
     },
@@ -3264,7 +3266,7 @@ export default {
           )
         }
         if (!row.isFolder && this.queryFileType !== 'trash') {
-          this.menus.splice(-2, 0, { iconClass: 'duplicate', label: '创建副本', operation: 'duplicate'})
+          this.menus.splice(-2, 0, fileOperations.duplicate)
         }
         if ((row.isShare && !row.shareBase) || row.ossFolder) {
           // 删除分享选项
@@ -3311,18 +3313,18 @@ export default {
       )
       if (file.operationPermissionList && file.operationPermissionList.length > 0) {
         if (file.operationPermissionList.indexOf('PUT') > -1) {
-          this.menus.splice(this.menus.length - 1, 0, { iconClass: 'menu-rename', label: '重命名', operation: 'rename'})
+          this.menus.splice(this.menus.length - 1, 0, fileOperations.rename)
         }
         if (file.operationPermissionList.indexOf('UPLOAD') > -1) {
           if (file.operationPermissionList.indexOf('DELETE') > -1) {
-            this.menus.splice(this.menus.length - 1, 0, { iconClass: 'menu-copy',label: '移动或复制', operation: 'copy'})
+            this.menus.splice(this.menus.length - 1, 0, fileOperations.copy)
           }
           if (!file.isFolder) {
-            this.menus.splice(this.menus.length - 1, 0, { iconClass: 'duplicate', label: '创建副本', operation: 'duplicate'})
+            this.menus.splice(this.menus.length - 1, 0, fileOperations.duplicate)
           }
         }
         if (file.operationPermissionList.indexOf('DELETE') > -1) {
-          this.menus.splice(this.menus.length, 0, { iconClass: 'menu-remove', label: '删除', operation: 'remove'})
+          this.menus.splice(this.menus.length, 0, fileOperations.remove)
         }
       }
       this.setMenusCopyDownLoadLinks(file)
