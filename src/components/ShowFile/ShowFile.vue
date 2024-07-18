@@ -1352,34 +1352,30 @@ export default {
       const { keyCode } = event
       const isCmd = this.checkCmdKey(event)
       console.log('keydown', 'keyCode', keyCode, 'isCmd', isCmd)
+
+      const checkPreviewVisible = this.checkPreviewVisible()
       // space
-      if (keyCode === 32) {
-        if (!this.inputting && this.selectRowData.length > 0 && !this.drawer) {
-          this.drawer = true
-          this.drawerShowTime = Date.now()
-          event.preventDefault()
-          event.stopPropagation()
-        }
+      if (keyCode === 32 && this.selectRowData.length > 0 && !this.drawer && !checkPreviewVisible) {
+        this.drawer = true
+        this.drawerShowTime = Date.now()
+        event.preventDefault()
+        event.stopPropagation()
       }
       // F2
-      if (keyCode === 113) {
-        if (this.selectRowData.length > 0 && !this.drawer) {
-          this.renameFileName = this.rowContextData.name
-          this.editingIndex = this.rowContextData.index
-        }
+      if (keyCode === 113 && this.selectRowData.length > 0 && !checkPreviewVisible) {
+        this.renameFileName = this.rowContextData.name
+        this.editingIndex = this.rowContextData.index
         event.preventDefault()
         event.stopPropagation()
       }
       // Del
-      if (keyCode === 8) {
-        if (!this.inputting && this.selectRowData.length > 0) {
-          this.removeOperation()
-          event.preventDefault()
-          event.stopPropagation()
-        }
+      if (keyCode === 8 && !this.inputting && this.selectRowData.length > 0 && !checkPreviewVisible) {
+        this.removeOperation()
+        event.preventDefault()
+        event.stopPropagation()
       }
       // ctrl + A / cmd + A
-      if (isCmd && keyCode === 65) {
+      if (isCmd && keyCode === 65 && !checkPreviewVisible) {
         if (this.inputting || this.editingIndex !== -1) {
           event.target.select()
         } else {
@@ -3406,6 +3402,7 @@ export default {
     },
     // 全局右键菜单操作
     contextmenuClick(operation) {
+      this.$refs.fileListTable.clearSelection()
       switch (operation) {
         case 'vmode-list':
           this.grid = true
@@ -4243,6 +4240,27 @@ export default {
         }
         this.notPreviewDialogVisible = true
       }
+    },
+    checkPreviewVisible() {
+      if (this.iframePreviewVisible) {
+        return true
+      }
+      if (this.imagePreviewVisible) {
+        return true
+      }
+      if (this.textPreviewVisible) {
+        return true
+      }
+      if (this.videoPreviewVisible) {
+        return true
+      }
+      if (this.audioPreviewVisible) {
+        return true
+      }
+      if (this.openCompressionVisible) {
+        return true
+      }
+      return this.notPreviewDialogVisible;
     },
     hasIframePreview(suffix, fileHandlers) {
       for (let key in fileHandlers) {
