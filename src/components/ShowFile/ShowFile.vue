@@ -1351,7 +1351,6 @@ export default {
     keydown(event) {
       const { keyCode } = event
       const isCmd = this.checkCmdKey(event)
-      console.log('keydown', 'keyCode', keyCode, 'isCmd', isCmd)
 
       const checkPreviewVisible = this.checkPreviewVisible()
       // space
@@ -2595,7 +2594,7 @@ export default {
           child[1].iconClass = 'menu-empty'
         }
         if (child[2]) {
-          if (localStorage.getItem('showFolderSize') === 'true') {
+          if (localStorage.getItem('showFolderSize') === '1') {
             child[2].iconClass = 'duigou'
           } else {
             child[2].iconClass = 'menu-empty'
@@ -3414,7 +3413,11 @@ export default {
           break
         case 'show-folder-size':
           const showFolderSize = localStorage.getItem('showFolderSize')
-          localStorage.setItem('showFolderSize', showFolderSize ? false : true)
+          if (showFolderSize === '1') {
+            localStorage.setItem('showFolderSize', '0')
+          } else {
+            localStorage.setItem('showFolderSize', '1')
+          }
           this.getFileList()
           break
         case 'orderName':
