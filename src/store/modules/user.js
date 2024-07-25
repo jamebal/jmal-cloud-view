@@ -209,7 +209,6 @@ const actions = {
   // update token
   setToken({ commit }, jmalToken) {
     commit('SET_TOKEN', jmalToken)
-    console.log('jmalToken', jmalToken)
   },
 
   // remove share token

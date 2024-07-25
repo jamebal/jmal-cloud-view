@@ -1351,7 +1351,6 @@ export default {
     keydown(event) {
       const { keyCode } = event
       const isCmd = this.checkCmdKey(event)
-      console.log('keydown', 'keyCode', keyCode, 'isCmd', isCmd)
 
       const checkPreviewVisible = this.checkPreviewVisible()
       // space
