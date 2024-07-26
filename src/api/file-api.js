@@ -177,6 +177,17 @@ export default {
       params
     })
   },
+  // 移动或复制前检查目标目录是否存在要移动或复制的文件
+  checkMoveOrCopy: function(params) {
+    return request({
+      url: 'check-move-copy',
+      method: 'get',
+      params,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      }
+    })
+  },
   // 移动文件/文件夹
   move: function(params) {
     return request({

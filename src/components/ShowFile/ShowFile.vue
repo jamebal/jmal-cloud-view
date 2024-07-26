@@ -766,30 +766,41 @@
         <div class="delete-attention mt-5">
           <el-checkbox v-model="permanentDelete" :disabled="permanentDeleteDisable">永久删除文件（不进入回收站，直接删除）</el-checkbox>
         </div>
-        <el-scrollbar wrap-class="scrollbar-wrapper">
-          <div class="delete-file-list">
-            <div v-for="file in selectDeleteFile" :key="file.id">
-              <div class="del-file-item">
-                <div>
-                  <icon-file :item="file" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
-                </div>
-                <div class="del-file-name">{{file.name}}</div>
-              </div>
-            </div>
-          </div>
-        </el-scrollbar>
+        <dialog-file-list :file-list="selectDeleteFile" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
         <el-button type="primary" size="small" @click="deleteFile" :loading="deleteLoading">确 定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog
+      :title="copyOrMoveToName"
+      :visible.sync="copyOrMoveConfirmVisible"
+      width="420px">
+      <el-row>
+        <div class="el-message-box__container delete-attention el-alert--warning is-light">
+          <div class="el-message-box__status el-icon-warning"></div>
+          <div class="el-message-box__message">
+            <p>所选目录已存在下列文件</p>
+          </div>
+        </div>
+        <dialog-file-list :file-list="existsFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
+        <el-button type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true)">覆 盖</el-button>
+        <el-button type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false)">不覆盖</el-button>
+      </span>
+    </el-dialog>
+
     <search-dialog :status.sync="searchDialogVisible"></search-dialog>
   </div>
 </template>
 
 <script>
 import SearchDialog from '@/components/SearchDialog/index.vue'
+import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
 import { fileOperations } from '@/utils/file-operations'
 import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
@@ -824,6 +835,7 @@ import FileDetails from "@/components/preview/FileDetails.vue";
 export default {
   name: 'ShowFile',
   components: {
+    DialogFileList,
     SearchDialog,
     FileDetails,
     TagDialog,
@@ -1086,6 +1098,14 @@ export default {
       draging: 0, // 是否正在拖拽中，0：没有拖拽，1：拖拽中,
       getFileListed: false,
       onCreateFilename: '',
+      existsFileList: [], // 移动或复制存在的文件列表
+      copyOrMoveConfirmVisible: false, // 移动或复制警告弹出框
+      copyOrMoveParams: {
+        operating: 'copy',
+        froms: [],
+        to: ''
+      }, // 移动或复制要传递的参数
+      copyOrMoveToName: '', // 移动或复制到的文件夹名称
       deleteConfirmVisible: false, // 删除确认弹窗
       permanentDelete: false, // 是否永久删除
       permanentDeleteDisable: false, // 是否禁用永久删除选项
@@ -2138,7 +2158,7 @@ export default {
               }
             )
             .then(() => {
-              _this.copyOrMoveApi('move', forms, to.id)
+              _this.checkCopyOrMoveApi('move', forms, to.id, to.name)
               recoverDragDom(false)
             })
             .catch(() => {
@@ -3108,7 +3128,6 @@ export default {
     },
     // 单元格点击事件
     cellClick(row, column, cell, event) {
-      console.log('cellClick', row, column, cell, event)
       if (this.selectFile) {
         this.fileClick(row, event)
         return
@@ -3705,9 +3724,27 @@ export default {
           fileIds.push(this.rowContextData[0].id)
         }
       }
-      this.copyOrMoveApi(operating, fileIds, this.selectTreeNode.id)
+      this.checkCopyOrMoveApi(operating, fileIds, this.selectTreeNode.id, this.selectTreeNode.name)
     },
-    copyOrMoveApi(operating, froms, to) {
+    checkCopyOrMoveApi(operating, froms, to, toName) {
+      api['checkMoveOrCopy']({
+        userId: this.$store.state.user.userId,
+        username: this.$store.state.user.name,
+        froms: froms,
+        to: to,
+      }).then((res) => {
+        if (res.count > 0) {
+          this.copyOrMoveConfirmVisible = true
+          this.copyOrMoveParams = {operating: operating, froms: froms, to: to}
+          this.copyOrMoveToName = `${(operating === 'copy' ? '复制' : '移动')}到: "${toName}"`
+          this.existsFileList = res.data
+        } else {
+          this.copyOrMoveApi(operating, froms, to, false)
+        }
+      })
+    },
+    copyOrMoveApi(operating, froms, to, isOverride) {
+      this.copyOrMoveConfirmVisible = false
       let operation = '复制'
       if (operating === 'move') {
         operation = '移动'
@@ -3725,8 +3762,8 @@ export default {
         username: this.$store.state.user.name,
         froms: froms,
         to: to,
-      })
-        .then(() => {
+        isOverride: isOverride
+      }).then(() => {
           copying.iconClass = null
           copying.type = 'success'
           copying.message = operation + '中...'
@@ -3740,8 +3777,7 @@ export default {
           setTimeout(function() {
             copying.close()
           }, 1000)
-        })
-        .catch(() => {
+        }).catch(() => {
           copying.close()
         })
     },
@@ -4487,18 +4523,5 @@ export default {
 .mt-5 {
   margin-top: 5px;
 }
-.delete-file-list {
-  max-height: 50vh;
-  .del-file-item {
-    display: flex;
-    margin: 5px 0;
-    .del-file-name {
-      align-content: center;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding: 0 10px;
-    }
-  }
-}
+
 </style>
