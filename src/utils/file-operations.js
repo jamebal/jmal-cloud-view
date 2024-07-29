@@ -5,5 +5,5 @@ export const fileOperations = {
   download: { iconClass: 'menu-download', label: '下载', operation: 'download' },
   copy: { iconClass: 'menu-copy', label: '移动或复制', operation: 'copy' },
   rename: { iconClass: 'menu-rename', label: '重命名', operation: 'rename', shortcut: ['F2'] },
-  //copyKey: { iconClass: 'menu-copy', label: '复制', operation: 'copyKey', shortcut: [navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl', 'C'] },
+  copyOnly: { iconClass: 'menu-copy', label: '复制', operation: 'copyOnly', shortcut: [navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl', 'C'] },
 }

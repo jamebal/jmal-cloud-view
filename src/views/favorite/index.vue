@@ -5,6 +5,7 @@
       :defaultGrid="true"
       :sortable="sortable"
       :orderCustom="true"
+      :showClipboard="true"
       :defaultSort="sortable"
       :queryCondition="queryCondition"
       :contextMenus="contextMenus"

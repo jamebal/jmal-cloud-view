@@ -11,5 +11,6 @@ const getters = {
   userId: state => state.user.userId,
   userInfo: state => state.user.userInfo,
   menuList: state => state.user.menuList,
+  fileClipboard: state => state.fileClipboard
 }
 export default getters

@@ -152,7 +152,7 @@ export default {
     directoryTreeLoadNode(node, resolve) {
       let fileId = null;
       if (node.level === 0) {
-        let data = [{ id: "0", name: "全部文件" }];
+        let data = [{ id: "0", name: "根目录" }];
         const that = this;
         setTimeout(function() {
           that.$refs.fileTree.setCurrentKey("0");
