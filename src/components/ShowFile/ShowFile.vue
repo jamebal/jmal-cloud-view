@@ -454,8 +454,6 @@
           element-loading-background="#f6f7fa88"
         >
           <van-checkbox-group
-            v-model="selectRowData"
-            @change="handleSelectionChange"
             ref="checkboxGroup"
           >
             <van-grid
@@ -760,13 +758,13 @@
         <div class="el-message-box__container delete-attention el-alert--warning is-light">
           <div class="el-message-box__status el-icon-warning"></div>
           <div class="el-message-box__message">
-            <p>确定删除所选的{{selectDeleteFile.length}}个文件？默认进入回收站</p>
+            <p>确定删除所选的{{selectFileList.length}}个文件？默认进入回收站</p>
           </div>
         </div>
         <div class="delete-attention mt-5">
           <el-checkbox v-model="permanentDelete" :disabled="permanentDeleteDisable">永久删除文件（不进入回收站，直接删除）</el-checkbox>
         </div>
-        <dialog-file-list :file-list="selectDeleteFile" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
+        <dialog-file-list :file-list="selectFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
@@ -789,10 +787,12 @@
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
-        <el-button type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true)">覆 盖</el-button>
-        <el-button type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false)">不覆盖</el-button>
+        <el-button type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true, copyOrMoveParams.targetPath)">覆 盖</el-button>
+        <el-button type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">不覆盖</el-button>
       </span>
     </el-dialog>
+
+    <file-clipboard ref="fileClipboard" v-if="showClipboard && fileClipboard.length > 0" :file-list="fileClipboard" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :target-path="path" :target-folder="currentFolder" @onCopy="onCopy" @onMove="onMove"></file-clipboard>
 
     <search-dialog :status.sync="searchDialogVisible"></search-dialog>
   </div>
@@ -801,6 +801,9 @@
 <script>
 import SearchDialog from '@/components/SearchDialog/index.vue'
 import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
+import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
+import store from '@/store'
+import path from 'path'
 import { fileOperations } from '@/utils/file-operations'
 import { mapGetters, mapState } from 'vuex'
 import { formatSize, formatTime } from '@/utils/number'
@@ -835,6 +838,7 @@ import FileDetails from "@/components/preview/FileDetails.vue";
 export default {
   name: 'ShowFile',
   components: {
+    FileClipboard,
     DialogFileList,
     SearchDialog,
     FileDetails,
@@ -931,6 +935,7 @@ export default {
           },
           fileOperations.rename,
           fileOperations.copy,
+          fileOperations.copyOnly,
           fileOperations.download,
           fileOperations.remove,
         ]
@@ -947,6 +952,7 @@ export default {
           },
           { iconClass: 'tag', label: '标签', operation: 'tag' },
           fileOperations.copy,
+          fileOperations.copyOnly,
           fileOperations.download,
           fileOperations.remove,
         ]
@@ -956,6 +962,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    showClipboard: {
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {
@@ -1103,13 +1113,14 @@ export default {
       copyOrMoveParams: {
         operating: 'copy',
         froms: [],
-        to: ''
+        to: '',
+        targetPath: ''
       }, // 移动或复制要传递的参数
       copyOrMoveToName: '', // 移动或复制到的文件夹名称
       deleteConfirmVisible: false, // 删除确认弹窗
       permanentDelete: false, // 是否永久删除
       permanentDeleteDisable: false, // 是否禁用永久删除选项
-      selectDeleteFile: [], // 选中的删除文件
+      selectFileList: [], // 选中的文件
       deleteLoading: false, // 删除loading
       debounceSearch: null,// 搜索防抖
       searchDialogVisible: false
@@ -1129,6 +1140,15 @@ export default {
         default:
           return '名称'
       }
+    },
+    fileClipboard() {
+      return store.getters.fileClipboard
+    },
+    getClipboardFileIdList() {
+      return store.getters.fileClipboard.map(file => file.id)
+    },
+    currentFolder() {
+      return this.$route.query.folder
     },
     gridFilename() {
       // 优化文件名，如果文件名过长，则进行截取
@@ -1371,7 +1391,6 @@ export default {
     keydown(event) {
       const { keyCode } = event
       const isCmd = this.checkCmdKey(event)
-
       const checkPreviewVisible = this.checkPreviewVisible()
       // space
       if (keyCode === 32 && this.selectRowData.length > 0 && !this.drawer && !checkPreviewVisible) {
@@ -1406,6 +1425,26 @@ export default {
           event.preventDefault()
           event.stopPropagation()
         }
+      }
+      // ctrl + C / cmd + C
+      if (isCmd && keyCode === 67 && !checkPreviewVisible && !this.inputting && this.selectRowData.length > 0) {
+        this.copyOperation()
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      // ctrl + V / cmd + V
+      if (isCmd && keyCode === 86 && !checkPreviewVisible && !this.inputting && this.fileClipboard.length > 0) {
+        // copy
+        this.onCopy(this.getClipboardFileIdList, this.path, this.currentFolder)
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      // ctrl + X / cmd + X
+      if (isCmd && keyCode === 88 && !checkPreviewVisible && !this.inputting && this.fileClipboard.length > 0) {
+        // move
+        this.onMove(this.getClipboardFileIdList, this.path, this.currentFolder)
+        event.preventDefault()
+        event.stopPropagation()
       }
       // ctrl + P / cmd + P
       // if (isCmd && keyCode === 80) {
@@ -1468,6 +1507,9 @@ export default {
           }
         }
         this.clearOnCreateFilename()
+      }
+      if (this.$route.path === '/trash' && msg.url === 'operationTips') {
+        this.getFileList()
       }
     },
     // 延时清空onCreateFilename
@@ -1568,18 +1610,13 @@ export default {
         }
         // 点击的区域是否为文件, throughRow 不为空就证明点到了文件
         let throughRow = elPath.find(path => {
-          if (
-            path.className === itemClassName ||
-            path.className === 'el-table__row el-table__row--striped'
-          ) {
+          if (path.className === itemClassName || path.className === 'el-table__row el-table__row--striped') {
             return path
           }
         })
         if (throughRow) {
           // 鼠标按下时就选中文件
-          if (
-            !_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])
-          ) {
+          if (!_this.selectRowData.includes(_this.fileList[throughRow.rowIndex])) {
             _this.editingIndex = -1
             if (!_this.checkCmdKey(e) && !e.shiftKey) {
               _this.$refs.fileListTable.clearSelection()
@@ -2942,18 +2979,12 @@ export default {
         }
         if (diff > 0) {
           for (let i = origin; i <= this.selectEnd; i++) {
-            this.$refs.fileListTable.toggleRowSelection([
-              { row: this.fileList[i], selected: true },
-            ])
-            this.$refs.fileListTable.tableSelectData.push(this.fileList[i])
+            this.$refs.fileListTable.toggleRowSelection([{ row: this.fileList[i], selected: true }])
           }
         }
         if (diff < 0) {
           for (let i = this.selectEnd; i <= origin; i++) {
-            this.$refs.fileListTable.toggleRowSelection([
-              { row: this.fileList[i], selected: true },
-            ])
-            this.$refs.fileListTable.tableSelectData.push(this.fileList[i])
+            this.$refs.fileListTable.toggleRowSelection([{ row: this.fileList[i], selected: true }])
           }
         }
       }
@@ -3332,6 +3363,7 @@ export default {
         if (file.operationPermissionList.indexOf('UPLOAD') > -1) {
           if (file.operationPermissionList.indexOf('DELETE') > -1) {
             this.menus.splice(this.menus.length - 1, 0, fileOperations.copy)
+            this.menus.splice(this.menus.length - 1, 0, fileOperations.copyOnly)
           }
           if (!file.isFolder) {
             this.menus.splice(this.menus.length - 1, 0, fileOperations.duplicate)
@@ -3558,6 +3590,9 @@ export default {
           // 移动或复制
           this.moveOrCopy()
           break
+        case 'copyOnly':
+          this.copyOperation()
+          break
         case 'download':
           // 下载
           this.downloadFile()
@@ -3586,8 +3621,17 @@ export default {
     },
     removeOperation() {
       this.permanentDelete = false
-      this.selectDeleteFile = this.getSelectDeleteList()
+      this.selectFileList = this.getSelectFileList()
       this.deleteConfirmVisible = true
+    },
+    onCopy(fileIdList, targetPath, targetFolder) {
+      this.checkCopyOrMoveApi('copy', fileIdList, targetFolder, undefined, targetPath)
+    },
+    onMove(fileIdList, targetPath, targetFolder) {
+      this.checkCopyOrMoveApi('move', fileIdList, targetFolder, undefined, targetPath)
+    },
+    copyOperation() {
+      store.dispatch('updateFileClipboard', this.getSelectFileList())
     },
     // 加载下一级文件树
     directoryTreeLoadNode(node, resolve) {
@@ -3597,7 +3641,7 @@ export default {
         setTimeout(function() {
           that.$refs.directoryTree.setCurrentKey('0')
         }, 0)
-        return resolve([{ id: '0', name: '全部文件' }])
+        return resolve([{ id: '0', name: '根目录' }])
       }
       if (node.level > 1) {
         fileId = node.data.mountFileId || node.data.id
@@ -3726,24 +3770,32 @@ export default {
       }
       this.checkCopyOrMoveApi(operating, fileIds, this.selectTreeNode.id, this.selectTreeNode.name)
     },
-    checkCopyOrMoveApi(operating, froms, to, toName) {
+    checkCopyOrMoveApi(operating, froms, to, toName, targetPath) {
+      if (!to && !targetPath) {
+        to = '0'
+        toName = '根目录'
+      }
+      if (targetPath) {
+        toName = path.basename(targetPath)
+      }
       api['checkMoveOrCopy']({
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
         froms: froms,
         to: to,
+        targetPath: targetPath
       }).then((res) => {
         if (res.count > 0) {
           this.copyOrMoveConfirmVisible = true
-          this.copyOrMoveParams = {operating: operating, froms: froms, to: to}
+          this.copyOrMoveParams = {operating: operating, froms: froms, to: to, targetPath: targetPath}
           this.copyOrMoveToName = `${(operating === 'copy' ? '复制' : '移动')}到: "${toName}"`
           this.existsFileList = res.data
         } else {
-          this.copyOrMoveApi(operating, froms, to, false)
+          this.copyOrMoveApi(operating, froms, to, false, targetPath)
         }
       })
     },
-    copyOrMoveApi(operating, froms, to, isOverride) {
+    copyOrMoveApi(operating, froms, to, isOverride, targetPath) {
       this.copyOrMoveConfirmVisible = false
       let operation = '复制'
       if (operating === 'move') {
@@ -3762,8 +3814,10 @@ export default {
         username: this.$store.state.user.name,
         froms: froms,
         to: to,
+        targetPath: targetPath,
         isOverride: isOverride
       }).then(() => {
+          this.$refs.fileClipboard.clear()
           copying.iconClass = null
           copying.type = 'success'
           copying.message = operation + '中...'
@@ -3976,8 +4030,8 @@ export default {
     },
     // 删除
     deleteFile() {
-      // 提取出selectDeleteFile中的id
-      const fileIds = this.selectDeleteFile.map(item => item.id)
+      // 提取出selectFileList中的id
+      const fileIds = this.selectFileList.map(item => item.id)
       this.deleteLoading = true
       api.delete({
         currentDirectory: this.getQueryPath(),
@@ -3998,9 +4052,7 @@ export default {
     },
     restoreFile() {
       const fileIds = this.getSelectIdList()
-      api.restore({fileIds: fileIds}).then(() => {
-        this.getFileList()
-      })
+      api.restore({fileIds: fileIds}).then()
     },
     sweepFile() {
       const fileIds = this.getSelectIdList()
@@ -4010,9 +4062,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       }).then(() => {
-        api.sweep({fileIds: fileIds}).then(() => {
-          this.getFileList()
-        })
+        api.sweep({fileIds: fileIds}).then()
       })
     },
     clearTrash() {
@@ -4022,9 +4072,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       }).then(() => {
-        api.clearTrash().then(() => {
-          this.getFileList()
-        })
+        api.clearTrash().then()
       })
     },
     // 获取选中项id列表
@@ -4039,19 +4087,21 @@ export default {
       }
       return fileIds
     },
-    getSelectDeleteList() {
-      const fileList = []
-      this.permanentDeleteDisable = false
+    getSelectFileList() {
+      const fileList = [];
+      this.permanentDeleteDisable = false;
+      const addFileToList = ({ id, suffix, name, contentType, isFolder, music, video }) => {
+        fileList.push({ id, suffix, name, contentType, isFolder, music, video });
+      };
       if (this.selectRowData.length > 1 || this.menusIsMultiple) {
-        this.$refs.fileListTable.tableSelectData.forEach(value => {
-          this.checkPermanentDelete(value.id)
-          fileList.push({id: value.id, suffix: value.suffix, name: value.name, contentType: value.contentType, isFolder: value.isFolder, music: value.music, video: value.video})
-        })
+        this.$refs.fileListTable.tableSelectData.forEach(value => addFileToList(value));
       } else {
-        this.checkPermanentDelete(this.rowContextData.id)
-        fileList.push({id: this.rowContextData.id, suffix: this.rowContextData.suffix, name: this.rowContextData.name, contentType: this.rowContextData.contentType, isFolder: this.rowContextData.isFolder, music: this.rowContextData.music, video: this.rowContextData.video})
+        addFileToList(this.rowContextData);
       }
-      return fileList
+      if (fileList.length > 0) {
+        this.checkPermanentDelete(fileList[0].id);
+      }
+      return fileList;
     },
     checkPermanentDelete(fileId) {
       if (/\//.test(fileId)) {

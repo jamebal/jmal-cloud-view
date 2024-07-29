@@ -16,16 +16,23 @@ const store = new Vuex.Store({
   getters,
   state: {
     message: null,
+    fileClipboard: []
   },
   mutations: {
     setMessage(state, message) {
       state.message = message;
     },
+    setFileClipboard(state, fileClipboard) {
+      state.fileClipboard = fileClipboard;
+    }
   },
   actions: {
     updateMessage({ commit }, message) {
       commit('setMessage', message);
     },
+    updateFileClipboard({ commit }, fileClipboard) {
+      commit('setFileClipboard', fileClipboard);
+    }
   }
 })
 

@@ -4,6 +4,7 @@
       :defaultGrid="true"
       :orderCustom="true"
       :contextMenus="contextMenus"
+      :showClipboard="true"
       :sortable="sortable">
     </show-file>
   </div>

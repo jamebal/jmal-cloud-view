@@ -58,4 +58,12 @@ export default {
     }
   }
 }
+>>> .svg-icon {
+  font-size: 28px;
+}
+>>> .el-avatar {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+}
 </style>

@@ -94,7 +94,7 @@ export default {
         setTimeout(function () {
           that.$refs.directoryTree.setCurrentKey('0')
         }, 0)
-        return resolve([{'id': "0", 'name': '全部文件'}])
+        return resolve([{'id': "0", 'name': '根目录'}])
       }
       if (node.level > 1) {
         fileId = node.data.id

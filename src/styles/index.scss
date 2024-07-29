@@ -240,3 +240,10 @@ kbd {
   -webkit-box-shadow: inset 0 -1px 0 rgba(175, 184, 193, .2);
   box-shadow: inset 0 -1px 0 rgba(175, 184, 193, .2);
 }
+.clipboard-popover {
+  padding: 0 !important;
+}
+
+.clipboard-operation-popover {
+  max-width: 500px;
+}
