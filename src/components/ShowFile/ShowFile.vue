@@ -4358,13 +4358,16 @@ export default {
       return this.notPreviewDialogVisible;
     },
     hasIframePreview(suffix, fileHandlers) {
+      // 将 suffix 转换为小写
+      const lowerCaseSuffix = suffix.toLowerCase();
       for (let key in fileHandlers) {
-        const extensions = key.split(',')
-        if (extensions.includes(suffix)) {
-          return fileHandlers[key]
+        // 将 key 中的扩展名全部转换为小写
+        const extensions = key.split(',').map(extension => extension.toLowerCase());
+        if (extensions.includes(lowerCaseSuffix)) {
+          return fileHandlers[key];
         }
       }
-      return null
+      return null;
     },
     determineDownload(file) {
       this.download(file)
