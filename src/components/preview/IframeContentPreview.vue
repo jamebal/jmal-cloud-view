@@ -13,7 +13,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-          <el-button size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
+          <el-button title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
         </div>
       </div>
     </div>
@@ -153,6 +153,7 @@ export default {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
+  background: #dcdfe6;
   iframe {
     width: 100%;
     height: 100%;
