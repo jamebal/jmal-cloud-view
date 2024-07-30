@@ -1123,6 +1123,7 @@ export default {
       selectFileList: [], // 选中的文件
       deleteLoading: false, // 删除loading
       debounceSearch: null,// 搜索防抖
+      debounceGetFileList: null,// 获取文件列表防抖
       searchDialogVisible: false
     }
   },
@@ -1204,19 +1205,22 @@ export default {
     this.debounceSearch = _.debounce((key, onLoad) => {
       this.searchFile(key, onLoad)
     }, 200)
+    this.debounceGetFileList = _.debounce((onLoad) => {
+      this.getFileList(onLoad)
+    }, 200)
   },
   watch: {
     $route(to) {
       if (to.query.tagId && this.queryCondition.tagId !== this.$route.query.tagId) {
         this.queryCondition.tagId = this.$route.query.tagId
         this.pathList = [{ folder: "" }]
-        this.getFileList()
+        this.getFileListEnter()
       }
     },
     message(msg) {
       switch (msg.event) {
         case 'msg/file/operation/fault':
-          this.getFileList()
+          this.getFileListEnter()
           break
         case 'fileSuccess':
           this.setOnCreateFilename(msg.data)
@@ -1317,7 +1321,7 @@ export default {
 
     setTimeout(() => {
       if (!this.getFileListed) {
-        this.getFileList()
+        this.getFileListEnter()
       }
     }, 50)
   },
@@ -1480,7 +1484,7 @@ export default {
       }
       if ('deleteFile' === url) {
         if (index > -1) {
-          this.getFileList()
+          this.getFileListEnter()
         }
       }
       if ('createFile' === url) {
@@ -1498,18 +1502,18 @@ export default {
             let path = fileDoc.$set.path
             path = path.replace(/\\/g, '/')
             if (this.path + '/' === path) {
-              this.getFileList()
+              this.getFileListEnter()
             }
           } else {
             if (this.path + '/' === fileDoc.path) {
-              this.getFileList()
+              this.getFileListEnter()
             }
           }
         }
         this.clearOnCreateFilename()
       }
       if (this.$route.path === '/trash' && msg.url === 'operationTips') {
-        this.getFileList()
+        this.getFileListEnter()
       }
     },
     // 延时清空onCreateFilename
@@ -1554,7 +1558,7 @@ export default {
         if (this.$route.query.tagId) {
           this.queryCondition.tagId = this.$route.query.tagId
         }
-        this.getFileList()
+        this.getFileListEnter()
       }
       // 使列表可拖拽
       this.rowDrop()
@@ -2375,7 +2379,7 @@ export default {
         }
         if (!unRefresh) {
           this.pagination.pageIndex = 1
-          this.getFileList()
+          this.getFileListEnter()
         }
       }
     },
@@ -2510,7 +2514,7 @@ export default {
                 type: 'success',
                 duration: 1000,
               })
-              this.getFileList()
+              this.getFileListEnter()
             }
           })
           .catch(() => {
@@ -2768,6 +2772,9 @@ export default {
         }
       }
     },
+    getFileListEnter(onLoad) {
+      this.debounceGetFileList(onLoad)
+    },
     searchFileEnter(key, onLoad) {
       this.debounceSearch(key, onLoad)
     },
@@ -2905,8 +2912,7 @@ export default {
         this.searchFileName = ''
         this.getFileListed = true
         this.beforeLoadData(onLoad)
-        api
-          .fileList({
+        api.fileList({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             currentDirectory: this.getQueryPath(),
@@ -2958,7 +2964,7 @@ export default {
               this.searchFile(this.searchFileName, true)
             }
           } else {
-            this.getFileList(true)
+            this.getFileListEnter(true)
           }
         }
       }
@@ -3015,7 +3021,7 @@ export default {
         if (this.listModeSearch) {
           this.searchFile(this.searchFileName)
         } else {
-          this.getFileList()
+          this.getFileListEnter()
         }
       }
     },
@@ -3284,7 +3290,7 @@ export default {
     setOnCreateFilename(newFileName) {
       if (this.$route.query.folder) {
         this.onCreateFilename = newFileName
-        this.getFileList()
+        this.getFileListEnter()
         this.clearOnCreateFilename()
       }
     },
@@ -3469,7 +3475,7 @@ export default {
           } else {
             localStorage.setItem('showFolderSize', '1')
           }
-          this.getFileList()
+          this.getFileListEnter()
           break
         case 'orderName':
           this.sortChangeOfMenu('name', 2)
@@ -3481,7 +3487,7 @@ export default {
           this.sortChangeOfMenu('updateDate', 6)
           break
         case 'refresh':
-          this.getFileList()
+          this.getFileListEnter()
           break
         case 'createTextFile':
           this.newCreateFileDialogTitle = '新建文本文件'
@@ -3826,7 +3832,7 @@ export default {
           }
           if (operating === 'move') {
             // 移除列表
-            this.getFileList()
+            this.getFileListEnter()
           }
           setTimeout(function() {
             copying.close()
@@ -3925,7 +3931,7 @@ export default {
       this.tagDialogVisible = true
     },
     allocateTagSuccess() {
-      this.getFileList()
+      this.getFileListEnter()
     },
     share(row) {
       if (!row || !row.id) {
@@ -4043,7 +4049,7 @@ export default {
         this.deleteConfirmVisible = false
         // 刷新列表
         if (this.$route.query.folder) {
-          this.getFileList()
+          this.getFileListEnter()
         }
       }).catch(() => {
         this.deleteLoading = false
@@ -4187,7 +4193,7 @@ export default {
             decompressing.close()
             that.openCompressionVisible = false
             if (file.id === destFileId) {
-              that.getFileList()
+              that.getFileListEnter()
             }
             if (destFileId && file.id !== destFileId && !tempDir) {
               that.dialogMoveOrCopyVisible = false
