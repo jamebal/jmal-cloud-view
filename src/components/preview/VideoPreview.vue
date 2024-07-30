@@ -3,9 +3,7 @@
     <van-overlay :show="show">
       <div class="wrapper">
         <div class="block">
-          <div class="close-bar" @click="close">
-            <svg-icon class="audio-player-close" icon-class="close"/>
-          </div>
+          <el-button v-show="controlState" class="close-bar" icon="el-icon-close" size="mini" title="关闭" circle @click="close"></el-button>
           <Artplayer @get-instance="getInstance" :option="option" :style="style"/>
         </div>
       </div>
@@ -46,6 +44,7 @@ export default {
     return {
       pc: this.$pc,
       art: null,
+      controlState: true,
       switchQuality: false,
       option: {
         url: '',
@@ -237,6 +236,11 @@ export default {
         const infuse = doc.querySelector('[data-index="3"]').querySelector('a');
         infuse.href = `infuse://x-callback-url/play?url=${this.videoLink}`
       }
+      this.art.on('control', (state) => {
+        if (this.controlState !== state) {
+          this.controlState = state
+        }
+      });
     },
     playM3u8(video, url, art) {
       if (Hls.isSupported()) {
@@ -291,24 +295,18 @@ export default {
 .block {
   .close-bar {
     z-index: 2006;
-    position: absolute;
-    top: -36px;
-    right: -36px;
+    position: relative;
+    top: -25px;
+    right: -25px;
     float: right;
-    width: 0;
-    height: 0;
-    border-radius: 36px;
-    border-width: 36px;
-    border-style: solid;
-    border-color: transparent transparent transparent #d4d4d475;
-    line-height: 36px;
-    opacity: 1;
-    transform: rotate(315deg);
+    color: #fff0f0;
+    background: #d4d4d475;
+    border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #69696975;
   }
 
   .close-bar:hover {
     cursor: pointer;
-    border-color: transparent transparent transparent #69696975;
+    border-color: #fff0f0;
   }
 
   .audio-player-close {
