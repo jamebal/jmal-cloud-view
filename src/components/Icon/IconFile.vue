@@ -91,7 +91,7 @@
       </div>
       <svg-icon v-else icon-class="audio"/>
     </div>
-    <div v-else-if="item.contentType && item.contentType.startsWith('image')">
+    <div v-else-if="(item.contentType && item.contentType.startsWith('image')) || item.showCover">
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
         <div slot="error" class="image-slot-error">
