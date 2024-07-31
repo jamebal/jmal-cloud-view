@@ -1469,6 +1469,7 @@ export default {
       }
     },
     onmessage(msg) {
+      console.log(msg.url, this.$route.path, msg, this.path)
       let fileDoc = msg.body
       const url = msg.url
       let index = this.fileList.findIndex(file => file.id === fileDoc.id)
@@ -1482,10 +1483,9 @@ export default {
           this.fileList[index].updateDate = fileDoc.updateDate
         }
       }
-      if ('deleteFile' === url) {
-        if (index > -1) {
-          this.getFileListEnter()
-        }
+      const isCurrentPath = (this.path + '/') === fileDoc
+      if ('deleteFile' === url && isCurrentPath) {
+        this.getFileListEnter()
       }
       if ('createFile' === url) {
         if (fileDoc.$set) {
@@ -1512,7 +1512,7 @@ export default {
         }
         this.clearOnCreateFilename()
       }
-      if (this.$route.path === '/trash' && msg.url === 'operationTips') {
+      if (this.$route.path.startsWith('/trash') && msg.url === 'operationTips') {
         this.getFileListEnter()
       }
     },
