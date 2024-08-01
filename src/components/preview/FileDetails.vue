@@ -363,6 +363,7 @@ export default {
 .office-preview {
   flex: 20;
   height: 80vh;
+  max-width: 885px;
   margin-right: 20px;
   >>> .docx-wrapper {
     padding: 10px;
