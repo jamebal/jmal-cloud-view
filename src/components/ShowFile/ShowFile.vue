@@ -603,7 +603,7 @@
       :status.sync="iframePreviewVisible"
     ></iframe-preview>
 
-    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :row-context-data="rowContextData" :visible.sync="drawer"></file-details>
+    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :file="rowContextData" :visible.sync="drawer" @openFile="fileClick"></file-details>
 
     <el-dialog
       class="open-file-dialog"
@@ -1159,7 +1159,7 @@ export default {
         if (item.isFolder || !this.grid) {
           return filename;
         }
-        const singleLine = item.contentType && item.contentType.startsWith('image')
+        const singleLine = (item.contentType && item.contentType.startsWith('image')) || item.showCover
         const gridFilenameLength = singleLine ? 14 : 32
         // 分离文件名和后缀
         let parts = filename.split('.');
@@ -1376,15 +1376,19 @@ export default {
     },
     // 获取字符的长度。中文字符长度为2，其他字符长度为1
     getCharLength(char) {
-      return this.isChineseChar(char) ? 2 : 1
+      //return this.isChineseChar(char) ? 2 : 1
+      // 简单判断字符长度：中文字符和全角字符长度为2，其他为1
+      if (this.isChineseChar(char)) {
+        return 2;
+      } else if (char === ' ') {
+        return 2; // 空格作为一个字符处理
+      } else {
+        return 1;
+      }
     },
     // 获取有效长度。如果有后缀，则包括后缀和点的长度；否则是基础名称和后7位的长度
     getEffectiveLength(base, suffix) {
-      let chineseLength = Array.from(base).reduce(
-        (count, char) => count + this.getCharLength(char),
-        0
-      )
-
+      let chineseLength = Array.from(base).reduce((count, char) => count + this.getCharLength(char), 0)
       return suffix ? chineseLength + suffix.length + 1 : chineseLength
     },
     checkCmdKey(event) {
@@ -1397,9 +1401,13 @@ export default {
       const isCmd = this.checkCmdKey(event)
       const checkPreviewVisible = this.checkPreviewVisible()
       // space
-      if (keyCode === 32 && this.selectRowData.length > 0 && !this.drawer && !checkPreviewVisible) {
-        this.drawer = true
-        this.drawerShowTime = Date.now()
+      if (keyCode === 32 && this.selectRowData.length > 0 && !checkPreviewVisible) {
+        if (!this.drawer) {
+          this.drawer = true
+          this.drawerShowTime = Date.now()
+        } else {
+          this.drawer = false
+        }
         event.preventDefault()
         event.stopPropagation()
       }
@@ -4206,6 +4214,7 @@ export default {
     },
     // 点击文件或文件夹
     fileClick(row, event) {
+      this.drawer = false
       if (this.queryFileType === 'trash') {
         return
       }
@@ -4582,5 +4591,4 @@ export default {
 .mt-5 {
   margin-top: 5px;
 }
-
 </style>
