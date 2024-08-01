@@ -93,7 +93,7 @@
     </div>
     <div v-else-if="(item.contentType && item.contentType.startsWith('image')) || item.showCover">
       <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
-                fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)">
+                fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)" :class="item.showCover ? 'cover' : ''">
         <div slot="error" class="image-slot-error">
           <svg-icon icon-class="image"/>
         </div>
@@ -308,6 +308,9 @@ export default {
   height: 12px;
   padding: 0 2px;
   line-height: 12px;
+}
+>>> .el-image.cover {
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
 }
 
 </style>

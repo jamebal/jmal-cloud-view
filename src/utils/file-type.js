@@ -91,6 +91,8 @@ iconClass.set('plist','file-plist')
 iconClass.set('iso','file-iso')
 iconClass.set('glb','file-glb')
 iconClass.set('gltf','file-glb')
+iconClass.set('epub','epub')
+iconClass.set('dwg','dwg')
 
 export function findIconClass(file){
   if(!file){

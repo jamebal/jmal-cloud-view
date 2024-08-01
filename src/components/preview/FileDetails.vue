@@ -1,16 +1,31 @@
 <template>
   <div>
-    <!--文件详细信息-->
-<!--    <el-drawer :title="rowContextData.name" :visible.sync="visible">-->
-<!--      -->
-<!--    </el-drawer>-->
-    <el-dialog :visible.sync="visible" width="420px">
-      <div class="drawer-icon">
+    <el-dialog :visible.sync="visible" class="details-content" :custom-class="officePreview ? 'dialog-office':''">
+      <div v-if="officePreview" class="office-preview">
+        <vue-office-docx
+          v-if="file.suffix === 'docx' && visible"
+          :src="fleUrl"
+          @rendered="rendered"
+        />
+        <vue-office-excel
+          v-if="file.suffix === 'xlsx' && visible"
+          :options="excelOptions"
+          :src="fleUrl"
+          @rendered="rendered"
+        />
+      </div>
+      <div v-else class="drawer-icon">
+        <el-image v-if="file && file.showCover" fit="contain" :src="imageUrl + file.id + '&showCover=true'" class="cover">
+          <div slot="error" class="image-slot-error">
+            <svg-icon icon-class="image"/>
+          </div>
+        </el-image>
         <icon-file
+          v-else
           class="drawer-icon-font"
           :grid="true"
           :details="true"
-          :item="rowContextData"
+          :item="file"
           :image-url="imageUrl"
           :audio-cover-url="audioCoverUrl"
         ></icon-file>
@@ -26,7 +41,7 @@
             </p>
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="cancelScan()">取消</el-button>
-              <el-button type="primary" size="mini" @click="scanDirectory(rowContextData)">确定</el-button>
+              <el-button type="primary" size="mini" @click="scanDirectory(file)">确定</el-button>
             </div>
             <el-button slot="reference" id="scanDirectoryBtn-file" type="primary" size="small" :loading="syncLoading"><i class="el-icon-refresh"></i></el-button>
           </el-popover>
@@ -36,57 +51,68 @@
 
         <el-scrollbar wrap-class="scrollbar-wrapper" class="details-form-list">
           <el-form-item label="名称:">
-            <span>{{ rowContextData.name }}</span>
+            <span>{{ file.name }}</span>
           </el-form-item>
           <el-form-item label="类型:">
           <span>{{
-              rowContextData.isFolder ? '文件夹' : rowContextData.contentType
+              file.isFolder ? '文件夹' : file.contentType
             }}</span>
           </el-form-item>
-          <div v-if="rowContextData.music">
+          <div v-if="file.music">
             <el-form-item label="🎵 歌手:">
-              <span>{{ rowContextData.music.singer }}</span>
+              <span>{{ file.music.singer }}</span>
             </el-form-item>
             <el-form-item label="🎵 专辑:">
-              <span>{{ '《' + rowContextData.music.album + '》' }}</span>
+              <span>{{ '《' + file.music.album + '》' }}</span>
             </el-form-item>
             <el-form-item label="🎵 歌名:">
-              <span>{{ '《' + rowContextData.music.songName + '》' }}</span>
+              <span>{{ '《' + file.music.songName + '》' }}</span>
             </el-form-item>
           </div>
           <el-form-item
-            v-show="rowContextData.w && rowContextData.h"
+            v-show="file.w && file.h"
             label="尺寸:"
             class="details-resolution"
           >
-            <span>{{ rowContextData.w + ' x ' + rowContextData.h }}</span>
+            <span>{{ file.w + ' x ' + file.h }}</span>
           </el-form-item>
           <el-form-item label="大小:">
-            <span> {{ formatSize(rowContextData.size) }}</span>
+            <span> {{ formatSize(file.size) }}</span>
           </el-form-item>
           <el-form-item label="位置:" class="details-position">
-            <a :href="'/?path=' + rowContextData.path + '&highlight=' + rowContextData.name">{{ rowContextData.path }}</a>
+            <a :href="'/?path=' + file.path + '&highlight=' + file.name">{{ file.path }}</a>
           </el-form-item>
           <el-form-item label="创建时间:">
-            <span>{{ rowContextData.uploadDate }}</span>
+            <span>{{ file.uploadDate }}</span>
           </el-form-item>
           <el-form-item label="修改时间:">
-            <span>{{ rowContextData.updateDate }}</span>
+            <span>{{ file.updateDate }}</span>
           </el-form-item>
-          <el-form-item v-if="rowContextData.exif" label="">
-            <span style="white-space: break-spaces;">{{ formatExif(rowContextData.exif) }}</span>
+          <el-form-item v-if="file.exif" label="">
+            <span style="white-space: break-spaces;">{{ formatExif(file.exif) }}</span>
           </el-form-item>
-          <el-form-item v-if="rowContextData.video" label="">
-            <span style="white-space: break-spaces;">{{ formatVideo(rowContextData.video) }}</span>
+          <el-form-item v-if="file.video" label="">
+            <span style="white-space: break-spaces;">{{ formatVideo(file.video) }}</span>
           </el-form-item>
         </el-scrollbar>
-
+        <el-button v-if="allowOpenFile" type="primary" size="small" @click="openFile" class="open-file">打开文件</el-button>
       </el-form>
     </el-dialog>
   </div>
 </template>
 
 <script>
+// 引入VueOfficeDocx 组件
+import VueOfficeDocx from '@vue-office/docx'
+// 引入VueOfficeDocx 相关样式
+import '@vue-office/docx/lib/index.css'
+
+// 引入VueOfficeExcel 组件
+import VueOfficeExcel from '@vue-office/excel'
+// 引入VueOfficeExcel 相关样式
+import '@vue-office/excel/lib/index.css'
+
+import fileConfig from '@/utils/file-config'
 import { formatSize } from '@/utils/number'
 import IconFile from '@/components/Icon/IconFile'
 import {mapState} from "vuex";
@@ -96,14 +122,16 @@ import settingApi from "@/api/setting-api";
 export default {
   name: 'FileDetails',
   components: {
-    IconFile
+    IconFile,
+    VueOfficeDocx,
+    VueOfficeExcel
   },
   props: {
     visible: {
       type: Boolean,
       required: true,
     },
-    rowContextData: {
+    file: {
       type: Object,
       required: true,
     },
@@ -122,12 +150,28 @@ export default {
       clickSync: false,
       indexingPercent: 100,
       syncPercent: 100,
+      excelOptions: {
+        minColLength: 10,
+        minRowLength: 10,
+        widthOffset: 10,
+        heightOffset: 10,
+        excel: window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
+      }
     }
   },
   mounted() {
   },
   computed: {
     ...mapState(['message']),
+    fleUrl() {
+      return window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
+    },
+    officePreview() {
+      return ['docx', 'xlsx'].includes(this.file.suffix) && this.file.size > 0 && this.file.size < 1024 * 1024 * 5
+    },
+    allowOpenFile() {
+      return (this.file.contentType.indexOf('office') > -1 || ['pdf', 'epub'].includes(this.file.suffix))
+    }
   },
   watch: {
     message(msg) {
@@ -143,6 +187,12 @@ export default {
     }
   },
   methods: {
+    openFile() {
+      this.$emit('openFile', this.file)
+    },
+    rendered() {
+      console.log('rendered')
+    },
     formatSize(size) {
       return formatSize(size)
     },
@@ -204,7 +254,8 @@ export default {
 }
 
 .details-form {
-  padding: 20px 0;
+  padding-bottom: 20px;
+  width: 280px;
 
   >>> .el-scrollbar__view {
     max-height: 50vh;
@@ -254,8 +305,14 @@ export default {
 }
 
 .drawer-icon {
+  margin-right: 20px;
   text-align: center;
   position: relative;
+  flex: 1;
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  justify-content: center;
   >>> .icon-favorite {
     display: none;
   }
@@ -267,7 +324,52 @@ export default {
   }
 }
 
-.drawer-icon-font >>> .svg-icon {
-  font-size: 8rem;
+.drawer-icon-font {
+  margin-bottom: 40px;
+  >>> .svg-icon {
+    font-size: 8rem;
+  }
+}
+
+.details-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  >>> .el-dialog__body {
+    display: flex;
+  }
+}
+>>> .el-image {
+  height: 200px !important;
+}
+>>> .el-image.cover {
+  height: unset !important;
+  margin-bottom: 20px;
+}
+
+>>> .el-dialog {
+  margin-top: 0 !important;
+  width: fit-content;
+  min-width: 500px;
+  max-width: 800px;
+}
+
+>>> .dialog-office {
+  max-width: 1400px;
+  min-width: 1225px;
+  height: 90vh;
+}
+
+.office-preview {
+  flex: 20;
+  height: 80vh;
+  margin-right: 20px;
+  >>> .docx-wrapper {
+    padding: 10px;
+  }
+}
+
+.open-file {
+  margin-top: 10px;
 }
 </style>
