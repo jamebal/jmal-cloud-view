@@ -16,7 +16,7 @@
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
-            <CADPreview v-if="fileType === 'cad'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></CADPreview>
+            <CADPreview v-if="fileType === 'cad'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></CADPreview>
             <pdf-preview v-else-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
@@ -157,9 +157,9 @@ export default {
     /**
      * 加载失败
      */
-    loadFileFailed() {
+    loadFileFailed(msg) {
       this.close()
-      this.$store.dispatch('updateMessage', { event: 'loadFileFailed'})
+      this.$store.dispatch('updateMessage', { event: 'loadFileFailed', msg: msg})
       this.readyShow = true
     },
     /**
