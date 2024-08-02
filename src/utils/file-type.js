@@ -10,6 +10,7 @@ export const suffix = {
   compressedFile: [
     'zip','tar','7z', 'rar', 'jar','tar.gz','tgz','tar.bz2'
   ],
+  iframePreviewFile: ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf', 'dwg']
 }
 
 monaco.languages.getLanguages().forEach(language => {

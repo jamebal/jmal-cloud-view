@@ -170,6 +170,9 @@ export default {
       return ['docx', 'xlsx'].includes(this.file.suffix) && this.file.size > 0 && this.file.size < 1024 * 1024 * 5
     },
     allowOpenFile() {
+      if (!this.file.contentType) {
+        return false
+      }
       return (this.file.contentType.indexOf('office') > -1 || ['pdf', 'epub'].includes(this.file.suffix))
     }
   },

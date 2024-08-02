@@ -4329,7 +4329,7 @@ export default {
           this.openCompressionVisible = true
           return
         }
-        if (row.contentType.indexOf('office') > -1 || ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf'].includes(row.suffix)) {
+        if (row.contentType.indexOf('office') > -1 || suffix.iframePreviewFile.includes(row.suffix)) {
           // iframe 预览
           this.iframePreviewVisible = true
           this.iframePreviewRow = row
