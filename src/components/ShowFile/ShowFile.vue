@@ -633,7 +633,7 @@
 
     <message-dialog
       title="提示"
-      content="此文件不支持预览, 是否下载该文件?"
+      :content="notPreviewDialogMsg"
       :show.sync="notPreviewDialogVisible"
       button-size="mini"
       operatButtonText="取消"
@@ -1098,6 +1098,7 @@ export default {
       drawFlag: false,
       fileListScrollTop: 0,
       initFileListScrollTop: 0,
+      notPreviewDialogMsg: '', // 非预览文件提示信息
       notPreviewDialogVisible: false,
       openingFile: '',
       openCompressionVisible: false,
@@ -1227,6 +1228,7 @@ export default {
           break
         case 'loadFileFailed':
           this.notPreviewDialogVisible = true
+          this.notPreviewDialogMsg = msg.msg || '此文件不支持预览, 是否下载该文件?'
           break
         case 'clickMore':
           this.$refs.fileListTable.tableSelectData = msg.data
@@ -1477,7 +1479,6 @@ export default {
       }
     },
     onmessage(msg) {
-      console.log(msg.url, this.$route.path, msg, this.path)
       let fileDoc = msg.body
       const url = msg.url
       let index = this.fileList.findIndex(file => file.id === fileDoc.id)

@@ -2,11 +2,13 @@
   <div>
     <div class="top-bar">
       <div class="top-left"></div>
-      <div class="top-center">{{file.name}}</div>
+      <div class="top-center">{{ file.name }}</div>
       <div class="top-right">
         <div class="top-right-option">
-          <el-button title="切换背景色" size="medium" type="primary" @click="changeBackground" :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"></el-button>
-          <el-button title="显示全部" size="medium" type="primary" @click="reset" icon="el-icon-c-scale-to-original"></el-button>
+          <el-button title="切换背景色" size="medium" type="primary" @click="changeBackground"
+                     :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"></el-button>
+          <el-button title="显示全部" size="medium" type="primary" @click="reset"
+                     icon="el-icon-c-scale-to-original"></el-button>
         </div>
       </div>
     </div>
@@ -17,7 +19,7 @@
 </template>
 
 <script>
-import { createMxCad, MxCpp } from 'mxcad'
+import { createMxCad, loadMxCADassembly, MxCpp } from 'mxcad'
 import { MxFun } from 'mxdraw'
 
 export default {
@@ -57,10 +59,15 @@ export default {
       canvas: '#mxCadCanvas',
       locateFile: (fileName) => window.location.origin + '/resource/mxcad/wasm/2d-st/' + fileName,
       fontspath: window.location.origin + '/resource/mxcad/fonts/',
-      fileUrl: this.mxwebUrl,
-    }).then(() => {
+      fileUrl: '',
+      onOpenFileComplete: () => {
+        this.$emit('onReady')
+      },
+    }).then((mxcad) => {
+      this.fetchFile()
       MxFun.sendStringToExecute('Mx_Pan')
-      this.$emit('onReady')
+    }).catch((error) => {
+      console.error('加载 MxCAD assembly 时出错：', error)
     })
   },
   methods: {
@@ -71,6 +78,16 @@ export default {
       mxcad.updateDisplay()
       mxcad.setViewBackgroundColor(value, value, value)
     },
+    fetchFile() {
+      const mxcad = this.mxcad()
+      mxcad.openWebFile(this.mxwebUrl, (iRet) => {
+        if (iRet === 0) {
+          this.$emit('onReady')
+        } else {
+          this.$emit('loadFileFailed', '文件加载失败, 请稍后再试, 或者对该文件重建索引')
+        }
+      })
+    },
     reset() {
       const mxcad = this.mxcad()
       mxcad.regen()
@@ -79,7 +96,7 @@ export default {
     },
     mxcad() {
       return MxCpp.getCurrentMxCAD()
-    }
+    },
   },
 }
 </script>
