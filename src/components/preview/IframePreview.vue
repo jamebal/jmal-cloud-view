@@ -16,8 +16,8 @@
             <svg-icon class="preview-close" icon-class="close"/>
           </div>
           <div class="wrapper">
-            <div>{{fileType}}</div>
-            <pdf-preview v-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
+            <CADPreview v-if="fileType === 'cad'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></CADPreview>
+            <pdf-preview v-else-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
             <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></model-preview>
@@ -38,11 +38,13 @@ import IframeContentPreview from '@/components/preview/IframeContentPreview.vue'
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
 import Drawio from "@/components/office/Drawio";
-import MyMindEditor from "@/components/Minder/minder"
 
 export default {
   name: 'IframePreview',
-  components: { IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor, MyMindEditor},
+  components: { IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor,
+    MyMindEditor: () => import('@/components/Minder/minder'),
+    CADPreview: () => import('@/components/preview/CADPreview.vue')
+  },
   props: {
     id: {
       type: String,
@@ -146,6 +148,8 @@ export default {
         case 'office':
         case 'csv':
           return 'office'
+        case 'dwg':
+          return 'cad'
         default:
           return 'other'
       }

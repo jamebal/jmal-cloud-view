@@ -107,7 +107,6 @@
 <script>
 import {generateMixed} from 'vue-kityminder-ggg/src/utils/index.js';
 import 'vue-kityminder-ggg/examples/styles/minder.css';
-import JSPDF from 'jspdf';
 import api from "@/api/file-api";
 import txtApi from "@/api/markdown-api";
 import historyApi from "@/api/file-history";
@@ -322,26 +321,6 @@ export default {
         })
       } else {
         this.minder.execCommand(var1, var2)
-      }
-    },
-    exportHandle(n, filename) {
-      filename = filename || (this.content.root.data.text || '无标题')
-      if (n === 0 || n === 'png') {
-        this.minder.exportData('png').then((content) => {
-          let element = document.createElement('a')
-          element.setAttribute('href', content)
-          element.setAttribute('download', filename)
-          element.style.display = 'none'
-          document.body.appendChild(element)
-          element.click()
-          document.body.removeChild(element)
-        })
-      } else if (n === 1 || n === 'pdf') {
-        this.minder.exportData('png').then((content) => {
-          let doc = new JSPDF()
-          doc.addImage(content, 'PNG', 0, 0, 0, 0)
-          doc.save(`${filename}.pdf`)
-        })
       }
     },
     rendData() {
