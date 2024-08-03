@@ -1098,7 +1098,7 @@ export default {
       drawFlag: false,
       fileListScrollTop: 0,
       initFileListScrollTop: 0,
-      notPreviewDialogMsg: '', // 非预览文件提示信息
+      notPreviewDialogMsg: '此文件不支持预览, 是否下载该文件?', // 非预览文件提示信息
       notPreviewDialogVisible: false,
       openingFile: '',
       openCompressionVisible: false,
