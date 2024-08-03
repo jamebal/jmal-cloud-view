@@ -2367,7 +2367,7 @@ export default {
           this.path = this.path.replace(/\\/g, '/')
         })
         let queryFolder = localStorage.getItem('mountFileOwner') ? localStorage.getItem(this.path) : this.$route.query.folder
-        const searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
+        let searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
         if (!unPushLink) {
           const queryTagId = this.$route.query.tagId
             ? `&tagId=${this.$route.query.tagId}`
@@ -2383,6 +2383,7 @@ export default {
           const searchPathIndex = this.pathList.findIndex(item => item.search)
           if (searchPathIndex < 0) {
             keywordQuery = ''
+            searchOpenFolder = ''
           }
           this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path).replaceAll('#', '%23')}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
         }
