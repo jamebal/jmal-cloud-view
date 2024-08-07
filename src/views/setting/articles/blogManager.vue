@@ -29,17 +29,17 @@
           <span class="instruction">给您的网站取一个响亮的名字。</span>
           <div class="config-itme-label">站点地址：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteUrl"></el-input>
-          <span class="instruction">在这里填入站点的地址或域名。例如：<a href="https://blog.jmal.top" target="_blank">https://blog.jmal.top</a></span>
+          <span class="instruction">在这里填入站点的地址或域名</span>
           <div class="config-itme-label">站点背景大图：</div><upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：
             <el-button type="text" @click="heartwings">历史记录</el-button>
           </div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>
-          <span class="instruction">显示在博客首页大图内的描述。</span>
+          <span class="instruction">显示在博客首页大图内的主要文字。</span>
           <div class="config-itme-label">首页大图内描述：</div>
           <el-input autosize type="textarea" v-model="form.backgroundDescSite"></el-input>
-          <span class="instruction">显示在博客首页大图内的描述。</span>
+          <span class="instruction">显示在博客首页大图内的次要文字。</span>
         </el-tab-pane>
         <el-tab-pane label="导航栏" name="2">
           <div class="config-itme-label">导航栏顶部 - 网站 Logo：</div>
@@ -53,7 +53,7 @@
             <a href="https://fontawesome.com/icons?d=gallery" target="_blank">Font-awesome</a>
             图标标签和链接，使用'：'隔开(标签里的内容为该图标的简述)。
             <br>
-            列如：{{ example }}:https://github.com/jamebal (建议不超过5项)
+            列如：{{ example }}:https://github.com/jamebal/jmal-cloud-view (建议不超过5项)
           </span>
           <div>
             <el-divider content-position="center">预览</el-divider>
