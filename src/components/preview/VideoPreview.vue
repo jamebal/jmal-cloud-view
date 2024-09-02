@@ -296,9 +296,10 @@ export default {
   .close-bar {
     z-index: 2006;
     position: relative;
-    top: -25px;
-    right: -25px;
+    top: -30px;
+    right: -30px;
     float: right;
+    font-size: 18px;
     color: #fff0f0;
     background: #d4d4d475;
     border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #69696975;
@@ -309,15 +310,27 @@ export default {
     border-color: #fff0f0;
   }
 
-  .audio-player-close {
-    transform: rotate(315deg);
-    z-index: 2009;
-    position: absolute;
-    font-size: 18px;
-    top: -8px;
-    right: 13px;
-  }
+}
 
+@media screen and (max-width: 768px) {
+  .block {
+    .close-bar {
+      z-index: 2006;
+      position: relative;
+      top: 0;
+      right: 0;
+      font-size: 18px;
+      float: right;
+      color: #fff0f0;
+      background: #d4d4d475;
+      border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #69696975;
+    }
+
+    .close-bar:hover {
+      cursor: pointer;
+      border-color: #fff0f0;
+    }
+  }
 }
 
 .wrapper {
