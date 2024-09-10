@@ -36,7 +36,8 @@
               </el-dropdown-item>
             </app-link>
             <el-dropdown-item divided @click.native="logout">
-              <svg-icon icon-class="tuichudenglu"></svg-icon>退出登录
+              <svg-icon icon-class="tuichudenglu"></svg-icon>
+              {{ $t('login.logout') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>

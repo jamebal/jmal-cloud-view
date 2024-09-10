@@ -10,6 +10,9 @@ import App from './App'
 import store from './store'
 import router from './router'
 
+import VueI18n from 'vue-i18n';
+import { loadLocaleMessages, getBrowserLocale } from '@/utils/loadLocaleMessages';
+
 // ant-design-vue
 import { Affix } from 'ant-design-vue';
 Vue.use(Affix)
@@ -23,11 +26,6 @@ import '@/permission' // permission control
 
 import Viewer from 'v-viewer'
 
-// import APlayer from 'vue-aplayer';
-// Vue.use(APlayer, {
-//   defaultCover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60', // 设置播放器默认封面图片
-//   productionTip: false, // 是否在控制台输出版本信息
-// });
 
 Vue.use(Viewer)
 
@@ -41,8 +39,22 @@ Vue.use(vant.ImagePreview)
 import Minder from '@/components/Minder'
 Vue.use(Minder)
 
+Vue.use(VueI18n);
+
+const messages = loadLocaleMessages();
+
+const locale = store.getters.lang || getBrowserLocale(messages);
+
+// i18n
+const i18n = new VueI18n({
+  locale: locale,
+  fallbackLocale: 'en_US',
+  messages,
+});
+
 new Vue({
   el: '#app',
+  i18n,
   router,
   store,
   render: h => h(App),

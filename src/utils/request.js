@@ -24,6 +24,8 @@ service.interceptors.request.use(
       config.headers['share-token'] = getShareToken()
       config.headers['shareId'] = getShareId()
     }
+    // add i18n
+    config.headers['lang'] = store.getters.lang
     return config
   },
   error => {

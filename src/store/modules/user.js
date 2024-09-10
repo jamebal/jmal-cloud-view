@@ -22,18 +22,19 @@ import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
 
 const getDefaultState = () => {
+  const store = sessionStorage.getItem('store') && JSON.parse(sessionStorage.getItem('store'))
   return {
     token: getToken(),
     shareToken: getShareToken(),
     name: getUsername(),
-    showName: '',
+    showName: store ? store.showName : '',
     userInfo: {},
-    avatar: '',
+    avatar: store ? store.avatar : '',
     userId: getConsumerId(),
     menuList: [],
-    netdiskName: '',
-    netdiskLogo: '',
-    newVersion: '',
+    netdiskName: store ? store.netdiskName : '',
+    netdiskLogo: store ? store.netdiskLogo : '',
+    newVersion: store ? store.newVersion : '',
     iframePreviewConfig: {}
   }
 }
@@ -140,6 +141,7 @@ const actions = {
     commit('SET_NETDISK_NAME', netdiskName)
     commit('SET_NETDISK_LOGO', netdiskLogo)
     setLogo(netdiskName, netdiskLogo)
+    sessionStorage.setItem('store', JSON.stringify(state))
   },
 
   // get user info
