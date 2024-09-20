@@ -2,6 +2,7 @@
 import store from '@/store'
 import _ from "lodash";
 import {getShareId, getShareToken, getToken, getUsername} from '@/utils/auth'
+import { getBrowserLanguage } from '@/utils/loadLocaleMessages';
 
 // create an axios instance
 const service = axios.create({
@@ -24,6 +25,8 @@ service.interceptors.request.use(
       config.headers['share-token'] = getShareToken()
       config.headers['shareId'] = getShareId()
     }
+    // add i18n
+    config.headers['lang'] = store.getters.lang || getBrowserLanguage()
     return config
   },
   error => {

@@ -18,7 +18,7 @@
                 </div>
               </div>
             </h3>
-            <h3 v-if="initialize" class="title">创建管理员</h3>
+            <h3 v-if="initialize" class="title">{{ $t('login.createAdmin') }}</h3>
           </div>
 
           <el-form-item prop="username">
@@ -28,7 +28,7 @@
             <el-input
               ref="username"
               v-model="loginForm.username"
-              placeholder="用户名"
+              :placeholder="$t('login.username')"
               name="username"
               type="text"
               tabindex="1"
@@ -45,7 +45,7 @@
               ref="password"
               v-model="loginForm.password"
               :type="passwordType"
-              placeholder="密码"
+              :placeholder="$t('login.password')"
               name="password"
               tabindex="2"
               auto-complete="on"
@@ -58,7 +58,7 @@
 
           <el-form-item v-if="!initialize" class="remember">
             <!--<el-switch v-model="loginForm.rememberMe"></el-switch>-->
-            <el-checkbox label="记住我" v-model="loginForm.rememberMe"></el-checkbox>
+            <el-checkbox :label="$t('login.rememberMe')" v-model="loginForm.rememberMe"></el-checkbox>
           </el-form-item>
 
           <el-form-item v-if="initialize" prop="confirmPassword">
@@ -70,7 +70,7 @@
               ref="password"
               v-model="loginForm.confirmPassword"
               :type="passwordType"
-              placeholder="确认密码"
+              :placeholder="$t('login.confirmPassword')"
               name="password"
               tabindex="2"
               auto-complete="on"
@@ -80,7 +80,7 @@
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
           </el-form-item>
-          <el-button :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?'创建':'登录'}}</el-button>
+          <el-button :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?$t('login.create'):$t('login.login')}}</el-button>
         </el-form>
       </el-card>
       </div>
@@ -101,7 +101,6 @@ import { getWebstieRecord } from "@/api/setting-api";
 import { hasUser, initialization } from '@/api/user'
 import { getRememberName } from '@/utils/auth'
 import Logo from "@/components/Logo";
-import Bus from "@/assets/js/bus";
 
 export default {
   name: 'Login',
@@ -109,7 +108,7 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!this.validUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
+        callback(new Error(this.$t('login.ruleUsername')))
       } else {
         callback()
       }
@@ -123,7 +122,7 @@ export default {
     const confirmPassword = (rule, value, callback) => {
       if (value.length < 6) {
       } else if(this.loginForm.password !== value) {
-        callback(new Error('密码不一致'))
+        callback(new Error(this.$t('login.ruleConfirmPassword')))
       } else {
         callback()
       }
@@ -131,14 +130,14 @@ export default {
     return {
       beianUrl: "http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=",
       webstieRecord: {
-        copyright: 'Copyright © 2020 Journey Magical AL',
+        copyright: '',
         recordPermissionNum: '',
-        netdiskName: 'jmalcloud',
-        netdiskLogo: ''
+        netdiskName: '',
+        netdiskLogo: this.$store.state.user.netdiskLogo
       },
       loginForm: {
-        username: '',
-        password: '',
+        username: this.$route.query.username || '',
+        password: this.$route.query.password || '',
         rememberMe: false,
         confirmPassword: ''
       },
@@ -182,7 +181,6 @@ export default {
       this.loginForm.username = rememberName
       this.loginForm.rememberMe = true
     }
-
     getWebstieRecord().then((res) => {
       this.webstieRecord = res.data
       if (this.webstieRecord.netdiskName || this.webstieRecord.netdiskLogo) {
@@ -212,7 +210,7 @@ export default {
             this.loading = true
             initialization(data).then(()=>{
                 this.initialize = false
-                this.$message.success('创建成功')
+                this.$message.success(this.$t('message.createSuccess'))
                 this.loading = false
             })
           }else{

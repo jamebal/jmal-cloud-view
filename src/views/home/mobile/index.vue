@@ -16,16 +16,16 @@
         <span>{{ name }}</span>
 
         <div class="classification">
-          <van-cell title="首页" icon="wap-home-o" @click="clickFileType(null,{})"/>
-          <van-cell title="收藏" icon="star-o" @click="clickFileType(null,{isFavorite: true})"/>
-          <van-cell title="图片" icon="photo-o" @click="clickFileType('image',{isFolder: false})"/>
-          <van-cell title="视频" icon="video-o" @click="clickFileType('video',{isFolder: false})"/>
-          <van-cell title="音乐" icon="music-o" @click="clickFileType('audio',{isFolder: false})"/>
-          <van-cell title="文件传输" icon="upgrade" @click="uploadList"/>
+          <van-cell :title="$t('route.home')" icon="wap-home-o" @click="clickFileType(null,{})"/>
+          <van-cell :title="$t('route.favorite')" icon="star-o" @click="clickFileType(null,{isFavorite: true})"/>
+          <van-cell :title="$t('route.image')" icon="photo-o" @click="clickFileType('image',{isFolder: false})"/>
+          <van-cell :title="$t('route.video')" icon="video-o" @click="clickFileType('video',{isFolder: false})"/>
+          <van-cell :title="$t('route.audio')" icon="music-o" @click="clickFileType('audio',{isFolder: false})"/>
+          <van-cell :title="$t('route.fileTransfer')" icon="upgrade" @click="uploadList"/>
         </div>
 
         <div class="logout">
-          <van-button round type="danger" @click.native="logout">退出登录</van-button>
+          <van-button round type="danger" @click.native="logout">{{ $t('login.logout') }}</van-button>
         </div>
       </div>
     </van-popup>
@@ -43,10 +43,10 @@
             <van-nav-bar
               :style="vanNavBarClass"
               v-if="pathList.length < 2 && !selectStatus"
-              title="浏览"
+              :title="$t('app.browse')"
               right-arrow
               @click-right="checkboxAll"
-              :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
+              :right-text="this.selectRowData.length !== this.fileList.length ? $t('common.select') : $t('common.cancel')"
               @click-left="leftMenu"
               left-arrow>
               <div class="header-button" slot="left">
@@ -65,9 +65,9 @@
             <van-nav-bar
               :style="vanNavBarClass"
               v-if="selectStatus"
-              :title="selectRowData.length === 0 ? '选择项目' : selectRowData.length+'项'"
+              :title="selectRowData.length === 0 ? $t('app.selectItem') : selectRowData.length + $t('common.item')"
               right-arrow
-              :left-text="this.selectRowData.length !== this.fileList.length ? '全选' : '取消全选'"
+              :left-text="this.selectRowData.length !== this.fileList.length ? $t('app.selectAll') : $t('app.cancelSelectAll')"
               @click-left="checkboxAll"
               @click-right="cancelSelect"
               right-text="完成"
@@ -77,7 +77,7 @@
               :style="vanNavBarClass"
               v-if="pathList.length >= 2 && !selectStatus"
               :title="pathList[pathList.length-1].folder"
-              :right-text="this.selectRowData.length !== this.fileList.length ? '选择' : '取消'"
+              :right-text="this.selectRowData.length !== this.fileList.length ? $t('common.select') : $t('common.cancel')"
               left-arrow
               @click-right="checkboxAll"
               @click-left="clickBack">
@@ -91,12 +91,12 @@
                 v-model="searchValue"
                 :show-action="searchStatus"
                 shape="round"
-                placeholder="搜索"
+                :placeholder="$t('common.search')"
                 @focus="startSearch"
                 @search="onSearch"
                 @input="onSearch"
               >
-                <div slot="action" @click="endSearch">取消</div>
+                <div slot="action" @click="endSearch">{{ $t('common.cancel') }}</div>
               </van-search>
             </div>
           </van-sticky>

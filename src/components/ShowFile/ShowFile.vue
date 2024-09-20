@@ -1493,7 +1493,7 @@ export default {
         }
       }
       const isCurrentPath = (this.path + '/') === fileDoc
-      if ('deleteFile' === url && isCurrentPath) {
+      if ('deleteFile' === url && (isCurrentPath || this.$route.path.startsWith('/recently'))) {
         this.getFileListEnter()
       }
       if ('createFile' === url) {

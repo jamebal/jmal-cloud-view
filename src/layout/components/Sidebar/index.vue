@@ -73,7 +73,7 @@
           <svg-icon class="webdav-icon" icon-class="disk-drive"></svg-icon>
           <div class="wedav-text">WebDAV</div>
           <el-tooltip placement="right" v-if="showCopyBtn">
-            <div slot="content">点击复制WebDAV地址<br />{{ webdavUrl }}</div>
+            <div slot="content">{{ $t('app.clickCopyWebDAVAddress') }}<br />{{ webdavUrl }}</div>
             <svg-icon
               class="copy-btn"
               icon-class="menu-fuzhi"
