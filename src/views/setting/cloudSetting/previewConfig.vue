@@ -3,7 +3,7 @@
     <el-form :rules="rules" ref="previewConfigForm" :model="configFormData" label-width="120px" size="small"
              style="width: 860px" autocomplete="off">
       <el-form-item label="iframe 预览" prop="iframe">
-        <span class="form-instruction"><a href="https://alist.nn.ci/zh/config/preview.html#iframe-%E9%A2%84%E8%A7%88" target="_blank"><svg-icon icon-class="wailian"/>参考Alist的iframe预览 </a> </span>
+        <span class="form-instruction"><a href="https://jmalcloud.github.io/guide/other/iframe-preview.html" target="_blank"><svg-icon icon-class="wailian"/>iframe预览示例 </a> </span>
         <el-input
           type="textarea"
           :autosize="{ minRows: 2}"
