@@ -4,7 +4,7 @@
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
           <el-badge value="new" v-if="item.path === '/setting/cloudManager' && newVersion" class="new-version"/>
-          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
+          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :rotate="item.path === '/setting/taskProgress' && showTaskProgress" :title="onlyOneChild.meta.title"/>
         </el-menu-item>
       </app-link>
     </template>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import path from 'path'
 import { isExternal } from '@/utils/validate'
 import Item from './Item'
@@ -54,12 +54,22 @@ export default {
   },
   data() {
     this.onlyOneChild = null
-    return {}
+    return {
+      showTaskProgress: false
+    }
   },
   computed: {
     ...mapGetters([
       'newVersion'
     ]),
+    ...mapState(['message'])
+  },
+  watch: {
+    message(msg) {
+      if (msg.event === 'msg/taskCountChange') {
+        this.taskCountChange(msg.data.length)
+      }
+    }
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
@@ -94,6 +104,14 @@ export default {
         return this.basePath
       }
       return path.resolve(this.basePath, routePath)
+    },
+    taskCountChange(count) {
+      if (count > 0 && !this.showTaskProgress) {
+        this.showTaskProgress = true
+      }
+      if (count <= 0 && this.showTaskProgress) {
+        this.showTaskProgress = false
+      }
     }
   }
 }

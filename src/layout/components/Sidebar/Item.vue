@@ -10,6 +10,10 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    rotate: {
+      type: Boolean,
+      default: false
     }
   },
   render(h, context) {
@@ -17,7 +21,11 @@ export default {
     const vnodes = []
 
     if (icon) {
-      vnodes.push(<svg-icon icon-class={icon}/>)
+      if (context.props.rotate) {
+        vnodes.push(<svg-icon icon-class={icon} class="rotate"/>)
+      } else {
+        vnodes.push(<svg-icon icon-class={icon}/>)
+      }
     }
 
     if (title) {
@@ -27,3 +35,18 @@ export default {
   }
 }
 </script>
+<style scoped>
+.rotate {
+  animation: rotate 2s linear infinite;
+  color: #409eff;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

@@ -69,5 +69,7 @@ export default {
     startSync: '是否开始扫描? ',
     confirmDeleteMenuAndRole: '您确定要删除当前角色、菜单吗? ',
     resetSuccessfully: '重置成功',
+
+    taskProgress: '任务进度',
   }
 }
