@@ -146,7 +146,7 @@ export default {
         this.option.url = videoUrl
 
         if (this.file.m3u8) {
-          const supported = ['mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov']
+          const supported = ['mp4', 'ogg', 'mkv', 'webm', 'hls', 'mov', 'flv']
           if (supported.includes(this.file.suffix.toLowerCase())) {
             this.option.quality = [
               {
@@ -161,21 +161,14 @@ export default {
             ]
           }
           this.option.customType = {
-            m3u8: this.playM3u8
+            m3u8: this.playM3u8,
+            flv: this.playFlv
           }
           this.option.plugins = [
             artplayerPluginVttThumbnail({
               vtt: videoUrl.replace(/m3u8/g, 'vtt'),
             })
           ]
-        }
-
-        if (this.file.contentType.indexOf('flv') > -1) {
-          this.option.url = originUrl
-          this.option.quality = []
-          this.option.customType = {
-            flv: this.playFlv
-          }
         }
 
         this.videoLink = window.location.origin + originUrl
