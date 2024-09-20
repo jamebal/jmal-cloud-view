@@ -69,5 +69,7 @@ export default {
     startSync: 'Start scanning? ',
     confirmDeleteMenuAndRole: 'Are you sure you want to delete the current role and menu? ',
     resetSuccessfully: 'Reset successfully',
+
+    taskProgress: 'Task Progress',
   }
 }

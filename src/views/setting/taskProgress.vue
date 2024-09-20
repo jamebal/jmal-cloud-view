@@ -19,7 +19,7 @@
           </div>
           <el-divider></el-divider>
         </div>
-        <task-progress :data="taskProgressDataList"></task-progress>
+        <TaskProgress monitor/>
       </div>
     </el-card>
   </div>
@@ -28,7 +28,7 @@
 <script>
 
 import TaskProgress from "@/components/TaskProgress/index.vue";
-import { getTaskProgress, getTranscodeStatus } from '@/api/setting-api'
+import { getTranscodeStatus } from '@/api/setting-api'
 import { mapState } from 'vuex'
 
 export default {
@@ -43,9 +43,6 @@ export default {
     }
   },
   mounted() {
-    getTaskProgress().then(res => {
-      this.taskProgressDataList = res.data
-    })
     getTranscodeStatus().then(res => {
       this.transcodeStatus = res.data
     })

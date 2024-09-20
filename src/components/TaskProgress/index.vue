@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { getTaskProgress } from '@/api/setting-api'
 import TableList from "@/components/table/TableList"
 import {mapState} from "vuex";
 
@@ -26,6 +27,10 @@ export default {
       type: Array,
       default: []
     },
+    monitor: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     ...mapState(['message'])
@@ -43,21 +48,34 @@ export default {
   },
   watch: {
     data(val) {
-      this.dataList = val
+      if (val) {
+        this.dataList = val
+      }
+    },
+    mounted() {
+      getTaskProgress().then(res => {
+        this.dataList = res.data
+      })
     },
     message(msg) {
-      if (msg.event === 'msg/taskProgress') {
-        const taskProgress = msg.data.body
-        const index = this.dataList.findIndex(item => item.taskId === taskProgress.taskId)
-        if (index > -1) {
-          if (taskProgress.progress) {
-            this.dataList[index].progress = taskProgress.progress
+      if (this.monitor && msg.event === 'msg/taskCountChange') {
+        this.dataList = msg.data
+      } else {
+        if (msg.event === 'msg/taskProgress') {
+          const taskProgress = msg.data.body
+          const index = this.dataList.findIndex(item => item.taskId === taskProgress.taskId)
+          if (index > -1) {
+            if (taskProgress.progress) {
+              this.dataList[index].progress = taskProgress.progress
+            } else {
+              this.dataList.splice(index, 1)
+              this.$store.dispatch('updateMessage', { event: 'msg/taskCountChange', data: this.dataList })
+            }
           } else {
-            this.dataList.splice(index, 1)
-          }
-        } else {
-          if (taskProgress.progress) {
-            this.dataList.push(taskProgress)
+            if (taskProgress.progress) {
+              this.dataList.push(taskProgress)
+              this.$store.dispatch('updateMessage', { event: 'msg/taskCountChange', data: this.dataList })
+            }
           }
         }
       }

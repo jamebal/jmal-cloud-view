@@ -2,8 +2,19 @@
   <div class="navbar">
     <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
     <breadcrumb class="breadcrumb-container" />
-
     <div class="right-content">
+
+      <el-popover
+        placement="bottom"
+        width="600"
+        trigger="hover">
+        <TaskProgress/>
+        <div slot="reference" class="right-content-button" v-show="showTaskProgress > 0">
+          <svg-icon icon-class="gengxinjindu" :class="progressExecuting ? 'rotate' : ''"></svg-icon>
+          {{ $t('app.taskProgress') }}
+        </div>
+      </el-popover>
+
       <app-link
        v-for="route in routes.topRouters"
        :key="route.path"
@@ -48,7 +59,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import TaskProgress from '@/components/TaskProgress/index.vue'
+import { mapGetters, mapState } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import Icon from '@/components/Icon/Icon.vue'
@@ -62,10 +74,14 @@ export default {
       isShow: true,
       activeIndex: '1',
       imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-      defaultAvatar: require('../../assets/img/default-avatar.png')
+      defaultAvatar: require('../../assets/img/default-avatar.png'),
+      showTaskProgress: false,
+      progressExecuting: false,
+      delayedHidden: null
     }
   },
   components: {
+    TaskProgress,
     Icon,
     Breadcrumb,
     Hamburger,
@@ -78,6 +94,7 @@ export default {
       'showName',
       'newVersion'
     ]),
+    ...mapState(['message']),
     routes() {
       let routes = {}
       let topRouters = []
@@ -98,6 +115,13 @@ export default {
   mounted() {
     this.isShow = this.$pc;
   },
+  watch: {
+    message(msg) {
+      if (msg.event === 'msg/taskCountChange') {
+        this.taskCountChange(msg.data.length)
+      }
+    }
+  },
   methods: {
     handleSelect(key, keyPath) {
     },
@@ -116,6 +140,25 @@ export default {
         return this.basePath
       }
       return path.resolve(this.basePath, routePath)
+    },
+    taskCountChange(count) {
+      if (count > 0) {
+        clearTimeout(this.delayedHidden)
+        this.showTaskProgress = true
+        this.progressExecuting = true
+      }
+      if (count <= 0 && this.progressExecuting) {
+        this.progressExecuting = false
+      }
+      if (count <= 0 && this.showTaskProgress) {
+        if (this.delayedHidden != null) {
+          clearTimeout(this.delayedHidden)
+          this.delayedHidden = null
+        }
+        this.delayedHidden = setTimeout(() => {
+          this.showTaskProgress = false
+        }, 5000)
+      }
     }
   }
 }
@@ -220,7 +263,7 @@ export default {
       }
     }
     &:hover {
-      background-color: #00000006;
+      background-color: #d9d9d980;
     }
   }
 }
@@ -240,16 +283,30 @@ export default {
 }
 
 .right-content-button {
+  cursor: pointer;
   line-height: 50px;
   padding: 0 10px;
   &:hover {
-    background-color: #00000006;
+    background-color: #d9d9d980;
   }
 }
 
 .el-dropdown-menu__item {
   svg {
     margin-right: 5px;
+  }
+}
+.rotate {
+  animation: rotate 2s linear infinite;
+  color: #409eff;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
