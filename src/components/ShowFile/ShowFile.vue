@@ -1578,7 +1578,7 @@ export default {
       this.$nextTick(() => {
         // list 视图
         const fileListTableWidth = this.$refs.fileListTableContainer.offsetWidth
-        this.tableHeadNameWidth = fileListTableWidth - (80 + 200 + 250) - 50
+        this.tableHeadNameWidth = fileListTableWidth - (80 + 200 + 250) - 90
       })
 
       // 使列表可拖拽
@@ -2036,15 +2036,22 @@ export default {
             dragingDiv.firstChild.style.textAlign = 'center'
             let tds = Array.prototype.slice.call(dragingDiv.childNodes)
             tds.forEach((node, index) => {
+              if (index === 0) {
+                node.firstChild.style.margin = '0 20px'
+              }
+              if (index === 1) {
+                node.firstChild.style.width = '280px'
+                node.firstChild.style.marginRight = '20px'
+              }
               if (index === 2) {
-                node.style.borderRadius = '0 3px 3px 0'
+                node.style.borderRadius = '0 5px 5px 0'
                 node.style.borderRight = '1px solid #409eff'
                 node.firstChild.style.height = '44px'
                 node.firstChild.style.lineHeight = '44px'
                 node.firstChild.style.width = '80px'
                 return true
               }
-              if (index !== 0 && index !== 1) {
+              if (index === 3) {
                 dragingDiv.removeChild(node)
               }
             })
@@ -4586,7 +4593,7 @@ export default {
 }
 
 >>> .el-table {
-  padding-left: 20px;
+  padding-left: 40px;
   th.gutter {
     display: table-cell !important;
   }

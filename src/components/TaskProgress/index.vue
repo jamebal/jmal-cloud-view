@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <table-list
-      ref="tableList"
+      v-if="dataList.length > 0"
       :less-client-height="245"
       :tableData="dataList"
       :loading="loading"
