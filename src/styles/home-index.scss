@@ -43,6 +43,7 @@
   padding-inline-start: 0;
   margin-top: 0;
   margin-bottom: 0;
+  padding: 0 5px;
 }
 .newFileMenu li {
   cursor: pointer;
@@ -286,7 +287,7 @@
 }
 
 >>> .van-grid {
-  padding-left: 10px;
+  padding-left: 20px;
 }
 
 >>> .van-grid-item__content .svg-icon{
