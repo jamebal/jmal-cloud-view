@@ -463,6 +463,7 @@
               :style="{
                 width: '100%',
                 'max-height': clientHeight - 25 + 'px',
+                rowGap: '8px',
                 overflow: 'auto',
                 'box-shadow':
                   fileListScrollTop > 0
@@ -501,7 +502,7 @@
                   :style="{
                     right: gridPaddingRight + 'px',
                     bottom: '10px',
-                    height: gridItemWidth - 5 + 'px',
+                    height: gridItemWidth + 'px',
                     background: selectRowData.includes(item) ? '#caeaf991' : '',
                     'background-size': 'cover',
                     'background-position': 'center',
@@ -1161,7 +1162,7 @@ export default {
           return filename;
         }
         const singleLine = (item.contentType && item.contentType.startsWith('image')) || item.showCover
-        const gridFilenameLength = singleLine ? 14 : 32
+        const gridFilenameLength = singleLine ? 13 : 28
         // 分离文件名和后缀
         let parts = filename.split('.');
         let suffix = parts.length > 1 ? parts.pop() : '';
@@ -1187,7 +1188,7 @@ export default {
         }
         // 根据是否有后缀返回相应的格式
         if (suffix) {
-          return prev + '…' + '.' + suffix;
+          return prev + '…' + suffix;
         }
         return prev + '…';
       };

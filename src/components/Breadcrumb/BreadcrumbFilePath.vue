@@ -96,7 +96,6 @@
 <style lang="scss" scoped>
   .share-dir {
     color: #52c41a;
-    margin-right: -0.5rem;
     font-size: 1.2rem !important;
   }
   .redirect {

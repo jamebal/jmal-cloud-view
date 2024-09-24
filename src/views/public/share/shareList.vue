@@ -214,10 +214,18 @@
               <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)"
                             class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
               <div class="grid-item-icon">
-                <icon-file v-if="sharer" :item="item" :image-url="imageUrl" :audio-cover-url="audioUrl" :grid="true" :grid-width="gridColumnWidth"
-                           :public="true"></icon-file>
+                <icon-file
+                  v-if="sharer"
+                  :item="item"
+                  :image-url="imageUrl"
+                  :audio-cover-url="audioUrl"
+                  :lazy="false"
+                  grid
+                  :grid-width="gridColumnWidth - 20"
+                ></icon-file>
               </div>
-              <span class="grid-item-text">{{ item.name }}</span>
+
+              <span class="grid-file-text" :style="{ width: gridColumnWidth + 'px' }">{{ item.name }}</span>
             </div>
           </van-grid-item>
         </van-grid>
@@ -1285,6 +1293,21 @@ export default {
 
 >>> .el-input-tree-button {
   margin-left: 5px !important;
+}
+
+>>> .van-grid-item__content .svg-icon{
+  font-size: 4.5rem;
+}
+
+>>> .grid-file-text {
+  margin-top: 5px;
+  cursor: default;
+  text-align: center;
+  color: #606266;
+  font-size: small;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 </style>
