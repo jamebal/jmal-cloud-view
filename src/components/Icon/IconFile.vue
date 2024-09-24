@@ -57,7 +57,7 @@
         <div v-if="grid && pc" class="grid-play-icon">
           <svg-icon icon-class="play1"/>
         </div>
-        <el-image lazy v-if="grid" :style="{'height':details?'110px':(gridWidth-50) + 'px'}" fit="contain"
+        <el-image :lazy="lazy" v-if="grid" :style="{'height':details?'110px':(gridWidth-50) + 'px'}" fit="contain"
                   :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
           <div slot="error" class="image-slot-error">
             <svg-icon icon-class="video"/>
@@ -131,6 +131,10 @@ export default {
       type: Boolean,
       default: false
     },
+    lazy: {
+      type: Boolean,
+      default: true
+    },
     public: {
       type: Boolean,
       default: false
@@ -148,6 +152,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.item, this.gridWidth)
   },
   computed: {
     findIconClass() {
@@ -310,7 +315,7 @@ export default {
   line-height: 12px;
 }
 >>> .el-image.cover {
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,.5);
 }
 
 </style>

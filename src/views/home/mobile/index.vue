@@ -1723,7 +1723,6 @@ input {
 >>> .grid-item-text {
   text-align: center;
   color: #606266;
-  font-size: smaller;
   word-wrap: break-word;
   width: -webkit-fill-available;
   overflow: hidden;
