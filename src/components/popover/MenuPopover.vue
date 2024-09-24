@@ -86,9 +86,10 @@ export default {
 <style lang="scss" scoped>
   .newFileMenu ul {
     list-style: none;
-    padding-inline-start: 0px;
+    padding-inline-start: 0;
     margin-top: 0;
     margin-bottom: 0;
+    padding: 0 5px;
   }
   .newFileMenu li {
     cursor: pointer;

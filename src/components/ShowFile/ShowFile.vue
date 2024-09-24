@@ -305,6 +305,7 @@
       <!--list布局-->
       <div
         v-show="fileList.length > 0"
+        ref="fileListTableContainer"
         id="v-draw-rectangle"
         :style="{ width: '100%', height: clientHeight + 'px' }"
       >
@@ -323,6 +324,7 @@
           :pagination-show="false"
           style="width: 100%;margin: 20px 0 0 0;"
           stripe
+          :fit="true"
           :cell-style="rowStyle"
           :height-change="false"
           :row-class-name="tableRowClassName"
@@ -358,7 +360,8 @@
               v-if="index === 2"
               :key="index"
               :show-overflow-tooltip="true"
-              max-width="200"
+              min-width="200"
+              :width="tableHeadNameWidth"
               :index="index"
               :prop="item.name"
               :label="item.label"
@@ -467,8 +470,8 @@
                 overflow: 'auto',
                 'box-shadow':
                   fileListScrollTop > 0
-                    ? '#a5a7a8 0px 0px 3px'
-                    : '#ffffff 0px 0px 0px',
+                    ? '-1px -1px 4px #00152914'
+                    : '-1px -1px 4px #ffffff',
               }"
             >
               <van-grid-item
@@ -998,6 +1001,7 @@ export default {
       isIndeterminate: false,
       isSelectAll: false,
       clientHeight: 500,
+      tableHeadNameWidth: 500,
       // 表头数据
       tableHead: [
         {
@@ -1544,6 +1548,7 @@ export default {
       this.pinSelect(row, event)
     },
     containerResize() {
+      // gird视图
       const container = document.querySelector('.dashboard-container')
       let clientWidth = container.clientWidth
       this.clientHeight = document.documentElement.clientHeight - this.lessClientHeight
@@ -1570,6 +1575,12 @@ export default {
         }
         this.getFileListEnter()
       }
+      this.$nextTick(() => {
+        // list 视图
+        const fileListTableWidth = this.$refs.fileListTableContainer.offsetWidth
+        this.tableHeadNameWidth = fileListTableWidth - (80 + 200 + 250) - 50
+      })
+
       // 使列表可拖拽
       this.rowDrop()
       this.darwRectangle()
@@ -3135,7 +3146,7 @@ export default {
         if (columnIndex === 0) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '3px 0 0 3px',
+            borderRadius: '5px 0 0 5px',
             borderLeft: '1px solid #409eff',
             borderTop: '1px solid #409eff',
             borderBottom: '1px solid #409eff',
@@ -3144,7 +3155,7 @@ export default {
         if (columnIndex === 3) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '0 3px 3px 0',
+            borderRadius: '0 5px 5px 0',
             borderRight: '1px solid #409eff',
             borderTop: '1px solid #409eff',
             borderBottom: '1px solid #409eff',
@@ -4575,6 +4586,7 @@ export default {
 }
 
 >>> .el-table {
+  padding-left: 20px;
   th.gutter {
     display: table-cell !important;
   }
@@ -4594,4 +4606,5 @@ export default {
 .mt-5 {
   margin-top: 5px;
 }
+
 </style>
