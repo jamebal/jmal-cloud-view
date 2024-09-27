@@ -85,13 +85,14 @@
       </el-card>
       </div>
     <footer id="footer" class="clearfix" style="font-size: 0.725rem;">
-      <div class="copyright">
+      <div v-if="!webstieRecord.footerHtml" class="copyright">
         <div>{{ webstieRecord.copyright }}</div>
         <span>
           <a target="_blank" href="https://beian.miit.gov.cn" >{{ webstieRecord.recordPermissionNum }}</a>
           <a target="_blank" :href="'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode='+webstieRecord.networkRecordNumber" ><img v-if="webstieRecord.networkRecordNumberStr" src="~@/assets/img/beian.png"/>{{ webstieRecord.networkRecordNumberStr }}</a>
         </span>
       </div>
+      <div ref="footerHtml" v-else v-html="webstieRecord.footerHtml" />
     </footer>
   </div>
 </template>
@@ -133,7 +134,8 @@ export default {
         copyright: '',
         recordPermissionNum: '',
         netdiskName: '',
-        netdiskLogo: this.$store.state.user.netdiskLogo
+        netdiskLogo: this.$store.state.user.netdiskLogo,
+        footerHtml: ''
       },
       loginForm: {
         username: this.$route.query.username || '',
@@ -186,9 +188,28 @@ export default {
       if (this.webstieRecord.netdiskName || this.webstieRecord.netdiskLogo) {
         this.$store.dispatch('user/setLogo', {netdiskName: this.webstieRecord.netdiskName, netdiskLogo: this.webstieRecord.netdiskLogo})
       }
+      if (this.webstieRecord.footerHtml) {
+        this.$nextTick(() => {
+          this.loadScripts()
+        })
+      }
     })
   },
   methods: {
+    loadScripts() {
+      const preview = this.$refs.footerHtml;
+      const scripts = preview.querySelectorAll('script');
+
+      scripts.forEach(script => {
+        const newScript = document.createElement('script');
+        if (script.src) {
+          newScript.src = script.src;
+        } else {
+          newScript.innerHTML = script.innerHTML;
+        }
+        document.body.appendChild(newScript).parentNode.removeChild(newScript);
+      });
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
