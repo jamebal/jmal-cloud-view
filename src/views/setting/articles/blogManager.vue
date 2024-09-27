@@ -95,8 +95,26 @@
           <el-input autosize type="textarea" width="100%" v-model="form.networkRecordNumber"></el-input>
           <div class="config-itme-label">网站联网备案号文本：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.networkRecordNumberStr"></el-input>
+          <div class="config-itme-label">自定义页脚html：</div>
+          <el-input :autosize="{ minRows: 2}" type="textarea" width="100%" v-model="form.footerHtml"></el-input>
+
+          <div>
+            <el-divider content-position="center">预览</el-divider>
+            <footer id="footer" style="font-size: 0.725rem;">
+              <div v-if="!form.footerHtml">
+                <div>{{ form.copyright }}</div>
+                <span>
+                  <a target="_blank" href="https://beian.miit.gov.cn" >{{ form.recordPermissionNum }}</a>
+                  <a target="_blank" :href="'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode='+form.networkRecordNumber" ><img v-if="form.networkRecordNumberStr" src="~@/assets/img/beian.png"/>{{ form.networkRecordNumberStr }}</a>
+                </span>
+              </div>
+              <div ref="previewFooterHtml" v-else v-html="sanitizedHtml" />
+            </footer>
+          </div>
+
         </el-tab-pane>
       </el-tabs>
+
       <div v-if="subpage" class="list-body">
         <table-list
           ref="tableList"
@@ -116,7 +134,6 @@
 </template>
 
 <script>
-
 import {getSetting, getHeartwings, updateSetting} from '@/api/setting-api'
 import UploadImageInput from "@/components/input/UploadImageInput"
 import TableList from "@/components/table/TableList"
@@ -149,7 +166,8 @@ export default {
         copyright: '',
         recordPermissionNum: '',
         networkRecordNumber: '',
-        networkRecordNumberStr: ''
+        networkRecordNumberStr: '',
+        footerHtml: ''
       },
       operatingButtons: [],
       dataList: [],
@@ -170,14 +188,39 @@ export default {
       },
     }
   },
-  computed: {},
+  computed: {
+    sanitizedHtml() {
+      return this.form.footerHtml;
+    }
+  },
   mounted() {
     this.getSetting()
     if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab
     }
   },
+  watch: {
+    sanitizedHtml(newVal) {
+      this.$nextTick(() => {
+        this.loadScripts();
+      });
+    }
+  },
   methods: {
+    loadScripts() {
+      const preview = this.$refs.previewFooterHtml;
+      const scripts = preview.querySelectorAll('script');
+
+      scripts.forEach(script => {
+        const newScript = document.createElement('script');
+        if (script.src) {
+          newScript.src = script.src;
+        } else {
+          newScript.innerHTML = script.innerHTML;
+        }
+        document.body.appendChild(newScript).parentNode.removeChild(newScript);
+      });
+    },
     backParent() {
       this.subpage = false
     },
@@ -337,4 +380,18 @@ export default {
     padding: 0 0;
   }
 }
+
+footer {
+  margin: 0 auto;
+  overflow: hidden;
+  text-align: center;
+  -webkit-transition: 0.5s ease all;
+  transition: 0.5s ease all;
+  border: 1px dashed #dddfe6;
+}
+
+footer, footer p {
+  font-size: .8125rem;
+}
+
 </style>
