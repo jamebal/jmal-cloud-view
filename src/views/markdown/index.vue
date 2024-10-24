@@ -358,6 +358,9 @@ export default {
           hljs: {
             lineNumber: true
           },
+          markdown: {
+            toc: true
+          },
         },
         cache: {
           enable: false,
