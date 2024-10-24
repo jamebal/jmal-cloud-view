@@ -465,8 +465,9 @@
               :border="false"
               :style="{
                 width: '100%',
-                'max-height': clientHeight - 25 + 'px',
-                rowGap: '8px',
+                maxHeight: clientHeight - 25 + 'px',
+                minHeight: gridMinHeight + 'px',
+                rowGap: '10px',
                 overflow: 'auto',
                 'box-shadow':
                   fileListScrollTop > 0
@@ -1069,6 +1070,7 @@ export default {
       gridColumnNum: -1,
       gridPaddingRight: 0,
       gridItemWidth: 125,
+      gridMinHeight: 125,
       allChecked: false,
       summaries: '',
       shareDialogVisible: false,
@@ -1566,6 +1568,12 @@ export default {
       let gridRowNum = Math.round(
         this.clientHeight / (clientWidth / this.gridColumnNum)
       )
+
+      if (this.finished) {
+        let actualRows =  Math.ceil(this.fileList.length / this.gridColumnNum)
+        this.gridMinHeight = actualRows * this.gridItemWidth + (actualRows - 1) * 10
+      }
+
       const lastPageSize = this.pagination.pageSize
       const thisPageSize = gridRowNum * this.gridColumnNum + this.gridColumnNum
       if (thisPageSize !== lastPageSize) {
