@@ -1,6 +1,7 @@
 FROM jmal/nginx-drawio:latest
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf.no_office.template /etc/nginx/nginx.conf.no_office.template
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 COPY dist /var/www/public
 

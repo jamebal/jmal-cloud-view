@@ -1,0 +1,231 @@
+# nginx : /usr/local/Cellar/nginx/nginx-1.17.8/objs/nginx
+# nginx.conf : /usr/local/nginx/conf/nginx.conf
+#user  nobody;
+worker_processes 2;
+
+events {
+    worker_connections  1024;
+}
+
+#设定http服务器，利用它的反向代理功能提供负载均衡支持
+http {
+	log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+	    #设定mime类型,类型由mime.type文件定义
+    	include       mime.types;
+	    #设置文件使用的默认的MIME-type
+    	default_type  application/octet-stream;
+	    #sendfile指令指定 nginx 是否调用sendfile 函数（zero copy 方式）来输出文件，对于普通应用，必须设为on。如果用来进行下载等应用磁盘IO重负载应用，可设置为off，以平衡磁盘与网络IO处理速度，降低系统uptime
+    	sendfile on;
+    	tcp_nopush on;
+	    #keepalive超时时间。
+    	keepalive_timeout 65;
+    	#gzip on;
+
+    	map $http_upgrade $connection_upgrade {
+            default upgrade;
+            ''      close;
+        }
+        map $http_host $this_host {
+            "" $host;
+            default $http_host;
+        }
+        map $http_x_forwarded_proto $the_scheme {
+             default $http_x_forwarded_proto;
+             "" $scheme;
+        }
+        map $http_x_forwarded_host $the_host {
+            default $http_x_forwarded_host;
+            "" $this_host;
+        }
+
+        server {
+        	listen 8089;
+        	server_name localhost;
+
+                location = / {
+                        proxy_pass   http://jmalcloud:8088/articles;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+                location /api {
+                                proxy_pass   http://jmalcloud:8088;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                location /articles/articles {
+                        proxy_pass   http://jmalcloud:8088/articles;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+        	    location /articles {
+                        proxy_pass   http://jmalcloud:8088/articles;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+                location / {
+                        proxy_pass   http://jmalcloud:8088/articles/;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+        }
+
+    ###jmal-cloud-vie vue.js 前端配置
+    server {
+            listen 80;
+            server_name  localhost;
+            root /var/www/public;
+	        client_max_body_size 50m;
+            client_body_buffer_size 512k;
+
+                        location / {
+                                try_files $uri $uri/ /index.html;
+                                index index.html index.htm;
+                        }
+
+                        location = /blog {
+                                proxy_pass   http://jmalcloud:8088/articles;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location = /blog/ {
+                                proxy_pass   http://jmalcloud:8088/articles;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /blog/api/ {
+                                 proxy_pass   http://jmalcloud:8088/;
+                                 proxy_set_header Host $proxy_host;
+                                 proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /blog/articles {
+                                proxy_pass   http://jmalcloud:8088/articles/;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /blog/ {
+                                proxy_pass   http://jmalcloud:8088/articles/;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /api/ {
+                                proxy_pass   http://jmalcloud:8088/;
+                                proxy_http_version 1.1;
+                                proxy_set_header X-real-ip $remote_addr;
+                                proxy_set_header X-Real-IP $remote_addr;
+                                proxy_set_header X-Real-PORT $remote_port;
+                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                proxy_set_header X-Forwarded-Proto $the_scheme;
+                                proxy_set_header X-Forwarded-Port $server_port;
+                                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                                proxy_set_header Host $http_host;
+                                proxy_set_header Scheme $scheme;
+                                proxy_set_header Server-Protocol $server_protocol;
+                                proxy_set_header Server-Name $server_name;
+                                proxy_set_header Server-Addr $server_addr;
+                                proxy_set_header Server-Port $server_port;
+                                proxy_set_header Upgrade $http_upgrade;
+                                proxy_set_header Connection $connection_upgrade;
+                        }
+
+                        location /webDAV/ {
+                                proxy_pass   http://jmalcloud:8088/webDAV/;
+                                proxy_http_version 1.1;
+                                proxy_set_header X-real-ip $remote_addr;
+                                proxy_set_header X-Real-IP $remote_addr;
+                                proxy_set_header X-Real-PORT $remote_port;
+                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                proxy_set_header X-Forwarded-Proto $the_scheme;
+                                proxy_set_header X-Forwarded-Port $server_port;
+                                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                                proxy_set_header Host $http_host;
+                                proxy_set_header Scheme $scheme;
+                                proxy_set_header Server-Protocol $server_protocol;
+                                proxy_set_header Server-Name $server_name;
+                                proxy_set_header Server-Addr $server_addr;
+                                proxy_set_header Server-Port $server_port;
+                                proxy_set_header Upgrade $http_upgrade;
+                                proxy_set_header Connection $http_connection;
+                        }
+
+                        location /file/ {
+                                proxy_pass  http://jmalcloud:8088/file/;
+                                proxy_http_version 1.1;
+                                proxy_set_header X-real-ip $remote_addr;
+                                proxy_set_header X-Real-IP $remote_addr;
+                                proxy_set_header X-Real-PORT $remote_port;
+                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                proxy_set_header X-Forwarded-Proto $the_scheme;
+                                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                                proxy_set_header Host $http_host;
+                                proxy_set_header Scheme $scheme;
+                                proxy_set_header Server-Protocol $server_protocol;
+                                proxy_set_header Server-Name $server_name;
+                                proxy_set_header Server-Addr $server_addr;
+                                proxy_set_header Server-Port $server_port;
+                                proxy_set_header Upgrade $http_upgrade;
+                                proxy_set_header Connection $connection_upgrade;
+                        }
+
+                        location /mq {
+                                proxy_pass   http://jmalcloud:8088/mq/;
+                                #websocket额外配置开始
+                			    proxy_http_version 1.1;
+                			    proxy_set_header Upgrade $http_upgrade;
+                			    proxy_set_header Connection "upgrade";
+                			    proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
+                	            proxy_read_timeout 500s;#读超时时间
+                	            proxy_send_timeout 500s;#写超时时间
+                                #websocket额外配置结束
+                        }
+
+                        location /drawio/webapp/ {
+                           proxy_pass http://localhost:8080/;
+                           proxy_http_version 1.1;
+                           proxy_set_header X-Real-IP $remote_addr;
+                           proxy_set_header X-Real-PORT $remote_port;
+                           proxy_set_header X-Forwarded-Host $the_host//drawio/webapp;
+                           proxy_set_header X-Forwarded-Proto $the_scheme;
+                           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                           proxy_set_header Host $http_host;
+                           proxy_set_header Scheme $scheme;
+                           proxy_set_header Server-Protocol $server_protocol;
+                           proxy_set_header Server-Name $server_name;
+                           proxy_set_header Server-Addr $server_addr;
+                           proxy_set_header Server-Port $server_port;
+                           proxy_set_header Upgrade $http_upgrade;
+                           proxy_set_header Connection $connection_upgrade;
+                       }
+
+                        location /pdf.js/ {
+                           proxy_pass http://localhost:8081/;
+                           proxy_http_version 1.1;
+                           proxy_set_header X-Real-IP $remote_addr;
+                           proxy_set_header X-Real-PORT $remote_port;
+                           proxy_set_header X-Forwarded-Host $the_host//pdf.js;
+                           proxy_set_header X-Forwarded-Proto $the_scheme;
+                           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                           proxy_set_header Host $http_host;
+                           proxy_set_header Scheme $scheme;
+                           proxy_set_header Server-Protocol $server_protocol;
+                           proxy_set_header Server-Name $server_name;
+                           proxy_set_header Server-Addr $server_addr;
+                           proxy_set_header Server-Port $server_port;
+                           proxy_set_header Upgrade $http_upgrade;
+                           proxy_set_header Connection $connection_upgrade;
+                       }
+    }
+
+    include servers/*;
+}
