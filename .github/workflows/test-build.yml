@@ -2,7 +2,7 @@ name: Build Test Docker Image
 
 on:
   push:
-    branches: [ test1 ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
