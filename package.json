@@ -15,9 +15,9 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
-    "@vue-office/docx": "^1.6.2",
-    "@vue-office/excel": "^1.7.11",
-    "@vue/composition-api": "^1.7.2",
+    "@vue-office/docx": "1.6.2",
+    "@vue-office/excel": "1.7.11",
+    "@vue/composition-api": "1.7.2",
     "ant-design-vue": "^1.6.5",
     "clipboard": "^2.0.6",
     "cropperjs": "^1.5.6",
@@ -40,7 +40,7 @@
     "monaco-editor-vue": "^1.0.10",
     "monaco-editor-webpack-plugin": "^3.0.1",
     "monaco-languages": "^2.3.0",
-    "mxcad": "^1.0.238",
+    "mxcad": "1.0.238",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "3.3.0",
