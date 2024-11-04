@@ -1569,9 +1569,12 @@ export default {
         this.clientHeight / (clientWidth / this.gridColumnNum)
       )
 
-      if (this.finished) {
-        let actualRows =  Math.ceil(this.fileList.length / this.gridColumnNum)
-        this.gridMinHeight = actualRows * this.gridItemWidth + (actualRows - 1) * 10
+      if (this.finished && this.pagination.pageIndex === 1) {
+        const actualRows =  Math.ceil(this.fileList.length / this.gridColumnNum)
+        const gridMinHeight = actualRows * this.gridItemWidth + (actualRows - 1) * 10
+        if (gridMinHeight < this.clientHeight) {
+          this.gridMinHeight = gridMinHeight
+        }
       }
 
       const lastPageSize = this.pagination.pageSize
