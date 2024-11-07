@@ -766,10 +766,7 @@
             <p>确定删除所选的{{selectFileList.length}}个文件？</p>
           </div>
         </div>
-<!--        <div class="delete-attention mt-5">-->
-<!--          <el-checkbox v-model="permanentDelete" :disabled="permanentDeleteDisable">永久删除文件（不进入回收站，直接删除）</el-checkbox>-->
-<!--        </div>-->
-        <dialog-file-list :file-list="selectFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
+<!--        <dialog-file-list class="dialog-file-list" :file-list="selectFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>-->
       </el-row>
       <span slot="footer" class="dialog-footer-delete">
           <div>
@@ -778,7 +775,7 @@
           <div>
             <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
             <el-button v-if="permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile" :loading="deleteLoading">彻底删除</el-button>
-            <el-button v-else type="danger" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
+            <el-button v-else type="warning" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
           </div>
       </span>
     </el-dialog>
@@ -794,7 +791,7 @@
             <p>所选目录已存在下列文件</p>
           </div>
         </div>
-        <dialog-file-list :file-list="existsFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
+        <dialog-file-list class="dialog-file-list" :file-list="existsFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
@@ -4630,9 +4627,13 @@ export default {
     display: table-cell !important;
   }
 }
+.dialog-file-list {
+  padding: 10px 0;
+}
 .delete-attention {
   padding: 10px 10px;
   border-radius: 4px;
+  margin-bottom: 10px;
   .el-checkbox {
     color: #606266;
     font-weight: 500;
