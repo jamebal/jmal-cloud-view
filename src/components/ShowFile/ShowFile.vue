@@ -763,17 +763,22 @@
         <div class="el-message-box__container delete-attention el-alert--warning is-light">
           <div class="el-message-box__status el-icon-warning"></div>
           <div class="el-message-box__message">
-            <p>确定删除所选的{{selectFileList.length}}个文件？默认进入回收站</p>
+            <p>确定删除所选的{{selectFileList.length}}个文件？</p>
           </div>
         </div>
-        <div class="delete-attention mt-5">
-          <el-checkbox v-model="permanentDelete" :disabled="permanentDeleteDisable">永久删除文件（不进入回收站，直接删除）</el-checkbox>
-        </div>
+<!--        <div class="delete-attention mt-5">-->
+<!--          <el-checkbox v-model="permanentDelete" :disabled="permanentDeleteDisable">永久删除文件（不进入回收站，直接删除）</el-checkbox>-->
+<!--        </div>-->
         <dialog-file-list :file-list="selectFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
-        <el-button type="primary" size="small" @click="deleteFile" :loading="deleteLoading">确 定</el-button>
+          <div>
+            <el-button type="danger" size="small" @click="sweepDeleteFile">彻底删除</el-button>
+          </div>
+          <div>
+            <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
+            <el-button type="danger" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
+          </div>
       </span>
     </el-dialog>
 
@@ -4074,6 +4079,16 @@ export default {
           this.rowContextData.isFavorite = !isFavorite
         })
     },
+    // 移动至回收站
+    moveToRecycle() {
+      this.permanentDelete = false
+      this.deleteFile()
+    },
+    // 彻底删除
+    sweepDeleteFile() {
+      this.permanentDelete = true
+      this.deleteFile()
+    },
     // 删除
     deleteFile() {
       // 提取出selectFileList中的id
@@ -4532,6 +4547,8 @@ export default {
     }
 
     .dialog-footer {
+      display: flex;
+      justify-content: space-between;
       .el-loading-spinner {
         margin-top: -13px;
 
