@@ -771,13 +771,14 @@
 <!--        </div>-->
         <dialog-file-list :file-list="selectFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
       </el-row>
-      <span slot="footer" class="dialog-footer">
+      <span slot="footer" class="dialog-footer-delete">
           <div>
-            <el-button type="danger" size="small" @click="sweepDeleteFile">彻底删除</el-button>
+            <el-button v-if="!permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile">彻底删除</el-button>
           </div>
           <div>
             <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
-            <el-button type="danger" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
+            <el-button v-if="permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile" :loading="deleteLoading">彻底删除</el-button>
+            <el-button v-else type="danger" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
           </div>
       </span>
     </el-dialog>
@@ -4547,8 +4548,6 @@ export default {
     }
 
     .dialog-footer {
-      display: flex;
-      justify-content: space-between;
       .el-loading-spinner {
         margin-top: -13px;
 
@@ -4559,6 +4558,11 @@ export default {
       }
     }
   }
+}
+
+.dialog-footer-delete {
+  display: flex;
+  justify-content: space-between;
 }
 
 >>> .van-grid-item__content {
