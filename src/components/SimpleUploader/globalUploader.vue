@@ -310,7 +310,7 @@ export default {
         currentDirectory: this.$route.query.path || '/',
         username: this.$store.state.user.name,
         userId: this.$store.state.user.userId,
-        folder: this.$route.query.folder
+        folder: this.$route.query.searchOpenFolder || this.$route.query.folder
       }
     },
     isPath(str) {
@@ -400,17 +400,17 @@ export default {
         this.uploader.resume()
       })
     },
-    setPageTitle() {
+    setPageTitle(netSpeed) {
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
         document.title = `${this.$route.meta.title}`
       } else {
-        document.title = `${this.process}% | ${this.$route.meta.title}`
+        document.title = `${this.process}% | ${netSpeed}`
       }
     },
     onFileProgress(rootFile, file, chunk) {
       this.netSpeed = formatNetSpeed(file.currentSpeed, false)
       this.process = Math.trunc(window.uploader.progress() * 100)
-      this.setPageTitle()
+      this.setPageTitle(this.netSpeed)
       if (rootFile.isFolder && this.process < 100) {
         this.statusSet(rootFile.id, 'progress', formatNetSpeed(file.currentSpeed, true))
       }

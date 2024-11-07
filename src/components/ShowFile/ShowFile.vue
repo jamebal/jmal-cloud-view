@@ -1502,7 +1502,12 @@ export default {
           this.fileList[index].updateDate = fileDoc.updateDate
         }
       }
-      const isCurrentPath = (this.path + '/') === fileDoc
+      let thisPath = this.path
+      if (this.listModeSearchOpenDir) {
+        const row = this.pathList[this.pathList.length - 1]
+        thisPath = `${row.row.path}${row.folder}`
+      }
+      const isCurrentPath = (thisPath + '/') === fileDoc
       if ('deleteFile' === url && (isCurrentPath || this.$route.path.startsWith('/recently'))) {
         this.getFileListEnter()
       }
@@ -1513,18 +1518,18 @@ export default {
         if (fileDoc && fileDoc.name) {
           this.onCreateFilename = fileDoc.name
         }
-        if (!this.path) {
-          this.path = ''
+        if (!thisPath) {
+          thisPath = ''
         }
         if (fileDoc) {
           if (fileDoc.$set) {
             let path = fileDoc.$set.path
             path = path.replace(/\\/g, '/')
-            if (this.path + '/' === path) {
+            if (thisPath + '/' === path) {
               this.getFileListEnter()
             }
           } else {
-            if (this.path + '/' === fileDoc.path) {
+            if (thisPath + '/' === fileDoc.path) {
               this.getFileListEnter()
             }
           }
