@@ -32,6 +32,7 @@ export default {
     createAdmin: '创建管理员',
     ruleUsername: '请输入有效的用户名',
     ruleConfirmPassword: '密码不匹配',
+    rulePassword: '密码至少6位',
   },
   msg: {
     netDiskLogoRuleFormat: '网盘Logo只能是 SVG|JPG|JPEG|PNG 格式!',

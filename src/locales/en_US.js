@@ -32,6 +32,7 @@ export default {
     createAdmin: 'Create Admin',
     ruleUsername: 'Please enter a valid username',
     ruleConfirmPassword: 'Password does not match',
+    rulePassword: 'Password must be at least 6 characters',
   },
   msg: {
     netDiskLogoRuleFormat: 'Net Disk Logo can only be SVG|JPG|JPEG|PNG format!',

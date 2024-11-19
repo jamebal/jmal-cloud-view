@@ -116,12 +116,14 @@ export default {
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
+        callback(new Error(this.$t('login.rulePassword')))
       } else {
         callback()
       }
     }
     const confirmPassword = (rule, value, callback) => {
       if (value.length < 6) {
+        callback(new Error(this.$t('login.rulePassword')))
       } else if(this.loginForm.password !== value) {
         callback(new Error(this.$t('login.ruleConfirmPassword')))
       } else {
