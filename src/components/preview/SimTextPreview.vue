@@ -200,7 +200,7 @@
       return{
         lightTheme: true,
         contentsHide: true,
-        defalutLanguage: 'redis',
+        defalutLanguage: 'txt',
         lineWrapping: false,
         moblie: false,
         panelReadOnly: true,
