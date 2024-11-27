@@ -8,6 +8,7 @@ export default {
     done: 'Done',
     lang: 'Language',
     pleaseEnter: 'Please enter',
+    successfully: 'Successfully',
     modifiedSuccessfully: 'Modified successfully',
     deletedSuccessfully: 'Deleted successfully',
     uploadSuccessfully: 'Upload successfully',
