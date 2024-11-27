@@ -8,6 +8,7 @@ export default {
     done: '完成',
     lang: '语言',
     pleaseEnter: '请输入',
+    successfully: '成功',
     modifiedSuccessfully: '修改成功',
     deletedSuccessfully: '删除成功',
     uploadSuccessfully: '上传成功',

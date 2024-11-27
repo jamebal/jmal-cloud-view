@@ -233,7 +233,7 @@ export default {
             this.loading = true
             initialization(data).then(()=>{
                 this.initialize = false
-                this.$message.success(this.$t('message.createSuccess'))
+                this.$message.success(`${this.$t('createAdmin')} ${this.$t('successfully')}`)
                 this.loading = false
             })
           }else{
