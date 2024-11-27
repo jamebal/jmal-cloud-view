@@ -606,9 +606,10 @@
       :file="iframePreviewRow"
       :fileHandler="fileHandler"
       :status.sync="iframePreviewVisible"
+      :specifyPreviewer="specifyPreviewer"
     ></iframe-preview>
 
-    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :file="rowContextData" :visible.sync="drawer" @openFile="fileClick"></file-details>
+    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :file="rowContextData" :visible.sync="drawer" @openFile="fileClick" @openOnlyOffice="openOnlyOffice"></file-details>
 
     <el-dialog
       class="open-file-dialog"
@@ -1095,6 +1096,7 @@ export default {
       iframePreviewRow: {},
       fileHandler: {},
       iframePreviewVisible: false,
+      specifyPreviewer: '', // 指定预览器
       audioPreviewRow: {},
       audioPreviewVisible: false,
       drawer: false,
@@ -4394,6 +4396,13 @@ export default {
         }
         this.notPreviewDialogVisible = true
       }
+    },
+    openOnlyOffice(row) {
+      this.drawer = false
+      this.iframePreviewVisible = true
+      this.iframePreviewRow = row
+      this.fileHandler = {}
+      this.specifyPreviewer = 'office'
     },
     checkPreviewVisible() {
       if (this.iframePreviewVisible) {
