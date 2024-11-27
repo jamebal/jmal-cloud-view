@@ -21,7 +21,7 @@ monaco.languages.getLanguages().forEach(language => {
 
 // 换行
 export const lineWrapping = [
-  'txt'
+  ''
 ]
 
 export const iconClass = new Map()
