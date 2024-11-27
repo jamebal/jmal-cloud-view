@@ -96,12 +96,15 @@
           </el-form-item>
         </el-scrollbar>
         <el-button v-if="allowOpenFile" type="primary" size="small" @click="openFile" class="open-file">打开文件</el-button>
+        <el-button v-if="onlyOfficeSupportedFormats(file)" type="primary" size="small" @click="openOnlyOffice" class="open-file">使用OnlyOffice打开</el-button>
       </el-form>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { onlyOfficeSupportedFormats } from '@/utils/file-type'
+
 // 引入VueOfficeDocx 组件
 import VueOfficeDocx from '@vue-office/docx'
 // 引入VueOfficeDocx 相关样式
@@ -193,6 +196,9 @@ export default {
     openFile() {
       this.$emit('openFile', this.file)
     },
+    openOnlyOffice() {
+      this.$emit('openOnlyOffice', this.file)
+    },
     rendered() {
       console.log('rendered')
     },
@@ -209,6 +215,12 @@ export default {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
         this.updateSyncStatus(res.data)
       })
+    },
+    onlyOfficeSupportedFormats(file) {
+      if (!file || !file.suffix) {
+        return false
+      }
+      return onlyOfficeSupportedFormats.includes(file.suffix.toLowerCase())
     },
     updateSyncStatus(dataPercent) {
       if (this.clickSync) {

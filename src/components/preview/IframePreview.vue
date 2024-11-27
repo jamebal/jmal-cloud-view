@@ -73,6 +73,10 @@ export default {
     status: {
       type: Boolean,
       default: false
+    },
+    specifyPreviewer: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -91,6 +95,9 @@ export default {
   },
   computed: {
     fileType() {
+      if (this.specifyPreviewer === 'office') {
+        return 'office'
+      }
       return this.getType(this.file.suffix)
     },
   },
