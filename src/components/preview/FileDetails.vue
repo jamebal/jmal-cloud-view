@@ -31,7 +31,7 @@
         ></icon-file>
       </div>
       <el-form class="details-form">
-        <el-form-item label="重建索引:" class="details-scan">
+        <el-form-item v-if="!isOSSFile(file)" label="重建索引:" class="details-scan">
           <el-popover
             placement="bottom"
             trigger="click">
@@ -177,7 +177,7 @@ export default {
         return false
       }
       return (this.file.contentType.indexOf('office') > -1 || ['pdf', 'epub'].includes(this.file.suffix))
-    }
+    },
   },
   watch: {
     message(msg) {
@@ -193,6 +193,13 @@ export default {
     }
   },
   methods: {
+    isOSSFile(file) {
+      if (!file || !file.id) {
+        return false
+      }
+      // 判断id字符串里是否有斜杠,如果则返回false
+      return this.file.id.indexOf('/') > -1 || this.file.ossFolder
+    },
     openFile() {
       this.$emit('openFile', this.file)
     },
