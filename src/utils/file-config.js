@@ -117,4 +117,22 @@ export default {
     const queryShareToken = shareToken ? `?share-token=${shareToken}` : ''
     return window.location.origin + `${this.baseUrl}/public/s/${fileId}/packageDownload/${downloadName}${queryShareToken}`
   },
+  /**
+   * 判断是否有iframe预览
+   * @param suffix 文件后缀
+   * @param fileHandlers 文件处理器
+   * @returns {*|null} 文件处理器
+   */
+  hasIframePreview: function(suffix, fileHandlers) {
+    // 将 suffix 转换为小写
+    const lowerCaseSuffix = suffix.toLowerCase();
+    for (let key in fileHandlers) {
+      // 将 key 中的扩展名全部转换为小写
+      const extensions = key.split(',').map(extension => extension.toLowerCase());
+      if (extensions.includes(lowerCaseSuffix)) {
+        return fileHandlers[key];
+      }
+    }
+    return null;
+  },
 }
