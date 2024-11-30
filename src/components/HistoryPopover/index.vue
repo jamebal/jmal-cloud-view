@@ -130,6 +130,9 @@ export default {
   },
   methods: {
     loadHistoryList(id) {
+      if (!this.$store.state.user.token || !this.$store.state.user.name) {
+        return
+      }
       historyApi.fileHistoryList({fileId: id, username: this.$store.state.user.name, pageIndex: this.historyPageIndex, pageSize: this.historyPageSize}).then((res) => {
         if (res.count && res.count > 0) {
           this.fileHistoryList = res.data
