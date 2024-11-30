@@ -4342,7 +4342,7 @@ export default {
           this.$emit('selectedFile', selectFile)
           return
         }
-        const fileHandler = this.hasIframePreview(row.suffix, this.$store.getters.iframePreviewConfig)
+        const fileHandler = fileConfig.hasIframePreview(row.suffix, this.$store.getters.iframePreviewConfig)
         if (fileHandler !== null) {
           // iframe 预览
           this.iframePreviewVisible = true
@@ -4424,18 +4424,6 @@ export default {
         return true
       }
       return this.notPreviewDialogVisible;
-    },
-    hasIframePreview(suffix, fileHandlers) {
-      // 将 suffix 转换为小写
-      const lowerCaseSuffix = suffix.toLowerCase();
-      for (let key in fileHandlers) {
-        // 将 key 中的扩展名全部转换为小写
-        const extensions = key.split(',').map(extension => extension.toLowerCase());
-        if (extensions.includes(lowerCaseSuffix)) {
-          return fileHandlers[key];
-        }
-      }
-      return null;
     },
     determineDownload(file) {
       this.download(file)

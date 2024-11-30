@@ -263,7 +263,13 @@
     <image-viewer :fileList="fileList" :shareId="shareId" :file="imagePreviewRow"
                   :status.sync="imagePreviewVisible"></image-viewer>
     <video-preview :file="videoPreviewRow" :shareId="shareId" :status.sync="videoPreviewVisible"></video-preview>
-    <iframe-preview :file="officePreviewRow" :shareId="shareId" :sharer="sharerUsername" :status.sync="officePreviewVisible"></iframe-preview>
+    <iframe-preview
+      :file="iframePreviewRow"
+      :fileHandler="fileHandler"
+      :shareId="shareId"
+      :sharer="sharerUsername"
+      :status.sync="iframePreviewVisible"
+    ></iframe-preview>
     <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center"><i
       class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
     </el-divider>
@@ -419,8 +425,9 @@ export default {
       imagePreviewVisible: false,
       videoPreviewRow: {},
       videoPreviewVisible: false,
-      officePreviewRow: {},
-      officePreviewVisible: false,
+      iframePreviewRow: {},
+      iframePreviewVisible: false,
+      fileHandler: {},
       audioPreviewRow: {},
       audioPreviewVisible: false,
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
@@ -431,6 +438,7 @@ export default {
       sharerAvatarUrl: '',
       netdiskName: 'JmalCloud',
       netdiskLogo: '',
+      iframePreviewConfig: '',
       showShareCode: false,
       shareData: {},
       extractionCode: '',
@@ -706,6 +714,9 @@ export default {
           this.sharerAvatarUrl = window.location.origin + this.imageUrl + res.data.avatar
           if (this.sharer.netdiskName) {
             this.netdiskName = this.sharer.netdiskName
+          }
+          if (this.sharer.iframe) {
+            this.iframePreviewConfig = JSON.parse(this.sharer.iframe)
           }
           this.sharerUsername = this.sharer.username
           if (this.sharer.netdiskLogo) {
@@ -1074,6 +1085,15 @@ export default {
         this.pushRouter()
         this.accessShareOpenDir(row.id)
       } else {
+        const fileHandler = fileConfig.hasIframePreview(row.suffix, this.iframePreviewConfig)
+        console.log(fileHandler, this.iframePreviewConfig)
+        if (fileHandler !== null) {
+          // iframe 预览
+          this.iframePreviewVisible = true
+          this.iframePreviewRow = row
+          this.fileHandler = fileHandler
+          return
+        }
         if (row.contentType.startsWith('image')) {
           // 图片
           this.imagePreviewVisible = true
@@ -1100,8 +1120,8 @@ export default {
         // office文件
         if (row.contentType.indexOf('office') > -1 || suffix.iframePreviewFile.includes(row.suffix)) {
           // office文件
-          this.officePreviewVisible = true
-          this.officePreviewRow = row
+          this.iframePreviewVisible = true
+          this.iframePreviewRow = row
           return
         }
         // 打开文件
