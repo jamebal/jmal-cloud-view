@@ -30,6 +30,10 @@ export default {
     monitor: {
       type: Boolean,
       default: false
+    },
+    taskCount: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -46,16 +50,17 @@ export default {
       ]
     }
   },
+  mounted() {
+    getTaskProgress().then(res => {
+      this.dataList = res.data
+      this.$emit('update:task-count', this.dataList.length > 0)
+    })
+  },
   watch: {
     data(val) {
       if (val) {
         this.dataList = val
       }
-    },
-    mounted() {
-      getTaskProgress().then(res => {
-        this.dataList = res.data
-      })
     },
     message(msg) {
       if (this.monitor && msg.event === 'msg/taskCountChange') {
