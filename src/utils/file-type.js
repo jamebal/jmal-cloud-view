@@ -5,7 +5,7 @@ export const suffix = {
     'vue','asp','jsp','TXT',
     'xml','xsl','iml','m','bas','prg','cmd',
     'sass','sas','php','lst','key','pem','log',
-    'cmake','db','gradle','bat','conf','dart','plist'
+    'cmake','db','gradle','bat','conf','dart','plist', 'cfg', 'ini', 'sql', 'rst', 'toml', 'vbs', 'yml', 'yaml', 'properties', 'gitignore', 'ts'
   ],
   compressedFile: [
     'zip','tar','7z', 'rar', 'jar','tar.gz','tgz','tar.bz2'
@@ -48,6 +48,8 @@ iconClass.set('DS_Store','file-Ds-store')
 iconClass.set('jar','file-jar')
 iconClass.set('properties','file-properties')
 iconClass.set('conf','file-conf')
+iconClass.set('cfg','file-conf')
+iconClass.set('ini','file-conf')
 iconClass.set('factories','file-factories')
 iconClass.set('class','file-class')
 iconClass.set('excel','file-excel')
