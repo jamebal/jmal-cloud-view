@@ -8,8 +8,8 @@
         placement="bottom"
         width="600"
         trigger="hover">
-        <TaskProgress/>
-        <div slot="reference" class="right-content-button" v-show="showTaskProgress > 0">
+        <TaskProgress :task-count.sync="taskCount"/>
+        <div slot="reference" class="right-content-button" v-show="showTaskProgress > 0 || taskCount > 0">
           <svg-icon icon-class="gengxinjindu" :class="progressExecuting ? 'rotate' : ''"></svg-icon>
           {{ $t('app.taskProgress') }}
         </div>
@@ -76,6 +76,7 @@ export default {
       imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
       defaultAvatar: require('../../assets/img/default-avatar.png'),
       showTaskProgress: false,
+      taskCount: 0,
       progressExecuting: false,
       delayedHidden: null
     }
@@ -120,11 +121,12 @@ export default {
       if (msg.event === 'msg/taskCountChange') {
         this.taskCountChange(msg.data.length)
       }
+    },
+    taskCount(count) {
+      this.progressExecuting = count > 0;
     }
   },
   methods: {
-    handleSelect(key, keyPath) {
-    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
