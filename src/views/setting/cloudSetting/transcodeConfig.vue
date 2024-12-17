@@ -12,11 +12,11 @@
         </el-switch>
       </el-form-item>
 
-      <el-form-item label="最大线程数" prop="maxThreads">
+      <el-form-item label="最大并发数" prop="maxThreads">
         <div class="form-item-flex">
           <el-input-number v-model="configFormData.maxThreads" :min="1" :max="8" label="最大线程数"></el-input-number>
           <div>
-            <el-tooltip class="item" effect="dark" content="最多同时的转码的任务数, 默认为1(可根据具体硬件配置酌情增加)" placement="top">
+            <el-tooltip class="item" effect="dark" content="最大并发转码任务数, 默认为1(根据硬件性能可适当增加)" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </div>
@@ -150,7 +150,7 @@ export default {
       saveConfigLoading: false,
       cancelTaskLoading: false,
       configFormData: {
-        enable: true,
+        enable: false,
         bitrate: undefined,
         height: undefined,
         frameRate: undefined,

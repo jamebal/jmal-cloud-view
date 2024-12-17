@@ -45,7 +45,14 @@ export default {
       loading: false,
       tableHeader: [
         {prop: 'type', width: 100, label: '任务类型'},
-        {prop: 'name', minWidth: 100, label: '名称'},
+        {prop: 'name', minWidth: 100, label: '名称', href: {
+            url: (row) => {
+              if (row.path) {
+                return `/?path=${row.path}&highlight=${row.name}`
+              }
+            }
+          }
+        },
         {prop: 'progress', width: 200, label: '进度'},
       ]
     }

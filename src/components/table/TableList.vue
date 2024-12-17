@@ -36,7 +36,12 @@
         tooltip-effect="dark"
       >
           <template slot-scope="scope">
-            {{ !item.formatData && !item.active ? scope.row[item.prop] : ''}}
+            <div v-if="item.href">
+              <a :href="item.href.url(scope.row)">{{ scope.row[item.prop] }}</a>
+            </div>
+            <div v-else>
+              {{ !item.formatData && !item.active ? scope.row[item.prop] : ''}}
+            </div>
             <div v-if="item.active">
               <el-button
                 v-for="(o, key) in item.active"
