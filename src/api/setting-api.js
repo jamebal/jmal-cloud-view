@@ -15,6 +15,20 @@ export default {
       data
     })
   },
+  getOcrConfig(params) {
+    return request({
+      url: '/cloud/setting/ocr/config',
+      method: 'get',
+      params
+    })
+  },
+  setOcrConfig(data) {
+    return request({
+      url: '/cloud/setting/ocr/config',
+      method: 'put',
+      data
+    })
+  },
   getTranscodeConfig(params) {
     return request({
       url: '/cloud/setting/transcode/config',

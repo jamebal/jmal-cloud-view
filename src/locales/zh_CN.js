@@ -67,6 +67,7 @@ export default {
     updateOnGithub: '在github上更新',
     videoTranscoding: '视频转码',
     previewConfig: '预览配置',
+    ocrConfig: 'OCR配置',
     ldapAuth: 'LDAP认证',
     startSync: '是否开始扫描? ',
     confirmDeleteMenuAndRole: '您确定要删除当前角色、菜单吗? ',

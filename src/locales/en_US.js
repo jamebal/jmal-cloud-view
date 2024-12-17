@@ -67,6 +67,7 @@ export default {
     updateOnGithub: 'Update on Github',
     videoTranscoding: 'Video Transcoding',
     previewConfig: 'Preview Config',
+    ocrConfig: 'OCR Config',
     ldapAuth: 'LDAP Auth',
     startSync: 'Start scanning? ',
     confirmDeleteMenuAndRole: 'Are you sure you want to delete the current role and menu? ',

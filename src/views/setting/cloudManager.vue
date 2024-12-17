@@ -74,21 +74,26 @@
               <transcode-config></transcode-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.previewConfig')" name="4" class="setting-tab-panel">
+          <el-tab-pane :label="$t('app.ocrConfig')" name="4" class="setting-tab-panel">
             <div v-if="activeName === '4'">
+              <ocr-config></ocr-config>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane :label="$t('app.previewConfig')" name="5" class="setting-tab-panel">
+            <div v-if="activeName === '5'">
               <preview-config></preview-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.ldapAuth')" name="5" class="setting-tab-panel">
-            <div v-if="activeName === '5'">
+          <el-tab-pane :label="$t('app.ldapAuth')" name="6" class="setting-tab-panel">
+            <div v-if="activeName === '6'">
               <ldap-config></ldap-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('common.lang')" name="6" class="setting-tab-panel">
-            <div v-if="activeName === '6'">
-              <language-config></language-config>
-            </div>
-          </el-tab-pane>
+<!--          <el-tab-pane :label="$t('common.lang')" name="7" class="setting-tab-panel">-->
+<!--            <div v-if="activeName === '7'">-->
+<!--              <language-config></language-config>-->
+<!--            </div>-->
+<!--          </el-tab-pane>-->
         </el-tabs>
       </div>
     </el-card>
@@ -103,6 +108,7 @@ import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
 import LanguageConfig from '@/views/setting/cloudSetting/languageConfig.vue'
+import OcrConfig from '@/views/setting/cloudSetting/ocrConfig.vue'
 import PreviewConfig from '@/views/setting/cloudSetting/previewConfig.vue'
 import {mapGetters, mapState} from "vuex";
 import store from "@/store";
@@ -112,7 +118,7 @@ import TranscodeConfig from "@/views/setting/cloudSetting/transcodeConfig.vue";
 import OfficeConfig from "@/views/setting/cloudSetting/officeConfig.vue";
 
 export default {
-  components: { LanguageConfig, PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
+  components: { OcrConfig, LanguageConfig, PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',
