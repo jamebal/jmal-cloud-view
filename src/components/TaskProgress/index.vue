@@ -58,10 +58,15 @@ export default {
     }
   },
   mounted() {
-    getTaskProgress().then(res => {
-      this.dataList = res.data
-      this.$emit('update:task-count', this.dataList.length > 0)
-    })
+    if (this.$route.path.startsWith("/s/")) {
+      return
+    }
+    if (this.$store.state.user.token)  {
+      getTaskProgress().then(res => {
+        this.dataList = res.data
+        this.$emit('update:task-count', this.dataList.length > 0)
+      })
+    }
   },
   watch: {
     data(val) {
