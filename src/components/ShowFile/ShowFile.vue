@@ -771,7 +771,7 @@
       </el-row>
       <span slot="footer" class="dialog-footer-delete">
           <div>
-            <el-button v-if="!permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile">彻底删除</el-button>
+            <el-button v-if="!permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile"  :loading="deleteLoading">彻底删除</el-button>
           </div>
           <div>
             <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
