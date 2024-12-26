@@ -11,6 +11,6 @@ export const fileOperations = {
 export const fileArrangements = [
   { label: '名称', operation: 'orderName', orderProp: 'name'},
   { label: '大小', operation: 'orderSize', orderProp: 'size'},
-  { label: '上传日期', operation: 'orderUploadDate', orderProp: 'uploadDate'},
-  { label: '修改日期', operation: 'orderUpdateDate', orderProp: 'updateDate'},
+  { label: '上传时间', operation: 'orderUploadDate', orderProp: 'uploadDate'},
+  { label: '修改时间', operation: 'orderUpdateDate', orderProp: 'updateDate'},
 ]
