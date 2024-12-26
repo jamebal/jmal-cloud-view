@@ -392,6 +392,7 @@ export default {
         Object.assign(this.uploader.opts, {
           query: {
             isFolder: false,
+            lastModified: file.file.lastModified,
             ...this.params
           }
         })
@@ -458,7 +459,8 @@ export default {
           username: this.params.username,
           userId: this.params.userId,
           totalSize: file.size,
-          isFolder: file.isFolder
+          isFolder: file.isFolder,
+          lastModified: file.file.lastModified
         }).then(() => {
           // console.log('文件合并成功', res)
           // 文件合并成功

@@ -82,7 +82,7 @@
           <el-form-item label="位置:" class="details-position">
             <a :href="'/?path=' + file.path + '&highlight=' + file.name">{{ file.path }}</a>
           </el-form-item>
-          <el-form-item label="创建时间:">
+          <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
           </el-form-item>
           <el-form-item label="修改时间:">
