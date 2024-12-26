@@ -31,7 +31,7 @@
               <div>{{ detailsData.operatingSystem }}</div>
             </el-form-item>
             <el-form-item label="请求耗时:">
-              <div>{{ detailsData.time }}ms</div>
+              <div>{{ detailsData.time ? `${detailsData.time}ms` : '' }}</div>
             </el-form-item>
             <el-form-item label="请求状态:">
               <el-tag size="mini" :type="detailsData.status === 0 ? 'success': 'danger'">
