@@ -7,3 +7,10 @@ export const fileOperations = {
   rename: { iconClass: 'menu-rename', label: '重命名', operation: 'rename', shortcut: ['F2'] },
   copyOnly: { iconClass: 'menu-copy', label: '复制', operation: 'copyOnly', shortcut: [navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl', 'C'] },
 }
+
+export const fileArrangements = [
+  { label: '名称', operation: 'orderName', orderProp: 'name'},
+  { label: '大小', operation: 'orderSize', orderProp: 'size'},
+  { label: '上传日期', operation: 'orderUploadDate', orderProp: 'uploadDate'},
+  { label: '修改日期', operation: 'orderUpdateDate', orderProp: 'updateDate'},
+]

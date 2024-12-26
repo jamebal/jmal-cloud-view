@@ -222,6 +222,23 @@
                     <span>大小</span>
                   </span>
                 </el-dropdown-item>
+                <el-dropdown-item command="orderUploadDate">
+                  <span
+                    :class="{
+                      'al-file-sort-item': true,
+                      active: sortable.prop === 'uploadDate',
+                    }"
+                  >
+                    <i
+                      :class="{
+                        'al-file-sort-item-icon': true,
+                        'el-icon-top': sortable.order === 'ascending',
+                        'el-icon-bottom': sortable.order === 'descending',
+                      }"
+                    ></i>
+                    <span>上传时间</span>
+                  </span>
+                </el-dropdown-item>
                 <el-dropdown-item command="orderUpdateDate">
                   <span
                     :class="{
@@ -236,7 +253,7 @@
                         'el-icon-bottom': sortable.order === 'descending',
                       }"
                     ></i>
-                    <span>日期</span>
+                    <span>修改时间</span>
                   </span>
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -489,7 +506,7 @@
                     '名称：' +
                     item.name +
                     '\r\n' +
-                    '创建时间：' +
+                    '上传时间：' +
                     item.uploadDate +
                     '\r\n' +
                     '修改时间：' +
@@ -1150,7 +1167,9 @@ export default {
         case 'size':
           return '大小'
         case 'updateDate':
-          return '日期'
+          return '修改时间'
+        case 'uploadDate':
+          return '上传时间'
         default:
           return '名称'
       }
@@ -3056,9 +3075,10 @@ export default {
         }
       })
       // 重新加上排序高亮
-      let order =
-        this.sortable.order === 'ascending' ? 'descending' : 'ascending'
-      this.addClass(tableHeader.children[headerIndex], order)
+      let order = this.sortable.order === 'ascending' ? 'descending' : 'ascending'
+      if (headerIndex > -1) {
+        this.addClass(tableHeader.children[headerIndex], order)
+      }
       this.orderCustom = true
       this.sortChange({ prop: prop, order: order })
     },
@@ -3528,13 +3548,16 @@ export default {
           this.getFileListEnter()
           break
         case 'orderName':
-          this.sortChangeOfMenu('name', 2)
+          this.sortChangeOfMenu('name', 1)
           break
         case 'orderSize':
-          this.sortChangeOfMenu('size', 5)
+          this.sortChangeOfMenu('size', 2)
           break
         case 'orderUpdateDate':
-          this.sortChangeOfMenu('updateDate', 6)
+          this.sortChangeOfMenu('updateDate', 3)
+          break
+        case 'orderUploadDate':
+          this.sortChangeOfMenu('uploadDate', -1)
           break
         case 'refresh':
           this.getFileListEnter()

@@ -14,13 +14,14 @@
 
 <script>
   import ShowFile from "@/components/ShowFile/ShowFile";
+  import { fileArrangements } from '@/utils/file-operations'
 
   export default {
     components: {ShowFile},
     data() {
       return {
         sortable: {
-          prop: 'updateDate', order: 'descending'
+          prop: 'uploadDate', order: 'descending'
         },
         queryCondition: {
           isFolder:false
@@ -32,11 +33,7 @@
               { label: '显示文件夹大小', operation: 'show-folder-size'},
             ]
           },
-          { label: '排列方式', operation: 'arrangement' ,child: [
-              { label: '名称', operation: 'orderName', orderProp: 'name'},
-              { label: '大小', operation: 'orderSize', orderProp: 'size'},
-              { label: '日期', operation: 'orderUpdateDate', orderProp: 'updateDate'},
-            ]
+          { label: '排列方式', operation: 'arrangement' ,child: fileArrangements
           },
           { label: '刷新', operation: 'refresh'},
           { divider: true, operation: 'divider' },
