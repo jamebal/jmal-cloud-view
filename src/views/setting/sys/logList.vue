@@ -111,7 +111,10 @@ export default {
         label: '登录'
       }, {
         value: 'OPERATION',
-        label: '操作'
+        label: '系统操作'
+      }, {
+        value: 'OPERATION_FILE',
+        label: '文件操作'
       }, {
         value: 'ARTICLE',
         label: '文章'
@@ -180,16 +183,36 @@ export default {
       this.queryCondition.type = this.typeValue
       if (this.typeValue === 'ARTICLE') {
         this.tableHeader[0].disabled = true
-        this.tableHeader[1].disabled = true
-        this.tableHeader[3].disabled = true
-        this.tableHeader[5].minWidth = 200
+        this.tableHeader[1].disabled = false
+        this.tableHeader[2].disabled = true
+        this.tableHeader[3].disabled = false
+        this.tableHeader[4].disabled = false
+        this.tableHeader[5].disabled = false
+        this.tableHeader[6].disabled = false
+        this.tableHeader[7].disabled = false
+      } else if (this.typeValue === 'OPERATION_FILE') {
+        this.operationFileType()
       } else {
         this.tableHeader[0].disabled = false
         this.tableHeader[1].disabled = false
+        this.tableHeader[2].disabled = true
         this.tableHeader[3].disabled = false
-        this.tableHeader[5].minWidth = 105
+        this.tableHeader[4].disabled = false
+        this.tableHeader[5].disabled = false
+        this.tableHeader[6].disabled = false
+        this.tableHeader[7].disabled = false
       }
       this.queryLogList()
+    },
+    operationFileType() {
+      this.tableHeader[0].disabled = false
+      this.tableHeader[1].disabled = false
+      this.tableHeader[2].disabled = false
+      this.tableHeader[3].disabled = false
+      this.tableHeader[4].disabled = true
+      this.tableHeader[5].disabled = true
+      this.tableHeader[6].disabled = true
+      this.tableHeader[7].disabled = false
     },
     queryLogList(val) {
       this.$refs.tableList.initPageIndex()
@@ -199,6 +222,9 @@ export default {
       if (this.pickerValue != null && this.pickerValue.length > 0) {
         this.queryCondition.startTime = this.pickerValue[0].getTime()
         this.queryCondition.endTime = this.pickerValue[1].getTime()
+      }
+      if (this.typeValue === 'OPERATION_FILE') {
+        this.operationFileType()
       }
       this.loading = true
       logApi.logList({

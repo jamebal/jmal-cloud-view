@@ -63,7 +63,7 @@
         <el-button size="small" @click="dialogVisible = false">关闭</el-button>
       </div>
     </el-dialog>
-    <log-list type="OPERATION" :table-header="tableHeader"></log-list>
+    <log-list type="OPERATION_FILE" :table-header="tableHeader"></log-list>
   </div>
 </template>
 
@@ -77,15 +77,13 @@ export default {
   data() {
     return {
       tableHeader: [
-        {prop: 'username', label: '账号', minWidth: 105, sortable: 'custom'},
-        {prop: 'showName', label: '用户名', minWidth: 105, sortable: 'custom'},
-        {prop: 'ip', label: 'IP地址', minWidth: 105, sortable: 'custom'},
-        {prop: 'operationModule', label: '操作模块', minWidth: 105, sortable: 'custom'},
-        {prop: 'operationFun', label: '操作功能', minWidth: 105, sortable: 'custom'},
-        {prop: 'url', label: '请求地址', minWidth: 105, sortable: 'custom'},
-        {prop: 'method', label: '方式', minWidth: 75, sortable: 'custom'},
+        {prop: 'username', label: '账号', width: 105, sortable: 'custom'},
+        {prop: 'ip', label: 'IP地址', width: 130, sortable: 'custom'},
+        {prop: 'filepath', label: '文件', sortable: 'custom'},
+        {prop: 'operationFun', label: '操作功能', sortable: 'custom'},
+        {prop: 'url', label: '请求地址', sortable: 'custom'},
         {
-          prop: 'status', minWidth: 75, label: '状态', tag: true, sortable: 'custom',
+          prop: 'status', width: 75, label: '状态', tag: true, sortable: 'custom',
           formatData: (status) => {
             if (status === 0) {
               return [{name: '正常', type: 'success'}]
@@ -95,14 +93,14 @@ export default {
           }
         },
         {
-          prop: 'time', label: '耗时', minWidth: 75, sortable: 'custom',
+          prop: 'time', label: '耗时', width: 100, sortable: 'custom',
           formatData: (time) => {
             return time + 'ms'
           }
         },
-        {prop: 'createTime', label: '创建时间', minWidth: 150, sortable: 'custom'},
+        {prop: 'createTime', label: '时间', width: 170, sortable: 'custom'},
         {
-          label: '操作', minWidth: 75, active: [
+          label: '操作', width: 80, active: [
             {name: '详情', icon: 'el-icon-view', handle: (row) => this.details(row)},
           ],
         },
