@@ -80,7 +80,7 @@
             <span> {{ formatSize(file.size) }}</span>
           </el-form-item>
           <el-form-item label="位置:" class="details-position">
-            <a :href="'/?path=' + file.path + '&highlight=' + file.name">{{ file.path }}</a>
+            <a :href="pathUrl">{{ filepath }}</a>
           </el-form-item>
           <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
@@ -103,6 +103,7 @@
 </template>
 
 <script>
+import fileApi from '@/api/file-api'
 import { onlyOfficeSupportedFormats } from '@/utils/file-type'
 
 // 引入VueOfficeDocx 组件
@@ -146,6 +147,10 @@ export default {
       type: String,
       required: true,
     },
+    fileUsername: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -159,7 +164,9 @@ export default {
         widthOffset: 10,
         heightOffset: 10,
         excel: window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
-      }
+      },
+      filepath: '',
+      pathUrl: ''
     }
   },
   mounted() {
@@ -188,7 +195,18 @@ export default {
     visible(val) {
       this.$emit('update:visible', val)
       if (val) {
+        this.filepath = this.file.path
+        this.pathUrl = `/?path=${this.file.path}&highlight=${this.file.name}`
         this.getIsSync()
+        if (this.fileUsername) {
+          fileApi.getMountFileInfo({
+            fileId: this.file.id,
+            fileUsername: this.fileUsername
+          }).then((res) => {
+            this.filepath = res.data.path
+            this.pathUrl = `/?path=${res.data.path}&highlight=${this.file.name}&folder=${res.data.folder}`
+          })
+        }
       }
     }
   },
@@ -207,7 +225,7 @@ export default {
       this.$emit('openOnlyOffice', this.file)
     },
     rendered() {
-      console.log('rendered')
+      //console.log('rendered')
     },
     formatSize(size) {
       return formatSize(size)
