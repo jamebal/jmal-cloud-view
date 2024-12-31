@@ -1069,7 +1069,7 @@ export default {
       })
     },
     pushRouter() {
-      this.$router.push(`/s/${this.shortId}/?vmode=${this.vmode}`)
+      this.$router.push(`/s/${this.shortId}?vmode=${this.vmode}`)
     },
     // 点击文件或文件夹
     fileClick(row) {
