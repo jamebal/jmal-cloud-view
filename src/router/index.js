@@ -48,14 +48,8 @@ export const constantRoutes = [
   },
   {
     path: '/s/:id',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        name: 'share',
-        component: () => import('@/views/public/share/shareList'),
-      }
-    ]
+    name: 'share',
+    component: () => import('@/views/public/share/shareList')
   },
 
   // 404 page must be placed at the end !!!
