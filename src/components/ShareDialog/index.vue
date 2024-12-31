@@ -17,7 +17,7 @@
             <el-form ref="form" class="share-option" :model="shareOption" label-width="86px" size="mini">
               <el-form-item :label="shareOptionConfig.linkLabel">
                 <el-col :span="shareOptionConfig.shared ? 9 : 20" class="share-expires-data" v-if="!shareOptionConfig.shared">
-                  <el-form-item prop="expiresDateOption">
+                  <el-form-item prop="expiresDateOption" style="margin-bottom: 0">
                     <el-select size="small" v-model="shareOption.expiresDateOption" @change="expiresDateOptionChange" style="width: 100%">
                       <el-option label="30天有效" :value="0"></el-option>
                       <el-option label="永久有效" :value="1"></el-option>
@@ -27,7 +27,7 @@
                 </el-col>
                 <el-col :span="12" v-if="shareOptionConfig.shared" class="shared-expires-text">到期时间</el-col>
                 <el-col :span="1" v-if="!shareOptionConfig.shared">&nbsp</el-col>
-                <el-col v-if="shareOption.expiresDateOption === 2" :span="12" class="share-expires-data">
+                <el-col v-if="shareOption.expiresDateOption === 2" :span="12" class="share-expires-data" style="margin-top: 10px;">
                   <el-date-picker
                     ref="expiresDatePicker"
                     size="small"
@@ -62,6 +62,15 @@
                   </el-select>
                 </el-col>
               </el-form-item>
+
+              <el-form-item v-if="!shareOptionConfig.shared" class="share-option-custom-addr" label="自定义地址" width="100">
+                <el-col :span="20">
+                  <el-input placeholder="" v-model="shareOption.customAddr">
+                    <template #prepend>{{ customAddrPrefix }}</template>
+                  </el-input>
+                </el-col>
+              </el-form-item>
+
               <el-col class="share-link">
                 <el-input size="small" v-if="shareOptionConfig.shared" readonly="readonly" v-model="shareLink">
                   <el-popover
@@ -123,6 +132,8 @@ import Clipboard from "clipboard";
 import Icon from "@/components/Icon/Icon.vue";
 import QRCode from 'qrcode';
 
+// 自定义地址只允许中文、字母、数字、下划线、中划线
+const URL_PATTERN = /^[\u4e00-\u9fa5a-zA-Z0-9_-]+$/
 
 export default {
   name: "ShareDialog",
@@ -202,7 +213,8 @@ export default {
         expiresDateOption: 1,
         isPrivacy: false,
         expiresDate: '',
-        operationPermissionList: undefined
+        operationPermissionList: undefined,
+        customAddr: ''
       },
       activeName: "1",
       shareLink: "",
@@ -219,6 +231,9 @@ export default {
   computed: {
     filenamePath() {
       return this.filename.slice(0, this.filename.lastIndexOf('/'))
+    },
+    customAddrPrefix() {
+      return `${window.location.origin}/s/`
     }
   },
   watch: {
@@ -226,6 +241,7 @@ export default {
       if (visible) {
         this.filename = this.file.name
         this.shareDialogVisible = true
+        this.shareOption.customAddr = ''
         if (this.file.shareId) {
           api.getFileInfoById({
             id: this.file.fileId
@@ -362,7 +378,17 @@ export default {
             expireDate = this.timeFormat(this.shareOption.expiresDate)
           }
       }
+      if (this.shareOption.customAddr && !URL_PATTERN.test(this.shareOption.customAddr)) {
+        this.$message({
+          message: '地址只允许中文、字母、数字、下划线、中划线',
+          type: 'warning',
+        })
+        this.generateShareLinkLoading = false
+        return
+      }
+
       api.generate({
+        shortId: this.shareOption.customAddr,
         userId: this.$store.state.user.userId,
         fileId: this.file.fileId,
         isFolder: this.file.isFolder,
@@ -505,6 +531,18 @@ export default {
     line-height: 32px;
     padding-right: 10px;
   }
+
+  .share-option-custom-addr {
+    >>> .el-input-group__prepend {
+      padding: 0 8px;
+    }
+    >>> .el-input__inner {
+      padding: 0 8px;
+      height: 32px;
+      line-height: 32px;
+    }
+  }
+
 }
 
 >>> .dialog-footer {
