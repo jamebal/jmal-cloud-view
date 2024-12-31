@@ -4446,6 +4446,21 @@ export default {
       if (this.openCompressionVisible) {
         return true
       }
+      if (this.shareDialogVisible) {
+        return true
+      }
+      if (this.tagDialogVisible) {
+        return true
+      }
+      if (this.compressedFileVisible) {
+        return true
+      }
+      if (this.drawer) {
+        return true
+      }
+      if (this.dialogMoveOrCopyVisible) {
+        return true
+      }
       return this.notPreviewDialogVisible;
     },
     determineDownload(file) {
