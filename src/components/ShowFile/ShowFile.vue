@@ -626,7 +626,7 @@
       :specifyPreviewer="specifyPreviewer"
     ></iframe-preview>
 
-    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :file="rowContextData" :visible.sync="drawer" @openFile="fileClick" @openOnlyOffice="openOnlyOffice"></file-details>
+    <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :file="rowContextData" :file-username="fileUsername" :visible.sync="drawer" @openFile="fileClick" @openOnlyOffice="openOnlyOffice"></file-details>
 
     <el-dialog
       class="open-file-dialog"
@@ -1154,7 +1154,8 @@ export default {
       deleteLoading: false, // 删除loading
       debounceSearch: null,// 搜索防抖
       debounceGetFileList: null,// 获取文件列表防抖
-      searchDialogVisible: false
+      searchDialogVisible: false,
+      fileUsername: '', // 一般用于挂载文件
     }
   },
   computed: {
@@ -2803,6 +2804,7 @@ export default {
       // 高亮新增的文件
       this.highlightNewFile()
       // 设置挂载文件的用户名(文件的所有者)
+      this.fileUsername = ''
       this.setMountFileOwner(res.props)
       const path = this.$route.query.path ? this.$route.query.path : '/'
       const basePath = this.$route.query.basePath
@@ -2820,6 +2822,7 @@ export default {
       localStorage.removeItem('mountFileOwner')
       if (this.$route.query.folder) {
         if (props && props.fileUsername && props.fileUsername !== this.$store.getters.name) {
+          this.fileUsername = props.fileUsername
           localStorage.setItem('mountFileOwner', props.fileUsername)
         }
       }

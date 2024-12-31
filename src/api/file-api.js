@@ -264,6 +264,14 @@ export default {
       data: data
     })
   },
+  // 挂用户获取分享文件信息 /mount/file_info
+  getMountFileInfo: function(params) {
+    return request({
+      url: '/mount/file_info',
+      method: 'get',
+      params
+    })
+  },
   // 验证提取码
   validShareCode: function(data) {
     return request({
