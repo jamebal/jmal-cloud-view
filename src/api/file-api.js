@@ -264,10 +264,18 @@ export default {
       data: data
     })
   },
-  // 挂用户获取分享文件信息 /mount/file_info
+  // 挂用户获取分享文件信息
   getMountFileInfo: function(params) {
     return request({
       url: '/mount/file_info',
+      method: 'get',
+      params
+    })
+  },
+  // 挂用户获取目录Id
+  getMountFolderId: function(params) {
+    return request({
+      url: '/mount/folder/id',
       method: 'get',
       params
     })

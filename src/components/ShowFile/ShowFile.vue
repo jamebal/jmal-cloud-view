@@ -793,7 +793,7 @@
           <div>
             <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
             <el-button v-if="permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile" :loading="deleteLoading">彻底删除</el-button>
-            <el-button v-else type="warning" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
+            <el-button v-if="!permanentDeleteDisable" type="warning" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
           </div>
       </span>
     </el-dialog>
@@ -2405,7 +2405,7 @@ export default {
         keywordQuery
       )
     },
-    handleLink(item, index, unPushLink, unRefresh, keywordQuery) {
+    async handleLink(item, index, unPushLink, unRefresh, keywordQuery) {
       this.pathList.splice(
         this.pathList.findIndex((v, i) => i === index + 1),
         this.pathList.length - (index + 1)
@@ -2427,6 +2427,9 @@ export default {
           this.path = this.path.replace(/\\/g, '/')
         })
         let queryFolder = localStorage.getItem('mountFileOwner') ? localStorage.getItem(this.path) : this.$route.query.folder
+        if (localStorage.getItem('mountFileOwner') && !queryFolder) {
+          queryFolder = await this.getMountFolderId(this.$route.query.folder, localStorage.getItem('mountFileOwner'), this.path)
+        }
         let searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
         if (!unPushLink) {
           const queryTagId = this.$route.query.tagId
@@ -2452,6 +2455,25 @@ export default {
           this.getFileListEnter()
         }
       }
+    },
+    getMountFolderId(currentFolder, fileUsername, path) {
+      return new Promise((resolve, reject) => {
+        api.getMountFolderId({
+          otherFileId: currentFolder,
+          fileUsername: fileUsername,
+          path: path
+        })
+          .then(res => {
+            if (res.data) {
+              resolve(res.data)
+            } else {
+              resolve('')
+            }
+          })
+          .catch(error => {
+            reject('')
+          })
+      })
     },
     getBasePath() {
       let basePath = this.$route.query.basePath
@@ -4182,8 +4204,8 @@ export default {
     getSelectFileList() {
       const fileList = [];
       this.permanentDeleteDisable = false;
-      const addFileToList = ({ id, suffix, name, contentType, isFolder, music, video }) => {
-        fileList.push({ id, suffix, name, contentType, isFolder, music, video });
+      const addFileToList = ({ id, suffix, name, mountFileId, contentType, isFolder, music, video }) => {
+        fileList.push({ id, suffix, name, mountFileId, contentType, isFolder, music, video });
       };
       if (this.selectRowData.length > 1 || this.menusIsMultiple) {
         this.$refs.fileListTable.tableSelectData.forEach(value => addFileToList(value));
@@ -4191,12 +4213,12 @@ export default {
         addFileToList(this.rowContextData);
       }
       if (fileList.length > 0) {
-        this.checkPermanentDelete(fileList[0].id);
+        this.checkPermanentDelete(fileList[0]);
       }
       return fileList;
     },
-    checkPermanentDelete(fileId) {
-      if (/\//.test(fileId)) {
+    checkPermanentDelete(file) {
+      if (/\//.test(file.id) || file.mountFileId) {
         this.permanentDeleteDisable = true
         this.permanentDelete = true
       }
@@ -4462,6 +4484,9 @@ export default {
         return true
       }
       if (this.dialogMoveOrCopyVisible) {
+        return true
+      }
+      if (this.deleteConfirmVisible) {
         return true
       }
       return this.notPreviewDialogVisible;

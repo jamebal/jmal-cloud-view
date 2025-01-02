@@ -195,22 +195,29 @@ export default {
     visible(val) {
       this.$emit('update:visible', val)
       if (val) {
-        this.filepath = this.file.path
-        this.pathUrl = `/?path=${this.file.path}&highlight=${this.file.name}`
+        this.filepath = this.getLocalPath(this.file.path)
+        this.pathUrl = `/?path=${this.filepath}&highlight=${this.file.name}`
         this.getIsSync()
         if (this.fileUsername) {
           fileApi.getMountFileInfo({
             fileId: this.file.id,
             fileUsername: this.fileUsername
           }).then((res) => {
-            this.filepath = res.data.path
-            this.pathUrl = `/?path=${res.data.path}&highlight=${this.file.name}&folder=${res.data.folder}`
+            const path = this.getLocalPath(res.data.path)
+            this.filepath = path
+            this.pathUrl = `/?path=${path}&highlight=${this.file.name}&folder=${res.data.folder}`
           })
         }
       }
     }
   },
   methods: {
+    getLocalPath(path) {
+      if (path === '/') {
+        return path
+      }
+      return path.endsWith('/') ? path.slice(0, -1) : path
+    },
     isOSSFile(file) {
       if (!file || !file.id) {
         return false
