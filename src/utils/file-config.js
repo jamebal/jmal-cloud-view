@@ -66,14 +66,14 @@ export default {
   },
   // 下载文件
   download: function(username, file, token) {
-    fileApi.isAllowDownload().then(() => {
+    fileApi.isAllowDownload({fileIds: [file.id]}).then(() => {
       let url = this.previewUrl(username, file, token) + '&o=download'
       window.open(url, '_self')
     })
   },
   // 打包下载文件
-  packageDownload: function(fileIds, token, username) {
-    fileApi.isAllowDownload().then(() => {
+  packageDownload: function(fileIds) {
+    fileApi.isAllowDownload({fileIds: fileIds}).then(() => {
       fileIds = fileIds.join(',')
       window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}`, '_self')
     })

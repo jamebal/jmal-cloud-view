@@ -614,7 +614,7 @@ export default {
         fileIds.push(this.rowContextData.id)
       }
       if (fileIds.length > 1 || this.rowContextData.isFolder) {
-        fileConfig.packageDownload(fileIds, this.$store.state.user.token, this.$store.state.user.name)
+        fileConfig.packageDownload(fileIds)
         return
       }
       fileConfig.download(this.$store.state.user.name, this.rowContextData, this.$store.state.user.token)
