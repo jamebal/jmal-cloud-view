@@ -18,7 +18,7 @@
               <el-form-item :label="shareOptionConfig.linkLabel">
                 <el-col :span="shareOptionConfig.shared ? 9 : 20" class="share-expires-data" v-if="!shareOptionConfig.shared">
                   <el-form-item prop="expiresDateOption" style="margin-bottom: 0">
-                    <el-select size="small" v-model="shareOption.expiresDateOption" @change="expiresDateOptionChange" style="width: 100%">
+                    <el-select size="small" v-model="shareOption.expiresDateOption" @change="expiresDateOptionChange" style="width: 100%" :disabled="isSubShare">
                       <el-option label="30天有效" :value="0"></el-option>
                       <el-option label="永久有效" :value="1"></el-option>
                       <el-option label="自定义" :value="2"></el-option>
@@ -39,6 +39,7 @@
                     format="yyyy-MM-dd HH:mm"
                     value-format="timestamp"
                     @change="pickerChange"
+                    :disabled="isSubShare"
                     :picker-options="pickerOptions">
                   </el-date-picker>
                 </el-col>
@@ -47,7 +48,7 @@
               <el-form-item v-if="shareOptionConfig.shared" label="">
                 <el-col :span="12" class="shared-expires-text">分享形式</el-col>
                 <el-col :span="12">
-                  <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%" @change="shareFormChange">
+                  <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%" @change="shareFormChange" :disabled="isSubShare">
                     <el-option label="公开链接" :value="false"></el-option>
                     <el-option label="私密链接" :value="true"></el-option>
                   </el-select>
@@ -56,7 +57,7 @@
 
               <el-form-item v-if="!shareOptionConfig.shared" class="share-option-form" label="分享形式" width="100">
                 <el-col :span="20">
-                  <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%">
+                  <el-select size="small" v-model="shareOption.isPrivacy" style="width: 100%" :disabled="isSubShare">
                     <el-option label="公开链接" :value="false"></el-option>
                     <el-option label="私密链接" :value="true"></el-option>
                   </el-select>
@@ -93,7 +94,7 @@
 
                 <el-collapse v-if="shareOptionConfig.shared && shareOption.isPrivacy" v-model="activeName">
                   <el-collapse-item title="操作权限" name="1">
-                    <el-checkbox-group v-model="shareOption.operationPermissionList" @change="permissionActionChange">
+                    <el-checkbox-group v-model="shareOption.operationPermissionList" @change="permissionActionChange" :disabled="isSubShare">
                       <el-checkbox label="UPLOAD">上传</el-checkbox>
                       <el-checkbox label="PUT">编辑</el-checkbox>
                       <el-checkbox label="DELETE">删除</el-checkbox>
@@ -225,7 +226,8 @@ export default {
         linkLabel: "选择有效期",
       },
       filename: '',
-      shareId: ''
+      shareId: '',
+      isSubShare: false,
     }
   },
   computed: {
@@ -234,11 +236,12 @@ export default {
     },
     customAddrPrefix() {
       return `${window.location.origin}/s/`
-    }
+    },
   },
   watch: {
     status(visible) {
       if (visible) {
+        this.isSubShare = this.file.subShare || (this.file.isShare && !this.file.shareBase) || this.file.fatherShareId
         this.filename = this.file.name
         this.shareDialogVisible = true
         this.shareOption.customAddr = ''
@@ -250,7 +253,7 @@ export default {
           })
           this.showSharedPage(this.file)
         } else {
-          if (this.file.shareBase) {
+          if (this.file.shareBase || this.file.subShare) {
             api.getShareByFileId({fileId: this.file.fileId}).then(res => {
               const shareObject = res.data
               shareObject.shareId = res.data.id
@@ -325,7 +328,7 @@ export default {
     },
     // 取消分享
     cancelShare() {
-      let title = '确定要取消分享 "' + this.filename + '" 吗?'
+      let title = '确定要取消分享 "' + this.file.name + '" 吗?'
       this.$confirm(title, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -397,7 +400,7 @@ export default {
         operationPermissionList: this.shareOption.operationPermissionList
       }).then(res => {
         if (res.data) {
-          let {shareId, shortId, extractionCode, operationPermissionList} = res.data
+          let {shareId, shareBase, subShare, shortId, extractionCode, operationPermissionList} = res.data
           this.setShareLink(this.getShareLink(shareId, shortId))
           this.shareId = shareId
           this.generateShareLinkLoading = false
@@ -406,7 +409,7 @@ export default {
           this.shareOptionConfig.linkLabel = "分享链接"
           this.extractionCode = extractionCode
           this.shareOption.operationPermissionList = operationPermissionList || []
-          this.$emit('onSuccess', shareId)
+          this.$emit('onSuccess', shareBase, subShare)
           if (update === 'pickerChange') {
             this.afterPickerChange(shareId, expireDate)
           }
