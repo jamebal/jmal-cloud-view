@@ -3414,7 +3414,7 @@ export default {
         if (!row.isFolder && this.queryFileType !== 'trash') {
           this.menus.splice(-2, 0, fileOperations.duplicate)
         }
-        if ((row.isShare && !row.shareBase) || row.ossFolder) {
+        if (row.ossFolder) {
           // 删除分享选项
           let index = this.menus.findIndex(item => item.operation === 'share')
           if (index > -1) {
@@ -4042,16 +4042,19 @@ export default {
       this.shareDialogObject = row
       this.shareDialogObject.fileId = row.id
       this.shareDialogObject.shareBase = row.shareBase
+      this.shareDialogObject.subShare = row.subShare
       this.shareDialogVisible = true
     },
-    shareSuccess(shareBase) {
+    shareSuccess(shareBase, subShare) {
       this.updateRowContextData()
       this.rowContextData.shareBase = shareBase
+      this.rowContextData.subShare = subShare
       this.rowContextData.isShare = true
     },
     onCancelShare() {
       this.updateRowContextData()
       delete this.rowContextData.shareBase
+      delete this.rowContextData.subShare
       delete this.rowContextData.isShare
     },
     updateRowContextData() {
