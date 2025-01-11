@@ -108,7 +108,7 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare">取消分享</el-button>
+        <el-button size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare" v-loading="cancelSharing">取消分享</el-button>
         <el-button size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare"
                    v-loading="generateShareLinkLoading">创建分享
         </el-button>
@@ -164,6 +164,7 @@ export default {
       audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
       shareDialogVisible: false,
       generateShareLinkLoading: false,
+      cancelSharing: false,
       pickerOptions: {
         disabledDate(time) {
           const dateTime = new Date();
@@ -260,7 +261,7 @@ export default {
               this.showSharedPage(shareObject)
             })
           } else {
-            this.showNotSharedPage()
+            this.showNotSharedPage(this.file)
           }
         }
       }
@@ -293,14 +294,24 @@ export default {
       this.extractionCode = shareObject.extractionCode
       this.shareId = shareObject.shareId
     },
-    showNotSharedPage() {
+    showNotSharedPage(file) {
       this.shareOptionConfig.shared = false
       this.shareOptionConfig.linkLabel = '选择有效期'
       this.shareOption.isPrivacy = false
       this.shareOption.expiresDate = null
       this.shareOption.expiresDateOption = 1
+      if (file.isShare) {
+        this.shareOption.isPrivacy = file.isPrivacy
+        if (file.expiresAt > 253398735999000) {
+          this.shareOption.expiresDateOption = 1
+        } else {
+          this.shareOption.expiresDate = file.expiresAt
+          this.shareOption.expiresDateOption = 2
+        }
+      }
     },
     shareDialogClose() {
+      this.cancelSharing = false
       this.shareOptionConfig.shared = false
       this.$emit('update:status', this.shareDialogVisible)
     },
@@ -328,20 +339,45 @@ export default {
     },
     // 取消分享
     cancelShare() {
-      let title = '确定要取消分享 "' + this.file.name + '" 吗?'
-      this.$confirm(title, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.cancelSharing = true
+
+      api.hasSubShare({shareIds: [this.shareId]}).then(res => {
+        if (res.data) {
+          this.$confirm('所选的文件夹下存其他分享，取消分享后其下的所有分享链接都将被删除，是否继续？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.doCancelShareLink()
+          }).catch(() => {
+            this.cancelSharing = false
+          })
+        } else {
+          let title = '确定要取消分享 "' + this.file.name + '" 吗?'
+          this.$confirm(title, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.doCancelShareLink()
+          }).catch(() => {
+            this.cancelSharing = false
+          })
+        }
+      }).catch(() => {
+        this.cancelSharing = false
+      })
+    },
+    doCancelShareLink() {
+      api.cancelShareLink({
+        userId: this.$store.state.user.userId,
+        shareId: [this.shareId]
       }).then(() => {
-        api.cancelShareLink({
-          userId: this.$store.state.user.userId,
-          shareId: [this.shareId]
-        }).then(() => {
-          this.$emit('onCancelShare')
-          this.shareDialogVisible = false
-          this.shareDialogClose()
-        })
+        this.$emit('onCancelShare')
+        this.shareDialogVisible = false
+        this.shareDialogClose()
+      }).catch(() => {
+        this.cancelSharing = false
       })
     },
     submitShare() {
@@ -389,7 +425,30 @@ export default {
         this.generateShareLinkLoading = false
         return
       }
-
+      // 检查文件夹下是否有其他分享
+      if (this.file.isFolder) {
+        api.folderSubShare({fileId: this.file.id}).then(res => {
+          if (res.data) {
+            this.$confirm('所选的文件夹下存其他分享，创建分享后将会覆盖其下所有已分享的链接参数，是否继续？', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.doCreateShare(update, expireDate)
+            }).catch(() => {
+              this.generateShareLinkLoading = false
+            })
+          } else {
+            this.doCreateShare(update, expireDate)
+          }
+        }).catch(() => {
+          this.generateShareLinkLoading = false
+        })
+      } else {
+        this.doCreateShare(update, expireDate)
+      }
+    },
+    doCreateShare(update, expireDate) {
       api.generate({
         shortId: this.shareOption.customAddr,
         userId: this.$store.state.user.userId,
