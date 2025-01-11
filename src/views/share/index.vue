@@ -79,6 +79,7 @@
           </template>
           <template slot-scope="scope">
             <span class="table-file-name">{{ scope.row.fileName }}</span>
+            <span v-if="scope.row.fatherShareId" style="color: #9a9a9a">(子分享)</span>
           </template>
         </pl-table-column>
         <!--取消分享-->
@@ -460,7 +461,7 @@
 
         api.hasSubShare({shareIds: shareIds}).then(res => {
           if (res.data) {
-            this.$confirm('选择的文件夹下存其他分享，取消分享后其下的所有分享链接都将被删除，是否继续？', '提示', {
+            this.$confirm('所选的文件夹下存其他分享，取消分享后其下的所有分享链接都将被删除，是否继续？', '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'warning'

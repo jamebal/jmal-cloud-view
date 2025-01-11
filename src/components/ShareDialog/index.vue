@@ -343,7 +343,7 @@ export default {
 
       api.hasSubShare({shareIds: [this.shareId]}).then(res => {
         if (res.data) {
-          this.$confirm('选择的文件夹下存其他分享，取消分享后其下的所有分享链接都将被删除，是否继续？', '提示', {
+          this.$confirm('所选的文件夹下存其他分享，取消分享后其下的所有分享链接都将被删除，是否继续？', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
@@ -425,7 +425,30 @@ export default {
         this.generateShareLinkLoading = false
         return
       }
-
+      // 检查文件夹下是否有其他分享
+      if (this.file.isFolder) {
+        api.folderSubShare({fileId: this.file.id}).then(res => {
+          if (res.data) {
+            this.$confirm('所选的文件夹下存其他分享，创建分享后将会覆盖其下所有已分享的链接参数，是否继续？', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.doCreateShare(update, expireDate)
+            }).catch(() => {
+              this.generateShareLinkLoading = false
+            })
+          } else {
+            this.doCreateShare(update, expireDate)
+          }
+        }).catch(() => {
+          this.generateShareLinkLoading = false
+        })
+      } else {
+        this.doCreateShare(update, expireDate)
+      }
+    },
+    doCreateShare(update, expireDate) {
       api.generate({
         shortId: this.shareOption.customAddr,
         userId: this.$store.state.user.userId,

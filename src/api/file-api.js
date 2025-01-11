@@ -237,7 +237,7 @@ export default {
       params
     })
   },
-  // 检测是否含有子分享
+  // 检测分享文件下是否含有子分享
   hasSubShare: function(params) {
     return request({
       url: '/share/has-sub-share',
@@ -246,6 +246,14 @@ export default {
       paramsSerializer: function(params) {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
+    })
+  },
+  // 检测文件下是否含有子分享
+  folderSubShare: function(params) {
+    return request({
+      url: '/share/folder-sub-share',
+      method: 'get',
+      params
     })
   },
   // 取消分享
