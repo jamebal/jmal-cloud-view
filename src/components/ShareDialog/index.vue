@@ -340,22 +340,42 @@ export default {
     // 取消分享
     cancelShare() {
       this.cancelSharing = true
-      let title = '确定要取消分享 "' + this.file.name + '" 吗?'
-      this.$confirm(title, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+
+      api.hasSubShare({shareIds: [this.shareId]}).then(res => {
+        if (res.data) {
+          this.$confirm('选择的文件夹下存其他分享，取消分享后其下的所有分享链接都将被删除，是否继续？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.doCancelShareLink()
+          }).catch(() => {
+            this.cancelSharing = false
+          })
+        } else {
+          let title = '确定要取消分享 "' + this.file.name + '" 吗?'
+          this.$confirm(title, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.doCancelShareLink()
+          }).catch(() => {
+            this.cancelSharing = false
+          })
+        }
+      }).catch(() => {
+        this.cancelSharing = false
+      })
+    },
+    doCancelShareLink() {
+      api.cancelShareLink({
+        userId: this.$store.state.user.userId,
+        shareId: [this.shareId]
       }).then(() => {
-        api.cancelShareLink({
-          userId: this.$store.state.user.userId,
-          shareId: [this.shareId]
-        }).then(() => {
-          this.$emit('onCancelShare')
-          this.shareDialogVisible = false
-          this.shareDialogClose()
-        }).catch(() => {
-          this.cancelSharing = false
-        })
+        this.$emit('onCancelShare')
+        this.shareDialogVisible = false
+        this.shareDialogClose()
       }).catch(() => {
         this.cancelSharing = false
       })
