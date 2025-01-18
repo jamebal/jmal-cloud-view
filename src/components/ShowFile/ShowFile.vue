@@ -3607,6 +3607,10 @@ export default {
           this.newCreateFileDialogTitle = '新建Word文档'
           this.createNewFile('docx')
           break
+        case 'createExcalidrawFile':
+          this.newCreateFileDialogTitle = '新建白板'
+          this.createNewFile('excalidraw')
+          break
         case 'createExcelFile':
           this.newCreateFileDialogTitle = '新建Excel工作表'
           this.createNewFile('xlsx')

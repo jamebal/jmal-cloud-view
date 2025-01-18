@@ -14,3 +14,15 @@ export const fileArrangements = [
   { label: '上传时间', operation: 'orderUploadDate', orderProp: 'uploadDate'},
   { label: '修改时间', operation: 'orderUpdateDate', orderProp: 'updateDate'},
 ]
+
+export const createFiles = [
+  { label: '文件夹', operation: 'createFolder', iconClass: 'folder'},
+  { divider: true, operation: 'divider' },
+  { label: '文本', operation: 'createTextFile', iconClass: 'file-txt'},
+  { label: '白板', operation: 'createExcalidrawFile', iconClass: 'file-excalidraw'},
+  { label: '思维导图', operation: 'createMinderFile', iconClass: 'file-mind'},
+  { label: '流程图', operation: 'createDrawioFile', iconClass: 'file-drawio'},
+  { label: 'Word', operation: 'createWordFile', iconClass: 'file-word'},
+  { label: 'Excel', operation: 'createExcelFile', iconClass: 'file-excel'},
+  { label: 'PPT', operation: 'createPPTFile', iconClass: 'file-ppt'},
+]
