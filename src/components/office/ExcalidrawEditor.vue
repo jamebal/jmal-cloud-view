@@ -100,7 +100,6 @@ export default {
   created() {
   },
   mounted() {
-    this.clearExcalidrawCache()
     window.addEventListener('message', this.handleMessage)
   },
   beforeDestroy() {
@@ -118,6 +117,7 @@ export default {
         if (!this.$store.state.user.token) {
           request = 'sharePreviewText'
         }
+        this.clearExcalidrawCache()
         api[request]({
           shareId: this.shareId,
           fileId: this.file.id,
@@ -243,6 +243,7 @@ export default {
         this.saved = true
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
+        this.$message.success('保存成功')
         this.$refs.historyPopover.loadHistoryList(this.file.id)
         if (this.thisEditorClosing) {
           this.thisEditorClosing = false
