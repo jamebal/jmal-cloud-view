@@ -10,11 +10,12 @@ RUN apt-get update && \
     unzip /var/www/draw.war -d /var/www/draw && \
     unzip /var/www/pdfjs.zip -d /var/www/pdfjs && \
     tar -xvf /var/www/excalidraw.tar.gz -C /var/www/excalidraw && \
-    rm -rf /var/www/pdfjs.zip /var/www/draw.war /var/www/draw/META-INF /var/www/draw/WEB-INF && \
+    rm -rf /var/www/pdfjs.zip /var/www/excalidraw.tar.gz /var/www/draw.war /var/www/draw/META-INF /var/www/draw/WEB-INF && \
     apt-get remove -y unzip wget && \
     apt-get autoremove -y && \
     apt-get clean
 
 COPY docker/nginx-drawio/drawio.conf /etc/nginx/servers/drawio.conf
+COPY docker/nginx-drawio/excalidraw.conf /etc/nginx/servers/excalidraw.conf
 COPY docker/nginx-drawio/pdfjs.conf /etc/nginx/servers/pdfjs.conf
 COPY docker/nginx-drawio/mime.types /etc/nginx/mime.types

@@ -71,8 +71,7 @@ export default {
   },
   data() {
     return {
-      // excalidrawUrl: 'http://localhost:3000/excalidraw/app/',
-      excalidrawUrl: 'http://localhost:8085/excalidraw/app/',
+      excalidrawUrl:  `${window.location.origin}/excalidraw/app/`,
       excalidrawData: {
         elements: [],
         appState: {},
