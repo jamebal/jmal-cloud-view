@@ -19,6 +19,7 @@
             <CADPreview v-if="fileType === 'cad'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></CADPreview>
             <pdf-preview v-else-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
+            <excalidraw-editor v-else-if="fileType === 'excalidraw'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></excalidraw-editor>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
             <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></model-preview>
             <only-office-editor ref="officeEditor" v-else-if="fileType === 'office'" :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
@@ -31,6 +32,7 @@
 
 <script>
 
+import ExcalidrawEditor from '@/components/office/ExcalidrawEditor.vue'
 import ModelPreview from '@/components/office/ModelPreview.vue'
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
@@ -41,7 +43,8 @@ import Drawio from "@/components/office/Drawio";
 
 export default {
   name: 'IframePreview',
-  components: { IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor,
+  components: {
+    ExcalidrawEditor, IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor,
     MyMindEditor: () => import('@/components/Minder/minder'),
     CADPreview: () => import('@/components/preview/CADPreview.vue')
   },
@@ -145,6 +148,8 @@ export default {
       switch (suffix) {
         case 'drawio':
           return 'drawio'
+        case 'excalidraw':
+          return 'excalidraw'
         case 'pdf':
           return 'pdf'
         case 'mind':

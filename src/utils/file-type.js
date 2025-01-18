@@ -10,7 +10,7 @@ export const suffix = {
   compressedFile: [
     'zip','tar','7z', 'rar', 'jar','tar.gz','tgz','tar.bz2'
   ],
-  iframePreviewFile: ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf', 'dwg']
+  iframePreviewFile: ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf', 'dwg', 'excalidraw']
 }
 
 monaco.languages.getLanguages().forEach(language => {
@@ -68,6 +68,7 @@ iconClass.set('docxf','file-docxf')
 iconClass.set('ppt','file-ppt')
 iconClass.set('pptx','file-ppt')
 iconClass.set('drawio','file-drawio')
+iconClass.set('excalidraw','file-excalidraw')
 iconClass.set('csv','file-csv')
 iconClass.set('pdf','file-pdf')
 iconClass.set('mind','file-mind')
