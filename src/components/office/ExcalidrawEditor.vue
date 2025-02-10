@@ -71,7 +71,7 @@ export default {
   },
   data() {
     return {
-      excalidrawUrl:  `${window.location.origin}/excalidraw/app/`,
+      excalidrawUrl: null ,
       excalidrawData: {
         elements: [],
         appState: {},
@@ -130,6 +130,7 @@ export default {
           this.file.path = res.data.path
           this.loadData(res.data.contentText)
           this.currentContext = res.data.contentText
+          this.excalidrawUrl = `${window.location.origin}/excalidraw/app/`
         })
         this.$nextTick(() => {
           this.$refs.historyPopover.loadHistoryList(this.file.id)
