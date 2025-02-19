@@ -71,7 +71,7 @@
             v-for="tag in tagList"
             :key="tag.tagId"
           >
-            <li class="infinite-list-item collapse" @click="tagClick(tag)">
+            <li class="infinite-list-item collapse" :class="{ 'highlight': selectedTagId === tag.id }" @click="tagClick(tag)">
               <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
             </li>
           </el-tooltip>
@@ -80,7 +80,8 @@
       <div v-else  class="tag-drop-container">
         <ul class="infinite-list">
           <li v-for="tag in tagList" v-if="showTag" :key="tag.id"
-            class="infinite-list-item"
+            class="infinite-list-item expand"
+            :class="{ 'highlight': selectedTagId === tag.id }"
             @click="tagClick(tag)"
           >
             <div class="tag-name-icon">
@@ -187,7 +188,8 @@ export default {
           { validator: checkTagName, trigger: 'blur' },
         ]
       },
-      tagUpdateLoading: false
+      tagUpdateLoading: false,
+      selectedTagId: null,
     }
   },
   computed: {
@@ -239,7 +241,8 @@ export default {
     isCollapse(val){
     },
     $route(to) {
-      this.showTag = to.meta !== undefined && to.meta.menuType !== undefined && to.meta.menuType === 0;
+      this.showTag = to.meta !== undefined && to.meta.menuType !== undefined && to.meta.menuType === 0
+      this.setSelectedTagFromUrl()
     },
     message(msg) {
       if (msg.event === 'msg/file/change') {
@@ -259,6 +262,8 @@ export default {
       event.stopPropagation();
     };
     this.tagDrop()
+
+    this.setSelectedTagFromUrl()
 
   },
   methods: {
@@ -280,7 +285,7 @@ export default {
       const _this = this
       Sortable.create(tagList, {
         animation: 150,
-        ghostClass: 'blue-background-class',
+        ghostClass: 'drop-background-class',
         onEnd({ newIndex, oldIndex }) {
           const currRow = _this.tagList.splice(oldIndex, 1)[0]
           _this.tagList.splice(newIndex, 0, currRow)
@@ -324,7 +329,17 @@ export default {
       })
     },
     tagClick(tag) {
-      this.$router.push(`/tag?tagId=${tag.id}`);
+      this.$router.push(`/tag?tagId=${tag.id}`)
+      this.selectedTagId = tag.id
+    },
+    setSelectedTagFromUrl() {
+      // 从 URL 中获取 tagId 参数
+      const tagId = this.$route.query.tagId
+      if (this.$route.path.startsWith("/tag")  && tagId) {
+        this.selectedTagId = tagId
+      } else {
+        this.selectedTagId = null
+      }
     },
     clickTagMore(tag, event) {
       this.contextTag = tag
@@ -476,14 +491,10 @@ export default {
       font-size: 14px;
       color: #606266;
       cursor: pointer;
-      margin: 0 5px 0 5px;
+      margin: 2px 5px 2px 5px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
 
       .tag-name-icon {
         display: flex;
@@ -500,7 +511,7 @@ export default {
       .btn-more {
         display: none;
         padding: 2px 5px;
-        background: #eaeaea;
+        background: #dadada;
         border: 0;
       }
 
@@ -513,12 +524,21 @@ export default {
         background-color: #ecf5ff;
       }
       &:hover {
-        background-color: #eaeaea !important;
+        background-color: #dadada !important;
         border-radius: 4px;
         .btn-more {
           display: block;
         }
       }
+    }
+    .infinite-list-item.highlight {
+      background-color: #dadada;
+      border-radius: 4px;
+    }
+    .infinite-list-item.expand {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .infinite-list-item.collapse {
       padding-left: unset;
@@ -613,8 +633,8 @@ export default {
     }
   }
 }
-.blue-background-class {
-  background-color: rgba(64, 158, 255, 0.82);
+.drop-background-class {
+  background-color: #409EFFD1;
   border-radius: 4px;
 }
 .form-tag-color {
