@@ -39,6 +39,28 @@ export default {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
     })
+  },
+  // 修改标签排序
+  setTagSort: function(data) {
+    return request({
+      url: '/tag/sort',
+      method: 'post',
+      data
+    })
+  },
+  deleteFileTag: function(params) {
+    return request({
+      url: '/deleteTag',
+      method: 'delete',
+      params
+    })
+  },
+  updateFileTag: function(params) {
+    return request({
+      url: '/updateTag',
+      method: 'put',
+      params
+    })
   }
 }
 
