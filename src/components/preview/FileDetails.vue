@@ -392,6 +392,8 @@ export default {
 >>> .el-image.cover {
   height: unset !important;
   margin-bottom: 20px;
+  max-width: 100%;
+  max-height: 60vh;
 }
 
 >>> .el-dialog {
