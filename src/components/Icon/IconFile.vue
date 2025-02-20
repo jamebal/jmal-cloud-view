@@ -33,12 +33,11 @@
     <div v-if="item.tags && item.tags.length > 0 && !public">
         <div v-if="pc">
           <svg-icon v-if="grid" class="pc grid icon-tag" icon-class="tag2" :style="{left: 14 * index + 'px', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="tag.tagId"/>
-          <!--     列表模式下只能显示一个标签     -->
-          <svg-icon v-else class="pc list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
+          <svg-icon v-if="!grid" class="pc list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
         </div>
-        <div v-else>
+        <div v-if="!pc">
           <svg-icon v-if="grid" class="mobile grid icon-tag" icon-class="tag2" :style="{left: 1 * index + 'rem', color: tag.color}" v-for="(tag,index) in item.tags.slice(0, 3)" :key="tag.tagId"/>
-          <svg-icon v-else class="mobile list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
+          <svg-icon v-if="!grid" class="mobile list icon-tag" icon-class="tag2" :style="{color: tag.color}" v-for="tag in item.tags.slice(0, 1)" :key="tag.tagId"/>
         </div>
     </div>
     <div v-if="item.ossFolder && !public">
@@ -189,9 +188,6 @@ export default {
   height: 35px;
   width: 35px;
   line-height: 35px;
-}
-
->>> .image-slot-error {
 }
 
 .icon-favorite {
