@@ -35,7 +35,7 @@
           :key="index"
           :index="index"
           type="selection"
-          min-width="50"
+          width="50"
         >
         </pl-table-column>
         <!--图标-->
@@ -54,7 +54,6 @@
             </div>
           </template>
           <template slot-scope="scope">
-            <!--<icon-file :item="scope.row" :image-url="imageUrl"></icon-file>-->
             <icon-file :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></icon-file>
           </template>
         </pl-table-column>
@@ -63,13 +62,11 @@
           v-if="index === 2"
           :key="index"
           :show-overflow-tooltip="true"
-          max-width="200"
           :index="index"
           :prop="item.name"
           :label="item.label"
           :sort-orders="['ascending', 'descending']"
           :sortable="item.sortable"
-          @click.stop="fileClick(scope.row)"
           header-align="left"
         >
           <template slot="header">
@@ -82,17 +79,30 @@
             <span v-if="scope.row.fatherShareId" style="color: #9a9a9a">(子分享)</span>
           </template>
         </pl-table-column>
-        <!--取消分享-->
-        <pl-table-column v-if="index === 4" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+        <!-- 分享链接 -->
+        <pl-table-column
+          v-if="index === 3"
+          :key="index"
+          :label="item.label"
+          :index="index"
+          :show-overflow-tooltip="true"
+          header-align="left"
+        >
           <template slot-scope="scope">
-              <svg-icon title="分享" v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="cancel-share" @click="cancelShare(scope.row)"/>
+            <el-link :underline="false" class="copy-link-btn" :data-clipboard-text="shareLink(scope.row.id, scope.row.shortId)" @click="copyShareLink(scope.row)">{{ shareLink(scope.row.id, scope.row.shortId) }}</el-link>
+          </template>
+        </pl-table-column>
+        <!--取消分享-->
+        <pl-table-column v-if="index === 5" :key="index" width="50" :index="index" align="center" header-align="center" tooltip-effect="dark">
+          <template slot-scope="scope">
+              <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="cancel-share" @click="cancelShare(scope.row)"/>
           </template>
         </pl-table-column>
         <!--创建时间-->
         <pl-table-column
-          v-if="index === 5"
+          v-if="index === 6"
           :key="index"
-          width="200"
+          width="180"
           :prop="item.name"
           :index="index"
           :label="item.label"
@@ -108,9 +118,9 @@
         </pl-table-column>
         <!--分享形式-->
         <pl-table-column
-          v-if="index === 6"
+          v-if="index === 7"
           :key="index"
-          width="150"
+          width="100"
           :prop="item.name"
           :label="item.label"
           :index="index"
@@ -124,11 +134,11 @@
             <span>{{scope.row.isPrivacy ? '私密':'公开'}}</span>
           </template>
         </pl-table-column>
-        <!--修改时间-->
+        <!--过期时间-->
         <pl-table-column
-          v-if="index === 7"
+          v-if="index === 8"
           :key="index"
-          width="200"
+          width="180"
           :prop="item.name"
           :label="item.label"
           :index="index"
@@ -159,7 +169,8 @@
   import EmptyFile from "@/components/EmptyFile";
   import IconFile from "@/components/Icon/IconFile";
   import ShareDialog from "@/components/ShareDialog/index.vue";
-  import api from '@/api/file-api'
+  import api from '@/api/file-api';
+  import Clipboard from "clipboard";
   export default {
     components: { ShowFile, EmptyFile, IconFile, ShareDialog},
     props: {
@@ -231,19 +242,22 @@
             name: 'fileName', label: '分享文件', sortable: 'custom', index: 2
           },
           {
-            name: '', label: '', index: 3
+            name: 'shareLink', label: '分享链接', index: 3
           },
           {
-            name: '', label: '', more: true, index: 4
+            name: '', label: '', index: 4
           },
           {
-            name: 'createDate', label: '链接创建时间', sortable: 'custom', index: 5
+            name: '', label: '', more: true, index: 5
           },
           {
-            name: 'isPrivacy', label: '分享形式', sortable: 'custom', index: 6
+            name: 'createDate', label: '链接创建时间', sortable: 'custom', index: 6
           },
           {
-            name: 'expireDate', label: '过期时间', sortable: 'custom', index: 7
+            name: 'isPrivacy', label: '分享形式', sortable: 'custom', index: 7
+          },
+          {
+            name: 'expireDate', label: '过期时间', sortable: 'custom', index: 8
           }
         ],
         selectRowData: [],
@@ -251,11 +265,20 @@
         finished: false,
         cellMouseIndex: -1,
         shareDialog: false,
-        shareLink: '',
         shareFileName: '',
         sumFileAndFolder: '',
         shareDialogVisible: false,
         shareDialogObject: {},
+      }
+    },
+    computed: {
+      shareLink() {
+        return (shareId, shortId) => {
+          if (!shortId) {
+            shortId = shareId
+          }
+          return `${window.location.origin}/s/${shortId}`
+        }
       }
     },
     methods: {
@@ -281,8 +304,6 @@
           } else {
             return '#606266'
           }
-        } else {
-          return '#67C23A'
         }
       },
       // 请求之前的准备
@@ -358,16 +379,18 @@
         });
         const itemIcon = this.tableHead[1]
         const itemName = this.tableHead[2]
-        const itemSize = this.tableHead[5]
-        const itemIsPrivacy = this.tableHead[6]
-        const itemDate = this.tableHead[7]
+        const itemShareLink = this.tableHead[3]
+        const itemDate1 = this.tableHead[6]
+        const itemIsPrivacy = this.tableHead[7]
+        const itemDate = this.tableHead[8]
         if (this.selectRowData.length > 0) {
           this.sumFileAndFolder = this.getShowSumFileAndFolder(row)
           itemIcon.label = '已选中'
           itemName.label = ''
           itemName.sortable = false
-          itemSize.label = ''
-          itemSize.sortable = false
+          itemShareLink.label = ''
+          itemDate1.label = ''
+          itemDate1.sortable = false
           itemDate.label = ''
           itemDate.sortable = false
           itemIsPrivacy.label = ''
@@ -376,8 +399,9 @@
           itemIcon.label = ''
           itemName.label = '分享文件'
           itemName.sortable = 'custom'
-          itemSize.label = '时间'
-          itemSize.sortable = 'custom'
+          itemShareLink.label = '分享链接'
+          itemDate1.label = '时间'
+          itemDate1.sortable = 'custom'
           itemDate.label = '过期时间'
           itemDate.sortable = 'custom'
           itemIsPrivacy.label = '分享形式'
@@ -407,9 +431,9 @@
       },
       // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
       rowRed({ row, column, rowIndex, columnIndex }) {
-        if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
-          return { cursor: 'pointer', color: "#19ACF9" }
-        }
+        // if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
+        //   return { cursor: 'pointer', color: "#19ACF9" }
+        // }
         for (let i = 0; i < this.indexList.length; i++) {
           if (rowIndex === this.indexList[i]) {
             return { backgroundColor: '#EBEEF5', color: '#b7b5b6', cursor: 'default' }
@@ -513,6 +537,25 @@
         let share = this.fileList[index]
         share.isPrivacy = isPrivacy
         this.fileList.splice(index, 1, share)
+      },
+      copyShareLink(row) {
+        let clipboard = new Clipboard('.copy-link-btn')
+        clipboard.on('success', e => {
+          this.$message({
+            message: '链接复制成功',
+            type: 'success',
+            duration: 3000
+          });
+          clipboard.destroy()
+        })
+        clipboard.on('error', e => {
+          this.$message({
+            message: '该浏览器不支持自动复制',
+            type: 'warning',
+            duration: 1000
+          });
+          clipboard.destroy()
+        })
       }
     }
   }
@@ -558,6 +601,12 @@
   }
   >>>.el-table td {
     height: 50px!important;
+  }
+  .copy-link-btn,.table-file-name {
+    cursor: pointer;
+    &:hover {
+      color: #409EFF;
+    }
   }
 </style>
 
