@@ -1,7 +1,7 @@
 <template>
-  <di>
+  <div>
     <!--分享-->
-    <el-dialog title="分享文件" style="{'font-weight': 600}" :visible.sync="shareDialogVisible"
+    <el-dialog title="分享文件" :style="{ fontWeight: 600 }" :visible.sync="shareDialogVisible"
                @close="shareDialogClose">
       <div>
         <div class="share-content">
@@ -121,7 +121,7 @@
         </el-button>
       </div>
     </el-dialog>
-  </di>
+  </div>
 </template>
 
 <script>
