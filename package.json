@@ -1,8 +1,8 @@
 {
   "name": "jmal-cloud-view",
-  "version": "2.12.0",
+  "version": "2.12.1",
   "description": "jmalcloud",
-  "author": "Jmal <zhushilun084@163.com>",
+  "author": "Jmal <zhushilun084@gmail.com>",
   "license": "MIT",
   "scripts": {
     "dev": "vue-cli-service serve",
