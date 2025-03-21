@@ -40,7 +40,7 @@
     "monaco-editor-vue": "^1.0.10",
     "monaco-editor-webpack-plugin": "^3.0.1",
     "monaco-languages": "^2.3.0",
-    "mxcad": "1.0.238",
+    "mxcad": "^1.0.238",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "3.3.0",
