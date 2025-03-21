@@ -57,9 +57,12 @@ export default {
   mounted() {
     createMxCad({
       canvas: '#mxCadCanvas',
-      locateFile: (fileName) => window.location.origin + '/resource/mxcad/wasm/2d-st/' + fileName,
-      fontspath: window.location.origin + '/resource/mxcad/fonts/',
+      locateFile: (fileName) => new URL("./wasm/2d-st/" + fileName, document.location.origin + '/' + document.location.pathname).href,
       fileUrl: '',
+      onInit:()=>{
+        MxCpp.App.addNetworkLoadingFont(["txt.shx", "simplex.shx","gdt.shx", "aaa.shx", "ltypeshp.shx", "complex.shx"]);
+        MxCpp.App.addNetworkLoadingBigFont(["hztxt.shx", "gbcbig.shx"])
+      },
       onOpenFileComplete: () => {
         this.$emit('onReady')
       },
