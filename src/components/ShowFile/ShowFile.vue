@@ -152,7 +152,7 @@
                 slot="reference"
                 :name="''"
                 @click.native="upload"
-                style="margin-right: 5px"
+                style="margin-right: 10px"
               ></button-upload>
             </el-popover>
 
@@ -168,9 +168,13 @@
               @blur="setInputBlur()"
               @clear="searchFileEnter(searchFileName)"
             >
-              <el-button slot="prepend" @click="searchFileEnter(searchFileName)">
-                <svg-icon icon-class="search" style="font-size: 22px" />
-              </el-button>
+              <template v-if="!searchFileName" v-slot:suffix>
+                <el-tooltip transition="none" :visible-arrow="false" :content="`搜索选项(${cmdKey}+P)`" placement="bottom">
+                  <el-button type="text" style="padding: 8px;" @click="searchDialogVisible = true">
+                    <i class="el-icon-s-operation"></i>
+                  </el-button>
+                </el-tooltip>
+              </template>
             </el-input>
             <el-dropdown
               size="medium"
@@ -468,6 +472,7 @@
         <!--grid布局-->
         <div
           v-show="grid"
+          ref="gridDiv"
           v-loading="tableLoading"
           element-loading-text="文件加载中"
           element-loading-spinner="el-icon-loading"
@@ -494,7 +499,6 @@
             >
               <van-grid-item
                 v-for="(item, index) in fileList"
-                ref="gridItem"
                 :key="item.id"
                 :title="
                   '大小：' +
@@ -820,7 +824,7 @@
 
     <file-clipboard ref="fileClipboard" v-if="showClipboard && fileClipboard.length > 0" :file-list="fileClipboard" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :target-path="path" :target-folder="currentFolder" @onCopy="onCopy" @onMove="onMove"></file-clipboard>
 
-    <search-dialog :status.sync="searchDialogVisible"></search-dialog>
+    <search-dialog :visible.sync="searchDialogVisible" :default-path="path"></search-dialog>
   </div>
 </template>
 
@@ -1175,6 +1179,9 @@ export default {
           return '名称'
       }
     },
+    cmdKey() {
+      return navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl'
+    },
     fileClipboard() {
       return store.getters.fileClipboard
     },
@@ -1493,13 +1500,11 @@ export default {
         event.stopPropagation()
       }
       // ctrl + P / cmd + P
-      // if (isCmd && keyCode === 80) {
-      //   if (!this.inputting && this.editingIndex === -1) {
-      //     this.searchDialogVisible = true
-      //     event.preventDefault()
-      //     event.stopPropagation()
-      //   }
-      // }
+      if (isCmd && keyCode === 80 && !checkPreviewVisible && !this.inputting) {
+        this.searchDialogVisible = true
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
     keyup(event) {
       const { keyCode } = event
@@ -1628,11 +1633,10 @@ export default {
     },
     // 画矩形选区
     darwRectangle() {
-      let scrollDiv = document.querySelector('.el-table__body-wrapper')
+      let scrollDiv = this.$refs.fileListTableContainer.querySelector('.el-table__body-wrapper')
       if (this.grid) {
-        scrollDiv = document.querySelector('.van-grid')
+        scrollDiv = this.$refs.gridDiv.querySelector('.van-grid')
       }
-
       // 添加scroll事件
       scrollDiv.onscroll = e => {
         this.tableBodyScroll(null, e)
@@ -4456,6 +4460,9 @@ export default {
       this.specifyPreviewer = 'office'
     },
     checkPreviewVisible() {
+      if (this.searchDialogVisible) {
+        return true
+      }
       if (this.iframePreviewVisible) {
         return true
       }
