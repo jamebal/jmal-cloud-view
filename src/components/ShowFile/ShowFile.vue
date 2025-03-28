@@ -161,19 +161,17 @@
               ref="searchInput"
               placeholder="搜索"
               v-model="searchFileName"
-              :clearable="true"
+
               @keyup.enter.native="searchFileEnter(searchFileName)"
               @focus="setInputFocus"
               @input="searchFileEnter(searchFileName)"
               @blur="setInputBlur()"
               @clear="searchFileEnter(searchFileName)"
             >
-              <template v-if="!searchFileName" v-slot:suffix>
-                <el-tooltip transition="none" :visible-arrow="false" :content="`搜索选项(${cmdKey}+P)`" placement="bottom">
-                  <el-button type="text" style="padding: 8px;" @click="searchDialogVisible = true">
-                    <i class="el-icon-s-operation"></i>
-                  </el-button>
-                </el-tooltip>
+              <template v-slot:suffix>
+                <el-button type="text" class="search-option" @click="searchDialogVisible = true">
+                  <i class="el-icon-s-operation"></i>
+                </el-button>
               </template>
             </el-input>
             <el-dropdown
@@ -824,7 +822,7 @@
 
     <file-clipboard ref="fileClipboard" v-if="showClipboard && fileClipboard.length > 0" :file-list="fileClipboard" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :target-path="path" :target-folder="currentFolder" @onCopy="onCopy" @onMove="onMove"></file-clipboard>
 
-    <search-dialog :visible.sync="searchDialogVisible" :default-path="path"></search-dialog>
+    <search-dialog :visible.sync="searchDialogVisible"></search-dialog>
   </div>
 </template>
 
@@ -1500,11 +1498,11 @@ export default {
         event.stopPropagation()
       }
       // ctrl + P / cmd + P
-      if (isCmd && keyCode === 80 && !checkPreviewVisible && !this.inputting) {
-        this.searchDialogVisible = true
-        event.preventDefault()
-        event.stopPropagation()
-      }
+      // if (isCmd && keyCode === 80 && !checkPreviewVisible && !this.inputting) {
+      //   this.searchDialogVisible = true
+      //   event.preventDefault()
+      //   event.stopPropagation()
+      // }
     },
     keyup(event) {
       const { keyCode } = event

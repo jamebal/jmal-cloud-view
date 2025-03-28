@@ -2,68 +2,16 @@
   <el-dialog
     :visible.sync="dialogVisible"
     :show-close="false"
-    width="70%"
     custom-class="no-header-dialog"
-    class="file-search-dialog"
-    @open="handleDialogOpen"
-    @close="handleDialogClose">
+    class="file-search-dialog">
 
     <!-- 关闭按钮 -->
     <div class="dialog-close-btn">
       <el-button type="text" icon="el-icon-close" @click="dialogVisible = false"></el-button>
     </div>
 
-    <!-- 头部第一行 -->
-    <div class="search-header">
-      <div class="path-selector">
-        <span>搜索路径：{{ currentPath }}</span>
-        <el-button type="text" icon="el-icon-folder-opened" @click="selectPath"></el-button>
-      </div>
-      <div class="sort-options">
-        <el-dropdown @command="handleSort" trigger="click">
-          <el-button type="text">
-            <i class="el-icon-sort"></i>：{{ sortText }}
-          </el-button>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="relevance_asc">
-              <i class="el-icon-sort-up"></i> 按相关度升序
-            </el-dropdown-item>
-            <el-dropdown-item command="relevance_desc">
-              <i class="el-icon-sort-down"></i> 按相关度降序
-            </el-dropdown-item>
-            <el-dropdown-item divided command="time_asc">
-              <i class="el-icon-sort-up"></i> 修改时间升序
-            </el-dropdown-item>
-            <el-dropdown-item command="time_desc">
-              <i class="el-icon-sort-down"></i> 修改时间降序
-            </el-dropdown-item>
-            <el-dropdown-item divided command="size_asc">
-              <i class="el-icon-sort-up"></i> 文件大小升序
-            </el-dropdown-item>
-            <el-dropdown-item command="size_desc">
-              <i class="el-icon-sort-down"></i> 文件大小降序
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-    </div>
-
-    <!-- 搜索框 -->
     <div class="search-bar">
       <div class="search-input-wrapper">
-        <el-input
-          ref="searchKeyword"
-          v-model="searchKeyword"
-          placeholder="请输入搜索关键词"
-          prefix-icon="el-icon-search"
-          class="modern-input"
-          :clearable="true"
-          @keydown.native="handleKeyDown"
-          @keyup.enter.native="handleSearch"
-          @focus="handleSearch"
-          @input="handleSearch"
-          @clear="handleSearch">
-        </el-input>
         <div class="search-filters">
           <el-dropdown @command="handleFileType" trigger="click" class="filter-dropdown">
             <el-button type="text" class="filter-btn">
@@ -72,6 +20,9 @@
               <i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown" class="modern-dropdown">
+              <el-dropdown-item command="all">
+                <i class="el-icon-document"></i> 全部文件
+              </el-dropdown-item>
               <el-dropdown-item command="document">
                 <i class="el-icon-document"></i> 文档
               </el-dropdown-item>
@@ -174,102 +125,32 @@
       </el-tag>
     </div>
 
-    <!-- 搜索结果列表 -->
-    <div class="search-results">
-      <el-table
-        :data="searchResults"
-        style="width: 100%"
-        @row-click="handleRowClick">
-        <el-table-column
-          prop="name"
-          label="文件名"
-          width="300">
-          <template slot-scope="scope">
-            <i :class="getFileIcon(scope.row.type)"></i>
-            {{ scope.row.name }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="path"
-          label="路径"
-          show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          prop="updateTime"
-          label="修改时间"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="size"
-          label="大小"
-          width="120">
-          <template slot-scope="scope">
-            {{ formatFileSize(scope.row.size) }}
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-
-    <!-- 查看所有结果按钮 -->
-    <div class="view-all">
-      <el-button type="text" @click="handleViewAll">
-        查看"{{ searchKeyword }}"的所有搜索结果 (Shift + Enter)
-      </el-button>
-    </div>
-
-    <!-- 快捷键说明 -->
-    <div slot="footer" class="dialog-footer">
-      <div class="shortcuts-info">
-        <p>快捷键说明：</p>
-        <ul>
-          <li>上一页：← 或 PageUp</li>
-          <li>下一页：→ 或 PageDown</li>
-          <li>Cmd + 点击：跳转至文件位置</li>
-          <li>Shift + Enter：查看所有搜索结果</li>
-        </ul>
-      </div>
-    </div>
   </el-dialog>
 </template>
 
 <script>
-import api from '@/api/file-api'
-import Icon from '@/components/Icon/Icon.vue'
-import _ from 'lodash'
-
 export default {
   name: 'SearchDialog',
-  components: { Icon },
   props: {
     visible: {
       type: Boolean,
       default: false
     },
-    defaultPath: {
-      type: String,
-      default: '/'
-    }
   },
   data() {
     return {
       dialogVisible: false,
-      currentPath: '',
-      searchKeyword: '',
-      sortType: 'relevance_desc',
-      sortOrder: 'desc',
       fileType: 'all',
       timeRange: null,
       sizeRange: [0, 1073741824], // 默认范围：0 到 1GB
-      searchResults: [],
-      sortText: '按相关度降序',
       fileTypeText: '全部文件',
-      debounceSearch: null,// 搜索防抖
-      pagination: {
-        pageIndex: 1,
-        pageSize: 50,
-        total: 0,
-        pageSizes: [10, 20, 30, 40, 50],
-      },
+      filterOption: {
+        type: null,
+        modifyStart: null,
+        modifyEnd: null,
+        sizeMin: null,
+        sizeMax: null
+      }
     }
   },
   computed: {
@@ -306,60 +187,31 @@ export default {
   watch: {
     visible(val) {
       this.dialogVisible = val
-      if (val) {
-        this.$nextTick(() => {
-          this.$refs.searchKeyword.focus()
-        })
-      }
     },
     dialogVisible(val) {
       this.$emit('update:visible', val)
     }
   },
-  created() {
-    this.debounceSearch = _.debounce((key) => {
-      this.searchFile(key)
-    }, 200)
-  },
   methods: {
-    handleDialogOpen() {
-      this.currentPath = this.defaultPath
-      window.addEventListener('keydown', this.handleKeydown)
-    },
-    handleDialogClose() {
-      window.removeEventListener('keydown', this.handleKeydown)
-    },
-    handleKeydown(e) {
-      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        this.previousPage()
-      } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
-        this.nextPage()
+    // 更新筛选条件并通知父组件
+    updateFilterOption() {
+      this.filterOption = {
+        type: this.fileType === 'all' ? null : this.fileType,
+        modifyStart: this.timeRange ? this.timeRange[0] : null,
+        modifyEnd: this.timeRange ? this.timeRange[1] : null,
+        sizeMin: this.sizeRange[0],
+        sizeMax: this.sizeRange[1]
       }
-    },
-    selectPath() {
-      // 实现选择路径的逻辑
-    },
-    handleSort(command) {
-      this.sortType = command
-      const [type, order] = command.split('_')
-      this.sortOrder = order
 
-      switch (type) {
-        case 'relevance':
-          this.sortText = `相关度${order === 'asc' ? '升序' : '降序'}`
-          break
-        case 'time':
-          this.sortText = `修改时间${order === 'asc' ? '升序' : '降序'}`
-          break
-        case 'size':
-          this.sortText = `文件大小${order === 'asc' ? '升序' : '降序'}`
-          break
-      }
-      this.handleSearch()
+      this.$emit('filter-change', this.filterOption)
     },
+
     handleFileType(command) {
       this.fileType = command
       switch (command) {
+        case 'all':
+          this.fileTypeText = '全部文件'
+          break
         case 'document':
           this.fileTypeText = '文档'
           break
@@ -373,48 +225,45 @@ export default {
           this.fileTypeText = '音频'
           break
       }
-      this.handleSearch()
+      this.updateFilterOption()
     },
-    handleTimeChange() {
-      this.handleSearch()
-    },
-    handleSearch() {
-      // 实现搜索逻辑
-      console.log('搜索条件发生变化，重新搜索')
-      this.debounceSearch(this.searchKeyword)
-    },
-    searchFile(key) {
 
+    handleTimeChange() {
+      this.updateFilterOption()
     },
-    handleKeyDown(event) {
-      const { ctrlKey, metaKey, keyCode } = event
-      console.log(ctrlKey, metaKey, keyCode)
-      if (event.metaKey && event.key === 'Enter') {
-        console.log('Cmd + Enter 被触发');
-      }
+
+    handleSizeRangeChange() {
+      this.updateFilterOption()
     },
-    handleViewAll() {
-      console.log('查看所有搜索结果')
-      // 实现查看所有结果的逻辑
+
+    setSizePreset(range) {
+      this.sizeRange = range
+      this.updateFilterOption()
     },
-    handleRowClick(row, column, event) {
-      if (event.metaKey) { // Cmd 键点击
-        this.navigateToFile(row)
-      }
+
+    setSizePresetLarge() {
+      this.sizeRange = [1073741824, 10737418240]
+      this.updateFilterOption()
     },
-    navigateToFile(file) {
-      // 实现跳转到文件位置的逻辑
-    },
+
     resetFileType() {
       this.handleFileType('all')
     },
+
     resetTimeRange() {
       this.timeRange = null
-      this.handleSearch()
+      this.updateFilterOption()
     },
+
+    resetSizeRange() {
+      this.sizeRange = [0, 1073741824]
+      this.updateFilterOption()
+    },
+
     formatDate(date) {
       return new Date(date).toLocaleDateString()
     },
+
     formatFileSize(size) {
       const units = ['B', 'KB', 'MB', 'GB', 'TB']
       let index = 0
@@ -424,37 +273,7 @@ export default {
       }
       return `${size.toFixed(2)} ${units[index]}`
     },
-    getFileIcon(type) {
-      const iconMap = {
-        folder: 'el-icon-folder',
-        document: 'el-icon-document',
-        image: 'el-icon-picture',
-        video: 'el-icon-video-camera',
-        audio: 'el-icon-headset'
-      }
-      return iconMap[type] || 'el-icon-document'
-    },
-    previousPage() {
-      // 实现上一页逻辑
-    },
-    nextPage() {
-      // 实现下一页逻辑
-    },
-    handleSizeRangeChange() {
-      this.handleSearch()
-    },
-    setSizePreset(range) {
-      this.sizeRange = range
-      this.handleSearch()
-    },
-    setSizePresetLarge() {
-      this.sizeRange = [1073741824, 10737418240]
-      this.handleSearch()
-    },
-    resetSizeRange() {
-      this.sizeRange = [0, 1073741824]
-      this.handleSearch()
-    },
+
     setTimePreset(preset) {
       const now = new Date()
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -496,9 +315,8 @@ export default {
           end = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999)
           break
       }
-
       this.timeRange = [start, end]
-      this.handleTimeChange()
+      this.updateFilterOption()
     }
   }
 }
@@ -511,6 +329,7 @@ export default {
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     overflow: hidden;
+    margin-right: 160px;
   }
 
   >>> .el-dialog__header {
@@ -543,83 +362,9 @@ export default {
     }
   }
 
-  .search-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 0 4px;
-
-    .path-selector {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #606266;
-      font-size: 14px;
-
-      .el-button {
-        padding: 8px;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-
-        &:hover {
-          background-color: #f5f7fa;
-        }
-      }
-    }
-
-    .sort-options {
-      .el-button {
-        font-size: 14px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-
-        &:hover {
-          background-color: #f5f7fa;
-        }
-      }
-    }
-  }
-
   .search-input-wrapper {
     display: flex;
-
-    .modern-input {
-      margin-right: 10px;
-    }
-
-    >>> .el-input {
-      .el-input__inner {
-        height: 44px;
-        line-height: 44px;
-        border-radius: 10px;
-        border: 1px solid #dcdfe6;
-        padding-left: 40px;
-        transition: all 0.3s ease;
-        font-size: 14px;
-
-        &:focus {
-          border-color: #409EFF;
-          box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
-        }
-      }
-
-      .el-input__prefix {
-        left: 12px;
-        color: #909399;
-      }
-
-      .el-input__icon {
-        line-height: 44px;
-      }
-
-      .el-input-group__append {
-        background: transparent;
-        border: none;
-        padding: 0 8px;
-      }
-    }
+    justify-content: center;
   }
 
   .search-filters {
@@ -697,7 +442,7 @@ export default {
   .search-tags {
     margin: 16px 0;
     display: flex;
-    flex-wrap: wrap;
+    justify-content: center;
     gap: 8px;
 
     >>> .el-tag {
@@ -719,84 +464,5 @@ export default {
       }
     }
   }
-
-  .search-results {
-    margin: 20px 0;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-
-    >>> .el-table {
-      border: none;
-
-      &::before {
-        display: none;
-      }
-
-      th {
-        background-color: #f5f7fa;
-        border: none;
-        padding: 12px 0;
-        font-weight: 600;
-        color: #606266;
-      }
-
-      td {
-        border: none;
-        padding: 12px 0;
-        color: #606266;
-      }
-
-      tr {
-        transition: all 0.3s ease;
-
-        &:hover > td {
-          background-color: #f5f7fa;
-        }
-      }
-    }
-  }
-
-  .view-all {
-    text-align: center;
-    margin: 20px 0;
-
-    .el-button {
-      font-size: 14px;
-      color: #409EFF;
-      padding: 10px 20px;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: #ecf5ff;
-      }
-    }
-  }
-
-  .shortcuts-info {
-    text-align: left;
-    color: #909399;
-    font-size: 13px;
-    padding: 16px 0;
-    border-top: 1px solid #ebeef5;
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 8px 0 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-
-      li {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-    }
-  }
-
-
 }
 </style>
