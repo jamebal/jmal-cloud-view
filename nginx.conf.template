@@ -1,28 +1,34 @@
 # nginx : /usr/local/Cellar/nginx/nginx-1.17.8/objs/nginx
 # nginx.conf : /usr/local/nginx/conf/nginx.conf
 #user  nobody;
-worker_processes 2;
+worker_processes auto;  # 自动根据 CPU 核心数设置
 
 events {
     worker_connections  1024;
+    multi_accept on;  # 提高并发连接效率
 }
 
 #设定http服务器，利用它的反向代理功能提供负载均衡支持
 http {
-	log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-	    #设定mime类型,类型由mime.type文件定义
-    	include       mime.types;
-	    #设置文件使用的默认的MIME-type
-    	default_type  application/octet-stream;
-	    #sendfile指令指定 nginx 是否调用sendfile 函数（zero copy 方式）来输出文件，对于普通应用，必须设为on。如果用来进行下载等应用磁盘IO重负载应用，可设置为off，以平衡磁盘与网络IO处理速度，降低系统uptime
-    	sendfile on;
-    	tcp_nopush on;
-	    #keepalive超时时间。
-    	keepalive_timeout 65;
-    	#gzip on;
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
 
+    include mime.types;
+    default_type application/octet-stream;
+
+    # 全局性能优化
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;  # 动态内容传输优化
+    keepalive_timeout 65s;
+    keepalive_requests 100;  # 单连接最大请求数
+
+    # 默认启用 gzip
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json text/xml;
+    gzip_min_length 1000;
+    gzip_vary on;  # 添加 Vary: Accept-Encoding 头
     	map $http_upgrade $connection_upgrade {
             default upgrade;
             ''      close;
@@ -81,7 +87,7 @@ http {
             listen 80;
             server_name  localhost;
             root /var/www/public;
-	        client_max_body_size 50m;
+	          client_max_body_size 1024m;
             client_body_buffer_size 512k;
 
                         location / {
@@ -137,6 +143,12 @@ http {
                                 proxy_set_header Server-Port $server_port;
                                 proxy_set_header Upgrade $http_upgrade;
                                 proxy_set_header Connection $connection_upgrade;
+                                sendfile on;
+                                tcp_nopush on;
+                                send_timeout 600s;       # 延长超时
+                                keepalive_timeout 600s;  # 延长保持连接时间
+                                output_buffers 1 512k;   # 增大输出缓冲区
+                                gzip off;                # 禁用压缩，避免大文件开销
                         }
 
                         location /webDAV/ {
@@ -157,6 +169,12 @@ http {
                                 proxy_set_header Server-Port $server_port;
                                 proxy_set_header Upgrade $http_upgrade;
                                 proxy_set_header Connection $http_connection;
+                                sendfile on;
+                                tcp_nopush on;
+                                send_timeout 600s;       # 延长超时
+                                keepalive_timeout 600s;  # 延长保持连接时间
+                                output_buffers 1 512k;   # 增大输出缓冲区
+                                gzip off;                # 禁用压缩，避免大文件开销
                         }
 
                         location /file/ {
@@ -176,17 +194,23 @@ http {
                                 proxy_set_header Server-Port $server_port;
                                 proxy_set_header Upgrade $http_upgrade;
                                 proxy_set_header Connection $connection_upgrade;
+                                sendfile on;
+                                tcp_nopush on;
+                                send_timeout 600s;       # 延长超时
+                                keepalive_timeout 600s;  # 延长保持连接时间
+                                output_buffers 1 512k;   # 增大输出缓冲区
+                                gzip off;                # 禁用压缩，避免大文件开销
                         }
 
                         location /mq {
                                 proxy_pass   http://jmalcloud:8088/mq/;
                                 #websocket额外配置开始
-                			    proxy_http_version 1.1;
-                			    proxy_set_header Upgrade $http_upgrade;
-                			    proxy_set_header Connection "upgrade";
-                			    proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
-                	            proxy_read_timeout 500s;#读超时时间
-                	            proxy_send_timeout 500s;#写超时时间
+                                proxy_http_version 1.1;
+                                proxy_set_header Upgrade $http_upgrade;
+                                proxy_set_header Connection "upgrade";
+                                proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
+                                proxy_read_timeout 500s;#读超时时间
+                                proxy_send_timeout 500s;#写超时时间
                                 #websocket额外配置结束
                         }
 
