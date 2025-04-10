@@ -161,7 +161,6 @@
               ref="searchInput"
               placeholder="搜索"
               v-model="searchFileName"
-
               @keyup.enter.native="searchFileEnter(searchFileName)"
               @focus="setInputFocus"
               @input="searchFileEnter(searchFileName)"
@@ -169,9 +168,16 @@
               @clear="searchFileEnter(searchFileName)"
             >
               <template v-slot:suffix>
-                <el-button type="text" class="search-option" @click="searchDialogVisible = true">
-                  <i class="el-icon-s-operation"></i>
-                </el-button>
+                <el-popover
+                  v-if="searchFileName"
+                  placement="bottom-end"
+                  popper-class="search-filter-popover"
+                  trigger="click">
+                  <search-dialog :visible.sync="searchDialogVisible" :keyword.sync="searchFileName" @filter-change="searchFilterChange"></search-dialog>
+                  <el-button slot="reference" type="text" :class="searchOptionBtnClass" @click="searchDialogVisible = true">
+                    <i class="el-icon-s-operation"></i>
+                  </el-button>
+                </el-popover>
               </template>
             </el-input>
             <el-dropdown
@@ -821,8 +827,6 @@
     </el-dialog>
 
     <file-clipboard ref="fileClipboard" v-if="showClipboard && fileClipboard.length > 0" :file-list="fileClipboard" :image-url="imageUrl" :audio-cover-url="audioCoverUrl" :target-path="path" :target-folder="currentFolder" @onCopy="onCopy" @onMove="onMove"></file-clipboard>
-
-    <search-dialog :visible.sync="searchDialogVisible"></search-dialog>
   </div>
 </template>
 
@@ -1157,6 +1161,8 @@ export default {
       debounceSearch: null,// 搜索防抖
       debounceGetFileList: null,// 获取文件列表防抖
       searchDialogVisible: false,
+      filterOption: {}, // 搜索选项
+      hasSearchFilterOption: false, // 是否有搜索选项
       fileUsername: '', // 一般用于挂载文件
     }
   },
@@ -1175,6 +1181,13 @@ export default {
           return '上传时间'
         default:
           return '名称'
+      }
+    },
+    searchOptionBtnClass() {
+      if (this.hasSearchFilterOption) {
+        return 'search-option-btn search-option-btn-active'
+      } else {
+        return 'search-option-btn'
       }
     },
     cmdKey() {
@@ -2920,10 +2933,15 @@ export default {
             tagId: this.$route.query.tagId,
             isFolder: this.queryCondition.isFolder,
             isFavorite: this.queryCondition.isFavorite,
-            queryFileType: this.queryFileType,
+            queryFileType: this.filterOption.type || this.queryFileType,
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize,
             showFolderSize: localStorage.getItem('showFolderSize'),
+            type: this.filterOption.type,
+            queryModifyStart: this.filterOption.modifyStart,
+            queryModifyEnd: this.filterOption.modifyEnd,
+            querySizeMin: this.filterOption.sizeMin,
+            querySizeMax: this.filterOption.sizeMax,
           }).then(res => {
             this.loadData(res, onLoad)
             this.listModeSearch = true
@@ -4457,6 +4475,22 @@ export default {
       this.fileHandler = {}
       this.specifyPreviewer = 'office'
     },
+    searchFilterChange(filterOption) {
+      this.filterOption = filterOption
+      let hasSearchFilterOption = false
+      if (filterOption.type !== 'all' && filterOption.type !== null) {
+        hasSearchFilterOption = true
+      }
+      if (filterOption.modifyStart !== null && filterOption.modifyEnd !== null) {
+        hasSearchFilterOption = true
+      }
+      if (filterOption.sizeMin !== null && filterOption.sizeMax !== null) {
+        hasSearchFilterOption = true
+      }
+      this.hasSearchFilterOption = hasSearchFilterOption
+
+      this.debounceSearch(this.searchFileName, false)
+    },
     checkPreviewVisible() {
       if (this.searchDialogVisible) {
         return true
@@ -4721,6 +4755,16 @@ export default {
 }
 .mt-5 {
   margin-top: 5px;
+}
+
+.search-option-btn {
+  padding: 8px;
+}
+
+.search-option-btn-active {
+  padding: 8px;
+  background: #409EFF;
+  color: #fff;
 }
 
 </style>

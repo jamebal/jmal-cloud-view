@@ -1,14 +1,9 @@
 <template>
-  <el-dialog
-    :visible.sync="dialogVisible"
+  <div
+    v-show="dialogVisible"
     :show-close="false"
     custom-class="no-header-dialog"
     class="file-search-dialog">
-
-    <!-- 关闭按钮 -->
-    <div class="dialog-close-btn">
-      <el-button type="text" icon="el-icon-close" @click="dialogVisible = false"></el-button>
-    </div>
 
     <div class="search-bar">
       <div class="search-input-wrapper">
@@ -105,27 +100,37 @@
 
     <!-- 搜索条件标签 -->
     <div class="search-tags" v-if="hasSearchConditions">
-      <el-tag
-        v-if="fileTypeText !== '全部文件'"
-        closable
-        @close="resetFileType">
-        文件类型: {{ fileTypeText }}
-      </el-tag>
-      <el-tag
-        v-if="sizeRange[0] > 0 || sizeRange[1] < sliderConfig.max"
-        closable
-        @close="resetSizeRange">
-        文件大小: {{ formatSizeRange }}
-      </el-tag>
-      <el-tag
-        v-if="timeRange"
-        closable
-        @close="resetTimeRange">
-        时间范围: {{ formatTimeRange }}
-      </el-tag>
+      <div v-if="keyword !== ''">
+        <el-tag
+          closable
+          @close="resetKeyword">
+          关键字: {{ keyword }}
+        </el-tag>
+      </div>
+      <div v-if="fileTypeText !== '全部文件'">
+        <el-tag
+          closable
+          @close="resetFileType">
+          文件类型: {{ fileTypeText }}
+        </el-tag>
+      </div>
+      <div v-if="this.hasSizeRange">
+        <el-tag
+          closable
+          @close="resetSizeRange">
+          文件大小: {{ formatSizeRange }}
+        </el-tag>
+      </div>
+      <div v-if="timeRange">
+        <el-tag
+          closable
+          @close="resetTimeRange">
+          时间范围: {{ formatTimeRange }}
+        </el-tag>
+      </div>
     </div>
 
-  </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -136,13 +141,17 @@ export default {
       type: Boolean,
       default: false
     },
+    keyword: {
+      type: String,
+      default: ''
+    }
   },
   data() {
     return {
       dialogVisible: false,
       fileType: 'all',
       timeRange: null,
-      sizeRange: [0, 1073741824], // 默认范围：0 到 1GB
+      sizeRange: [0, -1], // 默认范围：0 到 1GB
       fileTypeText: '全部文件',
       filterOption: {
         type: null,
@@ -155,8 +164,10 @@ export default {
   },
   computed: {
     hasSearchConditions() {
-      return this.fileType !== 'all' || this.timeRange ||
-             (this.sizeRange[0] > 0 || this.sizeRange[1] < 1073741824)
+      return this.keyword || this.fileType !== 'all' || this.timeRange || this.hasSizeRange
+    },
+    hasSizeRange () {
+      return this.sizeRange[0] >= 0 && this.sizeRange[1] > 0
     },
     formatTimeRange() {
       if (!this.timeRange) return ''
@@ -172,7 +183,7 @@ export default {
         return {
           min: 1073741824,
           max: 10737418240,
-          step: 1073741824 / 100 // 约10MB的步长
+          step: 20971520 // 20MB
         }
       } else {
         // 普通模式 (0 - 1GB)
@@ -197,10 +208,10 @@ export default {
     updateFilterOption() {
       this.filterOption = {
         type: this.fileType === 'all' ? null : this.fileType,
-        modifyStart: this.timeRange ? this.timeRange[0] : null,
-        modifyEnd: this.timeRange ? this.timeRange[1] : null,
-        sizeMin: this.sizeRange[0],
-        sizeMax: this.sizeRange[1]
+        modifyStart: this.timeRange ? new Date(this.timeRange[0]).getTime() : null,
+        modifyEnd: this.timeRange ? new Date(this.timeRange[1]).getTime() : null,
+        sizeMin: this.hasSizeRange ? this.sizeRange[0] : null,
+        sizeMax: this.hasSizeRange ? this.sizeRange[1] : null
       }
 
       this.$emit('filter-change', this.filterOption)
@@ -246,6 +257,12 @@ export default {
       this.updateFilterOption()
     },
 
+    resetKeyword() {
+      this.$emit('update:keyword', '')
+      this.$emit('update:visible', false)
+      this.updateFilterOption()
+    },
+
     resetFileType() {
       this.handleFileType('all')
     },
@@ -256,7 +273,7 @@ export default {
     },
 
     resetSizeRange() {
-      this.sizeRange = [0, 1073741824]
+      this.sizeRange = [-1, -1]
       this.updateFilterOption()
     },
 
@@ -324,6 +341,17 @@ export default {
 
 <style lang="scss" scoped>
 .file-search-dialog {
+
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+
+  .search-bar {
+    display: flex;
+    align-content: center;
+    align-items: center;
+  }
+
   >>> .el-dialog {
     margin-top: 6vh !important;
     border-radius: 12px;
@@ -341,35 +369,10 @@ export default {
     padding: 20px 24px;
   }
 
-  .dialog-close-btn {
-    position: absolute;
-    right: -44px;
-    top: 0;
-    z-index: 100;
-
-    .el-button {
-      color: #fff;
-      font-size: 20px;
-      padding: 10px;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-
-      &:hover {
-        color: #fff;
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: scale(1.1);
-      }
-    }
-  }
-
-  .search-input-wrapper {
-    display: flex;
-    justify-content: center;
-  }
-
   .search-filters {
     display: flex;
     align-items: center;
+    flex-direction: column;
     gap: 8px;
 
     .el-divider--vertical {
@@ -440,10 +443,11 @@ export default {
   }
 
   .search-tags {
-    margin: 16px 0;
     display: flex;
     justify-content: center;
+    flex-direction: column;
     gap: 8px;
+    min-width: 250px;
 
     >>> .el-tag {
       border-radius: 6px;
