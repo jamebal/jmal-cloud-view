@@ -46,9 +46,9 @@ export default {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
     }
     if (shareToken) {
-      return `${fileUrl}?share-token=${shareToken}`
+      return `${baseUrl}/share-file/${file.id}/${shareToken}/${encodeURI(file.name)}`
     }
-    return fileUrl
+    return `${baseUrl}/share-file/${file.id}/${encodeURI(file.name)}`
   },
   // 预览历史文件
   previewHistoryUrl: function(historyId, name, token) {
