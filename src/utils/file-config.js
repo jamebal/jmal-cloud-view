@@ -48,7 +48,7 @@ export default {
     if (shareToken) {
       return `${baseUrl}/share-file/${file.id}/${shareToken}/${encodeURI(file.name)}`
     }
-    return `${baseUrl}/share-file/${file.id}/${shareToken}/${encodeURI(file.name)}` // Encode file name for URL safety
+    return `${baseUrl}/share-file/${file.id}/${encodeURI(file.name)}`
   },
   // 预览历史文件
   previewHistoryUrl: function(historyId, name, token) {
