@@ -157,27 +157,40 @@
             </el-popover>
 
             <el-input
+              :class="searchInputClass"
               v-show="showSearchButton"
               ref="searchInput"
-              placeholder="搜索"
+              :placeholder="`搜索 ${cmdKey} P`"
               v-model="searchFileName"
               @keyup.enter.native="searchFileEnter(searchFileName)"
-              @focus="setInputFocus"
+              @focus="searchInputFocus"
               @input="searchFileEnter(searchFileName)"
-              @blur="setInputBlur()"
+              @blur="searchInputBlur"
               @clear="searchFileEnter(searchFileName)"
             >
               <template v-slot:suffix>
-                <el-popover
-                  v-if="searchFileName"
-                  placement="bottom-end"
-                  popper-class="search-filter-popover"
-                  trigger="click">
-                  <search-dialog :visible.sync="searchDialogVisible" :keyword.sync="searchFileName" @filter-change="searchFilterChange"></search-dialog>
-                  <el-button slot="reference" type="text" :class="searchOptionBtnClass" @click="searchDialogVisible = true">
-                    <i class="el-icon-s-operation"></i>
+                <div>
+                  <el-button v-if="searchFileName" type="text" class="search-close-btn" @click="searchClose">
+                    <i class="el-icon-circle-close"></i>
                   </el-button>
-                </el-popover>
+                  <el-popover
+                    v-if="searchFileName"
+                    placement="bottom-end"
+                    popper-class="search-filter-popover"
+                    trigger="click">
+                    <search-option
+                      :has-search-conditions-param.sync="hasSearchFilterOption"
+                      :keyword.sync="searchFileName"
+                      :filter-option-param.sync="filterOption"
+                      :search-path="currentDirectory"
+                      :search-result-count="pagination['total']"
+                      @filter-change="searchFilterChange" >
+                    </search-option>
+                    <el-button slot="reference" type="text" :class="searchOptionBtnClass">
+                      <i class="el-icon-s-operation"></i>
+                    </el-button>
+                  </el-popover>
+                </div>
               </template>
             </el-input>
             <el-dropdown
@@ -831,7 +844,7 @@
 </template>
 
 <script>
-import SearchDialog from '@/components/SearchDialog/index.vue'
+import SearchOption from '@/components/SearchOption/index.vue'
 import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
 import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
 import store from '@/store'
@@ -872,7 +885,7 @@ export default {
   components: {
     FileClipboard,
     DialogFileList,
-    SearchDialog,
+    SearchOption,
     FileDetails,
     TagDialog,
     ShareDialog,
@@ -1018,6 +1031,7 @@ export default {
       renameFileName: '',
       searchFileName: '',
       pathList: [{ folder: '' }],
+      currentDirectory: '/', // 当前路径
       fileList: [],
       pageLoadCompleteList: [],
       pagination: {
@@ -1160,10 +1174,10 @@ export default {
       deleteLoading: false, // 删除loading
       debounceSearch: null,// 搜索防抖
       debounceGetFileList: null,// 获取文件列表防抖
-      searchDialogVisible: false,
       filterOption: {}, // 搜索选项
       hasSearchFilterOption: false, // 是否有搜索选项
       fileUsername: '', // 一般用于挂载文件
+      searchInputClass: 'search-input' // 搜索输入框样式
     }
   },
   computed: {
@@ -1184,11 +1198,7 @@ export default {
       }
     },
     searchOptionBtnClass() {
-      if (this.hasSearchFilterOption) {
-        return 'search-option-btn search-option-btn-active'
-      } else {
-        return 'search-option-btn'
-      }
+      return this.hasSearchFilterOption ? 'search-option-btn search-option-btn-active' : 'search-option-btn'
     },
     cmdKey() {
       return navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl'
@@ -1300,6 +1310,11 @@ export default {
           break
       }
     },
+    searchFileName(newValue) {
+      if (!newValue) {
+        this.hasSearchFilterOption = false
+      }
+    }
   },
   mounted() {
     // 监听返回
@@ -1511,11 +1526,11 @@ export default {
         event.stopPropagation()
       }
       // ctrl + P / cmd + P
-      // if (isCmd && keyCode === 80 && !checkPreviewVisible && !this.inputting) {
-      //   this.searchDialogVisible = true
-      //   event.preventDefault()
-      //   event.stopPropagation()
-      // }
+      if (isCmd && keyCode === 80 && !checkPreviewVisible) {
+        this.$refs.searchInput.focus()
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
     keyup(event) {
       const { keyCode } = event
@@ -2795,6 +2810,7 @@ export default {
       } else {
         this.pagination.pageIndex = 1
       }
+      this.currentDirectory = decodeURIComponent(this.getQueryPath())
       this.pageLoadCompleteList[this.pagination.pageIndex] = false
       this.tableLoading = true
       this.finished = false
@@ -2942,6 +2958,7 @@ export default {
             queryModifyEnd: this.filterOption.modifyEnd,
             querySizeMin: this.filterOption.sizeMin,
             querySizeMax: this.filterOption.sizeMax,
+            searchMount: this.filterOption.searchMount,
           }).then(res => {
             this.loadData(res, onLoad)
             this.listModeSearch = true
@@ -3016,6 +3033,7 @@ export default {
         if (this.$route.query.keyword !== 'undefined') {
           this.searchFileName = this.$route.query.keyword
         }
+        this.searchInputBlur()
         const searchPathIndex = this.pathList.findIndex(item => item.search)
         if (this.$route.query.searchOpenFolder && searchPathIndex > -1) {
           this.searchFileAndOpenDir(this.$route.query.searchOpenFolder, onLoad)
@@ -3413,7 +3431,8 @@ export default {
       this.menus = JSON.parse(JSON.stringify(this.singleMenus))
       // 挂载的文件
       const owner = localStorage.getItem('mountFileOwner')
-      if (this.$route.query.folder && owner) {
+      const notSelf = row.userId && row.userId !== this.$store.getters.userId
+      if ((this.$route.query.folder && owner) || notSelf) {
         // 根据权限设置菜单
         this.setMenusByPermission(row)
       } else {
@@ -3453,14 +3472,14 @@ export default {
         )
         this.shareToken = undefined
         // 在download之前添加复制下载链接选项
+        this.addMenusCopyDownLoadLinks(downloadIndex)
         if (row.isPrivacy) {
           // 如果是私密分享需要先获取shareToken
           api.generateShareToken({fileId: row.id}).then(res => {
             this.shareToken = res.data
-            this.addMenusCopyDownLoadLinks(downloadIndex)
+          }).catch(() => {
+            this.menus.splice(downloadIndex, 1)
           })
-        } else {
-          this.addMenusCopyDownLoadLinks(downloadIndex)
         }
       }
     },
@@ -3498,6 +3517,7 @@ export default {
     },
     // 鼠标右击
     rowContextmenu(row) {
+      console.log('rowContextmenu', row, row.userId, this.$store.getters.userId)
       if (this.selectFile) {
         return
       }
@@ -3520,8 +3540,8 @@ export default {
       this.menuTriangle = ''
       const e = {}
       e.pageX = event.pageX + 5
-      e.pageY = event.pageY + 2
-      e.clientX = event.clientX + 5
+      e.pageY = event.pageY + 20
+      e.clientX = event.clientX + 50
       e.clientY = event.clientY + 2
       this.$refs.contextShow.showMenu(e)
       this.cellMouseIndex = -1
@@ -4475,26 +4495,23 @@ export default {
       this.fileHandler = {}
       this.specifyPreviewer = 'office'
     },
-    searchFilterChange(filterOption) {
-      this.filterOption = filterOption
-      let hasSearchFilterOption = false
-      if (filterOption.type !== 'all' && filterOption.type !== null) {
-        hasSearchFilterOption = true
-      }
-      if (filterOption.modifyStart !== null && filterOption.modifyEnd !== null) {
-        hasSearchFilterOption = true
-      }
-      if (filterOption.sizeMin !== null && filterOption.sizeMax !== null) {
-        hasSearchFilterOption = true
-      }
-      this.hasSearchFilterOption = hasSearchFilterOption
-
+    searchClose() {
+      this.searchFileName = ''
+      this.searchInputBlur()
+      this.searchFileEnter()
+    },
+    searchInputFocus() {
+      this.searchInputClass = 'search-input search-input-focus'
+      this.setInputFocus()
+    },
+    searchInputBlur() {
+      this.searchInputClass = this.searchFileName ? 'search-input search-input-focus' : 'search-input'
+      this.setInputBlur()
+    },
+    searchFilterChange() {
       this.debounceSearch(this.searchFileName, false)
     },
     checkPreviewVisible() {
-      if (this.searchDialogVisible) {
-        return true
-      }
       if (this.iframePreviewVisible) {
         return true
       }
@@ -4757,14 +4774,38 @@ export default {
   margin-top: 5px;
 }
 
+.search-input {
+  width: 150px;
+  transition: width 0.3s ease-in-out;
+}
+
+.search-input-focus {
+  width: 240px;
+}
+
+.search-close-btn {
+  padding: 4px;
+  color: #C0C4CC;
+  :hover {
+    color: #409EFF;
+  }
+}
+
 .search-option-btn {
-  padding: 8px;
+  padding: 4px;
+  margin-right: 4px;
+  color: #606266;
+  :hover {
+    color: #409EFF;
+  }
 }
 
 .search-option-btn-active {
-  padding: 8px;
   background: #409EFF;
   color: #fff;
+  :hover {
+    color: #fff;
+  }
 }
 
 </style>
