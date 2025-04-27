@@ -198,10 +198,11 @@ export default {
         this.filepath = this.getLocalPath(this.file.path)
         this.pathUrl = `/?path=${this.filepath}&highlight=${this.file.name}`
         this.getIsSync()
-        if (this.fileUsername) {
+        const isMountFile = this.fileUsername || this.file.userId !== this.$store.getters.userId ? this.file.userId : undefined
+        if (isMountFile) {
           fileApi.getMountFileInfo({
             fileId: this.file.id,
-            fileUsername: this.fileUsername
+            fileUserId: this.file.userId,
           }).then((res) => {
             const path = this.getLocalPath(res.data.path)
             this.filepath = path

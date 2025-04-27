@@ -34,7 +34,7 @@ export default {
     fileUrl = fileUrl.replaceAll('#', '%23')
     fileUrl = fileUrl.replaceAll(/%5C/g, '/')
 
-    if (file.userId !== store.getters.userId && !shareToken) {
+    if (file.userId !== store.getters.userId && token && !shareToken) {
       return `${baseUrl}/pre-file/${file.id}/${encodeURI(file.name)}?jmal-token=${token}&name=${username}`
     }
 
