@@ -1,0 +1,31 @@
+>>> .el-checkbox {
+
+  &:hover {
+    background-color: #f5f7fa;
+    border-radius: 6px;
+  }
+
+  .el-checkbox__inner {
+    background-color: #f0f0f0; /* 浅灰色背景 */
+    border-color: #dcdcdc; /* 浅灰色边框 */
+    border-radius: 4px; /* 圆角 */
+  }
+
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: #a0a0a0; /* 深灰色背景 */
+    border-color: #a0a0a0; /* 深灰色边框 */
+  }
+
+  .el-checkbox__input.is-checked .el-checkbox__inner::after {
+    border-color: #ffffff; /* 白色勾号 */
+  }
+
+  .el-checkbox__inner:hover {
+    //border-color: #b0b0b0; /* hover 时边框颜色 */
+    cursor: pointer;
+  }
+
+  .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #606266;
+  }
+}

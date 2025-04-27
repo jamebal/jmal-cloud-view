@@ -156,17 +156,20 @@
               ></button-upload>
             </el-popover>
 
-            <el-input
+            <el-autocomplete
+              ref="searchInput"
               :class="searchInputClass"
               v-show="showSearchButton"
-              ref="searchInput"
+              :fetch-suggestions="queryRecentlySearchHistory"
+              hide-loading
+              :debounce="300"
+              :popper-append-to-body="false"
               :placeholder="`搜索 ${cmdKey} P`"
               v-model="searchFileName"
               @keyup.enter.native="searchFileEnter(searchFileName)"
               @focus="searchInputFocus"
-              @input="searchFileEnter(searchFileName)"
               @blur="searchInputBlur"
-              @clear="searchFileEnter(searchFileName)"
+              @select="handleSelectSearchHistory"
             >
               <template v-slot:suffix>
                 <div>
@@ -174,11 +177,12 @@
                     <i class="el-icon-circle-close"></i>
                   </el-button>
                   <el-popover
-                    v-if="searchFileName"
+                    v-show="searchFileName"
                     placement="bottom-end"
                     popper-class="search-filter-popover"
                     trigger="click">
                     <search-option
+                      ref="searchOption"
                       :has-search-conditions-param.sync="hasSearchFilterOption"
                       :keyword.sync="searchFileName"
                       :filter-option-param.sync="filterOption"
@@ -186,13 +190,27 @@
                       :search-result-count="pagination['total']"
                       @filter-change="searchFilterChange" >
                     </search-option>
-                    <el-button slot="reference" type="text" :class="searchOptionBtnClass">
+                    <el-button slot="reference" type="text" :class="searchOptionBtnClass" @click.native="showSearchOption">
                       <i class="el-icon-s-operation"></i>
                     </el-button>
                   </el-popover>
                 </div>
               </template>
-            </el-input>
+
+              <!-- 自定义提示项 -->
+              <template #default="{ item }" class="autocomplete-suggestion-custom">
+                <div class="suggestion-item">
+                  <div class="suggestion-item-title">
+                    <i class="el-icon-time"></i>
+                    <span class="suggestion-item-text">{{ item.keyword }}</span>
+                  </div>
+                  <div>
+                    <el-button type="text" icon="el-icon-close" class="clear-search-history-btn" @click.native.prevent="clearSearchHistory(item, $event)"></el-button>
+                  </div>
+                </div>
+              </template>
+
+            </el-autocomplete>
             <el-dropdown
               size="medium"
               style="height: 40px;"
@@ -1175,6 +1193,7 @@ export default {
       debounceSearch: null,// 搜索防抖
       debounceGetFileList: null,// 获取文件列表防抖
       filterOption: {}, // 搜索选项
+      searchHistoryList: [],// 搜索历史列表
       hasSearchFilterOption: false, // 是否有搜索选项
       fileUsername: '', // 一般用于挂载文件
       searchInputClass: 'search-input' // 搜索输入框样式
@@ -1313,6 +1332,7 @@ export default {
     searchFileName(newValue) {
       if (!newValue) {
         this.hasSearchFilterOption = false
+        this.$refs.searchOption.clearFilterOption()
       }
     }
   },
@@ -1378,6 +1398,11 @@ export default {
       const query = { ...this.$route.query }
       delete query.searchOpenFolder
       this.$router.replace({ query })
+    }
+
+    if (this.$route.query.keyword) {
+      this.filterOption = localStorage.getItem('searchFilterOption') ? JSON.parse(localStorage.getItem('searchFilterOption')) : {}
+      this.$refs.searchOption.setFilterOption(this.filterOption)
     }
 
     let that = this
@@ -2938,6 +2963,7 @@ export default {
             this.vmode
           }&path=${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`
         )
+        console.log('this.filterOption', this.filterOption)
         api.searchFile({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
@@ -2959,6 +2985,7 @@ export default {
             querySizeMin: this.filterOption.sizeMin,
             querySizeMax: this.filterOption.sizeMax,
             searchMount: this.filterOption.searchMount,
+            searchOverall: this.filterOption.searchOverall,
           }).then(res => {
             this.loadData(res, onLoad)
             this.listModeSearch = true
@@ -4511,6 +4538,38 @@ export default {
     searchFilterChange() {
       this.debounceSearch(this.searchFileName, false)
     },
+    showSearchOption() {
+    },
+    queryRecentlySearchHistory(queryString, cb) {
+      if (this.searchFileName) {
+        cb([])
+        return
+      }
+      api.recentlySearchHistory({keyword: queryString}).then(res => {
+        this.searchHistoryList = res.data || []
+        console.log('clearSearchHistory1', this.searchHistoryList)
+        cb(this.searchHistoryList)
+      }).catch(error => {
+        console.error("Error fetching search history:", error)
+        this.searchHistoryList = []
+        cb([])
+      });
+    },
+    handleSelectSearchHistory(item) {
+      this.searchFileName = item.keyword
+      this.filterOption = item
+      this.debounceSearch(this.searchFileName, false)
+      this.$refs.searchOption.setFilterOption(item)
+    },
+    clearSearchHistory(itemToDelete, event) {
+      event.stopPropagation();
+      event.preventDefault();
+      const idToDelete = itemToDelete.id
+      api.deleteSearchHistory({id: idToDelete}).then(() => {
+        const index = this.searchHistoryList.findIndex(item => item.id === idToDelete)
+        this.searchHistoryList.splice(index, 1)
+      })
+    },
     checkPreviewVisible() {
       if (this.iframePreviewVisible) {
         return true
@@ -4775,12 +4834,15 @@ export default {
 }
 
 .search-input {
-  width: 150px;
+  width: 230px;
   transition: width 0.3s ease-in-out;
+  >>> .el-input--suffix .el-input__inner {
+    padding-right: 60px;
+  }
 }
 
 .search-input-focus {
-  width: 240px;
+  width: 230px;
 }
 
 .search-close-btn {
@@ -4805,6 +4867,41 @@ export default {
   color: #fff;
   :hover {
     color: #fff;
+  }
+}
+
+>>> .el-autocomplete-suggestion li {
+  padding: 0 5px 0 15px;
+}
+
+.suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .suggestion-item-title {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: center;
+    .suggestion-item-text {
+      width: 152px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .clear-search-history-btn {
+    padding: 8px;
+    display: none;
+  }
+
+  &:hover {
+    .clear-search-history-btn {
+      display: block;
+    }
   }
 }
 

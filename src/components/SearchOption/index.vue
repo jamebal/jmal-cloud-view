@@ -15,6 +15,22 @@
       <div class="search-bar">
         <div class="search-input-wrapper">
           <div class="search-filters">
+            <div>
+              <el-checkbox
+                v-model="searchOverall"
+                class="search-option-checkbox"
+                @change="handleSearchOverallChange"
+              >全盘搜索
+              </el-checkbox>
+            </div>
+            <div>
+              <el-checkbox
+                v-model="searchMount"
+                class="search-option-checkbox"
+                @change="handleSearchMountChange"
+              >挂载目录
+              </el-checkbox>
+            </div>
             <el-dropdown @command="handleFileType" trigger="click" class="filter-dropdown">
               <el-button type="text" class="filter-btn">
                 <i class="el-icon-document"></i>
@@ -101,20 +117,29 @@
                 </div>
               </el-dropdown-menu>
             </el-dropdown>
-            <el-checkbox
-              v-model="searchMount"
-              class="search-mount-checkbox"
-              @change="handleSearchMountChange"
-            >包含挂载目录</el-checkbox>
           </div>
         </div>
       </div>
       <!-- 搜索条件标签 -->
       <div class="search-tags">
-        <div v-if="searchPath.length > 1">
+        <div v-if="searchPath.length > 1 && !searchOverall">
           <el-tag
             @close="resetSearchPath">
             路径: {{ searchPath }}
+          </el-tag>
+        </div>
+        <div v-if="searchOverall">
+          <el-tag
+            closable
+            @close="resetSearchOverall">
+            全盘搜索
+          </el-tag>
+        </div>
+        <div v-if="searchMount">
+          <el-tag
+            closable
+            @close="resetSearchMount">
+            包含挂载目录
           </el-tag>
         </div>
         <div v-if="fileTypeText !== '全部文件'">
@@ -136,13 +161,6 @@
             closable
             @close="resetTimeRange">
             时间范围: {{ formatTimeRange }}
-          </el-tag>
-        </div>
-        <div v-if="searchMount">
-          <el-tag
-            closable
-            @close="resetSearchMount">
-            包含挂载目录
           </el-tag>
         </div>
       </div>
@@ -187,19 +205,24 @@ export default {
       sizeRange: [0, -1], // 默认范围：0 到 1GB
       fileTypeText: '全部文件',
       searchMount: false,
-      filterOption: {
-        type: null,
-        modifyStart: null,
-        searchMount: false,
-        modifyEnd: null,
-        sizeMin: null,
-        sizeMax: null
-      }
+      searchOverall: false,
+      filterOption: this.emptyFilterOption
     }
   },
   computed: {
     hasSearchConditions() {
-      return this.fileType !== 'all' || this.timeRange || this.hasSizeRange || this.searchMount
+      return this.fileType !== 'all' || this.timeRange || this.hasSizeRange || this.searchMount || this.searchOverall
+    },
+    emptyFilterOption() {
+      return {
+        type: null,
+        modifyStart: null,
+        modifyEnd: null,
+        sizeMin: null,
+        sizeMax: null,
+        searchMount: false,
+        searchOverall: false,
+      }
     },
     hasSizeRange () {
       return this.sizeRange[0] >= 0 && this.sizeRange[1] > 0
@@ -231,6 +254,9 @@ export default {
     }
   },
   watch: {
+    filterOption(newValue) {
+      console.log('filterOption changed', newValue)
+    }
   },
   methods: {
     // 更新筛选条件并通知父组件
@@ -241,12 +267,52 @@ export default {
         modifyEnd: this.timeRange ? new Date(this.timeRange[1]).getTime() : null,
         sizeMin: this.hasSizeRange ? this.sizeRange[0] : null,
         sizeMax: this.hasSizeRange ? this.sizeRange[1] : null,
-        searchMount: this.searchMount
+        searchMount: this.searchMount,
+        searchOverall: this.searchOverall
       }
 
       this.$emit('filter-change')
       this.$emit('update:filter-option-param', this.filterOption)
       this.$emit('update:has-search-conditions-param', this.hasSearchConditions)
+      localStorage.setItem('searchFilterOption', JSON.stringify(this.filterOption))
+    },
+
+    clearFilterOption() {
+      this.filterOption = this.emptyFilterOption
+      console.log('clearFilterOption')
+      this.setFilterOption(this.filterOption)
+    },
+
+    setFilterOption(filterOption) {
+      if (!filterOption) return
+
+      // 设置文件类型
+      this.handleFileType(filterOption.type || 'all')
+
+      // 设置时间范围
+      if (filterOption.modifyStart && filterOption.modifyEnd) {
+        this.timeRange = [
+          new Date(filterOption.modifyStart),
+          new Date(filterOption.modifyEnd)
+        ]
+      } else {
+        this.timeRange = null
+      }
+
+      // 设置文件大小范围
+      if (filterOption.sizeMin !== null && filterOption.sizeMax !== null) {
+        this.sizeRange = [filterOption.sizeMin, filterOption.sizeMax]
+      } else {
+        this.sizeRange = [-1, -1]
+      }
+
+      // 设置搜索选项
+      this.searchMount = !!filterOption.searchMount
+      this.searchOverall = !!filterOption.searchOverall
+
+      // 更新过滤条件
+      console.log('setFilterOption')
+      this.updateFilterOption()
     },
 
     handleFileType(command) {
@@ -298,9 +364,8 @@ export default {
       this.updateFilterOption()
     },
 
-    resetKeyword() {
-      this.$emit('update:keyword', '')
-      this.$emit('update:visible', false)
+    resetSearchOverall() {
+      this.searchOverall = false
       this.updateFilterOption()
     },
 
@@ -376,12 +441,15 @@ export default {
 
     handleSearchMountChange() {
       this.updateFilterOption()
+    },
+    handleSearchOverallChange() {
+      this.updateFilterOption()
     }
   }
 }
 </script>
-
 <style lang="scss" scoped>
+@import "src/styles/custom-ui.scss";
 .search-option-wrapper {
   display: flex;
   flex-direction: column;
@@ -439,7 +507,7 @@ export default {
 
   .search-filters {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     flex-direction: column;
     gap: 8px;
 
@@ -485,7 +553,7 @@ export default {
       }
     }
 
-    .search-mount-checkbox {
+    .search-option-checkbox {
       padding: 8px 12px;
       cursor: pointer;
     }

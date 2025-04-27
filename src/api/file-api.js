@@ -137,6 +137,22 @@ export default {
       params
     })
   },
+  // 最近搜索记录🔍
+  recentlySearchHistory: function(params) {
+    return request({
+      url: '/search/recentlySearchHistory',
+      method: 'get',
+      params
+    })
+  },
+  // 删除搜索记录🔍
+  deleteSearchHistory: function(params) {
+    return request({
+      url: '/search/deleteSearchHistory',
+      method: 'delete',
+      params
+    })
+  },
   // 搜索文件🔍
   searchFile: function(params) {
     return request({
