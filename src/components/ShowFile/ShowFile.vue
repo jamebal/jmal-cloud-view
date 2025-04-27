@@ -90,7 +90,7 @@
           <div class="search-class">
             <el-popover
               v-if="showUploadButton"
-              v-show="!(pathList.length < 2 && homeHidden)"
+              v-show="!(isRootPath && homeHidden)"
               v-model="isShowNewFolder"
               placement="bottom"
               trigger="hover"
@@ -1221,6 +1221,9 @@ export default {
     },
     cmdKey() {
       return navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl'
+    },
+    isRootPath() {
+      return !this.$route.query.path || this.$route.query.path.length < 2
     },
     fileClipboard() {
       return store.getters.fileClipboard
@@ -2963,7 +2966,6 @@ export default {
             this.vmode
           }&path=${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`
         )
-        console.log('this.filterOption', this.filterOption)
         api.searchFile({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
@@ -4547,7 +4549,6 @@ export default {
       }
       api.recentlySearchHistory({keyword: queryString}).then(res => {
         this.searchHistoryList = res.data || []
-        console.log('clearSearchHistory1', this.searchHistoryList)
         cb(this.searchHistoryList)
       }).catch(error => {
         console.error("Error fetching search history:", error)

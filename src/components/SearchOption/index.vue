@@ -3,7 +3,7 @@
   <div class="search-option-wrapper">
     <div class="search-option-result">
       <div>
-        <span>搜索:</span>
+        <span>搜索 <span class="search-scope">{{searchScope}}</span>:</span>
         <span>{{ keyword }}</span>
       </div>
       <div>
@@ -122,7 +122,7 @@
       </div>
       <!-- 搜索条件标签 -->
       <div class="search-tags">
-        <div v-if="searchPath.length > 1 && !searchOverall">
+        <div v-if="searchPath !== 'undefined' && searchPath.length > 1 && !searchOverall">
           <el-tag
             @close="resetSearchPath">
             路径: {{ searchPath }}
@@ -210,6 +210,14 @@ export default {
     }
   },
   computed: {
+    searchScope() {
+      const queryTagId = this.$route.query.tagId
+      const path = this.$route.query.path;
+      if (queryTagId && path === '/') {
+        return '(当前标签)'
+      }
+      return ''
+    },
     hasSearchConditions() {
       return this.fileType !== 'all' || this.timeRange || this.hasSizeRange || this.searchMount || this.searchOverall
     },
@@ -255,7 +263,6 @@ export default {
   },
   watch: {
     filterOption(newValue) {
-      console.log('filterOption changed', newValue)
     }
   },
   methods: {
@@ -279,7 +286,6 @@ export default {
 
     clearFilterOption() {
       this.filterOption = this.emptyFilterOption
-      console.log('clearFilterOption')
       this.setFilterOption(this.filterOption)
     },
 
@@ -311,7 +317,6 @@ export default {
       this.searchOverall = !!filterOption.searchOverall
 
       // 更新过滤条件
-      console.log('setFilterOption')
       this.updateFilterOption()
     },
 
