@@ -3,7 +3,14 @@
   <div class="search-option-wrapper">
     <div class="search-option-result">
       <div>
-        <span>搜索 <span class="search-scope">{{searchScope}}</span>:</span>
+        <span>
+          搜索
+          <span class="search-scope" v-if="searchScope">
+            <el-tooltip class="item" effect="dark" :content="searchScope" placement="top">
+              <i class="el-icon-warning-outline"></i>
+            </el-tooltip>
+          </span>:
+        </span>
         <span>{{ keyword }}</span>
       </div>
       <div>
@@ -189,6 +196,10 @@ export default {
       type: Object,
       default: function() {}
     },
+    queryCondition: {
+      type: Object,
+      default: function() {}
+    },
     searchPath: {
       type: String,
       default: '/'
@@ -212,9 +223,30 @@ export default {
   computed: {
     searchScope() {
       const queryTagId = this.$route.query.tagId
-      const path = this.$route.query.path;
-      if (queryTagId && path === '/') {
-        return '(当前标签)'
+      const isRootPath = this.$route.query.path === '/';
+      if (queryTagId && isRootPath) {
+        return '搜索范围: 仅包含标签文件, 不含子文件'
+      }
+      if (this.queryCondition.isMount && isRootPath) {
+        return '搜索范围: 挂载目录里的所有文件, 不含挂载目录本身'
+      }
+      if (this.queryCondition.isFavorite && isRootPath) {
+        return '搜索范围: 仅包含收藏文件, 不含子文件'
+      }
+      if (this.queryCondition.audio && isRootPath) {
+        return '搜索范围: 仅包含音频文件'
+      }
+      if (this.queryCondition.video && isRootPath) {
+        return '搜索范围: 仅包含视频文件'
+      }
+      if (this.queryCondition.document && isRootPath) {
+        return '搜索范围: 仅包含文档文件'
+      }
+      if (this.queryCondition.image && isRootPath) {
+        return '搜索范围: 仅包含图片文件'
+      }
+      if (this.queryCondition.recently && isRootPath) {
+        return '搜索范围: 仅包含文件, 不含目录'
       }
       return ''
     },

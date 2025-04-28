@@ -186,6 +186,7 @@
                       :has-search-conditions-param.sync="hasSearchFilterOption"
                       :keyword.sync="searchFileName"
                       :filter-option-param.sync="filterOption"
+                      :query-condition="queryCondition"
                       :search-path="currentDirectory"
                       :search-result-count="pagination['total']"
                       @filter-change="searchFilterChange" >
@@ -979,7 +980,7 @@ export default {
     queryCondition: {
       type: Object,
       default: function() {
-        return { isFolder: null }
+        return { isFolder: null, isMount: null }
       },
     },
     singleMenus: {
@@ -2966,6 +2967,7 @@ export default {
             this.vmode
           }&path=${path}${keyword}${searchOpenFolder}${queryTagId}${basePath}${folder}`
         )
+
         api.searchFile({
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
@@ -2987,6 +2989,7 @@ export default {
             querySizeMin: this.filterOption.sizeMin,
             querySizeMax: this.filterOption.sizeMax,
             searchMount: this.filterOption.searchMount,
+            isMount:  this.queryCondition.isMount,
             searchOverall: this.filterOption.searchOverall,
           }).then(res => {
             this.loadData(res, onLoad)
@@ -3083,6 +3086,7 @@ export default {
             order: this.sortable.order,
             isFolder: this.queryCondition.isFolder,
             isFavorite: this.queryCondition.isFavorite,
+            isMount: this.queryCondition.isMount,
             isTrash: this.queryCondition.isTrash,
             tagId: this.queryCondition.tagId,
             queryCondition: this.queryCondition,
@@ -3546,7 +3550,6 @@ export default {
     },
     // 鼠标右击
     rowContextmenu(row) {
-      console.log('rowContextmenu', row, row.userId, this.$store.getters.userId)
       if (this.selectFile) {
         return
       }

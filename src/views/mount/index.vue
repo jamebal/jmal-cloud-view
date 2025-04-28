@@ -1,14 +1,17 @@
 <template>
   <div>
     <show-file
+      :isCollectView="true"
       :defaultGrid="true"
-      :orderCustom="true"
       :sortable="sortable"
+      :orderCustom="true"
+      :showClipboard="true"
+      :defaultSort="sortable"
       :queryCondition="queryCondition"
-      :showNavigation="true"
       :contextMenus="contextMenus"
-      :showUploadButton="false"
-    ></show-file>
+      homeHidden
+    >
+    </show-file>
   </div>
 </template>
 
@@ -21,11 +24,10 @@
     data() {
       return {
         sortable: {
-          prop: 'uploadDate', order: 'descending'
+          prop: 'name', order: 'ascending'
         },
         queryCondition: {
-          isFolder: false,
-          recently: true
+          isMount: true
         },
         contextMenus: [
           { label: '查看', operation: 'viewMode' ,child: [
@@ -38,7 +40,8 @@
           },
           { label: '刷新', operation: 'refresh'},
           { divider: true, operation: 'divider' },
-          { label: '新建', operation: 'create' , homeDisable: true, child: createFiles},
+          { label: '新建', operation: 'create' , homeDisable: true, child: createFiles
+          },
           { divider: true, operation: 'divider' },
           { label: '写文章', operation: 'createMarkdownFile'},
         ]
