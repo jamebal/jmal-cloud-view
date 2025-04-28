@@ -70,7 +70,7 @@ export default {
     ocrConfig: 'OCR Config',
     ldapAuth: 'LDAP Auth',
     startSync: 'Start scanning? ',
-    confirmDeleteMenuAndRole: 'Are you sure you want to delete the current role and menu? ',
+    confirmDeleteMenuAndRole: 'This operation will update and reset the system\'s default menus and roles (the menus and roles you have added yourself will not be affected). Are you sure?',
     resetSuccessfully: 'Reset successfully',
 
     taskProgress: 'Task Progress',
