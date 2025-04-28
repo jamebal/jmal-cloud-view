@@ -70,7 +70,7 @@ export default {
     ocrConfig: 'OCR配置',
     ldapAuth: 'LDAP认证',
     startSync: '是否开始扫描? ',
-    confirmDeleteMenuAndRole: '您确定要删除当前角色、菜单吗? ',
+    confirmDeleteMenuAndRole: '此操作会更新重置系统默认的菜单和角色(您自己添加的菜单和角色将不受影响), 确定吗? ',
     resetSuccessfully: '重置成功',
 
     taskProgress: '任务进度',
