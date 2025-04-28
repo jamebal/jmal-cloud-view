@@ -138,7 +138,7 @@ export default {
     })
   },
   // 最近搜索记录🔍
-  recentlySearchHistory: function(params) {
+  getRecentlySearchHistory: function(params) {
     return request({
       url: '/search/recentlySearchHistory',
       method: 'get',
@@ -146,7 +146,7 @@ export default {
     })
   },
   // 删除搜索记录🔍
-  deleteSearchHistory: function(params) {
+  removeSearchHistory: function(params) {
     return request({
       url: '/search/deleteSearchHistory',
       method: 'delete',

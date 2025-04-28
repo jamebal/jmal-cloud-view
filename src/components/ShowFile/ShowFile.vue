@@ -4550,7 +4550,7 @@ export default {
         cb([])
         return
       }
-      api.recentlySearchHistory({keyword: queryString}).then(res => {
+      api.getRecentlySearchHistory({keyword: queryString}).then(res => {
         this.searchHistoryList = res.data || []
         cb(this.searchHistoryList)
       }).catch(error => {
@@ -4569,7 +4569,7 @@ export default {
       event.stopPropagation();
       event.preventDefault();
       const idToDelete = itemToDelete.id
-      api.deleteSearchHistory({id: idToDelete}).then(() => {
+      api.removeSearchHistory({id: idToDelete}).then(() => {
         const index = this.searchHistoryList.findIndex(item => item.id === idToDelete)
         this.searchHistoryList.splice(index, 1)
       })
