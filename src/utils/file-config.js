@@ -29,19 +29,15 @@ export default {
   },
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken, serverUrl) {
-    let owner = null
-    if (username !== store.getters.name || localStorage.getItem('mountFileOwner') !== null) {
-      owner = localStorage.getItem('mountFileOwner')
-    } else {
-      owner = username
-    }
-    if (owner == null) {
-      owner = store.getters.name
-    }
     let baseUrl = serverUrl || this.baseUrl
-    let fileUrl = `${baseUrl}/file/${owner}${encodeURI(file.path)}${encodeURI(file.name)}`
+    let fileUrl = `${baseUrl}/file/${store.getters.name}${encodeURI(file.path)}${encodeURI(file.name)}`
     fileUrl = fileUrl.replaceAll('#', '%23')
     fileUrl = fileUrl.replaceAll(/%5C/g, '/')
+
+    if (file.userId !== store.getters.userId && token && !shareToken) {
+      return `${baseUrl}/pre-file/${file.id}/${encodeURI(file.name)}?jmal-token=${token}&name=${username}`
+    }
+
     if (token) {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
     }

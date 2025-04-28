@@ -392,4 +392,7 @@ export default {
 >>>.box-card {
   max-width: 1440px;
 }
+>>> .el-table .cell.el-tooltip {
+  display: flex;
+}
 </style>

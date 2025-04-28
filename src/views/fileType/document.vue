@@ -26,7 +26,8 @@ export default {
         prop: 'updateDate', order: 'descending'
       },
       queryCondition: {
-        isFolder: false
+        isFolder: false,
+        document: true
       },
       contextMenus: [
         { label: '查看', operation: 'viewMode' ,child: [
