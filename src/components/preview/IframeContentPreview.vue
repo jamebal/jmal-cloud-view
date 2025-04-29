@@ -13,7 +13,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-          <el-button title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
+          <el-button round title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
         </div>
       </div>
     </div>

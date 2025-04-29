@@ -6,7 +6,7 @@
       <div class="top-right">
         <div class="top-right-option">
           <div style="margin-right: 15px">
-            <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini"
+            <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini"
                        :class="lightTheme ? '':'dark-button'">取消预览
             </el-button>
           </div>
@@ -23,12 +23,12 @@
           </history-popover>
 
           <div style="margin-right: 15px">
-            <el-button v-if="!saved" @click="saveBtn" size="mini" :loading="saveBtnUpdating"
+            <el-button round v-if="!saved" @click="saveBtn" size="mini" :loading="saveBtnUpdating"
                        :class="lightTheme ? '':'dark-button'">保存
             </el-button>
           </div>
           <div>
-            <el-button title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
+            <el-button round title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
           </div>
         </div>
       </div>

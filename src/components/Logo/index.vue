@@ -47,7 +47,10 @@ export default {
   }
 }
 </script>
-
 <style scoped>
-
+.el-image {
+  .el-image__inner {
+    border-radius: 12px;
+  }
+}
 </style>

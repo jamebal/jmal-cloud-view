@@ -14,8 +14,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="small" native-type="submit" type="primary" :loading="tagUpdateLoading"
+        <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button round size="small" native-type="submit" type="primary" :loading="tagUpdateLoading"
                    @click.native.prevent="onSave('managerForm')">保 存
         </el-button>
       </div>
@@ -26,13 +26,13 @@
           <el-col :sm="12" class="query-item">
             <div class="clearfix">
               <div class="card-header content-title"><span>{{ title }}</span> </div>
-              <el-button class="card-button" size="mini" type="primary" @click="add()">新增标签</el-button>
+              <el-button round class="card-button" size="mini" type="primary" @click="add()">新增标签</el-button>
             </div>
           </el-col>
           <el-col :sm="12" class="text-align-right">
             <el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="selectAll">全选</el-checkbox>
-            <el-button :disabled="this.multipleSelection.length !== 1" size="small" @click="handleEdit()">编辑</el-button>
-            <el-button :disabled="this.multipleSelection.length === 0" size="small" type="danger" @click="handleDelete()">删除</el-button>
+            <el-button round :disabled="this.multipleSelection.length !== 1" size="small" @click="handleEdit()">编辑</el-button>
+            <el-button round :disabled="this.multipleSelection.length === 0" size="small" type="danger" @click="handleDelete()">删除</el-button>
           </el-col>
         </el-row>
       </div>

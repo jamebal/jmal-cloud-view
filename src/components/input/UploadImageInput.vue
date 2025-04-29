@@ -4,7 +4,7 @@
       <el-col :xs="24">
         <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
         <div class="upload">
-          <el-button v-if="enableSelect" class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
+          <el-button round v-if="enableSelect" class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
           <el-upload
             ref="uploadRef"
             class="upload"
@@ -21,7 +21,7 @@
             :on-remove="handleFileListRemove"
             :on-progress="handleProgress"
           >
-            <el-button title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
+            <el-button round title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
             <span v-if="desc.length > 0">{{desc}}</span>
             <div class="url-desc" v-if="uploadState > 0" slot="tip">
               <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>

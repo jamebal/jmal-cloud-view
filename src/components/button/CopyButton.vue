@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" class="copy-text" @click="copyText" :data-clipboard-text="shareLink">复制链接</el-button>
+    <el-button round type="primary" class="copy-text" @click="copyText" :data-clipboard-text="shareLink">复制链接</el-button>
   </div>
 </template>
 

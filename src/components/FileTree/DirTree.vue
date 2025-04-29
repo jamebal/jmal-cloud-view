@@ -23,11 +23,11 @@
       >
       </el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button round size="small" @click="fileTreeAndNewFolder"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
         <span class="dialog-footer" v-if="$slots.footer">
           <slot name="footer"></slot>
         </span>
-        <el-button size="small" @click="visible = false">取 消</el-button>
+        <el-button round size="small" @click="visible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>

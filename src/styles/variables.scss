@@ -1,15 +1,28 @@
+:root {
+  --apple-border-radius: 12px; /* 可调整的圆角大小 */
+  --apple-shadow-color: rgba(0, 0, 0, 0.1); /* 阴影颜色和透明度 */
+  --apple-border-color: rgba(0, 0, 0, 0.08); /* 细边框颜色 */
+  --apple-background-color: #ffffff; /* 卡片背景色 */
+}
+
 // sidebar
 $menuText:#434343;
 $menuActiveText:#409EFF;
 $subMenuActiveText:#f4f4f5; //https://github.com/ElemeFE/element/issues/12951
 
 $menuBg:#f5f5f5;
-$menuHover:#d9d9d9;
+$menuHover:#0000001a;
 
 $subMenuBg:#f5f5f5;
-$subMenuHover:#d9d9d9;
+$subMenuHover:#0000001a;
 
 $sideBarWidth: 160px;
+
+// border-radius
+$btnBorderRadius: 8px;
+$inputBorderRadius: 12px;
+$dialogBorderRadius: 16px;
+$popperBorderRadius: 10px;
 
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
@@ -22,4 +35,6 @@ $sideBarWidth: 160px;
   subMenuBg: $subMenuBg;
   subMenuHover: $subMenuHover;
   sideBarWidth: $sideBarWidth;
+  btnBorderRadius: $btnBorderRadius;
+  dialogBorderRadius: $dialogBorderRadius;
 }

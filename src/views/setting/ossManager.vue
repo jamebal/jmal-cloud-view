@@ -5,7 +5,7 @@
         <div class="box-card-header">
           <div class="clearfix card-header-back">
             <span>OSS管理</span>
-            <el-button class="card-button" size="mini" type="primary" @click="addOSS">新增</el-button>
+            <el-button round class="card-button" size="mini" type="primary" @click="addOSS">新增</el-button>
           </div>
         </div>
       </div>
@@ -52,8 +52,8 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="showDialog = false">取消</el-button>
-        <el-button size="small" type="primary" @click="submitForm" v-loading="submitLoading">确定</el-button>
+        <el-button round size="small" @click="showDialog = false">取消</el-button>
+        <el-button round size="small" type="primary" @click="submitForm" v-loading="submitLoading">确定</el-button>
       </span>
       </el-dialog>
     </div>
@@ -209,8 +209,9 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
+@import "src/styles/element-ui";
 
-> > > .set-oss-dialog {
+>>> .set-oss-dialog {
   .el-dialog {
     max-width: 500px;
   }
@@ -227,7 +228,7 @@ export default {
   }
 }
 
-> > > .dialog-footer {
+>>> .dialog-footer {
   .el-loading-spinner .circular {
     width: 25px !important;
   }

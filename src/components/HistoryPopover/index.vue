@@ -16,7 +16,7 @@
         <el-table-column label="操作" width="210">
           <template slot-scope="scope">
             <div style="display: flex">
-              <el-button
+              <el-button round
                 size="mini"
                 :class="lightTheme?'':'dark-button'"
                 @click="viewHistoryFile(scope.row, true, false)" :loading="historyOperationLoading">预览</el-button>
@@ -32,10 +32,10 @@
                   {{'确定要恢复到'+ scope.row.metadata.time +'吗？当前内容将被覆盖!'}}
                 </p>
                 <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="cancelRecovery(scope.row.id)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="confirmRecoveryHistoryFile(scope.row)">确定</el-button>
+                  <el-button round size="mini" type="text" @click="cancelRecovery(scope.row.id)">取消</el-button>
+                  <el-button round type="primary" size="mini" @click="confirmRecoveryHistoryFile(scope.row)">确定</el-button>
                 </div>
-                <el-button slot="reference" size="mini" :id="'recoveryVersionBtn-'+scope.row.id" type="warning" :loading="historyOperationLoading">恢复</el-button>
+                <el-button round slot="reference" size="mini" :id="'recoveryVersionBtn-'+scope.row.id" type="warning" :loading="historyOperationLoading">恢复</el-button>
               </el-popover>
               <el-popover
                 placement="bottom"
@@ -48,17 +48,17 @@
                   {{'确定要删除'+ scope.row.metadata.time +'吗？这将永久删除该历史版本!'}}
                 </p>
                 <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="cancelDelete(scope.row.id)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="confirmDeleteHistoryFile(scope.row.id)">确定</el-button>
+                  <el-button round size="mini" type="text" @click="cancelDelete(scope.row.id)">取消</el-button>
+                  <el-button round type="primary" size="mini" @click="confirmDeleteHistoryFile(scope.row.id)">确定</el-button>
                 </div>
-                <el-button slot="reference" size="mini" :id="'deleteVersionBtn-'+scope.row.id" type="danger" :loading="historyOperationLoading">删除</el-button>
+                <el-button round slot="reference" size="mini" :id="'deleteVersionBtn-'+scope.row.id" type="danger" :loading="historyOperationLoading">删除</el-button>
               </el-popover>
             </div>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-button slot="reference" :style="versionBtnStyle" ref="versionBtn" :size="buttonSize" :class="lightTheme?' history-version-btn':'dark-button history-version-btn'" @click="showOrHidePopover">历史版本</el-button>
+      <el-button round slot="reference" :style="versionBtnStyle" ref="versionBtn" :size="buttonSize" :class="lightTheme?' history-version-btn':'dark-button history-version-btn'" @click="showOrHidePopover">历史版本</el-button>
     </el-popover>
   </div>
 </template>

@@ -14,8 +14,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogTagVisible = false">取 消</el-button>
-        <el-button size="small" native-type="submit" type="primary" :loading="tagUpdateLoading"
+        <el-button round size="small" @click="dialogTagVisible = false">取 消</el-button>
+        <el-button round size="small" native-type="submit" type="primary" :loading="tagUpdateLoading"
                    @click.native.prevent="updateTag">保 存
         </el-button>
       </div>
@@ -88,7 +88,7 @@
               <svg-icon :style="{ color: tag.color, fontSize: '14px' }" icon-class="tag2"></svg-icon>
               <div class="tag-name">{{ tag.name }}</div>
             </div>
-            <el-button slot="reference" class="btn-more" size="mini" icon="el-icon-more" @click.stop.prevent="clickTagMore(tag, $event)"></el-button>
+            <el-button round slot="reference" class="btn-more" size="mini" icon="el-icon-more" @click.stop.prevent="clickTagMore(tag, $event)"></el-button>
           </li>
         </ul>
       </div>
@@ -422,10 +422,14 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "src/styles/element-ui";
+
+$tagMenuBorderRadius: 8px;
 
 >>> .ctx-menu-container {
   border: 0 solid rgba(0, 0, 0, 0);
   min-width: unset;
+  border-radius: $dialogBorderRadius;
 }
 
 .tag-menu ul {
@@ -443,7 +447,7 @@ export default {
 }
 .tag-menu li:hover {
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: $tagMenuBorderRadius;
   background-color: #409eff30;
 }
 .tag-menu li > .menuitem {
@@ -491,7 +495,7 @@ export default {
       font-size: 14px;
       color: #606266;
       cursor: pointer;
-      margin: 2px 5px 2px 5px;
+      margin: 2px 10px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -501,7 +505,7 @@ export default {
         justify-content: flex-start;
         align-items: center;
         .tag-name {
-          width: 90px;
+          width: 74px;
           white-space: nowrap; /* 强制单行显示 */
           overflow: hidden; /* 隐藏溢出的内容 */
           text-overflow: ellipsis; /* 添加省略号 */
@@ -516,7 +520,7 @@ export default {
       }
 
       .svg-icon {
-        margin-right: 12px !important;
+        margin: 2px 10px !important;
       }
       .el-button:hover {
         color: #409EFF;
@@ -525,7 +529,7 @@ export default {
       }
       &:hover {
         background-color: #dadada !important;
-        border-radius: 4px;
+        border-radius: $tagMenuBorderRadius;
         .btn-more {
           display: block;
         }
@@ -533,12 +537,13 @@ export default {
     }
     .infinite-list-item.highlight {
       background-color: #dadada;
-      border-radius: 4px;
+      border-radius: $tagMenuBorderRadius;
     }
     .infinite-list-item.expand {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-radius: $tagMenuBorderRadius;
     }
     .infinite-list-item.collapse {
       padding-left: unset;

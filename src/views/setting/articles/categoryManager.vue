@@ -27,8 +27,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button native-type="submit" type="primary" size="small" :loading="categoryUpdateLoading"
+        <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button round native-type="submit" type="primary" size="small" :loading="categoryUpdateLoading"
                    @click.native.prevent="onSave('managerForm')">保 存
         </el-button>
       </div>
@@ -44,10 +44,10 @@
             <el-divider direction="vertical"></el-divider>
           </div>
           <div class="card-header content-title"><span>{{ parentCategory.name ? `管理 ${parentCategory.name} 的子分类` : '管理分类' }}</span> </div>
-          <el-button class="card-button" size="mini" type="primary" @click="add()">新增分类</el-button>
+          <el-button round class="card-button" size="mini" type="primary" @click="add()">新增分类</el-button>
         </div>
         <div class="card-header-right" v-show="this.multipleSelection.length > 0">
-          <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
+          <el-button round size="small" type="danger" @click="handleDelete()">删除</el-button>
         </div>
       </div>
       <el-table

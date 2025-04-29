@@ -25,8 +25,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <a class="forget-password" @click="forget">忘记密码?</a>
-        <el-button size="small" @click="dialogChangePassword = false">取 消</el-button>
-        <el-button size="small" :loading="userUpdateLoading" type="primary" @click="onSavePassword">确 定</el-button>
+        <el-button round size="small" @click="dialogChangePassword = false">取 消</el-button>
+        <el-button round size="small" :loading="userUpdateLoading" type="primary" @click="onSavePassword">确 定</el-button>
       </div>
     </el-dialog>
     <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="80px">
@@ -35,13 +35,13 @@
           <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage"  ></el-avatar>
         </div>
         <div class="avatar-button">
-          <el-button title="选择文件" type="primary" icon="el-icon-folder" circle @click="selectImg"></el-button>
-          <el-button title="上传" type="primary" icon="el-icon-upload2" circle @click="uploadImg"></el-button>
+          <el-button round title="选择文件" type="primary" icon="el-icon-folder" circle @click="selectImg"></el-button>
+          <el-button round title="上传" type="primary" icon="el-icon-upload2" circle @click="uploadImg"></el-button>
           <input ref="selectImg" type="file" style="display: none;" accept="image/*" @change="changImg"></input>
         </div>
       </el-form-item>
       <el-form-item label="密码">
-        <el-button size="mini" round @click="changePassword">修改密码</el-button>
+        <el-button round size="mini" @click="changePassword">修改密码</el-button>
       </el-form-item>
       <el-form-item label="用户名">
         <el-input v-model="cusomerInfoForm.showName" class="input-none-width"/>
@@ -56,7 +56,7 @@
         <el-progress class="quota-space" :percentage="percentage" :format="progressFormat" :color="customColors"></el-progress>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="medium" :loading="userUpdateLoading" @click="onSubmit">保 存</el-button>
+        <el-button round type="primary" size="medium" :loading="userUpdateLoading" @click="onSubmit">保 存</el-button>
       </el-form-item>
     </el-form>
   </div>

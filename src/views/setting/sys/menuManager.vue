@@ -66,8 +66,8 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" :loading="updateLoading" @click.native.prevent="onSave()">保 存</el-button>
+        <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button round size="small" type="primary" :loading="updateLoading" @click.native.prevent="onSave()">保 存</el-button>
       </div>
     </el-dialog>
     <el-card class="box-card table-search-header">
@@ -87,9 +87,9 @@
               </el-col>
               <el-col :sm="12" :md="8">
                 <div class="el-form-actions">
-                  <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getMenuTree()">查询</el-button>
-                  <el-button class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
-                  <el-button class="card-btn-icon" size="medium" :icon="isExpand ? 'el-icon-remove-outline': 'el-icon-circle-plus-outline'" type="primary" @click="handleExpand()">{{isExpand ? "折叠" : "展开"}}</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getMenuTree()">查询</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
+                  <el-button round class="card-btn-icon" size="medium" :icon="isExpand ? 'el-icon-remove-outline': 'el-icon-circle-plus-outline'" type="primary" @click="handleExpand()">{{isExpand ? "折叠" : "展开"}}</el-button>
                 </div>
               </el-col>
             </el-row>

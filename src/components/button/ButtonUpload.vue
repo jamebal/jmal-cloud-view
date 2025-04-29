@@ -114,6 +114,7 @@
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/variables.scss';
   .button {
     --background: #409EFF;
     --background-hover: #6bcbff;
@@ -124,7 +125,7 @@
     cursor: pointer;
     border: 0;
     padding: 8px 15px 8px 15px;
-    border-radius: 4px;
+    border-radius: 12px;
     line-height: 24px;
     font-family: inherit;
     font-weight: 600;

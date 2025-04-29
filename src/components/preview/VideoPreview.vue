@@ -3,7 +3,7 @@
     <van-overlay :show="show">
       <div class="wrapper">
         <div class="block">
-          <el-button v-show="controlState" class="close-bar" icon="el-icon-close" size="mini" title="关闭" circle @click="close"></el-button>
+          <el-button round v-show="controlState" class="close-bar" icon="el-icon-close" size="mini" title="关闭" circle @click="close"></el-button>
           <Artplayer @get-instance="getInstance" :option="option" :style="style"/>
         </div>
       </div>

@@ -6,7 +6,7 @@
           <div class="clearfix card-header-back">
             <div v-if="!subpage">
               <span>外观设置</span>
-              <el-button class="card-button" size="mini" type="primary" @click="save()">保存设置</el-button>
+              <el-button round class="card-button" size="mini" type="primary" @click="save()">保存设置</el-button>
             </div>
             <div v-if="subpage">
               <div class="card-header-back">
@@ -33,7 +33,7 @@
           <div class="config-itme-label">站点背景大图：</div><upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
           <div class="config-itme-label">首页大图内文字：
-            <el-button type="text" @click="heartwings">历史记录</el-button>
+            <el-button round type="text" @click="heartwings">历史记录</el-button>
           </div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>
           <span class="instruction">显示在博客首页大图内的主要文字。</span>

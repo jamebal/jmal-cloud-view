@@ -6,8 +6,8 @@
             <img :src="sourceImg" ref="image" style="max-width: 100%;" alt="">
           </div>
           <div class="button-region">
-            <el-button type="primary" @click="sureSava">保存头像</el-button>
-            <el-button v-show="selectImg.id" type="primary" @click="noCropSave(selectImg.id)">不剪裁保存</el-button>
+            <el-button round type="primary" @click="sureSava">保存头像</el-button>
+            <el-button round v-show="selectImg.id" type="primary" @click="noCropSave(selectImg.id)">不剪裁保存</el-button>
           </div>
         </div>
         <el-divider direction="vertical"></el-divider>

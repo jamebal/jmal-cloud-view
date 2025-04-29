@@ -4,7 +4,7 @@
       <div class="minder-title-name" :style="{'color': titleColor}">{{title}}</div>
       <div class="minder-operation">
         <div style="margin-right: 15px">
-          <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
+          <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
         </div>
         <history-popover
           ref="historyPopover"
@@ -17,7 +17,7 @@
         >
         </history-popover>
         <div>
-          <el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button>
+          <el-button round v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button>
         </div>
       </div>
     </div>

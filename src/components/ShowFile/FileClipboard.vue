@@ -16,21 +16,21 @@
           </div>
           <div  slot="reference">
             <el-badge :value="fileList.length" class="item">
-              <el-button size="mini" round>剪切板</el-button>
+              <el-button round size="mini" round>剪切板</el-button>
             </el-badge>
           </div>
         </el-popover>
         <div class="file-clipboard-operation">
 
           <el-tooltip :disabled="operationDisabled" popper-class="clipboard-operation-popover" :hide-after="0" effect="light" :content="'复制到: ' + targetPathName" placement="bottom">
-            <el-button :disabled="operationDisabled" icon="el-icon-document-copy" size="mini" circle @click="copy"></el-button>
+            <el-button round :disabled="operationDisabled" icon="el-icon-document-copy" size="mini" circle @click="copy"></el-button>
           </el-tooltip>
 
           <el-tooltip :disabled="operationDisabled" popper-class="clipboard-operation-popover" effect="light" :content="'移动到: ' + targetPathName" placement="bottom">
-            <el-button :disabled="operationDisabled" icon="el-icon-scissors" size="mini" circle @click="move"></el-button>
+            <el-button round :disabled="operationDisabled" icon="el-icon-scissors" size="mini" circle @click="move"></el-button>
           </el-tooltip>
 
-          <el-button icon="el-icon-close" size="mini" title="关闭" circle @click="clear"></el-button>
+          <el-button round icon="el-icon-close" size="mini" title="关闭" circle @click="clear"></el-button>
         </div>
       </div>
     </el-card>

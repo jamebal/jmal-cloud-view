@@ -123,5 +123,8 @@ export default {
   }
   >>> .sidebar-logo-container {
     background-color:unset;
+    .el-image__inner {
+      border-radius: 8px;
+    }
   }
 </style>

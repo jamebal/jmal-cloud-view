@@ -53,9 +53,9 @@
           >
           </history-popover>
 
-          <el-button v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">{{saveTitle}}</el-button>
+          <el-button round v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">{{saveTitle}}</el-button>
 
-          <el-button
+          <el-button round
             v-if="editableTabsValue.endsWith('.md') && editableTabs.length > 0"
             :class="lightTheme?'':'dark-button'"
             size="small"
@@ -65,7 +65,7 @@
           >
             <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
           </el-button>
-          <el-button
+          <el-button round
             :class="lightTheme?'':'dark-button'"
             size="small"
             :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"

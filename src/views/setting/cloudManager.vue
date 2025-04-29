@@ -16,7 +16,7 @@
                 <el-input :placeholder="$t('common.pleaseEnter')" v-model="netdiskName" minlength="1" maxlength="10" size="medium"
                           :style="{width: inputNetdiskNameWidth+'px'}"
                           @keyup.enter.native="updateNetdiskName" @input="inputNetdiskName">
-                  <el-button v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>
+                  <el-button round v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>
                 </el-input>
               </div>
               <div class="config-itme-label logo">{{ $t('app.netDiskLogo') }}：
@@ -43,13 +43,13 @@
                 {{ $t('app.storageWebP') }}
               </span>
               <div class="config-itme-label">{{ $t('app.rebuildIndex') }}：
-                <el-button class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
+                <el-button round class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
                 <span v-show="syncPercent < 100">{{ $t('app.rebuildIndexStep1') }}: {{ syncPercent }}%</span>
                 <span v-show="indexingPercent > 0 && indexingPercent < 100">{{ $t('app.rebuildIndexStep2') }}: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
               </div>
               <span class="instruction">{{ $t('app.rebuildIndexDesc') }}</span>
               <div class="config-itme-label">{{ $t('app.resetMenuAndRole') }}：
-                <el-button class="sync-button" size="mini" :loading="resetLoading" type="danger"
+                <el-button round class="sync-button" size="mini" :loading="resetLoading" type="danger"
                            @click="resetMenuAndRole()">
                   <i class="el-icon-refresh-left"></i></el-button>
               </div>
