@@ -4,7 +4,7 @@
       <div class="drawio-title-name" :style="{'color': saved ? (lightTheme ? '':'#ffffff'): '#ff8200'}">{{title}}</div>
       <div class="drawio-operation">
         <div style="margin-right: 15px">
-          <el-button v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini" :class="lightTheme ? '':'dark-button'">取消预览</el-button>
+          <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini" :class="lightTheme ? '':'dark-button'">取消预览</el-button>
         </div>
         <history-popover
           ref="historyPopover"
@@ -18,7 +18,7 @@
         >
         </history-popover>
 
-        <div><el-button v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating" :class="lightTheme ? '':'dark-button'">保存</el-button></div>
+        <div><el-button round v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating" :class="lightTheme ? '':'dark-button'">保存</el-button></div>
       </div>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>

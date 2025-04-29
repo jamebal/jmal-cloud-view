@@ -27,7 +27,7 @@
                 </el-col>
                 <el-col :span="12" v-if="shareOptionConfig.shared" class="shared-expires-text">到期时间</el-col>
                 <el-col :span="1" v-if="!shareOptionConfig.shared">&nbsp</el-col>
-                <el-col v-if="shareOption.expiresDateOption === 2" :span="12" class="share-expires-data" style="margin-top: 10px;">
+                <el-col v-if="shareOption.expiresDateOption === 2" :span="12" class="share-expires-data">
                   <el-date-picker
                     ref="expiresDatePicker"
                     size="small"
@@ -81,7 +81,7 @@
                     trigger="hover"
                     >
                     <img alt="qrcode-share-link" :src="qrCodeshareLink"/>
-                    <el-button slot="reference" class="qrcode-btn tag-share-link" @click="copyShareLink('链接复制成功')"
+                    <el-button round slot="reference" class="qrcode-btn tag-share-link" @click="copyShareLink('链接复制成功')"
                                :data-clipboard-text="shareLink">
                       <svg-icon icon-class="qrcode" class="qrcode"/>
                     </el-button>
@@ -108,15 +108,15 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare" v-loading="cancelSharing">取消分享</el-button>
-        <el-button size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare"
+        <el-button round size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare" v-loading="cancelSharing">取消分享</el-button>
+        <el-button round size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare"
                    v-loading="generateShareLinkLoading">创建分享
         </el-button>
-        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy"
+        <el-button round size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy"
                    @click="copyShareLink('口令复制成功')"
                    :data-clipboard-text="file.name + ' ' + shareLink + ' 提取码：' + extractionCode">复制口令
         </el-button>
-        <el-button size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary"
+        <el-button round size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary"
                    @click="copyShareLink('链接复制成功')" :data-clipboard-text="shareLink">复制链接
         </el-button>
       </div>
@@ -643,5 +643,9 @@ export default {
   >>> .el-collapse {
     border-top: 0;
   }
+}
+
+>>> .el-checkbox {
+  cursor: pointer;
 }
 </style>

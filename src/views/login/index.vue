@@ -80,7 +80,7 @@
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
           </el-form-item>
-          <el-button :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?$t('login.create'):$t('login.login')}}</el-button>
+          <el-button round :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?$t('login.create'):$t('login.login')}}</el-button>
         </el-form>
       </el-card>
       </div>
@@ -265,7 +265,7 @@ export default {
 <style lang="scss">
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
+@import "src/styles/element-ui";
 $bg:#1890ff;;
 $cursor: #409eff;
 
@@ -309,10 +309,10 @@ $cursor: #409eff;
 
     input {
       background: transparent;
-      border: 0px;
+      border: 0;
       -webkit-appearance: none;
-      border-radius: 0px;
       padding: 12px 5px 12px 15px;
+      border-radius: 12px;
       height: 47px;
       caret-color: $cursor;
 
@@ -330,8 +330,8 @@ $cursor: #409eff;
     margin-bottom: -20px;
   }
   .el-form-item {
-    border: 1px solid #d9d9d9;
-    border-radius: 5px;
+    border: 1px solid #0000001a;
+    border-radius: 12px;
     color: #454545;
   }
 }
@@ -358,6 +358,7 @@ $light_gray:#eee;
 
   .box-card {
     max-width: 316px;
+    border-radius: 16px;
   }
 
   .login-form {
@@ -431,6 +432,14 @@ footer {
 
 footer, footer p {
   font-size: .8125rem;
+}
+
+.title-container {
+  >>> .el-image {
+    .el-image__inner {
+      border-radius: 16px;
+    }
+  }
 }
 
 </style>

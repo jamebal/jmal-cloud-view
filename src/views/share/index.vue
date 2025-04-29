@@ -71,7 +71,7 @@
         >
           <template slot="header">
             <div v-if="item.label === ''" class="cancel-share-header">
-              <span class="header-font">{{sumFileAndFolder}}</span><el-button icon="el-icon-my-export" size="small" @click="cancelShare(false)">取消分享</el-button>
+              <span class="header-font">{{sumFileAndFolder}}</span><el-button round icon="el-icon-my-export" size="small" @click="cancelShare(false)">取消分享</el-button>
             </div>
           </template>
           <template slot-scope="scope">

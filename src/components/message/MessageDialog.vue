@@ -11,8 +11,8 @@
         @close="closeDialog">
           <svg-icon v-if="!loading" icon-class="warring"></svg-icon> <span class="dialog-msg">{{content}}</span>
           <span v-if="!loading" slot="footer" class="dialog-footer">
-            <el-button :size="buttonSize" @click="operating">{{operatButtonText}}</el-button>
-            <el-button :size="buttonSize" type="primary" @click=confirm>{{confirmButtonText}}</el-button>
+            <el-button round :size="buttonSize" @click="operating">{{operatButtonText}}</el-button>
+            <el-button round :size="buttonSize" type="primary" @click=confirm>{{confirmButtonText}}</el-button>
         </span>
       </el-dialog>
   </div>

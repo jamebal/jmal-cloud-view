@@ -15,7 +15,7 @@
         <span class="form-instruction">使用外部OnlyOffice服务时需要填写</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" v-loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
+        <el-button round type="primary" v-loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
       </el-form-item>
     </el-form>
   </div>

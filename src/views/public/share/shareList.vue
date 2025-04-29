@@ -10,7 +10,7 @@
           <span>{{ netdiskName }}</span>
         </div>
         <div class="share-header-content sharer" v-if="sharer && !showShareCode">
-          <el-button v-if="loginTitle.length > 0" type="primary" size="small" @click="loginOrMount"> {{ loginTitle }} </el-button>
+          <el-button round v-if="loginTitle.length > 0" type="primary" size="small" @click="loginOrMount"> {{ loginTitle }} </el-button>
           <span class="user">{{ sharer.showName }}的分享</span>
           <el-avatar :src="sharerAvatarUrl"></el-avatar>
         </div>
@@ -26,10 +26,10 @@
         </transition-group>
         <div class="search-content">
           <div class="search-class">
-            <el-button v-if="indexList.length > 0" type="text" @click="downloadFile(false)" class="sort" title="下载">
+            <el-button round v-if="indexList.length > 0" type="text" @click="downloadFile(false)" class="sort" title="下载">
               <svg-icon icon-class="menu-download"/>
             </el-button>
-            <el-button type="text" class="vmode" @click="changeVmode">
+            <el-button round type="text" class="vmode" @click="changeVmode">
               <svg-icon :icon-class="grid ? 'list' : 'grid'"/>
             </el-button>
           </div>
@@ -40,8 +40,8 @@
     <el-dialog :title="'挂载到：' + selectTreeNode.showName" :visible.sync="mountToVisible">
       <file-tree v-if="mountToVisible" :localFileMode="false" ref="fileTreeMount" @treeNodeClick="onTreeNodeClick"></file-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="fileTreeAndNewFolder" :disabled="fileTreeAndNewFolderDisabled"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
-        <el-button size="small" type="primary" @click="mountFolder">挂载</el-button>
+        <el-button round size="small" @click="fileTreeAndNewFolder" :disabled="fileTreeAndNewFolderDisabled"><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹</el-button>
+        <el-button round size="small" type="primary" @click="mountFolder">挂载</el-button>
       </div>
     </el-dialog>
 
@@ -116,7 +116,7 @@
               <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true"
                         @keyup.enter.native="rowRename(renameFileName, scope.row)">
               </el-input>
-              <el-button
+              <el-button round
                 v-loading="renameLoading"
                 element-loading-spinner="el-icon-loading"
                 element-loading-background="#f6f7fa88"
@@ -124,7 +124,7 @@
                 @click="rowRename(renameFileName, scope.row)"
               >
               </el-button>
-              <el-button
+              <el-button round
                 element-loading-spinner="el-icon-loading"
                 element-loading-background="#f6f7fa88"
                 class="el-icon-close"
@@ -249,7 +249,7 @@
                   @keyup.enter.native="validShareCode(extractionCode)"></el-input>
       </div>
       <div class="share-code-valid">
-        <el-button type="primary" :disabled="extractionCode.length === 0" @click="validShareCode(extractionCode)">
+        <el-button round type="primary" :disabled="extractionCode.length === 0" @click="validShareCode(extractionCode)">
           查看文件
         </el-button>
       </div>

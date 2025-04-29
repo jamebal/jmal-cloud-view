@@ -70,8 +70,8 @@
 
         </div>
       <div slot="footer" class="dialog-footer">
-        <el-button v-if="existingTags.length > 0 || isEditMode" size="small" @click="editMode" >{{ isEditMode ? '取消编辑' : '编辑现有标签' }}</el-button>
-        <el-button size="small" type="primary" @click="submitTag" v-loading="saveLoading">保存</el-button>
+        <el-button round v-if="existingTags.length > 0 || isEditMode" size="small" @click="editMode" >{{ isEditMode ? '取消编辑' : '编辑现有标签' }}</el-button>
+        <el-button round size="small" type="primary" @click="submitTag" v-loading="saveLoading">保存</el-button>
       </div>
     </el-dialog>
   </di>
@@ -272,8 +272,14 @@ export default {
 
 <style lang="scss" scoped>
 
-> > > .el-dialog {
+>>> .el-dialog {
   max-width: 500px;
+
+  .el-dialog__body {
+    .el-button--small {
+      border-radius: 8px !important;
+    }
+  }
 
   .el-dialog__title {
     font-weight: 600;

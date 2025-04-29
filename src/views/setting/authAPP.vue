@@ -21,8 +21,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" :loading="saveLoading"
+        <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button round size="small" type="primary" :loading="saveLoading"
                    @click="onSave">保 存
         </el-button>
       </div>
@@ -32,7 +32,7 @@
         <div class="box-card-header">
           <div class="clearfix card-header-back">
             <span>管理个人操作令牌</span>
-            <el-button class="card-button" size="mini" type="primary" @click="newAccessToken">新增令牌</el-button>
+            <el-button round class="card-button" size="mini" type="primary" @click="newAccessToken">新增令牌</el-button>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@
                   </div>
                 </div>
                 <div class="item-active">
-                    <el-button type="danger" size="small" @click="deleteToken(token.id)">删除令牌</el-button>
+                    <el-button round type="danger" size="small" @click="deleteToken(token.id)">删除令牌</el-button>
                 </div>
               </div>
               <el-divider></el-divider>

@@ -1,5 +1,7 @@
 #app {
 
+  $menuBorderRadius: 12px;
+
   .main-container {
     min-height: 100%;
     transition: margin-left .28s;
@@ -69,16 +71,16 @@
       margin: 2px 5px;
       height: 42px;
       line-height: 42px;
+      border-radius: $menuBorderRadius;
       &:hover {
         background-color: $menuHover !important;
-        border-radius: 4px;
-        margin: 2px 5px 2px 5px;
+        border-radius: $menuBorderRadius;
       }
     }
     .el-menu-item.is-active {
       color: #409EFF;
       background-color: $menuHover !important;
-      border-radius: 4px;
+      border-radius: $menuBorderRadius;
   }
 
     .is-active>.el-submenu__title {
@@ -90,9 +92,10 @@
       margin: 2px 5px;
       height: 42px;
       line-height: 42px;
+      border-radius: $menuBorderRadius;
       &:hover {
         background-color: $subMenuHover !important;
-        border-radius: 4px;
+        border-radius: $menuBorderRadius;
       }
     }
   }

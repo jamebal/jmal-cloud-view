@@ -16,10 +16,10 @@
         <div class="box-card-header">
           <div class="clearfix card-header-back">
             <span>{{ alonePage ? '管理独立页面':'管理文章' }}</span>
-            <el-button class="card-button" size="mini" type="primary" @click="newArticle">{{newArticleText}}</el-button>
+            <el-button round class="card-button" size="mini" type="primary" @click="newArticle">{{newArticleText}}</el-button>
           </div>
           <div class="card-header-right" v-show="this.multipleSelection.length > 0">
-            <el-button size="small" type="danger" @click="handleDelete()">删除</el-button>
+            <el-button round size="small" type="danger" @click="handleDelete()">删除</el-button>
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@
               </div>
             </el-col>
             <el-col :xs="24" :sm="14" class="text-align-right">
-              <el-button v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
+              <el-button round v-if="isFilter" type="text" size="mini" @click="cancelFilter">取消筛选</el-button>
               <el-input
                   v-model="query.keyword"
                   style="width:unset;"
@@ -67,7 +67,7 @@
                   v-model="categoryIdsList"
               >
               </multiple-tree-select>
-              <el-button type="primary" size="mini" @click="theFilter">筛选</el-button>
+              <el-button round type="primary" size="mini" @click="theFilter">筛选</el-button>
             </el-col>
           </el-row>
         </div>

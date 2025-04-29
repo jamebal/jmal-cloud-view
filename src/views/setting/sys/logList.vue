@@ -49,7 +49,7 @@
                     <el-radio-button :label="undefined">所有人</el-radio-button>
                     <el-radio-button label="other">其他人</el-radio-button>
                   </el-radio-group>
-                  <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary"
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary"
                              @click="queryLogList">查询
                   </el-button>
                 </div>

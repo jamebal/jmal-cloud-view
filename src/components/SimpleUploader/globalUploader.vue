@@ -39,7 +39,7 @@
           <div class="file-title">
             <h2 class="files-title">文件列表</h2>
             <div class="operate">
-              <el-button
+              <el-button round
                 v-if="fileListLength > 0"
                 type="text"
                 class="button-collapse"
@@ -47,10 +47,10 @@
               >
                 <i class="iconfont el-icon-position"></i>
               </el-button>
-              <!--<el-button type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">-->
+              <!--<el-button round type="text" class="button-collapse" :title="collapse ? '展开':'折叠' " @click="fileListShow">-->
               <!--<i class="iconfont" :class="collapse ? 'el-icon-circle-plus-outline': 'el-icon-remove-outline'"></i>-->
               <!--</el-button>-->
-              <el-button
+              <el-button round
                 type="text"
                 class="button-collapse"
                 title="关闭"
@@ -769,7 +769,7 @@ export default {
     margin: auto;
     overflow: hidden;
     background-size: 100% 100%;
-    border-radius: 7px 7px 0 0;
+    border-radius: 16px;
     position: fixed;
     -webkit-transition: all 0.5s ease-in-out 0s;
     transition: all 0.5s ease-in-out 0s;

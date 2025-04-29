@@ -135,7 +135,7 @@
                       @focus="setInputFocus"
                       @blur="setInputBlur()"
                     >
-                      <el-button
+                      <el-button round
                         slot="append"
                         v-loading="newFolderLoading"
                         element-loading-spinner="el-icon-loading"
@@ -173,7 +173,7 @@
             >
               <template v-slot:suffix>
                 <div>
-                  <el-button v-if="searchFileName" type="text" class="search-close-btn" @click="searchClose">
+                  <el-button round v-if="searchFileName" type="text" class="search-close-btn" @click="searchClose">
                     <i class="el-icon-circle-close"></i>
                   </el-button>
                   <el-popover
@@ -191,7 +191,7 @@
                       :search-result-count="pagination['total']"
                       @filter-change="searchFilterChange" >
                     </search-option>
-                    <el-button slot="reference" type="text" :class="searchOptionBtnClass" @click.native="showSearchOption">
+                    <el-button round slot="reference" type="text" :class="searchOptionBtnClass" @click.native="showSearchOption">
                       <i class="el-icon-s-operation"></i>
                     </el-button>
                   </el-popover>
@@ -206,7 +206,7 @@
                     <span class="suggestion-item-text">{{ item.keyword }}</span>
                   </div>
                   <div>
-                    <el-button type="text" icon="el-icon-close" class="clear-search-history-btn" @click.native.prevent="clearSearchHistory(item, $event)"></el-button>
+                    <el-button round type="text" icon="el-icon-close" class="clear-search-history-btn" @click.native.prevent="clearSearchHistory(item, $event)"></el-button>
                   </div>
                 </div>
               </template>
@@ -218,7 +218,7 @@
               @command="contextmenuClick"
             >
               <div>
-                <el-button type="text" class="sort">
+                <el-button round type="text" class="sort">
                   <svg-icon
                     v-if="sortable.order === 'descending'"
                     icon-class="sort-amount-down-solid"
@@ -298,7 +298,7 @@
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <el-button type="text" class="vmode" @click="changeVmode">
+            <el-button round type="text" class="vmode" @click="changeVmode">
               <svg-icon :icon-class="grid ? 'list' : 'grid'" />
             </el-button>
           </div>
@@ -567,8 +567,10 @@
                     background: selectRowData.includes(item) ? '#caeaf991' : '',
                     'background-size': 'cover',
                     'background-position': 'center',
+                    'box-shadow': selectRowData.includes(item) ? '0 4px 12px var(--apple-shadow-color)' : '',
+                    'transition': 'box-shadow 0.3s ease, transform 0.3s ease;',
                     border: selectRowData.includes(item)
-                      ? 'solid 1px #409eff'
+                      ? 'solid 1px var(--apple-shadow-color)'
                       : '',
                   }"
                   @click="gridItemClick(item, $event)"
@@ -639,9 +641,7 @@
           移动到：
         </div>
         <div class="target">
-          <span class="folder" style="display: none;white-space: nowrap;"
-            >document</span
-          >
+          <span class="folder" style="display: none;white-space: nowrap;">document</span>
         </div>
       </div>
     </div>
@@ -677,15 +677,15 @@
       <svg-icon icon-class="open-folder"></svg-icon>
       <span class="dialog-msg">查看压缩文件</span>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="unzipTo(openingFile)"
+        <el-button round size="small" @click="unzipTo(openingFile)"
           >解压到...</el-button
         >
-        <el-button
+        <el-button round
           size="small"
           @click="unzip(openingFile, openingFile.id, false)"
           >解压到当前目录</el-button
         >
-        <el-button
+        <el-button round
           size="small"
           type="primary"
           @click="compressionFilePreview(openingFile)"
@@ -740,34 +740,34 @@
       >
       </el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button
+        <el-button round
           size="small"
           @click="fileTreeAndNewFolder"
           :disabled="fileTreeAndNewFolderDisabled"
           ><i class="el-icon-folder-add"></i>&nbsp;&nbsp;新建文件夹
         </el-button>
-        <el-button
+        <el-button round
           v-if="!unzipOperating"
           size="small"
           type="primary"
           @click="moveFileTree"
           >移 动</el-button
         >
-        <el-button
+        <el-button round
           v-if="!unzipOperating"
           size="small"
           type="primary"
           @click="copyFileTree"
           >复制</el-button
         >
-        <el-button
+        <el-button round
           v-if="unzipOperating"
           size="small"
           type="primary"
           @click="confirmUnzip"
           >解压</el-button
         >
-        <el-button size="small" @click="dialogMoveOrCopyVisible = false"
+        <el-button round size="small" @click="dialogMoveOrCopyVisible = false"
           >取 消</el-button
         >
       </div>
@@ -800,10 +800,10 @@
         @keyup.enter.native="createFile(newCreateFileName)"
       ></el-input>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="newCreateFileDialog = false"
+        <el-button round size="small" @click="newCreateFileDialog = false"
           >取消</el-button
         >
-        <el-button
+        <el-button round
           size="small"
           type="primary"
           @click="createFile(newCreateFileName)"
@@ -828,12 +828,12 @@
       </el-row>
       <span slot="footer" class="dialog-footer-delete">
           <div>
-            <el-button v-if="!permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile"  :loading="deleteLoading">彻底删除</el-button>
+            <el-button round v-if="!permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile"  :loading="deleteLoading">彻底删除</el-button>
           </div>
           <div>
-            <el-button size="small" @click="deleteConfirmVisible = false">取 消</el-button>
-            <el-button v-if="permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile" :loading="deleteLoading">彻底删除</el-button>
-            <el-button v-if="!permanentDeleteDisable" type="warning" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
+            <el-button round size="small" @click="deleteConfirmVisible = false">取 消</el-button>
+            <el-button round v-if="permanentDeleteDisable" type="danger" size="small" @click="sweepDeleteFile" :loading="deleteLoading">彻底删除</el-button>
+            <el-button round v-if="!permanentDeleteDisable" type="warning" size="small" @click="moveToRecycle" :loading="deleteLoading">移至回收站</el-button>
           </div>
       </span>
     </el-dialog>
@@ -852,9 +852,9 @@
         <dialog-file-list class="dialog-file-list" :file-list="existsFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
-        <el-button type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true, copyOrMoveParams.targetPath)">覆 盖</el-button>
-        <el-button type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">不覆盖</el-button>
+        <el-button round size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
+        <el-button round type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true, copyOrMoveParams.targetPath)">覆 盖</el-button>
+        <el-button round type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">不覆盖</el-button>
       </span>
     </el-dialog>
 
@@ -3282,15 +3282,11 @@ export default {
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowStyle({ row, column, rowIndex, columnIndex }) {
-      if (
-        this.$refs.fileListTable.tableSelectData.findIndex(
-          item => item.index === rowIndex
-        ) > -1
-      ) {
+      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === rowIndex) > -1) {
         if (columnIndex === 0) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '5px 0 0 5px',
+            borderRadius: '50px 0 0 50px',
             borderLeft: '1px solid #409eff',
             borderTop: '1px solid #409eff',
             borderBottom: '1px solid #409eff',
@@ -3299,7 +3295,7 @@ export default {
         if (columnIndex === 3) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '0 5px 5px 0',
+            borderRadius: '0 50px 50px 0',
             borderRight: '1px solid #409eff',
             borderTop: '1px solid #409eff',
             borderBottom: '1px solid #409eff',
@@ -3309,6 +3305,17 @@ export default {
           backgroundColor: '#e0f3fc !important',
           borderTop: '1px solid #409eff',
           borderBottom: '1px solid #409eff',
+        }
+      } else {
+        if (columnIndex === 0) {
+          return {
+            borderRadius: '50px 0 0 50px',
+          }
+        }
+        if (columnIndex === 3) {
+          return {
+            borderRadius: '0 50px 50px 0',
+          }
         }
       }
     },
@@ -4659,6 +4666,7 @@ export default {
 
   .is-sortable:hover {
     background-color: #e0f3fc;
+    border-radius: 40px;
   }
 }
 
@@ -4721,6 +4729,9 @@ export default {
   .svg-icon {
     font-size: 14px;
   }
+  &:hover {
+    border-radius: 4px;
+  }
 }
 
 >>> .new-text-file-dialog {
@@ -4755,7 +4766,7 @@ export default {
 >>> .van-grid-item__content {
   background-size: cover;
   background-position: center;
-  border-radius: 5px !important;
+  border-radius: $dialogBorderRadius !important;
   padding: 0;
 }
 
@@ -4773,7 +4784,7 @@ export default {
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   backdrop-filter: saturate(180%) blur(20px);
   background: #d2eefa66;
-  border-radius: 5px;
+  border-radius: 40px;
   display: flex;
 
   .icon {
@@ -4794,7 +4805,7 @@ export default {
       background-color: #1d8cff;
       color: #ffffff;
       padding: 8px;
-      border-radius: 2px;
+      border-radius: 32px;
       margin-right: 5px;
       font-weight: 600;
     }
@@ -4822,7 +4833,7 @@ export default {
 }
 .delete-attention {
   padding: 10px 10px;
-  border-radius: 4px;
+  border-radius: 12px;
   margin-bottom: 10px;
   .el-checkbox {
     color: #606266;

@@ -1,5 +1,5 @@
 // cover some element-ui styles
-
+@import './variables.scss';
 .el-breadcrumb__inner,
 .el-breadcrumb__inner a {
   font-weight: 400 !important;
@@ -46,4 +46,158 @@
 // to fix el-date-picker css style
 .el-range-separator {
   box-sizing: content-box;
+}
+
+//>>> .el-button--primary {
+//  border-radius: 8px !important;
+//  font-weight: 500;
+//  letter-spacing: 0.02em;
+//  background: linear-gradient(90deg, #409eff 0%, #66b1ff 100%);
+//  border: none;
+//  box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.08);
+//  transition: background 0.2s, box-shadow 0.2s;
+//  &:hover {
+//    background: linear-gradient(90deg, #66b1ff 0%, #409eff 100%);
+//    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.12);
+//  }
+//}
+
+//>>> .el-button {
+//  border-radius: $btnBorderRadius;
+//}
+//
+//>>> .el-radio.is-bordered {
+//  border-radius: $btnBorderRadius;
+//}
+//
+//>>> .el-button.is-circle {
+//  border-radius: 50%;
+//}
+
+// --- Variables ---
+$inputBorderRadius: 12px;
+$inputBorderRadiusMedium: 11px;
+$inputBorderRadiusSmall: 10px;
+$inputBorderRadiusMini: 9px;
+
+// --- Size Map ---
+// Map linking size suffixes (including 'default' placeholder) to radius variables
+$input-sizes: (
+  "default": $inputBorderRadius,
+  "medium": $inputBorderRadiusMedium,
+  "small": $inputBorderRadiusSmall,
+  "mini": $inputBorderRadiusMini
+);
+
+// --- Loop through sizes to generate styles ---
+@each $size, $radius in $input-sizes {
+  // Determine the base selectors for input and input-number for the current size
+  // For 'default', we target the base classes without size modifiers
+  $input-base-selector: if($size == "default", ">>> .el-input", ">>> .el-input--#{$size}");
+  $number-base-selector: if($size == "default", ">>> .el-input-number", ">>> .el-input-number--#{$size}");
+
+  // --- Common Styles for Input and InputNumber Inner ---
+  #{$input-base-selector},
+  #{$number-base-selector} {
+    .el-input__inner {
+      border-radius: $radius;
+    }
+  }
+
+  // --- Styles specific to InputNumber Buttons ---
+  #{$number-base-selector} {
+    // Default controls layout (buttons on sides)
+    &:not(.is-controls-right) {
+      .el-input-number__increase {
+        border-radius: 0 $radius $radius 0; // Right button
+      }
+      .el-input-number__decrease {
+        border-radius: $radius 0 0 $radius; // Left button
+      }
+    }
+
+    // Controls-right layout
+    &.is-controls-right {
+      .el-input-number__decrease {
+        border-radius: 0 0 $radius 0; // Bottom button
+      }
+      .el-input-number__increase {
+        border-radius: 0 $radius 0 0; // Top button
+      }
+    }
+  }
+
+  // --- Input Group Styles ---
+  // Note: Original logic for default vs sized inputs was slightly different.
+  // This version aims for consistency: prepend rounds left, append rounds right.
+  #{$input-base-selector}, // Apply group styles potentially within input context
+  #{$number-base-selector} { // And within input-number context
+
+    .el-input-group__prepend {
+      border-top-left-radius: $radius;
+      border-bottom-left-radius: $radius;
+      border-top-right-radius: 0; // Ensure inner corner is sharp
+      border-bottom-right-radius: 0; // Ensure inner corner is sharp
+    }
+
+    .el-input-group__append {
+      border-top-right-radius: $radius;
+      border-bottom-right-radius: $radius;
+      border-top-left-radius: 0; // Ensure inner corner is sharp
+      border-bottom-left-radius: 0; // Ensure inner corner is sharp
+    }
+
+    // Ensure inner input also loses radius when adjacent to prepend/append
+    .el-input-group__prepend + .el-input__inner {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    //.el-input__inner + .el-input-group__append {
+    //  border-top-right-radius: 0;
+    //  border-bottom-right-radius: 0;
+    //}
+  }
+}
+
+// You might need additional overrides if the default Element UI styles conflict,
+// especially around the input group corners when combined with the main input radius.
+// Example: Ensure the input itself has sharp corners when grouped
+>>> .el-input-group--prepend .el-input__inner {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+>>> .el-input-group--append .el-input__inner {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+// Specific overrides for prepend/append themselves might be needed depending on base styles
+>>> .el-input-group__prepend {
+  // Ensure base styles don't add unwanted right radius
+  border-right-width: 0; // Or adjust padding/margin if needed
+}
+>>> .el-input-group__append {
+  // Ensure base styles don't add unwanted left radius
+  border-left-width: 0; // Or adjust padding/margin if needed
+}
+
+.el-input-group--append .el-input__inner, .el-input-group__prepend {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.el-input-group--prepend .el-input__inner, .el-input-group__append {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+>>> .el-textarea__inner {
+  border-radius: 12px;
+}
+
+>>> .el-dialog {
+  border-radius: $dialogBorderRadius;
+}
+
+>>> .el-popper {
+  border-radius: $popperBorderRadius;
 }

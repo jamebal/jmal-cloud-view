@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :visible.sync="visible" class="details-content" :custom-class="officePreview ? 'dialog-office':''">
+    <el-dialog :visible.sync="visible" class="details-content" :show-close="false" :custom-class="officePreview ? 'dialog-office':''">
       <div v-if="officePreview" class="office-preview">
         <vue-office-docx
           v-if="file.suffix === 'docx' && visible"
@@ -40,10 +40,10 @@
               是否开始扫描?
             </p>
             <div style="text-align: right; margin: 0">
-              <el-button size="mini" type="text" @click="cancelScan()">取消</el-button>
-              <el-button type="primary" size="mini" @click="scanDirectory(file)">确定</el-button>
+              <el-button round size="mini" type="text" @click="cancelScan()">取消</el-button>
+              <el-button round type="primary" size="mini" @click="scanDirectory(file)">确定</el-button>
             </div>
-            <el-button slot="reference" id="scanDirectoryBtn-file" type="primary" size="small" :loading="syncLoading"><i class="el-icon-refresh"></i></el-button>
+            <el-button round slot="reference" id="scanDirectoryBtn-file" class="file-detail-btn" type="primary" size="small" :loading="syncLoading"><i class="el-icon-refresh"></i></el-button>
           </el-popover>
           <span v-show="syncPercent < 100">正在同步文件基本信息: {{ syncPercent }}%</span>
           <span v-show="indexingPercent > 0 && indexingPercent < 100">正在为文件内容创建索引: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
@@ -80,7 +80,7 @@
             <span> {{ formatSize(file.size) }}</span>
           </el-form-item>
           <el-form-item label="位置:" class="details-position">
-            <a :href="pathUrl">{{ filepath }}</a>
+            <span><a :href="pathUrl">{{ filepath }}</a></span>
           </el-form-item>
           <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
@@ -95,8 +95,8 @@
             <span style="white-space: break-spaces;">{{ formatVideo(file.video) }}</span>
           </el-form-item>
         </el-scrollbar>
-        <el-button v-if="allowOpenFile" type="primary" size="small" @click="openFile" class="open-file">打开文件</el-button>
-        <el-button v-if="onlyOfficeSupportedFormats(file)" type="primary" size="small" @click="openOnlyOffice" class="open-file">使用OnlyOffice打开</el-button>
+        <el-button round v-if="allowOpenFile" type="primary" size="small" @click="openFile" class="file-detail-btn open-file">打开文件</el-button>
+        <el-button round v-if="onlyOfficeSupportedFormats(file)" type="primary" size="small" @click="openOnlyOffice" class="file-detail-btn open-file">使用OnlyOffice打开</el-button>
       </el-form>
     </el-dialog>
   </div>
@@ -291,19 +291,55 @@ export default {
 </script>
 
 <style scoped lang="scss">
->>> .el-drawer__header {
-  color: #000000;
 
-  span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+@import "src/styles/element-ui.scss";
+
+$primary: #409eff;
+$bg-blur: rgba(255, 255, 255, 0.75);
+
+.details-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  >>> .el-dialog__header {
+    padding: 0;
   }
+
+  >>> .el-dialog__body {
+    display: flex;
+    background: $bg-blur;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 32px 32px 24px 32px;
+  }
+}
+>>> .el-dialog {
+  margin-top: 0 !important;
+  width: fit-content;
+  min-width: 500px;
+  max-width: 800px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+}
+
+>>> .dialog-office {
+  max-width: 1400px;
+  min-width: 1225px;
+  border-radius: 18px;
 }
 
 .details-form {
   padding-bottom: 20px;
-  width: 280px;
+  width: 320px;
+  font-family: "San Francisco", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  color: #222;
 
   >>> .el-scrollbar__view {
     max-height: 50vh;
@@ -314,14 +350,21 @@ export default {
     word-break: break-all;
     word-wrap: break-word;
     line-height: 25px;
+    color: #222;
   }
 
   >>> .el-form-item__label {
     line-height: 25px;
+    color: #888;
+    font-weight: 500;
+    letter-spacing: 0.02em;
   }
 
   >>> .el-form-item {
     margin-bottom: 0;
+    border-radius: 10px;
+    padding: 6px;
+    transition: background 0.2s;
   }
 
   >>> .details-scan {
@@ -331,24 +374,30 @@ export default {
     margin-bottom: 10px;
     .el-button--mini, .el-button--mini.is-round {
       padding: 5px 15px;
+      border-radius: 8px;
     }
   }
 
   >>> .details-position {
-    margin: 10px 0;
-
     .el-form-item__content {
-      line-height: 20px;
-      color: #84a0c3;
+      line-height: 25px;
+      color: $primary;
     }
-
     .el-form-item__label {
-      line-height: 20px;
+      line-height: 25px;
     }
   }
 
-  a:hover {
-    color: #409eff;
+  a {
+    color: $primary;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 2px 4px;
+    transition: background 0.2s;
+    &:hover {
+      background: rgba(64,158,255,0.12);
+      color: #1a73e8;
+    }
   }
 }
 
@@ -361,12 +410,8 @@ export default {
   align-content: center;
   flex-wrap: wrap;
   justify-content: center;
-  >>> .icon-favorite {
-    display: none;
-  }
-  >>> .icon-share {
-    display: none;
-  }
+  >>> .icon-favorite,
+  >>> .icon-share,
   >>> .icon-tag {
     display: none;
   }
@@ -376,38 +421,54 @@ export default {
   margin-bottom: 40px;
   >>> .svg-icon {
     font-size: 8rem;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.7);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10);
+    padding: 16px;
+    color: $primary;
   }
 }
 
-.details-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  >>> .el-dialog__body {
-    display: flex;
-  }
-}
 >>> .el-image {
   height: 200px !important;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10);
+  background: #f8fafc;
 }
 >>> .el-image.cover {
   height: unset !important;
   margin-bottom: 20px;
   max-width: 100%;
   max-height: 60vh;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10);
 }
 
->>> .el-dialog {
-  margin-top: 0 !important;
-  width: fit-content;
-  min-width: 500px;
-  max-width: 800px;
-}
-
->>> .dialog-office {
-  max-width: 1400px;
-  min-width: 1225px;
-  height: 90vh;
+.vue-office-docx {
+  border-radius: 12px;
+  overflow: auto;
+  /* macOS风格滚动条 */
+  &::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(180,180,180,0.28);
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(180,180,180,0.48);
+  }
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180,180,180,0.28) transparent;
+  &:hover {
+    scrollbar-color: rgba(180,180,180,0.48) transparent;
+  }
 }
 
 .office-preview {
@@ -417,10 +478,27 @@ export default {
   margin-right: 20px;
   >>> .docx-wrapper {
     padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.08);
   }
 }
 
 .open-file {
-  margin-top: 10px;
+  margin-top: 16px;
+}
+
+/* 自定义滚动条 */
+>>> .el-scrollbar__bar.is-vertical {
+  width: 7px;
+  background: transparent;
+}
+>>> .el-scrollbar__thumb {
+  background: rgba(64,158,255,0.18);
+  border-radius: 4px;
+  transition: background 0.2s;
+  &:hover {
+    background: rgba(64,158,255,0.32);
+  }
 }
 </style>

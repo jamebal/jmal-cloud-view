@@ -15,6 +15,26 @@ body {
   .el-tooltip__popper .popper__arrow {
     border-width: 0;
   }
+
+  .el-button {
+    border-radius: 32px;
+  }
+
+  .el-tag {
+    border-radius: 8px;
+  }
+
+  .el-message-box {
+    border-radius: $popperBorderRadius;
+  }
+
+  .el-message, .el-notification .el-popover, .el-tooltip__popper, .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-picker-panel__body, .el-picker-panel__sidebar  {
+    border-radius: $popperBorderRadius;
+  }
+
+  .v-contextmenu {
+    border-radius: 8px;
+  }
 }
 
 .time-filter-dropdown {
@@ -308,7 +328,7 @@ kbd {
   vertical-align: middle;
   background-color: #f6f8fa;
   border: solid 1px rgba(175, 184, 193, .2);
-  border-radius: 3px;
+  border-radius: 6px;
   -webkit-box-shadow: inset 0 -1px 0 rgba(175, 184, 193, .2);
   box-shadow: inset 0 -1px 0 rgba(175, 184, 193, .2);
 }

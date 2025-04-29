@@ -60,7 +60,7 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">关闭</el-button>
+        <el-button round size="small" @click="dialogVisible = false">关闭</el-button>
       </div>
     </el-dialog>
     <log-list type="OPERATION_FILE" :table-header="tableHeader"></log-list>

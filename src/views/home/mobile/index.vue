@@ -1612,7 +1612,6 @@ input {
 >>> .ctx-menu-container {
   top: unset;
   border: 1px solid rgba(0, 0, 0, .15);
-  border-radius: 1rem;
   -webkit-box-shadow: 0 0 0 #ccc;
   box-shadow: 0 0 0 #ccc;
 }

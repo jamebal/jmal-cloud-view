@@ -311,6 +311,11 @@ export default {
 }
 >>> .el-image.cover {
   box-shadow: 0 2px 12px 0 rgba(0,0,0,.5);
+  border-radius: 8px;
+}
+
+>>> .el-image {
+  border-radius: 8px;
 }
 
 </style>

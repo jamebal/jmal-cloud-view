@@ -39,7 +39,7 @@
               </el-checkbox>
             </div>
             <el-dropdown @command="handleFileType" trigger="click" class="filter-dropdown">
-              <el-button type="text" class="filter-btn">
+              <el-button round type="text" class="filter-btn">
                 <i class="el-icon-document"></i>
                 <span>文件类型</span>
                 <i class="el-icon-arrow-down el-icon--right"></i>
@@ -63,7 +63,7 @@
               </el-dropdown-menu>
             </el-dropdown>
             <el-dropdown trigger="click" class="filter-dropdown">
-              <el-button type="text" class="filter-btn">
+              <el-button round type="text" class="filter-btn">
                 <i class="el-icon-coin"></i>
                 <span>文件大小</span>
                 <i class="el-icon-arrow-down el-icon--right"></i>
@@ -83,17 +83,17 @@
                     @change="handleSizeRangeChange">
                   </el-slider>
                   <div class="size-slider-presets">
-                    <el-button size="mini" @click="setSizePreset([0, 1048576])">≤ 1MB</el-button>
-                    <el-button size="mini" @click="setSizePreset([1048576, 10485760])">1-10MB</el-button>
-                    <el-button size="mini" @click="setSizePreset([10485760, 104857600])">10-100MB</el-button>
-                    <el-button size="mini" @click="setSizePreset([104857600, 1073741824])">100MB-1GB</el-button>
-                    <el-button size="mini" @click="setSizePresetLarge()">≥ 1GB</el-button>
+                    <el-button round size="mini" @click="setSizePreset([0, 1048576])">≤ 1MB</el-button>
+                    <el-button round size="mini" @click="setSizePreset([1048576, 10485760])">1-10MB</el-button>
+                    <el-button round size="mini" @click="setSizePreset([10485760, 104857600])">10-100MB</el-button>
+                    <el-button round size="mini" @click="setSizePreset([104857600, 1073741824])">100MB-1GB</el-button>
+                    <el-button round size="mini" @click="setSizePresetLarge()">≥ 1GB</el-button>
                   </div>
                 </div>
               </el-dropdown-menu>
             </el-dropdown>
             <el-dropdown trigger="click" class="filter-dropdown">
-              <el-button type="text" class="filter-btn">
+              <el-button round type="text" class="filter-btn">
                 <i class="el-icon-date"></i>
                 <span>修改时间</span>
                 <i class="el-icon-arrow-down el-icon--right"></i>
@@ -101,12 +101,12 @@
               <el-dropdown-menu slot="dropdown" class="modern-dropdown time-filter-dropdown">
                 <div class="time-picker-container">
                   <div class="time-presets">
-                    <el-button size="mini" @click="setTimePreset('today')">今天</el-button>
-                    <el-button size="mini" @click="setTimePreset('yesterday')">昨天</el-button>
-                    <el-button size="mini" @click="setTimePreset('thisWeek')">本周</el-button>
-                    <el-button size="mini" @click="setTimePreset('lastWeek')">上周</el-button>
-                    <el-button size="mini" @click="setTimePreset('thisMonth')">本月</el-button>
-                    <el-button size="mini" @click="setTimePreset('lastMonth')">上个月</el-button>
+                    <el-button round size="mini" @click="setTimePreset('today')">今天</el-button>
+                    <el-button round size="mini" @click="setTimePreset('yesterday')">昨天</el-button>
+                    <el-button round size="mini" @click="setTimePreset('thisWeek')">本周</el-button>
+                    <el-button round size="mini" @click="setTimePreset('lastWeek')">上周</el-button>
+                    <el-button round size="mini" @click="setTimePreset('thisMonth')">本月</el-button>
+                    <el-button round size="mini" @click="setTimePreset('lastMonth')">上个月</el-button>
                   </div>
                   <div class="custom-date-range">
                     <p class="date-range-title">自定义时间范围</p>
@@ -228,7 +228,7 @@ export default {
         return '搜索范围: 仅包含标签文件, 不含子文件'
       }
       if (this.queryCondition.isMount && isRootPath) {
-        return '搜索范围: 挂载目录里的所有文件, 不含挂载目录本身'
+        return '搜索范围: 仅包含挂载目录里的所有文件, 不含挂载目录本身'
       }
       if (this.queryCondition.isFavorite && isRootPath) {
         return '搜索范围: 仅包含收藏文件, 不含子文件'

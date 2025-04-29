@@ -43,7 +43,7 @@
               {{ !item.formatData && !item.active ? scope.row[item.prop] : ''}}
             </div>
             <div v-if="item.active">
-              <el-button
+              <el-button round
                 v-for="(o, key) in item.active"
                 :style="{color: o.color}"
                 :key="key"

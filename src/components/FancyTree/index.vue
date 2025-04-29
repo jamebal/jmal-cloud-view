@@ -16,15 +16,15 @@
 
     <div class="dir-tools" style="min-width: 272px;">
       <el-button-group>
-        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" :disabled="this.currentPath.length === 0 || this.currentPath === '/'" @click="upperLeve">上一级</el-button>
-        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
-        <el-button :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus" @click="newFileAndFolder" v-contextmenu:clickContextmenu>新建</el-button>
+        <el-button round :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-arrow-left" :disabled="this.currentPath.length === 0 || this.currentPath === '/'" @click="upperLeve">上一级</el-button>
+        <el-button round :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+        <el-button round :class="lightTheme?'light-button':'dark-button'" size="small" icon="el-icon-plus" @click="newFileAndFolder" v-contextmenu:clickContextmenu>新建</el-button>
         <el-popover
           placement="bottom"
           width="250"
           trigger="click">
           <el-input placeholder="请输入内容" size="small">
-            <el-button slot="append" size="small" icon="el-icon-search"></el-button>
+            <el-button round slot="append" size="small" icon="el-icon-search"></el-button>
           </el-input>
         </el-popover>
 

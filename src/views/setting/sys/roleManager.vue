@@ -13,8 +13,8 @@
             </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" :loading="updateLoading" @click.native.prevent="onSave()">保 存</el-button>
+        <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button round size="small" type="primary" :loading="updateLoading" @click.native.prevent="onSave()">保 存</el-button>
       </div>
     </el-dialog>
     <el-dialog width="400px" title="分配权限" :visible.sync="dialogAuthVisible">
@@ -32,8 +32,8 @@
         </el-tree>
       </el-scrollbar>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogAuthVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" :loading="updateLoading" @click.native.prevent="saveAuth()">保 存</el-button>
+        <el-button round size="small" @click="dialogAuthVisible = false">取 消</el-button>
+        <el-button round size="small" type="primary" :loading="updateLoading" @click.native.prevent="saveAuth()">保 存</el-button>
       </div>
     </el-dialog>
     <el-card class="box-card table-search-header">
@@ -58,9 +58,9 @@
               </el-col>
               <el-col :sm="12" :md="7" :xl="6">
                 <div class="el-form-actions">
-                  <el-button class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getRoleList()">查询</el-button>
-                  <el-button class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
-                  <el-button :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" @click="handleSelectDelete()">删除</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getRoleList()">查询</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
+                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" @click="handleSelectDelete()">删除</el-button>
                 </div>
               </el-col>
             </el-row>

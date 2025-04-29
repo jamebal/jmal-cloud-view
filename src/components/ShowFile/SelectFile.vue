@@ -25,7 +25,7 @@
       >
       </show-file>
       <div slot="footer" class="dialog-footer">
-        <el-button :disabled="!selectedFileRow.size" type="primary" @click="select">选择</el-button>
+        <el-button round :disabled="!selectedFileRow.size" type="primary" @click="select">选择</el-button>
       </div>
     </el-dialog>
   </div>

@@ -3,7 +3,7 @@
     <div class="article-editor">
       <div class="editor-left">
         <cite v-if="currentDarft">你正在编辑的是保存于 {{ file.updateDate }} 的草稿, 你也可以
-          <el-button type="text" style="color: #F56C6C" @click="deleteDraft">删除它</el-button>
+          <el-button round type="text" style="color: #F56C6C" @click="deleteDraft">删除它</el-button>
         </cite>
         <el-header>
           <div class="header-item">
@@ -30,9 +30,9 @@
       </div>
       <div class="editor-right">
         <div class="operation">
-          <el-button class="release-button" type="warning" size="small" @click="saveDraft" :loading="updating">保存草稿
+          <el-button round class="release-button" type="warning" size="small" @click="saveDraft" :loading="updating">保存草稿
           </el-button>
-          <el-button class="release-button" type="primary" size="small" @click="release" :loading="updating">发布文章
+          <el-button round class="release-button" type="primary" size="small" @click="release" :loading="updating">发布文章
           </el-button>
         </div>
         <div class="more-setting">
@@ -86,12 +86,12 @@
             >
             </el-autocomplete>
             <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
-            <el-button v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签</el-button>
+            <el-button round v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签</el-button>
           </div>
           <!--          <p class="mark-setting-label">-->
           <!--            其他：-->
           <!--          </p>-->
-          <!--          <el-button size="small" @click="moreSet">更多设置</el-button>-->
+          <!--          <el-button round size="small" @click="moreSet">更多设置</el-button>-->
         </div>
       </div>
     </div>
