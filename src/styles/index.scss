@@ -28,8 +28,16 @@ body {
     border-radius: $popperBorderRadius;
   }
 
-  .el-message, .el-notification .el-popover, .el-tooltip__popper, .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-picker-panel__body, .el-picker-panel__sidebar  {
+  .el-message, .el-notification, .el-popover, .el-tooltip__popper, .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-picker-panel__body, .el-picker-panel__sidebar  {
     border-radius: $popperBorderRadius;
+  }
+
+  .el-popover.el-popper.upload-file {
+    border-radius: 16px;
+    padding: 10px 10px;
+    li {
+      padding: 0 10px;
+    }
   }
 
   .v-contextmenu {

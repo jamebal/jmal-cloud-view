@@ -89,6 +89,7 @@
         <div class="search-content">
           <div class="search-class">
             <el-popover
+              popper-class="upload-file"
               v-if="showUploadButton"
               v-show="!(isRootPath && homeHidden)"
               v-model="isShowNewFolder"
@@ -329,10 +330,7 @@
       >
         <div class="popper-arrow"></div>
         <ul v-for="(item, index) in menus" :key="item.label">
-          <li
-            v-if="
-              item.operation === 'unFavorite' || item.operation === 'favorite'
-            "
+          <li v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
             class="menu-option"
             @click="menusOperations(item.operation, $event)"
             @mouseover.prevent.stop="
@@ -342,19 +340,23 @@
               menuFavoriteLeave(index, rowContextData.isFavorite)
             "
           >
-            <label class="menuitem">
+            <div class="menuitem home-contextmenu">
               <svg-icon :icon-class="item.iconClass" />
-              <span class="menuitem text">{{ item.label }}</span>
-            </label>
+              <div class="home-contextmenu-title">
+                <span class="menuitem text">{{ item.label }}</span>
+              </div>
+            </div>
           </li>
           <li v-else @click="menusOperations(item.operation, $event)">
-            <label class="menuitem">
+            <div class="menuitem home-contextmenu">
               <svg-icon :icon-class="item.iconClass" />
-              <span class="menuitem text">{{ item.label }}</span>
-              <span v-if="item.shortcut" style="position: absolute;right: 10px;">
+              <div class="home-contextmenu-title">
+                <span class="menuitem text">{{ item.label }}</span>
+                <span v-if="item.shortcut">
                 <kbd v-for="key in item.shortcut" :style="{fontSize: key === '⌘' ? '14px' : '12px'}">{{ key }}</kbd>
               </span>
-            </label>
+              </div>
+            </div>
           </li>
         </ul>
       </e-vue-contextmenu>
@@ -1243,7 +1245,9 @@ export default {
         if (item.isFolder || !this.grid) {
           return filename;
         }
-        const singleLine = (item.contentType && item.contentType.startsWith('image')) || item.showCover
+        const verticalImage = item.w && item.h && (item.w / item.h < 1.6)
+        const verticalVideo = item.video && (item.video.width / item.video.height < 1.6)
+        const singleLine = verticalImage || verticalVideo || item.showCover
         const gridFilenameLength = singleLine ? 13 : 28
         // 分离文件名和后缀
         let parts = filename.split('.');
@@ -2144,8 +2148,8 @@ export default {
                 node.firstChild.style.marginRight = '20px'
               }
               if (index === 2) {
-                node.style.borderRadius = '0 5px 5px 0'
-                node.style.borderRight = '1px solid #409eff'
+                node.style.borderRadius = '0 12px 12px 0'
+                node.style.borderRight = 'solid 1px var(--apple-shadow-color)'
                 node.firstChild.style.height = '44px'
                 node.firstChild.style.lineHeight = '44px'
                 node.firstChild.style.width = '80px'
@@ -3286,35 +3290,35 @@ export default {
         if (columnIndex === 0) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '50px 0 0 50px',
-            borderLeft: '1px solid #409eff',
-            borderTop: '1px solid #409eff',
-            borderBottom: '1px solid #409eff',
+            borderRadius: '12px 0 0 12px',
+            borderLeft: 'solid 1px var(--apple-shadow-color)',
+            borderTop: 'solid 1px var(--apple-shadow-color)',
+            borderBottom: 'solid 1px var(--apple-shadow-color)',
           }
         }
         if (columnIndex === 3) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '0 50px 50px 0',
-            borderRight: '1px solid #409eff',
-            borderTop: '1px solid #409eff',
-            borderBottom: '1px solid #409eff',
+            borderRadius: '0 12px 12px 0',
+            borderRight: 'solid 1px var(--apple-shadow-color)',
+            borderTop: 'solid 1px var(--apple-shadow-color)',
+            borderBottom: 'solid 1px var(--apple-shadow-color)',
           }
         }
         return {
           backgroundColor: '#e0f3fc !important',
-          borderTop: '1px solid #409eff',
-          borderBottom: '1px solid #409eff',
+          borderTop: 'solid 1px var(--apple-shadow-color)',
+          borderBottom: 'solid 1px var(--apple-shadow-color)',
         }
       } else {
         if (columnIndex === 0) {
           return {
-            borderRadius: '50px 0 0 50px',
+            borderRadius: '12px 0 0 12px',
           }
         }
         if (columnIndex === 3) {
           return {
-            borderRadius: '0 50px 50px 0',
+            borderRadius: '0 12px 12px 0',
           }
         }
       }
@@ -4666,7 +4670,7 @@ export default {
 
   .is-sortable:hover {
     background-color: #e0f3fc;
-    border-radius: 40px;
+    border-radius: 12px;
   }
 }
 

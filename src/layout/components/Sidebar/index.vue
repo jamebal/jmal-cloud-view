@@ -445,6 +445,9 @@ $tagMenuBorderRadius: 8px;
   padding: 0;
   min-width: 110px;
 }
+.tag-menu {
+  padding: 5px 5px;
+}
 .tag-menu li:hover {
   cursor: pointer;
   border-radius: $tagMenuBorderRadius;

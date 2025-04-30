@@ -23,6 +23,7 @@
         <icon-file
           v-else
           class="drawer-icon-font"
+          :lazy="false"
           :grid="true"
           :details="true"
           :item="file"
@@ -80,7 +81,7 @@
             <span> {{ formatSize(file.size) }}</span>
           </el-form-item>
           <el-form-item label="位置:" class="details-position">
-            <span><a :href="pathUrl">{{ filepath }}</a></span>
+            <span><a :href="pathUrl" title="跳转至文件所在位置">{{ filepath }}</a></span>
           </el-form-item>
           <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
