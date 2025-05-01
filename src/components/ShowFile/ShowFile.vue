@@ -848,7 +848,7 @@
         <div class="el-message-box__container delete-attention el-alert--warning is-light">
           <div class="el-message-box__status el-icon-warning"></div>
           <div class="el-message-box__message">
-            <p>所选目录已存在下列文件</p>
+            <p>同名文件如何处理</p>
           </div>
         </div>
         <dialog-file-list class="dialog-file-list" :file-list="existsFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
@@ -856,7 +856,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button round size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
         <el-button round type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true, copyOrMoveParams.targetPath)">覆 盖</el-button>
-        <el-button round type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">不覆盖</el-button>
+        <el-button round type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">跳 过</el-button>
       </span>
     </el-dialog>
 

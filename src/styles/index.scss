@@ -43,6 +43,15 @@ body {
   .v-contextmenu {
     border-radius: 8px;
   }
+
+  .file-operation-history {
+    padding: 0;
+    border-radius: 16px;
+    width: 300px !important;
+    .el-scrollbar__wrap {
+      border-radius: 16px;
+    }
+  }
 }
 
 .time-filter-dropdown {

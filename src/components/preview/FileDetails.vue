@@ -54,11 +54,11 @@
           <el-form-item label="名称:">
             <span>{{ file.name }}</span>
           </el-form-item>
-          <el-form-item label="类型:">
-          <span>{{
-              file.isFolder ? '文件夹' : file.contentType
-            }}</span>
-          </el-form-item>
+<!--          <el-form-item label="类型:">-->
+<!--          <span>{{-->
+<!--              file.isFolder ? '文件夹' : file.contentType-->
+<!--            }}</span>-->
+<!--          </el-form-item>-->
           <div v-if="file.music">
             <el-form-item label="🎵 歌手:">
               <span>{{ file.music.singer }}</span>
@@ -87,7 +87,16 @@
             <span>{{ file.uploadDate }}</span>
           </el-form-item>
           <el-form-item label="修改时间:">
-            <span>{{ file.updateDate }}</span>
+            <el-popover
+              placement="right"
+              popper-class="file-operation-history"
+              width="400"
+              trigger="click"
+            @show="showOperationHistory"
+            @hide="hideOperationHistory">
+              <timeline-component :show-operation-history="operationHistory" :file-id="file.id"></timeline-component>
+              <span title="查看文件操作历史" slot="reference" class="file-operation-history-btn">{{ file.updateDate }}</span>
+            </el-popover>
           </el-form-item>
           <el-form-item v-if="file.exif" label="">
             <span style="white-space: break-spaces;">{{ formatExif(file.exif) }}</span>
@@ -99,12 +108,14 @@
         <el-button round v-if="allowOpenFile" type="primary" size="small" @click="openFile" class="file-detail-btn open-file">打开文件</el-button>
         <el-button round v-if="onlyOfficeSupportedFormats(file)" type="primary" size="small" @click="openOnlyOffice" class="file-detail-btn open-file">使用OnlyOffice打开</el-button>
       </el-form>
+
     </el-dialog>
   </div>
 </template>
 
 <script>
 import fileApi from '@/api/file-api'
+import TimelineComponent from '@/components/Timeline'
 import { onlyOfficeSupportedFormats } from '@/utils/file-type'
 
 // 引入VueOfficeDocx 组件
@@ -127,6 +138,7 @@ import settingApi from "@/api/setting-api";
 export default {
   name: 'FileDetails',
   components: {
+    TimelineComponent,
     IconFile,
     VueOfficeDocx,
     VueOfficeExcel
@@ -167,7 +179,8 @@ export default {
         excel: window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
       },
       filepath: '',
-      pathUrl: ''
+      pathUrl: '',
+      operationHistory: false
     }
   },
   mounted() {
@@ -229,6 +242,12 @@ export default {
     },
     openFile() {
       this.$emit('openFile', this.file)
+    },
+    showOperationHistory() {
+      this.operationHistory = true
+    },
+    hideOperationHistory() {
+      this.operationHistory = false
     },
     openOnlyOffice() {
       this.$emit('openOnlyOffice', this.file)
@@ -500,6 +519,19 @@ $bg-blur: rgba(255, 255, 255, 0.75);
   transition: background 0.2s;
   &:hover {
     background: rgba(64,158,255,0.32);
+  }
+}
+
+.file-operation-history-btn {
+  cursor: pointer;
+  color: $primary;
+  text-decoration: none;
+  border-radius: 6px;
+  padding: 2px 4px;
+  transition: background 0.2s;
+  &:hover {
+    background: rgba(64,158,255,0.12);
+    color: #1a73e8;
   }
 }
 </style>
