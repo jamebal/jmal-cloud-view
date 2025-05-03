@@ -5,7 +5,7 @@
         <div class="scroll-decoration" v-if="scrollDecorationTop"></div>
         <div v-for="(item, index) in dataList" :key="index" class="timeline-item">
           <div class="timeline-icon">
-            <el-avatar :src="imageUrl + item.avatar" icon="el-icon-user-solid"></el-avatar>
+            <el-avatar :src="imageUrl + item.avatar" size="medium" icon="el-icon-user-solid"></el-avatar>
           </div>
           <div class="timeline-line" v-if="index !== dataList.length - 1"></div>
           <div class="timeline-content">
@@ -122,8 +122,8 @@ export default {
 .timeline-icon {
   position: relative;
   z-index: 2;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -140,8 +140,8 @@ export default {
 
 .timeline-line {
   position: absolute;
-  left: 16px;
-  top: 32px;
+  left: 20px;
+  top: 40px;
   bottom: 0;
   height: 100%;
   width: 1px;

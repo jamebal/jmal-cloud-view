@@ -54,34 +54,35 @@ export function formatExif(exifInfo) {
   return exifStr
 }
 
-export function formatVideo(videoInfo) {
+export function formatVideo(videoInfo, lineBreak) {
   if (!videoInfo) {
     return ''
   }
+  lineBreak = lineBreak || '\r\n'
   let videoStr = ''
   if (videoInfo['height'] && videoInfo['width']) {
     videoStr += `尺寸: ${videoInfo['width']} x ${videoInfo['height']}`
   }
   if (videoInfo['bitrate']) {
-    videoStr += `\r\n码率: ${videoInfo['bitrate']}`
+    videoStr += `${lineBreak}码率: ${videoInfo['bitrate']}`
   }
   if (videoInfo['frameRate']) {
-    videoStr += `\r\n帧率: ${videoInfo['frameRate']} fps`
+    videoStr += `${lineBreak}帧率: ${videoInfo['frameRate']} fps`
   }
   if (videoInfo['format']) {
-    videoStr += `\r\n格式: ${videoInfo['format']}`
+    videoStr += `${lineBreak}格式: ${videoInfo['format']}`
   }
   if (videoInfo['duration']) {
-    videoStr += `\r\n时长: ${videoInfo['duration']}`
+    videoStr += `${lineBreak}时长: ${videoInfo['duration']}`
   }
   if (videoInfo['toBitrate']) {
-    videoStr += `\r\n转码后的码率: ${videoInfo['toBitrate']} kbps`
+    videoStr += `${lineBreak}转码后的码率: ${videoInfo['toBitrate']} kbps`
   }
   if (videoInfo['toFrameRate']) {
-    videoStr += `\r\n转码后的帧率: ${videoInfo['toFrameRate']} fps`
+    videoStr += `${lineBreak}转码后的帧率: ${videoInfo['toFrameRate']} fps`
   }
   if (videoInfo['toHeight']) {
-    videoStr += `\r\n转码后的高度: ${videoInfo['toHeight']}`
+    videoStr += `${lineBreak}转码后的高度: ${videoInfo['toHeight']}`
   }
   return videoStr
 }

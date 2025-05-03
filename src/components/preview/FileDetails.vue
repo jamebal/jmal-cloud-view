@@ -81,7 +81,7 @@
             <span> {{ formatSize(file.size) }}</span>
           </el-form-item>
           <el-form-item label="位置:" class="details-position">
-            <span><a :href="pathUrl" title="跳转至文件所在位置">{{ filepath }}</a></span>
+            <span><a :href="pathUrl" v-tooltip="{content: '文件所在位置', placement: 'bottom'}">{{ filepath }}</a></span>
           </el-form-item>
           <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
@@ -95,7 +95,7 @@
             @show="showOperationHistory"
             @hide="hideOperationHistory">
               <timeline-component :show-operation-history="operationHistory" :file-id="file.id"></timeline-component>
-              <span title="查看文件操作历史" slot="reference" class="file-operation-history-btn">{{ file.updateDate }}</span>
+              <span slot="reference" v-tooltip="{content: '文件操作历史', placement: 'bottom'}" class="file-operation-history-btn">{{ file.updateDate }}</span>
             </el-popover>
           </el-form-item>
           <el-form-item v-if="file.exif" label="">
@@ -114,6 +114,7 @@
 </template>
 
 <script>
+import tippy from 'tippy.js';
 import fileApi from '@/api/file-api'
 import TimelineComponent from '@/components/Timeline'
 import { onlyOfficeSupportedFormats } from '@/utils/file-type'
@@ -183,8 +184,6 @@ export default {
       operationHistory: false
     }
   },
-  mounted() {
-  },
   computed: {
     ...mapState(['message']),
     fleUrl() {
@@ -226,6 +225,19 @@ export default {
       }
     }
   },
+  mounted() {
+    if (this.$refs.viewOperationHistoryTitle) {
+      tippy(this.$refs.viewOperationHistoryTitle, {
+        content: '这是一个即时显示的提示!',
+        delay: 0, // 关键：设置延迟为 0毫秒
+        placement: 'top', // 提示框位置 (可选)
+        // animation: 'scale', // 动画效果 (可选, 需要引入对应 css)
+        // theme: 'light', // 主题 (可选, 需要引入对应 css)
+        // interactive: true, // 允许鼠标与提示框交互 (可选)
+        // arrow: true, // 显示箭头 (可选)
+      });
+    }
+  },
   methods: {
     getLocalPath(path) {
       if (path === '/') {
@@ -262,7 +274,7 @@ export default {
       return formatExif(exifInfo)
     },
     formatVideo(videoInfo) {
-      return formatVideo(videoInfo)
+      return formatVideo(videoInfo, '\r\n')
     },
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
@@ -275,7 +287,22 @@ export default {
       }
       return onlyOfficeSupportedFormats.includes(file.suffix.toLowerCase())
     },
+    setTip() {
+      if (this.$refs.updateDateTip) {
+        tippy(this.$refs.updateDateTip, {
+          content: '显示文件操作历史!',
+          delay: 0, // 关键：设置延迟为 0毫秒
+          placement: 'top', // 提示框位置 (可选)
+          // animation: 'scale', // 动画效果 (可选, 需要引入对应 css)
+          // theme: 'light', // 主题 (可选, 需要引入对应 css)
+          // interactive: true, // 允许鼠标与提示框交互 (可选)
+        })
+      }
+    },
     updateSyncStatus(dataPercent) {
+
+      this.setTip()
+
       if (this.clickSync) {
         return
       }
@@ -514,11 +541,11 @@ $bg-blur: rgba(255, 255, 255, 0.75);
   background: transparent;
 }
 >>> .el-scrollbar__thumb {
-  background: rgba(64,158,255,0.18);
+  background: #7c7c7c2e;
   border-radius: 4px;
   transition: background 0.2s;
   &:hover {
-    background: rgba(64,158,255,0.32);
+    background: #7c7c7c2e;
   }
 }
 

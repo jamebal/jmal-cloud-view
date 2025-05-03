@@ -51,6 +51,7 @@
     "sortablejs": "^1.10.2",
     "spark-md5": "^3.0.0",
     "stompjs": "^2.3.3",
+    "tippy.js": "^6.3.7",
     "v-contextmenu": "^2.9.0",
     "v-viewer": "^1.5.1",
     "vditor": "3.10.4",

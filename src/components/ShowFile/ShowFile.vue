@@ -529,6 +529,7 @@
                 minHeight: gridMinHeight + 'px',
                 rowGap: '10px',
                 overflow: 'auto',
+                paddingBottom: '12px',
                 'box-shadow':
                   fileListScrollTop > 0
                     ? '-1px -1px 4px #00152914'
@@ -538,26 +539,6 @@
               <van-grid-item
                 v-for="(item, index) in fileList"
                 :key="item.id"
-                :title="
-                  '大小：' +
-                    formatSize(item.size) +
-                    '\r\n' +
-                    (item.w && item.h
-                      ? '尺寸：' + item.w + 'x' + item.h + '\r\n'
-                      : '') +
-                    '名称：' +
-                    item.name +
-                    '\r\n' +
-                    '上传时间：' +
-                    item.uploadDate +
-                    '\r\n' +
-                    '修改时间：' +
-                    item.updateDate +
-                    '\r\n' +
-                    '路径：' +
-                    item.path +
-                    extendedInfo(item)
-                "
                 :style="{paddingTop: 100/gridColumnNum + '%'}"
               >
                 <div
@@ -575,6 +556,7 @@
                       ? 'solid 1px var(--apple-shadow-color)'
                       : '',
                   }"
+                  v-tooltip="tooltipConfig(item)"
                   @click="gridItemClick(item, $event)"
                   @dblclick="fileClick(item, $event)"
                   @contextmenu.prevent="rowContextmenu(item)"
@@ -1470,6 +1452,49 @@ export default {
     },
   },
   methods: {
+    tooltipConfig(item) {
+      // 使用模板字符串构建更清晰的 HTML
+      const contentHTML = `
+        <div class="apple-tooltip-content">
+          <div class="tooltip-row">
+            <span class="tooltip-label">大小:</span>
+            <span class="tooltip-value">${this.formatSize(item.size)}</span>
+          </div>
+          ${item.w && item.h ? `
+          <div class="tooltip-row">
+            <span class="tooltip-label">尺寸:</span>
+            <span class="tooltip-value">${item.w}×${item.h}</span>
+          </div>` : ''}
+          <div class="tooltip-row">
+            <span class="tooltip-label">名称:</span>
+            <span class="tooltip-value tooltip-value-name">${item.name}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">上传时间:</span>
+            <span class="tooltip-value tooltip-value-date">${item.uploadDate}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">修改时间:</span>
+            <span class="tooltip-value tooltip-value-date">${item.updateDate}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">路径:</span>
+            <span class="tooltip-value tooltip-value-path">${item.path}</span>
+          </div>
+         ${this.extendedInfo(item)}
+        </div>
+      `;
+
+      return {
+        content: contentHTML,
+        // trigger: 'click',
+        placement: 'left',
+        allowHTML: true,
+        theme: 'light',
+        // appendTo: 'parent',
+        arrow: true
+      };
+    },
     // 判断给定的字符是否是中文
     isChineseChar(char) {
       return char.charCodeAt(0) > 255
@@ -2401,7 +2426,7 @@ export default {
       if (!file.exif && !file.video) {
         return ''
       }
-      return "\r\n" + formatExif(file.exif) + formatVideo(file.video)
+      return "\r\n" + formatExif(file.exif) + formatVideo(file.video, '<br>')
     },
     upload() {
       // 打开文件选择框
