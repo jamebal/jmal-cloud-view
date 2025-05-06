@@ -56,6 +56,11 @@ body {
     }
   }
 
+
+  .tippy-box {
+    border-radius: 10px;
+  }
+
   .tippy-box[data-theme~=light] {
     border-radius: 12px;
     background-color: rgba(255,255,255,.75);

@@ -1488,6 +1488,7 @@ export default {
       return {
         content: contentHTML,
         // trigger: 'click',
+        delay: 0,
         placement: 'left',
         allowHTML: true,
         theme: 'light',
