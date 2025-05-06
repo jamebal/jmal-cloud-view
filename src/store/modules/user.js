@@ -88,7 +88,16 @@ const actions = {
   async setMenuList({ commit, state }) {
     return new Promise( (resolve,reject) => {
       menuApi.menuTree({userId: state.userId}).then((res) => {
+
+        const index = res.data.findIndex((item) => item.path === '/setting/taskProgress')
+        if (index > -1) {
+          localStorage.setItem('taskProgressRole', "1")
+        } else {
+          localStorage.removeItem('taskProgressRole')
+        }
+
         state.menuList = getMenuTree(res.data);
+        console.log('state.menuList', state.menuList)
         commit('SET_MENU_LIST', state.menuList);
         resetRouter(state.menuList)
         router.options.routes = router.options.routes.concat(state.menuList);
