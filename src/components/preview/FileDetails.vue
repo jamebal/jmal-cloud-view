@@ -88,13 +88,16 @@
           </el-form-item>
           <el-form-item label="修改时间:">
             <el-popover
+              ref="historyPopover"
               placement="right"
               popper-class="file-operation-history"
               width="400"
               trigger="click"
-            @show="showOperationHistory"
-            @hide="hideOperationHistory">
-              <timeline-component :show-operation-history="operationHistory" :file-id="file.id"></timeline-component>
+              :visible-arrow="false"
+              transition=""
+              @show="showOperationHistory"
+              @hide="hideOperationHistory">
+              <timeline-component :show-operation-history="operationHistory" :file-id="file.id" @initial-load-complete="handleHistoryInitialLoad"></timeline-component>
               <span slot="reference" v-tooltip="{content: '文件操作历史', placement: 'bottom'}" class="file-operation-history-btn">{{ file.updateDate }}</span>
             </el-popover>
           </el-form-item>
@@ -260,6 +263,14 @@ export default {
     },
     hideOperationHistory() {
       this.operationHistory = false
+    },
+    handleHistoryInitialLoad() {
+      // 当 TimelineComponent 首次加载完成时，更新 Popover 位置
+      this.$nextTick(() => { // 确保 DOM 更新完毕
+        if (this.$refs.historyPopover) {
+          this.$refs.historyPopover.updatePopper(); // 调用 Element UI Popover 的方法
+        }
+      });
     },
     openOnlyOffice() {
       this.$emit('openOnlyOffice', this.file)
