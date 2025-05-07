@@ -50,10 +50,12 @@
       <div class="popper-arrow"></div>
       <ul v-for="item in menus" :key="item.label">
         <li class="menu-option" @click="menusOperations(item.operation)">
-          <label class="menuitem">
+          <div class="menuitem home-contextmenu">
             <svg-icon :icon-class="item.iconClass"/>
-            <span class="menuitem text">{{ item.label }}</span>
-          </label>
+            <div class="home-contextmenu-title">
+              <span class="menuitem text">{{ item.label }}</span>
+            </div>
+          </div>
         </li>
       </ul>
     </e-vue-contextmenu>
@@ -270,8 +272,8 @@
       :sharer="sharerUsername"
       :status.sync="iframePreviewVisible"
     ></iframe-preview>
-    <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center"><i
-      class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
+    <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center">
+      <i class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
     </el-divider>
     <el-pagination
       background
@@ -1144,7 +1146,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "src/styles/home-index";
+@import 'src/styles/index';
+@import 'src/styles/home-index';
 /*.el-breadcrumb {*/
 /*margin: 50px;*/
 .dashboard-container {
@@ -1228,9 +1231,10 @@ export default {
 }
 
 .grid-divider {
-  height: 0;
+  height: 30px;
   text-align: center;
   width: auto;
+  background: unset;
 
   > > > .el-divider__text {
   }
@@ -1315,8 +1319,11 @@ export default {
   margin-left: 5px !important;
 }
 
->>> .van-grid-item__content .svg-icon{
-  font-size: 4.5rem;
+>>> .van-grid-item__content {
+  padding: 8px;
+  .svg-icon{
+    font-size: 4.5rem;
+  }
 }
 
 >>> .grid-file-text {

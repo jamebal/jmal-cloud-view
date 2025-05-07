@@ -271,7 +271,7 @@ export default {
       return formatSize(size)
     },
     formatExif(exifInfo) {
-      return formatExif(exifInfo)
+      return formatExif(exifInfo, '\r\n')
     },
     formatVideo(videoInfo) {
       return formatVideo(videoInfo, '\r\n')

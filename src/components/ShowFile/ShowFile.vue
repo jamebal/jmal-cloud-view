@@ -2426,7 +2426,7 @@ export default {
       if (!file.exif && !file.video) {
         return ''
       }
-      return "\r\n" + formatExif(file.exif) + formatVideo(file.video, '<br>')
+      return formatExif(file.exif, '<br>') + formatVideo(file.video, '<br>')
     },
     upload() {
       // 打开文件选择框
