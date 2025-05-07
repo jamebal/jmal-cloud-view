@@ -9,7 +9,7 @@
         width="600"
         trigger="hover">
         <TaskProgress :task-count.sync="taskCount"/>
-        <div slot="reference" class="right-content-button" v-show="showTaskProgress > 0 || taskCount > 0">
+        <div slot="reference" class="right-content-button" v-show="hasTaskProgressRole && (showTaskProgress > 0 || taskCount > 0)">
           <svg-icon icon-class="gengxinjindu" :class="progressExecuting ? 'rotate' : ''"></svg-icon>
           {{ $t('app.taskProgress') }}
         </div>
@@ -112,6 +112,9 @@ export default {
       routes.rightTopRoutes = rightTopRoutes
       return routes
     },
+    hasTaskProgressRole() {
+      return localStorage.getItem('taskProgressRole') === '1'
+    }
   },
   mounted() {
     this.isShow = this.$pc;
