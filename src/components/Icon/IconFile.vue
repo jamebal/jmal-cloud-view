@@ -53,10 +53,10 @@
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <div v-else-if="item.contentType && item.contentType.indexOf('video') > -1">
       <div v-if="item.mediaCover === undefined || item.mediaCover === 'true'">
-        <div v-if="grid && pc" class="grid-play-icon">
+        <div v-if="grid && pc && !details" class="grid-play-icon">
           <svg-icon icon-class="play1"/>
         </div>
-        <el-image :lazy="lazy" v-if="grid" :style="{'height':details?'110px':(gridWidth-50) + 'px'}" fit="contain"
+        <el-image :lazy="lazy" v-if="grid" :style="{'height': videoImageHeight}" fit="contain"
                   :src="item.fileId ? (audioCoverUrl+item.fileId) : (audioCoverUrl+item.id)">
           <div slot="error" class="image-slot-error">
             <svg-icon icon-class="video"/>
@@ -91,7 +91,7 @@
       <svg-icon v-else icon-class="audio"/>
     </div>
     <div v-else-if="(item.contentType && item.contentType.startsWith('image')) || item.showCover">
-      <el-image v-if="grid || grid === 'details'" :style="{'height':details?'110px':(gridWidth-35) + 'px'}"
+      <el-image v-if="grid || grid === 'details'" :style="imageHeightStyle"
                 fit="contain" :src="item.fileId ? (imageUrl+item.fileId) : (imageUrl+item.id)" :class="item.showCover ? 'cover' : ''">
         <div slot="error" class="image-slot-error">
           <svg-icon icon-class="image"/>
@@ -153,6 +153,24 @@ export default {
   mounted() {
   },
   computed: {
+    videoImageHeight() {
+      if (this.details) {
+        return "110px"
+      }
+      if (this.item.video && this.item.video.width > this.item.video.height) {
+        return ""
+      }
+      return this.gridWidth - 35 + "px"
+    },
+    imageHeightStyle() {
+      if (this.details) {
+        return "height: 110px;"
+      }
+      if (this.item.w > this.item.h) {
+        return `max-height: ${this.gridWidth - 35}px`
+      }
+      return `height: ${this.gridWidth - 35}px;`
+    },
     findIconClass() {
       let suffix = this.item.suffix;
       if (!suffix && this.item.fileName) {

@@ -89,6 +89,7 @@
         <div class="search-content">
           <div class="search-class">
             <el-popover
+              popper-class="upload-file"
               v-if="showUploadButton"
               v-show="!(isRootPath && homeHidden)"
               v-model="isShowNewFolder"
@@ -329,10 +330,7 @@
       >
         <div class="popper-arrow"></div>
         <ul v-for="(item, index) in menus" :key="item.label">
-          <li
-            v-if="
-              item.operation === 'unFavorite' || item.operation === 'favorite'
-            "
+          <li v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
             class="menu-option"
             @click="menusOperations(item.operation, $event)"
             @mouseover.prevent.stop="
@@ -342,19 +340,23 @@
               menuFavoriteLeave(index, rowContextData.isFavorite)
             "
           >
-            <label class="menuitem">
+            <div class="menuitem home-contextmenu">
               <svg-icon :icon-class="item.iconClass" />
-              <span class="menuitem text">{{ item.label }}</span>
-            </label>
+              <div class="home-contextmenu-title">
+                <span class="menuitem text">{{ item.label }}</span>
+              </div>
+            </div>
           </li>
           <li v-else @click="menusOperations(item.operation, $event)">
-            <label class="menuitem">
+            <div class="menuitem home-contextmenu">
               <svg-icon :icon-class="item.iconClass" />
-              <span class="menuitem text">{{ item.label }}</span>
-              <span v-if="item.shortcut" style="position: absolute;right: 10px;">
+              <div class="home-contextmenu-title">
+                <span class="menuitem text">{{ item.label }}</span>
+                <span v-if="item.shortcut">
                 <kbd v-for="key in item.shortcut" :style="{fontSize: key === '⌘' ? '14px' : '12px'}">{{ key }}</kbd>
               </span>
-            </label>
+              </div>
+            </div>
           </li>
         </ul>
       </e-vue-contextmenu>
@@ -527,6 +529,7 @@
                 minHeight: gridMinHeight + 'px',
                 rowGap: '10px',
                 overflow: 'auto',
+                paddingBottom: '12px',
                 'box-shadow':
                   fileListScrollTop > 0
                     ? '-1px -1px 4px #00152914'
@@ -536,26 +539,6 @@
               <van-grid-item
                 v-for="(item, index) in fileList"
                 :key="item.id"
-                :title="
-                  '大小：' +
-                    formatSize(item.size) +
-                    '\r\n' +
-                    (item.w && item.h
-                      ? '尺寸：' + item.w + 'x' + item.h + '\r\n'
-                      : '') +
-                    '名称：' +
-                    item.name +
-                    '\r\n' +
-                    '上传时间：' +
-                    item.uploadDate +
-                    '\r\n' +
-                    '修改时间：' +
-                    item.updateDate +
-                    '\r\n' +
-                    '路径：' +
-                    item.path +
-                    extendedInfo(item)
-                "
                 :style="{paddingTop: 100/gridColumnNum + '%'}"
               >
                 <div
@@ -573,6 +556,7 @@
                       ? 'solid 1px var(--apple-shadow-color)'
                       : '',
                   }"
+                  v-tooltip="tooltipConfig(item)"
                   @click="gridItemClick(item, $event)"
                   @dblclick="fileClick(item, $event)"
                   @contextmenu.prevent="rowContextmenu(item)"
@@ -846,7 +830,7 @@
         <div class="el-message-box__container delete-attention el-alert--warning is-light">
           <div class="el-message-box__status el-icon-warning"></div>
           <div class="el-message-box__message">
-            <p>所选目录已存在下列文件</p>
+            <p>同名文件如何处理</p>
           </div>
         </div>
         <dialog-file-list class="dialog-file-list" :file-list="existsFileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
@@ -854,7 +838,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button round size="small" @click="copyOrMoveConfirmVisible = false">取 消</el-button>
         <el-button round type="warning" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, true, copyOrMoveParams.targetPath)">覆 盖</el-button>
-        <el-button round type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">不覆盖</el-button>
+        <el-button round type="primary" size="small" @click="copyOrMoveApi(copyOrMoveParams.operating, copyOrMoveParams.froms, copyOrMoveParams.to, false, copyOrMoveParams.targetPath)">跳 过</el-button>
       </span>
     </el-dialog>
 
@@ -1243,7 +1227,9 @@ export default {
         if (item.isFolder || !this.grid) {
           return filename;
         }
-        const singleLine = (item.contentType && item.contentType.startsWith('image')) || item.showCover
+        const verticalImage = item.w && item.h && (item.w / item.h < 1.6)
+        const verticalVideo = item.video && (item.video.width / item.video.height < 1.6)
+        const singleLine = verticalImage || verticalVideo || item.showCover
         const gridFilenameLength = singleLine ? 13 : 28
         // 分离文件名和后缀
         let parts = filename.split('.');
@@ -1466,6 +1452,49 @@ export default {
     },
   },
   methods: {
+    tooltipConfig(item) {
+      // 使用模板字符串构建更清晰的 HTML
+      const contentHTML = `
+        <div class="apple-tooltip-content">
+          <div class="tooltip-row">
+            <span class="tooltip-label">大小:</span>
+            <span class="tooltip-value">${this.formatSize(item.size)}</span>
+          </div>
+          ${item.w && item.h ? `
+          <div class="tooltip-row">
+            <span class="tooltip-label">尺寸:</span>
+            <span class="tooltip-value">${item.w}×${item.h}</span>
+          </div>` : ''}
+          <div class="tooltip-row">
+            <span class="tooltip-label">名称:</span>
+            <span class="tooltip-value tooltip-value-name">${item.name}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">上传时间:</span>
+            <span class="tooltip-value tooltip-value-date">${item.uploadDate}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">修改时间:</span>
+            <span class="tooltip-value tooltip-value-date">${item.updateDate}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="tooltip-label">路径:</span>
+            <span class="tooltip-value tooltip-value-path">${item.path}</span>
+          </div>
+         ${this.extendedInfo(item)}
+        </div>
+      `;
+
+      return {
+        content: contentHTML,
+        // trigger: 'click',
+        placement: 'left',
+        allowHTML: true,
+        theme: 'light',
+        // appendTo: 'parent',
+        arrow: true
+      };
+    },
     // 判断给定的字符是否是中文
     isChineseChar(char) {
       return char.charCodeAt(0) > 255
@@ -2144,8 +2173,8 @@ export default {
                 node.firstChild.style.marginRight = '20px'
               }
               if (index === 2) {
-                node.style.borderRadius = '0 5px 5px 0'
-                node.style.borderRight = '1px solid #409eff'
+                node.style.borderRadius = '0 12px 12px 0'
+                node.style.borderRight = 'solid 1px var(--apple-shadow-color)'
                 node.firstChild.style.height = '44px'
                 node.firstChild.style.lineHeight = '44px'
                 node.firstChild.style.width = '80px'
@@ -2397,7 +2426,7 @@ export default {
       if (!file.exif && !file.video) {
         return ''
       }
-      return "\r\n" + formatExif(file.exif) + formatVideo(file.video)
+      return formatExif(file.exif, '<br>') + formatVideo(file.video, '<br>')
     },
     upload() {
       // 打开文件选择框
@@ -3286,35 +3315,35 @@ export default {
         if (columnIndex === 0) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '50px 0 0 50px',
-            borderLeft: '1px solid #409eff',
-            borderTop: '1px solid #409eff',
-            borderBottom: '1px solid #409eff',
+            borderRadius: '12px 0 0 12px',
+            borderLeft: 'solid 1px var(--apple-shadow-color)',
+            borderTop: 'solid 1px var(--apple-shadow-color)',
+            borderBottom: 'solid 1px var(--apple-shadow-color)',
           }
         }
         if (columnIndex === 3) {
           return {
             backgroundColor: '#e0f3fc !important',
-            borderRadius: '0 50px 50px 0',
-            borderRight: '1px solid #409eff',
-            borderTop: '1px solid #409eff',
-            borderBottom: '1px solid #409eff',
+            borderRadius: '0 12px 12px 0',
+            borderRight: 'solid 1px var(--apple-shadow-color)',
+            borderTop: 'solid 1px var(--apple-shadow-color)',
+            borderBottom: 'solid 1px var(--apple-shadow-color)',
           }
         }
         return {
           backgroundColor: '#e0f3fc !important',
-          borderTop: '1px solid #409eff',
-          borderBottom: '1px solid #409eff',
+          borderTop: 'solid 1px var(--apple-shadow-color)',
+          borderBottom: 'solid 1px var(--apple-shadow-color)',
         }
       } else {
         if (columnIndex === 0) {
           return {
-            borderRadius: '50px 0 0 50px',
+            borderRadius: '12px 0 0 12px',
           }
         }
         if (columnIndex === 3) {
           return {
-            borderRadius: '0 50px 50px 0',
+            borderRadius: '0 12px 12px 0',
           }
         }
       }
@@ -4666,7 +4695,7 @@ export default {
 
   .is-sortable:hover {
     background-color: #e0f3fc;
-    border-radius: 40px;
+    border-radius: 12px;
   }
 }
 

@@ -562,7 +562,8 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "src/styles/home-index";
+@import 'src/styles/index';
+@import 'src/styles/home-index';
   .container {
     min-width: 1024px;
   }

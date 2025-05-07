@@ -1,4 +1,7 @@
 // import Vue from 'vue'
+import tippy from 'tippy.js';
+import 'tippy.js/themes/light.css';
+import 'tippy.js/dist/tippy.css';
 
 // v-draw-rectangle 画矩形选区
 Vue.directive('drawRectangle', {
@@ -248,6 +251,124 @@ Vue.directive('dialogDragWidth', {
     }
   }
 })
+
+const TOOLTIP_INSTANCE_KEY = '_tippyInstance'; // 用于在元素上存储 Tippy 实例
+
+// 默认 Tippy 配置
+const defaultTippyOptions = {
+  delay: 0, // 默认即时显示
+  arrow: true,
+  placement: 'top',
+  // 在这里可以添加更多你希望的全局默认配置
+  // theme: 'light',
+  // animation: 'scale',
+};
+
+/**
+ * 解析指令的绑定值，返回 Tippy 配置对象
+ * @param {*} value - binding.value
+ * @returns {object | null} - 返回 Tippy 配置对象，如果无效则返回 null
+ */
+function parseOptions(value) {
+  let options = {};
+  if (typeof value === 'string') {
+    // 如果值是字符串，将其作为 content
+    options.content = value;
+  } else if (typeof value === 'object' && value !== null) {
+    // 如果值是对象，直接使用（允许覆盖默认值）
+    // 确保至少有 content 属性，除非 Tippy 允许无 content (通常不允许或表现怪异)
+    if (value.content === undefined || value.content === null) {
+      // console.warn('v-tooltip object value must contain a "content" property.');
+      // 允许 content 为空字符串 ''
+      if (value.content !== '') {
+        console.warn('v-tooltip object value is missing a "content" property.');
+        return null;
+      }
+    }
+    options = { ...value }; // 复制对象，避免直接修改原始绑定对象
+  } else {
+    // 无效的值
+    console.warn('v-tooltip directive requires a string or an object value.');
+    return null;
+  }
+  return options;
+}
+
+
+Vue.directive('tooltip', {
+  /**
+   * 元素首次插入 DOM 时调用
+   */
+  inserted(el, binding) {
+    const userOptions = parseOptions(binding.value);
+    if (userOptions === null) return; // 值无效，不初始化
+
+    // 合并默认配置和用户提供的配置
+    const finalOptions = { ...defaultTippyOptions, ...userOptions };
+
+    // 创建 Tippy 实例并存储在元素上
+    el[TOOLTIP_INSTANCE_KEY] = tippy(el, finalOptions);
+    // console.log('Tippy initialized:', el, finalOptions);
+  },
+
+  /**
+   * 组件 VNode 更新后调用 (包括子 VNode)
+   * 这是处理绑定值变化比较可靠的地方
+   */
+  componentUpdated(el, binding) {
+    const instance = el[TOOLTIP_INSTANCE_KEY];
+
+    // 检查绑定值是否有实际变化
+    // 注意：对于对象，这仍然是浅比较。
+    // 如果对象内部属性变了但引用没变，这里可能判断为 false。
+    // 解决方法是在父组件中确保每次更新都传递新的对象引用。
+    if (binding.value === binding.oldValue && typeof binding.value === 'object') {
+      // 如果值是对象且引用未变，我们仍然尝试更新，以防内部属性变化
+      // （这是对 Vue 浅比较的弥补，但依赖父组件正确传递数据）
+      // console.log('Object reference unchanged, but attempting update');
+    } else if (binding.value === binding.oldValue) {
+      // 如果值是字符串或其他基础类型，且值未变，则无需更新
+      // console.log('Value unchanged, skipping update.');
+      return;
+    }
+
+
+    const userOptions = parseOptions(binding.value);
+
+    if (instance) {
+      // 如果实例存在
+      if (userOptions === null) {
+        // 新值无效，销毁现有实例
+        // console.log('Destroying Tippy due to invalid new value.');
+        instance.destroy();
+        el[TOOLTIP_INSTANCE_KEY] = null; // 清除引用
+      } else {
+        // 新值有效，更新实例的 props
+        // console.log('Updating Tippy props:', userOptions);
+        // setProps 会智能地合并传入的选项与现有选项
+        instance.setProps(userOptions);
+      }
+    } else if (userOptions !== null) {
+      // 如果实例不存在 (可能之前的值无效或被销毁了)，但新值有效，则重新创建
+      // console.log('Re-initializing Tippy with new valid value.');
+      const finalOptions = { ...defaultTippyOptions, ...userOptions };
+      el[TOOLTIP_INSTANCE_KEY] = tippy(el, finalOptions);
+    }
+  },
+
+  /**
+   * 元素解绑时调用
+   */
+  unbind(el) {
+    const instance = el[TOOLTIP_INSTANCE_KEY];
+    if (instance) {
+      // console.log('Destroying Tippy on unbind.');
+      instance.destroy();
+    }
+    // 删除存储的实例引用，防止内存泄漏
+    delete el[TOOLTIP_INSTANCE_KEY];
+  }
+});
 
 // 除某元素外的点击事件
 Vue.directive('clickoutside', { // 初始化指令

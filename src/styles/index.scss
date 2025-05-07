@@ -28,13 +28,102 @@ body {
     border-radius: $popperBorderRadius;
   }
 
-  .el-message, .el-notification .el-popover, .el-tooltip__popper, .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-picker-panel__body, .el-picker-panel__sidebar  {
+  .el-message, .el-notification, .el-popover, .el-tooltip__popper, .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-picker-panel__body, .el-picker-panel__sidebar  {
     border-radius: $popperBorderRadius;
+  }
+
+  .el-popover.el-popper.upload-file {
+    border-radius: 16px;
+    padding: 10px 10px;
+    li {
+      padding: 0 10px;
+    }
   }
 
   .v-contextmenu {
     border-radius: 8px;
   }
+
+  .el-popper.file-operation-history {
+    padding: 0;
+    border-radius: 16px;
+    width: 300px !important;
+    background-color: rgba(255, 255, 255, .75);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    .el-scrollbar__wrap {
+      border-radius: 16px;
+    }
+  }
+
+  .tippy-box[data-theme~=light] {
+    border-radius: 12px;
+    background-color: rgba(255,255,255,.75);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    /* 推荐放在全局 CSS 或使用 :deep() */
+
+    /* 应用于 Tippy 的浅色主题下的自定义内容容器 */
+    /* 注意：选择器可能需要根据你的具体情况调整 */
+    /* 如果 appendTo: 'parent', 可能不需要 :deep() */
+    /* 如果 appendTo: document.body, 并且样式在 scoped style 中，则需要 :deep() */
+
+    .apple-tooltip-content {
+      padding: 8px 12px; /* 增加内边距 */
+      font-size: 12px; /* 稍小的基础字号 */
+      line-height: 1.5; /* 增加行高提高可读性 */
+      color: #333; /* 深灰色文字 */
+      text-align: left; /* 确保左对齐 */
+      max-width: 300px;
+    }
+
+    .tooltip-row {
+      display: flex; /* 使用 flex 布局方便对齐 */
+      justify-content: space-between; /* 两端对齐，标签在左，值在右 */
+      margin-bottom: 4px; /* 行间距 */
+      /* 如果希望标签和值都左对齐，注释掉 justify-content，并可能给 label 固定宽度 */
+      /* align-items: center; */ /* 如果需要垂直居中 */
+    }
+
+    .tooltip-row:last-child {
+      margin-bottom: 0; /* 最后一行无下边距 */
+    }
+
+    .tooltip-label {
+      color: #666; /* 标签使用浅灰色 */
+      margin-right: 8px; /* 标签和值之间的间距 */
+      /* font-weight: 500; */ /* 可以稍微加粗一点点 */
+      flex-shrink: 0; /* 防止标签被压缩 */
+      /* 如果想让标签右对齐: */
+      /* text-align: right; */
+      /* width: 70px; */ /* 可能需要固定宽度以对齐值 */
+    }
+
+    .tooltip-value {
+      color: #111; /* 值使用更深的颜色 */
+      word-break: break-all; /* 长内容（如路径、名称）自动换行 */
+      text-align: right; /* 值右对齐，配合标签左对齐 */
+      /* 如果标签和值都左对齐，移除 text-align: right */
+    }
+
+    .tooltip-value-path, .tooltip-value-name {
+      word-break: break-all;
+      text-align: left;
+    }
+
+    .tooltip-divider {
+      border: none;
+      border-top: 1px solid #e0e0e0; /* 浅灰色分隔线 */
+      margin: 8px 0; /* 分隔线上下的间距 */
+    }
+
+    .tooltip-extended {
+      margin-top: 4px;
+      color: #555;
+    }
+
+  }
+
 }
 
 .time-filter-dropdown {
