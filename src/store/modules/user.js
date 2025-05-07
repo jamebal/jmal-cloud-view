@@ -97,7 +97,6 @@ const actions = {
         }
 
         state.menuList = getMenuTree(res.data);
-        console.log('state.menuList', state.menuList)
         commit('SET_MENU_LIST', state.menuList);
         resetRouter(state.menuList)
         router.options.routes = router.options.routes.concat(state.menuList);
