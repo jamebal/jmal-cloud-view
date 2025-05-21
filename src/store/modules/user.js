@@ -3,17 +3,14 @@ import fileApi from '@/api/file-api'
 import menuApi from '@/api/menu'
 import {
   getToken,
-  setToken,
   getConsumerId,
-  setConsumerId,
   removeToken,
   removeConsumerId,
-  setRememberName,
   removeRememberName,
   setShareToken,
   getShareToken,
   removeShareToken,
-  getUsername, setUsername,
+  getUsername,
 } from '@/utils/auth'
 import { setLogo } from '@/utils/logo'
 import { resetRouter } from '@/router'
@@ -114,14 +111,9 @@ const actions = {
       login({ username: username.trim(), password: password, rememberMe: rememberMe }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.jmalToken)
-        setToken(data.jmalToken)
-        setUsername(username.trim())
         commit('SET_NAME', username.trim())
         commit('SET_USERID', data.userId)
-        setConsumerId(data.userId)
-        if(rememberMe){
-          setRememberName(username)
-        } else {
+        if(!rememberMe){
           removeRememberName()
         }
         resolve()
