@@ -174,7 +174,8 @@ const actions = {
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        localStorage.clear()
+        localStorage.removeItem('store')
+        localStorage.removeItem('app')
         resetRouter()
         commit('RESET_STATE')
         resolve()
@@ -187,7 +188,8 @@ const actions = {
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      localStorage.clear()
+      localStorage.removeItem('store')
+      localStorage.removeItem('app')
       commit('RESET_STATE')
       resolve()
     })

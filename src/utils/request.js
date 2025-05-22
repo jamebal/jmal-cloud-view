@@ -22,7 +22,7 @@ service.interceptors.request.use(
     }
     if (store.getters.shareToken) {
       config.headers['share-token'] = store.getters.shareToken
-      config.headers['shareId'] = store.getters.shareToken
+      config.headers['shareId'] = store.getters.shareId
     }
     // add i18n
     config.headers['lang'] = store.getters.lang || getBrowserLanguage()
