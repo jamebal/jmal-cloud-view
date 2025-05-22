@@ -1,5 +1,5 @@
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
-
+import { setFavicon } from '@/utils/logo'
 import '@/utils/common'
 import '@/utils/web'
 
@@ -12,6 +12,8 @@ import router from './router'
 
 import VueI18n from 'vue-i18n';
 import { loadLocaleMessages, getBrowserLocale } from '@/utils/loadLocaleMessages';
+
+setFavicon()
 
 // ant-design-vue
 import { Affix } from 'ant-design-vue';

@@ -1,7 +1,6 @@
 // import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import _ from "lodash";
-import {getShareId, getShareToken, getToken, getUsername} from '@/utils/auth'
 import { getBrowserLanguage } from '@/utils/loadLocaleMessages';
 
 // create an axios instance
@@ -16,14 +15,14 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
     if (store.getters.token) {
-      config.headers['jmal-token'] = getToken()
+      config.headers['jmal-token'] = store.getters.token
     }
     if (store.getters.name) {
-      config.headers['name'] = getUsername()
+      config.headers['name'] = store.getters.name
     }
     if (store.getters.shareToken) {
-      config.headers['share-token'] = getShareToken()
-      config.headers['shareId'] = getShareId()
+      config.headers['share-token'] = store.getters.shareToken
+      config.headers['shareId'] = store.getters.shareToken
     }
     // add i18n
     config.headers['lang'] = store.getters.lang || getBrowserLanguage()
@@ -71,7 +70,7 @@ service.interceptors.response.use(
       } else if (res.code === 5) {
         // to re-login
         setTimeout(function () {
-          const hasToken = getToken()
+          const hasToken = store.getters.token
           if (hasToken) {
             Vue.prototype.$confirm('登录已失效，请重新登录', '确认登出', {
               confirmButtonText: '重新登录',

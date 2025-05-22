@@ -18,7 +18,6 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
-import { getToken } from '@/utils/auth'
 import AudioPreview from "@/components/preview/AudioPreview";
 import globalUploader from '@/components/SimpleUploader/globalUploader.vue'
 import { initiateSSE } from '@/sse/SSEClient'
@@ -59,7 +58,7 @@ export default {
   },
   mounted() {
     window.pc = !/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
-    if(getToken()){
+    if(this.$store.getters.token){
       this.isShow = window.pc;
       // 与服务器建立sse连接
       initiateSSE(this.$store.state.user.name)

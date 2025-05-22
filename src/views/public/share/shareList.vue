@@ -1088,7 +1088,6 @@ export default {
         this.accessShareOpenDir(row.id)
       } else {
         const fileHandler = fileConfig.hasIframePreview(row.suffix, this.iframePreviewConfig)
-        console.log(fileHandler, this.iframePreviewConfig)
         if (fileHandler !== null) {
           // iframe 预览
           this.iframePreviewVisible = true

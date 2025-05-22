@@ -100,7 +100,6 @@
 <script>
 import { getWebstieRecord } from "@/api/setting-api";
 import { hasUser, initialization } from '@/api/user'
-import { getRememberName } from '@/utils/auth'
 import Logo from "@/components/Logo";
 
 export default {
@@ -180,11 +179,6 @@ export default {
       }
     })
 
-    let rememberName = getRememberName()
-    if(rememberName){
-      this.loginForm.username = rememberName
-      this.loginForm.rememberMe = true
-    }
     getWebstieRecord().then((res) => {
       this.webstieRecord = res.data
       if (this.webstieRecord.netdiskName || this.webstieRecord.netdiskLogo) {

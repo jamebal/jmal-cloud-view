@@ -1,9 +1,8 @@
-import { getConsumerId, getShareToken, getToken, getUsername } from '@/utils/auth'
 import Cookies from 'js-cookie'
 
 
 const getDefaultState = () => {
-  const app = sessionStorage.getItem('app') && JSON.parse(sessionStorage.getItem('app'))
+  const app = localStorage.getItem('app') && JSON.parse(localStorage.getItem('app'))
   return {
     sidebar: {
       opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
@@ -40,7 +39,7 @@ const mutations = {
 }
 
 function setStorage() {
-  sessionStorage.setItem('app', JSON.stringify(state))
+  localStorage.setItem('app', JSON.stringify(state))
 }
 
 const actions = {

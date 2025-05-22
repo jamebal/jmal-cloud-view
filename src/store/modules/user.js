@@ -1,17 +1,6 @@
 import { login, logout, getInfo } from '@/api/user'
 import fileApi from '@/api/file-api'
 import menuApi from '@/api/menu'
-import {
-  getToken,
-  getConsumerId,
-  removeToken,
-  removeConsumerId,
-  removeRememberName,
-  setShareToken,
-  getShareToken,
-  removeShareToken,
-  getUsername,
-} from '@/utils/auth'
 import { setLogo } from '@/utils/logo'
 import { resetRouter } from '@/router'
 import router from '@/router'
@@ -19,15 +8,16 @@ import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
 
 const getDefaultState = () => {
-  const store = sessionStorage.getItem('store') && JSON.parse(sessionStorage.getItem('store'))
+  const store = localStorage.getItem('store') && JSON.parse(localStorage.getItem('store'))
   return {
-    token: getToken(),
-    shareToken: getShareToken(),
-    name: getUsername(),
+    token: store ? store.token  : '',
+    shareToken: store ? store.shareToken  : '',
+    shareId: store ? store.shareId  : '',
+    name: store ? store.name  : '',
     showName: store ? store.showName : '',
     userInfo: {},
     avatar: store ? store.avatar : '',
-    userId: getConsumerId(),
+    userId: store ? store.userId  : '',
     menuList: [],
     netdiskName: store ? store.netdiskName : '',
     netdiskLogo: store ? store.netdiskLogo : '',
@@ -47,6 +37,9 @@ const mutations = {
   },
   SET_SHARE_TOKEN: (state, token) => {
     state.shareToken = token
+  },
+  SET_SHARE_ID: (state, shareId) => {
+    state.shareId = shareId
   },
   SET_NAME: (state, name) => {
     state.name = name
@@ -93,8 +86,7 @@ const actions = {
           localStorage.removeItem('taskProgressRole')
         }
 
-        state.menuList = getMenuTree(res.data);
-        commit('SET_MENU_LIST', state.menuList);
+        commit('SET_MENU_LIST', getMenuTree(res.data));
         resetRouter(state.menuList)
         router.options.routes = router.options.routes.concat(state.menuList);
         resolve(res)
@@ -110,12 +102,9 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password, rememberMe: rememberMe }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.jmalToken)
+        commit('SET_TOKEN', data['jmal-token'])
         commit('SET_NAME', username.trim())
         commit('SET_USERID', data.userId)
-        if(!rememberMe){
-          removeRememberName()
-        }
         resolve()
       }).catch(error => {
         reject(error)
@@ -128,7 +117,7 @@ const actions = {
       fileApi.validShareCode({ shareId: shareId, shareCode: shareCode }).then(response => {
         const { data } = response
         commit('SET_SHARE_TOKEN', data)
-        setShareToken(data, shareId)
+        commit('SET_SHARE_ID', shareId)
         resolve()
       }).catch(error => {
         reject(error)
@@ -141,7 +130,7 @@ const actions = {
     commit('SET_NETDISK_NAME', netdiskName)
     commit('SET_NETDISK_LOGO', netdiskLogo)
     setLogo(netdiskName, netdiskLogo)
-    sessionStorage.setItem('store', JSON.stringify(state))
+    localStorage.setItem('store', JSON.stringify(state))
   },
 
   // get user info
@@ -173,7 +162,7 @@ const actions = {
           commit('SET_NEW_VERSION', '')
         }
         setLogo(netdiskName, netdiskLogo)
-        sessionStorage.setItem('store', JSON.stringify(state))
+        localStorage.setItem('store', JSON.stringify(state))
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -186,9 +175,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         localStorage.clear()
-        removeToken()
-        removeConsumerId()
-        removeRememberName()
         resetRouter()
         commit('RESET_STATE')
         resolve()
@@ -201,8 +187,7 @@ const actions = {
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      removeToken() // must remove  token  first
-      removeConsumerId()
+      localStorage.clear()
       commit('RESET_STATE')
       resolve()
     })
@@ -216,8 +201,8 @@ const actions = {
   // remove share token
   resetShareToken({ commit }) {
     return new Promise(resolve => {
-      removeShareToken()
       commit('SET_SHARE_TOKEN', undefined)
+      commit('SET_SHARE_ID', undefined)
       resolve()
     })
   }

@@ -2,7 +2,6 @@ import router from './router'
 import store from './store'
 import NProgress from 'nprogress' // 进度条
 import 'nprogress/nprogress.css' // 进度条样式
-import { getToken } from '@/utils/auth' // 认证获取token
 import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress配置
@@ -16,7 +15,7 @@ router.beforeEach(async(to, from, next) => {
   document.title = getPageTitle(to.meta.title)
 
   // 确认用户是否已登录
-  const hasToken = getToken()
+  const hasToken = store.getters.token
 
   if (hasToken) {
     // 已登录的情况

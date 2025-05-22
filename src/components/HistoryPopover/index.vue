@@ -143,6 +143,9 @@ export default {
       })
     },
     loadHistoryPathList(pathname) {
+      if (!this.$store.getters.token) {
+        return
+      }
       historyApi.fileHistoryPathList({path: encodeURI(pathname), username: this.$store.state.user.name, pageIndex: this.historyPageIndex, pageSize: this.historyPageSize}).then((res) => {
         this.fileHistoryList = res.data
         this.$emit('loadHistoryPathListSuccess', {res: res, pathname: pathname})
