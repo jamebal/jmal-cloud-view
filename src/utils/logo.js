@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie'
 import fileConfig from "@/utils/file-config";
 
 const titleKey = 'netdisk-name'
@@ -6,22 +5,22 @@ const titleKey = 'netdisk-name'
 const logoKey = 'netdisk-logo'
 
 export function getLogoName() {
-  return Cookies.get(titleKey)
+  return localStorage.getItem(titleKey)
 }
 
 export function getLogo() {
-  return Cookies.get(logoKey)
+  return localStorage.getItem(logoKey)
 }
 
 export function setLogo(logoName, logo) {
-  Cookies.set(titleKey, logoName)
-  Cookies.set(logoKey, logo)
+  localStorage.setItem(titleKey, logoName)
+  localStorage.setItem(logoKey, logo)
   setFavicon()
 }
 
 export function removeLogo() {
-  Cookies.remove(titleKey)
-  return Cookies.remove(logoKey)
+  localStorage.removeItem(titleKey)
+  localStorage.removeItem(logoKey)
 }
 
 export function setFavicon() {
