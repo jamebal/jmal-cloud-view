@@ -70,7 +70,6 @@
     <div class="pagination">
       <el-pagination
         hide-on-single-page
-        background
         layout="total,sizes, prev, pager, next, jumper"
         :current-page="pagination.pageIndex"
         :page-sizes="[20, 30, 50, 100]"

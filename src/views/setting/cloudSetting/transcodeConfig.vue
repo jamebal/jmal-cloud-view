@@ -110,8 +110,8 @@
       </el-form-item>
       <el-form-item>
         <div class="transcode-status">
-          <el-button round v-if="transcodeStatus.waitingTranscodingCount > 0 || transcodeStatus.transcodingCount > 0"  type="warning" v-loading="cancelTaskLoading" @click="cancelTask">取消任务</el-button>
-          <el-button round v-else type="primary" v-loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
+          <el-button round v-if="transcodeStatus.waitingTranscodingCount > 0 || transcodeStatus.transcodingCount > 0"  type="warning" :loading="cancelTaskLoading" @click="cancelTask">取消任务</el-button>
+          <el-button round v-else type="primary" :loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
           <div>
             <span v-if="transcodeStatus.waitingTranscodingCount > 0"><b>{{transcodeStatus.waitingTranscodingCount}}</b>个视频等待转码 </span>
             <span v-if="transcodeStatus.transcodingCount > 0"> <b>{{transcodeStatus.transcodingCount}}</b>个视频正在转码中</span>

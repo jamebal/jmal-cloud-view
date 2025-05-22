@@ -52,7 +52,7 @@
         </div>
       </el-form-item>
       <el-form-item>
-        <el-button round type="primary" v-loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
+        <el-button round type="primary" :loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
       </el-form-item>
     </el-form>
   </div>

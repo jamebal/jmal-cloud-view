@@ -16,13 +16,16 @@ body {
     border-width: 0;
   }
 
-  .el-button {
-    border-radius: 32px;
+  .el-button.is-circle {
+    line-height: 0;
   }
-
-  .el-tag {
-    border-radius: 8px;
-  }
+  //.el-button {
+  //  border-radius: 32px;
+  //}
+  //
+  //.el-tag {
+  //  border-radius: 8px;
+  //}
 
   .el-message-box {
     border-radius: $popperBorderRadius;

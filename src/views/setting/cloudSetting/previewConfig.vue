@@ -12,7 +12,7 @@
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button round type="primary" v-loading="saveConfigLoading" @click="submitForm">保存配置</el-button>
+        <el-button round type="primary" :loading="saveConfigLoading" @click="submitForm">保存配置</el-button>
         <el-button round type="warning" @click="resetConfig">重置</el-button>
       </el-form-item>
     </el-form>
