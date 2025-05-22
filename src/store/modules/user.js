@@ -8,7 +8,16 @@ import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
 
 const getDefaultState = () => {
-  const store = localStorage.getItem('store') && JSON.parse(localStorage.getItem('store'))
+  const storeData = localStorage.getItem('store')
+  let store = null
+  if (storeData) {
+    try {
+      store = JSON.parse(storeData)
+    } catch (e) {
+      console.error('Failed to parse user state from localStorage, it might be corrupted:', e)
+      localStorage.removeItem('store')
+    }
+  }
   return {
     token: store ? store.token  : '',
     shareToken: store ? store.shareToken  : '',
