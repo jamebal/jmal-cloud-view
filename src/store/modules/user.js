@@ -7,6 +7,10 @@ import router from '@/router'
 import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
 
+const setState = (state) => {
+  localStorage.setItem('store', JSON.stringify(state))
+}
+
 const getDefaultState = () => {
   const storeData = localStorage.getItem('store')
   let store = null
@@ -127,6 +131,7 @@ const actions = {
         const { data } = response
         commit('SET_SHARE_TOKEN', data)
         commit('SET_SHARE_ID', shareId)
+        setState(state)
         resolve()
       }).catch(error => {
         reject(error)
@@ -139,7 +144,7 @@ const actions = {
     commit('SET_NETDISK_NAME', netdiskName)
     commit('SET_NETDISK_LOGO', netdiskLogo)
     setLogo(netdiskName, netdiskLogo)
-    localStorage.setItem('store', JSON.stringify(state))
+    setState(state)
   },
 
   // get user info
@@ -171,7 +176,7 @@ const actions = {
           commit('SET_NEW_VERSION', '')
         }
         setLogo(netdiskName, netdiskLogo)
-        localStorage.setItem('store', JSON.stringify(state))
+        setState(state)
         resolve(data)
       }).catch(error => {
         reject(error)
