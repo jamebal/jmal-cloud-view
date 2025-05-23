@@ -1,6 +1,12 @@
 import fileApi from '@/api/file-api'
 import store from '@/store'
 
+function isFilePath(str) {
+  // 匹配 test/r2/file.txt
+  const filePathRegex = /^[\w\-\/]+[\u4e00-\u9fa5\w\-]+\.\w+$/;
+  return filePathRegex.test(str);
+}
+
 export default {
   baseUrl: '/api',
   // 网盘logo
@@ -42,7 +48,13 @@ export default {
       return `${fileUrl}?jmal-token=${token}&name=${username}`
     }
     if (shareToken) {
+      if (isFilePath(file.id)) {
+        return `${fileUrl}?share-token=${shareToken}`
+      }
       return `${baseUrl}/share-file/${file.id}/${shareToken}/${encodeURI(file.name)}`
+    }
+    if (isFilePath(file.id)) {
+      return fileUrl
     }
     return `${baseUrl}/share-file/${file.id}/${encodeURI(file.name)}`
   },
