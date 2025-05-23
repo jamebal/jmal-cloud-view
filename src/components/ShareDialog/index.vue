@@ -108,9 +108,9 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button round size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare" v-loading="cancelSharing">取消分享</el-button>
+        <el-button round size="small" v-if="shareOptionConfig.shared" type="danger" @click="cancelShare" :loading="cancelSharing">取消分享</el-button>
         <el-button round size="small" v-if="!shareOptionConfig.shared" type="primary" @click="submitShare"
-                   v-loading="generateShareLinkLoading">创建分享
+                   :loading="generateShareLinkLoading">创建分享
         </el-button>
         <el-button round size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy"
                    @click="copyShareLink('口令复制成功')"

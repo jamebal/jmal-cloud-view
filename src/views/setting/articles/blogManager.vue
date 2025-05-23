@@ -100,7 +100,7 @@
 
           <div>
             <el-divider content-position="center">预览</el-divider>
-            <footer id="footer" style="font-size: 0.725rem;">
+            <footer id="footer" style="font-size: 0.725rem; border-radius: 12px">
               <div v-if="!form.footerHtml">
                 <div>{{ form.copyright }}</div>
                 <span>

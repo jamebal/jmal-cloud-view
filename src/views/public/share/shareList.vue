@@ -119,7 +119,7 @@
                         @keyup.enter.native="rowRename(renameFileName, scope.row)">
               </el-input>
               <el-button round
-                v-loading="renameLoading"
+                :loading="renameLoading"
                 element-loading-spinner="el-icon-loading"
                 element-loading-background="#f6f7fa88"
                 class="el-icon-check"

@@ -102,6 +102,7 @@ iconClass.set('glb','file-glb')
 iconClass.set('gltf','file-glb')
 iconClass.set('epub','file-epub')
 iconClass.set('dwg','file-dwg')
+iconClass.set('sgmodule','surge')
 
 export function findIconClass(file){
   if(!file){

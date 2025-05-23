@@ -138,7 +138,7 @@
                     >
                       <el-button round
                         slot="append"
-                        v-loading="newFolderLoading"
+                        :loading="newFolderLoading"
                         element-loading-spinner="el-icon-loading"
                         element-loading-background="#f6f7fa88"
                         class="el-icon-right"
@@ -791,7 +791,7 @@
           size="small"
           type="primary"
           @click="createFile(newCreateFileName)"
-          v-loading="createFileLoading"
+          :loading="createFileLoading"
           >确定</el-button
         >
       </span>

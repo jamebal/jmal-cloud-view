@@ -71,7 +71,7 @@
         </div>
       <div slot="footer" class="dialog-footer">
         <el-button round v-if="existingTags.length > 0 || isEditMode" size="small" @click="editMode" >{{ isEditMode ? '取消编辑' : '编辑现有标签' }}</el-button>
-        <el-button round size="small" type="primary" @click="submitTag" v-loading="saveLoading">保存</el-button>
+        <el-button round size="small" type="primary" @click="submitTag" :loading="saveLoading">保存</el-button>
       </div>
     </el-dialog>
   </di>

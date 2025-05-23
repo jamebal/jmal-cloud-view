@@ -75,10 +75,10 @@
 //}
 
 // --- Variables ---
-$inputBorderRadius: 12px;
-$inputBorderRadiusMedium: 11px;
-$inputBorderRadiusSmall: 10px;
-$inputBorderRadiusMini: 9px;
+$inputBorderRadius: 10px;
+$inputBorderRadiusMedium: 9px;
+$inputBorderRadiusSmall: 8px;
+$inputBorderRadiusMini: 7px;
 
 // --- Size Map ---
 // Map linking size suffixes (including 'default' placeholder) to radius variables
@@ -89,15 +89,30 @@ $input-sizes: (
   "mini": $inputBorderRadiusMini
 );
 
+.el-pagination .el-select .el-input .el-input__inner {
+  border-radius: $inputBorderRadiusMini;
+}
+.el-pagination__jump .el-input__inner {
+  border-radius: $inputBorderRadiusMini !important;
+}
+
 // --- Loop through sizes to generate styles ---
 @each $size, $radius in $input-sizes {
   // Determine the base selectors for input and input-number for the current size
   // For 'default', we target the base classes without size modifiers
   $input-base-selector: if($size == "default", ">>> .el-input", ">>> .el-input--#{$size}");
+  $select-base-selector: if($size == "default", ">>> .el-select", ">>> .el-select--#{$size}");
   $number-base-selector: if($size == "default", ">>> .el-input-number", ">>> .el-input-number--#{$size}");
+  $range-base-selector: if($size == "default", ">>> .el-range-editor", ">>> .el-range-editor--#{$size}");
 
   // --- Common Styles for Input and InputNumber Inner ---
+
+  #{$range-base-selector}.el-input__inner {
+    border-radius: $radius;
+  }
+
   #{$input-base-selector},
+  #{$select-base-selector},
   #{$number-base-selector} {
     .el-input__inner {
       border-radius: $radius;
@@ -131,6 +146,7 @@ $input-sizes: (
   // Note: Original logic for default vs sized inputs was slightly different.
   // This version aims for consistency: prepend rounds left, append rounds right.
   #{$input-base-selector}, // Apply group styles potentially within input context
+  #{$range-base-selector},
   #{$number-base-selector} { // And within input-number context
 
     .el-input-group__prepend {
@@ -156,6 +172,28 @@ $input-sizes: (
     //  border-top-right-radius: 0;
     //  border-bottom-right-radius: 0;
     //}
+  }
+}
+
+
+//.el-radio-button:first-child.el-radio-button--medium .el-radio-button__inner {
+//  border-top-left-radius: $inputBorderRadius;
+//}
+
+@each $size, $radius in $input-sizes {
+  $radio-button-first-selector: if($size == "default", ">>> .el-radio-button:first-child.el-radio-button", ">>> .el-radio-button:first-child.el-radio-button--#{$size}");
+  $radio-button-last-selector: if($size == "default", ">>> .el-radio-button:last-child.el-radio-button", ">>> .el-radio-button:last-child.el-radio-button--#{$size}");
+  #{$radio-button-first-selector} {
+    .el-radio-button__inner {
+      border-top-left-radius: $radius;
+      border-bottom-left-radius: $radius;
+    }
+  }
+  #{$radio-button-last-selector} {
+    .el-radio-button__inner {
+      border-top-right-radius: $radius;
+      border-bottom-right-radius: $radius;
+    }
   }
 }
 
@@ -194,10 +232,23 @@ $input-sizes: (
   border-radius: 12px;
 }
 
->>> .el-dialog {
+>>> .el-dialog, .box-card {
   border-radius: $dialogBorderRadius;
 }
 
 >>> .el-popper {
   border-radius: $popperBorderRadius;
+}
+
+.el-tag {
+  border-radius: 9px;
+}
+.el-tag--mini {
+  border-radius: 6px;
+}
+.el-tag--small {
+  border-radius: 7px;
+}
+.el-tag--medium {
+  border-radius: 8px;
 }

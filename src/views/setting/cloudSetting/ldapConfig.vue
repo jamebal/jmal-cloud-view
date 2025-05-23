@@ -28,7 +28,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button round type="primary" :disabled="ldapTestBtn" v-loading="testLdapConfigLoading" @click="doTestLdapConfig">测试链接</el-button>
+        <el-button round type="primary" :disabled="ldapTestBtn" :loading="testLdapConfigLoading" @click="doTestLdapConfig">测试链接</el-button>
         <span v-if="testLdapConfigResult === 0" class="el-icon-check" style="color: #67C23A"></span>
         <span v-if="testLdapConfigResult > 0" class="el-icon-close" style="color: #F56C6C"></span>
       </el-form-item>
@@ -49,7 +49,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button round type="primary" :disabled="ldapSaveBtn" v-loading="saveLdapConfigLoading" @click="saveLdapConfig">保存配置</el-button>
+        <el-button round type="primary" :disabled="ldapSaveBtn" :loading="saveLdapConfigLoading" @click="saveLdapConfig">保存配置</el-button>
       </el-form-item>
     </el-form>
   </div>

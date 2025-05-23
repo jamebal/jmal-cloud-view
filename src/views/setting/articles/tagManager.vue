@@ -49,7 +49,7 @@
             >
               {{tag.name}}
               <i
-                :style="{marginLeft: '-5px',visibility: hoverEditId === tag.id ? 'visible' : 'hidden'}"
+                :style="{visibility: hoverEditId === tag.id ? 'visible' : 'hidden'}"
                 class="el-tag__close el-icon-edit"
                 @click.prevent="handleEdit(tag.id)"
               >
@@ -281,5 +281,8 @@ export default {
 }
 >>> .el-form-item__content {
   line-height: 1.5;
+}
+.el-checkbox.is-bordered.el-checkbox--small {
+  border-radius: 8px;
 }
 </style>
