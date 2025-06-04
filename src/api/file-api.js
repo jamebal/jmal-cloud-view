@@ -153,6 +153,14 @@ export default {
       params
     })
   },
+  // 删除所有搜索记录🔍
+  removeAllSearchHistory: function(params) {
+    return request({
+      url: '/search/deleteAllSearchHistory',
+      method: 'delete',
+      params
+    })
+  },
   // 搜索文件🔍
   searchFile: function(params) {
     return request({

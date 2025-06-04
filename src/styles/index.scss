@@ -29,6 +29,9 @@ body {
 
   .el-message-box {
     border-radius: $popperBorderRadius;
+    .el-button {
+      border-radius: 20px;
+    }
   }
 
   .el-message, .el-notification, .el-popover, .el-tooltip__popper, .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-picker-panel__body, .el-picker-panel__sidebar  {

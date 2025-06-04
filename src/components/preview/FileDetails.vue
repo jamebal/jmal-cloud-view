@@ -54,11 +54,11 @@
           <el-form-item label="名称:">
             <span>{{ file.name }}</span>
           </el-form-item>
-<!--          <el-form-item label="类型:">-->
-<!--          <span>{{-->
-<!--              file.isFolder ? '文件夹' : file.contentType-->
-<!--            }}</span>-->
-<!--          </el-form-item>-->
+          <el-form-item label="类型:">
+          <span>{{
+              file.isFolder ? '文件夹' : file.contentType
+            }}</span>
+          </el-form-item>
           <div v-if="file.music">
             <el-form-item label="🎵 歌手:">
               <span>{{ file.music.singer }}</span>

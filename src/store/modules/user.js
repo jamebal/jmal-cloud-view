@@ -34,6 +34,7 @@ const getDefaultState = () => {
     menuList: [],
     netdiskName: store ? store.netdiskName : '',
     netdiskLogo: store ? store.netdiskLogo : '',
+    exactSearch: store ? store.exactSearch : false,
     newVersion: store ? store.newVersion : '',
     iframePreviewConfig: {}
   }
@@ -77,6 +78,9 @@ const mutations = {
   },
   SET_NETDISK_LOGO:(state,netdiskLogo) => {
     state.netdiskLogo = netdiskLogo;
+  },
+  SET_EXACT_SEARCH:(state,exactSearch) => {
+    state.exactSearch = exactSearch;
   },
   SET_NEW_VERSION:(state,newVersion) => {
     state.newVersion = newVersion;
@@ -156,7 +160,7 @@ const actions = {
           // reject('Verification failed, please Login again.')
         }
 
-        const { id, username, showName, avatar, netdiskName, netdiskLogo, newVersion, iframe} = data
+        const { id, username, showName, avatar, netdiskName, exactSearch, netdiskLogo, newVersion, iframe} = data
 
         commit('SET_NAME', username)
         commit('SET_SHOW_NAME', showName)
@@ -165,6 +169,7 @@ const actions = {
         commit('SET_USER_INFO', data)
         commit('SET_NETDISK_NAME', netdiskName)
         commit('SET_NETDISK_LOGO', netdiskLogo)
+        commit('SET_EXACT_SEARCH', exactSearch)
         if (iframe) {
           commit('SET_IFRAME_PREVIEW', JSON.parse(iframe))
         } else {

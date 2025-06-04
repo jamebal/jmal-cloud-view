@@ -18,15 +18,57 @@
         <span>个结果</span>
       </div>
     </div>
+
+    <div class="search-option-scope">
+      <div class="search-option-scope-title">
+        查找范围:
+      </div>
+      <div class="content-scope">
+        <div>
+          <el-checkbox
+            v-model="includeTagName"
+            class="search-option-checkbox"
+            @change="handleCommonChange"
+          >标签名称
+          </el-checkbox>
+        </div>
+        <div>
+          <el-checkbox
+            v-model="includeFileName"
+            class="search-option-checkbox"
+            @change="handleCommonChange"
+          >文件名称
+          </el-checkbox>
+        </div>
+        <div>
+          <el-checkbox
+            v-model="includeFileContent"
+            class="search-option-checkbox"
+            @change="handleCommonChange"
+          >文件内容
+          </el-checkbox>
+        </div>
+      </div>
+    </div>
+
     <div class="file-search-option">
       <div class="search-bar">
         <div class="search-input-wrapper">
           <div class="search-filters">
             <div>
               <el-checkbox
+                v-if="showExactSearch"
+                v-model="exactSearch"
+                class="search-option-checkbox"
+                @change="handleCommonChange"
+              >精准搜索
+              </el-checkbox>
+            </div>
+            <div>
+              <el-checkbox
                 v-model="searchOverall"
                 class="search-option-checkbox"
-                @change="handleSearchOverallChange"
+                @change="handleCommonChange"
               >全盘搜索
               </el-checkbox>
             </div>
@@ -34,7 +76,7 @@
               <el-checkbox
                 v-model="searchMount"
                 class="search-option-checkbox"
-                @change="handleSearchMountChange"
+                @change="handleCommonChange"
               >挂载目录
               </el-checkbox>
             </div>
@@ -142,6 +184,13 @@
             全盘搜索
           </el-tag>
         </div>
+        <div v-if="exactSearch">
+          <el-tag
+            closable
+            @close="resetExactSearch">
+            精准搜索
+          </el-tag>
+        </div>
         <div v-if="searchMount">
           <el-tag
             closable
@@ -217,10 +266,18 @@ export default {
       fileTypeText: '全部文件',
       searchMount: false,
       searchOverall: false,
-      filterOption: this.emptyFilterOption
+      exactSearch: false,
+      filterOption: this.emptyFilterOption,
+      checkList: ['标签名称', '文件名称', '文件内容'],
+      includeTagName: true,
+      includeFileName: true,
+      includeFileContent: true,
     }
   },
   computed: {
+    showExactSearch() {
+      return this.$store.getters.exactSearch
+    },
     searchScope() {
       const queryTagId = this.$route.query.tagId
       const isRootPath = this.$route.query.path === '/';
@@ -251,7 +308,7 @@ export default {
       return ''
     },
     hasSearchConditions() {
-      return this.fileType !== 'all' || this.timeRange || this.hasSizeRange || this.searchMount || this.searchOverall
+      return this.fileType !== 'all' || this.timeRange || this.hasSizeRange || this.searchMount || this.searchOverall || this.exactSearch
     },
     emptyFilterOption() {
       return {
@@ -260,8 +317,12 @@ export default {
         modifyEnd: null,
         sizeMin: null,
         sizeMax: null,
-        searchMount: false,
-        searchOverall: false,
+        searchMount: null,
+        searchOverall: null,
+        exactSearch: null,
+        includeTagName: true,
+        includeFileName: true,
+        includeFileContent: true
       }
     },
     hasSizeRange () {
@@ -306,13 +367,18 @@ export default {
         modifyEnd: this.timeRange ? new Date(this.timeRange[1]).getTime() : null,
         sizeMin: this.hasSizeRange ? this.sizeRange[0] : null,
         sizeMax: this.hasSizeRange ? this.sizeRange[1] : null,
-        searchMount: this.searchMount,
-        searchOverall: this.searchOverall
+        searchMount: this.searchMount ?  true : null,
+        searchOverall: this.searchOverall ?  true : null,
+        exactSearch: this.exactSearch ?  true : null,
+        includeTagName: this.includeTagName,
+        includeFileName: this.includeFileName,
+        includeFileContent: this.includeFileContent,
       }
 
       this.$emit('filter-change')
       this.$emit('update:filter-option-param', this.filterOption)
       this.$emit('update:has-search-conditions-param', this.hasSearchConditions)
+
       localStorage.setItem('searchFilterOption', JSON.stringify(this.filterOption))
     },
 
@@ -347,6 +413,10 @@ export default {
       // 设置搜索选项
       this.searchMount = !!filterOption.searchMount
       this.searchOverall = !!filterOption.searchOverall
+      this.exactSearch = !!filterOption.exactSearch
+      this.includeTagName = filterOption.includeTagName === undefined ? true : filterOption.includeTagName
+      this.includeFileName = filterOption.includeFileName === undefined ? true : filterOption.includeTagName
+      this.includeFileContent = filterOption.includeFileName === undefined ? true : filterOption.includeTagName
 
       // 更新过滤条件
       this.updateFilterOption()
@@ -403,6 +473,11 @@ export default {
 
     resetSearchOverall() {
       this.searchOverall = false
+      this.updateFilterOption()
+    },
+
+    resetExactSearch() {
+      this.exactSearch = false
       this.updateFilterOption()
     },
 
@@ -475,11 +550,7 @@ export default {
       this.timeRange = [start, end]
       this.updateFilterOption()
     },
-
-    handleSearchMountChange() {
-      this.updateFilterOption()
-    },
-    handleSearchOverallChange() {
+    handleCommonChange() {
       this.updateFilterOption()
     }
   }
@@ -527,6 +598,33 @@ export default {
       }
     }
   }
+}
+
+.search-option-scope {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+
+  .search-option-scope-title {
+    flex: 1 1;
+    padding: 0 25px;
+    color: #303133;
+    font-weight: 500;
+  }
+
+  .content-scope {
+    flex: 1 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    .search-option-checkbox {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+  }
+
 }
 
 .file-search-option {
