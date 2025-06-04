@@ -893,41 +893,41 @@
 </template>
 
 <script>
-import SearchOption from '@/components/SearchOption/index.vue'
-import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
-import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
-import store from '@/store'
-import path from 'path'
-import { fileOperations } from '@/utils/file-operations'
-import { mapGetters, mapState } from 'vuex'
-import { formatSize, formatTime } from '@/utils/number'
-import { getElementToPageLeft } from '@/utils/dom'
-import { suffix } from '@/utils/file-type'
-import { formatExif,formatVideo } from '@/utils/media'
 import api from '@/api/file-api'
 import BreadcrumbFilePath from '@/components/Breadcrumb/BreadcrumbFilePath'
-import IconFile from '@/components/Icon/IconFile'
-import EmptyFile from '@/components/EmptyFile'
-import SimTextPreview from '@/components/preview/SimTextPreview'
-import ImageViewer from '@/components/preview/ImageViewer'
-import VideoPreview from '@/components/preview/VideoPreview'
-import AudioPreview from '@/components/preview/AudioPreview'
 import ButtonUpload from '@/components/button/ButtonUpload'
-import MessageDialog from '@/components/message/MessageDialog'
+import EmptyFile from '@/components/EmptyFile'
 
 import FileTree from '@/components/FileTree'
 
 import '@/utils/directives.js'
-
-import _ from "lodash";
+import IconFile from '@/components/Icon/IconFile'
+import MessageDialog from '@/components/message/MessageDialog'
+import AudioPreview from '@/components/preview/AudioPreview'
+import FileDetails from '@/components/preview/FileDetails.vue'
+import IframePreview from '@/components/preview/IframePreview.vue'
+import ImageViewer from '@/components/preview/ImageViewer'
+import SimTextPreview from '@/components/preview/SimTextPreview'
+import VideoPreview from '@/components/preview/VideoPreview'
+import SearchOption from '@/components/SearchOption/index.vue'
+import ShareDialog from '@/components/ShareDialog/index.vue'
+import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
+import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
+import TagDialog from '@/components/TagDialog/index.vue'
+import store from '@/store'
+import { getElementToPageLeft } from '@/utils/dom'
 
 import fileConfig from '@/utils/file-config'
+import { fileOperations } from '@/utils/file-operations'
+import { suffix } from '@/utils/file-type'
+import { formatExif, formatVideo } from '@/utils/media'
+import { formatSize, formatTime } from '@/utils/number'
 import EditElement from '@/views/markdown/EditElement'
-import IframePreview from '@/components/preview/IframePreview.vue'
-import ShareDialog from '@/components/ShareDialog/index.vue'
 import Clipboard from 'clipboard'
-import TagDialog from '@/components/TagDialog/index.vue'
-import FileDetails from "@/components/preview/FileDetails.vue";
+
+import _ from 'lodash'
+import path from 'path'
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'ShowFile',
@@ -4649,10 +4649,8 @@ export default {
           id: 'recently_search_id'
         }
       if (!queryString) {
-        await this.pushSearchHistory(queryString, recentlySearch)
+        this.queryRecentlySearchHistory(queryString, recentlySearch, cb)
       } else {
-        // 用户已输入关键字
-        // 1. 固定操作项
         const fixedActionItems = [
           {
             sugType: 'action_current_path_search',
@@ -4668,32 +4666,24 @@ export default {
           },
         ]
         this.searchSuggestions.push(...fixedActionItems)
-        await this.pushSearchHistory(queryString, recentlySearch)
+        this.queryRecentlySearchHistory(queryString, recentlySearch, cb)
       }
-      cb(this.searchSuggestions)
     },
-    async pushSearchHistory(queryString, recentlySearch) {
-      const historyItems = await this.queryRecentlySearchHistory(queryString)
-      if (historyItems.length > 0) {
-        this.searchSuggestions.push(recentlySearch)
-      }
-      this.searchSuggestions.push(...historyItems)
-    },
-    async queryRecentlySearchHistory(queryString = '') {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          api.getRecentlySearchHistory({keyword: queryString}).then(res => {
-            const filteredHistory = res.data.map(item => ({
-              ...item,
-              value: item.keyword,
-              sugType: 'history'
-            }))
-            resolve(filteredHistory)
-          }).catch(error => {
-            console.error("Error fetching search history:", error)
-          })
-        }, 50)
-      });
+    queryRecentlySearchHistory(queryString = '', recentlySearch, cb) {
+      api.getRecentlySearchHistory({keyword: queryString}).then(res => {
+        const historyItems = res.data.map(item => ({
+          ...item,
+          value: item.keyword,
+          sugType: 'history'
+        }))
+        if (historyItems.length > 0) {
+          this.searchSuggestions.push(recentlySearch)
+        }
+        this.searchSuggestions.push(...historyItems)
+        cb(this.searchSuggestions)
+      }).catch(error => {
+        console.error("Error fetching search history:", error)
+      })
     },
     handleSelectSuggestion(item) {
       this._isSuggestionHandledBySelect = true
@@ -4739,7 +4729,9 @@ export default {
         type: 'warning'
       }).then(() => {
         api.removeAllSearchHistory({userId: this.$store.getters.userId}).then(() => {
-          this.searchSuggestions.splice(2, this.searchSuggestions.length - 2)
+          this.searchSuggestions = this.searchSuggestions.filter(
+            item => item.sugType === 'action_current_path_search' || item.sugType === 'action_global_search'
+          );
         })
       }).catch(() => {
       })

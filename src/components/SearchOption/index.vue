@@ -415,8 +415,8 @@ export default {
       this.searchOverall = !!filterOption.searchOverall
       this.exactSearch = !!filterOption.exactSearch
       this.includeTagName = filterOption.includeTagName === undefined ? true : filterOption.includeTagName
-      this.includeFileName = filterOption.includeFileName === undefined ? true : filterOption.includeTagName
-      this.includeFileContent = filterOption.includeFileName === undefined ? true : filterOption.includeTagName
+      this.includeFileName = filterOption.includeFileName === undefined ? true : filterOption.includeFileName
+      this.includeFileContent = filterOption.includeFileContent === undefined ? true : filterOption.includeFileContent
 
       // 更新过滤条件
       this.updateFilterOption()
