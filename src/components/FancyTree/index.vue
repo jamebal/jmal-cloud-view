@@ -454,8 +454,7 @@
       },
       loadSvg(svgName){
         if(svgName){
-          let src = require(`@/icons/svg/${svgName}.svg`)
-          return `<svg class="tree-icon">${src.default.render()}<use xlink:href="#icon-${svgName}"/></svg>`
+          return `<svg class="tree-icon"><use xlink:href="#icon-${svgName}"/></svg>`
         }
       },
       lazyLoad(event, data){

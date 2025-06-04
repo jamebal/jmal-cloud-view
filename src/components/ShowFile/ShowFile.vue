@@ -161,16 +161,15 @@
               ref="searchInput"
               :class="searchInputClass"
               v-show="showSearchButton"
-              :fetch-suggestions="queryRecentlySearchHistory"
+              :fetch-suggestions="fetchDynamicSuggestions"
               hide-loading
-              :debounce="300"
               :popper-append-to-body="false"
               :placeholder="`搜索 ${cmdKey} P`"
               v-model="searchFileName"
-              @keyup.enter.native="searchFileEnter(searchFileName)"
+              @keyup.enter.native="searchFileEnter"
               @focus="searchInputFocus"
               @blur="searchInputBlur"
-              @select="handleSelectSearchHistory"
+              @select="handleSelectSuggestion"
             >
               <template v-slot:suffix>
                 <div>
@@ -201,14 +200,61 @@
 
               <!-- 自定义提示项 -->
               <template #default="{ item }" class="autocomplete-suggestion-custom">
-                <div class="suggestion-item">
+
+                <!-- 固定操作项：当前路径搜索 -->
+                <div v-if="item.sugType === 'action_current_path_search'" class="suggestion-item action-item">
+                  <div class="suggestion-action-item-title">
+                    <i class="el-icon-search"></i>
+                    <div class="suggestion-action-item-text">
+                      <span class="suggestion-item-keyword">{{ item.keyword }}</span>
+                      <span class="suggestion-item-hint">当前路径 或按 Enter</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 固定操作项：全盘搜索 -->
+                <div v-else-if="item.sugType === 'action_global_search'" class="suggestion-item action-item">
+                  <div class="suggestion-action-item-title">
+                    <i class="el-icon-search"></i>
+                    <div class="suggestion-action-item-text">
+                      <span class="suggestion-item-keyword">{{ item.keyword }}</span>
+                      <span class="suggestion-item-hint">全盘搜索</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else-if="item.sugType === 'clearAllHistory'" class="suggestion-item recently-item">
+                  <span class="suggestion-item-text">最近搜索</span>
+                  <div>
+                    <el-button
+                      round
+                      type="text"
+                      class="clear-search-history-btn"
+                      @click.stop.prevent="clearAllSearchHistory($event)"
+                    >清除所有</el-button>
+                  </div>
+                </div>
+
+                <!-- 历史记录项 -->
+                <div v-else-if="item.sugType === 'history'" class="suggestion-item history-item">
                   <div class="suggestion-item-title">
                     <i class="el-icon-time"></i>
                     <span class="suggestion-item-text">{{ item.keyword }}</span>
                   </div>
                   <div>
-                    <el-button round type="text" icon="el-icon-close" class="clear-search-history-btn" @click.native.prevent="clearSearchHistory(item, $event)"></el-button>
+                    <el-button
+                      round
+                      type="text"
+                      icon="el-icon-close"
+                      class="clear-search-history-btn"
+                      @click.stop.prevent="clearSearchHistoryForItem(item, $event)"
+                    ></el-button>
                   </div>
+                </div>
+
+                <!-- 默认显示 -->
+                <div v-else class="suggestion-item">
+                  <span class="suggestion-item-text">{{ item.value }}</span>
                 </div>
               </template>
 
@@ -847,41 +893,41 @@
 </template>
 
 <script>
-import SearchOption from '@/components/SearchOption/index.vue'
-import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
-import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
-import store from '@/store'
-import path from 'path'
-import { fileOperations } from '@/utils/file-operations'
-import { mapGetters, mapState } from 'vuex'
-import { formatSize, formatTime } from '@/utils/number'
-import { getElementToPageLeft } from '@/utils/dom'
-import { suffix } from '@/utils/file-type'
-import { formatExif,formatVideo } from '@/utils/media'
 import api from '@/api/file-api'
 import BreadcrumbFilePath from '@/components/Breadcrumb/BreadcrumbFilePath'
-import IconFile from '@/components/Icon/IconFile'
-import EmptyFile from '@/components/EmptyFile'
-import SimTextPreview from '@/components/preview/SimTextPreview'
-import ImageViewer from '@/components/preview/ImageViewer'
-import VideoPreview from '@/components/preview/VideoPreview'
-import AudioPreview from '@/components/preview/AudioPreview'
 import ButtonUpload from '@/components/button/ButtonUpload'
-import MessageDialog from '@/components/message/MessageDialog'
+import EmptyFile from '@/components/EmptyFile'
 
 import FileTree from '@/components/FileTree'
 
 import '@/utils/directives.js'
-
-import _ from "lodash";
+import IconFile from '@/components/Icon/IconFile'
+import MessageDialog from '@/components/message/MessageDialog'
+import AudioPreview from '@/components/preview/AudioPreview'
+import FileDetails from '@/components/preview/FileDetails.vue'
+import IframePreview from '@/components/preview/IframePreview.vue'
+import ImageViewer from '@/components/preview/ImageViewer'
+import SimTextPreview from '@/components/preview/SimTextPreview'
+import VideoPreview from '@/components/preview/VideoPreview'
+import SearchOption from '@/components/SearchOption/index.vue'
+import ShareDialog from '@/components/ShareDialog/index.vue'
+import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
+import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
+import TagDialog from '@/components/TagDialog/index.vue'
+import store from '@/store'
+import { getElementToPageLeft } from '@/utils/dom'
 
 import fileConfig from '@/utils/file-config'
+import { fileOperations } from '@/utils/file-operations'
+import { suffix } from '@/utils/file-type'
+import { formatExif, formatVideo } from '@/utils/media'
+import { formatSize, formatTime } from '@/utils/number'
 import EditElement from '@/views/markdown/EditElement'
-import IframePreview from '@/components/preview/IframePreview.vue'
-import ShareDialog from '@/components/ShareDialog/index.vue'
 import Clipboard from 'clipboard'
-import TagDialog from '@/components/TagDialog/index.vue'
-import FileDetails from "@/components/preview/FileDetails.vue";
+
+import _ from 'lodash'
+import path from 'path'
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'ShowFile',
@@ -1178,7 +1224,9 @@ export default {
       debounceSearch: null,// 搜索防抖
       debounceGetFileList: null,// 获取文件列表防抖
       filterOption: {}, // 搜索选项
-      searchHistoryList: [],// 搜索历史列表
+      searchSuggestions: [],// 搜索历史列表
+      _isSuggestionHandledBySelect: false,
+      _originalSearchFileNameBeforeSelect: '',
       hasSearchFilterOption: false, // 是否有搜索选项
       fileUsername: '', // 一般用于挂载文件
       searchInputClass: 'search-input' // 搜索输入框样式
@@ -2959,8 +3007,12 @@ export default {
     getFileListEnter(onLoad) {
       this.debounceGetFileList(onLoad)
     },
-    searchFileEnter(key, onLoad) {
-      this.debounceSearch(key, onLoad)
+    searchFileEnter() {
+      if (this._isSuggestionHandledBySelect) {
+        return
+      }
+      this.debounceSearch(this.searchFileName)
+      this.$refs.searchInput.close()
     },
     searchFile(key, onLoad) {
       if (key) {
@@ -3021,6 +3073,10 @@ export default {
             searchMount: this.filterOption.searchMount,
             isMount:  this.queryCondition.isMount,
             searchOverall: this.filterOption.searchOverall,
+            exactSearch: this.filterOption.exactSearch,
+            includeTagName: this.filterOption.includeTagName,
+            includeFileName: this.filterOption.includeFileName,
+            includeFileContent: this.filterOption.includeFileContent,
           }).then(res => {
             this.loadData(res, onLoad)
             this.listModeSearch = true
@@ -4582,33 +4638,103 @@ export default {
     },
     showSearchOption() {
     },
-    queryRecentlySearchHistory(queryString, cb) {
-      if (this.searchFileName) {
-        cb([])
-        return
+    async fetchDynamicSuggestions(queryString, cb) {
+      this._originalSearchFileNameBeforeSelect =  queryString
+      this.searchSuggestions = []
+      const recentlySearch =
+        {
+          sugType: 'clearAllHistory',
+          keyword: '',
+          value: `__READONLY_DIVIDER_${Date.now()}__`,
+          id: 'recently_search_id'
+        }
+      if (!queryString) {
+        this.queryRecentlySearchHistory(queryString, recentlySearch, cb)
+      } else {
+        const fixedActionItems = [
+          {
+            sugType: 'action_current_path_search',
+            keyword: queryString,
+            value: queryString,
+            id: 'action_current_path_search_id'
+          },
+          {
+            sugType: 'action_global_search',
+            keyword: queryString,
+            value: queryString,
+            id: 'action_global_search_id'
+          },
+        ]
+        this.searchSuggestions.push(...fixedActionItems)
+        this.queryRecentlySearchHistory(queryString, recentlySearch, cb)
       }
+    },
+    queryRecentlySearchHistory(queryString = '', recentlySearch, cb) {
       api.getRecentlySearchHistory({keyword: queryString}).then(res => {
-        this.searchHistoryList = res.data || []
-        cb(this.searchHistoryList)
+        const historyItems = res.data.map(item => ({
+          ...item,
+          value: item.keyword,
+          sugType: 'history'
+        }))
+        if (historyItems.length > 0) {
+          this.searchSuggestions.push(recentlySearch)
+        }
+        this.searchSuggestions.push(...historyItems)
+        cb(this.searchSuggestions)
       }).catch(error => {
         console.error("Error fetching search history:", error)
-        this.searchHistoryList = []
-        cb([])
-      });
+        cb(this.searchSuggestions.length > 0 ? this.searchSuggestions : [])
+      })
     },
-    handleSelectSearchHistory(item) {
-      this.searchFileName = item.keyword
-      this.filterOption = item
+    handleSelectSuggestion(item) {
+      this._isSuggestionHandledBySelect = true
+      if (item.id === "recently_search_id") {
+        this.$nextTick(() => {
+          if (this.searchFileName !== this._originalSearchFileNameBeforeSelect) {
+            this.searchFileName = this._originalSearchFileNameBeforeSelect
+          }
+          this._isSuggestionHandledBySelect = false
+        })
+        return
+      }
+      if ( item.sugType === 'history') {
+        this.searchFileName = item.keyword
+      }
+      if ( item.sugType === 'action_global_search') {
+        item.searchOverall = true
+      }
+       if ( item.sugType === 'action_current_path_search') {
+         item.searchOverall = false
+       }
       this.debounceSearch(this.searchFileName, false)
       this.$refs.searchOption.setFilterOption(item)
+      this.$nextTick(() => {
+        this._isSuggestionHandledBySelect = false
+      })
     },
-    clearSearchHistory(itemToDelete, event) {
+    clearSearchHistoryForItem(itemToDelete, event) {
       event.stopPropagation();
       event.preventDefault();
       const idToDelete = itemToDelete.id
       api.removeSearchHistory({id: idToDelete}).then(() => {
-        const index = this.searchHistoryList.findIndex(item => item.id === idToDelete)
-        this.searchHistoryList.splice(index, 1)
+        const index = this.searchSuggestions.findIndex(item => item.id === idToDelete)
+        this.searchSuggestions.splice(index, 1)
+      })
+    },
+    clearAllSearchHistory(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.$confirm('确定要清除所有搜索记录吗', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        api.removeAllSearchHistory({userId: this.$store.getters.userId}).then(() => {
+          this.searchSuggestions = this.searchSuggestions.filter(
+            item => item.sugType === 'action_current_path_search' || item.sugType === 'action_global_search'
+          );
+        })
+      }).catch(() => {
       })
     },
     checkPreviewVisible() {
@@ -4879,7 +5005,7 @@ export default {
 }
 
 .search-input {
-  width: 230px;
+  width: 250px;
   transition: width 0.3s ease-in-out;
   >>> .el-input--suffix .el-input__inner {
     padding-right: 60px;
@@ -4887,7 +5013,7 @@ export default {
 }
 
 .search-input-focus {
-  width: 230px;
+  width: 250px;
 }
 
 .search-close-btn {
@@ -4915,37 +5041,80 @@ export default {
   }
 }
 
->>> .el-autocomplete-suggestion li {
-  padding: 0 5px 0 15px;
-}
+>>> .el-autocomplete-suggestion {
+  margin-top: 0 !important;
 
-.suggestion-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .suggestion-item-title {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-start;
-    flex-direction: row;
-    align-items: center;
-    .suggestion-item-text {
-      width: 152px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .clear-search-history-btn {
-    padding: 8px;
+  .popper__arrow {
     display: none;
   }
 
-  &:hover {
+
+  li {
+    padding: 0 5px 0 15px;
+  }
+
+  .suggestion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .suggestion-item-title {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-start;
+      flex-direction: row;
+      align-items: center;
+      .suggestion-item-text {
+        width: 168px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
     .clear-search-history-btn {
-      display: block;
+      padding: 8px;
+      display: none;
+    }
+
+    &:hover {
+      .clear-search-history-btn {
+        display: block;
+      }
+    }
+  }
+
+  .suggestion-item.action-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .suggestion-action-item-title {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-start;
+      flex-direction: row;
+      align-items: center;
+      height: 40px;
+      line-height: 40px;
+
+      .suggestion-action-item-text {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .suggestion-item-keyword {
+        line-height:  normal;
+        color: #303133;
+        font-weight: 500;
+        margin-right: 10px;
+      }
+
+      .suggestion-item-hint {
+        color: #c8c9cc;
+        line-height: normal;
+      }
+
     }
   }
 }

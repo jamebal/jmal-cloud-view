@@ -13,6 +13,7 @@ const getters = {
   userId: state => state.user.userId,
   userInfo: state => state.user.userInfo,
   menuList: state => state.user.menuList,
-  fileClipboard: state => state.fileClipboard
+  fileClipboard: state => state.fileClipboard,
+  exactSearch: state => state.user.exactSearch
 }
 export default getters
