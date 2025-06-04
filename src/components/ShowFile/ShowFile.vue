@@ -4683,6 +4683,7 @@ export default {
         cb(this.searchSuggestions)
       }).catch(error => {
         console.error("Error fetching search history:", error)
+        cb(this.searchSuggestions.length > 0 ? this.searchSuggestions : [])
       })
     },
     handleSelectSuggestion(item) {
