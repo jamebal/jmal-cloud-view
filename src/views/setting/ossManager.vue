@@ -53,7 +53,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
         <el-button round size="small" @click="showDialog = false">取消</el-button>
-        <el-button round size="small" type="primary" @click="submitForm" :loading="true">确定</el-button>
+        <el-button round size="small" type="primary" @click="submitForm" :loading="submitLoading">确定</el-button>
       </span>
       </el-dialog>
     </div>
