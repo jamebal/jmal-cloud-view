@@ -430,6 +430,14 @@ export default {
       params
     })
   },
+  // 是否允许批量下载
+  isAllowPackageDownload: function(params) {
+    return request({
+      url: '/isAllowPackageDownload',
+      method: 'get',
+      params
+    })
+  },
   // 根据id获取文件信息
   getFileInfoById: function(params) {
     return request({
