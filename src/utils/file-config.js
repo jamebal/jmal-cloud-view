@@ -81,7 +81,7 @@ export default {
   },
   // 打包下载文件
   packageDownload: function(fileIds) {
-    fileApi.isAllowDownload({fileIds: fileIds}).then(() => {
+    fileApi.isAllowPackageDownload({fileIds: fileIds}).then(() => {
       fileIds = fileIds.join(',')
       window.open(`${this.baseUrl}/packageDownload?fileIds=${fileIds}`, '_self')
     })
