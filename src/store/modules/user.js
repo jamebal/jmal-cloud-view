@@ -6,6 +6,7 @@ import { resetRouter } from '@/router'
 import router from '@/router'
 import Layout from '@/layout'
 import ParentView from '@/components/ParentView'
+import { terminateSSE } from '@/sse/SSEClient'
 
 const setState = (state) => {
   localStorage.setItem('store', JSON.stringify(state))
@@ -197,6 +198,7 @@ const actions = {
         localStorage.removeItem('app')
         resetRouter()
         commit('RESET_STATE')
+        terminateSSE()
         resolve()
       }).catch(error => {
         reject(error)
