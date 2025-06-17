@@ -471,4 +471,13 @@ export default {
       data
     })
   },
+  // 获取office文件历史
+  getOfficeHistoryList: function(params) {
+    return request({
+      url: '/history/office/list',
+      method: 'get',
+      params,
+    })
+  },
+
 }

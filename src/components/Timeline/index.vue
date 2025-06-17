@@ -236,9 +236,9 @@ export default {
 .timeline-line {
   position: absolute;
   left: 20px; /* (Avatar宽度 / 2) */
-  top: 45px;  /* 大约是 Avatar 下方开始 */
+  top: 50px;  /* 大约是 Avatar 下方开始 */
   /* bottom: 0; */ /* 不再使用 bottom */
-  height: calc(100% - 40px); /* 从 Avatar 下方到底部 */
+  height: calc(100% - 30px); /* 从 Avatar 下方到底部 */
   width: 1px;
   background-color: #e1e4e8;
   z-index: 1;
