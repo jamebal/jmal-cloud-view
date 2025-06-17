@@ -83,6 +83,9 @@
           <el-form-item label="位置:" class="details-position">
             <span><a :href="pathUrl" v-tooltip="{content: '文件所在位置', placement: 'bottom'}">{{ filepath }}</a></span>
           </el-form-item>
+          <el-form-item label="SHA265:">
+            <span> {{ file.etag }}</span>
+          </el-form-item>
           <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
           </el-form-item>

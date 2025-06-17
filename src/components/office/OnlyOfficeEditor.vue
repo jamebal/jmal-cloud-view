@@ -211,22 +211,43 @@ export default {
       this.docEditorConfig.document.key = key ? key : this.fileKey
       this.docEditor = new DocsAPI.DocEditor(this.id, this.docEditorConfig)
     },
-    onRequestHistoryData(event, historyInfo, url) {
-      let historyConfig = {
-        "fileType": this.fileType,
-        "key": `${new Date(historyInfo.metadata.time).getTime()}-${SparkMD5.hash(this.file.id)}`,
-        "url":  url,
-        "version": historyInfo.metadata.time,
+    onRequestHistoryData(event, historyInfo, historyUrl) {
+      let historyConfig;
+      if (historyInfo && historyUrl){
+        historyConfig = {
+          "fileType": this.fileType,
+          "key": `${new Date(historyInfo.metadata.time).getTime()}-${SparkMD5.hash(this.file.id)}`,
+          "url":  historyUrl,
+          "version": historyInfo.metadata.time,
+        }
+      } else {
+        historyInfo = this.fileHistoryDateList.find(historyInfo => historyInfo.version === event.data)
+        console.log('historyInfo', historyInfo)
+        historyUrl = window.location.origin + fileConfig.previewHistoryUrl(historyInfo.key, this.$store.state.user.name, this.$store.state.user.token)
+        historyConfig = {
+          "fileType": this.fileType,
+          "key": historyInfo.key,
+          "url": historyUrl,
+          "version": historyInfo.version,
+        }
       }
       api.getOfficeJwt(historyConfig).then(res => {
         historyConfig.token = res.data
         this.docEditor.setHistoryData(historyConfig)
       })
     },
+    onRequestHistoryClose() {
+      console.log('onRequestHistoryClose')
+      this.reloadDocument()
+    },
     onRequestHistory() {
-      this.docEditor.refreshHistory({
-        "currentVersion": 'currentVersion',
-        "history": []
+      api.getOfficeHistoryList({fileId: this.file.id, pageSize: 100, pageIndex: 1}).then(res => {
+        const currentVersion = res.data.length + 1
+        this.fileHistoryDateList = res.data
+        this.docEditor.refreshHistory({
+          "currentVersion": currentVersion,
+          "history": this.fileHistoryDateList
+        })
       })
     },
     getType(type) {
@@ -345,6 +366,7 @@ export default {
         "onDocumentStateChange": this.onDocumentStateChange,
         "onRequestHistory": this.onRequestHistory,
         "onRequestHistoryData": this.onRequestHistoryData,
+        "onRequestHistoryClose": this.onRequestHistoryClose,
       }
       this.$nextTick(() => {
         this.titleObserver = null
