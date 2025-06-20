@@ -19,7 +19,7 @@
           <v-contextmenu-item
             v-if="!itemSecond.child"
             :divider="!!itemSecond.divider"
-            @click="menusOperations(item.operation, $event)"
+            @click="menusOperations(itemSecond.operation, $event)"
           >
             <svg-icon
               v-if="itemSecond.iconClass"
@@ -48,7 +48,10 @@ export default {
       type: Array,
       default: () => []
     },
-    className: ''
+    className: {
+      type: String,
+      default: ''
+    }
   },
   data() {
     return {

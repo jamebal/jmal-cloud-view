@@ -1093,7 +1093,6 @@ export default {
       finished: false,
       newFolderLoading: false,
       renameLoading: false,
-      menuTriangle: '', // 三角菜单
       cellMouseIndex: -1,
       editingIndex: -1,
       titlePrefix: '',
@@ -3561,7 +3560,7 @@ export default {
       }
       // 删除栏上面添加分隔符
       const removeIndex = this.getIndexOfFileContextMenus(fileOperations.remove.operation)
-      if (removeIndex > -1 && !this.menus[removeIndex - 1].divider) {
+      if (removeIndex > 0 && !this.menus[removeIndex - 1].divider) {
         this.menus.splice(removeIndex, 0, { divider: true, operation: 'divider' })
       }
       // 详情栏下面添加分隔符
@@ -3651,7 +3650,6 @@ export default {
 
       event.preventDefault()
       event.stopPropagation()
-      this.menuTriangle = ''
       const e = {}
       e.pageX = event.pageX + 5
       e.pageY = event.pageY + 20
