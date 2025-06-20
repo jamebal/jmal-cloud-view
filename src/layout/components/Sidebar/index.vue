@@ -45,7 +45,7 @@
     </div>
 
     <!--标签菜单-->
-    <e-vue-contextmenu ref="contextShow" @ctx-show="show" @ctx-hide="hide">
+    <e-vue-contextmenu ref="contextShow" class="file-contextmenu" @ctx-show="show" @ctx-hide="hide">
       <div ref="contextShow" class="tag-menu">
         <ul>
           <li v-for="(item, index) in tagMenus" :key="item.label" @click="tagMenusOperation(item.operation)">
@@ -427,9 +427,9 @@ export default {
 $tagMenuBorderRadius: 8px;
 
 >>> .ctx-menu-container {
-  border: 0 solid rgba(0, 0, 0, 0);
-  min-width: unset;
-  border-radius: $dialogBorderRadius;
+  border: 0 solid rgba(0, 0, 0, 0) !important;
+  min-width: unset !important;
+  border-radius: $dialogBorderRadius !important;
 }
 
 .tag-menu ul {
@@ -446,7 +446,7 @@ $tagMenuBorderRadius: 8px;
   min-width: 110px;
 }
 .tag-menu {
-  padding: 5px 5px;
+  padding: 3px;
 }
 .tag-menu li:hover {
   cursor: pointer;

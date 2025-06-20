@@ -131,31 +131,6 @@
   line-height: 35px;
 }
 
->>> .ctx-menu-container {
-  border: 0 solid rgba(0, 0, 0, 0);
-  min-width: 160px;
-  border-radius: $dialogBorderRadius;
-  padding: 10px 10px;
-  box-shadow: 0 5px 12px #ccc;
-
-  .home-contextmenu {
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .svg-icon {
-      margin-right: 10px;
-    }
-  }
-
-  .home-contextmenu-title {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
-
-}
 
 .menu-triangle-bottom {
   border: 0 solid rgba(0, 0, 0, 0);

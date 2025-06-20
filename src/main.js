@@ -19,8 +19,8 @@ setFavicon()
 import { Affix } from 'ant-design-vue';
 Vue.use(Affix)
 
-import contentmenu from 'v-contextmenu'
-import 'v-contextmenu/dist/index.css'
+import contentmenu from '@/components/VContextmenu'
+import '@/components/VContextmenu/styles/index.css'
 Vue.use(contentmenu)
 
 import '@/icons' // icon

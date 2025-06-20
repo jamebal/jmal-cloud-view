@@ -53,7 +53,7 @@ export default {
   props: {
     value: {
       type: String,
-      default: 'sdfsd'
+      default: ''
     }
   },
   data() {
