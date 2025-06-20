@@ -427,9 +427,9 @@ export default {
 $tagMenuBorderRadius: 8px;
 
 >>> .ctx-menu-container {
-  border: 0 solid rgba(0, 0, 0, 0);
-  min-width: unset;
-  border-radius: $dialogBorderRadius;
+  border: 0 solid rgba(0, 0, 0, 0) !important;
+  min-width: unset !important;
+  border-radius: $dialogBorderRadius !important;
 }
 
 .tag-menu ul {
@@ -446,7 +446,7 @@ $tagMenuBorderRadius: 8px;
   min-width: 110px;
 }
 .tag-menu {
-  padding: 5px 5px;
+  padding: 3px;
 }
 .tag-menu li:hover {
   cursor: pointer;

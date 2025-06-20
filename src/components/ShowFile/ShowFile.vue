@@ -10,7 +10,7 @@
           <!-- 一级菜单 -->
           <v-contextmenu-item
             v-if="!item.child"
-            :divider="item.divider ? true : false"
+            :divider="!!item.divider"
             @click="contextmenuClick(item.operation)"
           >
             <svg-icon
@@ -28,7 +28,7 @@
             <div v-for="itemSecond of item.child" :key="itemSecond.operation">
               <v-contextmenu-item
                 v-if="!itemSecond.child"
-                :divider="itemSecond.divider ? true : false"
+                :divider="!!itemSecond.divider"
                 @click="contextmenuClick(itemSecond.operation)"
               >
                 <svg-icon
@@ -367,45 +367,7 @@
       </div>
 
       <!--右键菜单-->
-      <e-vue-contextmenu
-        ref="contextShow"
-        class="newFileMenu"
-        :class="menuTriangle"
-        @ctx-show="show"
-        @ctx-hide="hide"
-      >
-        <div class="popper-arrow"></div>
-        <ul v-for="(item, index) in menus" :key="item.label">
-          <li v-if="item.operation === 'unFavorite' || item.operation === 'favorite'"
-            class="menu-option"
-            @click="menusOperations(item.operation, $event)"
-            @mouseover.prevent.stop="
-              menuFavoriteOver(index, rowContextData.isFavorite)
-            "
-            @mouseleave.prevent.stop="
-              menuFavoriteLeave(index, rowContextData.isFavorite)
-            "
-          >
-            <div class="menuitem home-contextmenu">
-              <svg-icon :icon-class="item.iconClass" />
-              <div class="home-contextmenu-title">
-                <span class="menuitem text">{{ item.label }}</span>
-              </div>
-            </div>
-          </li>
-          <li v-else @click="menusOperations(item.operation, $event)">
-            <div class="menuitem home-contextmenu">
-              <svg-icon :icon-class="item.iconClass" />
-              <div class="home-contextmenu-title">
-                <span class="menuitem text">{{ item.label }}</span>
-                <span v-if="item.shortcut">
-                <kbd v-for="key in item.shortcut" :style="{fontSize: key === '⌘' ? '14px' : '12px'}">{{ key }}</kbd>
-              </span>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </e-vue-contextmenu>
+      <file-contextmenu ref="contextShow" :menus="menus" @menusOperations="menusOperations" @show="show" @hide="hide" @contextmenu="contextmenu" />
 
       <!--list布局-->
       <div
@@ -914,6 +876,7 @@ import ShareDialog from '@/components/ShareDialog/index.vue'
 import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
 import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
 import TagDialog from '@/components/TagDialog/index.vue'
+import FileContextmenu from '@/components/VContextmenu/file-contextmenu.vue'
 import store from '@/store'
 import { getElementToPageLeft } from '@/utils/dom'
 
@@ -932,6 +895,7 @@ import { mapGetters, mapState } from 'vuex'
 export default {
   name: 'ShowFile',
   components: {
+    FileContextmenu,
     FileClipboard,
     DialogFileList,
     SearchOption,
@@ -1018,19 +982,14 @@ export default {
       default: function() {
         return [
           fileOperations.open,
-          { iconClass: 'share', label: '分享', operation: 'share' },
-          { iconClass: 'tag', label: '标签', operation: 'tag' },
+          fileOperations.download,
+          { iconClass: 'share', label: '分享...', operation: 'share' },
+          { iconClass: 'tag', label: '标签...' , operation: 'tag'},
           { iconClass: 'menu-favorite', label: '收藏', operation: 'favorite' },
-          {
-            iconClass: 'menu-details',
-            label: '详情',
-            shortcut: ["space"],
-            operation: 'details',
-          },
+          fileOperations.detail,
+          fileOperations.copyOnly,
           fileOperations.rename,
           fileOperations.copy,
-          fileOperations.copyOnly,
-          fileOperations.download,
           fileOperations.remove,
         ]
       },
@@ -1044,10 +1003,10 @@ export default {
             label: '取消选定',
             operation: 'deselect',
           },
-          { iconClass: 'tag', label: '标签', operation: 'tag' },
-          fileOperations.copy,
-          fileOperations.copyOnly,
           fileOperations.download,
+          { iconClass: 'tag', label: '标签', operation: 'tag' },
+          fileOperations.copyOnly,
+          fileOperations.copy,
           fileOperations.remove,
         ]
       },
@@ -1134,7 +1093,6 @@ export default {
       finished: false,
       newFolderLoading: false,
       renameLoading: false,
-      menuTriangle: '', // 三角菜单
       cellMouseIndex: -1,
       editingIndex: -1,
       titlePrefix: '',
@@ -3563,7 +3521,7 @@ export default {
         this.setMenusByPermission(row)
       } else {
         if (row.suffix && row.suffix === 'md' && this.queryFileType !== 'trash') {
-          this.menus.splice(2, 0, {
+          this.menus.splice(this.getIndexOfFileContextMenus(fileOperations.copyOnly.operation), 0, {
             iconClass: 'menu-edit1',
             label: '编辑',
             operation: 'edit',
@@ -3577,11 +3535,15 @@ export default {
           )
         }
         if (!row.isFolder && this.queryFileType !== 'trash') {
-          this.menus.splice(-2, 0, fileOperations.duplicate)
+          // 创建副本
+          const copyIndex = this.getIndexOfFileContextMenus(fileOperations.copy.operation)
+          if (copyIndex > -1) {
+            this.menus.splice(copyIndex, 0, fileOperations.duplicate)
+          }
         }
         if (row.ossFolder) {
           // 删除分享选项
-          let index = this.menus.findIndex(item => item.operation === 'share')
+          let index = this.getIndexOfFileContextMenus('share')
           if (index > -1) {
             this.menus.splice(index, 1)
           }
@@ -3589,6 +3551,26 @@ export default {
         this.setMenusCopyDownLoadLinks(row)
       }
       this.preliminaryRowData(row)
+    },
+    setFileContextMenusDivider() {
+      // 下载栏下面添加分隔符
+      const downloadIndex = this.getIndexOfFileContextMenus(fileOperations.download.operation)
+      if (downloadIndex > -1 && this.menus.length - 1 > downloadIndex && !this.menus[downloadIndex + 1].divider) {
+        this.menus.splice(downloadIndex + 1, 0, { divider: true, operation: 'divider' })
+      }
+      // 删除栏上面添加分隔符
+      const removeIndex = this.getIndexOfFileContextMenus(fileOperations.remove.operation)
+      if (removeIndex > 0 && !this.menus[removeIndex - 1].divider) {
+        this.menus.splice(removeIndex, 0, { divider: true, operation: 'divider' })
+      }
+      // 详情栏下面添加分隔符
+      const detailIndex = this.getIndexOfFileContextMenus(fileOperations.detail.operation)
+      if (detailIndex > -1 && this.menus.length - 1 > detailIndex && !this.menus[detailIndex + 1].divider) {
+        this.menus.splice(detailIndex + 1, 0, { divider: true, operation: 'divider' })
+      }
+    },
+    getIndexOfFileContextMenus(operation) {
+      return this.menus.findIndex(item => item.operation === operation)
     },
     setMenusCopyDownLoadLinks(row) {
       if (row.isShare) {
@@ -3617,22 +3599,22 @@ export default {
       })
     },
     setMenusByPermission(file) {
-      const reservations = ['open', 'download']
+      const reservations = ['open', 'download', 'details']
       // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
       this.menus = this.menus.filter(item =>
         reservations.includes(item.operation)
       )
       if (file.operationPermissionList && file.operationPermissionList.length > 0) {
         if (file.operationPermissionList.indexOf('PUT') > -1) {
-          this.menus.splice(this.menus.length - 1, 0, fileOperations.rename)
+          this.menus.splice(this.menus.length, 0, fileOperations.rename)
         }
         if (file.operationPermissionList.indexOf('UPLOAD') > -1) {
           if (file.operationPermissionList.indexOf('DELETE') > -1) {
-            this.menus.splice(this.menus.length - 1, 0, fileOperations.copy)
-            this.menus.splice(this.menus.length - 1, 0, fileOperations.copyOnly)
+            this.menus.splice(this.menus.length, 0, fileOperations.copy)
+            this.menus.splice(this.menus.length, 0, fileOperations.copyOnly)
           }
           if (!file.isFolder) {
-            this.menus.splice(this.menus.length - 1, 0, fileOperations.duplicate)
+            this.menus.splice(this.menus.length, 0, fileOperations.duplicate)
           }
         }
         if (file.operationPermissionList.indexOf('DELETE') > -1) {
@@ -3643,6 +3625,7 @@ export default {
     },
     // 鼠标右击
     rowContextmenu(row) {
+      this.$refs.homeContextmenu.hide()
       if (this.selectFile) {
         return
       }
@@ -3653,7 +3636,7 @@ export default {
         ) > -1
       ) {
         this.menusIsMultiple = true
-        this.menus = this.multipleRightMenus
+        this.menus = JSON.parse(JSON.stringify(this.multipleRightMenus))
         this.highlightFavorite(false, false)
       } else {
         this.$refs.fileListTable.clearSelection()
@@ -3661,13 +3644,35 @@ export default {
         this.menusIsMultiple = false
         this.setMenus(row)
       }
+
+      // 设置分割线
+      this.setFileContextMenusDivider()
+
       event.preventDefault()
-      this.menuTriangle = ''
+      event.stopPropagation()
       const e = {}
       e.pageX = event.pageX + 5
       e.pageY = event.pageY + 20
       e.clientX = event.clientX + 50
       e.clientY = event.clientY + 2
+      e.top = event.clientY
+      e.left = event.clientX
+
+      const dividerSize = this.menus.filter(item => item.divider).length
+
+      const containerWidth = 180 + 5
+      const containerHeight = (this.menus.length - dividerSize)  * 35 + (dividerSize * 10) + 21
+      const distanceToBottom = document.documentElement.clientHeight - event.clientY
+      const distanceToRight = document.documentElement.clientWidth - event.clientX
+
+      if (distanceToBottom < containerHeight) {
+        e.top = event.clientY - containerHeight
+      }
+      if (distanceToRight < containerWidth) {
+        e.left = event.clientX - containerWidth
+      }
+
+
       this.$refs.contextShow.showMenu(e)
       this.cellMouseIndex = -1
     },
@@ -3700,6 +3705,11 @@ export default {
         }
         // this.$set(this.menus, 0, item_menu)
       }
+    },
+    contextmenu(e) {
+      console.log('contextmenu', e)
+      e.preventDefault()
+      e.stopPropagation()
     },
     show() {
       const that = this
@@ -4257,7 +4267,7 @@ export default {
       if (row.isFolder) {
         url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip', this.shareToken)
       }
-      let clipboard = new Clipboard('.newFileMenu', {
+      let clipboard = new Clipboard('.file-contextmenu', {
         text: function() {
           return url
         },
