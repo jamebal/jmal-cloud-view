@@ -1,0 +1,202 @@
+# nginx : /usr/local/Cellar/nginx/nginx-1.17.8/objs/nginx
+# nginx.conf : /usr/local/nginx/conf/nginx.conf
+#user  nobody;
+worker_processes auto;  # 自动根据 CPU 核心数设置
+
+events {
+    worker_connections  2048;
+    multi_accept on;
+}
+
+#设定http服务器，利用它的反向代理功能提供负载均衡支持
+http {
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    include mime.types;
+    default_type application/octet-stream;
+
+    # 日志
+    #access_log /var/log/nginx/access.log main buffer=32k flush=5s;
+    access_log off;
+    error_log  /var/log/nginx/error.log warn;
+
+    # 全局性能优化
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    server_names_hash_bucket_size 512;
+    keepalive_timeout 65;
+    keepalive_requests 1000;
+
+    # 全局上传/头部限制
+    client_header_buffer_size 32k;
+    client_max_body_size 50m; # 全局默认值
+
+    # 全局默认代理缓冲 (用于普通API)
+    proxy_buffer_size       16k;
+    proxy_buffers           4 32k;
+    proxy_busy_buffers_size 64k;
+
+    # 默认启用 gzip
+    gzip on;
+    gzip_min_length 1k;
+    gzip_buffers 4 16k;
+    gzip_http_version 1.1;
+    gzip_comp_level 6;
+    gzip_types text/plain application/javascript application/x-javascript text/javascript text/css application/xml application/json;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_disable "MSIE [1-6]\.";
+
+    	map $http_upgrade $connection_upgrade {
+            default upgrade;
+            ''      close;
+        }
+        map $http_host $this_host {
+            "" $host;
+            default $http_host;
+        }
+        map $http_x_forwarded_proto $the_scheme {
+             default $http_x_forwarded_proto;
+             "" $scheme;
+        }
+        map $http_x_forwarded_host $the_host {
+            default $http_x_forwarded_host;
+            "" $this_host;
+        }
+
+        server {
+        	listen 8089;
+        	server_name localhost;
+
+                location = / {
+                        proxy_pass   http://jmalcloud:8088/articles;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+                location /api {
+                                proxy_pass   http://jmalcloud:8088;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                location /articles/articles {
+                        proxy_pass   http://jmalcloud:8088/articles;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+        	    location /articles {
+                        proxy_pass   http://jmalcloud:8088/articles;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+                location / {
+                        proxy_pass   http://jmalcloud:8088/articles/;
+                        proxy_set_header Host $proxy_host;
+                        proxy_set_header X-real-ip $remote_addr;
+                }
+
+        }
+
+    ###jmal-cloud-vie vue.js 前端配置
+    server {
+            listen 80;
+            server_name  localhost;
+            root /var/www/public;
+	          client_max_body_size 1024m;
+            client_body_buffer_size 512k;
+
+                        location / {
+                                try_files $uri $uri/ /index.html;
+                                index index.html index.htm;
+                        }
+
+                        location = /blog {
+                                proxy_pass   http://jmalcloud:8088/articles;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location = /blog/ {
+                                proxy_pass   http://jmalcloud:8088/articles;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /blog/api/ {
+                                 proxy_pass   http://jmalcloud:8088/;
+                                 proxy_set_header Host $proxy_host;
+                                 proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /blog/articles {
+                                proxy_pass   http://jmalcloud:8088/articles/;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /blog/ {
+                                proxy_pass   http://jmalcloud:8088/articles/;
+                                proxy_set_header Host $proxy_host;
+                                proxy_set_header X-real-ip $remote_addr;
+                        }
+
+                        location /api/ {
+                                proxy_pass   http://jmalcloud:8088/;
+                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                include /usr/local/nginx/conf/proxy_params.conf;
+                                include /usr/local/nginx/conf/proxy_params_file.conf;
+                        }
+
+                        location /webDAV/ {
+                                proxy_pass   http://jmalcloud:8088/webDAV/;
+                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                include /usr/local/nginx/conf/proxy_params.conf;
+                                include /usr/local/nginx/conf/proxy_params_file.conf;
+                        }
+
+                        location /file/ {
+                                proxy_pass  http://jmalcloud:8088/file/;
+                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                include /usr/local/nginx/conf/proxy_params.conf;
+                                include /usr/local/nginx/conf/proxy_params_file.conf;
+                        }
+
+                        location /mq {
+                                proxy_pass   http://jmalcloud:8088/mq/;
+                                #websocket额外配置开始
+                                proxy_http_version 1.1;
+                                proxy_set_header Upgrade $http_upgrade;
+                                proxy_set_header Connection "upgrade";
+                                proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
+                                proxy_read_timeout 500s;#读超时时间
+                                proxy_send_timeout 500s;#写超时时间
+                                #websocket额外配置结束
+                        }
+
+                        location /drawio/webapp/ {
+                           proxy_pass http://localhost:8080/;
+                           proxy_set_header X-Forwarded-Host $the_host//drawio/webapp;
+                           include /usr/local/nginx/conf/proxy_params.conf;
+                       }
+
+                        location /pdf.js/ {
+                           proxy_pass http://localhost:8081/;
+                           include /usr/local/nginx/conf/proxy_params.conf;
+                           proxy_set_header X-Forwarded-Host $the_host//pdf.js;
+                       }
+
+                        location /excalidraw/app/ {
+                           proxy_pass http://localhost:8082/excalidraw/app/;
+                           include /usr/local/nginx/conf/proxy_params.conf;
+                           proxy_set_header X-Forwarded-Host $the_host//excalidraw/app;
+                       }
+    }
+
+    include servers/*;
+}

@@ -2,7 +2,7 @@ export async function copyText(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try {
       await navigator.clipboard.writeText(text);
-      this.$message.success('复制成功');
+      Vue.prototype.$message.success('复制成功');
     } catch (err) {
       fallbackCopyText(text);
     }
