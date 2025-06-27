@@ -124,7 +124,7 @@ export default {
     padding: 0 10px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
 
     >>> .svg-icon {
       margin-right: 10px;

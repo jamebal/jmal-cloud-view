@@ -775,6 +775,7 @@
       @onSuccess="shareSuccess"
       @onCancelShare="onCancelShare"
     ></share-dialog>
+    <direct-link-dialog ref="directLinkDialog" :status.sync="directLinkDialogVisible" :file="rowContextData"/>
     <el-dialog
       class="new-text-file-dialog"
       :title="newCreateFileDialogTitle"
@@ -858,6 +859,7 @@
 import api from '@/api/file-api'
 import BreadcrumbFilePath from '@/components/Breadcrumb/BreadcrumbFilePath'
 import ButtonUpload from '@/components/button/ButtonUpload'
+import DirectLinkDialog from '@/components/DirectLinkDialog/index.vue'
 import EmptyFile from '@/components/EmptyFile'
 
 import FileTree from '@/components/FileTree'
@@ -881,7 +883,7 @@ import store from '@/store'
 import { getElementToPageLeft } from '@/utils/dom'
 
 import fileConfig from '@/utils/file-config'
-import { fileOperations } from '@/utils/file-operations'
+import { directLinkSubMenus, fileOperations } from '@/utils/file-operations'
 import { suffix } from '@/utils/file-type'
 import { formatExif, formatVideo } from '@/utils/media'
 import { formatSize, formatTime } from '@/utils/number'
@@ -895,6 +897,7 @@ import { mapGetters, mapState } from 'vuex'
 export default {
   name: 'ShowFile',
   components: {
+    DirectLinkDialog,
     FileContextmenu,
     FileClipboard,
     DialogFileList,
@@ -982,6 +985,7 @@ export default {
       default: function() {
         return [
           fileOperations.open,
+          { iconClass: 'link', label: '直链', operation: 'directLink', child: directLinkSubMenus },
           fileOperations.download,
           { iconClass: 'share', label: '分享...', operation: 'share' },
           { iconClass: 'tag', label: '标签...' , operation: 'tag'},
@@ -1122,6 +1126,7 @@ export default {
       allChecked: false,
       summaries: '',
       shareDialogVisible: false,
+      directLinkDialogVisible: false,
       shareDialogObject: {},
       tagDialogVisible: false,
       tagDialogObjectList: [],
@@ -3542,11 +3547,11 @@ export default {
           }
         }
         if (row.ossFolder) {
-          // 删除分享选项
-          let index = this.getIndexOfFileContextMenus('share')
-          if (index > -1) {
-            this.menus.splice(index, 1)
-          }
+          const reservations = ['open', 'tag']
+          // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
+          this.menus = this.menus.filter(item =>
+            reservations.includes(item.operation)
+          )
         }
         this.setMenusCopyDownLoadLinks(row)
       }
@@ -3656,20 +3661,20 @@ export default {
       e.clientX = event.clientX + 50
       e.clientY = event.clientY + 2
       e.top = event.clientY
-      e.left = event.clientX
+      e.left = event.clientX + 2
 
       const dividerSize = this.menus.filter(item => item.divider).length
 
-      const containerWidth = 180 + 5
-      const containerHeight = (this.menus.length - dividerSize)  * 35 + (dividerSize * 10) + 21
+      const containerWidth = 180 + 10
+      const containerHeight = (this.menus.length - dividerSize)  * 35 + (dividerSize * 11) + 18 + 10
       const distanceToBottom = document.documentElement.clientHeight - event.clientY
       const distanceToRight = document.documentElement.clientWidth - event.clientX
 
       if (distanceToBottom < containerHeight) {
-        e.top = event.clientY - containerHeight
+        e.top = event.clientY - (containerHeight - distanceToBottom)
       }
       if (distanceToRight < containerWidth) {
-        e.left = event.clientX - containerWidth
+        e.left = event.clientX - containerWidth + 8
       }
 
 
@@ -3895,6 +3900,15 @@ export default {
         case 'restore':
           // 返回原处
           this.restoreFile()
+          break
+        case 'manageDirectLink':
+          // 管理直链
+          this.directLinkDialogVisible = true
+          this.$refs.directLinkDialog.getDirectLink(this.rowContextData)
+          break
+        case 'copyDirectLink':
+          // 复制直链
+          this.$refs.directLinkDialog.getDirectLink(this.rowContextData, true)
           break
       }
       this.$refs.contextShow.hideMenu()
@@ -4767,6 +4781,9 @@ export default {
         return true
       }
       if (this.shareDialogVisible) {
+        return true
+      }
+      if (this.directLinkDialogVisible) {
         return true
       }
       if (this.tagDialogVisible) {
