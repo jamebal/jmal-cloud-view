@@ -1,5 +1,4 @@
-# nginx : /usr/local/Cellar/nginx/nginx-1.17.8/objs/nginx
-# nginx.conf : /usr/local/nginx/conf/nginx.conf
+# nginx.conf : /etc/nginx/nginx.conf
 #user  nobody;
 worker_processes auto;  # 自动根据 CPU 核心数设置
 
@@ -73,32 +72,27 @@ http {
 
                 location = / {
                         proxy_pass   http://jmalcloud:8088/articles;
-                        proxy_set_header Host $proxy_host;
-                        proxy_set_header X-real-ip $remote_addr;
+                        include /etc/nginx/conf/proxy_params.conf;
                 }
 
                 location /api {
-                                proxy_pass   http://jmalcloud:8088;
-                                proxy_set_header Host $proxy_host;
-                                proxy_set_header X-real-ip $remote_addr;
+                        proxy_pass   http://jmalcloud:8088;
+                        include /etc/nginx/conf/proxy_params.conf;
                         }
 
                 location /articles/articles {
                         proxy_pass   http://jmalcloud:8088/articles;
-                        proxy_set_header Host $proxy_host;
-                        proxy_set_header X-real-ip $remote_addr;
+                        include /etc/nginx/conf/proxy_params.conf;
                 }
 
         	    location /articles {
                         proxy_pass   http://jmalcloud:8088/articles;
-                        proxy_set_header Host $proxy_host;
-                        proxy_set_header X-real-ip $remote_addr;
+                        include /etc/nginx/conf/proxy_params.conf;
                 }
 
                 location / {
                         proxy_pass   http://jmalcloud:8088/articles/;
-                        proxy_set_header Host $proxy_host;
-                        proxy_set_header X-real-ip $remote_addr;
+                        include /etc/nginx/conf/proxy_params.conf;
                 }
 
         }
@@ -118,53 +112,48 @@ http {
 
                         location = /blog {
                                 proxy_pass   http://jmalcloud:8088/articles;
-                                proxy_set_header Host $proxy_host;
-                                proxy_set_header X-real-ip $remote_addr;
+                                include /etc/nginx/conf/proxy_params.conf;
                         }
 
                         location = /blog/ {
                                 proxy_pass   http://jmalcloud:8088/articles;
-                                proxy_set_header Host $proxy_host;
-                                proxy_set_header X-real-ip $remote_addr;
+                                include /etc/nginx/conf/proxy_params.conf;
                         }
 
                         location /blog/api/ {
                                  proxy_pass   http://jmalcloud:8088/;
-                                 proxy_set_header Host $proxy_host;
-                                 proxy_set_header X-real-ip $remote_addr;
+                                 include /etc/nginx/conf/proxy_params.conf;
                         }
 
                         location /blog/articles {
                                 proxy_pass   http://jmalcloud:8088/articles/;
-                                proxy_set_header Host $proxy_host;
-                                proxy_set_header X-real-ip $remote_addr;
+                                include /etc/nginx/conf/proxy_params.conf;
                         }
 
                         location /blog/ {
                                 proxy_pass   http://jmalcloud:8088/articles/;
-                                proxy_set_header Host $proxy_host;
-                                proxy_set_header X-real-ip $remote_addr;
+                                include /etc/nginx/conf/proxy_params.conf;
                         }
 
                         location /api/ {
                                 proxy_pass   http://jmalcloud:8088/;
                                 proxy_set_header X-Forwarded-Host $the_host/file;
-                                include /usr/local/nginx/conf/proxy_params.conf;
-                                include /usr/local/nginx/conf/proxy_params_file.conf;
+                                include /etc/nginx/conf/proxy_params.conf;
+                                include /etc/nginx/conf/proxy_params_file.conf;
                         }
 
                         location /webDAV/ {
                                 proxy_pass   http://jmalcloud:8088/webDAV/;
                                 proxy_set_header X-Forwarded-Host $the_host/file;
-                                include /usr/local/nginx/conf/proxy_params.conf;
-                                include /usr/local/nginx/conf/proxy_params_file.conf;
+                                include /etc/nginx/conf/proxy_params.conf;
+                                include /etc/nginx/conf/proxy_params_file.conf;
                         }
 
                         location /file/ {
                                 proxy_pass  http://jmalcloud:8088/file/;
                                 proxy_set_header X-Forwarded-Host $the_host/file;
-                                include /usr/local/nginx/conf/proxy_params.conf;
-                                include /usr/local/nginx/conf/proxy_params_file.conf;
+                                include /etc/nginx/conf/proxy_params.conf;
+                                include /etc/nginx/conf/proxy_params_file.conf;
                         }
 
                         location /mq {
@@ -181,19 +170,19 @@ http {
 
                         location /drawio/webapp/ {
                            proxy_pass http://localhost:8080/;
-                           proxy_set_header X-Forwarded-Host $the_host//drawio/webapp;
-                           include /usr/local/nginx/conf/proxy_params.conf;
+                           proxy_set_header X-Forwarded-Host $the_host/drawio/webapp;
+                           include /etc/nginx/conf/proxy_params.conf;
                        }
 
                         location /pdf.js/ {
                            proxy_pass http://localhost:8081/;
-                           include /usr/local/nginx/conf/proxy_params.conf;
+                           include /etc/nginx/conf/proxy_params.conf;
                            proxy_set_header X-Forwarded-Host $the_host//pdf.js;
                        }
 
                         location /excalidraw/app/ {
                            proxy_pass http://localhost:8082/excalidraw/app/;
-                           include /usr/local/nginx/conf/proxy_params.conf;
+                           include /etc/nginx/conf/proxy_params.conf;
                            proxy_set_header X-Forwarded-Host $the_host//excalidraw/app;
                        }
     }
