@@ -143,4 +143,11 @@ export default {
     }
     return null;
   },
+  directFileUrl: function(mark, file) {
+    if (file.isFolder) {
+      return window.location.origin + `${this.baseUrl}/direct-file/${mark}/${file.name}.zip`
+    } else {
+      return window.location.origin + `${this.baseUrl}/direct-file/${mark}/${file.name}`
+    }
+  }
 }

@@ -14,6 +14,11 @@ export const fileOperations = {
   }
 }
 
+export const directLinkSubMenus = [
+  { label: '管理...', operation: 'manageDirectLink', iconClass: 'a-editlink_nor'},
+  { label: '复制', operation: 'copyDirectLink', iconClass: 'copy-link'},
+]
+
 export const fileArrangements = [
   { label: '名称', operation: 'orderName', orderProp: 'name'},
   { label: '大小', operation: 'orderSize', orderProp: 'size'},
