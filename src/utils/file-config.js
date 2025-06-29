@@ -144,10 +144,8 @@ export default {
     return null;
   },
   directFileUrl: function(mark, file) {
-    if (file.isFolder) {
-      return window.location.origin + `${this.baseUrl}/direct-file/${mark}/${encodeURI(file.name)}.zip`
-    } else {
-      return window.location.origin + `${this.baseUrl}/direct-file/${mark}/${encodeURI(file.name)}`
-    }
+    const encodedName = encodeURIComponent(file.name);
+    const suffix = file.isFolder ? '.zip' : '';
+    return `${window.location.origin}${this.baseUrl}/direct-file/${mark}/${encodedName}${suffix}`
   }
 }
