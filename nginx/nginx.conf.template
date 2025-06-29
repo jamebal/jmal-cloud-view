@@ -172,6 +172,7 @@ http {
                                 proxy_pass  http://office/;
                                 include /etc/nginx/conf/proxy_params.conf;
                                 proxy_set_header X-Forwarded-Host $the_host/office;
+                                include /etc/nginx/conf/proxy_params_file.conf;
                         }
 
                         location /drawio/webapp/ {
