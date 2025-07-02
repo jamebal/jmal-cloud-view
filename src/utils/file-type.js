@@ -21,7 +21,7 @@ monaco.languages.getLanguages().forEach(language => {
 
 // onlyOffice支持的文件格式
 export const onlyOfficeSupportedFormats = [
-  'doc', 'docx', 'odt', 'rtf', 'xls', 'xlsx', 'ods', 'csv', 'ppt', 'ppsx', 'pps', 'odp', 'pptx', 'pdf', 'epub', 'html'
+  'md', 'vsdx', 'csv', 'odg', 'xlsb', 'djvu', 'doc', 'docm', 'docx', 'docxf', 'dot', 'dotm', 'dotx', 'epub', 'fb2', 'fodp', 'fods', 'fodt', 'htm', 'html', 'key', 'mht', 'numbers', 'odp', 'ods', 'odt', 'oform', 'otp', 'ots', 'ott', 'oxps', 'pages', 'pdf', 'pot', 'potm', 'potx', 'pps', 'ppsm', 'ppsx', 'ppt', 'pptm', 'pptx', 'rtf', 'txt', 'xls', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx', 'xml', 'xps'
 ]
 
 // 换行
