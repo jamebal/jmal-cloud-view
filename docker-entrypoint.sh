@@ -11,4 +11,14 @@ else
 fi
 
 envsubst '${API_URL} ${API_OFFICE_URL}' < /var/www/public/config.js.template > /var/www/public/config.js
+
+# 循环检查，直到 jmalcloud 主机名可以被成功解析
+# 使用 getent hosts 是比 ping 更可靠的方式，因为它直接查询名称服务
+while ! getent hosts jmalcloud > /dev/null 2>&1; do
+  echo "jmalcloud is not yet resolvable, waiting 2 seconds..."
+  sleep 2
+done
+
+echo "jmalcloud is now resolvable. Starting Nginx..."
+
 exec "$@"
