@@ -16,7 +16,7 @@ http {
     include mime.types;
     default_type application/octet-stream;
 
-    resolver 127.0.0.11 valid=30s;
+    resolver 127.0.0.11 valid=30s ipv6=off;
 
     # 日志
     #access_log /var/log/nginx/access.log main buffer=32k flush=5s;
