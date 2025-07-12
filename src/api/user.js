@@ -9,6 +9,14 @@ export function login(data) {
   })
 }
 
+export function verifyTotp(data) {
+  return request({
+    url: 'public/verify-totp',
+    method: 'post',
+    data
+  })
+}
+
 /**
  * 加载ldap配置
  * @returns {*}

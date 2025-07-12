@@ -25,6 +25,8 @@ export default {
   login: {
     username: 'Username',
     password: 'Password',
+    verify: 'Verify',
+    mfaCode: 'MFA Verification Code',
     login: 'Login',
     logout: 'Logout',
     create: 'Create',
@@ -69,6 +71,7 @@ export default {
     previewConfig: 'Preview Config',
     ocrConfig: 'OCR Config',
     ldapAuth: 'LDAP Auth',
+    mfaAuth: 'Two-Factor Authentication',
     startSync: 'Start scanning? ',
     confirmDeleteMenuAndRole: 'This operation will update and reset the system\'s default menus and roles (the menus and roles you have added yourself will not be affected). Are you sure?',
     resetSuccessfully: 'Reset successfully',

@@ -21,7 +21,7 @@
             <h3 v-if="initialize" class="title">{{ $t('login.createAdmin') }}</h3>
           </div>
 
-          <el-form-item prop="username">
+          <el-form-item v-show="!mfaRequired" prop="username">
           <span class="svg-container">
             <svg-icon icon-class="user" />
           </span>
@@ -36,7 +36,7 @@
             />
           </el-form-item>
 
-          <el-form-item prop="password">
+          <el-form-item v-show="!mfaRequired" prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
@@ -56,7 +56,19 @@
           </span>
           </el-form-item>
 
-          <el-form-item v-if="!initialize" class="remember">
+          <el-form-item v-show="mfaRequired" prop="mfaCode">
+            <el-input
+              ref="mfaCode"
+              v-model="loginForm.mfaCode"
+              :placeholder="$t('login.mfaCode')"
+              type="text"
+              auto-complete="off"
+              @keyup.enter.native="verifyMfaCode"
+              @input="mfaCodeInput"
+            />
+          </el-form-item>
+
+          <el-form-item v-if="!initialize && !mfaRequired" class="remember">
             <!--<el-switch v-model="loginForm.rememberMe"></el-switch>-->
             <el-checkbox :label="$t('login.rememberMe')" v-model="loginForm.rememberMe"></el-checkbox>
           </el-form-item>
@@ -80,7 +92,8 @@
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
           </el-form-item>
-          <el-button round :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?$t('login.create'):$t('login.login')}}</el-button>
+          <el-button v-if="!mfaRequired" round :loading="loading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="handleLogin">{{initialize?$t('login.create'):$t('login.login')}}</el-button>
+          <el-button v-if="mfaRequired" round :loading="verifyMfaCodeLoading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="verifyMfaCode">{{$t('login.verify')}}</el-button>
         </el-form>
       </el-card>
       </div>
@@ -98,9 +111,9 @@
 </template>
 
 <script>
-import { getWebstieRecord } from "@/api/setting-api";
+import { getWebstieRecord } from "@/api/setting-api"
 import { hasUser, initialization } from '@/api/user'
-import Logo from "@/components/Logo";
+import Logo from "@/components/Logo"
 
 export default {
   name: 'Login',
@@ -142,7 +155,9 @@ export default {
         username: this.$route.query.username || '',
         password: this.$route.query.password || '',
         rememberMe: false,
-        confirmPassword: ''
+        confirmPassword: '',
+        mfaCode: '',
+        mfaToken: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -150,9 +165,11 @@ export default {
         confirmPassword: [{ required: true, trigger: 'blur', validator: confirmPassword }]
       },
       loading: false,
+      verifyMfaCodeLoading: false,
       passwordType: 'password',
       redirect: undefined,
       initialize: false,
+      mfaRequired: false,
       backgroundImg: {
         background: "url("+require("@/assets/img/login-bg.png")+")",
         width: '100%',
@@ -233,13 +250,19 @@ export default {
           }else{
             // 登录
             this.loading = true
-            this.$store.dispatch('user/login', this.loginForm).then(() => {
-              this.$store.dispatch('user/setMenuList').then((res) => {
-                this.$router.push({ path: this.redirect || '/' })
+            this.$store.dispatch('user/login', this.loginForm).then((data) => {
+              if (data && data.mfaRequired) {
+                this.mfaRequired = true
+                this.loginForm.mfaToken = data.mfaToken
                 this.loading = false
-              }).catch(() => {
-                this.loading = false
-              })
+              } else {
+                this.$store.dispatch('user/setMenuList').then(() => {
+                  this.$router.push({ path: this.redirect || '/' })
+                  this.loading = false
+                }).catch(() => {
+                  this.loading = false
+                })
+              }
             }).catch(() => {
               this.loading = false
             })
@@ -247,6 +270,23 @@ export default {
         } else {
           return false
         }
+      })
+    },
+    mfaCodeInput(text) {
+      if (text.length === 6) {
+        this.verifyMfaCode()
+      }
+    },
+    verifyMfaCode() {
+      this.verifyMfaCodeLoading = true
+      this.$store.dispatch('user/verifyMfaCode', this.loginForm).then(() => {
+        this.$store.dispatch('user/setMenuList').then(() => {
+          this.$router.push({ path: this.redirect || '/' })
+        }).finally(() => {
+          this.verifyMfaCodeLoading = false
+        })
+      }).catch(() => {
+        this.verifyMfaCodeLoading = false
       })
     },
     validUsername() {
