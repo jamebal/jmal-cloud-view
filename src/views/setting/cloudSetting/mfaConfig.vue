@@ -25,8 +25,7 @@
           <template slot="description">
             <div class="description-container">
               <div class="step-instruction">使用手机应用扫描以下二维码，获取 6 位验证码。</div>
-              <el-image style="width: 150px; height: 150px" :src="mfaSetupResponse.qrCodeImageUri" :fit="cover"
-                        alt="二维码" />
+              <el-image style="width: 150px; height: 150px" :src="mfaSetupResponse.qrCodeImageUri" alt="二维码" />
               <div class="step-instruction">密钥 ：{{ mfaSetupResponse.secret }}
                 <svg-icon
                   class="copy-btn"
@@ -43,7 +42,7 @@
             <div class="description-container">
               <div class="step-instruction">请输入身份验证器 App 生成的 6 位动态验证码，开启两步验证。</div>
               <div class="step-instruction enable-mfa">
-                <el-input placeholder="6位动态验证码" size="small" class="code-input" v-model:value="enableMfaCode"></el-input>
+                <el-input placeholder="6位动态验证码" size="small" class="code-input" v-model="enableMfaCode"></el-input>
                 <el-button size="small" type="primary" round :disabled="enableMfaCode.length !== 6" @click="enableMFA">开启 2FA</el-button>
               </div>
             </div>
@@ -52,7 +51,7 @@
       </el-steps>
       <div v-if="mfaSetupResponse.mfaEnable">
         <div class="step-instruction enable-mfa">
-          <el-input placeholder="6位动态验证码" size="small" class="code-input" v-model:value="disableMfaCode"></el-input>
+          <el-input placeholder="6位动态验证码" size="small" class="code-input" v-model="disableMfaCode"></el-input>
           <el-button size="small" type="warning" round :disabled="disableMfaCode.length !== 6" @click="disableMFA">禁用 2FA</el-button>
         </div>
       </div>

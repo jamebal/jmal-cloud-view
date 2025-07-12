@@ -282,10 +282,11 @@ export default {
       this.$store.dispatch('user/verifyMfaCode', this.loginForm).then(() => {
         this.$store.dispatch('user/setMenuList').then(() => {
           this.$router.push({ path: this.redirect || '/' })
-          this.verifyMfaCodeLoading = false
-        }).catch(() => {
+        }).finally(() => {
           this.verifyMfaCodeLoading = false
         })
+      }).catch(() => {
+        this.verifyMfaCodeLoading = false
       })
     },
     validUsername() {
