@@ -3,14 +3,14 @@
     <el-form :rules="rules" ref="form" :model="ldapFormData" label-width="120px" size="small"
              style="width: 450px" autocomplete="off">
       <el-form-item label="功能状态" prop="enable">
-        <el-select v-model="ldapFormData.enable">
-          <el-option
-            v-for="item in ldapStatusOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+        <el-switch
+          v-model="ldapFormData.enable"
+          active-text="启用"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+          inactive-text="禁用">
+        </el-switch>
+
       </el-form-item>
       <el-form-item label="LDAP 服务器" prop="ldapServer">
         <el-input placeholder="例如: ldap.test.com:389" v-model="ldapFormData.ldapServer"></el-input>

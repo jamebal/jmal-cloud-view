@@ -1,6 +1,26 @@
 import request from '@/utils/request'
 
 export default {
+  setupMfaConfig() {
+    return request({
+      url: '/mfa/setup',
+      method: 'post'
+    })
+  },
+  enableMfaConfig(data) {
+    return request({
+      url: '/mfa/enable',
+      method: 'post',
+      data
+    })
+  },
+  disableMfaConfig(data) {
+    return request({
+      url: '/mfa/disable',
+      method: 'post',
+      data
+    })
+  },
   getPreviewConfig(params) {
     return request({
       url: '/cloud/setting/preview/config',

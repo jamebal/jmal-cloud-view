@@ -89,6 +89,11 @@
               <ldap-config></ldap-config>
             </div>
           </el-tab-pane>
+          <el-tab-pane :label="$t('app.mfaAuth')" name="7" class="setting-tab-panel">
+            <div v-if="activeName === '7'">
+              <mfa-config/>
+            </div>
+          </el-tab-pane>
 <!--          <el-tab-pane :label="$t('common.lang')" name="7" class="setting-tab-panel">-->
 <!--            <div v-if="activeName === '7'">-->
 <!--              <language-config></language-config>-->
@@ -108,6 +113,7 @@ import Logo from "@/components/Logo";
 import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
 import LanguageConfig from '@/views/setting/cloudSetting/languageConfig.vue'
+import MfaConfig from '@/views/setting/cloudSetting/mfaConfig.vue'
 import OcrConfig from '@/views/setting/cloudSetting/ocrConfig.vue'
 import PreviewConfig from '@/views/setting/cloudSetting/previewConfig.vue'
 import {mapGetters, mapState} from "vuex";
@@ -118,7 +124,7 @@ import TranscodeConfig from "@/views/setting/cloudSetting/transcodeConfig.vue";
 import OfficeConfig from "@/views/setting/cloudSetting/officeConfig.vue";
 
 export default {
-  components: { OcrConfig, LanguageConfig, PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
+  components: { MfaConfig, OcrConfig, LanguageConfig, PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',

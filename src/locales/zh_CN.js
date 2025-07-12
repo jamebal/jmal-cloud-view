@@ -25,6 +25,8 @@ export default {
   login: {
     username: '用户名',
     password: '密码',
+    verify: '验证',
+    mfaCode: 'MFA 验证码',
     login: '登录',
     logout: '登出',
     create: '创建',
@@ -69,6 +71,7 @@ export default {
     previewConfig: '预览配置',
     ocrConfig: 'OCR配置',
     ldapAuth: 'LDAP认证',
+    mfaAuth: '两步验证',
     startSync: '是否开始扫描? ',
     confirmDeleteMenuAndRole: '此操作会更新重置系统默认的菜单和角色(您自己添加的菜单和角色将不受影响), 确定吗? ',
     resetSuccessfully: '重置成功',
