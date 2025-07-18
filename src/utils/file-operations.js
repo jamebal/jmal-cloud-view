@@ -20,10 +20,17 @@ export const directLinkSubMenus = [
 ]
 
 export const fileArrangements = [
-  { label: '名称', operation: 'orderName', orderProp: 'name'},
-  { label: '大小', operation: 'orderSize', orderProp: 'size'},
-  { label: '上传时间', operation: 'orderUploadDate', orderProp: 'uploadDate'},
-  { label: '修改时间', operation: 'orderUpdateDate', orderProp: 'updateDate'},
+  { label: '名称 - 顺序', operation: 'orderName-ascending', orderProp: 'name', order: 'ascending'},
+  { label: '名称 - 倒序', operation: 'orderName-descending', orderProp: 'name', order: 'descending'},
+  { divider: true, operation: 'divider' },
+  { label: '大小 - 顺序', operation: 'orderSize-ascending', orderProp: 'size', order: 'ascending'},
+  { label: '大小 - 倒序', operation: 'orderSize-descending', orderProp: 'size', order: 'descending'},
+  { divider: true, operation: 'divider' },
+  { label: '上传时间 - 顺序', operation: 'orderUploadDate-ascending', orderProp: 'uploadDate', order: 'ascending'},
+  { label: '上传时间 - 倒序', operation: 'orderUploadDate-descending', orderProp: 'uploadDate', order: 'ascending'},
+  { divider: true, operation: 'divider' },
+  { label: '修改时间 - 顺序', operation: 'orderUpdateDate-ascending', orderProp: 'updateDate', order: 'ascending'},
+  { label: '修改时间 - 倒序', operation: 'orderUpdateDate-descending', orderProp: 'updateDate', order: 'ascending'},
 ]
 
 export const createFiles = [

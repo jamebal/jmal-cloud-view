@@ -259,44 +259,45 @@
               </template>
 
             </el-autocomplete>
-            <el-dropdown size="medium" style="height: 40px;" @command="contextmenuClick" >
-              <div>
-                <el-button round type="text" class="sort">
-                  <svg-icon
-                    v-if="sortable.order === 'descending'"
-                    icon-class="sort-amount-down-solid"
-                  />
-                  <svg-icon v-else icon-class="sort-amount-up-alt-solid" />
-                  <span class="sort-name">{{ sortName }}</span>
-                </el-button>
-              </div>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="orderName">
-                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'name' }" >
-                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
-                    <span>名称</span>
-                  </span>
-                </el-dropdown-item>
-                <el-dropdown-item command="orderSize">
-                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'size' }" >
-                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
-                    <span>大小</span>
-                  </span>
-                </el-dropdown-item>
-                <el-dropdown-item command="orderUploadDate">
-                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'uploadDate' }" >
-                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
-                    <span>上传时间</span>
-                  </span>
-                </el-dropdown-item>
-                <el-dropdown-item command="orderUpdateDate">
-                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'updateDate', }">
-                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
-                    <span>修改时间</span>
-                  </span>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <sort-dropdown :sortable="sortable" @sort-change="handleSortChange" />
+<!--            <el-dropdown size="medium" style="height: 40px;" @command="handleSortChange" >-->
+<!--              <div>-->
+<!--                <el-button round type="text" class="sort">-->
+<!--                  <svg-icon-->
+<!--                    v-if="sortable.order === 'descending'"-->
+<!--                    icon-class="sort-amount-down-solid"-->
+<!--                  />-->
+<!--                  <svg-icon v-else icon-class="sort-amount-up-alt-solid" />-->
+<!--                  <span class="sort-name">{{ sortName }}</span>-->
+<!--                </el-button>-->
+<!--              </div>-->
+<!--              <el-dropdown-menu slot="dropdown">-->
+<!--                <el-dropdown-item command="orderName">-->
+<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'name' }" >-->
+<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>-->
+<!--                    <span>名称</span>-->
+<!--                  </span>-->
+<!--                </el-dropdown-item>-->
+<!--                <el-dropdown-item command="orderSize">-->
+<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'size' }" >-->
+<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>-->
+<!--                    <span>大小</span>-->
+<!--                  </span>-->
+<!--                </el-dropdown-item>-->
+<!--                <el-dropdown-item command="orderUploadDate">-->
+<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'uploadDate' }" >-->
+<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>-->
+<!--                    <span>上传时间</span>-->
+<!--                  </span>-->
+<!--                </el-dropdown-item>-->
+<!--                <el-dropdown-item command="orderUpdateDate">-->
+<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'updateDate', }">-->
+<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>-->
+<!--                    <span>修改时间</span>-->
+<!--                  </span>-->
+<!--                </el-dropdown-item>-->
+<!--              </el-dropdown-menu>-->
+<!--            </el-dropdown>-->
             <el-button round type="text" class="vmode" @click="changeVmode">
               <svg-icon :icon-class="grid ? 'list' : 'grid'" />
             </el-button>
@@ -824,6 +825,7 @@ import SearchOption from '@/components/SearchOption/index.vue'
 import ShareDialog from '@/components/ShareDialog/index.vue'
 import DialogFileList from '@/components/ShowFile/DialogFileList.vue'
 import FileClipboard from '@/components/ShowFile/FileClipboard.vue'
+import SortDropdown from '@/components/SortDropdown/index.vue'
 import TagDialog from '@/components/TagDialog/index.vue'
 import FileContextmenu from '@/components/VContextmenu/file-contextmenu.vue'
 import store from '@/store'
@@ -844,6 +846,7 @@ import { mapGetters, mapState } from 'vuex'
 export default {
   name: 'ShowFile',
   components: {
+    SortDropdown,
     DirectLinkDialog,
     FileContextmenu,
     FileClipboard,
@@ -2793,13 +2796,6 @@ export default {
           child[0].iconClass = 'menu-point'
           child[1].iconClass = 'menu-empty'
         }
-        if (child[2]) {
-          if (localStorage.getItem('showFolderSize') === '1') {
-            child[2].iconClass = 'duigou'
-          } else {
-            child[2].iconClass = 'menu-empty'
-          }
-        }
       }
       if (arrangementModeIndex > -1) {
         const child = this.contextMenus[arrangementModeIndex].child
@@ -2808,8 +2804,9 @@ export default {
           const orderProp = item.orderProp
           if (orderProp === prop) {
             child.map(item => {
-              if (orderProp === item.orderProp) {
+              if (orderProp === item.orderProp  && this.sortable.order === item.order) {
                 item.iconClass = 'menu-' + this.sortable.order
+                console.log('当前排序:', item.order)
               } else {
                 item.iconClass = 'menu-null'
               }
@@ -2974,7 +2971,6 @@ export default {
             queryFileType: this.filterOption.type || this.queryFileType,
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize,
-            showFolderSize: localStorage.getItem('showFolderSize'),
             type: this.filterOption.type,
             queryModifyStart: this.filterOption.modifyStart,
             queryModifyEnd: this.filterOption.modifyEnd,
@@ -3025,7 +3021,6 @@ export default {
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
           folder: this.$route.query.folder,
-          showFolderSize: localStorage.getItem('showFolderSize'),
         })
         .then(res => {
           this.loadData(res, onLoad)
@@ -3046,7 +3041,6 @@ export default {
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize,
           folder: this.$route.query.folder,
-          showFolderSize: localStorage.getItem('showFolderSize'),
         })
         .then(res => {
           this.loadData(res, onLoad)
@@ -3088,7 +3082,6 @@ export default {
             queryCondition: this.queryCondition,
             pageIndex: this.pagination.pageIndex,
             pageSize: this.pagination.pageSize,
-            showFolderSize: localStorage.getItem('showFolderSize'),
           })
           .then(res => {
             this.loadData(res, onLoad)
@@ -3167,7 +3160,7 @@ export default {
         }
       })
       // 重新加上排序高亮
-      let order = this.sortable.order === 'ascending' ? 'descending' : 'ascending'
+      let order = this.sortable.order
       if (headerIndex > -1) {
         this.addClass(tableHeader.children[headerIndex], order)
       }
@@ -3678,27 +3671,9 @@ export default {
       }, 100)
       this.cellMouseIndex = -1
     },
-    // 全局右键菜单操作
-    contextmenuClick(operation) {
-      this.$refs.fileListTable.clearSelection()
-      switch (operation) {
-        case 'vmode-list':
-          this.grid = true
-          this.changeVmode()
-          break
-        case 'vmode-grid':
-          this.grid = false
-          this.changeVmode()
-          break
-        case 'show-folder-size':
-          const showFolderSize = localStorage.getItem('showFolderSize')
-          if (showFolderSize === '1') {
-            localStorage.setItem('showFolderSize', '0')
-          } else {
-            localStorage.setItem('showFolderSize', '1')
-          }
-          this.getFileListEnter()
-          break
+    handleSortChange(command, order) {
+      this.sortable.order = order
+      switch (command) {
         case 'orderName':
           this.sortChangeOfMenu('name', 1)
           break
@@ -3710,6 +3685,25 @@ export default {
           break
         case 'orderUploadDate':
           this.sortChangeOfMenu('uploadDate', -1)
+          break
+      }
+    },
+    // 全局右键菜单操作
+    contextmenuClick(operation) {
+      this.$refs.fileListTable.clearSelection()
+      if (operation.startsWith('order')) {
+        const [prop, order] = operation.split('-')
+        this.handleSortChange(prop, order)
+        return
+      }
+      switch (operation) {
+        case 'vmode-list':
+          this.grid = true
+          this.changeVmode()
+          break
+        case 'vmode-grid':
+          this.grid = false
+          this.changeVmode()
           break
         case 'refresh':
           this.getFileListEnter()
