@@ -241,12 +241,13 @@
         }
       },
       progressFormat() {
-        const space = this.userInfo.takeUpSpace/1024/1024/1024
-        const quota = this.userInfo.quota
-        if(space && quota > 0){
-          const percentage = Number((space/quota * 100).toFixed(1))
-          this.percentage = percentage > 100 ? 100 : percentage
-          return `${this.percentage}% (${formatSize(this.userInfo.takeUpSpace)}/${quota}GB)`;
+        const spaceBytes = this.userInfo.takeUpSpace;
+        const quotaBytes = this.userInfo.quota * 1024 * 1024 * 1024;
+
+        if (spaceBytes && quotaBytes > 0) {
+          const percentage = Number((spaceBytes / quotaBytes * 100).toFixed(1));
+          this.percentage = percentage > 100 ? 100 : percentage;
+          return `${this.percentage}% (${formatSize(spaceBytes)}/${formatSize(quotaBytes)})`;
         }
       },
       // 设置formData
