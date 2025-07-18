@@ -259,11 +259,7 @@
               </template>
 
             </el-autocomplete>
-            <el-dropdown
-              size="medium"
-              style="height: 40px;"
-              @command="contextmenuClick"
-            >
+            <el-dropdown size="medium" style="height: 40px;" @command="contextmenuClick" >
               <div>
                 <el-button round type="text" class="sort">
                   <svg-icon
@@ -276,70 +272,26 @@
               </div>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="orderName">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'name',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'name' }" >
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
                     <span>名称</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderSize">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'size',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'size' }" >
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
                     <span>大小</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderUploadDate">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'uploadDate',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'uploadDate' }" >
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
                     <span>上传时间</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderUpdateDate">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'updateDate',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'updateDate', }">
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
                     <span>修改时间</span>
                   </span>
                 </el-dropdown-item>
@@ -4955,7 +4907,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.05) 0px, transparent 4px);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), transparent 4px);
   pointer-events: none;
   z-index: 10;
 }
