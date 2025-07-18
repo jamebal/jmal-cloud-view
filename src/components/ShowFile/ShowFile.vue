@@ -259,11 +259,7 @@
               </template>
 
             </el-autocomplete>
-            <el-dropdown
-              size="medium"
-              style="height: 40px;"
-              @command="contextmenuClick"
-            >
+            <el-dropdown size="medium" style="height: 40px;" @command="contextmenuClick" >
               <div>
                 <el-button round type="text" class="sort">
                   <svg-icon
@@ -276,70 +272,26 @@
               </div>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="orderName">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'name',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'name' }" >
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
                     <span>名称</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderSize">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'size',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'size' }" >
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
                     <span>大小</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderUploadDate">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'uploadDate',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'uploadDate' }" >
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
                     <span>上传时间</span>
                   </span>
                 </el-dropdown-item>
                 <el-dropdown-item command="orderUpdateDate">
-                  <span
-                    :class="{
-                      'al-file-sort-item': true,
-                      active: sortable.prop === 'updateDate',
-                    }"
-                  >
-                    <i
-                      :class="{
-                        'al-file-sort-item-icon': true,
-                        'el-icon-top': sortable.order === 'ascending',
-                        'el-icon-bottom': sortable.order === 'descending',
-                      }"
-                    ></i>
+                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'updateDate', }">
+                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>
                     <span>修改时间</span>
                   </span>
                 </el-dropdown-item>
@@ -351,19 +303,16 @@
           </div>
         </div>
       </el-breadcrumb>
-      <div>
-        <!--统计信息-->
-        <div class="info-statistics">
+      <div class="info-statistics">
           <span v-if="listModeSearch"
-            >{{ this.pagination['total'] }}个结果:&nbsp;</span
+          >{{ this.pagination['total'] }}个结果:&nbsp;</span
           >
-          <span v-if="tableLoading">获取更多数据...</span>
-          <span v-if="!tableLoading">{{
+        <span v-if="tableLoading">获取更多数据...</span>
+        <span v-if="!tableLoading">{{
             !finished
               ? '已加载 ' + getSummaries3
               : '已全部加载 ' + getSummaries3
           }}</span>
-        </div>
       </div>
 
       <!--右键菜单-->
@@ -527,85 +476,83 @@
           <van-checkbox-group
             ref="checkboxGroup"
           >
-            <van-grid
-              :center="true"
-              :column-num="gridColumnNum"
-              :border="false"
-              :style="{
-                width: '100%',
-                maxHeight: clientHeight - 25 + 'px',
-                minHeight: gridMinHeight + 'px',
-                rowGap: '10px',
-                overflow: 'auto',
-                paddingBottom: '12px',
-                'box-shadow':
-                  fileListScrollTop > 0
-                    ? '-1px -1px 4px #00152914'
-                    : '-1px -1px 4px #ffffff',
-              }"
-            >
-              <van-grid-item
-                v-for="(item, index) in fileList"
-                :key="item.id"
-                :style="{paddingTop: 100/gridColumnNum + '%'}"
+            <div :class="fileListScrollTop > 0 ? 'shadow-container' : ''">
+              <van-grid
+                :center="true"
+                :column-num="gridColumnNum"
+                :border="false"
+                :style="{
+                  width: '100%',
+                  maxHeight: clientHeight - 25 + 'px',
+                  minHeight: gridMinHeight + 'px',
+                  rowGap: '10px',
+                  overflow: 'auto',
+                  paddingBottom: '12px',
+                }"
               >
-                <div
-                  class="grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                  :style="{
-                    right: gridPaddingRight + 'px',
-                    bottom: '10px',
-                    height: gridItemWidth + 'px',
-                    background: selectRowData.includes(item) ? '#caeaf991' : '',
-                    'background-size': 'cover',
-                    'background-position': 'center',
-                    'box-shadow': selectRowData.includes(item) ? '0 4px 12px var(--apple-shadow-color)' : '',
-                    'transition': 'box-shadow 0.3s ease, transform 0.3s ease;',
-                    border: selectRowData.includes(item)
-                      ? 'solid 1px var(--apple-shadow-color)'
-                      : '',
-                  }"
-                  v-tooltip="tooltipConfig(item)"
-                  @click="gridItemClick(item, $event)"
-                  @dblclick="fileClick(item, $event)"
-                  @contextmenu.prevent="rowContextmenu(item)"
-                >
-                  <div
-                    class="grid-hover-back grid-hover van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                  <van-grid-item
+                    v-for="(item, index) in fileList"
+                    :key="item.id"
+                    :style="{paddingTop: 100/gridColumnNum + '%'}"
                   >
-                    <div class="grid-item-icon">
-                      <icon-file
-                        :item="item"
-                        :image-url="imageUrl"
-                        :audio-cover-url="audioCoverUrl"
-                        :grid="true"
-                        :grid-width="gridItemWidth"
-                      ></icon-file>
-                    </div>
-                    <el-input
-                      v-if="item.index === editingIndex"
-                      v-focus
-                      v-model="renameFileName"
-                      class="grid-item-text-input"
-                      placeholder=""
-                      type="textarea"
-                      autosize
-                      size="small"
-                      @focus="
-                        renameInputFocus($event.currentTarget, item.suffix)
-                      "
-                      @blur="setInputBlur()"
-                      @keyup.enter.prevent.native="
-                        rowRename(renameFileName, item)
-                      "
+                    <div
+                      class="grid-item van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                      :style="{
+                      right: gridPaddingRight + 'px',
+                      bottom: '10px',
+                      height: gridItemWidth + 'px',
+                      background: selectRowData.includes(item) ? '#caeaf991' : '',
+                      'background-size': 'cover',
+                      'background-position': 'center',
+                      'box-shadow': selectRowData.includes(item) ? '0 4px 12px var(--apple-shadow-color)' : '',
+                      'transition': 'box-shadow 0.3s ease, transform 0.3s ease;',
+                      border: selectRowData.includes(item)
+                        ? 'solid 1px var(--apple-shadow-color)'
+                        : '',
+                    }"
+                      v-tooltip="tooltipConfig(item)"
+                      @click="gridItemClick(item, $event)"
+                      @dblclick="fileClick(item, $event)"
+                      @contextmenu.prevent="rowContextmenu(item)"
                     >
-                    </el-input>
-                    <div v-if="item.index !== editingIndex" class="grid-item-text">
-                      <span>{{ gridFilename(item) }}</span>
+                      <div
+                        class="grid-hover-back grid-hover van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
+                      >
+                        <div class="grid-item-icon">
+                          <icon-file
+                            :item="item"
+                            :image-url="imageUrl"
+                            :audio-cover-url="audioCoverUrl"
+                            :grid="true"
+                            :grid-width="gridItemWidth"
+                          ></icon-file>
+                        </div>
+                        <el-input
+                          v-if="item.index === editingIndex"
+                          v-focus
+                          v-model="renameFileName"
+                          class="grid-item-text-input"
+                          placeholder=""
+                          type="textarea"
+                          autosize
+                          size="small"
+                          @focus="
+                          renameInputFocus($event.currentTarget, item.suffix)
+                        "
+                          @blur="setInputBlur()"
+                          @keyup.enter.prevent.native="
+                          rowRename(renameFileName, item)
+                        "
+                        >
+                        </el-input>
+                        <div v-if="item.index !== editingIndex" class="grid-item-text">
+                          <span>{{ gridFilename(item) }}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </van-grid-item>
-            </van-grid>
+                  </van-grid-item>
+              </van-grid>
+            </div>
           </van-checkbox-group>
         </div>
         <table class="drag-table" id="drag-table"></table>
@@ -4944,6 +4891,25 @@ export default {
 .dialog-footer-delete {
   display: flex;
   justify-content: space-between;
+}
+
+.shadow-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: white;
+}
+
+.shadow-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), transparent 4px);
+  pointer-events: none;
+  z-index: 10;
 }
 
 >>> .van-grid-item__content {
