@@ -2806,7 +2806,6 @@ export default {
             child.map(item => {
               if (orderProp === item.orderProp  && this.sortable.order === item.order) {
                 item.iconClass = 'menu-' + this.sortable.order
-                console.log('当前排序:', item.order)
               } else {
                 item.iconClass = 'menu-null'
               }

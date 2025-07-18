@@ -22,7 +22,7 @@
         :divided="item.order === 'ascending' && item.key !== 'name-asc'"
       >
         <span :class="{ 'al-file-sort-item': true, active: sortable.prop === item.prop && sortable.order === item.order }">
-          <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>
+          <i :class="['al-file-sort-item-icon', (sortable.prop === item.prop && sortable.order === item.order) ? (sortable.order === 'ascending' ? 'el-icon-top' : 'el-icon-bottom') : '']" ></i>
           <span>{{ item.label }}</span>
         </span>
       </el-dropdown-item>
@@ -56,33 +56,29 @@ export default {
   computed: {
     // 生成完整的排序选项（包含顺序和倒序）
     allSortOptions() {
-      const options = []
-      this.sortOptions.forEach(option => {
-        // 顺序选项
-        options.push({
+      return this.sortOptions.flatMap(option => [
+        {
           key: `${option.prop}-asc`,
           command: `${option.command}-ascending`,
           prop: option.prop,
           order: 'ascending',
           title: option.title,
           label: `${option.title} - 顺序`
-        })
-        // 倒序选项
-        options.push({
+        },
+        {
           key: `${option.prop}-desc`,
           command: `${option.command}-descending`,
           prop: option.prop,
           order: 'descending',
           title: option.title,
           label: `${option.title} - 倒序`
-        })
-      })
-      return options
+        }
+      ])
     },
     // 当前排序字段的显示名称
     currentSortName() {
       const currentOption = this.sortOptions.find(option => option.prop === this.sortable.prop)
-      return currentOption.title
+      return currentOption ? currentOption.title : ''
     },
     // 当前排序方向
     currentSortOrder() {
@@ -129,7 +125,7 @@ export default {
 }
 
 /* 确保图标和文字垂直对齐 */
-.al-file-sort-item-icon /deep/ svg {
+.al-file-sort-item-icon >>> svg {
   width: 14px;
   height: 14px;
   vertical-align: middle;

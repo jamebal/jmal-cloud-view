@@ -27,10 +27,10 @@ export const fileArrangements = [
   { label: '大小 - 倒序', operation: 'orderSize-descending', orderProp: 'size', order: 'descending'},
   { divider: true, operation: 'divider' },
   { label: '上传时间 - 顺序', operation: 'orderUploadDate-ascending', orderProp: 'uploadDate', order: 'ascending'},
-  { label: '上传时间 - 倒序', operation: 'orderUploadDate-descending', orderProp: 'uploadDate', order: 'ascending'},
+  { label: '上传时间 - 倒序', operation: 'orderUploadDate-descending', orderProp: 'uploadDate', order: 'descending'},
   { divider: true, operation: 'divider' },
   { label: '修改时间 - 顺序', operation: 'orderUpdateDate-ascending', orderProp: 'updateDate', order: 'ascending'},
-  { label: '修改时间 - 倒序', operation: 'orderUpdateDate-descending', orderProp: 'updateDate', order: 'ascending'},
+  { label: '修改时间 - 倒序', operation: 'orderUpdateDate-descending', orderProp: 'updateDate', order: 'descending'},
 ]
 
 export const createFiles = [
