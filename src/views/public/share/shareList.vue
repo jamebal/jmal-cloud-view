@@ -627,7 +627,6 @@ export default {
         fileId: fileId,
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
-        showFolderSize: true
       }).then(res => {
         this.isLoading = false
         this.fileList = res.data
@@ -649,7 +648,6 @@ export default {
         share: this.shortId,
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
-        showFolderSize: true
       }).then(res => {
         this.isLoading = false
         if (Object.getPrototypeOf(res.data) === String.prototype) {

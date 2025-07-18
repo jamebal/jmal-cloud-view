@@ -905,7 +905,6 @@ export default {
         pageIndex: this.pagination.pageIndex,
         pageSize: this.pagination.pageSize,
         folder: this.$route.query.folder,
-        showFolderSize: localStorage.getItem('showFolderSize')
       }).then(res => {
           this.loadData(res, onLoad)
           this.listModeSearch = true
