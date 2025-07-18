@@ -171,8 +171,7 @@ export default {
     message(msg) {
       if (msg.event === 'msg/synced') {
         this.updateSyncStatus(msg.data.body)
-      }
-      if (msg.event === 'msg/calculateFolderSizeProcessed') {
+      } else if (msg.event === 'msg/calculateFolderSizeProcessed') {
         this.calculateFolderSizeProcessedStatus(msg.data.body)
       }
     }
@@ -280,7 +279,6 @@ export default {
       this.syncLoading = !((this.syncPercent === 100 && this.indexingPercent === 100) || (this.syncPercent === 0 && this.indexingPercent === 0));
     },
     calculateFolderSizeProcessedStatus(calculateFolderSizeProcessedPercent) {
-      console.log('calculateFolderSizeProcessedPercent', calculateFolderSizeProcessedPercent)
       this.calculateFolderSizeProcessedPercent = calculateFolderSizeProcessedPercent
       this.calculateFolderSizeLoading = !(this.calculateFolderSizeProcessedPercent === 100 || this.calculateFolderSizeProcessedPercent === 0);
     },
@@ -306,9 +304,13 @@ export default {
         cancelButtonText: `${this.$t('common.cancel')}`,
         type: 'warning'
       }).then(() => {
-        settingApi.recalculateFolderSize();
-      }).catch(() => {
-      })
+        this.calculateFolderSizeLoading = true;
+        settingApi.recalculateFolderSize()
+          .catch(() => {
+            this.$message.error('Failed to initiate folder size recalculation.');
+            this.calculateFolderSizeLoading = false;
+          });
+      }).catch(() => {});
     },
     // 重置角色菜单
     resetMenuAndRole() {
