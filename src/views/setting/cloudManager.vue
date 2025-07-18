@@ -48,6 +48,13 @@
                 <span v-show="indexingPercent > 0 && indexingPercent < 100">{{ $t('app.rebuildIndexStep2') }}: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
               </div>
               <span class="instruction">{{ $t('app.rebuildIndexDesc') }}</span>
+
+              <div class="config-itme-label">{{ $t('app.recalculateFolderSize') }}：
+                <el-button round class="sync-button" size="mini" type="primary" :loading="calculateFolderSizeLoading" @click="recalculateFolderSize()"><i class="el-icon-refresh"></i></el-button>
+                <span v-show="calculateFolderSizeProcessedPercent > 0 && calculateFolderSizeProcessedPercent < 100">{{ calculateFolderSizeProcessedPercent }}%</span>
+              </div>
+              <span class="instruction">{{ $t('app.recalculateFolderSizeDesc') }}</span>
+
               <div class="config-itme-label">{{ $t('app.resetMenuAndRole') }}：
                 <el-button round class="sync-button" size="mini" :loading="resetLoading" type="danger"
                            @click="resetMenuAndRole()">
@@ -134,6 +141,8 @@ export default {
       clickSync: false,
       indexingPercent: 100,
       syncPercent: 100,
+      calculateFolderSizeProcessedPercent: 100,
+      calculateFolderSizeLoading: false,
       resetLoading: false,
       webpEnabled: false,
       logoFileName: this.$store.state.user.netdiskLogo || '',
@@ -162,6 +171,9 @@ export default {
     message(msg) {
       if (msg.event === 'msg/synced') {
         this.updateSyncStatus(msg.data.body)
+      }
+      if (msg.event === 'msg/calculateFolderSizeProcessed') {
+        this.calculateFolderSizeProcessedStatus(msg.data.body)
       }
     }
   },
@@ -267,6 +279,11 @@ export default {
       }
       this.syncLoading = !((this.syncPercent === 100 && this.indexingPercent === 100) || (this.syncPercent === 0 && this.indexingPercent === 0));
     },
+    calculateFolderSizeProcessedStatus(calculateFolderSizeProcessedPercent) {
+      console.log('calculateFolderSizeProcessedPercent', calculateFolderSizeProcessedPercent)
+      this.calculateFolderSizeProcessedPercent = calculateFolderSizeProcessedPercent
+      this.calculateFolderSizeLoading = !(this.calculateFolderSizeProcessedPercent === 100 || this.calculateFolderSizeProcessedPercent === 0);
+    },
     sync() {
       this.$confirm(`${this.$t('app.startSync')}`, `${this.$t('common.tips')}`, {
         confirmButtonText: `${this.$t('common.confirm')}`,
@@ -281,6 +298,16 @@ export default {
         }).catch(() => {
           this.clickSync = false
         })
+      })
+    },
+    recalculateFolderSize() {
+      this.$confirm(`${this.$t('app.confirmRecalculateFolderSize')}`, `${this.$t('common.tips')}`, {
+        confirmButtonText: `${this.$t('common.confirm')}`,
+        cancelButtonText: `${this.$t('common.cancel')}`,
+        type: 'warning'
+      }).then(() => {
+        settingApi.recalculateFolderSize();
+      }).catch(() => {
       })
     },
     // 重置角色菜单

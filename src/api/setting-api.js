@@ -84,6 +84,13 @@ export default {
       params
     })
   },
+  recalculateFolderSize(params) {
+    return request({
+      url: '/cloud/setting/recalculateFolderSize',
+      method: 'get',
+      params
+    })
+  },
   isSync(params) {
     return request({
       url: '/user/setting/isSync',

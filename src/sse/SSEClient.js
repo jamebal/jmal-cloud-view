@@ -139,6 +139,7 @@ function onMessage(msg) {
   const { url, body } = msg;
   const eventMapping = {
     synced: 'msg/synced',
+    calculateFolderSizeProcessed: 'msg/calculateFolderSizeProcessed',
     taskProgress: 'msg/taskProgress',
     transcodeStatus: 'msg/transcodeStatus',
     uploaderChunkSize: 'uploaderChunkSize',
