@@ -406,15 +406,15 @@ export default {
       if (this.takeUpSpace === 0) {
         this.takeUpSpace = this.userInfo.takeUpSpace
       }
-      const quota = this.userInfo.quota
-      const space = this.takeUpSpace/1024/1024/1024
-      if(space && quota > 0){
-        const percentage = Number((space/quota * 100).toFixed(5))
+      const spaceBytes = this.takeUpSpace
+      const quotaBytes = this.userInfo.quota * 1024 * 1024 * 1024
+      if(spaceBytes && quotaBytes > 0){
+        const percentage = Number((spaceBytes/quotaBytes * 100).toFixed(5))
         this.percentage = percentage > 100 ? 100 : percentage
         if(this.isCollapse){
           return `${formatSize(this.takeUpSpace)}`
         } else {
-          return `${formatSize(this.takeUpSpace)}/${quota}GB`
+          return `${formatSize(this.takeUpSpace)}/${formatSize(quotaBytes)}`
         }
       }
     }

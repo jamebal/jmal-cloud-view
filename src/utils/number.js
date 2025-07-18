@@ -127,17 +127,18 @@ export function formatTime(agoTime) {
  * @param {*} size
  */
 export function formatSize(size) {
-  if (size === 0) {
-    return ''
-  } else if (size < 1024) {
-    return size + 'B'
-  } else if (size < 1024 * 1024) {
-    return (size/1024).toFixed(1) + 'k'
-  } else if (size < 1024 * 1024 * 1024) {
-    return (size/(1024 * 1024)).toFixed(1) + 'M'
-  } else {
-    return (size/(1024 * 1024 * 1024)).toFixed(1) + 'G'
+  if (size === 0 || !size) return '0B';
+
+  const units = ['B', 'K', 'M', 'G', 'T'];
+  let index = 0;
+  let result = size;
+
+  while (result >= 1024 && index < units.length - 1) {
+    result /= 1024;
+    index++;
   }
+
+  return result.toFixed(1) + units[index];
 }
 
 /**
