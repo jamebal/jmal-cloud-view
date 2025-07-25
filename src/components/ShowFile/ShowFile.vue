@@ -21,7 +21,7 @@
           </v-contextmenu-item>
           <v-contextmenu-submenu
             v-if="item.child"
-            :disabled="item.homeDisable && (!path || path.length < 2)"
+            :disabled="item.operation === 'create' && isNotUploadAllowed"
             :title="item.label"
           >
             <!-- 二级菜单 -->
@@ -91,7 +91,7 @@
             <el-popover
               popper-class="upload-file"
               v-if="showUploadButton"
-              v-show="!(isRootPath && homeHidden)"
+              v-show="!isNotUploadAllowed"
               v-model="isShowNewFolder"
               placement="bottom"
               trigger="hover"
@@ -839,6 +839,8 @@ import { formatSize, formatTime } from '@/utils/number'
 import EditElement from '@/views/markdown/EditElement'
 import Clipboard from 'clipboard'
 
+import { isNotDragUploadAllowed } from '@/components/SimpleUploader/dragUploadUtils'
+
 import _ from 'lodash'
 import path from 'path'
 import { mapGetters, mapState } from 'vuex'
@@ -877,10 +879,6 @@ export default {
     lessClientHeight: {
       type: Number,
       default: 106,
-    },
-    homeHidden: {
-      type: Boolean,
-      default: false,
     },
     showUploadButton: {
       type: Boolean,
@@ -1162,14 +1160,14 @@ export default {
           return '名称'
       }
     },
+    isNotUploadAllowed() {
+      return isNotDragUploadAllowed(this.$route)
+    },
     searchOptionBtnClass() {
       return this.hasSearchFilterOption ? 'search-option-btn search-option-btn-active' : 'search-option-btn'
     },
     cmdKey() {
       return navigator.platform.startsWith('Mac') ? '⌘' : 'Ctrl'
-    },
-    isRootPath() {
-      return !this.$route.query.path || this.$route.query.path.length < 2
     },
     fileClipboard() {
       return store.getters.fileClipboard
