@@ -38,7 +38,7 @@ export default {
         },
         { label: '刷新', operation: 'refresh'},
         { divider: true, operation: 'divider' },
-        { label: '新建', operation: 'create' , homeDisable: true, child: createFiles
+        { label: '新建', operation: 'create' , child: createFiles
         },
         { divider: true, operation: 'divider' },
         { label: '写文章', operation: 'createMarkdownFile'},

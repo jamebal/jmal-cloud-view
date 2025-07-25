@@ -118,7 +118,8 @@ import SparkMD5 from 'spark-md5'
 import api from '@/api/file-api'
 import {formatNetSpeed} from '@/utils/number'
 import {mapState} from 'vuex'
-import {encodeIfNeeded} from "@/utils/path";
+import {encodeIfNeeded} from "@/utils/path"
+import { isDragUploadAllowed } from './dragUploadUtils'
 
 export default {
   components: {},
@@ -189,7 +190,7 @@ export default {
       fileListScrollTop: 0,
       dragoverLoop: null,
       successMsg: null,
-      enableDragUpload: false,// 是否启用拖拽上传
+      enableDragUpload: true,// 是否启用拖拽上传
       uploader: null,
     }
   },
@@ -198,8 +199,7 @@ export default {
   },
   watch: {
     $route(route) {
-      // 只有首页才启用拖拽上传
-      this.enableDragUpload = route.path === '/'
+      this.checkDrag(route)
     },
     message(msg) {
       switch (msg.event) {
@@ -233,7 +233,7 @@ export default {
     }
   },
   mounted() {
-    this.enableDragUpload = this.$route.path === '/'
+    this.checkDrag(this.$route)
     let that = this
     let dropbox = document.body
 
@@ -280,6 +280,9 @@ export default {
   destroyed() {
   },
   methods: {
+    checkDrag(route) {
+      this.enableDragUpload = isDragUploadAllowed(route)
+    },
     onStorageTypeChange(chunkSize) {
       localStorage.setItem('uploader_chunk_size', chunkSize)
       if (this.options.chunkSize !== chunkSize && !this.panelShow) {
