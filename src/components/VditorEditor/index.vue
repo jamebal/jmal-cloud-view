@@ -103,6 +103,7 @@ export default {
         toolbarConfig: {
           pin: true,
         },
+        cdn: `${window.location.origin}/resource/vditor@3.11.1`,
         mode: 'wysiwyg',
         preview: {
           hljs: {
