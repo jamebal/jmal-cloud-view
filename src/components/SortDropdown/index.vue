@@ -3,6 +3,8 @@
     size="medium"
     style="height: 40px;"
     @command="handleCommand"
+    show-timeout="100"
+    hide-timeout="100"
   >
     <div>
       <el-button round type="text" class="sort">

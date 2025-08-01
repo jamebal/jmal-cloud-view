@@ -1,8 +1,8 @@
 <template>
-  <div v-loading="vditorLoading">
+  <div v-loading="pageLoading">
     <div class="article-editor">
       <div class="editor-left">
-        <cite v-if="currentDarft">你正在编辑的是保存于 {{ file.updateDate }} 的草稿, 你也可以
+        <cite v-if="currentDraft">你正在编辑的是保存于 {{ file.updateDate }} 的草稿, 你也可以
           <el-button round type="text" style="color: #F56C6C" @click="deleteDraft">删除它</el-button>
         </cite>
         <el-header>
@@ -25,7 +25,14 @@
           </div>
         </el-header>
         <el-main>
-          <div id="vditor" :style="{maxHeight: clientHeight + 'px'}"></div>
+          <vditor-editor
+            ref="vditorEditor"
+            v-model="file.contentText"
+            :height="clientHeight"
+            :upload-user="uploadUserInfo"
+            @initialized="onVditorInitialized"
+            @input="valueHasChanged"
+          />
         </el-main>
       </div>
       <div class="editor-right">
@@ -88,10 +95,6 @@
             <div v-if="inputValueExist" class="instruction-error">该标签已存在</div>
             <el-button round v-if="!inputVisible" class="button-new-tag" size="small" @click="showInput"> + 新增标签</el-button>
           </div>
-          <!--          <p class="mark-setting-label">-->
-          <!--            其他：-->
-          <!--          </p>-->
-          <!--          <el-button round size="small" @click="moreSet">更多设置</el-button>-->
         </div>
       </div>
     </div>
@@ -110,68 +113,30 @@
 </template>
 
 <script>
-import markdownApi from '@/api/markdown-api'
-import DirTree from "@/components/FileTree/DirTree"
-import fileConfig from '@/utils/file-config'
+import markdownApi from '@/api/markdown-api';
+import DirTree from "@/components/FileTree/DirTree";
 
-import Vditor from 'vditor'
-import "vditor/src/assets/less/index.less"
 import categoryApi from "@/api/category";
 import tagApi from "@/api/tag";
 import EditElement from "@/views/markdown/EditElement";
 import UploadImageInput from "@/components/input/UploadImageInput";
 import MultipleTreeSelect from "@/components/select/MultipleTree";
 
-let toolbar = [
-  'emoji',
-  'bold',
-  'italic',
-  'strike',
-  'link',
-  '|',
-  'list',
-  'ordered-list',
-  'check',
-  'outdent',
-  'indent',
-  '|',
-  'line',
-  'insert-before',
-  'insert-after',
-  '|',
-  'upload',
-  'record',
-  'table',
-  '|',
-  'undo',
-  'redo',
-  '|',
-  'edit-mode',
-  'code-theme',
-  'outline',
-  'preview',
-  'fullscreen',
-  {
-    name: 'more',
-    toolbar: [
-      'export',
-      'both',
-      'info',
-      'help',
-    ],
-  }]
+import VditorEditor from '@/components/VditorEditor';
 
 export default {
   name: 'MarkdownEditor',
   components: {
+    VditorEditor,
     MultipleTreeSelect,
     EditElement,
-    DirTree, Vditor, UploadImageInput
+    DirTree,
+    UploadImageInput
   },
   props: {
     hasChange: {
       type: Boolean,
-      defalut: false
+      default: false
     },
     alonePage: {
       type: Boolean,
@@ -189,7 +154,16 @@ export default {
   data() {
     return {
       activeNames: ['1'],
-      file: {},
+      // 确保 file 对象及其属性存在，避免模板渲染错误
+      file: {
+        contentText: '',
+        name: '',
+        slug: '',
+        cover: '',
+        categoryIds: [],
+        tagIds: [],
+        uploadDate: null
+      },
       editStatus: false,
       filename: '',
       clientHeight: document.documentElement.clientHeight - 150,
@@ -197,10 +171,9 @@ export default {
       storageLocation: '',
       selectLocationVisible: false,
       moreSetting: false,
-      contentEditor: '',
       categories: [],
       draft: false,
-      currentDarft: false,
+      currentDraft: false,
       tags: [],
       dynamicTags: [],
       inputVisible: false,
@@ -208,19 +181,26 @@ export default {
       inputValueExist: false,
       inputNewTagClass: 'input-new-tag',
       inputErrorClass: 'input-error',
-      vditorLoading: false,
+      pageLoading: false,
       releaseTime: undefined,
     }
   },
-  mounted() {
-    this.getMarkdown()
-    this.categoryTree()
-    this.getTags()
+  computed: {
+    // 创建一个计算属性，用于向子组件传递用户信息，实现解耦
+    uploadUserInfo() {
+      if (!this.$store.state.user) {
+        return {}; // 返回空对象以处理未登录的情况
+      }
+      return {
+        token: this.$store.state.user.token,
+        name: this.$store.state.user.name,
+        userId: this.$store.state.user.userId,
+      }
+    }
   },
   watch: {
-    file() {
-      this.valueHasChanged()
-    },
+    'file.categoryIds': 'valueHasChanged',
+    dynamicTags: 'valueHasChanged',
     filename(val) {
       this.valueHasChanged()
       this.$emit('onTitle', val)
@@ -229,219 +209,143 @@ export default {
       this.valueHasChanged()
     }
   },
-  computed: {},
+  mounted() {
+    this.getMarkdown();
+    this.categoryTree();
+    this.getTags();
+  },
   methods: {
     reload() {
-      this.getMarkdown(true)
-      this.categoryTree()
+      this.getMarkdown(true);
+      this.categoryTree();
     },
     querySearch(queryString, cb) {
-      let tags = this.tags
+      let tags = this.tags;
       let results = queryString ? tags.filter((tag) => {
         return (tag.name.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
-      }) : []
-      // 调用 callback 返回建议列表的数据
-      results = results.map(res => {
-        return {value: res.name}
-      })
-      cb(results)
+      }) : [];
+      results = results.map(res => ({ value: res.name }));
+      cb(results);
     },
     handleSelect() {
-      this.handleInputConfirm()
+      this.handleInputConfirm();
     },
     valueHasChanged() {
-      this.$emit('update:hasChange', true)
+      this.$emit('update:hasChange', true);
     },
     getMarkdown(isReload) {
-      this.vditorLoading = true
-      this.draft = false
+      this.pageLoading = true;
+      this.draft = false;
+
       if (this.$route.query.id) {
-        this.editStatus = true
-        markdownApi.getMarkdown({
-          mark: this.$route.query.id
-        }).then((res) => {
+        this.editStatus = true;
+        markdownApi.getMarkdown({ mark: this.$route.query.id }).then((res) => {
           if (res.data.draft) {
-            this.file = JSON.parse(res.data.draft)
+            this.file = JSON.parse(res.data.draft);
             if (res.data.release) {
-              this.currentDarft = true
+              this.currentDraft = true;
             }
           } else {
-            this.currentDarft = false
-            this.file = res.data
+            this.currentDraft = false;
+            this.file = res.data;
           }
-          // 初始化编辑器
-          if (isReload) {
-            this.contentEditor.setValue(this.file.contentText)
-            this.vditorLoading = false
+
+          this.filename = this.file.name ? this.file.name.split('.md')[0] : '';
+
+          if (this.file.tagIds && this.file.tagIds.length > 0 && this.tags.length > 0) {
+            this.loadDynamicTags();
+          }
+
+          this.$nextTick(() => {
+            this.$emit('update:hasChange', false);
+          });
+
+          // 如果是重新加载，等待编辑器更新内容后结束
+          if (!isReload) {
+            // VditorEditor 组件内部 after 回调会触发 initialized 事件来关闭 loading
           } else {
-            this.vditorInit(this.file.contentText)
+            this.pageLoading = false;
           }
-          this.content = this.file.contentText
-          this.filename = this.file.name.split('.md')[0]
-          // 加载标签
-          if (this.file.tagIds && this.file.tagIds.length > 0 && this.tags && this.tags.length > 0) {
-            this.loadDynamicTags()
-          }
-        }).then(() => {
-          const that = this
-          setTimeout(function () {
-            that.$emit('update:hasChange', false)
-          }, 200)
-        })
+
+        }).catch(() => {
+          this.pageLoading = false;
+        });
       } else {
-        if (isReload) {
-          this.contentEditor.setValue('')
-        } else {
-          this.vditorInit('')
-        }
+        // // 新建文章，清空数据
+        // this.file = { contentText: '', name: '', slug: '', cover: '', categoryIds: [], tagIds: [] };
+        // this.filename = '';
+        // this.dynamicTags = [];
       }
     },
+    // 新方法：处理子组件初始化完成事件
+    onVditorInitialized() {
+      this.pageLoading = false;
+      this.$refs.vditorEditor.setValue(this.file.contentText);
+    },
     moreSet() {
-      this.moreSetting = true
+      this.moreSetting = true;
     },
     categoryTree() {
       categoryApi.categoryTree().then(res => {
-        this.categories = res.data
-      })
+        this.categories = res.data;
+      });
     },
     getTags() {
       tagApi.tagList().then(res => {
-        this.tags = res.data
+        this.tags = res.data;
         if (this.file.tagIds && this.file.tagIds.length > 0) {
-          this.loadDynamicTags()
+          this.loadDynamicTags();
         }
-      })
+      });
     },
     loadDynamicTags() {
-      this.dynamicTags = this.tags.filter(tag => this.file.tagIds.includes(tag.id)).map(tag => tag.name)
+      this.dynamicTags = this.tags.filter(tag => this.file.tagIds.includes(tag.id)).map(tag => tag.name);
     },
     handleClose(tag) {
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
     },
     showInput() {
-      this.inputVisible = true
-      this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus()
+      this.inputVisible = true;
+      this.$nextTick(() => {
+        this.$refs.saveTagInput.$refs.input.focus();
       });
     },
     handleInputConfirm() {
-      const that = this
-      setTimeout(function () {
-        let inputValue = that.inputValue
+      const that = this;
+      setTimeout(function() {
+        let inputValue = that.inputValue;
         if (inputValue) {
           if (that.dynamicTags.includes(inputValue)) {
-            that.inputValueExist = true
-            return
+            that.inputValueExist = true;
+            return;
           }
-          that.dynamicTags.push(inputValue)
+          that.dynamicTags.push(inputValue);
         }
-        that.inputValueExist = false
-        that.inputVisible = false
-        that.inputValue = ''
-      }, 250)
+        that.inputValueExist = false;
+        that.inputVisible = false;
+        that.inputValue = '';
+      }, 250);
     },
-    vditorInit(content) {
-      this.contentEditor = new Vditor('vditor', {
-        height: this.clientHeight,
-        resize: {
-          "enable": true
-        },
-        toolbar: [
-          ...toolbar
-        ],
-        toolbarConfig: {
-          pin: true,
-        },
-        cdn: `${window.location.origin}/resource/vditor@3.9.3`,
-        preview: {
-          mode: 'both',
-          hljs: {
-            lineNumber: true
-          },
-          markdown: {
-            toc: true
-          },
-        },
-        cache: {
-          enable: false,
-        },
-        after: () => {
-          this.contentEditor.setValue(content)
-          this.vditorLoading = false
-        },
-        input: () => {
-          this.valueHasChanged()
-        },
-        upload: this.markdownImageUplaod()
-      })
-    },
-    markdownImageUplaod() {
-      return {
-        accept: 'image/*,.mp3, .wav, .rar',
-        headers: {
-          'jmal-token': this.$store.state.user.token,
-          'name': this.$store.state.user.name,
-          'username': this.$store.state.user.name,
-          'userId': this.$store.state.user.userId
-        },
-        url: '/api/upload-markdown-image',
-        extraData: {
-          'username': this.$store.state.user.name,
-          'userId': this.$store.state.user.userId
-        },
-        fieldName: 'files',
-        filename(name) {
-          return name.replace(/[^(a-zA-Z0-9\u4e00-\u9fa5\.)]/g, '').replace(/[\?\\/:|<>\*\[\]\(\)\$%\{\}@~]/g, '').replace('/\\s/g', '')
-        },
-        format(files, responseText) {
-          let response = JSON.parse(responseText)
-          let succMap = {}
-          response.data.forEach(map => {
-            succMap[map.filename] = fileConfig.markdownPreviewUrl(map.filepath)
-          })
-          response.data = {}
-          response.data['succMap'] = succMap
-          return JSON.stringify(response)
-        },
-        error(msg) {
-          console.log('error', msg)
-        },
-        linkToImgUrl: '/api/upload-markdown-link-image',
-        linkToImgFormat(responseText) {
-          let response = JSON.parse(responseText)
-          response.data['url'] = fileConfig.markdownPreviewUrl(response.data.url)
-          return JSON.stringify(response)
-        },
-      }
-    },
-    save() {
-      if (this.editStatus) {
-        this.update()
-      } else {
-        this.add()
-      }
-    },
-    imageFilter() {
-      return true
-    },
+    // 移除了 vditorInit 和 markdownImageUplaod 方法
     checkParam() {
       if (!this.filename) {
-        this.$message.warning("请输入文章标题")
-        return false
+        this.$message.warning("请输入文章标题");
+        return false;
       }
-      if (this.contentEditor.getValue().length < 2) {
-        this.$message.warning("请输入文章内容")
-        return false
+      // 核心改动：直接从 v-model 绑定的数据中获取内容
+      if (!this.file.contentText || this.file.contentText.length < 2) {
+        this.$message.warning("请输入文章内容");
+        return false;
       }
-      return true
+      return true;
     },
     saveDraft() {
-      this.draft = true
-      this.update('保存草稿成功')
+      this.draft = true;
+      this.update('保存草稿成功');
     },
     release() {
-      this.draft = false
-      this.update()
+      this.draft = false;
+      this.update();
     },
     deleteDraft() {
       this.$confirm('您确定要删除这份草稿吗?', '提示', {
@@ -457,66 +361,56 @@ export default {
             message: "草稿已被删除",
             type: 'success',
             duration: 1000
-          })
-          this.reload()
-        })
-      })
+          });
+          this.reload();
+        });
+      });
     },
-    // update
-    update(message) {
+    async update(message) {
       if (!this.checkParam()) {
-        return
+        return;
       }
-      this.updating = true
-      if (this.filename) {
-        const filename = this.filename + ".md"
-        markdownApi.editMarkdown({
-          fileId: this.$route.query.id,
-          userId: this.$store.state.user.userId,
-          username: this.$store.state.user.name,
-          filename: encodeURI(filename),
-          cover: this.file.cover,
-          isDraft: this.draft,
-          isRelease: this.file.release,
-          isAlonePage: this.alonePage,
-          slug: this.file.slug ? this.file.slug : this.filename,
-          categoryIds: this.file.categoryIds,
-          tagNames: this.dynamicTags,
-          currentDirectory: encodeURI(this.path),
-          contentText: this.contentEditor.getValue(),
-          html: this.contentEditor.getHTML(),
-          uploadDate: this.file.uploadDate,
-        }).then((res) => {
-          this.$emit('update:hasChange', false)
-          this.updating = false
-          this.$message({
-            message: message ? message : "发布成功",
-            type: 'success',
-            duration: 1000
-          })
-          if (this.draft) {
-            this.$router.push({path: this.$route.path, query: {operation: 'editor', id: res.data}})
-            this.$emit('onTitle', this.filename)
-            this.reload()
-          } else {
-            this.$emit('onRelease')
-          }
-        }).catch(() => {
-          this.updating = false
-        })
-      }
+      this.updating = true;
+      const htmlContent = this.$refs.vditorEditor ? await this.$refs.vditorEditor.getHTML() : '';
+      console.log(htmlContent);
+      markdownApi.editMarkdown({
+        fileId: this.$route.query.id,
+        userId: this.$store.state.user.userId,
+        username: this.$store.state.user.name,
+        filename: encodeURI(this.filename + ".md"),
+        cover: this.file.cover,
+        isDraft: this.draft,
+        isRelease: this.file.release,
+        isAlonePage: this.alonePage,
+        slug: this.file.slug ? this.file.slug : this.filename,
+        categoryIds: this.file.categoryIds,
+        tagNames: this.dynamicTags,
+        contentText: this.file.contentText,
+        html: htmlContent,
+        uploadDate: this.file.uploadDate,
+      }).then((res) => {
+        this.$emit('update:hasChange', false);
+        this.updating = false;
+        this.$message({
+          message: message ? message : "发布成功",
+          type: 'success',
+          duration: 1000
+        });
+        if (this.draft) {
+          this.$router.push({ path: this.$route.path, query: { operation: 'editor', id: res.data } });
+          this.$emit('onTitle', this.filename);
+          this.reload();
+        } else {
+          this.$emit('onRelease');
+        }
+      }).catch(() => {
+        this.updating = false;
+      });
     },
-    selectDir() {
-      this.$refs.dirTree.show()
-    },
-    confirmSelectDir() {
-      const node = this.$refs.dirTree.getSelectTreeNode()
-      this.storageLocation = node.path + node.name
-      this.$refs.dirTree.hide()
-    }
   }
 }
 </script>
+
 <style lang="scss" scoped>
 @import "src/styles/setting";
 
@@ -694,6 +588,7 @@ export default {
 
 >>> .url-slug {
   display: flex;
+  align-items: center;
   color: #aaaaaa;
 
   .mark-setting-input {
@@ -723,6 +618,8 @@ export default {
 }
 .view-icon {
   margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
   >>>.svg-icon{
     margin-right: 2px;
   }

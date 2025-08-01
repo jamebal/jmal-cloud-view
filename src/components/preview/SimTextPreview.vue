@@ -24,13 +24,14 @@
 
     <el-dialog
       ref="simTextDialog"
-      v-bind="$attrs" v-on="$listeners"
+      v-bind="$attrs"
+      v-on="$listeners"
       :fullscreen="fullscreen"
       :visible.sync="textPreviewVisible"
       :title="file.name"
       :close-on-click-modal="false"
       @close="closeDialog"
-      :before-close="handleClose"
+      :before-close="beforeClose"
       :width="dialogWidth+'px'"
       v-resize="containerResize"
       class="simtext-dialog"
@@ -56,14 +57,14 @@
           <el-button round v-if="isShowUpdateBtn" @click="saveAll(false)" :class="lightTheme?'':'dark-button'" size="small" :loading="updating">{{saveTitle}}</el-button>
 
           <el-button round
-            v-if="editableTabsValue.endsWith('.md') && editableTabs.length > 0"
+            v-if="editableTabsValue.toLowerCase().endsWith('.md') && editableTabs.length > 0"
             :class="lightTheme?'':'dark-button'"
             size="small"
             circle
-            @click="changePreviewMode"
-            :title="previewMode?'编辑':'预览'"
+            @click="changeMarkdownMode"
+            :title="markdownMode?'编辑':'预览'"
           >
-            <icon :type="previewMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
+            <icon :type="markdownMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
           </el-button>
           <el-button round
             :class="lightTheme?'':'dark-button'"
@@ -76,13 +77,13 @@
           <button class="title-extension-button" @click="fullScreen">
             <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
           </button>
-          <button class="title-extension-button" @click="closeDialog">
+          <button class="title-extension-button" @click="manualClose">
             <i class="el-dialog__close el-icon el-icon-close"></i>
           </button>
         </div>
       </div>
-      <div class="content" :style="{height: editorHieght+26+'px'}">
-        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHieght+32+'px',transition: transition,left: panelReadOnly || moblie || contentsHide ?`-${contentsWidth}px`:`0px`}">
+      <div class="content" :style="{height: editorHeight+26+'px'}">
+        <div class="file-contents" :style="{width: contentsWidth+'px',height: editorHeight+32+'px',transition: transition,left: panelReadOnly || moblie || contentsHide ?`-${contentsWidth}px`:`0px`}">
           <div class="content-tree">
             <fancy-tree
               ref="fancTree"
@@ -90,7 +91,7 @@
               :editableTabs="editableTabs"
               :editableTabsValue.sync="editableTabsValue"
               :contentsWidth="contentsWidth"
-              :contentsHieght="editorHieght"
+              :contentsHieght="editorHeight"
               :lightTheme="lightTheme"
               :directoryTreeData="directoryTreeData"
               @treeNodeClick="treeNodeClick"
@@ -107,25 +108,26 @@
         </div>
         <div :style="{width: editorWidth-2+'px'}">
           <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab()">
-            <el-tab-pane
-              v-for="(item,index) in editableTabs"
-              :key="item.name"
-              :label="item.title"
-              :name="item.name"
-            >
+            <el-tab-pane v-for="(item,index) in editableTabs" :key="item.name" :label="item.title" :name="item.name" >
               <span slot="label"><svg-icon class="tabs-icon-svg" :icon-class="findSvgClass(item.name)"></svg-icon> {{item.title}}</span>
               <div v-if="textPreviewVisible" class="editor">
-                <vditor-preview
+                <vditor-editor
                   :ref="'vditor'+index"
                   class="content-body"
-                  v-show="editableTabsValue.endsWith('.md') && previewMode"
-                  :style="{height: editorHieght+'px'}"
+                  :upload-user="uploadUserInfo"
+                  :fileId="item.fileId"
+                  v-if="editableTabsValue.toLowerCase().endsWith('.md') && markdownMode"
+                  :style="{height: editorHeight+'px'}"
+                  @initialized="vditorInitialized"
+                  @beforeDestroy="vditorBeforeDestroy"
+                  @input="change($event,index)"
+                  @save="save($event,index)"
                 />
                 <MonacoEditor
-                  v-show="editableTabsValue.endsWith('.md') ? !previewMode: true"
+                  v-show="editableTabsValue.toLowerCase().endsWith('.md') ? !markdownMode: true"
                   :ref="'monacoEditor'+index"
                   :width="editorWidth"
-                  :height="editorHieght"
+                  :height="editorHeight"
                   :theme="lightTheme?'vs':'vs-dark'"
                   :language="item.language"
                   :diffEditor="item.hasHistoryVersion"
@@ -166,11 +168,13 @@
   import VditorPreview from "@/components/preview/VditorPreview";
   import HistoryPopover from "@/components/HistoryPopover/index.vue";
 
+  import VditorEditor from '@/components/VditorEditor';
+
   export default {
     name: "SimTextPreview",
     components: {
       HistoryPopover,
-      Icon,MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav,VditorPreview
+      Icon,MonacoEditor,FileTree,FancyTree,MessageDialog,FilePathNav,VditorPreview,VditorEditor
     },
     props: {
       file: {
@@ -195,6 +199,16 @@
       }
     },
     computed: {
+      uploadUserInfo() {
+        if (!this.$store.state.user) {
+          return {}; // 返回空对象以处理未登录的情况
+        }
+        return {
+          token: this.$store.state.user.token,
+          name: this.$store.state.user.name,
+          userId: this.$store.state.user.userId,
+        }
+      }
     },
     data(){
       return{
@@ -231,10 +245,10 @@
         lastTransform: undefined,
         contentsWidth: 273,
         editorWidth: 1035,
-        editorHieght: 640,
+        editorHeight: 640,
         transition: 'all 500ms ease 0s',
         newContent: '',
-        previewMode: true,
+        markdownMode: false,
         isShowUpdateBtn: false,
         updating: false,
         modifyMsg: undefined,
@@ -262,6 +276,7 @@
           readmodel: true, // 沉浸式阅读
           navigation: true, // 导航目录
         },
+        vditorInit: false, // vditor 初始化标志
       }
     },
     mounted() {
@@ -269,11 +284,13 @@
         this.setDialogWidth()
       })
     },
+    beforeDestroy() {
+    },
     directives: {
       resize: { // 指令的名称
         bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
           let width = '', height = '';
-          function isReize() {
+          function isResize() {
             const style = document.defaultView.getComputedStyle(el);
             if (width !== style.width || height !== style.height) {
               binding.value();  // 关键
@@ -281,7 +298,7 @@
             width = style.width;
             height = style.height;
           }
-          el.__vueSetInterval__ = setInterval(isReize, 0);
+          el.__vueSetInterval__ = setInterval(isResize, 0);
         },
         unbind(el) {
           clearInterval(el.__vueSetInterval__);
@@ -347,6 +364,7 @@
           }
           // 加载tabs
           this.editableTabs.push({
+            fileId: res.data.id,
             title: res.data.name,
             copyTitle: res.data.name,
             language: this.getEditorLanguage(res.data.suffix),
@@ -378,8 +396,8 @@
         }
       },
       editableTabsValue(value){
-        if(value.endsWith('.md')){
-          this.previewMode = false
+        if(value.toLowerCase().endsWith('.md')){
+          this.markdownMode = true
         }
         this.hasHistoryVersion = this.editableVersionMap.get(value) || false
         if (this.hasHistoryVersion) {
@@ -405,7 +423,7 @@
       },
       // loading
       viewHistoryFile({historyInfo, diff, recovery}) {
-        this.previewMode = false
+        this.markdownMode = false
         const pathname = this.editableTabsValue
         let currentIndex = this.editableTabs.findIndex(editable => editable.name === pathname)
         const tab = this.editableTabs[currentIndex]
@@ -584,7 +602,7 @@
             let startX = e.clientX;
             let startY = e.clientY;
             let editorWidth = that.editorWidth
-            let editorHieght = that.editorHieght
+            let editorHeight = that.editorHeight
             let dialogWidth = that.dialogWidth
             document.onmousemove = function (e) {
               let endX = e.clientX;
@@ -593,7 +611,7 @@
               if((dialogWidth + moveX) > 600){
                 that.dialogWidth = dialogWidth + moveX
                 that.editorWidth = editorWidth + moveX
-                that.editorHieght = editorHieght + (endY - startY)
+                that.editorHeight = editorHeight + (endY - startY)
                 that.loadContentSize()
               }
             }
@@ -685,6 +703,7 @@
         }
       },
       treeNodeClick(row) {
+        console.log('row', row)
         if(row.isFolder){
           return
         }
@@ -722,6 +741,7 @@
             this.loading.close()
             // 添加一个tab
             let tab = {
+              fileId:row.id,
               title:row.name,
               copyTitle:row.name,
               status: undefined,
@@ -768,6 +788,7 @@
           if (!this.$pc && this.dialogWidthPercent < 1) {
             this.fullScreen()
           }
+          this.setMarkdownContent()
         })
 
         this.$nextTick(() => {
@@ -834,16 +855,26 @@
         }else{
           this.editorWidth = this.dialogWidth - this.contentsWidth
         }
-        this.editorHieght = document.body.clientHeight * this.dialogWidthPercent - 76
+        this.editorHeight = document.body.clientHeight * this.dialogWidthPercent - 76
         this.loadContentSize()
       },
       loadContentSize(){
         let content = document.querySelector('.editor-resize .editor-resize-conter');
         if(content){
-          content.style.marginTop = ((this.editorHieght+26)/2 - content.clientHeight/2) + 'px'
+          content.style.marginTop = ((this.editorHeight+26)/2 - content.clientHeight/2) + 'px'
         }
       },
-      handleClose(done) {
+      manualClose() {
+        const done = () => {
+          this.closeDialog()
+        }
+        if (this.beforeClose) {
+          this.beforeClose(done)
+        } else {
+          done()
+        }
+      },
+      beforeClose(done) {
         if(this.isShowUpdateBtn){
           this.isSaveDialogVisible = true
         }else{
@@ -874,13 +905,14 @@
         }
       },
       closeDialog() {
-        this.previewMode = false
+        this.markdownMode = false
         this.textPreviewVisible = false
         this.$emit('update:status', this.textPreviewVisible)
         this.isSaveDialogVisible = false
         this.isShowUpdateBtn = false
         this.historyVersion = {metadata: {}}
         this.closeAllTabs()
+        this.editableTabsValue = '1'
       },
       change(value,index) {
         let editableTabValue = this.editableTabs[index]
@@ -1021,10 +1053,30 @@
           that.transition = 'all 500ms ease 0s'
         },100)
       },
+      getVditorRef() {
+        let currentIndex = this.editableTabs.findIndex(editable => editable.name === this.editableTabsValue)
+        if (currentIndex < 0 || !this.vditorInit) {
+          return {vditorRef: null, currentIndex: null}
+        }
+        if (!this.editableTabs[currentIndex].name.toLowerCase().endsWith('.md')) {
+          return {vditorRef: null, currentIndex}
+        }
+        const ref = this.$refs['vditor' + currentIndex]
+        if (!ref || !ref[0]) {
+          return {vditorRef: null, currentIndex}
+        }
+        return {vditorRef: ref[0], currentIndex}
+      },
       setTheme(){
         let dialog = document.querySelector('.simtext-dialog .el-dialog')
         let header = document.querySelector('.simtext-dialog .el-dialog .el-dialog__header')
-        let fileContests = document.querySelector('.content');
+        let fileContests = document.querySelector('.content')
+
+        const { vditorRef } = this.getVditorRef()
+        if (vditorRef) {
+          vditorRef.setTheme(this.lightTheme ? 'classic' : 'dark', this.lightTheme ? 'light' : 'dark', 'androidstudio')
+        }
+
         if(this.lightTheme){
           header.style.background = '#e6e6e6'
           header.style.color = '#181818'
@@ -1051,18 +1103,30 @@
           }
         }
       },
-      changePreviewMode() {
-        let currentIndex = this.editableTabs.findIndex(editable => editable.name === this.editableTabsValue)
-        if (currentIndex > -1){
-          let ref = 'vditor' + currentIndex
-          this.$refs[ref][0].setContent(this.editableValueMap.get(currentIndex))
-        }
-        this.previewMode = !this.previewMode
+      vditorBeforeDestroy() {
+        this.vditorInit = false
+      },
+      vditorInitialized() {
+        this.vditorInit = true
+        this.editorWidth += 0.001
+        this.editorHeight += 0.001
+        this.setMarkdownContent()
+        this.setTheme()
+      },
+      changeMarkdownMode() {
+        this.setMarkdownContent()
+        this.markdownMode = !this.markdownMode
         this.clickTab()
+      },
+      setMarkdownContent() {
+        const { vditorRef, currentIndex } = this.getVditorRef()
+        if (vditorRef) {
+          vditorRef.setValue(this.editableValueMap.get(currentIndex))
+        }
       },
       clickTab() {
         this.editorWidth += 0.001
-        this.editorHieght += 0.001
+        this.editorHeight += 0.001
         // 加载历史版本
         this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
       },
@@ -1581,6 +1645,12 @@
   }
 </style>
 <style lang="scss" scoped>
+
+>>> .el-tabs__content {
+  overflow: unset;
+  z-index: 100;
+}
+
   >>>.jmal-message-dialog {
     width: 420px;
     height: 200px;
@@ -1597,10 +1667,23 @@
   >>> .fancytree-expander {
     margin-top: 5px;
   }
-  .content-body {
-    overflow-y: scroll;
-    padding: 20px 30px;
-    background-color: #ffffff;
+  .editor {
+
+    .content-body {
+      margin: 10px 20px;
+      background-color: #ffffff;
+    }
   }
+
+>>> .vditor--fullscreen {
+  position: fixed;
+  top: 0;
+  width: 100% !important;
+  margin: 0 !important;
+  left: 0;
+  height: 100vh !important;
+  z-index: 90;
+  border-radius: 0;
+}
 
 </style>

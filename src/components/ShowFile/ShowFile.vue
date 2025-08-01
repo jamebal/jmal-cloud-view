@@ -260,44 +260,6 @@
 
             </el-autocomplete>
             <sort-dropdown :sortable="sortable" @sort-change="handleSortChange" />
-<!--            <el-dropdown size="medium" style="height: 40px;" @command="handleSortChange" >-->
-<!--              <div>-->
-<!--                <el-button round type="text" class="sort">-->
-<!--                  <svg-icon-->
-<!--                    v-if="sortable.order === 'descending'"-->
-<!--                    icon-class="sort-amount-down-solid"-->
-<!--                  />-->
-<!--                  <svg-icon v-else icon-class="sort-amount-up-alt-solid" />-->
-<!--                  <span class="sort-name">{{ sortName }}</span>-->
-<!--                </el-button>-->
-<!--              </div>-->
-<!--              <el-dropdown-menu slot="dropdown">-->
-<!--                <el-dropdown-item command="orderName">-->
-<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'name' }" >-->
-<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>-->
-<!--                    <span>名称</span>-->
-<!--                  </span>-->
-<!--                </el-dropdown-item>-->
-<!--                <el-dropdown-item command="orderSize">-->
-<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'size' }" >-->
-<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>-->
-<!--                    <span>大小</span>-->
-<!--                  </span>-->
-<!--                </el-dropdown-item>-->
-<!--                <el-dropdown-item command="orderUploadDate">-->
-<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'uploadDate' }" >-->
-<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending' }" ></i>-->
-<!--                    <span>上传时间</span>-->
-<!--                  </span>-->
-<!--                </el-dropdown-item>-->
-<!--                <el-dropdown-item command="orderUpdateDate">-->
-<!--                  <span :class="{ 'al-file-sort-item': true, active: sortable.prop === 'updateDate', }">-->
-<!--                    <i :class="{ 'al-file-sort-item-icon': true, 'el-icon-top': sortable.order === 'ascending', 'el-icon-bottom': sortable.order === 'descending'}"></i>-->
-<!--                    <span>修改时间</span>-->
-<!--                  </span>-->
-<!--                </el-dropdown-item>-->
-<!--              </el-dropdown-menu>-->
-<!--            </el-dropdown>-->
             <el-button round type="text" class="vmode" @click="changeVmode">
               <svg-icon :icon-class="grid ? 'list' : 'grid'" />
             </el-button>
@@ -559,23 +521,10 @@
         <table class="drag-table" id="drag-table"></table>
       </div>
 
-      <empty-file
-        v-if="fileList.length < 1 && !tableLoading"
-        :emptyStatus="emptyStatus"
-      >
-      </empty-file>
-      <img
-        id="dragImage"
-        draggable="false"
-        style="position: fixed;opacity: 0"
-        src="~@/assets/img/hide.png"
-      />
+      <empty-file v-if="fileList.length < 1 && !tableLoading" :emptyStatus="emptyStatus"/>
+      <img id="dragImage" draggable="false" style="position: fixed;opacity: 0" src="~@/assets/img/hide.png" />
       <div id="numberFiles" class="number-files" v-if="!selectFile">
-        <img
-          class="icon"
-          src="~@/assets/img/arrow1_left.png"
-          style="display: none"
-        />
+        <img class="icon" src="~@/assets/img/arrow1_left.png" style="display: none" />
         <div class="number" style="display: inline">1个文件</div>
         <div class="operate" style="display: none;white-space: nowrap;">
           移动到：
@@ -586,26 +535,10 @@
       </div>
     </div>
     <!--为了不受右键区域的影响, 把弹窗之类的提取出来-->
-    <sim-text-preview
-      :file.sync="textPreviewRow"
-      :status.sync="textPreviewVisible"
-    ></sim-text-preview>
-    <image-viewer
-      :fileList="fileList"
-      :file="imagePreviewRow"
-      :status.sync="imagePreviewVisible"
-    ></image-viewer>
-    <video-preview
-      :file="videoPreviewRow"
-      :status.sync="videoPreviewVisible"
-    ></video-preview>
-    <iframe-preview
-      :file="iframePreviewRow"
-      :fileHandler="fileHandler"
-      :status.sync="iframePreviewVisible"
-      :specifyPreviewer="specifyPreviewer"
-    ></iframe-preview>
-
+    <sim-text-preview :file.sync="textPreviewRow" :status.sync="textPreviewVisible"></sim-text-preview>
+    <image-viewer :fileList="fileList" :file="imagePreviewRow" :status.sync="imagePreviewVisible"></image-viewer>
+    <video-preview :file="videoPreviewRow" :status.sync="videoPreviewVisible" ></video-preview>
+    <iframe-preview :file="iframePreviewRow" :fileHandler="fileHandler" :status.sync="iframePreviewVisible" :specifyPreviewer="specifyPreviewer"></iframe-preview>
     <file-details :audio-cover-url="audioCoverUrl" :image-url="imageUrl" :file="rowContextData" :file-username="fileUsername" :visible.sync="drawer" @openFile="fileClick" @openOnlyOffice="openOnlyOffice"></file-details>
 
     <el-dialog
