@@ -231,8 +231,8 @@ export default {
         case 'onUploadParams':
           this.params = msg.data || {}
           if (this.resolveFilesAddedPromise) {
-            this.resolveFilesAddedPromise();
-            this.resolveFilesAddedPromise = null;
+            // this.resolveFilesAddedPromise();
+            // this.resolveFilesAddedPromise = null;
           }
           break
       }
@@ -325,8 +325,10 @@ export default {
         return;
       }
       try {
-        const waitForParams = new Promise(resolve => {
+        const waitForParams = new Promise((resolve, reject) => {
           this.resolveFilesAddedPromise = resolve;
+          // 添加超时以防止未收到响应时挂起
+          setTimeout(() => reject(new Error('Timeout waiting for upload parameters')), 3000);
         });
 
         await this.$store.dispatch('updateMessage', { event: 'getUploadParams' });
