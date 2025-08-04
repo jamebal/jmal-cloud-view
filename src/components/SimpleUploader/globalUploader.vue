@@ -327,7 +327,7 @@ export default {
       try {
         const waitForParams = new Promise((resolve, reject) => {
           this.resolveFilesAddedPromise = resolve;
-          // 添加超时以防止未收到响应时挂起
+          // 添加超时以防止未收到响应时挂起，如果服务端没有及时返回上传参数，则取消上传
           setTimeout(() => reject(new Error('Timeout waiting for upload parameters')), 3000);
         });
 

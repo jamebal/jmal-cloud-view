@@ -1210,6 +1210,7 @@ export default {
           this.onmessage(msg.data)
           break
         case 'getUploadParams':
+          // 接收到 getUploadParams 事件，分发 onUploadParams 事件，携带上传参数
           this.$store.dispatch('updateMessage', {
             event: 'onUploadParams',
             data: this.getUploadParams(),
