@@ -192,6 +192,7 @@ export default {
       successMsg: null,
       enableDragUpload: true,// 是否启用拖拽上传
       uploader: null,
+      resolveFilesAddedPromise: null, // 用于等待获取上传参数
     }
   },
   computed: {
@@ -218,19 +219,21 @@ export default {
           }
           break
         case 'openUploader':
-          this.params = msg.data || {}
           if (this.$refs.uploadBtn) {
             $('#global-uploader-btn').click()
           }
           break
         case 'uploadFolder':
-          this.params = msg.data || {}
           if (this.$refs.folderBtn) {
             $('#folder-uploader-btn').click()
           }
           break
         case 'onUploadParams':
           this.params = msg.data || {}
+          if (this.resolveFilesAddedPromise) {
+            this.resolveFilesAddedPromise();
+            this.resolveFilesAddedPromise = null;
+          }
           break
       }
     }
@@ -311,21 +314,33 @@ export default {
         });
       });
     },
-    onDragenter(e) {
-      this.$store.dispatch('updateMessage', {event: 'getUploadParams'})
+    onDragenter() {
     },
     isPath(str) {
       // 这个正则表达式检测路径中的斜杠字符
       return /[/\\]/.test(str);
     },
     async onFilesAdded(files) {
-      // 等待50ms
-      setTimeout(async () => await this.doFilesAdded(files), 50)
+      if (files.length === 0) {
+        return;
+      }
+      try {
+        const waitForParams = new Promise(resolve => {
+          this.resolveFilesAddedPromise = resolve;
+        });
+
+        await this.$store.dispatch('updateMessage', { event: 'getUploadParams' });
+
+        await waitForParams;
+
+        await this.doFilesAdded(files);
+
+      } catch (error) {
+        console.error("Failed to add files:", error);
+        this.uploaderCancel();
+      }
     },
     async doFilesAdded(files) {
-      if (files.length === 0) {
-        return
-      }
       let filenames = files.map(file => file.name)
       const paths = Object.keys(this.uploader.filePaths)
       paths.forEach(path => {
@@ -339,7 +354,6 @@ export default {
         filenames: filenames,
         ...this.params
       }
-      console.log('上传文件', query)
       const res = await api.checkExist(query)
       if (res.data.exist) {
         this.$confirm('文件已存在，是否覆盖？', '提示', {

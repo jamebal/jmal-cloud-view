@@ -273,7 +273,7 @@
 </template>
 <script>
 
-import {mapGetters} from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import {formatSize, formatTime} from '@/utils/number'
 import {getElementToPageLeft, getElementToPageTop} from '@/utils/dom'
 import api from '@/api/file-api'
@@ -294,6 +294,7 @@ export default {
     ImageViewer, IconFile,
   },
   computed: {
+    ...mapState(['message']),
     ...mapGetters([
       'name',
       'avatar'
@@ -400,6 +401,18 @@ export default {
       },
       unbind(el) {
         clearInterval(el.__vueSetInterval__);
+      }
+    }
+  },
+  watch: {
+    message(msg) {
+      switch (msg.event) {
+        case 'getUploadParams':
+          this.$store.dispatch('updateMessage', {
+            event: 'onUploadParams',
+            data: this.getUploadParams(),
+          })
+          break
       }
     }
   },
@@ -1255,24 +1268,21 @@ export default {
       // 上传文件
       if (action.name === '上传文件') {
         // 打开文件选择框
-        this.$store.dispatch('updateMessage', { event: 'openUploader', data: {
-            // 传入的参数
-            folder: this.$route.query.folder,
-            currentDirectory: encodeURI(this.path),
-            username: this.$store.state.user.name,
-            userId: this.$store.state.user.userId
-          }})
+        this.$store.dispatch('updateMessage', { event: 'openUploader'})
       }
       // 上传文件夹
       if (action.name === '上传文件夹') {
         // 打开文件夹选择框
-        this.$store.dispatch('updateMessage', { event: 'uploadFolder', data: {
-            // 传入的参数
-            folder: this.$route.query.folder,
-            currentDirectory: encodeURI(this.path),
-            username: this.$store.state.user.name,
-            userId: this.$store.state.user.userId
-          }})
+        this.$store.dispatch('updateMessage', { event: 'uploadFolder'})
+      }
+    },
+    getUploadParams() {
+      return {
+        // 传入的参数
+        folder: this.$route.query.folder,
+        currentDirectory: encodeURI(this.path),
+        username: this.$store.state.user.name,
+        userId: this.$store.state.user.userId
       }
     },
     // 新建文件夹

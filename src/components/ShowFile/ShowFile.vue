@@ -2329,17 +2329,11 @@ export default {
     },
     upload() {
       // 打开文件选择框
-      this.$store.dispatch('updateMessage', {
-        event: 'openUploader',
-        data: this.getUploadParams(),
-      })
+      this.$store.dispatch('updateMessage', {event: 'openUploader'})
     },
     uploadFolder() {
       if (window.uploader.supportDirectory) {
-        this.$store.dispatch('updateMessage', {
-          event: 'uploadFolder',
-          data: this.getUploadParams(),
-        })
+        this.$store.dispatch('updateMessage', {event: 'uploadFolder'})
       } else {
         this.$message({
           message: '该浏览器不支持上传文件夹',
