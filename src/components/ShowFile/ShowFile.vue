@@ -1209,6 +1209,13 @@ export default {
         case 'msg/file/change':
           this.onmessage(msg.data)
           break
+        case 'getUploadParams':
+          // 接收到 getUploadParams 事件，分发 onUploadParams 事件，携带上传参数
+          this.$store.dispatch('updateMessage', {
+            event: 'onUploadParams',
+            data: this.getUploadParams(),
+          })
+          break
       }
     },
     searchFileName(newValue) {
@@ -2323,34 +2330,24 @@ export default {
     },
     upload() {
       // 打开文件选择框
-      this.$store.dispatch('updateMessage', {
-        event: 'openUploader',
-        data: {
-          // 传入的参数
-          folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
-          currentDirectory: this.getQueryPath(),
-          username: this.$store.state.user.name,
-          userId: this.$store.state.user.userId,
-        },
-      })
+      this.$store.dispatch('updateMessage', {event: 'openUploader'})
     },
     uploadFolder() {
       if (window.uploader.supportDirectory) {
-        this.$store.dispatch('updateMessage', {
-          event: 'uploadFolder',
-          data: {
-            // 传入的参数
-            folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
-            currentDirectory: this.getQueryPath(),
-            username: this.$store.state.user.name,
-            userId: this.$store.state.user.userId,
-          },
-        })
+        this.$store.dispatch('updateMessage', {event: 'uploadFolder'})
       } else {
         this.$message({
           message: '该浏览器不支持上传文件夹',
           type: 'warning',
         })
+      }
+    },
+    getUploadParams() {
+      return {
+        folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
+        currentDirectory: this.getQueryPath(),
+        username: this.$store.state.user.name,
+        userId: this.$store.state.user.userId,
       }
     },
     // 浏览器的返回事件

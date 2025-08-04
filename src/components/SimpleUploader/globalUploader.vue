@@ -192,6 +192,7 @@ export default {
       successMsg: null,
       enableDragUpload: true,// 是否启用拖拽上传
       uploader: null,
+      resolveFilesAddedPromise: null, // 用于等待获取上传参数
     }
   },
   computed: {
@@ -218,15 +219,20 @@ export default {
           }
           break
         case 'openUploader':
-          this.params = msg.data || {}
           if (this.$refs.uploadBtn) {
             $('#global-uploader-btn').click()
           }
           break
         case 'uploadFolder':
-          this.params = msg.data || {}
           if (this.$refs.folderBtn) {
             $('#folder-uploader-btn').click()
+          }
+          break
+        case 'onUploadParams':
+          this.params = msg.data || {}
+          if (this.resolveFilesAddedPromise) {
+            // this.resolveFilesAddedPromise();
+            // this.resolveFilesAddedPromise = null;
           }
           break
       }
@@ -308,13 +314,7 @@ export default {
         });
       });
     },
-    onDragenter(e) {
-      this.params = {
-        currentDirectory: this.$route.query.path || '/',
-        username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId,
-        folder: this.$route.query.searchOpenFolder || this.$route.query.folder
-      }
+    onDragenter() {
     },
     isPath(str) {
       // 这个正则表达式检测路径中的斜杠字符
@@ -322,8 +322,27 @@ export default {
     },
     async onFilesAdded(files) {
       if (files.length === 0) {
-        return
+        return;
       }
+      try {
+        const waitForParams = new Promise((resolve, reject) => {
+          this.resolveFilesAddedPromise = resolve;
+          // 添加超时以防止未收到响应时挂起，如果服务端没有及时返回上传参数，则取消上传
+          setTimeout(() => reject(new Error('Timeout waiting for upload parameters')), 3000);
+        });
+
+        await this.$store.dispatch('updateMessage', { event: 'getUploadParams' });
+
+        await waitForParams;
+
+        await this.doFilesAdded(files);
+
+      } catch (error) {
+        console.error("Failed to add files:", error);
+        this.uploaderCancel();
+      }
+    },
+    async doFilesAdded(files) {
       let filenames = files.map(file => file.name)
       const paths = Object.keys(this.uploader.filePaths)
       paths.forEach(path => {
