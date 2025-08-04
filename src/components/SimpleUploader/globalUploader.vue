@@ -229,6 +229,9 @@ export default {
             $('#folder-uploader-btn').click()
           }
           break
+        case 'onUploadParams':
+          this.params = msg.data || {}
+          break
       }
     }
   },
@@ -309,18 +312,17 @@ export default {
       });
     },
     onDragenter(e) {
-      this.params = {
-        currentDirectory: this.$route.query.path || '/',
-        username: this.$store.state.user.name,
-        userId: this.$store.state.user.userId,
-        folder: this.$route.query.searchOpenFolder || this.$route.query.folder
-      }
+      this.$store.dispatch('updateMessage', {event: 'getUploadParams'})
     },
     isPath(str) {
       // 这个正则表达式检测路径中的斜杠字符
       return /[/\\]/.test(str);
     },
     async onFilesAdded(files) {
+      // 等待50ms
+      setTimeout(async () => await this.doFilesAdded(files), 50)
+    },
+    async doFilesAdded(files) {
       if (files.length === 0) {
         return
       }
@@ -337,6 +339,7 @@ export default {
         filenames: filenames,
         ...this.params
       }
+      console.log('上传文件', query)
       const res = await api.checkExist(query)
       if (res.data.exist) {
         this.$confirm('文件已存在，是否覆盖？', '提示', {
