@@ -1,0 +1,22 @@
+export const scrollLockMixin = {
+  data() {
+    return {
+      originalBodyOverflow: '',
+    };
+  },
+  methods: {
+    // 鼠标进入滚动区域时，禁止body滚动
+    disableBodyScroll() {
+      this.originalBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    },
+    // 鼠标离开时，恢复body滚动
+    enableBodyScroll() {
+      document.body.style.overflow = this.originalBodyOverflow;
+    },
+  },
+  // 关键：在组件销毁前，确保恢复body滚动，防止页面卡死
+  beforeDestroy() {
+    this.enableBodyScroll();
+  },
+};

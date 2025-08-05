@@ -431,10 +431,10 @@
         <div
           v-show="grid"
           ref="gridDiv"
-          v-loading="tableLoading"
-          element-loading-text="文件加载中"
           element-loading-spinner="el-icon-loading"
           element-loading-background="#f6f7fa88"
+          @mouseenter="disableBodyScroll"
+          @mouseleave="enableBodyScroll"
         >
           <van-checkbox-group
             ref="checkboxGroup"
@@ -451,6 +451,8 @@
                   rowGap: '10px',
                   overflow: 'auto',
                   paddingBottom: '12px',
+                  overscrollBehavior: 'contain',
+                  transform: 'translateZ(0)',
                 }"
               >
                   <van-grid-item
@@ -774,11 +776,14 @@ import Clipboard from 'clipboard'
 
 import { isNotDragUploadAllowed } from '@/components/SimpleUploader/dragUploadUtils'
 
+import { scrollLockMixin } from '@/utils/scrollLockMixin'
+
 import _ from 'lodash'
 import path from 'path'
 import { mapGetters, mapState } from 'vuex'
 
 export default {
+  mixins: [scrollLockMixin],
   name: 'ShowFile',
   components: {
     SortDropdown,
@@ -3031,9 +3036,8 @@ export default {
     },
     tableBodyScroll(table, e) {
       this.fileListScrollTop = e.target.scrollTop
-      let scrollBottom =
-        e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop
-      if (scrollBottom < 200) {
+      let scrollBottom = e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop
+      if (scrollBottom < (e.target.scrollHeight * 0.2)) {
         if (!this.finished) {
           if (!this.pageLoadCompleteList[this.pagination.pageIndex]) {
             return
