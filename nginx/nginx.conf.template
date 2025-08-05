@@ -195,5 +195,5 @@ http {
     }
 
     include servers/*;
-    include conf.d/*;
+    include conf.d/*.conf;
 }
