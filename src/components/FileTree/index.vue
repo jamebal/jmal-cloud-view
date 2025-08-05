@@ -136,7 +136,7 @@ export default {
         api
           .listfiles({
             username: this.$store.state.user.name,
-            path: encodeURI(node.data.path),
+            path: encodeURIComponent(node.data.path),
             tempDir: this.tempDir
           })
           .then(res => {
@@ -205,8 +205,8 @@ export default {
                 let newFolderName = document.getElementById("treeInput").value
                 api.newFolder({
                   isFolder: true,
-                  filename: encodeURI(newFolderName),
-                  currentDirectory: encodeURI(path),
+                  filename: encodeURIComponent(newFolderName),
+                  currentDirectory: encodeURIComponent(path),
                   username: this.$store.state.user.name,
                   userId: this.$store.state.user.userId
                 }).then((res) => {

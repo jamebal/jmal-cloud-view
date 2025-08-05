@@ -377,7 +377,7 @@ export default {
         fileId: this.$route.query.id,
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
-        filename: encodeURI(this.filename + ".md"),
+        filename: encodeURIComponent(this.filename + ".md"),
         cover: this.file.cover,
         isDraft: this.draft,
         isRelease: this.file.release,

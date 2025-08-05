@@ -6,6 +6,6 @@ export function encodeIfNeeded(str) {
   if (isEncoded(str)) {
     return str;
   } else {
-    return encodeURI(str);
+    return encodeURIComponent(str);
   }
 }

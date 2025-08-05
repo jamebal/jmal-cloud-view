@@ -36,12 +36,11 @@ export default {
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken, serverUrl) {
     let baseUrl = serverUrl || this.baseUrl
-    let fileUrl = `${baseUrl}/file/${store.getters.name}${encodeURI(file.path)}${encodeURI(file.name)}`
-    fileUrl = fileUrl.replaceAll('#', '%23')
+    let fileUrl = `${baseUrl}/file/${store.getters.name}${encodeURIComponent(file.path)}${encodeURIComponent(file.name)}`
     fileUrl = fileUrl.replaceAll(/%5C/g, '/')
 
     if (file.userId !== store.getters.userId && token && !shareToken) {
-      return `${baseUrl}/pre-file/${file.id}/${encodeURI(file.name)}?jmal-token=${token}&name=${username}`
+      return `${baseUrl}/pre-file/${file.id}/${encodeURIComponent(file.name)}?jmal-token=${token}&name=${username}`
     }
 
     if (token) {
@@ -51,12 +50,12 @@ export default {
       if (isFilePath(file.id)) {
         return `${fileUrl}?share-token=${shareToken}`
       }
-      return `${baseUrl}/share-file/${file.id}/${shareToken}/${encodeURI(file.name)}`
+      return `${baseUrl}/share-file/${file.id}/${shareToken}/${encodeURIComponent(file.name)}`
     }
     if (isFilePath(file.id)) {
       return fileUrl
     }
-    return `${baseUrl}/share-file/${file.id}/${encodeURI(file.name)}`
+    return `${baseUrl}/share-file/${file.id}/${encodeURIComponent(file.name)}`
   },
   // 预览历史文件
   previewHistoryUrl: function(historyId, name, token) {

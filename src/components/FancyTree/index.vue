@@ -243,7 +243,7 @@
         }).then(() => {
           api.delFile({
             username: this.$store.state.user.name,
-            path: encodeURI(data.path)
+            path: encodeURIComponent(data.path)
           }).then(()=>{
             this.$emit('removeFile', data.path)
             let node = this.tree.getActiveNode()
@@ -261,7 +261,7 @@
         let path = this.currentPath.substring(0,this.currentPath.length-title.length)
         api.upperLevelList({
           username: this.$store.state.user.name,
-          path: encodeURI(path),
+          path: encodeURIComponent(path),
         }).then(res => {
           this.tree.reload(this.convert(res.data))
         })
@@ -271,7 +271,7 @@
         api.listfiles({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          path: encodeURI(this.currentPath),
+          path: encodeURIComponent(this.currentPath),
         }).then(res => {
           this.tree.reload(this.convert(res.data))
         })
@@ -292,7 +292,7 @@
         api.listfiles({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          path: encodeURI(node.path),
+          path: encodeURIComponent(node.path),
         }).then(res => {
           loading.close()
           if(res.data.length === 0){
@@ -311,7 +311,7 @@
         api.listfiles({
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
-          path: encodeURI(treeData.path),
+          path: encodeURIComponent(treeData.path),
         }).then(res => {
           let oldname = treeData.name
           let data = res.data.map(doc => {
@@ -350,10 +350,10 @@
           }
         }
         api.addFile({
-          fileName: encodeURI(fileName),
+          fileName: encodeURIComponent(fileName),
           isFolder: node.folder,
           username: this.$store.state.user.name,
-          parentPath: encodeURI(parentPath)
+          parentPath: encodeURIComponent(parentPath)
         }).then((res)=>{
           let str = node.folder?'文件夹':'文件'
           this.$message.success(`新建${str}成功`)
@@ -429,7 +429,7 @@
         api.renameByPath({
           newFileName: newFileName,
           username: this.$store.state.user.name,
-          path: encodeURI(node.data.path)
+          path: encodeURIComponent(node.data.path)
         }).then(res => {
           row.oldName = node.data.name
           row.name = newFileName
@@ -466,7 +466,7 @@
         return new Promise(function(resolve) {
           api.listfiles({
             username: that.$store.state.user.name,
-            path: encodeURI(data.path),
+            path: encodeURIComponent(data.path),
           }).then(res => {
             resolve(that.convert(res.data))
           })
