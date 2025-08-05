@@ -510,7 +510,9 @@
           shareId: shareIds
         }).then(() => {
           if(shareIds.length === 1){
-            this.fileList.splice(row.index,1)
+            // 如果是单个取消分享
+            const index = this.fileList.findIndex(item => item.id === shareIds[0])
+            this.fileList.splice(index,1)
           }else{
             this.getFileList()
           }
