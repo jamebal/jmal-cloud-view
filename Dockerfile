@@ -1,5 +1,7 @@
 FROM jmal/nginx-drawio:latest
 
+RUN apk add --no-cache gettext
+
 COPY nginx/nginx.conf.no_office.template /etc/nginx/nginx.conf.no_office.template
 COPY nginx/nginx.conf.template /etc/nginx/nginx.conf.template
 
