@@ -231,8 +231,8 @@ export default {
         case 'onUploadParams':
           this.params = msg.data || {}
           if (this.resolveFilesAddedPromise) {
-            // this.resolveFilesAddedPromise();
-            // this.resolveFilesAddedPromise = null;
+            this.resolveFilesAddedPromise();
+            this.resolveFilesAddedPromise = null;
           }
           break
       }
