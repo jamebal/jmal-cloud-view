@@ -38,9 +38,3 @@ COPY docker/nginx-drawio/drawio.conf /etc/nginx/conf.d/drawio.conf
 COPY docker/nginx-drawio/excalidraw.conf /etc/nginx/conf.d/excalidraw.conf
 COPY docker/nginx-drawio/pdfjs.conf /etc/nginx/conf.d/pdfjs.conf
 COPY docker/nginx-drawio/mime.types /etc/nginx/mime.types
-
-# 暴露 80 端口
-EXPOSE 80
-
-# 启动 Nginx
-CMD ["nginx", "-g", "daemon off;"]
