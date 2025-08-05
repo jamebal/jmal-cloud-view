@@ -155,7 +155,7 @@ export default {
       if (!this.$store.getters.token) return
       this.resetState()
       this.loadApiFunction = historyApi.fileHistoryPathList
-      this.loadApiParams = { path: encodeURI(pathname), username: this.$store.state.user.name }
+      this.loadApiParams = { path: encodeURIComponent(pathname), username: this.$store.state.user.name }
       this._internalLoadHistory()
     },
 

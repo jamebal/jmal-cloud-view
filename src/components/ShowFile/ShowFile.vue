@@ -2366,7 +2366,7 @@ export default {
           : ''
         const basePath = this.getBasePath()
         this.$router.push(
-          `/?vmode=${this.vmode}&path=${encodeURI(
+          `/?vmode=${this.vmode}&path=${encodeURIComponent(
             this.path
           )}${queryTagId}${basePath}${keyword}`
         )
@@ -2431,7 +2431,7 @@ export default {
             keywordQuery = ''
             searchOpenFolder = ''
           }
-          this.$router.push(`?vmode=${this.vmode}&path=${encodeURI(this.path).replaceAll('#', '%23')}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
+          this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path).replaceAll('#', '%23')}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
         }
         if (!unRefresh) {
           this.pagination.pageIndex = 1
@@ -2565,7 +2565,7 @@ export default {
         api
           .uploadFolder({
             isFolder: true,
-            filename: encodeURI(this.newFolderName),
+            filename: encodeURIComponent(this.newFolderName),
             currentDirectory: this.getQueryPath(),
             folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             username: this.$store.state.user.name,
@@ -2629,11 +2629,11 @@ export default {
         let suffix = newFileName.substring(newFileName.lastIndexOf('.') + 1)
         api
           .addFile({
-            fileName: encodeURI(newFileName),
+            fileName: encodeURIComponent(newFileName),
             isFolder: false,
             folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
             username: this.$store.state.user.name,
-            parentPath: encodeURI(parentPath),
+            parentPath: encodeURIComponent(parentPath),
           })
           .then(res => {
             this.createFileLoading = false
@@ -2881,7 +2881,7 @@ export default {
         const basePath = this.getBasePath()
         const keyword = key ? `&keyword=${key}` : ''
         const path = this.path
-          ? encodeURI(this.path.replace(this.basePath, '/'))
+          ? encodeURIComponent(this.path.replace(this.basePath, '/'))
           : '/'
         this.$router.push(
           `?vmode=${
@@ -3032,7 +3032,7 @@ export default {
           basePath = basePath.substring(0, basePath.length - 1)
         }
       }
-      return encodeURI(basePath + this.$route.query.path)
+      return encodeURIComponent(basePath + this.$route.query.path)
     },
     tableBodyScroll(table, e) {
       this.fileListScrollTop = e.target.scrollTop
@@ -3359,7 +3359,7 @@ export default {
       }
       api
         .rename({
-          newFileName: encodeURI(newFileName),
+          newFileName: encodeURIComponent(newFileName),
           username: this.$store.state.user.name,
           folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
           id: row.id,
@@ -4033,7 +4033,7 @@ export default {
                   api
                     .newFolder({
                       isFolder: true,
-                      filename: encodeURI(newFolderName),
+                      filename: encodeURIComponent(newFolderName),
                       currentDirectory: this.getQueryPath(),
                       folder: this.$route.query.searchOpenFolder || this.$route.query.folder,
                       username: this.$store.state.user.name,
@@ -4423,8 +4423,7 @@ export default {
           this.path = this.path.replace(/\/\//g, '/')
           // 去掉this.path开头的this.basePath
           this.path = this.path.replace(this.basePath, '/')
-          const path = encodeURI(this.path).replaceAll('#', '%23')
-
+          const path = encodeURIComponent(this.path).replaceAll('#', '%23')
           const item = { folder: row.name, shareBase: row.shareBase }
           this.pathList.push(item)
           this.pagination.pageIndex = 1

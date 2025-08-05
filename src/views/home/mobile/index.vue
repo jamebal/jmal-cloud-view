@@ -603,7 +603,7 @@ export default {
         }
 
         api.rename({
-          newFileName: encodeURI(newFileName),
+          newFileName: encodeURIComponent(newFileName),
           username: this.$store.state.user.name,
           folder: this.$route.query.folder,
           id: row.id
@@ -771,7 +771,7 @@ export default {
     // 浏览器的返回事件
     goBack() {
       if (this.pathList.length <= 1) {
-        this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}`)
+        this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}`)
         return
       }
       this.clickBack()
@@ -881,9 +881,9 @@ export default {
         let queryFolder = localStorage.getItem(this.path)
         if (!unPushLink) {
           if (!this.$route.query.path) {
-            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`)
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`)
           } else {
-            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURI(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`)
+            this.$router.push(`/_m?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}${queryFolder ? '&folder='+queryFolder : ''}`)
           }
         }
         if (!unRefresh) {
@@ -939,7 +939,7 @@ export default {
         api.fileList({
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: encodeURIComponent(this.$route.query.path),
           folder: this.$route.query.folder,
           queryFileType: this.queryFileType,
           sortableProp: this.sortableProp,
@@ -963,7 +963,7 @@ export default {
           userId: this.$store.state.user.userId,
           username: this.$store.state.user.name,
           keyword: key,
-          currentDirectory: encodeURI(this.$route.query.path),
+          currentDirectory: encodeURIComponent(this.$route.query.path),
           pageIndex: this.pagination.pageIndex,
           pageSize: this.pagination.pageSize
         }).then(res => {
@@ -1136,7 +1136,7 @@ export default {
             this.$router.push(`?vmode=${this.vmode}${path}${keyword}${folder}`);
             this.getFileList()
           } else {
-            const path = encodeURI(this.path);
+            const path = encodeURIComponent(this.path);
             if (this.$store.getters.userId !== row.userId) {
               row.mountFileId = row.id
             }
@@ -1280,7 +1280,7 @@ export default {
       return {
         // 传入的参数
         folder: this.$route.query.folder,
-        currentDirectory: encodeURI(this.path),
+        currentDirectory: encodeURIComponent(this.path),
         username: this.$store.state.user.name,
         userId: this.$store.state.user.userId
       }
@@ -1291,9 +1291,9 @@ export default {
       if (this.newFolderName) {
         api.uploadFolder({
           isFolder: true,
-          filename: encodeURI(this.newFolderName),
+          filename: encodeURIComponent(this.newFolderName),
           folder: this.$route.query.folder,
-          currentDirectory: encodeURI(this.path),
+          currentDirectory: encodeURIComponent(this.path),
           username: this.$store.state.user.name,
           userId: this.$store.state.user.userId
         }).then((res) => {

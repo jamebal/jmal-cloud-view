@@ -123,7 +123,7 @@ export default {
           fileId: this.file.id,
           id: this.file.id,
           fileName: this.file.name,
-          path: encodeURI(this.file.path),
+          path: encodeURIComponent(this.file.path),
           username: this.$store.state.user.name,
           content: true,
         }).then(async (res) => {
@@ -234,7 +234,7 @@ export default {
       this.saveBtnUpdating = true
       this.currentContext = JSON.stringify(this.excalidrawData)
       txtApi.editMarkdownByPath({
-        relativePath: encodeURI(this.file.path + this.file.name),
+        relativePath: encodeURIComponent(this.file.path + this.file.name),
         userId: this.$store.state.user.userId,
         username: this.$store.state.user.name,
         mountFileId: this.$store.state.user.userId !== this.file.userId ? this.file.id : '',

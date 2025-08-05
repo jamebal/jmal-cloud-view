@@ -174,8 +174,8 @@ export default {
               }
               api.newFolder({
                 isFolder: true,
-                filename: encodeURI(data.name),
-                currentDirectory: encodeURI(path),
+                filename: encodeURIComponent(data.name),
+                currentDirectory: encodeURIComponent(path),
                 username: this.$store.state.user.name,
                 userId: this.$store.state.user.userId
               }).then((res) => {

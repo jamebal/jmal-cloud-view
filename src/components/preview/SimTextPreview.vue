@@ -344,7 +344,7 @@
           fileId: file.id,
           id: file.id,
           fileName: file.name,
-          path: encodeURI(file.path),
+          path: encodeURIComponent(file.path),
           username: this.$store.state.user.name
         }
         api[request](params).then((res) => {
@@ -733,7 +733,7 @@
             message: '<span>&nbsp;&nbsp;正在加载数据...</span>'
           })
           const params = {
-            path: encodeURI(row.path),
+            path: encodeURIComponent(row.path),
             fileName: row.name,
             username: this.$store.state.user.name
           }
@@ -976,7 +976,7 @@
       update(value,path,index) {
         this.updating = true
         markdownApi.editMarkdownByPath({
-            relativePath: encodeURI(path),
+            relativePath: encodeURIComponent(path),
             userId: this.$store.state.user.userId,
             username: this.$store.state.user.name,
             mountFileId: this.mountFileId,
