@@ -2431,7 +2431,7 @@ export default {
             keywordQuery = ''
             searchOpenFolder = ''
           }
-          this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path).replaceAll('#', '%23')}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
+          this.$router.push(`?vmode=${this.vmode}&path=${encodeURIComponent(this.path)}${queryFolder ? '&folder=' + queryFolder : ''}${queryTagId}${basePath}${keywordQuery}${searchOpenFolder}`)
         }
         if (!unRefresh) {
           this.pagination.pageIndex = 1
@@ -4423,7 +4423,7 @@ export default {
           this.path = this.path.replace(/\/\//g, '/')
           // 去掉this.path开头的this.basePath
           this.path = this.path.replace(this.basePath, '/')
-          const path = encodeURIComponent(this.path).replaceAll('#', '%23')
+          const path = encodeURIComponent(this.path)
           const item = { folder: row.name, shareBase: row.shareBase }
           this.pathList.push(item)
           this.pagination.pageIndex = 1

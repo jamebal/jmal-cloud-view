@@ -37,7 +37,6 @@ export default {
   previewUrl: function(username, file, token, shareToken, serverUrl) {
     let baseUrl = serverUrl || this.baseUrl
     let fileUrl = `${baseUrl}/file/${store.getters.name}${encodeURIComponent(file.path)}${encodeURIComponent(file.name)}`
-    fileUrl = fileUrl.replaceAll('#', '%23')
     fileUrl = fileUrl.replaceAll(/%5C/g, '/')
 
     if (file.userId !== store.getters.userId && token && !shareToken) {
