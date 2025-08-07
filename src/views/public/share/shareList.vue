@@ -322,7 +322,6 @@ export default {
     return {
       prompt: '文件分享已被撤销',// 文件分享已被撤销
       isLoading: true,
-      fileMenuActive: '',
       path: this.$route.query.path,
       showNewFolder: false,
       isShowNewFolder: false,
@@ -401,10 +400,6 @@ export default {
         children: 'children',
         isLeaf: 'isLeaf'
       },
-
-      dragLoop: null,
-      positionX: 0,
-      positionY: 0,
       grid: false,
       vmode: 'list',
       gridColumnNum: -1,
@@ -415,7 +410,6 @@ export default {
       summaries: '',
       shareDialog: false,
       shareLink: '',
-      shareFileName: '',
       generateShareLinkLoading: true,
       shareId: '',
       shortId: this.$route.params.id,
@@ -430,7 +424,6 @@ export default {
       iframePreviewRow: {},
       iframePreviewVisible: false,
       fileHandler: {},
-      audioPreviewRow: {},
       audioPreviewVisible: false,
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
       showSizeItem: this.$pc,// 列表模式下是否显示文件大小

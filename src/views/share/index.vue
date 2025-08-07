@@ -215,7 +215,6 @@
       return {
         imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
         audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-        fileMenuActive: '',
         path: this.$route.query.path,
         pathList: [
           { 'folder': '', index: 0 },
@@ -265,7 +264,6 @@
         finished: false,
         cellMouseIndex: -1,
         shareDialog: false,
-        shareFileName: '',
         sumFileAndFolder: '',
         shareDialogVisible: false,
         shareDialogObject: {},
