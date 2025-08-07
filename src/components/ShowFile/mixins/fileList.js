@@ -152,6 +152,7 @@ export default {
         const row = this.pathList[this.pathList.length - 1]
         thisPath = `${row.row.path}${row.folder}`
       }
+      console.log('fileDoc', fileDoc)
       const isCurrentPath = (thisPath + '/') === fileDoc
       if ('deleteFile' === url && (isCurrentPath || this.$route.path.startsWith('/recently'))) {
         this.getFileListEnter()
@@ -267,11 +268,11 @@ export default {
       }
       this.editingIndex = -1
       const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
-      const basePath = this.getBasePath().replaceAll('#', '%23')
+      const basePath = this.getBasePath().replace(/#/g, '%23')
       const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
       const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''
       const searchOpenFolder = this.$route.query.searchOpenFolder ? `&searchOpenFolder=${this.$route.query.searchOpenFolder}` : ''
-      this.$router.push(`?vmode=${this.vmode}&path=${this.path.replaceAll('#', '%23')}${folder}${queryTagId}${basePath}${keyword}${searchOpenFolder}`)
+      this.$router.push(`?vmode=${this.vmode}&path=${this.path.replace(/#/g, '%23')}${folder}${queryTagId}${basePath}${keyword}${searchOpenFolder}`)
       // 改变拖拽目标
       this.rowDrop()
       // 画矩形选取

@@ -771,7 +771,7 @@ import shortcutKeyMixin from './mixins/shortcutKey'
 import fileTooltipMixin from '@/components/ShowFile/mixins/fileTooltip'
 import fileDragMixin from '@/components/ShowFile/mixins/fileDrag'
 import filenameHandleMixin from '@/components/ShowFile/mixins/filenameHandle'
-import fileHandelMixin from '@/components/ShowFile/mixins/fileHandel'
+import fileHandleMixin from '@/components/ShowFile/mixins/fileHandle'
 import filepathHandleMixin from '@/components/ShowFile/mixins/filepathHandle'
 import fileLoadListMixin from '@/components/ShowFile/mixins/fileList'
 import searchFileMixin from '@/components/ShowFile/mixins/searchFile'
@@ -791,7 +791,7 @@ export default {
     fileTooltipMixin,
     fileDragMixin,
     filenameHandleMixin,
-    fileHandelMixin,
+    fileHandleMixin,
     filepathHandleMixin,
     searchFileMixin,
     commonFileMixin,

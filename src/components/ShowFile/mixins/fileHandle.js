@@ -249,10 +249,11 @@ export default {
                 cancelButtonText: `使用.${newExt}`,
               }
             ).then(() => {
-                newFileName = strFileName + '.' + row.suffix
-              }).catch(() => {}).then(() => {
-                this.rename(row, newFileName)
-              })
+              const finalFileName = strFileName + '.' + row.suffix
+              this.rename(row, finalFileName)
+            }).catch(() => {
+              this.rename(row, newFileName)
+            })
           } else {
             this.rename(row, newFileName)
           }

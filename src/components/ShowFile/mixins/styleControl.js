@@ -17,6 +17,11 @@ export default {
       default: true,
     },
   },
+  data() {
+    return {
+      selectedRowIndices: new Set()
+    }
+  },
   methods: {
     sortChangeOfMenu(prop, headerIndex) {
       let tableHeader = document.querySelector('.el-table__header thead tr')
@@ -56,8 +61,7 @@ export default {
     },
     addClass(el, className) {
       if (el) {
-        const str = el.className
-        el.className = el.className + ' ' + className
+        el.classList.add(className)
       }
     },
     // 收集选中的index值作为数组 传递给rowRed判断变换样式
@@ -67,6 +71,7 @@ export default {
         this.selectOrigin = rows[0].index
         this.rowContextData = rows[0]
       }
+      this.selectedRowIndices = new Set(rows.map(row => row.index));
       this.$refs.fileListTable.tableSelectData = rows
       this.selectRowData = rows
       this.changeSelectedStyle(rows)
@@ -102,7 +107,7 @@ export default {
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowStyle({ row, column, rowIndex, columnIndex }) {
-      if (this.$refs.fileListTable.tableSelectData.findIndex(item => item.index === rowIndex) > -1) {
+      if (this.selectedRowIndices.has(rowIndex)) {
         if (columnIndex === 0) {
           return {
             backgroundColor: '#e0f3fc !important',

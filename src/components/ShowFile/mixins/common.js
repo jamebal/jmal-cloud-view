@@ -1,10 +1,16 @@
 import { formatSize, formatTime } from '@/utils/number'
 
 export default {
+  computed: {
+    imageUrl() {
+      return `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`
+    },
+    audioCoverUrl() {
+      return `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`
+    }
+  },
   data() {
     return {
-      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
     }
   },
   methods: {

@@ -256,7 +256,8 @@ export default {
 
       let firstOver = 0 // 是否刚开始拖动
       let moveTitle = ''
-      setTimeout(function() {
+
+      this.$nextTick(() => {
         rows = target.childElementCount
         _this.dragElementList = []
         for (let i = 0; i < target.childElementCount; i++) {
@@ -290,7 +291,8 @@ export default {
             childOfImg.draggable = false
           }
         }
-      }, 300)
+      })
+
 
       // 被拖动的元素正在那个容器里
       let dragIndex = -1
@@ -303,10 +305,10 @@ export default {
           let node = null
           const className = e.toElement.className
           if (_this.grid) {
-            if (e.toElement.className === itemClassName) {
+            if (className === itemClassName) {
               node = e.toElement
             }
-            if (e.toElement.className === parentClassName) {
+            if (className === parentClassName) {
               node = e.fromElement
             }
           } else {

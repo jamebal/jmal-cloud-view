@@ -154,13 +154,9 @@ export default {
     searchFileAndOpenDir(fileId, onLoad) {
       this.beforeLoadData(onLoad)
 
-      const queryTagId = this.$route.query.tagId
-        ? `&tagId=${this.$route.query.tagId}`
-        : ''
-      const path = this.$route.query.path ? `&path=${this.$route.query.path}`.replaceAll('#', '%23') : ''
-      const keyword = this.$route.query.keyword
-        ? `&keyword=${this.$route.query.keyword}`
-        : ''
+      const queryTagId = this.$route.query.tagId ? `&tagId=${this.$route.query.tagId}` : ''
+      const path = this.$route.query.path ? `&path=${this.$route.query.path}`.replace(/#/g, '%23') : ''
+      const keyword = this.$route.query.keyword ? `&keyword=${this.$route.query.keyword}` : ''
       const basePath = this.getBasePath()
       const searchOpenFolder = `&searchOpenFolder=${fileId}`
       const folder = this.$route.query.folder ? `&folder=${this.$route.query.folder}` : ''

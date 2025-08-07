@@ -53,21 +53,48 @@ export default {
     },
   },
   methods: {
-    // 判断给定的字符是否是中文
-    isChineseChar(char) {
-      return char.charCodeAt(0) > 255
-    },
     // 获取字符的长度。中文字符长度为2，其他字符长度为1
     getCharLength(char) {
-      //return this.isChineseChar(char) ? 2 : 1
-      // 简单判断字符长度：中文字符和全角字符长度为2，其他为1
-      if (this.isChineseChar(char)) {
+      // 优化的字符长度计算函数
+      // 使用 Unicode 范围来判断字符宽度，更准确且性能更好
+
+      if (!char) return 0; // 处理空字符或 undefined
+
+      const code = char.codePointAt(0);
+
+      // 全角字符范围判断（长度为2）
+      if (
+        // 中日韩统一表意文字 (CJK Unified Ideographs)
+        (code >= 0x4E00 && code <= 0x9FFF) ||
+        // 中日韩扩展A区
+        (code >= 0x3400 && code <= 0x4DBF) ||
+        // 中日韩符号和标点
+        (code >= 0x3000 && code <= 0x303F) ||
+        // 全角ASCII、全角标点
+        (code >= 0xFF00 && code <= 0xFFEF) ||
+        // 平假名
+        (code >= 0x3040 && code <= 0x309F) ||
+        // 片假名
+        (code >= 0x30A0 && code <= 0x30FF) ||
+        // 韩文字母
+        (code >= 0xAC00 && code <= 0xD7AF) ||
+        // 其他可能的宽字符
+        (code >= 0x1100 && code <= 0x11FF) || // 韩文字母扩展
+        (code >= 0x2E80 && code <= 0x2EFF) || // 中日韩部首补充
+        (code >= 0x2F00 && code <= 0x2FDF) || // 康熙部首
+        (code >= 0x31C0 && code <= 0x31EF) || // 中日韩笔画
+        (code >= 0xF900 && code <= 0xFAFF) || // 中日韩兼容表意文字
+        (code >= 0xFE30 && code <= 0xFE4F) || // 中日韩兼容形式
+        // 表情符号和其他宽字符
+        (code >= 0x1F300 && code <= 0x1F9FF) ||
+        // 全角空格
+        code === 0x3000
+      ) {
         return 2;
-      } else if (char === ' ') {
-        return 2; // 空格作为一个字符处理
-      } else {
-        return 1;
       }
+
+      // 半角字符（包括普通空格、ASCII字符等）
+      return 1;
     },
     // 获取有效长度。如果有后缀，则包括后缀和点的长度；否则是基础名称和后7位的长度
     getEffectiveLength(base, suffix) {
