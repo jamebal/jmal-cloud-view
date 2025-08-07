@@ -152,7 +152,6 @@ export default {
         const row = this.pathList[this.pathList.length - 1]
         thisPath = `${row.row.path}${row.folder}`
       }
-      console.log('fileDoc', fileDoc)
       const isCurrentPath = (thisPath + '/') === fileDoc
       if ('deleteFile' === url && (isCurrentPath || this.$route.path.startsWith('/recently'))) {
         this.getFileListEnter()

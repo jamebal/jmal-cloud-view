@@ -96,7 +96,7 @@ export default {
             _this.fileListTableClearSelection()
           }
         }
-        let scrollTop = draw.scrollTop || draw.scrollTop
+        let scrollTop = draw.scrollTop
         let scrollLeft = draw.scrollLeft || draw.scrollLeft
         startX = evt.clientX + scrollLeft
         startY = evt.clientY + scrollTop

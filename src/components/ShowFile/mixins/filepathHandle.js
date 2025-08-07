@@ -1,7 +1,6 @@
 import api from '@/api/file-api'
 export default {
-  props: {
-  },
+
   data() {
     return {
       basePath: '/',

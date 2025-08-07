@@ -1,5 +1,6 @@
 import api from '@/api/file-api'
 import fileConfig from '@/utils/file-config'
+import path from 'path'
 export default {
   props: {
     showUploadButton: {
@@ -806,16 +807,22 @@ export default {
       return fileIds
     },
     getSelectFileList() {
-      const fileList = [];
       this.permanentDeleteDisable = false;
-      const addFileToList = ({ id, suffix, name, mountFileId, contentType, isFolder, music, video }) => {
-        fileList.push({ id, suffix, name, mountFileId, contentType, isFolder, music, video });
-      };
+      let selectedSource = [];
       if (this.selectRowData.length > 1 || this.menusIsMultiple) {
-        this.$refs.fileListTable.tableSelectData.forEach(value => addFileToList(value));
-      } else {
-        addFileToList(this.rowContextData);
+        selectedSource = this.$refs.fileListTable.tableSelectData;
+      } else if (this.rowContextData) {
+        selectedSource = [this.rowContextData];
       }
+
+      if (selectedSource.length === 0) {
+        return [];
+      }
+
+      const fileList = selectedSource.map(({ id, suffix, name, mountFileId, contentType, isFolder, music, video }) => {
+        return { id, suffix, name, mountFileId, contentType, isFolder, music, video };
+      });
+
       if (fileList.length > 0) {
         this.checkPermanentDelete(fileList[0]);
       }
@@ -870,8 +877,6 @@ export default {
         })
     },
   },
-  mounted() {
-  },
-  beforeDestroy() {
-  },
+
+
 }

@@ -290,7 +290,7 @@ export default {
           break
         case 'copyDownloadLink':
           // 复制下载链接
-          this.copyDownloadLink(this.rowContextData)
+          this.copyDownloadLink(this.rowContextData, '.file-contextmenu')
           break
         case 'remove':
           // 删除

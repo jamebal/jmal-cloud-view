@@ -780,7 +780,6 @@ import styleControlMixin from '@/components/ShowFile/mixins/styleControl'
 import fileContextmenuMixin from '@/components/ShowFile/mixins/fileContextmenu'
 import clipboardMixin from '@/components/ShowFile/mixins/clipboard'
 
-import path from 'path'
 import { mapGetters, mapState } from 'vuex'
 
 export default {

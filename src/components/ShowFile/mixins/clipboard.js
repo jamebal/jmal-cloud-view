@@ -2,8 +2,7 @@ import store from '@/store'
 import fileConfig from '@/utils/file-config'
 
 export default {
-  created() {
-  },
+
   computed: {
     fileClipboard() {
       return store.getters.fileClipboard
@@ -20,12 +19,12 @@ export default {
   },
   methods: {
     // 复制下载链接
-    copyDownloadLink(row) {
+    copyDownloadLink(row, elName) {
       let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, this.shareToken)
       if (row.isFolder) {
         url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip', this.shareToken)
       }
-      let clipboard = new Clipboard('.file-contextmenu', {
+      let clipboard = new Clipboard(elName, {
         text: function() {
           return url
         },

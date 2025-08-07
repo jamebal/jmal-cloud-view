@@ -2,8 +2,7 @@ import api from '@/api/file-api'
 import _ from 'lodash'
 
 export default {
-  props: {
-  },
+
   data() {
     return {
       showNewFolder: false,
