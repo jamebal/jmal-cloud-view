@@ -282,7 +282,7 @@ export default {
         item.searchOverall = false
       }
       this.debounceSearch(this.searchFileName, false)
-      this.$refs.searchOption.setFilterOption(item)
+      this.$refs.searchOption && this.$refs.searchOption.setFilterOption(item)
       this.$nextTick(() => {
         this._isSuggestionHandledBySelect = false
       })
