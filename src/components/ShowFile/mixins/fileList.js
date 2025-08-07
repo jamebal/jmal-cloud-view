@@ -313,7 +313,9 @@ export default {
         this.fileList.map((item, index) => {
           item.index = index
         })
-        this.$refs.fileListTable.reloadData(this.fileList)
+        if (this.$refs.fileListTable) {
+          this.$refs.fileListTable.reloadData(this.fileList)
+        }
         setTimeout(() => {
           if (this.$refs.fileListTable) {
             this.$refs.fileListTable.reloadData(this.fileList)

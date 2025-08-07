@@ -50,7 +50,7 @@ export default {
         event.stopPropagation()
       }
       // Del
-      if (keyCode === 8 && !this.inputting && this.selectRowData.length > 0 && !checkPreviewVisible) {
+      if (keyCode === 46 && !this.inputting && this.selectRowData.length > 0 && !checkPreviewVisible) {
         this.removeOperation()
         event.preventDefault()
         event.stopPropagation()
@@ -91,7 +91,9 @@ export default {
       }
       // ctrl + P / cmd + P
       if (isCmd && keyCode === 80 && !checkPreviewVisible) {
-        this.$refs.searchInput.focus()
+        if (this.$refs.searchInput) {
+          this.$refs.searchInput.focus()
+        }
         event.preventDefault()
         event.stopPropagation()
       }
