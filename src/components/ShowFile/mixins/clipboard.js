@@ -1,5 +1,6 @@
 import store from '@/store'
 import fileConfig from '@/utils/file-config'
+import Clipboard from 'clipboard'
 
 export default {
 
