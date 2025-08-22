@@ -58,7 +58,7 @@ export default {
     return `${baseUrl}/share-file/${file.id}/${encodeURIComponent(file.name)}`
   },
   // 预览历史文件
-  previewHistoryUrl: function(historyId, name, token) {
+  previewHistoryUrl: function(historyId) {
     return `${this.baseUrl}/history/preview/file?id=${historyId}`
   },
   // markdown里上传图片后的图片预览地址
