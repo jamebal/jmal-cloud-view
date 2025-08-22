@@ -128,7 +128,7 @@ export default {
     },
     getImageUrlByThumbnail(file) {
       if (this.$store.getters.token){
-        return `${this.imageThumbnailUrl}/${file.name}?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=${file.id}`
+        return `${this.imageThumbnailUrl}/${file.name}?id=${file.id}`
       } else {
         if (this.$store.getters.shareToken) {
           return `${this.shareImageThumbnailUrl}/${file.name}?share-token=${this.$store.getters.shareToken}&id=${file.id}`
