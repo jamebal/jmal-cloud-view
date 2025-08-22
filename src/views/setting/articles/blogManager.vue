@@ -209,6 +209,9 @@ export default {
   methods: {
     loadScripts() {
       const preview = this.$refs.previewFooterHtml;
+
+      if (!preview) return;
+
       const scripts = preview.querySelectorAll('script');
 
       scripts.forEach(script => {
