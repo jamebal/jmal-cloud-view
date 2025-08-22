@@ -135,7 +135,7 @@ export default {
   data() {
     return {
       activeName: '1',
-      uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}`,
+      uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo`,
       title: this.$t('app.setting'),
       syncLoading: false,
       clickSync: false,

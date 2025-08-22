@@ -94,7 +94,7 @@
         if(selectImg.id){
           this.loading = true
           this.cropper.reset()
-          let url = fileConfig.previewUrl(this.$store.state.user.name, selectImg, this.$store.getters.token) + '&o=crop&w=1024'
+          let url = fileConfig.previewUrl(this.$store.state.user.name, selectImg, this.$store.getters.token) + '?o=crop&w=1024'
           this.sourceImg = url
           this.cropper.replace(url)
           this.loading = false

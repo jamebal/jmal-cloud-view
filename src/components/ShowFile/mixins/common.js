@@ -3,10 +3,10 @@ import { formatSize, formatTime } from '@/utils/number'
 export default {
   computed: {
     imageUrl() {
-      return `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`
+      return `${process.env.VUE_APP_BASE_API}/view/thumbnail?id=`
     },
     audioCoverUrl() {
-      return `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`
+      return `${process.env.VUE_APP_BASE_API}/view/cover?id=`
     }
   },
 

@@ -40,11 +40,11 @@ export default {
     fileUrl = fileUrl.replaceAll(/%5C|%2F/g, '/')
 
     if (file.userId !== store.getters.userId && token && !shareToken) {
-      return `${baseUrl}/pre-file/${file.id}/${encodeURIComponent(file.name)}?jmal-token=${token}&name=${username}`
+      return `${baseUrl}/pre-file/${file.id}/${encodeURIComponent(file.name)}`
     }
 
     if (token) {
-      return `${fileUrl}?jmal-token=${token}&name=${username}`
+      return `${fileUrl}`
     }
     if (shareToken) {
       if (isFilePath(file.id)) {
@@ -58,8 +58,8 @@ export default {
     return `${baseUrl}/share-file/${file.id}/${encodeURIComponent(file.name)}`
   },
   // 预览历史文件
-  previewHistoryUrl: function(historyId, name, token) {
-    return `${this.baseUrl}/history/preview/file?id=${historyId}&name=${name}&jmal-token=${token}`
+  previewHistoryUrl: function(historyId) {
+    return `${this.baseUrl}/history/preview/file?id=${historyId}`
   },
   // markdown里上传图片后的图片预览地址
   markdownPreviewUrl: function (path){
@@ -74,7 +74,7 @@ export default {
   // 下载文件
   download: function(username, file, token) {
     fileApi.isAllowDownload({fileIds: [file.id]}).then(() => {
-      let url = this.previewUrl(username, file, token) + '&o=download'
+      let url = this.previewUrl(username, file, token) + '?o=download'
       window.open(url, '_self')
     })
   },

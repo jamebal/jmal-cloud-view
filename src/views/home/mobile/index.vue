@@ -306,8 +306,8 @@ export default {
       lastTabbarOffsetTop: 0,// 底部tabbar与上边框 上次的距离
       diffTabbarTop: 0,// 底部tabbar与上边框的变化距离
       isiPhoneX: 0,
-      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
+      imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?id=`,
+      audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?id=`,
       tabActive: 0,
       path: this.$route.query.path,
       fileList: [],

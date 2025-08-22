@@ -213,8 +213,8 @@
     },
     data() {
       return {
-        imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
-        audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?jmal-token=${this.$store.state.user.token}&name=${this.$store.state.user.name}&id=`,
+        imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?id=`,
+        audioCoverUrl: `${process.env.VUE_APP_BASE_API}/view/cover?id=`,
         path: this.$route.query.path,
         pathList: [
           { 'folder': '', index: 0 },
