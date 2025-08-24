@@ -76,7 +76,7 @@ http {
                 }
 
                 location /api {
-                        proxy_pass   http://jmalcloud:8088/api;
+                        proxy_pass   http://jmalcloud:8088/api/;
                         include /etc/nginx/conf/proxy_params.conf;
                         }
 
@@ -121,7 +121,7 @@ http {
                         }
 
                         location /blog/api/ {
-                                 proxy_pass   http://jmalcloud:8088/api;
+                                 proxy_pass   http://jmalcloud:8088/api/;
                                  include /etc/nginx/conf/proxy_params.conf;
                         }
 
@@ -136,21 +136,14 @@ http {
                         }
 
                         location /api/ {
-                                proxy_pass   http://jmalcloud:8088/api;
-                                proxy_set_header X-Forwarded-Host $the_host/file;
+                                proxy_pass   http://jmalcloud:8088/api/;
+                                proxy_set_header X-Forwarded-Host $the_host/api;
                                 include /etc/nginx/conf/proxy_params.conf;
                                 include /etc/nginx/conf/proxy_params_file.conf;
                         }
 
                         location /webDAV/ {
                                 proxy_pass   http://jmalcloud:8088/webDAV/;
-                                proxy_set_header X-Forwarded-Host $the_host/file;
-                                include /etc/nginx/conf/proxy_params.conf;
-                                include /etc/nginx/conf/proxy_params_file.conf;
-                        }
-
-                        location /file/ {
-                                proxy_pass  http://jmalcloud:8088/api/file/;
                                 proxy_set_header X-Forwarded-Host $the_host/file;
                                 include /etc/nginx/conf/proxy_params.conf;
                                 include /etc/nginx/conf/proxy_params_file.conf;
