@@ -76,7 +76,7 @@ http {
                 }
 
                 location /api {
-                        proxy_pass   http://jmalcloud:8088;
+                        proxy_pass   http://jmalcloud:8088/api;
                         include /etc/nginx/conf/proxy_params.conf;
                         }
 
@@ -121,7 +121,7 @@ http {
                         }
 
                         location /blog/api/ {
-                                 proxy_pass   http://jmalcloud:8088/;
+                                 proxy_pass   http://jmalcloud:8088/api;
                                  include /etc/nginx/conf/proxy_params.conf;
                         }
 
@@ -136,7 +136,7 @@ http {
                         }
 
                         location /api/ {
-                                proxy_pass   http://jmalcloud:8088/;
+                                proxy_pass   http://jmalcloud:8088/api;
                                 proxy_set_header X-Forwarded-Host $the_host/file;
                                 include /etc/nginx/conf/proxy_params.conf;
                                 include /etc/nginx/conf/proxy_params_file.conf;
@@ -150,22 +150,10 @@ http {
                         }
 
                         location /file/ {
-                                proxy_pass  http://jmalcloud:8088/file/;
+                                proxy_pass  http://jmalcloud:8088/api/file/;
                                 proxy_set_header X-Forwarded-Host $the_host/file;
                                 include /etc/nginx/conf/proxy_params.conf;
                                 include /etc/nginx/conf/proxy_params_file.conf;
-                        }
-
-                        location /mq {
-                                proxy_pass   http://jmalcloud:8088/mq/;
-                                #websocket额外配置开始
-                                proxy_http_version 1.1;
-                                proxy_set_header Upgrade $http_upgrade;
-                                proxy_set_header Connection "upgrade";
-                                proxy_connect_timeout 60s;#l连接超时时间，不能设置太长会浪费连接资源
-                                proxy_read_timeout 500s;#读超时时间
-                                proxy_send_timeout 500s;#写超时时间
-                                #websocket额外配置结束
                         }
 
                         location /office {
