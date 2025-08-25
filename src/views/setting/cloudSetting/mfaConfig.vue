@@ -50,7 +50,7 @@ export default {
         if (value) {
           this.$message.success('已启用强制两步验证')
         } else {
-          this.$message.success('已禁用强制两步验证')
+          this.$message.warning('已禁用强制两步验证')
         }
       }).catch(() => {
         this.mfaForceEnable = !value

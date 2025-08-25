@@ -135,12 +135,12 @@ const actions = {
   },
 
   verifyMfaCode({ commit }, loginForm) {
-    const { username, password, rememberMe, mfaCode, mfaToken } = loginForm
+    const payload = { ...loginForm, username: loginForm.username.trim() };
     return new Promise((resolve, reject) => {
-      verifyTotp({ username: username.trim(), password: password, rememberMe: rememberMe, mfaCode: mfaCode, mfaToken: mfaToken }).then(response => {
+      verifyTotp(payload).then(response => {
         const { data } = response
         commit('SET_TOKEN', data['jmal-token'])
-        commit('SET_NAME', username.trim())
+        commit('SET_NAME', payload.username)
 
         commit('SET_USERID', data.userId)
         resolve()
@@ -151,12 +151,12 @@ const actions = {
   },
 
   initVerifyMfaCode({ commit }, loginForm) {
-    const { username, password, rememberMe, mfaCode, mfaToken, mfaSecret } = loginForm
+    const payload = { ...loginForm, username: loginForm.username.trim() };
     return new Promise((resolve, reject) => {
-      initVerifyTotp({ username: username.trim(), password: password, rememberMe: rememberMe, mfaCode: mfaCode, mfaToken: mfaToken, mfaSecret: mfaSecret }).then(response => {
+      initVerifyTotp(payload).then(response => {
         const { data } = response
         commit('SET_TOKEN', data['jmal-token'])
-        commit('SET_NAME', username.trim())
+        commit('SET_NAME', payload.username)
 
         commit('SET_USERID', data.userId)
         resolve()

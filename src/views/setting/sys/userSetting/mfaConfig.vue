@@ -43,7 +43,7 @@
               <div class="step-instruction">请输入身份验证器 App 生成的 6 位动态验证码，开启两步验证。</div>
               <div class="step-instruction enable-mfa">
                 <el-input placeholder="6位动态验证码" size="small" class="code-input" v-model="enableMfaCode"></el-input>
-                <el-button size="small" type="primary" round :disabled="enableMfaCode.length !== 6" @click="enableMFA">开启 2FA</el-button>
+                <el-button size="small" type="primary" :loading="verifyLoading" round :disabled="enableMfaCode.length !== 6" @click="enableMFA">开启 2FA</el-button>
               </div>
             </div>
           </template>
@@ -52,7 +52,7 @@
       <div v-if="mfaSetupResponse.mfaEnable">
         <div class="step-instruction enable-mfa" v-if="!mfaSetupResponse.mfaForceEnable">
           <el-input placeholder="6位动态验证码" size="small" class="code-input" v-model="disableMfaCode"></el-input>
-          <el-button size="small" type="warning" round :disabled="disableMfaCode.length !== 6" @click="disableMFA">禁用 2FA</el-button>
+          <el-button size="small" type="warning" :loading="verifyLoading" round :disabled="disableMfaCode.length !== 6" @click="disableMFA">禁用 2FA</el-button>
         </div>
       </div>
     </div>
@@ -75,7 +75,11 @@ export default {
     loginForm: {
       type: Object,
       default: { },
-    }
+    },
+    isLoginPage: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -127,7 +131,7 @@ export default {
       })
     },
     enableMFA() {
-      if (this.loginForm) {
+      if (this.isLoginPage) {
         this.initVerifyMfaCode()
       } else {
         this.verifyLoading = true
@@ -141,17 +145,17 @@ export default {
       }
     },
     initVerifyMfaCode() {
-      this.verifyMfaCodeLoading = true
+      this.verifyLoading = true
       this.loginForm.mfaSecret = this.mfaSetupResponse.secret
       this.loginForm.mfaCode = this.enableMfaCode
       this.$store.dispatch('user/initVerifyMfaCode', this.loginForm).then(() => {
         this.$store.dispatch('user/setMenuList').then(() => {
           this.$router.push({ path: this.redirect || '/' })
         }).finally(() => {
-          this.verifyMfaCodeLoading = false
+          this.verifyLoading = false
         })
       }).catch(() => {
-        this.verifyMfaCodeLoading = false
+        this.verifyLoading = false
       })
     },
     disableMFA() {

@@ -96,8 +96,8 @@
           <el-button v-if="mfaRequired" round :loading="verifyMfaCodeLoading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="verifyMfaCode">{{$t('login.verify')}}</el-button>
         </el-form>
       </el-card>
-      <el-card class="maf-card" v-if="mfaForceEnable">
-        <mfa-config :login-form="loginForm"></mfa-config>
+      <el-card class="mfa-card" v-if="mfaForceEnable">
+        <mfa-config isLoginPage :login-form="loginForm"></mfa-config>
       </el-card>
     </div>
     <footer id="footer" class="clearfix" style="font-size: 0.725rem;">
@@ -401,7 +401,7 @@ $light_gray:#eee;
     border-radius: 16px;
   }
 
-  .maf-card {
+  .mfa-card {
     border-radius: 16px;
   }
 
