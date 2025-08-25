@@ -17,7 +17,7 @@
         <el-step title="安装身份验证器App" status="process">
           <template slot="description">
             <div class="description-container">
-              <span class="step-instruction">安装身份验证器App，例如Google Authenticator、Microsoft Authenticator、Bitwarden、LastPass、Bitwarden、Authenticator等</span>
+              <span class="step-instruction">安装身份验证器App，例如Google Authenticator、Microsoft Authenticator、LastPass、Bitwarden、Authenticator等</span>
             </div>
           </template>
         </el-step>
