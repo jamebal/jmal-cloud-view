@@ -105,20 +105,6 @@ export default {
       params
     })
   },
-  getWebp(params) {
-    return request({
-      url: '/user/setting/get/webp',
-      method: 'get',
-      params
-    })
-  },
-  disabledWebp(params) {
-    return request({
-      url: '/user/setting/disabled/webp',
-      method: 'put',
-      params
-    })
-  },
   getAccessTokenList(params) {
     return request({
       url: '/user/setting/accessTokenList',

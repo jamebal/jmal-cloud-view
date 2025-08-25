@@ -56,8 +56,6 @@ export default {
     netDiskName: 'Net Disk Name',
     netDiskLogo: 'Net Disk Logo',
     clickChangeLogo: 'Click to change Logo',
-    enableWebP: 'Enable WebP',
-    storageWebP: 'Convert images to WebP format for storage',
     rebuildIndex: 'Rebuild Index',
     rebuildIndexDesc: 'Rebuilding the index is divided into two steps: 1. Synchronize basic file information, 2. Create an index for the file content',
     rebuildIndexStep1: 'Synchronizing basic file information',
