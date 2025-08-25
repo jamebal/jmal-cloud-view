@@ -56,6 +56,8 @@ export default {
     netDiskName: '网盘名称',
     netDiskLogo: '网盘Logo',
     clickChangeLogo: '点击更换Logo',
+    enableWebP: '启用WebP',
+    storageWebP: '将图片转换为WebP格式存储',
     rebuildIndex: '重建索引',
     rebuildIndexDesc: '重建索引分为两步: 1.同步文件基本信息, 2.为文件内容创建索引',
     rebuildIndexStep1: '正在同步文件基本信息',

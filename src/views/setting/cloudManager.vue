@@ -30,6 +30,18 @@
                 </el-upload>
               </div>
               <span class="instruction">{{ $t('app.clickChangeLogo') }}</span>
+              <div class="config-itme-label">{{ $t('app.enableWebP') }}：
+                <el-switch
+                  v-model="webpEnabled"
+                  active-color="#13ce66"
+                  inactive-color="#ff4949"
+                  @change="webpChange"
+                >
+                </el-switch>
+              </div>
+              <span class="instruction">
+                {{ $t('app.storageWebP') }}
+              </span>
               <div class="config-itme-label">{{ $t('app.rebuildIndex') }}：
                 <el-button round class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
                 <span v-show="syncPercent < 100">{{ $t('app.rebuildIndexStep1') }}: {{ syncPercent }}%</span>
@@ -89,11 +101,11 @@
               <mfa-config/>
             </div>
           </el-tab-pane>
-<!--          <el-tab-pane :label="$t('common.lang')" name="7" class="setting-tab-panel">-->
-<!--            <div v-if="activeName === '7'">-->
-<!--              <language-config></language-config>-->
-<!--            </div>-->
-<!--          </el-tab-pane>-->
+          <!--          <el-tab-pane :label="$t('common.lang')" name="7" class="setting-tab-panel">-->
+          <!--            <div v-if="activeName === '7'">-->
+          <!--              <language-config></language-config>-->
+          <!--            </div>-->
+          <!--          </el-tab-pane>-->
         </el-tabs>
       </div>
     </el-card>
@@ -132,6 +144,7 @@ export default {
       calculateFolderSizeProcessedPercent: 100,
       calculateFolderSizeLoading: false,
       resetLoading: false,
+      webpEnabled: false,
       logoFileName: this.$store.state.user.netdiskLogo || '',
       netdiskName: 'JmalCloud',
       showAckBtn: false,
@@ -242,6 +255,9 @@ export default {
       }
     },
     getInfo() {
+      settingApi.getWebp({userId: this.$store.state.user.userId}).then((res) => {
+        this.webpEnabled = !res.data
+      })
     },
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
@@ -312,6 +328,13 @@ export default {
         })
       }).catch(() => {
         this.resetLoading = false
+      })
+    },
+    webpChange(webpEnabled) {
+      settingApi.disabledWebp({userId: this.$store.state.user.userId, disabled: !webpEnabled}).then(() => {
+        webpEnabled ? this.$message.success(`WebP ${this.$t('msg.enabled')}`) : this.$message.warning(`WebP ${this.$t('msg.disabled')}`)
+      }).catch(() => {
+        this.webpEnabled = !this.webpEnabled
       })
     },
   }
