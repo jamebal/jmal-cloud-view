@@ -17,6 +17,14 @@ export function verifyTotp(data) {
   })
 }
 
+export function initVerifyTotp(data) {
+  return request({
+    url: 'public/init-verify-totp',
+    method: 'post',
+    data
+  })
+}
+
 /**
  * 加载ldap配置
  * @returns {*}

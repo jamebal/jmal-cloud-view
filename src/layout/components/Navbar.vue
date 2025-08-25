@@ -74,7 +74,7 @@ export default {
       isShow: true,
       activeIndex: '1',
       imageUrl: `${process.env.VUE_APP_BASE_API}/view/thumbnail?id=`,
-      defaultAvatar: require('../../assets/img/default-avatar.png'),
+      defaultAvatar: require('@/assets/img/default-avatar.png'),
       showTaskProgress: false,
       taskCount: 0,
       progressExecuting: false,

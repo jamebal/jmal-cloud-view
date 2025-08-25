@@ -1,4 +1,4 @@
-import { login, logout, getInfo, verifyTotp } from '@/api/user'
+import { login, logout, getInfo, verifyTotp, initVerifyTotp } from '@/api/user'
 import fileApi from '@/api/file-api'
 import menuApi from '@/api/menu'
 import { setLogo } from '@/utils/logo'
@@ -120,7 +120,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password, rememberMe: rememberMe }).then(response => {
         const { data } = response
-        if (data.mfaRequired) {
+        if (data.mfaToken) {
           resolve(data)
         } else {
           commit('SET_TOKEN', data['jmal-token'])
@@ -135,12 +135,28 @@ const actions = {
   },
 
   verifyMfaCode({ commit }, loginForm) {
-    const { username, password, rememberMe, mfaCode, mfaToken } = loginForm
+    const payload = { ...loginForm, username: loginForm.username.trim() };
     return new Promise((resolve, reject) => {
-      verifyTotp({ username: username.trim(), password: password, rememberMe: rememberMe, mfaCode: mfaCode, mfaToken: mfaToken }).then(response => {
+      verifyTotp(payload).then(response => {
         const { data } = response
         commit('SET_TOKEN', data['jmal-token'])
-        commit('SET_NAME', username.trim())
+        commit('SET_NAME', payload.username)
+
+        commit('SET_USERID', data.userId)
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  initVerifyMfaCode({ commit }, loginForm) {
+    const payload = { ...loginForm, username: loginForm.username.trim() };
+    return new Promise((resolve, reject) => {
+      initVerifyTotp(payload).then(response => {
+        const { data } = response
+        commit('SET_TOKEN', data['jmal-token'])
+        commit('SET_NAME', payload.username)
 
         commit('SET_USERID', data.userId)
         resolve()
