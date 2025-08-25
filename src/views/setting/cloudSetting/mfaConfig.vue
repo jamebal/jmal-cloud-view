@@ -25,7 +25,7 @@
           <template slot="description">
             <div class="description-container">
               <div class="step-instruction">使用手机应用扫描以下二维码，获取 6 位验证码。</div>
-              <el-image style="width: 150px; height: 150px" :src="mfaSetupResponse.qrCodeImageUri" alt="二维码" />
+              <img alt="qrcode-share-link" style="width: 150px; height: 150px" :src="qrCodeImage"/>
               <div class="step-instruction">密钥 ：{{ mfaSetupResponse.secret }}
                 <svg-icon
                   class="copy-btn"
@@ -63,6 +63,7 @@
 
 import settingApi from '@/api/setting-api'
 import Clipboard from 'clipboard'
+import QRCode from 'qrcode'
 
 export default {
   name: 'mfaConfig',
@@ -75,6 +76,7 @@ export default {
   data() {
     return {
       verifyLoading: false,
+      qrCodeImage: '',
       mfaSetupResponse: {
         mfaEnable: true,
         qrCodeImageUri: '',
@@ -91,6 +93,18 @@ export default {
     getMfaConfig() {
       settingApi.setupMfaConfig().then(res => {
         this.mfaSetupResponse = res.data
+        if (this.mfaSetupResponse.qrCodeImageUri) {
+          QRCode.toDataURL(this.mfaSetupResponse.qrCodeImageUri)
+            .then(url => {
+              this.qrCodeImage = url
+            })
+            .catch(error => {
+              console.error('QR code generation failed:', error)
+              this.$message.error('二维码生成失败，请刷新页面重试。')
+            })
+        } else {
+          this.qrCodeImage = ''
+        }
       })
     },
     copySecret(className) {
