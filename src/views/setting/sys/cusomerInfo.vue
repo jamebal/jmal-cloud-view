@@ -28,7 +28,7 @@
 
 <script>
 
-import MfaConfig from '@/views/setting/cloudSetting/mfaConfig.vue'
+import MfaConfig from '@/views/setting/sys/userSetting/mfaConfig.vue'
 import userSetting from '@/views/setting/sys/userSetting/index.vue'
 
 export default {

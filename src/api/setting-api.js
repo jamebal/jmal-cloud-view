@@ -1,10 +1,11 @@
 import request from '@/utils/request'
 
 export default {
-  setupMfaConfig() {
+  setupMfaConfig(params) {
     return request({
-      url: '/mfa/setup',
-      method: 'post'
+      url: '/public/mfa/setup',
+      method: 'get',
+      params
     })
   },
   enableMfaConfig(data) {
@@ -19,6 +20,19 @@ export default {
       url: '/mfa/disable',
       method: 'post',
       data
+    })
+  },
+  getMfaForceEnable() {
+    return request({
+      url: '/cloud/setting/mfa-force-enable',
+      method: 'get'
+    })
+  },
+  setMfaForceEnable(params) {
+    return request({
+      url: '/cloud/setting/mfa-force-enable',
+      method: 'put',
+      params
     })
   },
   getPreviewConfig(params) {

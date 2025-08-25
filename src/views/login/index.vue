@@ -6,7 +6,7 @@
     <div id='stars3'></div>
 
     <div class="login-content">
-      <el-card class="box-card">
+      <el-card class="login-card" v-if="!mfaForceEnable">
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
           <div class="title-container">
@@ -96,7 +96,10 @@
           <el-button v-if="mfaRequired" round :loading="verifyMfaCodeLoading" type="primary" style="width:100%;margin: 30px 0;" @click.native.prevent="verifyMfaCode">{{$t('login.verify')}}</el-button>
         </el-form>
       </el-card>
-      </div>
+      <el-card class="maf-card" v-if="mfaForceEnable">
+        <mfa-config :login-form="loginForm"></mfa-config>
+      </el-card>
+    </div>
     <footer id="footer" class="clearfix" style="font-size: 0.725rem;">
       <div v-if="!webstieRecord.footerHtml" class="copyright">
         <div>{{ webstieRecord.copyright }}</div>
@@ -114,10 +117,11 @@
 import { getWebstieRecord } from "@/api/setting-api"
 import { hasUser, initialization } from '@/api/user'
 import Logo from "@/components/Logo"
+import MfaConfig from '@/views/setting/sys/userSetting/mfaConfig.vue'
 
 export default {
   name: 'Login',
-  components: {Logo},
+  components: { MfaConfig, Logo},
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!this.validUsername(value)) {
@@ -170,6 +174,7 @@ export default {
       redirect: undefined,
       initialize: false,
       mfaRequired: false,
+      mfaForceEnable: false,
       backgroundImg: {
         background: "url("+require("@/assets/img/login-bg.png")+")",
         width: '100%',
@@ -251,8 +256,9 @@ export default {
             // 登录
             this.loading = true
             this.$store.dispatch('user/login', this.loginForm).then((data) => {
-              if (data && data.mfaRequired) {
-                this.mfaRequired = true
+              if (data && data.mfaToken) {
+                this.mfaRequired = data.mfaRequired
+                this.mfaForceEnable = data.mfaForceEnable
                 this.loginForm.mfaToken = data.mfaToken
                 this.loading = false
               } else {
@@ -334,7 +340,7 @@ $cursor: #409eff;
   backface-visibility: hidden;
 }
 
-.login-container {
+.login-card {
 
   .el-input {
     display: inline-block;
@@ -390,8 +396,12 @@ $light_gray:#eee;
     height: calc(100vh - 6px);
   }
 
-  .box-card {
+  .login-card {
     max-width: 316px;
+    border-radius: 16px;
+  }
+
+  .maf-card {
     border-radius: 16px;
   }
 
