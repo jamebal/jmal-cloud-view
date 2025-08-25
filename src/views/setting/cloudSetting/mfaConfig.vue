@@ -93,13 +93,18 @@ export default {
     getMfaConfig() {
       settingApi.setupMfaConfig().then(res => {
         this.mfaSetupResponse = res.data
-        QRCode.toDataURL(this.mfaSetupResponse.qrCodeImageUri)
-          .then(url => {
-            this.qrCodeImage = url
-          })
-          .catch(error => {
-            console.error(error)
-          })
+        if (this.mfaSetupResponse.qrCodeImageUri) {
+          QRCode.toDataURL(this.mfaSetupResponse.qrCodeImageUri)
+            .then(url => {
+              this.qrCodeImage = url
+            })
+            .catch(error => {
+              console.error('QR code generation failed:', error)
+              this.$message.error('二维码生成失败，请刷新页面重试。')
+            })
+        } else {
+          this.qrCodeImage = ''
+        }
       })
     },
     copySecret(className) {
