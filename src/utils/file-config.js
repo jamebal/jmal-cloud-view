@@ -63,7 +63,7 @@ export default {
   },
   // markdown里上传图片后的图片预览地址
   markdownPreviewUrl: function (path){
-    return window.location.origin + `${this.baseUrl}${path}`
+    return window.location.origin + `${path}`
   },
   // 预览文件
   preview: function(username, file, token) {
