@@ -34,7 +34,7 @@ export default {
     return `${callbackServerUrl}office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
-  previewUrl: function(username, file, token, shareToken, serverUrl) {
+  previewUrl: function(username, file, token, shareToken, serverUrl, joinToken) {
     let baseUrl = serverUrl || this.baseUrl
     let fileUrl = `${baseUrl}/file/${store.getters.name}${encodeURIComponent(file.path)}${encodeURIComponent(file.name)}`
     fileUrl = fileUrl.replaceAll(/%5C|%2F/g, '/')
@@ -44,6 +44,9 @@ export default {
     }
 
     if (token) {
+      if (joinToken) {
+        return `${fileUrl}?jmal-token=${token}&name=${username}`
+      }
       return `${fileUrl}`
     }
     if (shareToken) {

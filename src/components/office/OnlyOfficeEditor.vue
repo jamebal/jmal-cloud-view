@@ -282,7 +282,8 @@ export default {
       } else {
         callbackServer = 'http://jmalcloud:8088'
       }
-      this.fileUrl = fileConfig.previewUrl(file_username, this.file, this.$store.getters.token, undefined, callbackServer)
+      const withJoinToken = true;
+      this.fileUrl = fileConfig.previewUrl(file_username, this.file, this.$store.getters.token, undefined, callbackServer, withJoinToken)
       this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id + callbackServer)}`
       if (this.readOnly && window.shareId) {
         this.fileUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken, callbackServer)
