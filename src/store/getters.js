@@ -14,6 +14,7 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.user.menuList,
   fileClipboard: state => state.fileClipboard,
-  exactSearch: state => state.user.exactSearch
+  exactSearch: state => state.user.exactSearch,
+  isUploadDragEnabled: state => state.app.isUploadDragEnabled,
 }
 export default getters

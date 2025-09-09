@@ -557,6 +557,9 @@ export default {
                 item => item.index === throughRow.rowIndex
               ) === -1
             ) {
+              if (dragged == null) {
+                return
+              }
               // 改变本次进入的容器的状态
               dragged.style.cursor = 'copy'
 

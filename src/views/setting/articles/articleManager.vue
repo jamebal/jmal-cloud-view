@@ -265,7 +265,13 @@ export default {
       const tbody = document.querySelector('.el-table__body-wrapper tbody')
       const _this = this
       Sortable.create(tbody, {
+        animation: 150,
+        ghostClass: 'drop-background-class',
         onEnd({ newIndex, oldIndex }) {
+          _this.$store.dispatch('app/setUploadDragEnabled', true)
+          if (newIndex === oldIndex) {
+            return
+          }
           const currRow = _this.articleList.splice(oldIndex, 1)[0]
           _this.articleList.splice(newIndex, 0, currRow)
 

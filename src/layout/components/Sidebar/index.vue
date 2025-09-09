@@ -287,6 +287,10 @@ export default {
         animation: 150,
         ghostClass: 'drop-background-class',
         onEnd({ newIndex, oldIndex }) {
+          _this.$store.dispatch('app/setUploadDragEnabled', true)
+          if (newIndex === oldIndex) {
+            return
+          }
           const currRow = _this.tagList.splice(oldIndex, 1)[0]
           _this.tagList.splice(newIndex, 0, currRow)
 
@@ -641,10 +645,7 @@ $tagMenuBorderRadius: 8px;
     }
   }
 }
-.drop-background-class {
-  background-color: #409EFFD1;
-  border-radius: 4px;
-}
+
 .form-tag-color {
   display: flex;
   .svg-icon {
