@@ -268,7 +268,7 @@ export default {
         animation: 150,
         ghostClass: 'drop-background-class',
         onEnd({ newIndex, oldIndex }) {
-          window.temporaryEnableDrag = true
+          _this.$store.dispatch('app/setUploadDragEnabled', true)
           if (newIndex === oldIndex) {
             return
           }

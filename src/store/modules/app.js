@@ -20,7 +20,8 @@ const getDefaultState = () => {
       withoutAnimation: false
     },
     device: 'desktop',
-    lang: app ? app.lang : undefined
+    lang: app ? app.lang : undefined,
+    isUploadDragEnabled: true
   }
 }
 
@@ -46,6 +47,9 @@ const mutations = {
   },
   SET_LANG: (state, lang) => {
     state.lang = lang
+  },
+  SET_UPLOAD_DRAG_ENABLED: (state, isEnabled) => {
+    state.isUploadDragEnabled = isEnabled
   }
 }
 
@@ -69,6 +73,9 @@ const actions = {
   setLang({ commit }, lang) {
     commit('SET_LANG', lang)
     setStorage()
+  },
+  setUploadDragEnabled({ commit }, isEnabled) {
+    commit('SET_UPLOAD_DRAG_ENABLED', isEnabled)
   }
 }
 

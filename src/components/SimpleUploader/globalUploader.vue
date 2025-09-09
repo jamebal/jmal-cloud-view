@@ -243,23 +243,23 @@ export default {
     let that = this
     let dropbox = document.body
 
-    window.temporaryEnableDrag = true
+    this.$store.dispatch('app/setUploadDragEnabled', true)
 
-    dropbox.ondragstart = function (e) {
+    dropbox.addEventListener("dragstart", function (e) {
       if (e.target.closest('.sortable-chosen')) {
-        window.temporaryEnableDrag = false
+        that.$store.dispatch('app/setUploadDragEnabled', false)
       }
-      if (that.enableDragUpload && window.temporaryEnableDrag) {
+      if (that.enableDragUpload && that.$store.getters.isUploadDragEnabled) {
         if (e.target.slot === 'jmal') {
           that.isDragStart = true
         }
         return e.target.slot === 'jmal' && that.fileListScrollTop === 0
       }
       return true
-    }
+    });
 
     dropbox.addEventListener("dragenter", function (e) {
-      if (!window.temporaryEnableDrag) {
+      if (!that.$store.getters.isUploadDragEnabled) {
         return
       }
       e.stopPropagation();
@@ -267,7 +267,7 @@ export default {
     }, false);
 
     dropbox.addEventListener("dragover", function (e) {
-      if (!window.temporaryEnableDrag) {
+      if (!that.$store.getters.isUploadDragEnabled) {
         return
       }
       e.stopPropagation();
@@ -281,17 +281,8 @@ export default {
       }, 100)
     }, false);
 
-    dropbox.addEventListener("ondragleave", function (e) {
-      if (!window.temporaryEnableDrag) {
-        return
-      }
-      e.stopPropagation();
-      e.preventDefault();
-      that.dragover = false
-    }, false);
-
     dropbox.addEventListener("drop", function (e) {
-      if (!window.temporaryEnableDrag) {
+      if (!that.$store.getters.isUploadDragEnabled) {
         return
       }
       e.stopPropagation();
