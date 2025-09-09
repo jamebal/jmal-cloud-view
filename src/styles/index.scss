@@ -5,6 +5,12 @@
 @import './sidebar.scss';
 
 body {
+
+  .drop-background-class {
+    background-color: #409EFFD1;
+    border-radius: 4px;
+  }
+
   height: 100%;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;

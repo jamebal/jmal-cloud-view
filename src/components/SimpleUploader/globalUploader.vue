@@ -243,8 +243,13 @@ export default {
     let that = this
     let dropbox = document.body
 
-    document.body.ondragstart = function (e) {
-      if (that.enableDragUpload) {
+    window.temporaryEnableDrag = true
+
+    dropbox.ondragstart = function (e) {
+      if (e.target.closest('.sortable-chosen')) {
+        window.temporaryEnableDrag = false
+      }
+      if (that.enableDragUpload && window.temporaryEnableDrag) {
         if (e.target.slot === 'jmal') {
           that.isDragStart = true
         }
@@ -254,11 +259,17 @@ export default {
     }
 
     dropbox.addEventListener("dragenter", function (e) {
+      if (!window.temporaryEnableDrag) {
+        return
+      }
       e.stopPropagation();
       e.preventDefault();
     }, false);
 
     dropbox.addEventListener("dragover", function (e) {
+      if (!window.temporaryEnableDrag) {
+        return
+      }
       e.stopPropagation();
       e.preventDefault();
       clearInterval(that.dragoverLoop)
@@ -271,12 +282,18 @@ export default {
     }, false);
 
     dropbox.addEventListener("ondragleave", function (e) {
+      if (!window.temporaryEnableDrag) {
+        return
+      }
       e.stopPropagation();
       e.preventDefault();
       that.dragover = false
     }, false);
 
     dropbox.addEventListener("drop", function (e) {
+      if (!window.temporaryEnableDrag) {
+        return
+      }
       e.stopPropagation();
       e.preventDefault();
       that.dragover = false
