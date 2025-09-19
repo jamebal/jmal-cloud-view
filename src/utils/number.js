@@ -138,7 +138,7 @@ export function formatSize(size) {
     index++;
   }
 
-  return result.toFixed(1) + units[index];
+  return result.toFixed(2) + units[index];
 }
 
 /**
