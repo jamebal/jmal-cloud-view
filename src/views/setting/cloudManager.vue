@@ -291,7 +291,6 @@ export default {
         this.calculateFolderSizeLoading = true;
         settingApi.recalculateFolderSize()
           .catch(() => {
-            this.$message.error('Failed to initiate folder size recalculation.');
             this.calculateFolderSizeLoading = false;
           });
       }).catch(() => {});

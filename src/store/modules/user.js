@@ -289,6 +289,9 @@ function getMenuTree(menuList) {
         }
       ]
     }
+    if (menu.path === '/articles' && menu.component === '/articles' && menu.icon === 'blogger') {
+      menu.path = `${window.location.origin}/articles`
+    }
     router.path = menu.path
     router.component = Layout
     router.menuType = menu.menuType
