@@ -50,12 +50,11 @@
       <div class="popper-arrow"></div>
       <ul v-for="item in menus" :key="item.label">
         <li class="menu-option" @click="menusOperations(item.operation)">
-          <div class="menuitem home-contextmenu">
+          <label class="menuitem">
             <svg-icon :icon-class="item.iconClass"/>
-            <div class="home-contextmenu-title">
-              <span class="menuitem text">{{ item.label }}</span>
-            </div>
-          </div>
+            <span class="menuitem text">{{ item.label }}</span>
+          </label>
+
         </li>
       </ul>
     </e-vue-contextmenu>
@@ -1138,18 +1137,33 @@ export default {
 <style lang="scss" scoped>
 @import 'src/styles/index';
 @import 'src/styles/home-index';
+
+@import "src/styles/element-ui";
+
+>>> .ctx-menu-container {
+  border: 0 solid rgba(0, 0, 0, 0) !important;
+  min-width: unset !important;
+  border-radius: $dialogBorderRadius !important;
+
+  .menu-option {
+    margin: 0 5px;
+    padding: 0 10px;
+  }
+
+}
+
 /*.el-breadcrumb {*/
 /*margin: 50px;*/
 .dashboard-container {
-  min-width: 1024px;
-  margin: 10px 0;
+  margin: 0;
+  padding: 10px 0;
 }
 
 .header-location {
   display: block;
   height: 1px;
   width: 100%;
-  margin: 0px 0;
+  margin: 0;
 }
 
 .search-class {
@@ -1232,10 +1246,6 @@ export default {
   > > > .el-divider__text.is-center {
     position: relative;
   }
-}
-
-.newFileMenu li > .menuitem > .text {
-  margin-left: 10px;
 }
 
 .share-content {
