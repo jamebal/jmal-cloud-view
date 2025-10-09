@@ -173,6 +173,9 @@ export default {
             { required: true, message: '请输入密码', trigger: 'blur' },
             { min: 6, message: '密码不能小于6个字符', trigger: 'blur' }
           ],
+          roles: [
+            { required: true, message: '请选择角色', trigger: 'change' }
+          ],
           checkPass: [
             { required: true, validator: validatePass, trigger: 'blur' }
           ],
