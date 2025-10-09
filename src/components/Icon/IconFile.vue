@@ -52,7 +52,7 @@
     </div>
     <svg-icon v-if="item.isFolder" icon-class="folder"/>
     <div v-else-if="item.contentType && item.contentType.indexOf('video') > -1">
-      <div v-if="item.mediaCover === undefined || item.mediaCover === 'true'">
+      <div v-if="item.mediaCover !== false && item.mediaCover !== 'false'">
         <div v-if="grid && pc && !details" class="grid-play-icon">
           <svg-icon icon-class="play1"/>
         </div>

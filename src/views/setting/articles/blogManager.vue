@@ -146,7 +146,7 @@ export default {
   },
   data() {
     return {
-      blogUrlExample: `${window.location.protocol}//${window.location.host}/blog`,
+      blogUrlExample: `${window.location.protocol}//${window.location.host}/articles`,
       subpage: false,
       activeName: '1',
       example: '<i class="fab fa-github">github</i>',

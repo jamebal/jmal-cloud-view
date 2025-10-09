@@ -703,7 +703,6 @@
         }
       },
       treeNodeClick(row) {
-        console.log('row', row)
         if(row.isFolder){
           return
         }

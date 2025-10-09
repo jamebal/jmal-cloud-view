@@ -46,7 +46,7 @@
 
     <!--标签菜单-->
     <e-vue-contextmenu ref="contextShow" @ctx-show="show" @ctx-hide="hide">
-      <div ref="contextShow" class="tag-menu">
+      <div class="tag-menu">
         <ul>
           <li v-for="(item, index) in tagMenus" :key="item.label" @click="tagMenusOperation(item.operation)">
             <label class="menuitem">

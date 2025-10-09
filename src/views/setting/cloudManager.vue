@@ -291,7 +291,7 @@ export default {
         this.calculateFolderSizeLoading = true;
         settingApi.recalculateFolderSize()
           .catch(() => {
-            this.$message.error('Failed to initiate folder size recalculation.');
+            this.$message.error('重新计算文件夹大小失败。');
             this.calculateFolderSizeLoading = false;
           });
       }).catch(() => {});
