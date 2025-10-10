@@ -581,6 +581,7 @@
 
     <!--展示压缩文件-->
     <el-dialog
+      class="compressed-file"
       :title="'预览:' + compressedFileName"
       :visible.sync="compressedFileVisible"
     >
@@ -1097,5 +1098,11 @@ export default {
 @import 'src/styles/index';
 @import 'src/styles/home-index';
 @import "./style/index";
+
+.compressed-file {
+  >>> .el-dialog__body {
+    padding: 0 20px 20px 20px;
+  }
+}
 
 </style>
