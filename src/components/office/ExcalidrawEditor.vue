@@ -130,7 +130,7 @@ export default {
           this.file.path = res.data.path
           this.loadData(res.data.contentText)
           this.currentContext = res.data.contentText
-          this.excalidrawUrl = `${window.location.origin}/excalidraw/app/`
+          this.excalidrawUrl = `${window.location.origin}/excalidraw/app/index.html`
         })
         this.$nextTick(() => {
           this.$refs.historyPopover.loadHistoryList(this.file.id)
