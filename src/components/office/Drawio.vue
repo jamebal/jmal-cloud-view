@@ -29,7 +29,6 @@
 
 import api from '@/api/file-api'
 import txtApi from "@/api/markdown-api"
-import Bus from "@/assets/js/bus";
 import HistoryPopover from "@/components/HistoryPopover/index.vue";
 import historyApi from "@/api/file-history";
 import {mapState} from "vuex";
@@ -85,7 +84,7 @@ export default {
     let theme = 'kennedy'
     let title = this.file.name ? encodeURIComponent(this.file.name) : ''
     let query = `?title=${title}&chrome=${chrome}&lightbox=${lightbox}&ui=${theme}&lang=${language}&offline=0&pwa=0&embed=1&noLangIcon=1&noExitBtn=1&noSaveBtn=1&saveAndExit=0&spin=1&proto=json`
-    this.url = $J.apiUrl(`../drawio/webapp/${query}`)
+    this.url = $J.apiUrl(`../drawio/webapp/index.html${query}`)
   },
   mounted() {
     window.addEventListener('message', this.handleMessage)
@@ -289,7 +288,7 @@ export default {
           break
 
         case "autosave":
-          let undo = doc.querySelector('.geSprite.geSprite-undo')
+          let undo = doc.querySelector('.geButton[title*="撤销"]')
           if (undo && !this.viewHistory) {
             let undoClass = undo.parentElement.getAttribute('class')
             if (undoClass && undoClass.indexOf('mxDisabled') > -1) {
