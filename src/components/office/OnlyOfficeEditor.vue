@@ -135,7 +135,11 @@ export default {
     }
   },
   mounted() {
-    this.$emit('update-style', { height: '32px', width: '32px', marginRight: '150px' })
+    if (this.$pc) {
+      this.$emit('update-style', { height: '32px', width: '32px', right: '150px' })
+    } else {
+      this.$emit('update-style', { height: '44px', width: '44px', right: 'auto' })
+    }
   },
   destroyed() {
   },
@@ -389,7 +393,6 @@ export default {
       let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
 
       if (!this.$pc) {
-        parentDoc.style.top = '5rem'
         doc.querySelector('.navbar.main-navbar.navbar-with-logo').style.height = '0'
       }
 

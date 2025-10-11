@@ -207,7 +207,7 @@ export default {
       this.show = false
       this.readyShow = false
       this.$emit('update:status', false)
-      this.updateCloseStyle({ height: '40px', width: '40px', marginRight: '0' })
+      this.updateCloseStyle({ height: '40px', width: '40px', right: '0' })
     },
     /**
      * 文件内容已经加载好了
