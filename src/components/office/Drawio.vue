@@ -1,5 +1,5 @@
 <template>
-  <div class="drawio-content" :style="{'top': readOnly ? '0': '2.5rem'}">
+  <div class="drawio-content">
     <div class="drawio-title">
       <div class="drawio-title-name" :style="{'color': saved ? (lightTheme ? '':'#ffffff'): '#ff8200'}">{{title}}</div>
       <div class="drawio-operation">
@@ -88,6 +88,7 @@ export default {
   },
   mounted() {
     window.addEventListener('message', this.handleMessage)
+    this.$emit('update-style', { height: '32px', width: '32px' })
   },
   beforeDestroy() {
     window.removeEventListener('message', this.handleMessage)
@@ -280,6 +281,9 @@ export default {
           }
           break
         case "load":
+          if (!this.xml) {
+            break
+          }
           if (this.xml.length < 1) {
             editWindow.postMessage(JSON.stringify({
               action: "template"
@@ -313,15 +317,29 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+>>> .close-container {
+  height: 32px;
+  width: 32px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  align-items: center;
+}
+</style>
 
 <style lang="scss" scoped>
 .drawio-content {
   z-index: 999;
   position: absolute;
-  top: 2.5rem;
+  top: -1px;
   left: 0;
   width: 100%;
-  height: calc(100% - 2.5rem);
+  height: 100%;
 
   >>>.dark-button {
     background: #3e3e3e;
@@ -338,7 +356,7 @@ export default {
     position: relative;
 
     .drawio-title-name {
-      line-height: 32px;
+      line-height: 30px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -355,8 +373,8 @@ export default {
     .drawio-operation {
       display: flex;
       float: right;
-      margin-right: 15px;
-      line-height: 32px;
+      margin-right: 45px;
+      line-height: 30px;
     }
   }
 

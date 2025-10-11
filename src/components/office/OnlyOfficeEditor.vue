@@ -134,6 +134,9 @@ export default {
       }
     }
   },
+  mounted() {
+    this.$emit('update-style', { height: '32px', width: '32px', marginRight: '150px' })
+  },
   destroyed() {
   },
   methods: {

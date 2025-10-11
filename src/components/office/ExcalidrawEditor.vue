@@ -28,13 +28,13 @@
             </el-button>
           </div>
           <div>
-            <el-button round title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
+            <el-button round title="外部打开" size="mini" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="excalidraw-content" :style="{'top': readOnly ? '0': '2.5rem'}">
+    <div class="excalidraw-content" :style="{'top': readOnly ? '0': '39px'}">
       <iframe ref="excalidrawIframe" class="excalidraw-iframe" :src="excalidrawUrl" :title="file.name"></iframe>
     </div>
 
@@ -347,10 +347,10 @@ export default {
 .excalidraw-content {
   z-index: 999;
   position: absolute;
-  top: 2.5rem;
+  top: 39px;
   left: 0;
   width: 100%;
-  height: calc(100% - 2.5rem);
+  height: calc(100% - 39px);
 
   > > > .dark-button {
     background: #3e3e3e;
