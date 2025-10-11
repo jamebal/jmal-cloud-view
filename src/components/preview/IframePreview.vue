@@ -43,7 +43,6 @@ import ExcalidrawEditor from '@/components/office/ExcalidrawEditor.vue'
 import ModelPreview from '@/components/office/ModelPreview.vue'
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
-import Artplayer from '@/components/preview/Artplayer.vue'
 import IframeContentPreview from '@/components/preview/IframeContentPreview.vue'
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
@@ -52,7 +51,6 @@ import Drawio from "@/components/office/Drawio";
 export default {
   name: 'IframePreview',
   components: {
-    Artplayer,
     ExcalidrawEditor, IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor,
     MyMindEditor: () => import('@/components/Minder/minder'),
     CADPreview: () => import('@/components/preview/CADPreview.vue')
@@ -207,7 +205,8 @@ export default {
       this.show = false
       this.readyShow = false
       this.$emit('update:status', false)
-      this.updateCloseStyle({ height: '40px', width: '40px', right: '0' })
+      // 重置关闭按钮样式
+      this.closeStyle = this.$options.data().closeStyle
     },
     /**
      * 文件内容已经加载好了
@@ -306,9 +305,6 @@ export default {
 }
 
 .preview-block {
-  //position: fixed;
-  //top: 0;
-  //left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,.7);
@@ -317,14 +313,7 @@ export default {
   .close-bar {
     position: relative;
     float: right;
-    //font-size: 18px;
-    //color: #fff0f0;
     z-index: 2002;
-    ////background: #d4d4d475;
-    //border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #69696975;
-    //>>> .el-button {
-    //  background: #d4d4d475;
-    //}
   }
 
 }

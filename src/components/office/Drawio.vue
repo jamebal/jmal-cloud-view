@@ -88,7 +88,7 @@ export default {
   },
   mounted() {
     window.addEventListener('message', this.handleMessage)
-    this.$emit('update-style', { height: '32px', width: '32px' })
+    this.$emit('update-style', { height: '30px', width: '30px' })
   },
   beforeDestroy() {
     window.removeEventListener('message', this.handleMessage)
@@ -317,20 +317,6 @@ export default {
   },
 }
 </script>
-<style lang="scss">
->>> .close-container {
-  height: 32px;
-  width: 32px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  align-items: center;
-}
-</style>
 
 <style lang="scss" scoped>
 .drawio-content {
