@@ -12,17 +12,24 @@
     </message-dialog>
     <div class="office-preview" v-if="show" v-loading="!readyShow">
         <div class="preview-block" v-show="readyShow">
-          <div class="close-bar" @click="beforeClose">
-            <svg-icon class="preview-close" icon-class="close"/>
-          </div>
+<!--          <div class="close-bar" @click="beforeClose">-->
+<!--            <svg-icon class="preview-close" icon-class="close"/>-->
+<!--          </div>-->
+
+         <div class="close-container" :style="closeStyle">
+           <div class="close-bar" @click="beforeClose">
+             <el-button round icon="el-icon-close" type="info" size="mini" title="关闭" circle></el-button>
+           </div>
+         </div>
+
           <div class="wrapper">
             <CADPreview v-if="fileType === 'cad'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></CADPreview>
             <pdf-preview v-else-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
-            <drawio v-else-if="fileType === 'drawio'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></drawio>
-            <excalidraw-editor v-else-if="fileType === 'excalidraw'" v-show="fileReday" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></excalidraw-editor>
+            <drawio v-else-if="fileType === 'drawio'" v-show="fileReady" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close" @update-style="updateCloseStyle"></drawio>
+            <excalidraw-editor v-else-if="fileType === 'excalidraw'" v-show="fileReady" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close" @update-style="updateCloseStyle"></excalidraw-editor>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
             <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></model-preview>
-            <only-office-editor ref="officeEditor" v-else-if="fileType === 'office'" :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady"></only-office-editor>
+            <only-office-editor ref="officeEditor" v-else-if="fileType === 'office'" :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onReady="onReady" @update-style="updateCloseStyle"></only-office-editor>
             <iframe-content-preview v-else :file="file" :fileHandler="fileHandler" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></iframe-content-preview>
           </div>
         </div>
@@ -93,7 +100,10 @@ export default {
       saved: true,
       previewDocument: {},
       delayClosing: {},
-      fileReday: false,
+      fileReady: false,
+      closeStyle: {
+        height: '40px', width: '40px'
+      }
     }
   },
   computed: {
@@ -129,6 +139,9 @@ export default {
     }
   },
   methods: {
+    updateCloseStyle(newStyle) {
+      this.closeStyle = { ...this.closeStyle, ...newStyle }
+    },
     /**
      * 按esc键
      */
@@ -192,6 +205,8 @@ export default {
       this.show = false
       this.readyShow = false
       this.$emit('update:status', false)
+      // 重置关闭按钮样式
+      this.closeStyle = this.$options.data().closeStyle
     },
     /**
      * 文件内容已经加载好了
@@ -199,7 +214,7 @@ export default {
     onReady() {
       this.saved = true
       this.readyShow = true
-      this.fileReday = true
+      this.fileReady = true
       if (['drawio', 'office'].includes(this.fileType)) {
         this.previewDocument.style.zIndex = 9999
         this.$nextTick(() => {
@@ -257,15 +272,6 @@ export default {
       if (this.$store.state.user.token && file.operationPermissionList && file.operationPermissionList.indexOf('PUT') > -1) {
         this.readOnly = false
       }
-      if (!this.$pc && this.fileType === 'office') {
-        this.readOnly = true
-        this.$nextTick(() => {
-          const closeBar = document.querySelector('.office-preview .close-bar');
-          closeBar.style.right = '2.5rem'
-          closeBar.style.float = 'left'
-          closeBar.style.transform = 'rotate(225deg)'
-        })
-      }
       this.fileUrl = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, this.file, this.$store.getters.token)
       if(this.readOnly && window.shareId){
         this.fileUrl = window.location.origin + fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken)
@@ -287,62 +293,36 @@ export default {
 
 }
 
-.van-overlay {
-  position: fixed;
+.close-container {
+  position: absolute;
   top: 0;
-  left: 0;
-  z-index: 1003;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,.7);
+  right: 0;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .preview-block {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,.7);
-  z-index: 2001;
+  z-index: 1998;
 
   .close-bar {
-    z-index: 2000;
-    background-color: rgba(0,0,0,.5);
     position: relative;
-    top: -2.5rem;
-    right: -2.5rem;
     float: right;
-    width: 0;
-    height: 0;
-    border-radius: 2.5rem;
-    border-width: 2.5rem;
-    border-style: solid;
-    border-color: transparent transparent transparent #d4d4d475;
-    line-height: 2.5rem;
-    opacity: 1;
-    transform: rotate(-45deg);
+    z-index: 2002;
   }
 
-  .close-bar:hover {
-    cursor: pointer;
-    border-color: transparent transparent transparent #69696975;
-  }
-
-  .preview-close {
-    transform: rotate(-45deg);
-    position: absolute;
-    font-size: 1.25rem;
-    top: -8px;
-    right: 13px;
-  }
 }
 
 .wrapper {
 
   >>> .component-only-office {
     position: absolute;
-    top: 2.5rem;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;

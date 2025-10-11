@@ -5,7 +5,7 @@
       <div class="top-center">{{file.name}}</div>
       <div class="top-right">
         <div class="top-right-option">
-          <el-select v-if="services.length > 1" size="medium" v-model="url" placeholder="请选择">
+          <el-select v-if="services.length > 1" size="mini" v-model="url" placeholder="请选择">
             <el-option
               v-for="item in services"
               :key="item.value"
@@ -13,7 +13,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-          <el-button round title="外部打开" size="medium" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
+          <el-button round title="外部打开" size="mini" type="primary" @click="openUrl"><svg-icon icon-class="wailian"/></el-button>
         </div>
       </div>
     </div>

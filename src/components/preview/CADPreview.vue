@@ -5,9 +5,9 @@
       <div class="top-center">{{ file.name }}</div>
       <div class="top-right">
         <div class="top-right-option">
-          <el-button round title="切换背景色" size="medium" type="primary" @click="changeBackground"
+          <el-button round title="切换背景色" size="mini" type="primary" @click="changeBackground"
                      :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"></el-button>
-          <el-button round title="显示全部" size="medium" type="primary" @click="reset"
+          <el-button round title="显示全部" size="mini" type="primary" @click="reset"
                      icon="el-icon-c-scale-to-original"></el-button>
         </div>
       </div>

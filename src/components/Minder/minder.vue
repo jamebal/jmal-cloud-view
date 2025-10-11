@@ -539,7 +539,6 @@ export default {
 
 .minder-editor-container {
   position: absolute;
-  top: 2.5rem;
 
   .minder-title {
     text-align: center;

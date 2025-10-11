@@ -945,9 +945,9 @@ export default {
       } else {
         this.menuTriangle = 'menu-triangle-bottom'
         e.pageX = event.pageX - 78
-        e.pageY = event.pageY - 350
+        e.pageY = event.pageY - 150
         e.clientX = event.clientX + 78
-        e.clientY = event.clientY - 350
+        e.clientY = event.clientY - 150
       }
       if (!this.isJustHideMenus) {
         this.$refs.contextShow.showMenu(e)

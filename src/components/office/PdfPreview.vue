@@ -56,7 +56,7 @@ export default {
 <style lang="scss" scoped>
 .pdf-office {
   position: absolute;
-  top: 2.5rem;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
