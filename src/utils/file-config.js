@@ -8,9 +8,8 @@ function isFilePath(str) {
   return filePathRegex.test(str);
 }
 
-function internalHasIframePreview(suffix, fileHandlers) {
+function internalHasIframePreview(lowerCaseSuffix, fileHandlers) {
   // 将 suffix 转换为小写
-  const lowerCaseSuffix = suffix.toLowerCase();
   for (let key in fileHandlers) {
     // 将 key 中的扩展名全部转换为小写
     const extensions = key.split(',').map(extension => extension.toLowerCase());
@@ -154,7 +153,6 @@ export default {
     if (fileHandler !== null) {
       return fileHandler
     }
-    console.log('hasIframePreview fileHandler', fileHandler)
     if (lowerCaseSuffix === 'pdf' || lowerCaseSuffix === 'epub') {
       return internalHasIframePreview(lowerCaseSuffix, JSON.parse(defaultPreviewConfig))
     }

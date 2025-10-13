@@ -54,7 +54,6 @@ export default {
   },
   methods: {
     iframeLoad() {
-      console.log('this.fileHandler', this.fileHandler)
       if (this.fileHandler) {
         for (let service in this.fileHandler) {
           const urlTemplate = this.fileHandler[service]
