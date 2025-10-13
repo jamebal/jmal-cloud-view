@@ -54,6 +54,7 @@ export default {
   },
   methods: {
     iframeLoad() {
+      console.log('this.fileHandler', this.fileHandler)
       if (this.fileHandler) {
         for (let service in this.fileHandler) {
           const urlTemplate = this.fileHandler[service]
@@ -89,8 +90,6 @@ export default {
     },
     onReady() {
       this.$emit('onReady')
-      // this.url = 'http://192.168.0.233:8012/onlinePreview?url='+encodeURIComponent(this.base64EncodeUnicode('https://cloud.jmal.top/api/file/jmal/tewo/海印缤缤广场/冷机智能控制系统布线图.pdf'))
-      //this.url = 'https://alist-org.github.io/pdf.js/web/viewer.html?file=' + encodeURIComponent('http://localhost:9528/api/file/jmal/jmal/share/滨滨广场冷冻侧采集箱布线图_副本 (1).pdf')
       if (!this.url) {
         this.$emit('loadFileFailed')
       }

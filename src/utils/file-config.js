@@ -1,10 +1,24 @@
 import fileApi from '@/api/file-api'
 import store from '@/store'
+import { defaultPreviewConfig } from '@/utils/index'
 
 function isFilePath(str) {
   // 匹配 test/r2/file.txt
   const filePathRegex = /^[\w\-\/]+[\u4e00-\u9fa5\w\-]+\.\w+$/;
   return filePathRegex.test(str);
+}
+
+function internalHasIframePreview(suffix, fileHandlers) {
+  // 将 suffix 转换为小写
+  const lowerCaseSuffix = suffix.toLowerCase();
+  for (let key in fileHandlers) {
+    // 将 key 中的扩展名全部转换为小写
+    const extensions = key.split(',').map(extension => extension.toLowerCase());
+    if (extensions.includes(lowerCaseSuffix)) {
+      return fileHandlers[key];
+    }
+  }
+  return null;
 }
 
 export default {
@@ -136,12 +150,13 @@ export default {
   hasIframePreview: function(suffix, fileHandlers) {
     // 将 suffix 转换为小写
     const lowerCaseSuffix = suffix.toLowerCase();
-    for (let key in fileHandlers) {
-      // 将 key 中的扩展名全部转换为小写
-      const extensions = key.split(',').map(extension => extension.toLowerCase());
-      if (extensions.includes(lowerCaseSuffix)) {
-        return fileHandlers[key];
-      }
+    const fileHandler = internalHasIframePreview(suffix, fileHandlers)
+    if (fileHandler !== null) {
+      return fileHandler
+    }
+    console.log('hasIframePreview fileHandler', fileHandler)
+    if (lowerCaseSuffix === 'pdf' || lowerCaseSuffix === 'epub') {
+      return internalHasIframePreview(lowerCaseSuffix, JSON.parse(defaultPreviewConfig))
     }
     return null;
   },
