@@ -22,6 +22,7 @@
 <script>
 
 import settingApi from '@/api/setting-api'
+import { defaultPreviewConfig } from '@/utils'
 
 export default {
   name: 'PreviewConfig',
@@ -47,14 +48,7 @@ export default {
     }
     return {
       saveConfigLoading: false,
-      defaultIframeConfig: '{\n' +
-        '    "pdf": {\n' +
-        '        "PDF.js": "/pdf.js/web/viewer.html?file=$e_url"\n' +
-        '    },\n' +
-        '    "epub": {\n' +
-        '        "epub.js": "/resource/epubjs/viewer.html?url=$e_url"\n' +
-        '    }\n' +
-        '}',
+      defaultIframeConfig: defaultPreviewConfig,
       configFormData: {
         iframe: '',
       },

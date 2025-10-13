@@ -105,3 +105,12 @@ export function param2Obj(url) {
       '"}'
   )
 }
+
+export const defaultPreviewConfig = `{
+    "pdf": {
+        "PDF.js": "/pdf.js/web/viewer.html?file=$e_url"
+    },
+    "epub": {
+        "epub.js": "/resource/epubjs/viewer.html?url=$e_url"
+    }
+}`
