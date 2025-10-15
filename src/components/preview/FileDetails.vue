@@ -86,6 +86,9 @@
           <el-form-item label="SHA265:">
             <span> {{ file.etag }}</span>
           </el-form-item>
+          <el-form-item v-if="file.isFolder && file.childrenCount >= 0" label="内容数量:">
+            <span> {{ file.childrenCount }}</span> 个
+          </el-form-item>
           <el-form-item label="上传时间:">
             <span>{{ file.uploadDate }}</span>
           </el-form-item>
