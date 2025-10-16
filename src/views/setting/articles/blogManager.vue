@@ -314,16 +314,16 @@ export default {
 
 .box-card-header {
   padding: 15px 20px;
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid #414243;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  background: rgba(235, 235, 235, 0.3);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
 
 >>> .el-divider__text {
-  background-color: #fafafa;
+  background-color: var(--bg-color);
+  border-radius: 4px;
 }
 
 .side-toolbar-list {

@@ -656,7 +656,7 @@ export default {
         display: flex;
         align-items: center;
         gap: 4px;
-        color: #606266;
+        color: var(--text-color);
         font-size: 14px;
         padding: 8px 12px;
         border-radius: 6px;
@@ -679,7 +679,7 @@ export default {
 
         .el-range-input {
           background: transparent;
-          color: #606266;
+          color: var(--text-color);
         }
 
         .el-range-separator {
@@ -731,7 +731,7 @@ export default {
       margin: 0;
       background-color: #f5f7fa;
       border-color: transparent;
-      color: #606266;
+      color: var(--text-color);
 
       .el-tag__close {
         background-color: transparent;

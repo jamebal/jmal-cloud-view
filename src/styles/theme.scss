@@ -1,0 +1,30 @@
+:root {
+  --bg-color: #fff;
+  --setting-bg: #fafafa;
+  --primary-color: #409eff;
+  --title-color: #0a001f;
+  --login-bg: linear-gradient(#002766, 30%, #0040f4);
+  --input-bord-corlor: #DCDFE6;
+  --menu-bg: #f5f5f5;
+  --menu-hover: #0000001a;
+  --scrollbar-thumb-color: #c0c0c0;
+  --scrollbar-thumb-hover-color: #999;
+  --scrollbar-track-piece-color: #fff;
+  --text-color: #434343;
+  --dialog-border: none;
+}
+html.dark {
+  --bg-color: #0d1117;
+  --setting-bg: #232323;
+  --primary-color: #409eff;
+  --title-color: #e0e0e0;
+  --login-bg: linear-gradient(#000e2c, 30%, #000000);
+  --input-bord-corlor: #4c4d4f;
+  --menu-bg: #1f1f1f;
+  --menu-hover: #ffffff1a;
+  --scrollbar-thumb-color: #5a5a5a;
+  --scrollbar-thumb-hover-color: #888888;
+  --scrollbar-track-piece-color: #0c1116;
+  --text-color: #e5eaf3;
+  --dialog-border: 1px solid #414243;
+}

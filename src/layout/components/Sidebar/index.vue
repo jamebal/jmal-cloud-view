@@ -500,7 +500,7 @@ $tagMenuBorderRadius: 8px;
       line-height: 30px;
       padding: 0 5px 0 5px;
       font-size: 14px;
-      color: #606266;
+      color: var(--text-color);
       cursor: pointer;
       margin: 2px 10px;
       white-space: nowrap;
@@ -611,6 +611,7 @@ $tagMenuBorderRadius: 8px;
   }
 }
 .webdav {
+  color: var(--text-color);
   .normal {
     font-size: 1.5rem;
     height: 46px;

@@ -150,7 +150,7 @@ ul li >>>.el-tree .el-tree-node__content{
   font-weight: 700;
 }
 .el-tree >>>.is-current .el-tree-node__children .el-tree-node__label{
-  color:#606266;
+  color:var(--text-color);
   font-weight: normal;
 }
 .selectInput{

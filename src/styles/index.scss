@@ -3,8 +3,11 @@
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
+@import './theme.scss';
 
 body {
+  color: var(--text-color);
+  background-color: var(--bg-color);
 
   .drop-background-class {
     background-color: #409EFFD1;
@@ -173,7 +176,7 @@ body {
     .date-range-title {
       margin: 0 0 10px;
       font-size: 12px;
-      color: #606266;
+      color: var(--text-color);
     }
 
     .modern-date-picker {
@@ -194,7 +197,7 @@ body {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
-    color: #606266;
+    color: var(--text-color);
     font-size: 12px;
   }
 
@@ -221,14 +224,15 @@ body {
 >>>::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
   height: 30px;
-  background-color: #c0c0c0;
+  background-color: var(--scrollbar-thumb-color);
+
   -webkit-border-radius: 7px;
-  outline: 2px solid #fff;
+  outline: 2px solid var(--scrollbar-track-piece-color);
   outline-offset: -2px;
-  border: 2px solid #fff;
+  border: 2px solid var(--scrollbar-track-piece-color);
 }
 >>>::-webkit-scrollbar-thumb:hover {
-  background-color: #999;
+  background-color: var(--scrollbar-thumb-hover-color);
 }
 >>>::-webkit-scrollbar-track {
   /*滚动条里面轨道*/
@@ -237,7 +241,7 @@ body {
   /*border-radius: 10px;*/
 }
 >>>::-webkit-scrollbar-track-piece {
-  background-color: #fff;
+  background-color: var(--scrollbar-track-piece-color);
   -webkit-border-radius: 3px;
 }
 

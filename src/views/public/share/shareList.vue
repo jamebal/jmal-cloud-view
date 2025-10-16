@@ -1330,7 +1330,7 @@ export default {
   margin-top: 5px;
   cursor: default;
   text-align: center;
-  color: #606266;
+  color: var(--text-color);
   font-size: small;
   overflow: hidden;
   white-space: nowrap;

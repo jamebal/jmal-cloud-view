@@ -3,6 +3,8 @@ import { setFavicon } from '@/utils/logo'
 import '@/utils/common'
 import '@/utils/web'
 
+import 'element-theme-darkplus/lib/index.color.css';
+
 import '@/styles/index.scss' // global css
 import uploader from 'vue-simple-uploader'
 import EVueContextmenu from 'e-vue-contextmenu'
@@ -53,6 +55,18 @@ const i18n = new VueI18n({
   fallbackLocale: 'en_US',
   messages,
 });
+
+// 自动切换主题
+// function applySystemTheme() {
+//   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+//   document.documentElement.classList.toggle('dark', isDark);
+// }
+//
+// applySystemTheme();
+//
+// window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+//   document.documentElement.classList.toggle('dark', e.matches);
+// });
 
 new Vue({
   el: '#app',

@@ -72,9 +72,10 @@ a:hover {
   margin-top: -32px;
 }
 >>> .el-collapse-item__content, >>>.el-tab-pane {
-  background-color: #fafafa;
+  background-color: var(--setting-bg);
   padding: 0 30px 20px;
 }
+
 .config-itme-label {
   padding-top: 15px;
   padding-bottom: 5px;
@@ -126,11 +127,9 @@ a:hover {
   .el-dialog__header {
     padding-top: 14px;
     padding-bottom: 11px;
-    border-bottom: 1px solid #ededed;
   }
   .el-dialog__footer {
     padding-bottom: 12px;
-    border-top: 1px solid #f4f4f4;
   }
 }
 .form-slogan {
@@ -157,6 +156,7 @@ a:hover {
   }
 }
 .table-top {
+  margin-bottom: 15px;
   .table-top-right {
     float: right;
     margin-top: -28px;

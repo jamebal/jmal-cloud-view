@@ -300,7 +300,7 @@
           if (currentTime > targetTime) {
             return '#F56C6C'
           } else {
-            return '#606266'
+            return 'var(--text-color)'
           }
         }
       },
@@ -576,7 +576,7 @@
     font-size: 18px;
   }
   .header-font {
-    color: #606266;
+    color: var(--text-color);
     font-size: 14px;
     font-weight: 500;
   }

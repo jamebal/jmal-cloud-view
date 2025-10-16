@@ -26,6 +26,6 @@
   }
 
   .el-checkbox__input.is-checked+.el-checkbox__label {
-    color: #606266;
+    color: var(--text-color);
   }
 }

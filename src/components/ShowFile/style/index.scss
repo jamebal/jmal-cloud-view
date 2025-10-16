@@ -146,6 +146,7 @@
   background-size: cover;
   background-position: center;
   border-radius: $dialogBorderRadius !important;
+  background-color: var(--bg-color);
   padding: 0;
 }
 
@@ -215,7 +216,7 @@
   border-radius: 12px;
   margin-bottom: 10px;
   .el-checkbox {
-    color: #606266;
+    color: var(--text-color);
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
@@ -250,7 +251,7 @@
 .search-option-btn {
   padding: 4px;
   margin-right: 4px;
-  color: #606266;
+  color: var(--text-color);
   :hover {
     color: #409EFF;
   }

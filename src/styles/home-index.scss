@@ -294,7 +294,7 @@
   margin-top: 5px;
   cursor: default;
   text-align: center;
-  color: #606266;
+  color: var(--text-color);
   font-size: small;
   //flex: 1;
   //align-items: center;
@@ -308,7 +308,7 @@
 >>> .grid-item-text-input {
   cursor: default;
   text-align: center;
-  color: #606266;
+  color: var(--text-color);
   font-size: small;
   word-wrap: break-word;
   width: -webkit-fill-available;

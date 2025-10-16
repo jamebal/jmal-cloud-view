@@ -234,6 +234,7 @@ $input-sizes: (
 
 >>> .el-dialog, .box-card {
   border-radius: $dialogBorderRadius;
+  border: var(--dialog-border);
 }
 
 >>> .el-popper {
