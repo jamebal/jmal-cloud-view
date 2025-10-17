@@ -2,6 +2,7 @@
   <div>
 
     <history-popover
+      v-if="!readOnly"
       ref="historyPopover"
       style="right: 20px;top: 61px;position: absolute;"
       :transparent="true"
@@ -274,7 +275,9 @@ export default {
     },
     async loadFile() {
       this.$nextTick(()=> {
-        this.$refs.historyPopover.loadHistoryList(this.file.id)
+        if (this.$refs.historyPopover) {
+          this.$refs.historyPopover.loadHistoryList(this.file.id)
+        }
       })
       this.destroyEditor()
 
@@ -422,7 +425,9 @@ export default {
             versionButton.appendChild(svgElement)
           })
         versionButton.addEventListener('click', this.onClickHistoryVersion)
-        doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
+        if (this.$refs.historyPopover) {
+          doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
+        }
         toolbar.appendChild(versionButton)
       }
     },

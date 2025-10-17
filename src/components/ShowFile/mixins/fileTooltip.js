@@ -49,7 +49,7 @@ export default {
         allowHTML: true,
         theme: 'light',
         // appendTo: 'parent',
-        arrow: true
+        arrow: false
       };
     }
   }

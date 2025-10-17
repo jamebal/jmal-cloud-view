@@ -434,6 +434,9 @@ $tagMenuBorderRadius: 8px;
   border: 0 solid rgba(0, 0, 0, 0) !important;
   min-width: unset !important;
   border-radius: $dialogBorderRadius !important;
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  box-shadow: 0 0 5px #cccccc55 !important;
 }
 
 .tag-menu ul {
@@ -455,7 +458,7 @@ $tagMenuBorderRadius: 8px;
 .tag-menu li:hover {
   cursor: pointer;
   border-radius: $tagMenuBorderRadius;
-  background-color: #409eff30;
+  background-color: var(--vcontextmenu-hover-bg-color);
 }
 .tag-menu li > .menuitem {
   cursor: pointer;
@@ -522,7 +525,7 @@ $tagMenuBorderRadius: 8px;
       .btn-more {
         display: none;
         padding: 2px 5px;
-        background: #dadada;
+        background: var(--menu-hover);
         border: 0;
       }
 
@@ -532,10 +535,10 @@ $tagMenuBorderRadius: 8px;
       .el-button:hover {
         color: #409EFF;
         border-color: #c6e2ff;
-        background-color: #ecf5ff;
+        background-color: var(--btn-active-color);
       }
       &:hover {
-        background-color: #dadada !important;
+        background-color: var(--menu-hover) !important;
         border-radius: $tagMenuBorderRadius;
         .btn-more {
           display: block;
@@ -543,7 +546,7 @@ $tagMenuBorderRadius: 8px;
       }
     }
     .infinite-list-item.highlight {
-      background-color: #dadada;
+      background-color: var(--menu-hover);
       border-radius: $tagMenuBorderRadius;
     }
     .infinite-list-item.expand {

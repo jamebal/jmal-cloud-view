@@ -11,8 +11,8 @@
             </el-button>
           </div>
           <history-popover
+            v-if="!readOnly"
             ref="historyPopover"
-            :light-theme.sync="lightTheme"
             :has-history-version.sync="hasHistoryVersion"
             :history-list-popover-visible.sync="historyListPopoverVisible"
             :history-operation-loading="!loading.closed"
@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <div class="excalidraw-content" :style="{'top': readOnly ? '0': '39px'}">
+    <div class="excalidraw-content">
       <iframe ref="excalidrawIframe" class="excalidraw-iframe" :src="excalidrawUrl" :title="file.name"></iframe>
     </div>
 
@@ -133,7 +133,9 @@ export default {
           this.excalidrawUrl = `${window.location.origin}/excalidraw/app/index.html`
         })
         this.$nextTick(() => {
-          this.$refs.historyPopover.loadHistoryList(this.file.id)
+          if (this.$refs.historyPopover) {
+            this.$refs.historyPopover.loadHistoryList(this.file.id)
+          }
         })
       },
       immediate: true,
@@ -212,7 +214,13 @@ export default {
     updateContent() {
       const excalidrawData = {
         type: 'INIT_DATA',
-        data: this.excalidrawData
+        data: {
+          ...this.excalidrawData,
+          appState: {
+            ...this.excalidrawData.appState,
+            viewModeEnabled: this.readOnly
+          }
+        }
       };
       this.$refs.excalidrawIframe.contentWindow.postMessage(excalidrawData, '*');
     },
@@ -245,7 +253,9 @@ export default {
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
         this.$message.success('保存成功')
-        this.$refs.historyPopover.loadHistoryList(this.file.id)
+        if (this.$refs.historyPopover) {
+          this.$refs.historyPopover.loadHistoryList(this.file.id)
+        }
         if (this.thisEditorClosing) {
           this.thisEditorClosing = false
           this.$emit('onClose')

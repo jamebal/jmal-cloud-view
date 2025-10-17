@@ -299,7 +299,7 @@
 }
 
 >>> .slimScrollDiv {
-  border-right: 1px solid #e8e8e8;
+  border-right: 1px solid var(--vcontextmenu-border-color);
   -webkit-transition: all .5s;
   transition: all .5s;
   border-radius: 5px;

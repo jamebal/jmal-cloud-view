@@ -2,8 +2,7 @@
   <div class="container">
     <div class="share-empty">
       <div class="share-empty-icon">
-        <img v-if="emptyShare" src="~@/assets/img/pic_sharing_empty.png" ref="image" style="max-width: 100%;" alt="">
-        <img v-if="!emptyShare" src="~@/assets/img/emptyfile_intro.jpeg" ref="image" style="max-width: 100%;" alt="">
+        <svg-icon icon-class="kongkongruye" style="width: 268px; height: auto;"/>
       </div>
       <p class="share-empty-status">
         {{emptyStatus}}
@@ -16,10 +15,6 @@
   export default {
     name: 'EmptyFile',
     props: {
-      emptyImgUrl: {
-        type: String,
-        default: '~@/assets/img/emptyfile_intro.jpeg'
-      },
       emptyStatus:{
         type: String,
         default: '空空如也~'
@@ -33,13 +28,9 @@
     },
     data() {
       return {
-        // sourceImg: this.emptyImgUrl,
       }
     },
     methods: {
-      sourceImg(){
-        return '~@/assets/img/emptyfile_intro.jpeg'
-      }
     }
   }
 </script>

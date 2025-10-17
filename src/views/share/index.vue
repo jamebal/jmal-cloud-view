@@ -15,7 +15,6 @@
       :border="false"
       :excess-rows="3"
       style="width: 100%;margin: 20px 0 0 0;"
-      :cell-style="rowRed"
       :height-change="false"
       :row-class-name="tableRowClassName"
       element-loading-text="文件加载中"
@@ -71,7 +70,7 @@
         >
           <template slot="header">
             <div v-if="item.label === ''" class="cancel-share-header">
-              <span class="header-font">{{sumFileAndFolder}}</span><el-button round icon="el-icon-my-export" size="small" @click="cancelShare(false)">取消分享</el-button>
+              <span class="header-font">{{sumFileAndFolder}}</span><el-button round size="small" @click="cancelShare(false)"><svg-icon style="font-size: 12px" icon-class="cancel-share"/> 取消分享</el-button>
             </div>
           </template>
           <template slot-scope="scope">
@@ -434,7 +433,7 @@
         // }
         for (let i = 0; i < this.indexList.length; i++) {
           if (rowIndex === this.indexList[i]) {
-            return { backgroundColor: '#EBEEF5', color: '#b7b5b6', cursor: 'default' }
+            return { backgroundColor: '#000', color: '#b7b5b6', cursor: 'default' }
           }
         }
       },
@@ -600,7 +599,11 @@
     visibility: hidden;
   }
   >>>.plTableBox .el-table .el-table__header th {
-    background-color: #FFFFFF;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  >>>.el-table td,>>>.el-table th.is-leaf {
+    border-bottom: 1px solid var(--table-td-border-color);
   }
   >>>.el-table td {
     height: 50px!important;
@@ -611,5 +614,8 @@
       color: #409EFF;
     }
   }
+>>> .el-table__body tr:hover > td {
+  background-color: var(--table-tr-hover-color);
+}
 </style>
 

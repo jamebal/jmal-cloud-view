@@ -216,6 +216,13 @@ export default {
   // 确保编辑器撑满容器
   width: 100%;
   height: 100%;
+
+  >>>.vditor-reset {
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-color);
+    }
+  }
+
 }
 
 >>> .vditor-content {

@@ -347,11 +347,11 @@ export default {
 }
 .article-num:hover {
   cursor: pointer;
-  background-color: #fbfdff;
+  background-color: var(--btn-active-color);
   color: #1d8cff;
 }
 .article-num:active {
-  background-color: #ecf5ff;
+  background-color: var(--btn-active-color);
 }
 >>> .el-form-item__content {
   line-height: 1.5;

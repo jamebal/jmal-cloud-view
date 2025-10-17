@@ -632,6 +632,7 @@ export default {
 
   .qrcode {
     font-size: 1.5rem;
+    color: var(--text-color-hover);
   }
 
   >>> .el-input__inner {

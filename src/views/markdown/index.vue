@@ -123,6 +123,7 @@ import UploadImageInput from "@/components/input/UploadImageInput";
 import MultipleTreeSelect from "@/components/select/MultipleTree";
 
 import VditorEditor from '@/components/VditorEditor';
+import { mapState } from 'vuex'
 
 export default {
   name: 'MarkdownEditor',
@@ -186,6 +187,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['theme']),
     // 创建一个计算属性，用于向子组件传递用户信息，实现解耦
     uploadUserInfo() {
       if (!this.$store.state.user) {
@@ -207,7 +209,15 @@ export default {
     },
     storageLocation() {
       this.valueHasChanged()
-    }
+    },
+    theme() {
+      this.$nextTick(() => {
+        if (this.$refs.vditorEditor && this.$refs.vditorEditor.vditor) {
+          const isDark = document.documentElement.classList.contains('dark')
+          this.$refs.vditorEditor.vditor.setTheme(isDark ? 'dark' : 'classic', isDark ? 'dark' : 'light', 'androidstudio')
+        }
+      });
+    },
   },
   mounted() {
     this.getMarkdown();
@@ -444,10 +454,10 @@ export default {
 
     input[type='text'] {
       font-weight: 900;
-      color: #000000 !important;
+      color: var(--text-color-hover) !important;
       font-size: 16px;
       border: none;
-      border-bottom: #ccc 1px solid;
+      border-bottom: var(--timeline-empty-text-color) 1px solid;
       border-radius: 0;
     }
   }
@@ -589,16 +599,16 @@ export default {
 >>> .url-slug {
   display: flex;
   align-items: center;
-  color: #aaaaaa;
+  color: var(--text-color);
 
   .mark-setting-input {
     font-size: 14px;
     padding: 0 2px;
-    border-radius: 2px;
-    color: #666;
+    border-radius: 5px;
+    color: var(--text-color-hover);
     width: fit-content;
     min-width: 35px;
-    background-color: #ecf5ff;
+    background-color: var(--url-slug-bg-color);
 
     &:focus {
       outline: none;

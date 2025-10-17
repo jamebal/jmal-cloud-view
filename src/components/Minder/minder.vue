@@ -7,6 +7,7 @@
           <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
         </div>
         <history-popover
+          v-if="!hasReadOnly"
           ref="historyPopover"
           :has-history-version.sync="hasHistoryVersion"
           :history-list-popover-visible.sync="historyListPopoverVisible"
@@ -199,7 +200,9 @@ export default {
           this.$emit('onReady')
         })
         this.$nextTick(()=> {
-          this.$refs.historyPopover.loadHistoryList(this.file.id)
+          if (this.$refs.historyPopover) {
+            this.$refs.historyPopover.loadHistoryList(this.file.id)
+          }
         })
       },
       deep: true,
@@ -340,12 +343,15 @@ export default {
           this.titleShow = true
           this.minder.importJson(this.content)
           this.setReadOnly()
+          this.execCommand('theme', document.documentElement.classList.contains('dark') ? 'classic-compact' : 'fresh-blue')
           this.minder.on('contentchange', () => this.onContentChange())
         }, 300)
       })
     },
     onContentChange() {
       const newJson = this.minder.exportJson()
+      console.log('newJson', newJson)
+      console.log('this.bakValue', this.bakValue)
       if (this.bakValue === JSON.stringify(newJson)) {
         this.saved = true
         if (this.title === `*${this.file.name}`) {
@@ -362,7 +368,7 @@ export default {
       if (typeof newObj !== "object" || newObj === null) {
         newObj = {
           root: newObj,
-          theme: "fresh-blue",
+          theme: "classic-compact",
           template: "default",
         }
       }
@@ -376,7 +382,7 @@ export default {
         }
       }
       if (typeof newObj.theme !== "string") {
-        newObj.theme = "fresh-blue"
+        newObj.theme = "classic-compact"
       }
       if (typeof newObj.template !== "string") {
         newObj.template = "default"
@@ -402,7 +408,9 @@ export default {
         this.title = this.file.name
         this.$emit('onEdit', this.saved)
         this.bakValue = value
-        this.$refs.historyPopover.loadHistoryList(this.file.id)
+        if (this.$refs.historyPopover) {
+          this.$refs.historyPopover.loadHistoryList(this.file.id)
+        }
       }).catch(() => {
         this.saveBtnUpdating = false
       })
@@ -448,9 +456,9 @@ export default {
   bottom: 20px;
   height: 34px;
   border-radius: 3px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, .2);
-  background-color: #fff;
-  color: #666;
+  box-shadow: 3px 3px 10px var(--iframe-top-bar-box-shadow-color);
+  background-color: var(-bg-color);
+  color: var(--text-color);
   z-index: 10;
   display: flex;
   padding: 0 6px;
@@ -466,11 +474,11 @@ export default {
     transform: scale(1);
     cursor: pointer;
     padding: 0;
-    color: #666666;
+    color: var(--text-color);
     font-style: normal;
 
     &:hover {
-      color: #232323;
+      color: var(--text-color-hover);
     }
 
     &.active {
@@ -542,13 +550,13 @@ export default {
 
   .minder-title {
     text-align: center;
-    background-color: #fbfbfb;
+    background-color: var(--bg-color);
     z-index: 2001;
     position: absolute;
     top: 0;
     width: 100%;
     height: 40px;
-    box-shadow: 0 1px 3px #00000033;
+    box-shadow: 0 1px 3px var(--iframe-top-bar-box-shadow-color);
 
     .minder-title-name {
       line-height: 40px;
@@ -558,7 +566,7 @@ export default {
       display: flex;
       float: right;
       margin-top: -40px;
-      margin-right: 30px;
+      margin-right: 45px;
       line-height: 40px;
     }
   }

@@ -16,7 +16,8 @@ const store = new Vuex.Store({
   getters,
   state: {
     message: null,
-    fileClipboard: []
+    fileClipboard: [],
+    theme: 'light', // 'light' or 'dark'
   },
   mutations: {
     setMessage(state, message) {
@@ -24,6 +25,9 @@ const store = new Vuex.Store({
     },
     setFileClipboard(state, fileClipboard) {
       state.fileClipboard = fileClipboard;
+    },
+    setTheme(state, theme) {
+      state.theme = theme;
     }
   },
   actions: {
@@ -32,6 +36,9 @@ const store = new Vuex.Store({
     },
     updateFileClipboard({ commit }, fileClipboard) {
       commit('setFileClipboard', fileClipboard);
+    },
+    updateTheme({ commit }, theme) {
+      commit('setTheme', theme);
     }
   }
 })

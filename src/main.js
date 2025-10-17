@@ -57,16 +57,17 @@ const i18n = new VueI18n({
 });
 
 // 自动切换主题
-// function applySystemTheme() {
-//   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-//   document.documentElement.classList.toggle('dark', isDark);
-// }
-//
-// applySystemTheme();
-//
-// window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-//   document.documentElement.classList.toggle('dark', e.matches);
-// });
+function applySystemTheme() {
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.classList.toggle('dark', isDark);
+}
+
+applySystemTheme();
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  document.documentElement.classList.toggle('dark', e.matches);
+  store.dispatch('updateTheme', e.matches ? 'dark' : 'light');
+});
 
 new Vue({
   el: '#app',

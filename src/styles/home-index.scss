@@ -15,7 +15,7 @@
   color: #97a8be;
 }
 .no-redirect {
-  color: #000000;
+  color: var(--text-color);
   cursor: text;
   margin-right: 10px;
 }
@@ -57,7 +57,7 @@
   cursor: pointer;
   border-radius: 10px;
   /*background-color: #409eff14;*/
-  background-color: #409eff30;
+  background-color: var(--vcontextmenu-hover-bg-color);
 }
 .newFileMenu li > .menuitem {
   cursor: pointer;
@@ -273,7 +273,7 @@
 
 >>>.van-grid-item__text {
   text-align: center;
-  color: #646566;
+  color: var(--text-color);
   font-size: 12px;
   word-wrap: break-word;
   //width: -webkit-fill-available;
@@ -360,16 +360,13 @@
     backdrop-filter: contrast(0.5);
   }
 }
-//>>> .grid-item:hover {
-//  background-color: #e0f3fc;
-//}
 
 .grid-hover-back {
   border-radius: 5px;
   background: #ffffff00;
 }
 .grid-hover:hover {
-  background-color: #e0f3fc;
+  background-color: var(--grid-hover-color);
 }
 
 .checkbox-group-header {
