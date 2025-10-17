@@ -1,10 +1,10 @@
 <template>
   <div class="drawio-content">
     <div class="drawio-title">
-      <div class="drawio-title-name" :style="{'color': saved ? (lightTheme ? '':'#ffffff'): '#ff8200'}">{{title}}</div>
+      <div class="drawio-title-name" :style="{'color': saved ? 'var(--text-color-hover)': '#ff8200'}">{{title}}</div>
       <div class="drawio-operation">
         <div style="margin-right: 15px">
-          <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini" :class="lightTheme ? '':'dark-button'">取消预览</el-button>
+          <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
         </div>
         <history-popover
           v-if="!readOnly"
@@ -18,7 +18,7 @@
         >
         </history-popover>
 
-        <div><el-button round v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating" :class="lightTheme ? '':'dark-button'">保存</el-button></div>
+        <div><el-button round v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
       </div>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
@@ -71,7 +71,6 @@ export default {
       loading: {
         closed: true
       },
-      lightTheme: false
     }
   },
   computed: {
@@ -256,7 +255,6 @@ export default {
           break;
         }
       }
-      this.lightTheme = !isDarkMode
     },
     handleMessage(event) {
       const editWindow = this.$refs.myFlow.contentWindow

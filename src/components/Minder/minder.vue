@@ -350,8 +350,6 @@ export default {
     },
     onContentChange() {
       const newJson = this.minder.exportJson()
-      console.log('newJson', newJson)
-      console.log('this.bakValue', this.bakValue)
       if (this.bakValue === JSON.stringify(newJson)) {
         this.saved = true
         if (this.title === `*${this.file.name}`) {
@@ -457,7 +455,7 @@ export default {
   height: 34px;
   border-radius: 3px;
   box-shadow: 3px 3px 10px var(--iframe-top-bar-box-shadow-color);
-  background-color: var(-bg-color);
+  background-color: var(--bg-color);
   color: var(--text-color);
   z-index: 10;
   display: flex;

@@ -426,17 +426,6 @@
         }
         return folderSum + ' ' + fileSum
       },
-      // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
-      rowRed({ row, column, rowIndex, columnIndex }) {
-        // if (this.indexList.length < 1 && columnIndex === 2 && this.cellMouseIndex === rowIndex) {
-        //   return { cursor: 'pointer', color: "#19ACF9" }
-        // }
-        for (let i = 0; i < this.indexList.length; i++) {
-          if (rowIndex === this.indexList[i]) {
-            return { backgroundColor: '#000', color: '#b7b5b6', cursor: 'default' }
-          }
-        }
-      },
       // 动态添加index到row里面去
       tableRowClassName({ row, rowIndex }) {
         row.index = rowIndex
