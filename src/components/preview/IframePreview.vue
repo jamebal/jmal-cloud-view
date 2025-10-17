@@ -18,7 +18,7 @@
 
          <div class="close-container" :style="closeStyle">
            <div class="close-bar" @click="beforeClose">
-             <el-button round icon="el-icon-close" type="info" size="mini" title="关闭" circle></el-button>
+             <el-button round icon="el-icon-close" size="mini" title="关闭" circle></el-button>
            </div>
          </div>
 

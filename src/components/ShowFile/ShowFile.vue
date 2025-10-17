@@ -465,7 +465,7 @@
                       right: gridPaddingRight + 'px',
                       bottom: '10px',
                       height: gridItemWidth + 'px',
-                      background: selectRowData.includes(item) ? '#caeaf991' : '',
+                      background: selectRowData.includes(item) ? 'var(--grid-active-color)' : '',
                       'background-size': 'cover',
                       'background-position': 'center',
                       'box-shadow': selectRowData.includes(item) ? '0 4px 12px var(--apple-shadow-color)' : '',
@@ -1105,4 +1105,12 @@ export default {
   }
 }
 
+>>>.plTableBox .el-table .el-table__header th {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+>>>.el-table th.is-leaf {
+  border-bottom: 1px solid var(--table-td-border-color);
+}
 </style>

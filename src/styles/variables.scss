@@ -1,20 +1,14 @@
-:root {
-  --apple-border-radius: 12px; /* 可调整的圆角大小 */
-  --apple-shadow-color: rgba(0, 0, 0, 0.1); /* 阴影颜色和透明度 */
-  --apple-border-color: rgba(0, 0, 0, 0.08); /* 细边框颜色 */
-  --apple-background-color: #ffffff; /* 卡片背景色 */
-}
 
 // sidebar
-$menuText:#434343;
+$menuText: var(--text-color);
 $menuActiveText:#409EFF;
 $subMenuActiveText:#f4f4f5; //https://github.com/ElemeFE/element/issues/12951
 
-$menuBg:#f5f5f5;
-$menuHover:#0000001a;
+$menuBg: var(--menu-bg);
+$menuHover: var(--menu-hover);
 
-$subMenuBg:#f5f5f5;
-$subMenuHover:#0000001a;
+$subMenuBg: var(--menu-bg);
+$subMenuHover: var(--menu-hover);
 
 $sideBarWidth: 160px;
 

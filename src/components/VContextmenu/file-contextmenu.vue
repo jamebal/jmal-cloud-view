@@ -92,7 +92,7 @@ export default {
   min-width: 180px;
   border-radius: $dialogBorderRadius;
   padding: 8px;
-  background-color: rgba(255, 255, 255, .75);
+  background-color: var(--vcontextmenu-bg-color);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   backdrop-filter: blur(16px) saturate(180%);
 
@@ -108,8 +108,8 @@ export default {
     line-height: 35px;
     &:hover {
       border-radius: 10px;
-      background-color: #409eff30;
-      color: #000;
+      background-color: var(--vcontextmenu-hover-bg-color);
+      color: var(--text-color-hover);
     }
   }
   li > .text {

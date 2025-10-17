@@ -110,7 +110,7 @@ export default {
       if (this.selectedRowIndices.has(rowIndex)) {
         if (columnIndex === 0) {
           return {
-            backgroundColor: '#e0f3fc !important',
+            backgroundColor: 'var(--grid-hover-color) !important',
             borderRadius: '12px 0 0 12px',
             borderLeft: 'solid 1px var(--apple-shadow-color)',
             borderTop: 'solid 1px var(--apple-shadow-color)',
@@ -119,7 +119,7 @@ export default {
         }
         if (columnIndex === 3) {
           return {
-            backgroundColor: '#e0f3fc !important',
+            backgroundColor: 'var(--grid-hover-color) !important',
             borderRadius: '0 12px 12px 0',
             borderRight: 'solid 1px var(--apple-shadow-color)',
             borderTop: 'solid 1px var(--apple-shadow-color)',
@@ -127,7 +127,7 @@ export default {
           }
         }
         return {
-          backgroundColor: '#e0f3fc !important',
+          backgroundColor: 'var(--grid-hover-color) !important',
           borderTop: 'solid 1px var(--apple-shadow-color)',
           borderBottom: 'solid 1px var(--apple-shadow-color)',
         }
@@ -135,11 +135,13 @@ export default {
         if (columnIndex === 0) {
           return {
             borderRadius: '12px 0 0 12px',
+            borderLeft: '1px solid var(--table-td-border-color)'
           }
         }
         if (columnIndex === 3) {
           return {
             borderRadius: '0 12px 12px 0',
+            borderRight: '1px solid var(--table-td-border-color)'
           }
         }
       }

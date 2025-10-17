@@ -370,7 +370,7 @@ $cursor: #409eff;
     margin-bottom: -20px;
   }
   .el-form-item {
-    border: 1px solid #0000001a;
+    border: 1px solid var(--input-bord-corlor);
     border-radius: 12px;
     color: #454545;
   }
@@ -387,7 +387,7 @@ $light_gray:#eee;
   min-height: 100%;
   width: 100%;
   overflow: hidden;
-  background: linear-gradient(#002766,30%, #0040f4);
+  background: var(--login-bg);
 
   .login-content {
     display: flex;
@@ -438,7 +438,7 @@ $light_gray:#eee;
 
     .title {
       font-size: 26px;
-      color: #0a001f;
+      color: var(--title-color);
       margin: 20px auto 40px auto;
       text-align: center;
       font-weight: 500;

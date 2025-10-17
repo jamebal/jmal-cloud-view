@@ -6,7 +6,7 @@
           placement="bottom"
           popper-class="clipboard-popover"
           width="420"
-          trigger="hover">
+          trigger="click">
           <div>
             <dialog-file-list  class="clipboard-content-file-list" :file-list="fileList" :image-url="imageUrl" :audio-cover-url="audioCoverUrl"></dialog-file-list>
             <div class="clipboard-tips">
@@ -129,7 +129,7 @@ export default {
     border-radius: 35px;
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
-    background: rgba(255, 255, 255, .27) !important;
+    background: var(--file-clipboard-bg-color) !important;
     border: 0;
   }
 }
@@ -151,8 +151,10 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   line-height: 22px;
-  border-top: 1px solid #e0e0e0;
-  background: #f6f6f6;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top: 1px solid var(--vcontextmenu-border-color);
+  background: var(--file-clipboard-clipboard-tips-color);
 }
 .clipboard-content-file-list {
   padding: 5px 10px;

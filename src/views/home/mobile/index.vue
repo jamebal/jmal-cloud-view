@@ -1731,7 +1731,7 @@ input {
 
 >>> .grid-item-text {
   text-align: center;
-  color: #606266;
+  color: var(--text-color);
   word-wrap: break-word;
   width: -webkit-fill-available;
   overflow: hidden;

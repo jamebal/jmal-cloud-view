@@ -686,8 +686,7 @@ export default {
           } else {
             // #9fcdfc99
             if (
-              node.firstChild.style.backgroundColor ===
-              'rgba(159, 205, 252, 0.6)'
+              node.firstChild.style.backgroundColor === 'rgba(159, 205, 252, 0.6)'
             ) {
               node.childNodes.forEach(node => {
                 node.style.backgroundColor = null
@@ -706,7 +705,6 @@ export default {
               'none'
           }
         }
-        dragged.style.backgroundColor = dragBackCorlor
       }
 
       function getObjPos(obj) {

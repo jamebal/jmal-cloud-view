@@ -225,7 +225,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background-color: #f0f0f0; */ /* Avatar自带背景色 */
   overflow: hidden;
   flex-shrink: 0; /* 防止 icon 被压缩 */
 }
@@ -240,7 +239,7 @@ export default {
   /* bottom: 0; */ /* 不再使用 bottom */
   height: calc(100% - 30px); /* 从 Avatar 下方到底部 */
   width: 1px;
-  background-color: #e1e4e8;
+  background-color: var(--timeline-line-color);
   z-index: 1;
 }
 
@@ -252,7 +251,7 @@ export default {
 
 .timeline-date {
   font-size: 14px;
-  color: #24292e;
+  color: var(--timeline-date-text-color);
   font-weight: 500;
   margin-bottom: 4px; /* 稍微增大间距 */
 }
@@ -261,13 +260,13 @@ export default {
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: #586069;
+  color: var(--timeline-action-text-color);
   flex-wrap: wrap; /* 如果内容过长可以换行 */
 }
 
 .timeline-action-icon {
   margin-right: 4px;
-  color: #586069;
+  color: var(--timeline-action-text-color);
   font-weight: bold; /* 可以加粗显示操作人 */
 }
 
@@ -278,7 +277,7 @@ export default {
 /* 加载和空状态样式 */
 .timeline-loading, .timeline-empty, .timeline-loading-more {
   text-align: center;
-  color: #909399;
+  color: var(--timeline-empty-text-color);
   padding: 15px 0;
   font-size: 14px;
 }

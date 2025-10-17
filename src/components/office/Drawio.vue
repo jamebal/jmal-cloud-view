@@ -1,14 +1,14 @@
 <template>
   <div class="drawio-content">
     <div class="drawio-title">
-      <div class="drawio-title-name" :style="{'color': saved ? (lightTheme ? '':'#ffffff'): '#ff8200'}">{{title}}</div>
+      <div class="drawio-title-name" :style="{'color': saved ? 'var(--text-color-hover)': '#ff8200'}">{{title}}</div>
       <div class="drawio-operation">
         <div style="margin-right: 15px">
-          <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini" :class="lightTheme ? '':'dark-button'">取消预览</el-button>
+          <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="mini">取消预览</el-button>
         </div>
         <history-popover
+          v-if="!readOnly"
           ref="historyPopover"
-          :light-theme.sync="lightTheme"
           :has-history-version.sync="hasHistoryVersion"
           :history-list-popover-visible.sync="historyListPopoverVisible"
           :history-operation-loading="!loading.closed"
@@ -18,7 +18,7 @@
         >
         </history-popover>
 
-        <div><el-button round v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating" :class="lightTheme ? '':'dark-button'">保存</el-button></div>
+        <div><el-button round v-if="!saved" @click="save" size="mini" :loading="saveBtnUpdating">保存</el-button></div>
       </div>
     </div>
     <iframe ref="myFlow" class="drawio-iframe" :src="url" :title="file.name"></iframe>
@@ -71,7 +71,6 @@ export default {
       loading: {
         closed: true
       },
-      lightTheme: true
     }
   },
   computed: {
@@ -81,7 +80,7 @@ export default {
     let language = 'zh'
     let lightbox = this.readOnly ? 1 : 0
     let chrome = this.readOnly ? 0 : 1
-    let theme = 'kennedy'
+    let theme = document.documentElement.classList.contains('dark') ? 'dark' : 'kennedy'
     let title = this.file.name ? encodeURIComponent(this.file.name) : ''
     let query = `?title=${title}&chrome=${chrome}&lightbox=${lightbox}&ui=${theme}&lang=${language}&offline=0&pwa=0&embed=1&noLangIcon=1&noExitBtn=1&noSaveBtn=1&saveAndExit=0&spin=1&proto=json`
     this.url = $J.apiUrl(`../drawio/webapp/index.html${query}`)
@@ -128,7 +127,9 @@ export default {
           this.updateContent()
         })
         this.$nextTick(()=> {
-          this.$refs.historyPopover.loadHistoryList(this.file.id)
+          if (this.$refs.historyPopover) {
+            this.$refs.historyPopover.loadHistoryList(this.file.id)
+          }
         })
       },
       immediate: true,
@@ -237,7 +238,9 @@ export default {
         this.$emit('onEdit', this.saved)
         this.bakData = this.xml
         this.updateContent()
-        this.$refs.historyPopover.loadHistoryList(this.file.id)
+        if (this.$refs.historyPopover) {
+          this.$refs.historyPopover.loadHistoryList(this.file.id)
+        }
       }).catch(() => {
         this.saveBtnUpdating = false
       })
@@ -252,7 +255,6 @@ export default {
           break;
         }
       }
-      this.lightTheme = !isDarkMode
     },
     handleMessage(event) {
       const editWindow = this.$refs.myFlow.contentWindow
@@ -269,7 +271,9 @@ export default {
           let menuBar = doc.querySelector('.geMenubarContainer .geMenubar')
           if (menuBar) {
             let helpMenu = menuBar.childNodes[5]
-            doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
+            if (this.$refs.historyPopover) {
+              doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
+            }
             helpMenu.style.display = 'none'
           }
           let toolbar = doc.querySelector('.geToolbarContainer')

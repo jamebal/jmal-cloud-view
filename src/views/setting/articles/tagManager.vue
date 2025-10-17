@@ -254,14 +254,11 @@ export default {
   margin-bottom: 16px;
 }
 >>> .el-checkbox.is-bordered {
-  background-color: #f4f4f5;
-  border-color: #e9e9eb;
-  color: #646568;
   font-weight: 400;
   padding: 6px 5px 5px 10px;
 }
 >>> .el-checkbox.is-bordered.is-checked {
-  background-color: #ecf5ff;
+  background-color: var(--btn-active-color);
   border-color: #40a9ff;
   color: #d9ecff;
 }

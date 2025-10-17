@@ -3,8 +3,11 @@
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
+@import './theme.scss';
 
 body {
+  color: var(--text-color);
+  background-color: var(--bg-color);
 
   .drop-background-class {
     background-color: #409EFFD1;
@@ -60,7 +63,7 @@ body {
     padding: 0;
     border-radius: 16px;
     width: 300px !important;
-    background-color: rgba(255, 255, 255, .75);
+    background-color: var(--file-history-bg-color);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     backdrop-filter: blur(16px) saturate(180%);
     .el-scrollbar__wrap {
@@ -75,21 +78,15 @@ body {
 
   .tippy-box[data-theme~=light] {
     border-radius: 12px;
-    background-color: rgba(255,255,255,.75);
+    background-color: var(--tippy-box-bg-color);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     backdrop-filter: blur(16px) saturate(180%);
-    /* 推荐放在全局 CSS 或使用 :deep() */
-
-    /* 应用于 Tippy 的浅色主题下的自定义内容容器 */
-    /* 注意：选择器可能需要根据你的具体情况调整 */
-    /* 如果 appendTo: 'parent', 可能不需要 :deep() */
-    /* 如果 appendTo: document.body, 并且样式在 scoped style 中，则需要 :deep() */
 
     .apple-tooltip-content {
       padding: 8px 12px; /* 增加内边距 */
       font-size: 12px; /* 稍小的基础字号 */
       line-height: 1.5; /* 增加行高提高可读性 */
-      color: #333; /* 深灰色文字 */
+      color: var(--tippy-box-apple-tooltip-content-color);
       text-align: left; /* 确保左对齐 */
       max-width: 300px;
     }
@@ -98,8 +95,6 @@ body {
       display: flex; /* 使用 flex 布局方便对齐 */
       justify-content: space-between; /* 两端对齐，标签在左，值在右 */
       margin-bottom: 4px; /* 行间距 */
-      /* 如果希望标签和值都左对齐，注释掉 justify-content，并可能给 label 固定宽度 */
-      /* align-items: center; */ /* 如果需要垂直居中 */
     }
 
     .tooltip-row:last-child {
@@ -107,36 +102,20 @@ body {
     }
 
     .tooltip-label {
-      color: #666; /* 标签使用浅灰色 */
+      color: var(--tippy-box-tooltip-label-color); /* 标签使用浅灰色 */
       margin-right: 8px; /* 标签和值之间的间距 */
-      /* font-weight: 500; */ /* 可以稍微加粗一点点 */
       flex-shrink: 0; /* 防止标签被压缩 */
-      /* 如果想让标签右对齐: */
-      /* text-align: right; */
-      /* width: 70px; */ /* 可能需要固定宽度以对齐值 */
     }
 
     .tooltip-value {
-      color: #111; /* 值使用更深的颜色 */
+      color: var(--tippy-box-tooltip-value-color); /* 值使用更深的颜色 */
       word-break: break-all; /* 长内容（如路径、名称）自动换行 */
       text-align: right; /* 值右对齐，配合标签左对齐 */
-      /* 如果标签和值都左对齐，移除 text-align: right */
     }
 
     .tooltip-value-path, .tooltip-value-name {
       word-break: break-all;
       text-align: left;
-    }
-
-    .tooltip-divider {
-      border: none;
-      border-top: 1px solid #e0e0e0; /* 浅灰色分隔线 */
-      margin: 8px 0; /* 分隔线上下的间距 */
-    }
-
-    .tooltip-extended {
-      margin-top: 4px;
-      color: #555;
     }
 
   }
@@ -173,7 +152,7 @@ body {
     .date-range-title {
       margin: 0 0 10px;
       font-size: 12px;
-      color: #606266;
+      color: var(--text-color);
     }
 
     .modern-date-picker {
@@ -194,7 +173,7 @@ body {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
-    color: #606266;
+    color: var(--text-color);
     font-size: 12px;
   }
 
@@ -221,14 +200,15 @@ body {
 >>>::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
   height: 30px;
-  background-color: #c0c0c0;
+  background-color: var(--scrollbar-thumb-color);
+
   -webkit-border-radius: 7px;
-  outline: 2px solid #fff;
+  outline: 2px solid var(--scrollbar-track-piece-color);
   outline-offset: -2px;
-  border: 2px solid #fff;
+  border: 2px solid var(--scrollbar-track-piece-color);
 }
 >>>::-webkit-scrollbar-thumb:hover {
-  background-color: #999;
+  background-color: var(--scrollbar-thumb-hover-color);
 }
 >>>::-webkit-scrollbar-track {
   /*滚动条里面轨道*/
@@ -237,7 +217,7 @@ body {
   /*border-radius: 10px;*/
 }
 >>>::-webkit-scrollbar-track-piece {
-  background-color: #fff;
+  background-color: var(--scrollbar-track-piece-color);
   -webkit-border-radius: 3px;
 }
 
@@ -388,9 +368,9 @@ kbd {
   padding: 4px 4px;
   font: 12px var(--fontStack-monospace, ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace);
   line-height: 10px;
-  color: #1f2328;
+  color: var(--text-color);
   vertical-align: middle;
-  background-color: #f6f8fa;
+  background-color: var(--kbd-bg-color);
   border: solid 1px rgba(175, 184, 193, .2);
   border-radius: 6px;
   -webkit-box-shadow: inset 0 -1px 0 rgba(175, 184, 193, .2);

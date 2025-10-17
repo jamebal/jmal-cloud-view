@@ -29,9 +29,6 @@
             <el-button round v-if="indexList.length > 0" type="text" @click="downloadFile(false)" class="sort" title="下载">
               <svg-icon icon-class="menu-download"/>
             </el-button>
-            <el-button round type="text" class="vmode" @click="changeVmode">
-              <svg-icon :icon-class="grid ? 'list' : 'grid'"/>
-            </el-button>
           </div>
         </div>
       </el-breadcrumb>
@@ -189,49 +186,49 @@
       </template>
     </el-table>
 
-    <!--grid布局-->
-    <div v-show="grid && !linkFailed && !showShareCode" v-loading="tableLoading"
-         element-loading-text="文件加载中"
-         element-loading-spinner="el-icon-loading"
-         element-loading-background="#f6f7fa88">
-      <div class="checkbox-group-header">
-        <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">
-          {{ indexList.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}
-        </van-checkbox>
-        <el-divider></el-divider>
-      </div>
+<!--    &lt;!&ndash;grid布局&ndash;&gt;-->
+<!--    <div v-show="grid && !linkFailed && !showShareCode" v-loading="tableLoading"-->
+<!--         element-loading-text="文件加载中"-->
+<!--         element-loading-spinner="el-icon-loading"-->
+<!--         element-loading-background="#f6f7fa88">-->
+<!--      <div class="checkbox-group-header">-->
+<!--        <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">-->
+<!--          {{ indexList.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}-->
+<!--        </van-checkbox>-->
+<!--        <el-divider></el-divider>-->
+<!--      </div>-->
 
-      <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">
-        <van-grid square :column-num="gridColumnNum" :gutter="10" :border="false">
-          <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"
-          >
-            <div class="grid-time van-grid-item__content van-grid-item__content--center van-grid-item__content--square"
-                 :style="{'background': indexList.includes(index)?'#baebff91':'','cursor':indexList.length>0?'default':'pointer'}"
-                 @mouseover="gridItemHover(item,index)"
-                 @mouseout="gridItemOut(item,index)"
-                 @click="gridItemClick(item,$event)"
-                 @contextmenu.prevent="rowContextmenu(item)"
-            >
-              <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)"
-                            class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>
-              <div class="grid-item-icon">
-                <icon-file
-                  v-if="sharer"
-                  :item="item"
-                  :image-url="imageUrl"
-                  :audio-cover-url="audioUrl"
-                  :lazy="false"
-                  grid
-                  :grid-width="gridColumnWidth - 20"
-                ></icon-file>
-              </div>
+<!--      <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">-->
+<!--        <van-grid square :column-num="gridColumnNum" :gutter="10" :border="false">-->
+<!--          <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"-->
+<!--          >-->
+<!--            <div class="grid-time van-grid-item__content van-grid-item__content&#45;&#45;center van-grid-item__content&#45;&#45;square"-->
+<!--                 :style="{'background': indexList.includes(index)?'#baebff91':'','cursor':indexList.length>0?'default':'pointer'}"-->
+<!--                 @mouseover="gridItemHover(item,index)"-->
+<!--                 @mouseout="gridItemOut(item,index)"-->
+<!--                 @click="gridItemClick(item,$event)"-->
+<!--                 @contextmenu.prevent="rowContextmenu(item)"-->
+<!--            >-->
+<!--              <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)"-->
+<!--                            class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>-->
+<!--              <div class="grid-item-icon">-->
+<!--                <icon-file-->
+<!--                  v-if="sharer"-->
+<!--                  :item="item"-->
+<!--                  :image-url="imageUrl"-->
+<!--                  :audio-cover-url="audioUrl"-->
+<!--                  :lazy="false"-->
+<!--                  grid-->
+<!--                  :grid-width="gridColumnWidth - 20"-->
+<!--                ></icon-file>-->
+<!--              </div>-->
 
-              <span class="grid-file-text" :style="{ width: gridColumnWidth + 'px' }">{{ item.name }}</span>
-            </div>
-          </van-grid-item>
-        </van-grid>
-      </van-checkbox-group>
-    </div>
+<!--              <span class="grid-file-text" :style="{ width: gridColumnWidth + 'px' }">{{ item.name }}</span>-->
+<!--            </div>-->
+<!--          </van-grid-item>-->
+<!--        </van-grid>-->
+<!--      </van-checkbox-group>-->
+<!--    </div>-->
     <div v-if="linkFailed && !showShareCode" class="share-header-prompt">
       <p v-if="prompt !== ''">温馨提示：</p>
       <p>{{ prompt }}</p>
@@ -527,52 +524,6 @@ export default {
   methods: {
     loadClientHeight() {
       this.clientHeight = document.documentElement.clientHeight - 200
-    },
-    gridItemHover(item, index) {
-      this.gridHoverItemIndex = index;
-      this.gridHoverIntermediate = index;
-    },
-    gridItemOut(item, index) {
-      this.gridHoverIntermediate = -1
-      const _this = this
-      setTimeout(function () {
-        if (_this.gridHoverIntermediate !== _this.gridHoverItemIndex) {
-          _this.gridHoverItemIndex = -1;
-        }
-      }, 10)
-    },
-    clickGridItemCheckBox(item, index) {
-      // 同步列表的checkbox
-      if (this.indexList.includes(index)) {
-        this.$refs.fileListTable.toggleRowSelection(item, true)
-      }
-    },
-    clickGridAllCheckBox() {
-      if (this.indexList.length !== this.fileList.length) {
-        this.$refs.checkboxGroup.toggleAll(true);
-      } else {
-        this.$refs.checkboxGroup.toggleAll();
-        this.$refs.fileListTable.clearSelection();
-      }
-    },
-    gridItemClick(row, e) {
-      const elPath = e.path || (e.composedPath && e.composedPath())
-      let findIndex = elPath.findIndex(el => el.className === 'grid-item-checkbox van-checkbox')
-      if (findIndex > -1) {
-        return
-      }
-      if (this.indexList.length < 1) {
-        if (row.index !== this.editingIndex) {
-          this.fileClick(row)
-          this.editingIndex = -1
-        }
-      } else {
-        if (this.indexList.includes(row.index)) {
-          this.$refs.fileListTable.toggleRowSelection(row, false)
-        } else {
-          this.$refs.fileListTable.toggleRowSelection(row, true)
-        }
-      }
     },
     containerResize() {
       let clientWidth = document.querySelector(".dashboard-container").clientWidth
@@ -1330,7 +1281,7 @@ export default {
   margin-top: 5px;
   cursor: default;
   text-align: center;
-  color: #606266;
+  color: var(--text-color);
   font-size: small;
   overflow: hidden;
   white-space: nowrap;

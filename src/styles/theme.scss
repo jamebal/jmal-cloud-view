@@ -1,0 +1,135 @@
+:root {
+
+  --apple-shadow-color: #00000019;
+
+  --bg-color: #fff;
+  --setting-bg: #fafafa;
+  --primary-color: #409eff;
+  --title-color: #0a001f;
+  --login-bg: linear-gradient(#002766, 30%, #0040f4);
+  --input-bord-corlor: #DCDFE6;
+  --menu-bg: #f5f5f5;
+  --menu-hover: #0000001a;
+  --btn-active-color: #ecf5ff;
+  --scrollbar-thumb-color: #c0c0c0;
+  --scrollbar-thumb-hover-color: #999;
+  --scrollbar-track-piece-color: #fff;
+  --text-secondary-color: #666;
+  --text-color: #434343;
+  --text-color-hover: #000;
+  --dialog-border: none;
+
+  --navbar-box-shadow: rgba(0,21,41,.08);
+
+  // tippy-box
+  --tippy-box-bg-color: rgba(255,255,255,.75);
+  --tippy-box-apple-tooltip-content-color: #333;
+  --tippy-box-tooltip-label-color: #666;
+  --tippy-box-tooltip-value-color: #111;
+
+  // grid mode
+  --grid-hover-color: #e0f3fc;
+  --grid-active-color: #caeaf991;
+  --shadow-container-color: rgba(0, 0, 0, 0.05);
+
+  // VContextmenu
+  --vcontextmenu-bg-color: #FFFFFFBF;
+  --vcontextmenu-hover-bg-color: #409eff30;
+  --vcontextmenu-border-color: #e8e8e8;
+
+  // kbd
+  --kbd-bg-color: #f6f8fa;
+
+  // file clipboard
+  --file-clipboard-bg-color: rgba(255, 255, 255, .27);
+  --file-clipboard-clipboard-tips-color: #f6f6f6;
+
+  // timeline
+  --timeline-line-color: #e1e4e8;
+  --timeline-date-text-color: #24292e;
+  --timeline-action-text-color: #586069;
+  --timeline-empty-text-color: #909399;
+  --timeline-timeline-icon-color: #f0f2f5;
+  --file-history-bg-color: #FFFFFFBF;
+
+  // iframe preview
+  --iframe-top-bar-box-shadow-color: rgba(0,0,0,.2);
+
+  // table
+  --table-td-border-color: #f5f5f5;
+  --table-tr-hover-color: #f6f7fa;
+
+  // search
+  --search-checkbox-hover-color: #f5f7fa;
+
+  // markdown editor
+  --url-slug-bg-color: #ecf5ff;
+}
+
+html.dark {
+
+  --apple-shadow-color: #FFFFFF19;
+
+  --bg-color: #0d1117;
+  --setting-bg: #232323;
+  --primary-color: #409eff;
+  --title-color: #e0e0e0;
+  --login-bg: linear-gradient(#000e2c, 30%, #000000);
+  --input-bord-corlor: #4c4d4f;
+  --menu-bg: #1f1f1f;
+  --menu-hover: #ffffff1a;
+  --btn-active-color: #18222c;
+  --scrollbar-thumb-color: #5a5a5a;
+  --scrollbar-thumb-hover-color: #888888;
+  --scrollbar-track-piece-color: #0c1116;
+  --text-secondary-color: #d5d5d5;
+  --text-color: #e5eaf3;
+  --text-color-hover: #fff;
+  --dialog-border: 1px solid #414243;
+
+  --navbar-box-shadow: #ffffff26;
+
+  // tippy-box
+  --tippy-box-bg-color: rgba(0,0,0,.75);
+  --tippy-box-apple-tooltip-content-color: #ccc;
+  --tippy-box-tooltip-label-color: #999;
+  --tippy-box-tooltip-value-color: #e5eaf3;
+
+  // grid mode
+  --grid-hover-color: #4c5f73;
+  --grid-active-color: #4c5f73;
+  --shadow-container-color: rgba(255, 255, 255, 0.05);
+
+  // VContextmenu
+  --vcontextmenu-bg-color: #141414BF;
+  --vcontextmenu-hover-bg-color: rgba(171, 214, 251, 0.19);
+  --vcontextmenu-border-color: #414243;
+
+  // kbd
+  --kbd-bg-color: #161b22;
+
+  // file clipboard
+  --file-clipboard-bg-color: #FFFFFF19;
+  --file-clipboard-clipboard-tips-color: #191919;
+
+  // timeline
+  --timeline-line-color: #6a6a6ae8;
+  --timeline-date-text-color: #a6c1d1;
+  --timeline-action-text-color: #96a7b3;
+  --timeline-empty-text-color: #363639;
+  --timeline-timeline-icon-color: #3e3e3e;
+  --file-history-bg-color: #000000BF;
+
+  // iframe preview
+  --iframe-top-bar-box-shadow-color: rgba(255,255,255,.2);
+
+  // table
+  --table-td-border-color: #414243;
+  --table-tr-hover-color: #262627;
+
+  // search
+  --search-checkbox-hover-color: #5a5a5a96;
+
+  // markdown editor
+  --url-slug-bg-color: #464646;
+}

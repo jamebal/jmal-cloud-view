@@ -184,8 +184,8 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  background: var(--bg-color);
+  box-shadow: 0 1px 4px var(--navbar-box-shadow);
 
   .hamburger-container {
     line-height: 46px;
@@ -268,7 +268,7 @@ export default {
       }
     }
     &:hover {
-      background-color: #d9d9d980;
+      background-color: var(--menu-hover);
     }
   }
 }
@@ -292,7 +292,7 @@ export default {
   line-height: 50px;
   padding: 0 10px;
   &:hover {
-    background-color: #d9d9d980;
+    background-color: var(--menu-hover);
   }
 }
 

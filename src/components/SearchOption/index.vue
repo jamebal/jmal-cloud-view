@@ -579,12 +579,12 @@ export default {
       gap: 8px;
 
       span:first-child {
-        color: #909399;
+        color: var(--text-color);
         font-size: 14px;
       }
 
       span:last-child {
-        color: #303133;
+        color: var(--text-color);
         font-weight: 500;
         font-size: 14px;
       }
@@ -610,7 +610,7 @@ export default {
   .search-option-scope-title {
     flex: 1 1;
     padding: 0 25px;
-    color: #303133;
+    color: var(--text-color);
     font-weight: 500;
   }
 
@@ -656,14 +656,14 @@ export default {
         display: flex;
         align-items: center;
         gap: 4px;
-        color: #606266;
+        color: var(--text-color);
         font-size: 14px;
         padding: 8px 12px;
         border-radius: 6px;
         transition: all 0.3s ease;
 
         &:hover {
-          background-color: #f5f7fa;
+          background-color: var(--search-checkbox-hover-color);
         }
 
         i {
@@ -679,7 +679,7 @@ export default {
 
         .el-range-input {
           background: transparent;
-          color: #606266;
+          color: var(--text-color);
         }
 
         .el-range-separator {
@@ -713,7 +713,7 @@ export default {
       }
 
       &:hover {
-        background-color: #f5f7fa;
+        background-color: var(--search-checkbox-hover-color);
       }
     }
   }
@@ -729,9 +729,9 @@ export default {
       border-radius: 6px;
       padding: 0 10px;
       margin: 0;
-      background-color: #f5f7fa;
+      background-color: var(--search-checkbox-hover-color);
       border-color: transparent;
-      color: #606266;
+      color: var(--text-color);
 
       .el-tag__close {
         background-color: transparent;

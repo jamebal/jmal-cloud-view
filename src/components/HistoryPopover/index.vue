@@ -4,14 +4,14 @@
     :value="historyListPopoverVisible"
     style="margin-right: 15px"
     :visible-arrow="false"
-    :popper-class="(lightTheme ? 'file-history-popover' : 'dark-file-history-popover') + ' version-timeline-popover'"
+    popper-class="file-history-popover version-timeline-popover"
     placement="bottom"
     width="400"
     trigger="manual"
     @show="popoverShow"
     @hide="popoverHide"
   >
-    <div :class="lightTheme ? 'version-history-timeline' : 'dark-version-history-timeline'">
+    <div class="version-history-timeline">
       <div class="scrollbar-wrapper" @scroll="handleScroll">
         <div class="timeline-container-scrollbar">
           <div v-if="loading && fileHistoryList.length === 0" class="timeline-loading">加载中...</div>
@@ -29,12 +29,11 @@
               <div class="timeline-second-line">
                 <div><span class="timeline-operator">{{ item.metadata.operator }}</span></div>
                 <div class="timeline-actions">
-                  <el-button round size="mini" :class="lightTheme ? '' : 'dark-button'"
-                             @click="viewHistoryFile(item, true, false)" :loading="historyOperationLoading">预览
+                  <el-button round size="mini" @click="viewHistoryFile(item, true, false)" :loading="historyOperationLoading">预览
                   </el-button>
 
                   <el-popover placement="bottom" width="310"
-                              :popper-class="(lightTheme ? 'file-history-popover' : 'dark-file-history-popover') + ' recovery-' + item.id"
+                              :popper-class="'file-history-popover recovery-' + item.id"
                               :visible-arrow="false" trigger="click">
                     <p class="el-popconfirm__main"><i class="el-popconfirm__icon el-icon-question"
                                                       style="color: rgb(255, 153, 0);"></i>{{ '确定要恢复到' + item.metadata.time + '吗？当前内容将被覆盖!'
@@ -51,7 +50,7 @@
                   </el-popover>
 
                   <el-popover placement="bottom" width="310"
-                              :popper-class="(lightTheme ? 'file-history-popover' : 'dark-file-history-popover') + ' delete-' + item.id"
+                              :popper-class="'file-history-popover delete-' + item.id"
                               :visible-arrow="false" trigger="click">
                     <p class="el-popconfirm__main"><i class="el-popconfirm__icon el-icon-question"
                                                       style="color: rgb(255, 153, 0);"></i>{{ '确定要删除' + item.metadata.time + '吗？这将永久删除该历史版本!'
@@ -80,7 +79,7 @@
       round
       :style="versionBtnStyle"
       :size="buttonSize"
-      :class="lightTheme ? ' history-version-btn' : 'dark-button history-version-btn'"
+      class="history-version-btn"
       @click="showOrHidePopover"
     >
       历史版本
@@ -100,7 +99,6 @@ export default {
         return { metadata: {} }
       },
     },
-    lightTheme: { type: Boolean, default: true },
     historyListPopoverVisible: { type: Boolean, default: false },
     historyOperationLoading: { type: Boolean, default: false },
     saved: { type: Boolean, default: true },
@@ -287,7 +285,7 @@ export default {
 .file-history-popover {
   padding: 0 !important;
   border-radius: 8px !important;
-  background-color: rgba(255, 255, 255, .75);
+  background-color: var(--file-history-bg-color);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   backdrop-filter: blur(16px) saturate(180%);
 
@@ -297,57 +295,11 @@ export default {
 
 }
 
-.dark-file-history-popover {
-  background-color: rgba(46, 46, 46, .75);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  color: #b7b7b7;
-  border: 1px solid #2e2e30;
-}
-
 </style>
 
 <style scoped>
 .version-history-timeline {
   height: 100%;
-}
-
-.dark-version-history-timeline {
-  .timeline-date {
-    color: #b7b7b7;
-  }
-
-  .timeline-icon {
-    background: #3e3e3e;
-  }
-
-  .timeline-operator {
-    color: #b7b7b7;
-  }
-
-  .version-filename {
-    color: #b7b7b7;
-  }
-
-  .timeline-line {
-    background: #3e3e3e;
-  }
-
-  .dark-button {
-    background: #3e3e3e;
-    border: 1px solid #3e3e3e;
-    color: #ffffff;
-  }
-
-  .dark-button:hover {
-    color: #409EFF;
-    background-color: #181818;
-  }
-
-  .el-avatar {
-    background: #181818;
-  }
-
 }
 
 .scrollbar-wrapper {
@@ -386,7 +338,7 @@ export default {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background-color: #f0f2f5;
+  background-color: var(--timeline-timeline-icon-color);
 }
 
 .timeline-line {
@@ -395,7 +347,7 @@ export default {
   top: 45px;
   bottom: -35px;
   width: 1px;
-  background-color: #e1e4e8;
+  background-color: var(--timeline-line-color);
   z-index: 1;
 }
 
@@ -415,7 +367,7 @@ export default {
 
 .timeline-date {
   font-size: 14px;
-  color: #24292e;
+  color: var(--timeline-date-text-color);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -425,7 +377,7 @@ export default {
 
 .version-filename {
   font-size: 12px;
-  color: #586069;
+  color: var(--timeline-action-text-color);
   flex-shrink: 0;
   max-width: 120px;
   white-space: nowrap;
@@ -441,7 +393,7 @@ export default {
 }
 
 .timeline-operator {
-  color: #586069;
+  color: var(--timeline-action-text-color);
   font-weight: bold;
 }
 
@@ -457,7 +409,7 @@ export default {
 
 .timeline-loading, .timeline-empty, .timeline-loading-more {
   text-align: center;
-  color: #909399;
+  color: var(--timeline-empty-text-color);
   padding: 20px 0;
   font-size: 14px;
 }

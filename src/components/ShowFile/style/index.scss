@@ -25,7 +25,7 @@
   }
 
   .is-sortable:hover {
-    background-color: #e0f3fc;
+    background-color: var(--grid-hover-color);
     border-radius: 12px;
   }
 }
@@ -59,7 +59,7 @@
   span {
     font-size: 12px;
     line-height: 16px;
-    color: #666;
+    color: var(--text-secondary-color);
   }
 }
 
@@ -127,7 +127,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: white;
+  background: var(--bg-color);
 }
 
 .shadow-container::before {
@@ -137,9 +137,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), transparent 4px);
+  background: linear-gradient(to bottom, var(--shadow-container-color), transparent 4px);
   pointer-events: none;
   z-index: 10;
+}
+
+>>>.grid-item.van-grid-item__content {
+  background-color: var(--bg-color);
 }
 
 >>> .van-grid-item__content {
@@ -191,9 +195,17 @@
   }
 }
 
+>>> .el-table__body tr:hover > td {
+  background-color: var(--table-tr-hover-color);
+}
+
+>>> .el-table--striped .el-table__body tr.el-table__row--striped td {
+  background: var(--setting-bg);
+}
+
 >>> .el-table--enable-row-hover {
   .el-table__body tr:hover > td {
-    background-color: #e0f3fc;
+    background-color: var(--grid-hover-color);
   }
 }
 
@@ -215,7 +227,7 @@
   border-radius: 12px;
   margin-bottom: 10px;
   .el-checkbox {
-    color: #606266;
+    color: var(--text-color);
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
@@ -250,7 +262,7 @@
 .search-option-btn {
   padding: 4px;
   margin-right: 4px;
-  color: #606266;
+  color: var(--text-color);
   :hover {
     color: #409EFF;
   }
@@ -328,7 +340,7 @@
 
       .suggestion-item-keyword {
         line-height:  normal;
-        color: #303133;
+        color: var(--text-color);
         font-weight: 500;
         margin-right: 10px;
       }

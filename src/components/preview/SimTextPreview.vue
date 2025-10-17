@@ -41,6 +41,7 @@
         <div class="title-extension">
 
           <history-popover
+            v-if="!panelReadOnly"
             ref="historyPopover"
             :saved="!isShowUpdateBtn"
             :has-history-version.sync="hasHistoryVersion"
@@ -66,14 +67,14 @@
           >
             <icon :type="markdownMode?lightTheme?'icon-quxiaoyulan1':'icon-quxiaoyulan1-copy':lightTheme?'icon-yulan':'icon-yulan-copy'"></icon>
           </el-button>
-          <el-button round
-            :class="lightTheme?'':'dark-button'"
-            size="small"
-            :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"
-            circle
-            :title="lightTheme?'暗色':'亮色'"
-            @click="skinning"
-          />
+<!--          <el-button round-->
+<!--            :class="lightTheme?'':'dark-button'"-->
+<!--            size="small"-->
+<!--            :icon="lightTheme?'el-icon-moon':'el-icon-sunny'"-->
+<!--            circle-->
+<!--            :title="lightTheme?'暗色':'亮色'"-->
+<!--            @click="skinning"-->
+<!--          />-->
           <button class="title-extension-button" @click="fullScreen">
             <svg-icon :icon-class="fullscreen?'normalscreen':'fullscreen'"></svg-icon>
           </button>
@@ -155,6 +156,7 @@
   import markdownApi from '@/api/markdown-api'
 
   import { iconClass,lineWrapping,suffix } from '@/utils/file-type'
+  import { mapState } from 'vuex'
 
   import MonacoEditor from '../MonacoEditorVue'
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -199,6 +201,7 @@
       }
     },
     computed: {
+      ...mapState(['theme']),
       uploadUserInfo() {
         if (!this.$store.state.user) {
           return {}; // 返回空对象以处理未登录的情况
@@ -208,7 +211,7 @@
           name: this.$store.state.user.name,
           userId: this.$store.state.user.userId,
         }
-      }
+      },
     },
     data(){
       return{
@@ -281,6 +284,7 @@
     },
     mounted() {
       this.$nextTick(()=>{
+        this.lightTheme = !document.documentElement.classList.contains('dark')
         this.setDialogWidth()
       })
     },
@@ -377,7 +381,9 @@
           this.editableTabsValue = pathname
           if (!this.shareId) {
             // 加载历史版本
-            this.$refs.historyPopover.loadHistoryPathList(pathname)
+            if (this.$refs.historyPopover) {
+              this.$refs.historyPopover.loadHistoryPathList(pathname)
+            }
           }
           // 界面的渲染后的初始化工作
           this.$nextTick(() => {
@@ -389,6 +395,9 @@
         }).catch(() => {
           this.loading.close()
         })
+      },
+      theme() {
+        this.skinning()
       },
       status: function(visible) {
         if(visible && this.loading.closed){
@@ -762,7 +771,9 @@
             }
             this.editableTabsValue = row.path
             // 加载历史版本
-            this.$refs.historyPopover.loadHistoryPathList(row.path)
+            if (this.$refs.historyPopover) {
+              this.$refs.historyPopover.loadHistoryPathList(row.path)
+            }
           }).catch(() => {
             this.loading.close()
           })
@@ -1005,7 +1016,9 @@
             }
             this.updateSaveTitle()
             if(!this.modifyMsg){
-              this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
+              if (this.$refs.historyPopover) {
+                this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
+              }
               this.modifyMsg = this.$message({
                 message: "更新成功",
                 type: 'success',
@@ -1127,7 +1140,9 @@
         this.editorWidth += 0.001
         this.editorHeight += 0.001
         // 加载历史版本
-        this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
+        if (this.$refs.historyPopover) {
+          this.$refs.historyPopover.loadHistoryPathList(this.editableTabsValue)
+        }
       },
       removeTab(targetName) {
         let tabs = this.editableTabs;

@@ -202,9 +202,6 @@ export default {
 <style lang="scss" scoped>
 .table-temp {
   >>>.el-table {
-    thead {
-      color: #262626;
-    }
     th {
       background-color: #fafafa;
     }

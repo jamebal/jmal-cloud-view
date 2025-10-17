@@ -359,7 +359,6 @@ export default {
 @import "src/styles/element-ui.scss";
 
 $primary: #409eff;
-$bg-blur: rgba(255, 255, 255, 0.75);
 
 .details-content {
   display: flex;
@@ -372,12 +371,11 @@ $bg-blur: rgba(255, 255, 255, 0.75);
 
   >>> .el-dialog__body {
     display: flex;
-    background: $bg-blur;
+    background: var(--tippy-box-bg-color);
     border-radius: 18px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.18);
     padding: 32px 32px 24px 32px;
   }
 }
@@ -403,7 +401,7 @@ $bg-blur: rgba(255, 255, 255, 0.75);
   width: 320px;
   font-family: "San Francisco", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
-  color: #222;
+  color: var(--text-color);
 
   >>> .el-scrollbar__view {
     max-height: 50vh;
@@ -414,7 +412,7 @@ $bg-blur: rgba(255, 255, 255, 0.75);
     word-break: break-all;
     word-wrap: break-word;
     line-height: 25px;
-    color: #222;
+    color: var(--text-color);
   }
 
   >>> .el-form-item__label {
@@ -486,7 +484,7 @@ $bg-blur: rgba(255, 255, 255, 0.75);
   >>> .svg-icon {
     font-size: 8rem;
     border-radius: 18px;
-    background: rgba(255,255,255,0.7);
+    background: var(--tippy-box-bg-color);
     box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10);
     padding: 16px;
     color: $primary;

@@ -1,7 +1,7 @@
 >>> .el-checkbox {
 
   &:hover {
-    background-color: #f5f7fa;
+    background-color: var(--search-checkbox-hover-color);
     border-radius: 6px;
   }
 
@@ -26,6 +26,6 @@
   }
 
   .el-checkbox__input.is-checked+.el-checkbox__label {
-    color: #606266;
+    color: var(--text-color);
   }
 }

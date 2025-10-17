@@ -5,9 +5,9 @@
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
-  background: #fff;
+  background: var(--bg-color);
   z-index: 1999;
-  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  box-shadow: 0 1px 3px var(--iframe-top-bar-box-shadow-color);
 }
 .top-left {
   width: 25%;
