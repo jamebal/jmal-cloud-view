@@ -12,5 +12,5 @@ export function encodeIfNeeded(str) {
 
 // 判断字符串是否为路径
 export function isPath(str) {
-  return str.includes('/');
+  return typeof str === 'string' && str.includes('/');
 }

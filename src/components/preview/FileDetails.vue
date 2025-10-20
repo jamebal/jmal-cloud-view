@@ -290,9 +290,7 @@ export default {
     formatSize(size) {
       return formatSize(size)
     },
-    isPath(str) {
-      return isPath(str)
-    },
+    isPath,
     formatExif(exifInfo) {
       return formatExif(exifInfo, '\r\n')
     },
