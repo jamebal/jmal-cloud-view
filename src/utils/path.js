@@ -9,3 +9,8 @@ export function encodeIfNeeded(str) {
     return encodeURIComponent(str);
   }
 }
+
+// 判断字符串是否为路径
+export function isPath(str) {
+  return str.includes('/');
+}
