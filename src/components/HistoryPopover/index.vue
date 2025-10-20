@@ -80,6 +80,7 @@
       :style="versionBtnStyle"
       :size="buttonSize"
       class="history-version-btn"
+      v-show="hasHistoryVersion"
       @click="showOrHidePopover"
     >
       历史版本
@@ -94,7 +95,7 @@ export default {
   name: 'history-popover',
   props: {
     hasHistoryVersion: {
-      type: Object, // 注意：这里是 Object，虽然通常用 Boolean，但为保持兼容性，维持原样
+      type: Object,
       default: function() {
         return { metadata: {} }
       },

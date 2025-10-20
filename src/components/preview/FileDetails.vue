@@ -93,7 +93,9 @@
             <span>{{ file.uploadDate }}</span>
           </el-form-item>
           <el-form-item label="修改时间:">
+            <span v-if="isPath(file.id)">{{ file.updateDate }}</span>
             <el-popover
+              v-else
               ref="historyPopover"
               placement="right"
               popper-class="file-operation-history"
@@ -140,6 +142,7 @@ import '@vue-office/excel/lib/index.css'
 
 import fileConfig from '@/utils/file-config'
 import { formatSize } from '@/utils/number'
+import { isPath } from '@/utils/path'
 import IconFile from '@/components/Icon/IconFile'
 import {mapState} from "vuex";
 import {formatExif,formatVideo} from "@/utils/media";
@@ -287,6 +290,7 @@ export default {
     formatSize(size) {
       return formatSize(size)
     },
+    isPath,
     formatExif(exifInfo) {
       return formatExif(exifInfo, '\r\n')
     },
