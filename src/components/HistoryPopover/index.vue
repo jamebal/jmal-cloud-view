@@ -95,10 +95,8 @@ export default {
   name: 'history-popover',
   props: {
     hasHistoryVersion: {
-      type: Object,
-      default: function() {
-        return { metadata: {} }
-      },
+      type: Boolean,
+      default: false
     },
     historyListPopoverVisible: { type: Boolean, default: false },
     historyOperationLoading: { type: Boolean, default: false },
