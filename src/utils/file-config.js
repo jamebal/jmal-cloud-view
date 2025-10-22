@@ -137,8 +137,8 @@ export default {
   },
   // 文件打包下载Url
   packageDownloadUrl: function(fileId, downloadName, shareToken) {
-    const queryShareToken = shareToken ? `?share-token=${shareToken}` : ''
-    return window.location.origin + `${this.baseUrl}/public/s/${fileId}/packageDownload/${downloadName}${queryShareToken}`
+    const queryShareToken = shareToken ? `&share-token=${shareToken}` : ''
+    return window.location.origin + `${this.baseUrl}/public/s/packageDownload/${downloadName}?fileId=${fileId}${queryShareToken}`
   },
   /**
    * 判断是否有iframe预览
