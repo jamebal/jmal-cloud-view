@@ -131,14 +131,25 @@ export default {
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
-    const queryShareId = shareId ? `&shareId=${shareId}` : ''
-    const queryShareToken = shareToken ? `&share-token=${shareToken}` : ''
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?fileIds=${fileIds}${queryShareId}${queryShareToken}`
+    const url = new URL(`${this.baseUrl}/public/s/packageDownload`, window.location.origin);
+    url.search = new URLSearchParams({ fileIds });
+    if (shareId) {
+      url.searchParams.append('shareId', shareId);
+    }
+    if (shareToken) {
+      url.searchParams.append('share-token', shareToken);
+    }
+    return url.toString();
   },
   // 文件打包下载Url
   packageDownloadUrl: function(fileId, downloadName, shareToken) {
-    const queryShareToken = shareToken ? `&share-token=${shareToken}` : ''
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload/${downloadName}?fileId=${fileId}${queryShareToken}`
+    const url = new URL(`${this.baseUrl}/public/s/packageDownload/${downloadName}`, window.location.origin);
+    url.search = new URLSearchParams({ fileId });
+    if (shareToken) {
+      url.searchParams.append('share-token', shareToken);
+    }
+    console.log(url.toString())
+    return url.toString();
   },
   /**
    * 判断是否有iframe预览
