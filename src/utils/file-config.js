@@ -131,22 +131,25 @@ export default {
   },
   // 共享文件打包下载Url
   publicPackageDownloadUrl: function(shareId, fileIds, shareToken) {
-    const params = new URLSearchParams({ fileIds });
+    const url = new URL(`${this.baseUrl}/public/s/packageDownload`, window.location.origin);
+    url.search = new URLSearchParams({ fileIds });
     if (shareId) {
-      params.append('shareId', shareId);
+      url.searchParams.append('shareId', shareId);
     }
     if (shareToken) {
-      params.append('share-token', shareToken);
+      url.searchParams.append('share-token', shareToken);
     }
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload?${params.toString()}`
+    return url.toString();
   },
   // 文件打包下载Url
   packageDownloadUrl: function(fileId, downloadName, shareToken) {
-    const params = new URLSearchParams({ fileId });
+    const url = new URL(`${this.baseUrl}/public/s/packageDownload/${downloadName}`, window.location.origin);
+    url.search = new URLSearchParams({ fileId });
     if (shareToken) {
-      params.append('share-token', shareToken);
+      url.searchParams.append('share-token', shareToken);
     }
-    return window.location.origin + `${this.baseUrl}/public/s/packageDownload/${downloadName}?${params.toString()}`
+    console.log(url.toString())
+    return url.toString();
   },
   /**
    * 判断是否有iframe预览
