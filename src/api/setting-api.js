@@ -1,6 +1,19 @@
 import request from '@/utils/request'
 
 export default {
+  getPersonalizationConfig() {
+    return request({
+      url: '/user/setting/personalization',
+      method: 'get',
+    })
+  },
+  savePersonalizationConfig(data) {
+    return request({
+      url: '/user/setting/personalization',
+      method: 'post',
+      data
+    })
+  },
   setupMfaConfig(params) {
     return request({
       url: '/public/mfa/setup',

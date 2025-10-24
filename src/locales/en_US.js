@@ -75,6 +75,7 @@ export default {
     ocrConfig: 'OCR Config',
     ldapAuth: 'LDAP Auth',
     mfaAuth: 'Two-Factor Authentication',
+    personalization: 'Personalization',
     startSync: 'Start scanning? ',
     confirmDeleteMenuAndRole: 'This operation will update and reset the system\'s default menus and roles (the menus and roles you have added yourself will not be affected). Are you sure?',
     resetSuccessfully: 'Reset successfully',

@@ -43,7 +43,7 @@
     </el-dialog>
 
     <!--右键菜单-->
-    <e-vue-contextmenu ref="contextShow" class="newFileMenu" :class="menuTriangle" @ctx-show="show" @ctx-hide="hide">
+    <e-vue-contextmenu ref="contextShow" class="newFileMenu" @ctx-show="show" @ctx-hide="hide">
       <div class="popper-arrow"></div>
       <ul v-for="item in menus" :key="item.label">
         <li class="menu-option" @click="menusOperations(item.operation)">
@@ -384,7 +384,6 @@ export default {
       tableLoading: false,
       newFolderLoading: false,
       renameLoading: false,
-      menuTriangle: '', // 三角菜单
       cellMouseIndex: -1,
       editingIndex: -1,
       dialogMoveOrCopyVisible: false,
@@ -876,7 +875,6 @@ export default {
         this.preliminaryRowData(row)
       }
       event.preventDefault()
-      this.menuTriangle = ''
       const e = {}
       e.pageX = event.pageX + 5
       e.pageY = event.pageY + 2
@@ -887,18 +885,16 @@ export default {
     // 显示操作菜单
     showOperationMenus(event) {
       const e = {}
-      if (document.body.scrollHeight - event.pageY > 400) {
-        this.menuTriangle = 'menu-triangle-top'
+      if (event.clientY < 400) {
         e.pageX = event.pageX - 78
-        e.pageY = event.pageY + 30
+        e.pageY = event.pageY + 20
         e.clientX = event.clientX + 78
-        e.clientY = event.clientY + 30
+        e.clientY = event.clientY + 20
       } else {
-        this.menuTriangle = 'menu-triangle-bottom'
         e.pageX = event.pageX - 78
-        e.pageY = event.pageY - 150
+        e.pageY = event.pageY - 140
         e.clientX = event.clientX + 78
-        e.clientY = event.clientY - 150
+        e.clientY = event.clientY - 140
       }
       if (!this.isJustHideMenus) {
         this.$refs.contextShow.showMenu(e)
@@ -935,11 +931,6 @@ export default {
       if (this.$store.getters.token) {
         // 挂载
         this.mountToVisible = true
-        const that = this
-        // setTimeout(function () {
-        //   that.selectTreeNode = that.$refs.directoryTree.getCurrentNode()
-        //   that.selectTreeNode.showName = ' "' + that.selectTreeNode.name + '"'
-        // }, 100)
       } else {
         // 登录
         this.$router.push({path: '/login', query: {redirect: this.$route.fullPath}})
@@ -1092,13 +1083,27 @@ export default {
 @import "src/styles/element-ui";
 
 >>> .ctx-menu-container {
-  border: 0 solid rgba(0, 0, 0, 0) !important;
+  background-color: var(--vcontextmenu-bg-color);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
   min-width: unset !important;
   border-radius: $dialogBorderRadius !important;
+
+  border: 1px solid var(--vcontextmenu-border-color);
+  box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0.2);
+
+  color: var(--text-color);
 
   .menu-option {
     margin: 0 5px;
     padding: 0 10px;
+  }
+
+  li {
+    &:hover {
+      background-color: var(--vcontextmenu-hover-bg-color);
+      color: var(--text-color-hover);
+    }
   }
 
 }
