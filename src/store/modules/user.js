@@ -1,4 +1,5 @@
 import { login, logout, getInfo, verifyTotp, initVerifyTotp } from '@/api/user'
+import { applyUserTheme } from '@/utils/theme'
 import fileApi from '@/api/file-api'
 import menuApi from '@/api/menu'
 import { setLogo } from '@/utils/logo'
@@ -29,7 +30,9 @@ const getDefaultState = () => {
     shareId: store ? store.shareId  : '',
     name: store ? store.name  : '',
     showName: store ? store.showName : '',
-    userInfo: {},
+    userInfo: {
+      personalization: {}
+    },
     avatar: store ? store.avatar : '',
     userId: store ? store.userId  : '',
     menuList: [],
@@ -198,7 +201,10 @@ const actions = {
           // reject('Verification failed, please Login again.')
         }
 
-        const { id, username, showName, avatar, netdiskName, exactSearch, netdiskLogo, newVersion, iframe} = data
+        const { id, username, showName, avatar, netdiskName, exactSearch, netdiskLogo, newVersion, iframe, personalization} = data
+
+        const userTheme = (personalization && personalization.theme) || 'auto'
+        applyUserTheme(userTheme)
 
         commit('SET_NAME', username)
         commit('SET_SHOW_NAME', showName)

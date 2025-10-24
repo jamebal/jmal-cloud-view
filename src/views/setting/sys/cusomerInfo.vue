@@ -20,6 +20,11 @@
               <mfa-config/>
             </div>
           </el-tab-pane>
+          <el-tab-pane :label="$t('app.personalization')" name="3" class="setting-tab-panel">
+            <div v-if="activeName === '3'">
+              <personalization/>
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </div>
     </el-card>
@@ -30,10 +35,11 @@
 
 import MfaConfig from '@/views/setting/sys/userSetting/mfaConfig.vue'
 import userSetting from '@/views/setting/sys/userSetting/index.vue'
+import Personalization from '@/views/setting/sys/userSetting/personalization.vue'
 
 export default {
   name: 'cusomerInfo',
-  components: { userSetting, MfaConfig },
+  components: { Personalization, userSetting, MfaConfig },
   data() {
     return {
       activeName: '1',

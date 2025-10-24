@@ -314,7 +314,7 @@ export default {
 
 .box-card-header {
   padding: 15px 20px;
-  border-bottom: 1px solid #414243;
+  border-bottom: 1px solid var(--table-td-border-color);
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   -webkit-backdrop-filter: blur(20px);

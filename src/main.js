@@ -2,6 +2,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 import { setFavicon } from '@/utils/logo'
 import '@/utils/common'
 import '@/utils/web'
+import { initSystemTheme, setupSystemThemeListener } from '@/utils/theme'
 
 import 'element-theme-darkplus/lib/index.color.css';
 
@@ -56,18 +57,9 @@ const i18n = new VueI18n({
   messages,
 });
 
-// 自动切换主题
-function applySystemTheme() {
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.classList.toggle('dark', isDark);
-}
-
-applySystemTheme();
-
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-  document.documentElement.classList.toggle('dark', e.matches);
-  store.dispatch('updateTheme', e.matches ? 'dark' : 'light');
-});
+// 初始化主题
+initSystemTheme()
+setupSystemThemeListener()
 
 new Vue({
   el: '#app',
