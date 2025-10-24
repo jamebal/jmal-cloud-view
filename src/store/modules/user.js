@@ -203,7 +203,7 @@ const actions = {
 
         const { id, username, showName, avatar, netdiskName, exactSearch, netdiskLogo, newVersion, iframe, personalization} = data
 
-        const userTheme = personalization.theme || 'auto'
+        const userTheme = (personalization && personalization.theme) || 'auto'
         applyUserTheme(userTheme)
 
         commit('SET_NAME', username)

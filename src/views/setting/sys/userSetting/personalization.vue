@@ -27,12 +27,6 @@ import { applyUserTheme } from '@/utils/theme'
 
 export default {
   name: 'personalization',
-  props: {
-    data: {
-      type: Array,
-      default: [],
-    },
-  },
   data() {
     return {
       rules: {},
@@ -68,6 +62,8 @@ export default {
           type: 'success',
         })
         applyUserTheme(this.personalizationFormData.theme)
+      }).finally(() => {
+        this.saveConfigLoading = false
       })
     }
   },
