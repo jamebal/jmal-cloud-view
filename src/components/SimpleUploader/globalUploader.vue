@@ -114,7 +114,6 @@
 
 import store from '@/store'
 import $ from 'jquery'
-import SparkMD5 from 'spark-md5'
 import api from '@/api/file-api'
 import {formatNetSpeed} from '@/utils/number'
 import {mapState} from 'vuex'
@@ -123,12 +122,17 @@ import { isDragUploadAllowed } from './dragUploadUtils'
 
 export default {
   components: {},
+  props: {
+    publicApi: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       showUploader: true,
-      username: this.$store.state.user.name,
       options: {
-        target: api.simpleUploadURL,
+        target: api.simpleUploadURL + (this.publicApi ? '/public/upload' : '/upload'),
         chunkSize: localStorage.getItem('uploader_chunk_size') || 1024 * 1024,
         // speedSmoothingFactor: 0.1,
         // progressCallbacksInterval: 500,
@@ -159,7 +163,9 @@ export default {
         },
         headers: {
           'jmal-token': this.$store.state.user.token,
-          'name': this.$store.state.user.name
+          'name': this.$store.state.user.name,
+          'share-token': this.$store.getters.shareToken,
+          'shareId': this.$store.getters.shareId
         },
         query() {
         }
@@ -184,7 +190,6 @@ export default {
       isUploading: false,
       filePanel: {},
       processAreaClass: {},
-      pc: true,
       dragover: false,
       isDragStart: false,
       fileListScrollTop: 0,
@@ -383,7 +388,7 @@ export default {
       this.uploader.cancel()
       this.displayPanel(false)
       const chunkSize = localStorage.getItem('uploader_chunk_size');
-      if (chunkSize !== this.uploader.opts.chunkSize) {
+      if (chunkSize && chunkSize !== this.uploader.opts.chunkSize) {
         this.updateChunkSize(Number.parseInt(chunkSize))
       }
     },
@@ -406,15 +411,15 @@ export default {
             folder: this.$route.query.folder,
             currentDirectory: encodeIfNeeded(this.params.currentDirectory),
             username: this.params.username,
-            userId: this.params.userId
+            userId: this.params.userId,
+            publicApi: this.publicApi,
+            fileId: this.params.fileId
           })
         })
       }
-      if (window.pc) {
-        this.pc = true
+      if (this.$pc) {
         this.displayPanel(true)
       } else {
-        this.pc = false
         this.shrink()
       }
       files.forEach(file => {
@@ -432,6 +437,9 @@ export default {
       })
     },
     setPageTitle(netSpeed) {
+      if (this.publicApi) {
+        return
+      }
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
         document.title = `${this.$route.meta.title}`
       } else {
@@ -490,9 +498,10 @@ export default {
           userId: this.params.userId,
           totalSize: file.size,
           isFolder: file.isFolder,
-          lastModified: file.file.lastModified
+          lastModified: file.file.lastModified,
+          publicApi: this.publicApi,
+          fileId: this.params.fileId
         }).then(() => {
-          // console.log('文件合并成功', res)
           // 文件合并成功
           store.dispatch('updateMessage', {event: 'fileSuccess', data: file.name})
           this.statusRemove(file.id)
@@ -538,85 +547,9 @@ export default {
     onFileRemoved() {
       this.fileListLength = this.uploader.fileList.length
     },
-    /**
-     * 计算md5，实现断点续传及秒传
-     * @param file
-     */
-    computeMD5(file) {
-      const fileReader = new FileReader()
-      // const time = new Date().getTime()
-      const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
-      let currentChunk = 0
-      const chunkSize = 10 * 1024 * 1024
-      const chunks = Math.ceil(file.size / chunkSize)
-      const spark = new SparkMD5.ArrayBuffer()
-
-      // 文件状态设为"计算MD5"
-      this.statusSet(file.id, 'md5')
-      file.pause()
-
-      loadNext()
-
-      fileReader.onload = e => {
-        spark.append(e.target.result)
-
-        if (currentChunk < chunks) {
-          currentChunk++
-          loadNext()
-
-          // 实时展示MD5的计算进度
-          this.$nextTick(() => {
-            $(`.myStatus_${file.id}`).text('校验MD5 ' + ((currentChunk / chunks) * 100).toFixed(0) + '%')
-          })
-        } else {
-          const md5 = spark.end()
-          this.computeMD5Success(md5, file)
-          // console.log(`MD5计算完毕：${file.name} \nMD5：${md5} \n分片：${chunks} 大小:${file.size} 用时：${new Date().getTime() - time} ms`)
-        }
-      }
-
-      fileReader.onerror = function () {
-        this.error(`文件${file.name}读取出错，请检查该文件`)
-        file.cancel()
-      }
-
-      function loadNext() {
-        const start = currentChunk * chunkSize
-        const end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize
-
-        fileReader.readAsArrayBuffer(blobSlice.call(file.file, start, end))
-      }
-    },
-
-    computeMD5Success(md5, file) {
-      // 将自定义参数直接加载uploader实例的opts上
-      // const fileName = file.name
-      // const suffix = fileName.substring(fileName.lastIndexOf('.'), fileName.length)// 后缀名
-      Object.assign(this.uploader.opts, {
-        query: {
-          isFolder: false,
-          ...this.params
-        }
-      })
-      file.uniqueIdentifier = md5
-      file.resume()
-      this.statusRemove(file.id)
-    },
-
-    fileListShow() {
-      const $list = $('#global-uploader .file-list')
-
-      if ($list.is(':visible')) {
-        $list.slideUp()
-        this.collapse = true
-      } else {
-        $list.slideDown()
-        this.collapse = false
-      }
-    },
     // 展开球
     expand() {
-      if (!pc) {
+      if (!this.$pc) {
         this.$router.push(`/upload/index_m`)
       }
       this.filePanel = {
@@ -637,7 +570,7 @@ export default {
       let height = '92px';
       let right = '20px';
       let bottom = '20px';
-      if (!pc) {
+      if (!this.$pc) {
         width = '92px';
         height = '92px';
         right = '10px';

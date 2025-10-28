@@ -4,13 +4,11 @@ const qs = require("qs");
 
 export default {
   // 上传
-  simpleUploadURL: process.env.VUE_APP_BASE_API + '/upload',
-  // 上传头像
-  simpleUploadAvatarURL: process.env.VUE_APP_BASE_API + '/upload',
+  simpleUploadURL: process.env.VUE_APP_BASE_API,
   // 合并
   mergeSimpleUpload: function(params) {
     return request({
-      url: 'merge',
+      url: params.publicApi ? 'public/merge' : 'merge',
       method: 'post',
       params
     })
@@ -18,7 +16,7 @@ export default {
   // 检查文件是否存在
   checkExist: function (data) {
     return request({
-      url: "checkExist",
+      url: data.publicApi ? 'public/checkExist' : 'checkExist',
       method: "post",
       data
     })
@@ -26,7 +24,7 @@ export default {
   // 上传文件夹
   uploadFolder: function(params) {
     return request({
-      url: 'upload-folder',
+      url: params.publicApi ? 'public/upload-folder' : 'upload-folder',
       method: 'post',
       params,
       paramsSerializer: function(params) {

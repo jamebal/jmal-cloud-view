@@ -25,6 +25,10 @@
           </el-breadcrumb-item>
         </transition-group>
         <div class="search-content">
+          <div v-if="allowUpload">
+            <el-button round size="mini" @click="refresh">刷新</el-button>
+            <el-button round size="mini" type="primary" @click="upload">上传文件</el-button>
+          </div>
           <div class="search-class">
             <el-button round v-if="indexList.length > 0" type="text" @click="downloadFile(false)" class="sort" title="下载">
               <svg-icon icon-class="menu-download"/>
@@ -57,178 +61,127 @@
     </e-vue-contextmenu>
 
     <!--list布局-->
-    <el-table
-      v-show="!grid && !linkFailed && !showShareCode"
-      ref="fileListTable"
-      v-loading="tableLoading"
-      style="width: 100%;margin: 20px 0 0 0;"
-      empty-text="无文件"
-      :data="fileList"
-      row-key="id"
-      :summary-method="getSummaries"
-      show-summary
-      :cell-style="rowRed"
-      :row-class-name="tableRowClassName"
-      element-loading-text="文件加载中"
-      element-loading-spinner="el-icon-loading"
-      element-loading-background="#f6f7fa88"
-      @selection-change="handleSelectionChange"
-      @row-contextmenu="rowContextmenu"
-      @cell-click="cellClick"
-      @cell-mouse-enter="cellMouseEnter"
-      @cell-mouse-leave="cellMouseLeave"
-    >
-      <template v-for="(item,index) in tableHead">
-        <el-table-column
-          v-if="index === 0"
-          :key="index"
-          :index="index"
-          type="selection"
-          min-width="50"
-        >
-        </el-table-column>
-        <el-table-column
-          v-if="index === 1"
-          :key="index"
-          :index="index"
-          width="50"
-        >
-          <template slot-scope="scope">
-            <icon-file v-if="sharer" :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioUrl" :public="true"></icon-file>
-          </template>
-        </el-table-column>
+    <div>
+      <el-table
+        v-show="!linkFailed && !showShareCode"
+        ref="fileListTable"
+        v-loading="tableLoading"
+        style="width: 100%;"
+        empty-text="无文件"
+        :data="fileList"
+        stripe
+        :height="clientHeight"
+        :summary-method="getSummaries"
+        show-summary
+        :cell-style="rowRed"
+        element-loading-text="文件加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="#f6f7fa88"
+        @selection-change="handleSelectionChange"
+        @row-contextmenu="rowContextmenu"
+        @cell-click="cellClick"
+        @cell-mouse-enter="cellMouseEnter"
+        @cell-mouse-leave="cellMouseLeave"
+      >
+        <template v-for="(item,index) in tableHead">
+          <el-table-column
+            v-if="index === 0"
+            :key="index"
+            :index="index"
+            type="selection"
+            min-width="50"
+          >
+          </el-table-column>
+          <el-table-column
+            v-if="index === 1"
+            :key="index"
+            :index="index"
+            width="50"
+          >
+            <template slot-scope="scope">
+              <icon-file v-if="sharer" :item="scope.row" :image-url="imageUrl" :audio-cover-url="audioUrl" :public="true"></icon-file>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          v-if="index === 2"
-          :key="index"
-          :show-overflow-tooltip="true"
-          max-width="200"
-          :index="index"
-          :prop="item.name"
-          :label="item.label"
-          :sortable="item.sortable"
-          @click.stop="fileClick(scope.row)"
-        >
-          <template slot-scope="scope">
-            <el-col v-if="scope.row.index === editingIndex" :span="10">
-              <el-input v-focus v-model="renameFileName" placeholder="" size="small" :clearable="true"
-                        @keyup.enter.native="rowRename(renameFileName, scope.row)">
-              </el-input>
-              <el-button round
-                :loading="renameLoading"
-                element-loading-spinner="el-icon-loading"
-                element-loading-background="#f6f7fa88"
-                class="el-icon-check"
-                @click="rowRename(renameFileName, scope.row)"
-              >
-              </el-button>
-              <el-button round
-                element-loading-spinner="el-icon-loading"
-                element-loading-background="#f6f7fa88"
-                class="el-icon-close"
-                @click="editingIndex = -1"
-              >
-              </el-button>
-            </el-col>
-            <span v-else class="table-file-name">{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="index === 2"
+            :key="index"
+            :show-overflow-tooltip="true"
+            max-width="200"
+            :index="index"
+            :prop="item.name"
+            :label="item.label"
+            :sortable="item.sortable"
+            @click.stop="fileClick(scope.row)"
+          >
+            <template slot-scope="scope">
+              <span class="table-file-name">{{ scope.row.name }}</span>
+            </template>
+          </el-table-column>
 
-        <el-table-column v-if="index === 3  && showUpdateDateItem" :key="index" width="50" :index="index" align="center"
-                         header-align="center">
-        </el-table-column>
+          <el-table-column v-if="index === 3  && showUpdateDateItem" :key="index" width="50" :index="index" align="center"
+                           header-align="center">
+          </el-table-column>
 
-        <el-table-column v-if="index === 4 && showUpdateDateItem" :key="index" width="50" :prop="item.name"
-                         :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
-          <!-- 使用组件, 并传值到组件中 -->
-          <template slot="header">
-            <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)"/>
-          </template>
-          <template slot-scope="scope">
-            <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more"
-                      @click="moreClick(scope.row,$event)"/>
-          </template>
-        </el-table-column>
+          <el-table-column v-if="index === 4 && showUpdateDateItem" :key="index" width="50" :prop="item.name"
+                           :label="item.label" :index="index" class="el-icon-more" align="center" header-align="center">
+            <!-- 使用组件, 并传值到组件中 -->
+            <template slot="header">
+              <svg-icon v-if="item.name !== ''" class="button-class" icon-class="more" @click="moreOperation($event)"/>
+            </template>
+            <template slot-scope="scope">
+              <svg-icon v-if="scope.row.index === cellMouseIndex" class="button-class" icon-class="more"
+                        @click="moreClick(scope.row,$event)"/>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          v-if="index === 5 && showSizeItem"
-          :key="index"
-          width="200"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sortable="item.sortable"
-          :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
-        >
-          <template slot-scope="scope">
-            <span>{{ formatSize(scope.row.size) }}</span>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="index === 5 && showSizeItem"
+            :key="index"
+            width="200"
+            :prop="item.name"
+            :index="index"
+            :label="item.label"
+            :sortable="item.sortable"
+            :show-overflow-tooltip="true"
+            align="left"
+            header-align="left"
+          >
+            <template slot-scope="scope">
+              <span>{{ formatSize(scope.row.size) }}</span>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          v-if="index === 6 && showUpdateDateItem"
-          :key="index"
-          width="300"
-          :prop="item.name"
-          :index="index"
-          :label="item.label"
-          :sortable="item.sortable"
-          :show-overflow-tooltip="true"
-          align="left"
-          header-align="left"
-        >
-          <template slot-scope="scope">
-            <span>{{ scope.row.updateDate }}</span>
-          </template>
-        </el-table-column>
-      </template>
-    </el-table>
+          <el-table-column
+            v-if="index === 6 && showUpdateDateItem"
+            :key="index"
+            width="300"
+            :prop="item.name"
+            :index="index"
+            :label="item.label"
+            :sortable="item.sortable"
+            :show-overflow-tooltip="true"
+            align="left"
+            header-align="left"
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.updateDate }}</span>
+            </template>
+          </el-table-column>
+        </template>
+      </el-table>
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :hide-on-single-page="true"
+        :current-page.sync="pagination.pageIndex"
+        :page-sizes="pagination.pageSizes"
+        :page-size="pagination.pageSize"
+        :total="pagination.total"
+        @current-change="currentChange">
+      </el-pagination>
+    </div>
 
-<!--    &lt;!&ndash;grid布局&ndash;&gt;-->
-<!--    <div v-show="grid && !linkFailed && !showShareCode" v-loading="tableLoading"-->
-<!--         element-loading-text="文件加载中"-->
-<!--         element-loading-spinner="el-icon-loading"-->
-<!--         element-loading-background="#f6f7fa88">-->
-<!--      <div class="checkbox-group-header">-->
-<!--        <van-checkbox class="grid-all-checkbox" @click="clickGridAllCheckBox()" v-model="allChecked">-->
-<!--          {{ indexList.length > 0 ? '已选择 ' + this.tableHead[2].label : "选择" }}-->
-<!--        </van-checkbox>-->
-<!--        <el-divider></el-divider>-->
-<!--      </div>-->
-
-<!--      <van-checkbox-group v-model="selectRowData" @change="handleSelectionChange" ref="checkboxGroup">-->
-<!--        <van-grid square :column-num="gridColumnNum" :gutter="10" :border="false">-->
-<!--          <van-grid-item v-for="(item,index) in fileList" ref="gridItem" :key="item.id"-->
-<!--          >-->
-<!--            <div class="grid-time van-grid-item__content van-grid-item__content&#45;&#45;center van-grid-item__content&#45;&#45;square"-->
-<!--                 :style="{'background': indexList.includes(index)?'#baebff91':'','cursor':indexList.length>0?'default':'pointer'}"-->
-<!--                 @mouseover="gridItemHover(item,index)"-->
-<!--                 @mouseout="gridItemOut(item,index)"-->
-<!--                 @click="gridItemClick(item,$event)"-->
-<!--                 @contextmenu.prevent="rowContextmenu(item)"-->
-<!--            >-->
-<!--              <van-checkbox v-show="gridHoverItemIndex === index || indexList.includes(index)"-->
-<!--                            class="grid-item-checkbox" :name="item" @click.stop="clickGridItemCheckBox(item,index)"/>-->
-<!--              <div class="grid-item-icon">-->
-<!--                <icon-file-->
-<!--                  v-if="sharer"-->
-<!--                  :item="item"-->
-<!--                  :image-url="imageUrl"-->
-<!--                  :audio-cover-url="audioUrl"-->
-<!--                  :lazy="false"-->
-<!--                  grid-->
-<!--                  :grid-width="gridColumnWidth - 20"-->
-<!--                ></icon-file>-->
-<!--              </div>-->
-
-<!--              <span class="grid-file-text" :style="{ width: gridColumnWidth + 'px' }">{{ item.name }}</span>-->
-<!--            </div>-->
-<!--          </van-grid-item>-->
-<!--        </van-grid>-->
-<!--      </van-checkbox-group>-->
-<!--    </div>-->
     <div v-if="linkFailed && !showShareCode" class="share-header-prompt">
       <p v-if="prompt !== ''">温馨提示：</p>
       <p>{{ prompt }}</p>
@@ -268,25 +221,34 @@
       :sharer="sharerUsername"
       :status.sync="iframePreviewVisible"
     ></iframe-preview>
-    <el-divider v-if="!linkFailed && !showShareCode" class="grid-divider" content-position="center">
-      <i class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
-    </el-divider>
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :hide-on-single-page="true"
-      :current-page.sync="pagination.pageIndex"
-      :page-sizes="pagination.pageSizes"
-      :page-size="pagination.pageSize"
-      :total="pagination.total"
-      @current-change="currentChange">
-    </el-pagination>
+
+    <div v-if="!linkFailed && !showShareCode" class="file-summaries">
+      <div>
+        <i class="el-icon-folder-opened"></i>&nbsp;{{ summaries }}
+      </div>
+    </div>
+
+    <message-dialog
+      title="提示"
+      content="此文件不支持预览, 是否下载该文件?"
+      :show.sync="notPreviewDialogVisible"
+      button-size="mini"
+      operatButtonText="取消"
+      confirmButtonText="下载"
+      @operating="notPreviewDialogVisible = false"
+      @confirm="determineDownload(openingFile)"
+    >
+    </message-dialog>
+
+    <global-uploader v-if="allowUpload" public-api></global-uploader>
 
   </div>
 
 </template>
 
 <script>
+import MessageDialog from '@/components/message/MessageDialog.vue'
+import GlobalUploader from '@/components/SimpleUploader/globalUploader.vue'
 import {mapGetters,mapState} from 'vuex'
 import {formatTime, formatSize} from '@/utils/number'
 import api from '@/api/file-api'
@@ -309,6 +271,8 @@ import FileTree from "@/components/FileTree";
 
 export default {
   components: {
+    MessageDialog,
+    GlobalUploader,
     FileTree,
     Logo,
     IframePreview, IconFile, BreadcrumbFilePath, AlLoading,
@@ -321,7 +285,6 @@ export default {
       path: this.$route.query.path,
       showNewFolder: false,
       isShowNewFolder: false,
-      listModeSearch: false,
       newFolderName: '新建文件夹',
       renameFileName: '',
       searchFileName: '',
@@ -330,7 +293,7 @@ export default {
       pagination: {
         fileId: false,
         pageIndex: 1,
-        pageSize: 256,
+        pageSize: 128,
         total: 0,
         pageSizes: [10, 20, 30, 40, 50]
       },
@@ -382,30 +345,10 @@ export default {
       rowContextData: {},
       selectRowData: [],
       tableLoading: false,
-      newFolderLoading: false,
-      renameLoading: false,
       cellMouseIndex: -1,
-      editingIndex: -1,
-      dialogMoveOrCopyVisible: false,
-      directoryTreeData: [],
       selectTreeNode: {},
       fileTreeAndNewFolderDisabled: false,
-      directoryTreeProps: {
-        label: 'name',
-        children: 'children',
-        isLeaf: 'isLeaf'
-      },
-      grid: false,
-      vmode: 'list',
-      gridColumnNum: -1,
-      gridColumnWidth: 120,
-      gridHoverItemIndex: -1,
-      gridHoverIntermediate: -1,
-      allChecked: false,
       summaries: '',
-      shareDialog: false,
-      shareLink: '',
-      generateShareLinkLoading: true,
       shareId: '',
       shortId: this.$route.params.id,
       currentDirName: '',
@@ -419,7 +362,6 @@ export default {
       iframePreviewRow: {},
       iframePreviewVisible: false,
       fileHandler: {},
-      audioPreviewVisible: false,
       showUpdateDateItem: this.$pc,// 列表模式下是否显示修改时间
       showSizeItem: this.$pc,// 列表模式下是否显示文件大小
       sharer: undefined,//分享者信息,
@@ -434,6 +376,9 @@ export default {
       extractionCode: '',
       mountToVisible: false,
       mountFileData: [],
+      notPreviewDialogVisible: false,
+      openingFile: null,
+      allowUpload: false
     }
   },
   computed: {
@@ -460,12 +405,23 @@ export default {
   },
   watch: {
     message(msg) {
-      if (msg.event === 'fileSuccess') {
-        this.getFileList()
-      }
-      if (msg.event === 'clickMore') {
-        this.selectRowData = msg.data
-        this.preliminaryRowData()
+      switch (msg.event) {
+        case 'fileSuccess':
+          this.refresh();
+          break;
+        case 'clickMore':
+          this.selectRowData = msg.data;
+          this.preliminaryRowData();
+          break;
+        case 'getUploadParams':
+          // 接收到 getUploadParams 事件，分发 onUploadParams 事件，携带上传参数
+          this.$store.dispatch('updateMessage', {
+            event: 'onUploadParams',
+            data: this.getUploadParams(),
+          });
+          break;
+        default:
+          break;
       }
     }
   },
@@ -482,10 +438,9 @@ export default {
     window.onresize = function temp() {
       that.loadClientHeight()
     }
-    // 加载布局
-    if (this.$route.query.vmode) {
-      this.vmode = this.$route.query.vmode
-      this.grid = this.vmode !== 'list';
+    // 加载提取码
+    if (this.$route.query.code) {
+      this.extractionCode = this.$route.query.code
     }
   },
   destroyed() {
@@ -521,13 +476,17 @@ export default {
     }
   },
   methods: {
+    getUploadParams() {
+      return {
+        publicApi: true,
+        fileId: this.pagination.fileId ? this.pagination.fileId : '',
+      }
+    },
     loadClientHeight() {
-      this.clientHeight = document.documentElement.clientHeight - 200
+      this.clientHeight = document.documentElement.clientHeight - 220
     },
     containerResize() {
-      let clientWidth = document.querySelector(".dashboard-container").clientWidth
-      this.gridColumnNum = Math.round((clientWidth - 10) / 135)
-      this.gridColumnWidth = (clientWidth - 11 * this.gridColumnNum) / this.gridColumnNum - 4.5
+      this.loadClientHeight()
     },
     // 格式化最近时间
     formatTime(time) {
@@ -542,110 +501,135 @@ export default {
       const linkIndex = this.pathList.length - 3
       this.handleLink(this.pathList[linkIndex], linkIndex)
     },
+    /**
+     * 处理面包屑导航点击
+     */
     handleLink(item, index) {
       if (index === 0) {
-        this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
-        this.getFileList(null, true);
+        // 点击根目录
+        this.pathList.splice(1)
+        this.pagination.pageIndex = 1
+        this.getFileList(true) // 保持路径
         this.pushRouter()
-      }
-      if (item && item.fileId) {
+      } else if (item && item.fileId) {
+        // 点击其他层级
+        this.pathList.splice(index + 1)
+        this.pagination.pageIndex = 1
         this.accessShareOpenDir(item.fileId)
-        this.pathList.splice(this.pathList.findIndex((v, i) => i === index + 1), this.pathList.length - (index + 1))
       }
     },
-    // 切换布局
-    changeVmode() {
-      this.grid = !this.grid
-      this.vmode = 'list'
-      if (this.grid) {
-        this.vmode = 'grid'
+    /**
+     * 刷新当前目录
+     */
+    refresh() {
+      this.$refs.fileListTable.clearSelection()
+      this.$refs.fileListTable.doLayout()
+
+      // 根据当前是否在子目录决定调用哪个方法
+      if (this.pagination.fileId) {
+        this.loadFileList(this.pagination.fileId, false)
+      } else {
+        this.loadFileList(null, false)
       }
-      this.pushRouter()
     },
-    accessShareOpenDir(fileId) {
+    upload() {
+      // 打开文件选择框
+      this.$store.dispatch('updateMessage', {event: 'openUploader'})
+    },
+    /**
+     * 统一的文件列表加载方法
+     * @param {String} fileId - 文件夹ID，null表示根目录
+     * @param {Boolean} resetPath - 是否重置路径
+     */
+    loadFileList(fileId = null, resetPath = false) {
       this.tableLoading = true
-      api.accessShareOpenDir({
-        share: this.shareId,
-        fileId: fileId,
-        pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize,
-      }).then(res => {
+
+      const apiCall = fileId
+        ? api.accessShareOpenDir({
+          share: this.shareId,
+          fileId: fileId,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize,
+        })
+        : api.accessShare({
+          share: this.shortId,
+          pageIndex: this.pagination.pageIndex,
+          pageSize: this.pagination.pageSize,
+        })
+
+      apiCall.then(res => {
         this.isLoading = false
+
+        // 处理错误情况
+        if (Object.getPrototypeOf(res.data) === String.prototype) {
+          this.prompt = '该链接已失效'
+          this.linkFailed = true
+          return
+        }
+
+        // 处理加密分享
+        if (res.data.isPrivacy) {
+          this.showShareCode = true
+          this.shareData = res.data
+          return
+        }
+
+        // 设置文件列表
         this.fileList = res.data
-        this.loadClientHeight()
-        this.listModeSearch = true
+        this.fileList.forEach((item, index) => {
+          item.index = index
+        })
+
+        // 更新分页信息
+        this.pagination.total = res.count
         this.pagination.fileId = fileId
-        this.pagination['total'] = res.count
+
+        const isPrivacy = this.fileList.length > 0 ? this.fileList[0].isPrivacy : false
+        this.allowUpload = isPrivacy && this.fileList[0].operationPermissionList.includes('UPLOAD')
+
+        // 重置 share token（仅在非加密分享时）
+        if (this.fileList.length > 0 && !isPrivacy) {
+          return store.dispatch('user/resetShareToken')
+        }
+      }).then(() => {
+        // 初始化路径列表
+        if (resetPath && this.fileList.length > 0) {
+          const pathList = this.fileList[0].path.split('/')
+          this.currentDirName = pathList[pathList.length - 2]
+          this.pathList = [{
+            folder: this.currentDirName,
+            index: 0
+          }]
+        }
+
+        // 更新UI
+        this.loadClientHeight()
         this.$nextTick(() => {
+          if (this.$refs.fileListTable) {
+            this.$refs.fileListTable.doLayout()
+          }
           this.containerResize()
           this.tableLoading = false
           this.linkFailed = false
         })
-      }).catch(e => {
-      })
-    },
-    getFileList(pagination, overload) {
-      this.tableLoading = true
-      api.accessShare({
-        share: this.shortId,
-        pageIndex: this.pagination.pageIndex,
-        pageSize: this.pagination.pageSize,
-      }).then(res => {
-        this.isLoading = false
-        if (Object.getPrototypeOf(res.data) === String.prototype) {
-          this.prompt = '该链接已失效'
-        } else {
-          if (res.data.isPrivacy) {
-            this.showShareCode = true
-            this.shareData = res.data
-          } else {
-            this.fileList = res.data
-            this.fileList.map((item, index) => {
-              item.index = index
-            })
-          }
-          if (this.fileList.length > 0 && !this.fileList[0].isPrivacy) {
-            store.dispatch('user/resetShareToken').then(() => {
-              this.loadShareFileList(pagination, overload, res.count)
-            })
-          } else {
-            this.loadShareFileList(pagination, overload, res.count)
-          }
-        }
       }).catch(() => {
         this.tableLoading = false
         this.linkFailed = true
         this.isLoading = false
       })
     },
-    loadShareFileList(pagination, overload, resCount) {
-      this.loadClientHeight()
-      this.listModeSearch = false
-      this.listModeSearchOpenDir = false
-      this.pagination['total'] = resCount
-      this.$nextTick(() => {
-        this.containerResize()
-        this.tableLoading = false
-        this.linkFailed = false
-      })
-      if (!pagination) {
-        const pathList = this.fileList[0].path.split('/');
-        this.currentDirName = pathList[pathList.length - 2]
-      }
-      this.$nextTick(() => {
-        this.containerResize()
-        this.tableLoading = false
-        this.linkFailed = false
-        if (!pagination) {
-          // 打开文件夹
-          const item = {}
-          item['folder'] = this.currentDirName
-          item['index'] = this.pathList.length
-          if (!overload) {
-            this.pathList.push(item)
-          }
-        }
-      })
+    /**
+     * 获取根目录文件列表
+     */
+    getFileList(keepPath = false) {
+      // keepPath 为 true 时保持当前路径不变
+      this.loadFileList(null, !keepPath)
+    },
+    /**
+     * 打开指定文件夹
+     */
+    accessShareOpenDir(fileId) {
+      this.loadFileList(fileId, false)
     },
     getSharer() {
       api.getSharer({shareId: this.shortId}).then(res => {
@@ -682,15 +666,18 @@ export default {
         this.loginTitle = '登录'
       }
     },
+    /**
+     * 分页切换
+     */
     currentChange(pageIndex) {
       this.pagination.pageIndex = pageIndex
       if (this.pagination.fileId) {
-        this.accessShareOpenDir(this.pagination.fileId)
+        this.loadFileList(this.pagination.fileId, false)
       } else {
-        this.getFileList(true)
+        this.loadFileList(null, false)
       }
     },
-    getSummaries(param) {
+    getSummaries() {
       // 合计
       const sums = []
       sums[2] = this.getShowSumFileAndFolder(this.fileList)
@@ -777,11 +764,6 @@ export default {
         item_date.label = '修改日期'
         item_date.sortable = true
       }
-      if (this.indexList.length === this.fileList.length) {
-        this.allChecked = true
-      } else {
-        this.allChecked = false
-      }
     },
     // cell-style 通过返回值可以实现样式变换利用传递过来的数组index循环改变样式
     rowRed({row, column, rowIndex, columnIndex}) {
@@ -794,23 +776,16 @@ export default {
         }
       }
     },
-    // 动态添加index到row里面去
-    tableRowClassName({row, rowIndex}) {
-      row.index = rowIndex
-    },
     // 选择某行预备数据
     preliminaryRowData(row) {
       if (row) {
         this.rowContextData = row
       }
-      const isFavorite = this.rowContextData.isFavorite
     },
     // 单元格hover进入时时间
     cellMouseEnter(row) {
-      if (this.editingIndex === -1) {
-        if (this.indexList.length < 1) {
-          this.cellMouseIndex = row.index
-        }
+      if (this.indexList.length < 1) {
+        this.cellMouseIndex = row.index
       }
     },
     // 单元格hover退出时时间
@@ -820,26 +795,21 @@ export default {
     // 单元格点击事件
     cellClick(row, column) {
       clearTimeout(this.Loop);
-      if (this.editingIndex === -1) {
-        const columnIndex = column.index
-        if (columnIndex === 0) {
-          // 点击选中
-          this.$refs.fileListTable.toggleRowSelection(row)
+      const columnIndex = column.index
+      if (columnIndex === 0) {
+        // 点击选中
+        this.$refs.fileListTable.toggleRowSelection(row)
+      }
+      if (columnIndex === 2) {
+        if (this.indexList.length < 1) {
+          this.fileClick(row)
         }
-        if (columnIndex === 2) {
-          if (this.indexList.length < 1) {
-            if (row.index !== this.editingIndex) {
-              this.fileClick(row)
-              this.editingIndex = -1
-            }
-          }
-        }
-        if (columnIndex === 4) {
-          // // 单个操作
-        }
-        if (this.indexList.length > 0 && columnIndex > 0) {
-          this.$refs.fileListTable.toggleRowSelection(row)
-        }
+      }
+      if (columnIndex === 4) {
+        // // 单个操作
+      }
+      if (this.indexList.length > 0 && columnIndex > 0) {
+        this.$refs.fileListTable.toggleRowSelection(row)
       }
     },
     // 更多操作(多选)
@@ -957,6 +927,10 @@ export default {
       this.selectTreeNode = row
       this.selectTreeNode.showName = ' "' + row.name + '"'
     },
+    determineDownload(file) {
+      fileConfig.publicDownload(this.shareId, file, this.$store.getters.shareToken)
+      this.notPreviewDialogVisible = false
+    },
     downloadFile(copy) {
       let fileIds = [];
       if (this.menusIsMultiple) {
@@ -1003,73 +977,76 @@ export default {
       })
     },
     pushRouter() {
-      this.$router.push(`/s/${this.shortId}?vmode=${this.vmode}`)
+      this.$router.push(`/s/${this.shortId}`)
     },
     // 点击文件或文件夹
     fileClick(row) {
       window.shareId = this.shareId
+      this.openingFile = row
+
       if (row.isFolder) {
         // 打开文件夹
-        const item = {}
-        item['folder'] = row.name
-        item['fileId'] = row.id
-        item['index'] = this.pathList.length
+        const item = {
+          folder: row.name,
+          fileId: row.id,
+          index: this.pathList.length
+        }
         this.pathList.push(item)
         this.pagination.pageIndex = 1
         this.pushRouter()
         this.accessShareOpenDir(row.id)
-      } else {
-        const fileHandler = fileConfig.hasIframePreview(row.suffix, this.iframePreviewConfig)
-        if (fileHandler !== null) {
-          // iframe 预览
-          this.iframePreviewVisible = true
-          this.iframePreviewRow = row
-          this.fileHandler = fileHandler
-          return
-        }
-        if (row.contentType.startsWith('image')) {
-          // 图片
-          this.imagePreviewVisible = true
-          this.imagePreviewRow = row
-          return
-        }
-        if (suffix.simText.includes(row.suffix)) {
-          // 文本文件
-          this.textPreviewRow = row
-          this.textPreviewVisible = true
-          return
-        }
-        if (row.contentType.indexOf('video') > -1) {
-          // 视频文件
-          this.videoPreviewVisible = true
-          this.videoPreviewRow = row
-          return
-        }
-        // 音频文件
-        if (row.contentType.indexOf('audio') > -1) {
-          this.$store.dispatch('updateMessage', { event: 'onAddAudio', data: { row: row, audioCoverUrl: this.audioCoverUrl } })
-          return
-        }
-        // office文件
-        if (row.contentType.indexOf('office') > -1 || suffix.iframePreviewFile.includes(row.suffix)) {
-          // office文件
-          this.iframePreviewVisible = true
-          this.iframePreviewRow = row
-          return
-        }
-        // 打开文件
-        fileConfig.publicPreview(row, this.shareId, this.$store.getters.shareToken)
+        return
       }
+      const fileHandler = fileConfig.hasIframePreview(row.suffix, this.iframePreviewConfig)
+      if (fileHandler !== null) {
+        // iframe 预览
+        this.iframePreviewVisible = true
+        this.iframePreviewRow = row
+        this.fileHandler = fileHandler
+        return
+      }
+      if (row.contentType.startsWith('image')) {
+        // 图片
+        this.imagePreviewVisible = true
+        this.imagePreviewRow = row
+        return
+      }
+      if (suffix.simText.includes(row.suffix)) {
+        // 文本文件
+        this.textPreviewRow = row
+        this.textPreviewVisible = true
+        return
+      }
+      if (row.contentType.indexOf('video') > -1) {
+        // 视频文件
+        this.videoPreviewVisible = true
+        this.videoPreviewRow = row
+        return
+      }
+      // 音频文件
+      if (row.contentType.indexOf('audio') > -1) {
+        this.$store.dispatch('updateMessage', { event: 'onAddAudio', data: { row: row, audioCoverUrl: this.audioCoverUrl } })
+        return
+      }
+      // office文件
+      if (row.contentType.indexOf('office') > -1 || suffix.iframePreviewFile.includes(row.suffix)) {
+        // office文件
+        this.iframePreviewVisible = true
+        this.iframePreviewRow = row
+        return
+      }
+      this.notPreviewDialogVisible = true
     },
     /**
      * 验证提取码
-     * @param shareCode 提取码
      */
     validShareCode(shareCode) {
-      this.$store.dispatch('user/validShareCode', {shareId: this.shareId, shareCode: shareCode}).then(() => {
+      this.$store.dispatch('user/validShareCode', {
+        shareId: this.shareId,
+        shareCode: shareCode
+      }).then(() => {
         this.showShareCode = false
-        // 验证成功
-        this.getFileList()
+        this.getFileList(false)
       })
     }
   }
@@ -1108,11 +1085,16 @@ export default {
 
 }
 
+.search-content {
+  display: flex;
+  justify-content: space-between;
+}
+
 /*.el-breadcrumb {*/
 /*margin: 50px;*/
 .dashboard-container {
   margin: 0;
-  padding: 10px 0;
+  padding: 1rem 1rem;
 }
 
 .header-location {
@@ -1127,7 +1109,7 @@ export default {
 }
 
 .share-h {
-  padding: 0 15px;
+  height: 100px;
 }
 
 .share-header-prompt {
@@ -1170,7 +1152,7 @@ export default {
     float: right;
     top: 10px;
 
-    > > > .el-avatar {
+    >>> .el-avatar {
       margin: 0 0 0 10px;
     }
 
@@ -1180,7 +1162,7 @@ export default {
   }
 }
 
-> > > .el-table {
+>>> .el-table {
   &::before {
     width: auto;
   }
@@ -1190,18 +1172,18 @@ export default {
   }
 }
 
-.grid-divider {
-  height: 30px;
-  text-align: center;
-  width: auto;
-  background: unset;
+>>> .el-pagination {
+  margin: 0;
+  float: right;
+}
 
-  > > > .el-divider__text {
-  }
-
-  > > > .el-divider__text.is-center {
-    position: relative;
-  }
+.file-summaries {
+  color: var(--text-color);
+  margin: 20px 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .share-content {
@@ -1216,15 +1198,15 @@ export default {
   margin: 20px 0 20px 0;
   position: relative;
 
-  > > > .icon-favorite {
+  >>> .icon-favorite {
     display: none;
   }
 
-  > > > .icon-share {
+  >>> .icon-share {
     display: none;
   }
 
-  .share-icon-font > > > .svg-icon {
+  .share-icon-font >>> .svg-icon {
     font-size: 7.6rem;
   }
 }
@@ -1256,13 +1238,13 @@ export default {
 .share-code-valid {
   margin-top: 20px;
 
-  > > > .el-button {
+  >>> .el-button {
     width: 200px;
   }
 }
 
 .share-expire-date {
-  color: #25262b5c;
+  color: var(--text-color);
   font-size: 12px;
   margin-top: 10px;
 }
@@ -1273,24 +1255,6 @@ export default {
 
 >>> .el-input-tree-button {
   margin-left: 5px !important;
-}
-
->>> .van-grid-item__content {
-  padding: 8px;
-  .svg-icon{
-    font-size: 4.5rem;
-  }
-}
-
->>> .grid-file-text {
-  margin-top: 5px;
-  cursor: default;
-  text-align: center;
-  color: var(--text-color);
-  font-size: small;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 </style>

@@ -99,7 +99,7 @@
   font-size: 28px;
 }
 >>>.el-table thead {
-  color: #4f4f50;
+  color: var(--text-color);
 }
 >>> .el-table thead .el-table-column--selection .cell {
   padding-left: 15px;
