@@ -418,10 +418,8 @@ export default {
         })
       }
       if (this.$pc) {
-        this.$pc = true
         this.displayPanel(true)
       } else {
-        this.$pc = false
         this.shrink()
       }
       files.forEach(file => {
