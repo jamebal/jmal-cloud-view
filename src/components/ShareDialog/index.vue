@@ -114,7 +114,7 @@
         </el-button>
         <el-button round size="small" class="tag-share-link" v-if="shareOptionConfig.shared && shareOption.isPrivacy"
                    @click="copyShareLink('口令复制成功')"
-                   :data-clipboard-text="file.name + ' ' + shareLink + ' 提取码：' + extractionCode">复制口令
+                   :data-clipboard-text="shareLink + '?code=' + extractionCode">复制口令
         </el-button>
         <el-button round size="small" class="tag-share-link" v-if="shareOptionConfig.shared" type="primary"
                    @click="copyShareLink('链接复制成功')" :data-clipboard-text="shareLink">复制链接
