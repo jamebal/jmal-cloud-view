@@ -16,3 +16,9 @@ no-changes-template: '- No changes'
 template: |
 
   [安装文档](https://jmalcloud.github.io/guide/installation.html)
+
+  ## Changes in this release:
+
+  $CHANGES
+
+  **Full Changelog**: [$PREVIOUS_TAG...v$NEXT_PATCH_VERSION](https://github.com/jamebal/jmal-cloud-server/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION)
