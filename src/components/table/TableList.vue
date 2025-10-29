@@ -202,9 +202,6 @@ export default {
 <style lang="scss" scoped>
 .table-temp {
   >>>.el-table {
-    th {
-      background-color: #fafafa;
-    }
     .caret-wrapper {
       height: 16px;
     }
