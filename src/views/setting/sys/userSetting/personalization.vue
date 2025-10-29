@@ -35,7 +35,7 @@ export default {
         theme: 'auto'
       },
       themeList: [
-        { value: 'auto', label: '系统默认' },
+        { value: 'auto', label: '跟随系统' },
         { value: 'light', label: '浅色主题' },
         { value: 'dark', label: '深色主题' },
       ]
