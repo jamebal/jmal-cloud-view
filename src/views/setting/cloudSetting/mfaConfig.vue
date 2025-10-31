@@ -79,7 +79,7 @@ export default {
     },
     resetMfa() {
       this.restMfaLoading = true
-      settingApi.restMfa().then(() => {
+      settingApi.resetMfa().then(() => {
         this.$message.success('已重置所有用户的两步验证')
         this.dialogVisible = false
       }).catch(() => {
