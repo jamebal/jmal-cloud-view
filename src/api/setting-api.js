@@ -48,7 +48,7 @@ export default {
       params
     })
   },
-  restMfa() {
+  resetMfa() {
     return request({
       url: '/cloud/setting/reset-mfa',
       method: 'put'
