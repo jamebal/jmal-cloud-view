@@ -48,6 +48,12 @@ export default {
       params
     })
   },
+  restMfa() {
+    return request({
+      url: '/cloud/setting/rest-mfa',
+      method: 'put'
+    })
+  },
   getPreviewConfig(params) {
     return request({
       url: '/cloud/setting/preview/config',
