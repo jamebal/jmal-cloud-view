@@ -29,7 +29,7 @@
         <el-button round size="small" :loading="userUpdateLoading" type="primary" @click="onSavePassword">确 定</el-button>
       </div>
     </el-dialog>
-    <el-form ref="cusomerInfoForm" :model="cusomerInfoForm" label-width="80px">
+    <el-form ref="consumerInfoForm" :model="consumerInfoForm" label-width="80px">
       <el-form-item label="头像" class="form-item-avatar">
         <div style="height: 100px; width: 100px;">
           <el-avatar icon="el-icon-user-solid" class="avatar-value" shape="circle" :size="100" fit="fit" :src="srcImage"  ></el-avatar>
@@ -44,14 +44,14 @@
         <el-button round size="mini" @click="changePassword">修改密码</el-button>
       </el-form-item>
       <el-form-item label="用户名">
-        <el-input v-model="cusomerInfoForm.showName" class="input-none-width"/>
+        <el-input v-model="consumerInfoForm.showName" class="input-none-width"/>
       </el-form-item>
 
       <el-form-item label="标语">
-        <el-input class="form-slogan" v-model="cusomerInfoForm.slogan" />
+        <el-input class="form-slogan" v-model="consumerInfoForm.slogan" />
       </el-form-item>
       <el-form-item label="个人简介">
-        <el-input class="form-slogan" type="textarea" v-model="cusomerInfoForm.introduction"></el-input>
+        <el-input class="form-slogan" type="textarea" v-model="consumerInfoForm.introduction"></el-input>
       </el-form-item>
 
       <el-form-item v-show="percentage > 0" :label="$t('app.enableWebP')">
@@ -60,7 +60,7 @@
             v-model="webpEnable"
             active-color="#13ce66"
             inactive-color="#ff4949"
-            @change="cusomerInfoForm.webpDisabled = !webpEnable"
+            @change="consumerInfoForm.webpDisabled = !webpEnable"
           >
           </el-switch>
         </div>
@@ -119,7 +119,7 @@ export default {
         {color: '#1989fa', percentage: 40},
         {color: '#6f7ad3', percentage: 20}
       ],
-      cusomerInfoForm: {
+      consumerInfoForm: {
       },
       passwordForm: {
         oldPassword: '',
@@ -196,7 +196,7 @@ export default {
           this.$emit('isAdmin', true)
         }
         await this.$nextTick()
-        this.cusomerInfoForm = this.userInfo
+        this.consumerInfoForm = this.userInfo
         this.webpEnable = !this.userInfo.webpDisabled
         this.srcImage = this.userInfo.avatar ? this.imageUrl + this.userInfo.avatar : require('@/assets/img/default-avatar.png')
       })
@@ -272,13 +272,14 @@ export default {
     // 设置formData
     setFormData() {
       let data = new FormData();
-      for (let formKey in this.cusomerInfoForm) {
-        if(this.cusomerInfoForm.hasOwnProperty(formKey)){
+      for (let formKey in this.consumerInfoForm) {
+        if(this.consumerInfoForm.hasOwnProperty(formKey)){
           if(formKey !== 'avatar'){
-            data.append(formKey,this.cusomerInfoForm[formKey])
+            data.append(formKey,this.consumerInfoForm[formKey])
           }
         }
       }
+      data.delete("personalization")
       data.delete("createTime")
       data.delete("updateTime")
       return data
