@@ -18,23 +18,23 @@
     </div>
 
     <div class="config-itme-label">重置两步验证：
-
-      <el-dialog
-        class="reset-mfa-dialog"
-        title="重要提示"
-        top="0px"
-        :visible.sync="dialogVisible"
-        width="420px">
-        <i class="el-icon-warning"/>
-        <span>确定要重置所有用户的两步验证吗?</span>
-        <span slot="footer" class="dialog-footer">
-          <el-button round size="mini" :loading="restMfaLoading" @click="dialogVisible = false">取 消</el-button>
-          <el-button round size="mini" :loading="restMfaLoading" type="danger" @click="resetMfa">确 定</el-button>
-        </span>
-      </el-dialog>
       <el-button round size="mini" :loading="restMfaLoading" type="primary" @click="dialogVisible = true"><i class="el-icon-refresh"></i></el-button>
     </div>
     <span class="instruction">此操作会重置所有用户的两步验证，仅在<a href="https://jmalcloud.github.io/guide/installation.html#encryption-secret-key" target="_blank">更换密钥</a>时执行。重置后，所有用户的两步验证都将失效，需要重新设置。请谨慎操作。</span>
+
+    <el-dialog
+      class="reset-mfa-dialog"
+      title="重要提示"
+      top="0px"
+      :visible.sync="dialogVisible"
+      width="420px">
+      <i class="el-icon-warning"/>
+      <span>确定要重置所有用户的两步验证吗?</span>
+      <span slot="footer" class="dialog-footer">
+          <el-button round size="mini" :loading="restMfaLoading" @click="dialogVisible = false">取 消</el-button>
+          <el-button round size="mini" :loading="restMfaLoading" type="danger" @click="resetMfa">确 定</el-button>
+        </span>
+    </el-dialog>
 
   </div>
 </template>
