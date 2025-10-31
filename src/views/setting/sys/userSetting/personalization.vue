@@ -47,9 +47,8 @@ export default {
   methods: {
     getPersonalizationConfig() {
       settingApi.getPersonalizationConfig().then(response => {
-        this.personalizationFormData = response.data
-        if (!this.personalizationFormData.theme) {
-          this.personalizationFormData.theme = 'auto'
+        if (Object.entries(response.data).length > 0) {
+          this.personalizationFormData = response.data
         }
       })
     },
