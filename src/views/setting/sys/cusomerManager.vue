@@ -247,6 +247,7 @@ export default {
             data.append(formKey,this.form[formKey])
           }
         }
+        data.delete("personalization")
         data.delete("createTime")
         data.delete("updateTime")
         return data
