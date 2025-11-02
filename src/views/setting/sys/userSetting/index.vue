@@ -83,6 +83,7 @@
 <script>
 import { getInfo, userUpdate, validOldPass, updatePass} from '@/api/user'
 import { formatSize } from '@/utils/number'
+import { removeFormDataFields } from '@/utils/removeFormDataFields'
 import CropperDialog from '@/components/Cropper/dialog'
 import SelectFile from "@/components/ShowFile/SelectFile"
 
@@ -279,9 +280,7 @@ export default {
           }
         }
       }
-      data.delete("personalization")
-      data.delete("createTime")
-      data.delete("updateTime")
+      removeFormDataFields(data)
       return data
     },
     // 保存头像

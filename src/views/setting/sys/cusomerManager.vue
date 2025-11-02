@@ -86,6 +86,7 @@ import {addUser, delUser, getUserInfo, resetPass, userList, userUpdate} from '@/
 import roleApi from '@/api/role'
 import CropperDialog from '@/components/Cropper/dialog'
 import TableList from "@/components/table/TableList";
+import {removeFormDataFields} from "@/utils/removeFormDataFields";
 
 const initForm = {
   username: '',
@@ -247,9 +248,7 @@ export default {
             data.append(formKey,this.form[formKey])
           }
         }
-        data.delete("personalization")
-        data.delete("createTime")
-        data.delete("updateTime")
+        removeFormDataFields(data)
         return data
       },
       // 保存
