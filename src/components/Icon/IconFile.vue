@@ -154,11 +154,11 @@ export default {
   },
   computed: {
     folderSvg() {
-      if (this.item.childrenCount && this.item.childrenCount >= 0) {
-        return 'folder'
-      }
       if (this.item.ossFolder || this.item.id.includes('/')) {
         return 'folder-oss'
+      }
+      if (this.item.childrenCount && this.item.childrenCount >= 0) {
+        return 'folder'
       }
       return 'folder-empty'
     },
