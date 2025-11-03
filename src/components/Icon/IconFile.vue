@@ -50,7 +50,7 @@
           <el-tag v-if="grid" size="small" class="mobile grid oss-folder">{{ item.ossPlatform }}</el-tag>
         </div>
     </div>
-    <svg-icon v-if="item.isFolder" icon-class="folder"/>
+    <svg-icon v-if="item.isFolder" :icon-class="folderSvg"/>
     <div v-else-if="item.contentType && item.contentType.indexOf('video') > -1">
       <div v-if="item.mediaCover !== false && item.mediaCover !== 'false'">
         <div v-if="grid && pc && !details" class="grid-play-icon">
@@ -153,6 +153,15 @@ export default {
   mounted() {
   },
   computed: {
+    folderSvg() {
+      if (this.item.ossFolder || this.item.id.includes('/')) {
+        return 'folder-oss'
+      }
+      if (this.item.childrenCount && this.item.childrenCount >= 0) {
+        return 'folder'
+      }
+      return 'folder-empty'
+    },
     videoImageHeight() {
       if (this.details) {
         return "110px"
