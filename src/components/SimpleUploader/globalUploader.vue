@@ -622,7 +622,6 @@ export default {
     },
 
     /**
-     * 新增的自定义的状态: 'md5'、'transcoding'、'failed'
      * @param id
      * @param status
      */
@@ -632,25 +631,21 @@ export default {
           text: progressText,
           bgc: '#ffffff00'
         },
-        md5: {
-          text: '校验MD5',
-          bgc: '#fff'
-        },
         merging: {
           text: '合并中',
-          bgc: '#e2eeff'
+          bgc: 'var(--uploader-file-process-success-bg-color)'
         },
         transcoding: {
           text: '转码中',
-          bgc: '#e2eeff'
+          bgc: 'var(--uploader-file-process-success-bg-color)'
         },
         failed: {
           text: '上传失败',
-          bgc: '#e2eeff'
+          bgc: 'var(--uploader-file-process-success-bg-color)'
         },
         success: {
           text: '上传成功',
-          bgc: '#e2eeff'
+          bgc: 'var(--uploader-file-process-success-bg-color)'
         }
       }
 
@@ -697,6 +692,19 @@ export default {
   right: 15px;
   bottom: 15px;
 
+  >>>.uploader-file {
+    border-bottom: 1px solid var(--uploader-file-border-color);
+  }
+  >>>.uploader-file-info {
+    color: var(--text-color);
+    &:hover {
+      background-color: var(--menu-hover);
+    }
+  }
+  >>>.uploader-file-progress {
+    background-color: var(--uploader-file-process-success-bg-color);
+  }
+
   .uploader-drop {
     text-align: center;
     position: fixed;
@@ -720,15 +728,15 @@ export default {
   }
 
   .file-panel {
-    background-color: #fff;
-    border: 1px solid #e2e2e2;
+    background-color: var(--setting-bg);
+    border: var(--dialog-border);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 
     right: 2%;
     bottom: 2%;
     width: 720px;
     height: 300px;
-    color: black;
+    color: var(--text-color);
     margin: auto;
     overflow: hidden;
     background-size: 100% 100%;
@@ -757,12 +765,13 @@ export default {
       height: 3.5rem;
       // line-height: 3.5rem;
       padding: 0 10px;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid var(--menu-hover);
 
       .files-title {
         margin-left: 3%;
         font-size: 20px;
         line-height: 3.5rem;
+        color:  var(--text-color);
       }
 
       .operate {
@@ -784,12 +793,12 @@ export default {
       overflow-x: hidden;
       list-style-type: none;
       overflow-y: auto;
-      background-color: #fff;
+      background-color: var(--bg-color);
       padding: 0;
       margin: 0;
 
       >>> li {
-        background-color: #fff;
+        background-color: var(--bg-color);
       }
     }
 
@@ -883,7 +892,8 @@ export default {
   -webkit-box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  background: #eee;
+  background: var(--setting-bg);
+  color: var(--text-color);
   margin: auto;
   overflow: hidden;
   background-size: 100% 100%;
@@ -916,11 +926,11 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  border: 4px solid #fff;
+  border: 4px solid var(--bg-color);
   transform: translate(-50%, -50%);
   width: 90px;
   height: 90px;
-  background: linear-gradient(45deg, #fde47c, #fdeca6);
+  background: var(--uploader-file-process-anime-bg-color);
   border-radius: 50%;
   overflow: hidden;
 }
@@ -928,7 +938,7 @@ export default {
 .process-anime .cube-a {
   position: absolute;
   left: 50%;
-  background: rgba(53, 53, 53, 0.3);
+  background: var(--process-cube-a-bg);
   width: 130px;
   height: 130px;
   border-radius: 50px;
@@ -940,7 +950,7 @@ export default {
 .process-anime .cube-b {
   position: absolute;
   left: 50%;
-  background: #fff;
+  background: var(--bg-color);
   width: 130px;
   height: 130px;
   border-radius: 50px;

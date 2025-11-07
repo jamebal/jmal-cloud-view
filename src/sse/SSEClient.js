@@ -174,7 +174,7 @@ function handleFileChangeMessage(msg, url, body) {
       type: code === 0 ? 'success' : 'error',
     };
 
-    Bus.notify(notificationOptions);
+    notifyUser(notificationOptions);
 
     if (code !== 0) {
       store.dispatch('updateMessage', { event: 'msg/file/operation/fault', data: msg });
@@ -189,8 +189,17 @@ function handleFileChangeMessage(msg, url, body) {
       message: success ? '' : message ? `<span style="font-size: 12px;">${message}</span>` : '',
       type: success ? 'success' : 'error',
     }
-    Bus.notify(notificationOptions)
+
+    notifyUser(notificationOptions);
   }
 
+}
+
+function notifyUser(notificationOptions) {
+  if (window.pc) {
+    Bus.notify(notificationOptions);
+  } else {
+    vant.Toast.success(notificationOptions.title);
+  }
 }
 

@@ -28,6 +28,47 @@ body {
   .el-button.is-circle {
     line-height: 0;
   }
+
+  .van-nav-bar {
+    color: var(--text-color);
+    background: var(--bg-color);
+    &:after {
+      border-bottom: 1px solid var(--vcontextmenu-border-color);
+    }
+  }
+
+  .van-nav-bar__title {
+    color: var(--text-color);
+  }
+
+  .van-dialog {
+    color: var(--text-color);
+    background: var(--bg-color);
+    border: 1px solid var(--vcontextmenu-border-color);
+    .van-dialog__footer {
+      &:after {
+        border-top: 1px solid var(--vcontextmenu-border-color);
+      }
+    }
+  }
+
+  .van-button--default {
+    color: var(--text-color);
+    background: var(--bg-color);
+    &:active {
+      background-color: var(--menu-hover);
+    }
+    &:after {
+      border-left: 1px solid var(--vcontextmenu-border-color);
+    }
+  }
+  .van-dialog__confirm, .van-dialog__confirm:active {
+    color: #ee0a24;
+  }
+  .van-dialog__message--has-title {
+    color: var(--text-color);
+  }
+
   //.el-button {
   //  border-radius: 32px;
   //}
@@ -81,6 +122,8 @@ body {
     background-color: var(--tippy-box-bg-color);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     backdrop-filter: blur(16px) saturate(180%);
+    border: var(--tippy-box-border);
+    box-shadow: var(--tippy-box-box-shadow);
 
     .apple-tooltip-content {
       padding: 8px 12px; /* 增加内边距 */
