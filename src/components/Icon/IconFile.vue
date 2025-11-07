@@ -157,10 +157,13 @@ export default {
       if (this.item.ossFolder || this.item.id.includes('/')) {
         return 'folder-oss'
       }
-      if (this.item.childrenCount && this.item.childrenCount >= 0) {
+      if (this.item.mountFileId) {
         return 'folder'
       }
-      return 'folder-empty'
+      if (this.item.etag && this.item.etag === '108bf2ad221222015ab6e3376016909905a97dba23f0990f6cd1620703171640') {
+        return 'folder-empty'
+      }
+      return 'folder'
     },
     videoImageHeight() {
       if (this.details) {

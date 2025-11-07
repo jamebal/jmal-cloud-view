@@ -25,6 +25,10 @@ export default {
             <span class="tooltip-label">名称:</span>
             <span class="tooltip-value tooltip-value-name">${item.name}</span>
           </div>
+          <div v-if="item.childrenCount" class="tooltip-row">
+            <span class="tooltip-label">内容数量:</span>
+            <span class="tooltip-value tooltip-value-path">${item.childrenCount}</span>
+          </div>
           <div class="tooltip-row">
             <span class="tooltip-label">上传时间:</span>
             <span class="tooltip-value tooltip-value-date">${item.uploadDate}</span>
