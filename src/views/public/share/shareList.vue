@@ -1067,7 +1067,7 @@ export default {
   border-radius: $dialogBorderRadius !important;
 
   border: 1px solid var(--vcontextmenu-border-color);
-  box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0.2);
+  box-shadow: var(--v-contextmenu-box-shadow);
 
   color: var(--text-color);
 

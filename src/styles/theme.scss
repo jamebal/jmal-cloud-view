@@ -26,6 +26,12 @@
   --tippy-box-apple-tooltip-content-color: #333;
   --tippy-box-tooltip-label-color: #666;
   --tippy-box-tooltip-value-color: #111;
+  --tippy-box-border: 0px solid #414243;
+  --tippy-box-box-shadow: 0 0 20px 4px rgba(154, 161, 177, .15), 0 4px 80px -8px rgba(36, 40, 47, .25), 0 4px 4px -2px rgba(91, 94, 105, .15);
+
+  // box-shadow
+  // 右键菜单阴影
+  --v-contextmenu-box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0.2);
 
   // grid mode
   --grid-hover-color: #e0f3fc;
@@ -64,11 +70,19 @@
 
   // markdown editor
   --url-slug-bg-color: #ecf5ff;
+
+  // upload file popover
+  --process-cube-a-bg: #ffffff4d;
+  --uploader-file-border-color: #0000001e;
+  --uploader-file-process-success-bg-color: #e2eeff;
+  --uploader-file-process-anime-bg-color: linear-gradient(45deg, #419eff, #9ccdff);
+  --uploader-file-uploader-drop-bg-color: #ffffff99;
+  --uploader-file-uploader-drop-text-color: #616161;
 }
 
 html.dark {
 
-  --apple-shadow-color: #FFFFFF19;
+  --apple-shadow-color: #FFFFFF0f;
 
   --bg-color: #0d1117;
   --setting-bg: #232323;
@@ -82,7 +96,7 @@ html.dark {
   --scrollbar-thumb-color: #5a5a5a;
   --scrollbar-thumb-hover-color: #888888;
   --scrollbar-track-piece-color: #0c1116;
-  --text-secondary-color: #d5d5d5;
+  --text-secondary-color: #bcbcbc;
   --text-color: #e5eaf3;
   --text-color-hover: #fff;
   --dialog-border: 1px solid #414243;
@@ -90,14 +104,20 @@ html.dark {
   --navbar-box-shadow: #ffffff26;
 
   // tippy-box
-  --tippy-box-bg-color: rgba(0,0,0,.75);
+  --tippy-box-bg-color: #141414be;
   --tippy-box-apple-tooltip-content-color: #ccc;
   --tippy-box-tooltip-label-color: #999;
   --tippy-box-tooltip-value-color: #e5eaf3;
+  --tippy-box-border: 1px solid #414243;
+  --tippy-box-box-shadow: rgba(0,0,0,.5);
+
+  // box-shadow
+  // 右键菜单阴影
+  --v-contextmenu-box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0);
 
   // grid mode
-  --grid-hover-color: #4c5f73;
-  --grid-active-color: #4c5f73;
+  --grid-hover-color: #262c36;
+  --grid-active-color: #262c36;
   --shadow-container-color: rgba(255, 255, 255, 0.05);
 
   // VContextmenu
@@ -132,4 +152,12 @@ html.dark {
 
   // markdown editor
   --url-slug-bg-color: #464646;
+
+  // upload file popover
+  --process-cube-a-bg: #0000004d;
+  --uploader-file-border-color: #414243;
+  --uploader-file-process-success-bg-color: #44474c;
+  --uploader-file-process-anime-bg-color: linear-gradient(45deg, #005fc2, #6586a9);
+  --uploader-file-uploader-drop-bg-color: rgba(44, 44, 44, 0.6);
+  --uploader-file-uploader-drop-text-color: #b6b6b6;
 }

@@ -25,6 +25,11 @@ export default {
             <span class="tooltip-label">名称:</span>
             <span class="tooltip-value tooltip-value-name">${item.name}</span>
           </div>
+          ${item.isFolder && item.childrenCount ? `
+          <div class="tooltip-row">
+            <span class="tooltip-label">内容数量:</span>
+            <span class="tooltip-value">${item.childrenCount}</span>
+          </div>` : ''}
           <div class="tooltip-row">
             <span class="tooltip-label">上传时间:</span>
             <span class="tooltip-value tooltip-value-date">${item.uploadDate}</span>

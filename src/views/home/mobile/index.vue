@@ -49,18 +49,9 @@
               :right-text="this.selectRowData.length !== this.fileList.length ? $t('common.select') : $t('common.cancel')"
               @click-left="leftMenu"
               left-arrow>
-              <div class="header-button" slot="left">
-                <svg
-                  class="header-button-icon"
-                  viewBox="0 0 1024 1024"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="25"
-                  height="25"
-                >
-                  <path
-                    d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 0 0 0-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0 0 14.4 7z"/>
-                </svg>
-              </div>
+
+              <hamburger class="header-button" slot="left"/>
+
             </van-nav-bar>
             <van-nav-bar
               :style="vanNavBarClass"
@@ -122,7 +113,7 @@
 
           <!--搜索结果-->
           <van-cell v-if="searchStatus && searchValue.length > 0 && fileList.length > 0"
-                    style="background-color:#f7f8fa;">
+                    style="background-color:var(--setting-bg);">
             <div class="search-result">{{ resultCount }}个结果</div>
           </van-cell>
           <van-cell v-if="searchStatus && searchValue.length > 0 && fileList.length === 0">
@@ -215,9 +206,8 @@
     </van-dialog>
 
     <e-vue-contextmenu ref="contextShow" class="newFileMenu" @ctx-show="show" @ctx-hide="hide">
-      <ul v-for="(item,index) in menus" :key="item.label"
-          :class="{'menu-list-first':index===0,'menu-list-last':index===menus.length-1,'menu-list':index<menus.length-1&&index>0}">
-        <div v-if="index !== 0" style="border-bottom:1px solid #cccccc85"></div>
+      <ul v-for="(item,index) in menus" :key="item.label" class="menu-list">
+        <div v-if="index !== 0" style="border-bottom:1px solid var(--menu-hover)"></div>
         <li :class="{'remove':item.operation==='remove'}" @click="menusOperations(item.operation)">
           <div class="menuitem">
             <svg-icon :icon-class="item.iconClass"/>
@@ -273,6 +263,8 @@
 </template>
 <script>
 
+import Hamburger from '@/components/Hamburger/index.vue'
+import { fileOperations } from '@/utils/file-operations'
 import { mapGetters, mapState } from 'vuex'
 import {formatSize, formatTime} from '@/utils/number'
 import {getElementToPageLeft, getElementToPageTop} from '@/utils/dom'
@@ -288,6 +280,7 @@ import Clipboard from "clipboard";
 
 export default {
   components: {
+    Hamburger,
     IframePreview,
     SimTextPreview,
     VideoPreview,
@@ -302,6 +295,7 @@ export default {
   },
   data() {
     return {
+      shareToken: undefined,
       test: 0,
       lastTabbarOffsetTop: 0,// 底部tabbar与上边框 上次的距离
       diffTabbarTop: 0,// 底部tabbar与上边框的变化距离
@@ -342,10 +336,9 @@ export default {
       Loop: null,
       isJustHideMenus: false,
       singleMenus: [
-        {iconClass: 'menu-select', label: '选择', operation: 'select'},
+        {iconClass: 'duigou', label: '选择', operation: 'select'},
         {iconClass: 'menu-favorite', label: '收藏', operation: 'favorite'},
         {iconClass: 'menu-rename', label: '重命名', operation: 'rename'},
-        {iconClass: 'menu-copy', label: '移动或复制', operation: 'copy'},
         {iconClass: 'menu-download', label: '下载', operation: 'download'},
         {iconClass: 'menu-remove', label: '删除', operation: 'remove'}
       ],
@@ -494,14 +487,11 @@ export default {
           this.menus.splice(0, 1, item)
         }
       } else {
-        const item = {iconClass: 'menu-select', label: '选择', operation: 'select'}
+        const item = {iconClass: 'duigou', label: '选择', operation: 'select'}
         this.menus.splice(0, 1, item)
       }
 
-      if (row.isShare && !row.isPrivacy) {
-        // 添加复制下载链接选项
-        this.menus.splice(-2, 0, { iconClass: "menu-fuzhi", label: "复制下载链接", operation: "copyDownloadLink" })
-      }
+      this.setMenus(row)
 
       this.preliminaryRowData(row)
       // 长按选择的数据
@@ -515,6 +505,83 @@ export default {
         e.pageY = getElementToPageTop(target) + target.offsetHeight + 5
       }
       this.$refs.contextShow.showMenu(e)
+    },
+    setMenus(row) {
+      // 挂载的文件
+      const owner = localStorage.getItem('mountFileOwner')
+      const notSelf = row.userId && row.userId !== this.$store.getters.userId
+      if ((this.$route.query.folder && owner) || notSelf) {
+        // 根据权限设置菜单
+        this.setMenusByPermission(row)
+      } else {
+        if (row.isFolder && row.mountFileId) {
+          const reservations = ['open', 'tag', 'favorite', 'remove']
+          // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
+          this.menus = this.menus.filter(item =>
+            reservations.includes(item.operation)
+          )
+        }
+        if (!row.isFolder && this.queryFileType !== 'trash') {
+          // 创建副本
+          const copyIndex = this.getIndexOfFileContextMenus(fileOperations.copy.operation)
+          if (copyIndex > -1) {
+            this.menus.splice(copyIndex, 0, fileOperations.duplicate)
+          }
+        }
+        if (row.ossFolder) {
+          const reservations = ['open', 'tag']
+          // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
+          this.menus = this.menus.filter(item =>
+            reservations.includes(item.operation)
+          )
+        }
+        this.setMenusCopyDownLoadLinks(row)
+      }
+    },
+    getIndexOfFileContextMenus(operation) {
+      return this.menus.findIndex(item => item.operation === operation)
+    },
+    setMenusCopyDownLoadLinks(row) {
+      if (row.isShare) {
+        // 获取this.menus中download的索引
+        const downloadIndex = this.menus.findIndex(
+          item => item.operation === 'download'
+        )
+        this.shareToken = undefined
+        // 在download之前添加复制下载链接选项
+        this.addMenusCopyDownLoadLinks(downloadIndex)
+        if (row.isPrivacy) {
+          // 如果是私密分享需要先获取shareToken
+          api.generateShareToken({fileId: row.id}).then(res => {
+            this.shareToken = res.data
+          }).catch(() => {
+            this.menus.splice(downloadIndex, 1)
+          })
+        }
+      }
+    },
+    addMenusCopyDownLoadLinks(index) {
+      this.menus.splice(index, 0, {
+        iconClass: 'menu-fuzhi',
+        label: '复制下载链接',
+        operation: 'copyDownloadLink',
+      })
+    },
+    setMenusByPermission(file) {
+      const reservations = ['select', 'download']
+      // 删除this.menus中不要的菜单, 仅保留reservations中的菜单
+      this.menus = this.menus.filter(item =>
+        reservations.includes(item.operation)
+      )
+      if (file.operationPermissionList && file.operationPermissionList.length > 0) {
+        if (file.operationPermissionList.indexOf('PUT') > -1) {
+          this.menus.splice(this.menus.length, 0, fileOperations.rename)
+        }
+        if (file.operationPermissionList.indexOf('DELETE') > -1) {
+          this.menus.splice(this.menus.length, 0, fileOperations.remove)
+        }
+      }
+      this.setMenusCopyDownLoadLinks(file)
     },
     // 选择某行预备数据
     preliminaryRowData(row) {
@@ -553,9 +620,6 @@ export default {
           setTimeout(function () {
             that.$refs.renameInput.focus()
           }, 0)
-          break
-        case 'copy':
-          vant.Toast('暂不支持移动');
           break
         case 'download':
           this.downloadFile()
@@ -634,20 +698,27 @@ export default {
     },
     // 复制下载链接
     copyDownloadLink(row) {
-      let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, undefined)
+      let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, this.shareToken)
+      if (row.isFolder) {
+        url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip', this.shareToken)
+      }
       let clipboard = new Clipboard('.newFileMenu', {
-        text: function () {
+        text: function() {
           return url
-        }
+        },
       })
-      clipboard.on('success', e => {
-        this.$message({message: '复制成功', type: 'success', duration: 1000});
+      clipboard.on('success', () => {
+        this.$message({ message: '复制成功', type: 'success', duration: 1000 })
         // 释放内存
         clipboard.destroy()
       })
-      clipboard.on('error', e => {
+      clipboard.on('error', () => {
         // 不支持复制
-        this.$message({message: '该浏览器不支持自动复制', type: 'warning', duration: 1000});
+        this.$message({
+          message: '该浏览器不支持自动复制',
+          type: 'warning',
+          duration: 1000,
+        })
         clipboard.destroy()
       })
     },
@@ -1038,7 +1109,9 @@ export default {
     statistics() {
       let totalSize = 0
       this.fileList.forEach(file => {
-        totalSize += file.size;
+        if (file.size) {
+          totalSize += file.size;
+        }
       })
       return this.getShowSumFileAndFolder(this.fileList) + ' ' + this.getShowSumSize(totalSize)
     },
@@ -1307,7 +1380,7 @@ export default {
             this.newFolderLoading = false
             this.showNewFolder = false
             this.isShowNewFolder = false
-            Notify({type: 'success', message: '新建文件夹成功', duration: 1000});
+            vant.Toast.success('操作成功');
             if (this.listModeSearch) {
               this.getFileListBySearchMode()
             } else {
@@ -1429,7 +1502,7 @@ input {
 /*margin: 5px 15px 0px 15px;*/
 /*}*/
 .file-description {
-  color: #646566;
+  color: var(--text-secondary-color);
   font-size: 12px;
 }
 
@@ -1453,30 +1526,27 @@ input {
   >>> .svg-icon {
     width: 2.5em;
     height: 2.5em;
+    z-index: unset;
   }
 }
 
 .overlay-content-class {
   -webkit-transition: all .1s ease-in-out 0s;
   transition: all .1s ease-in-out 0s;
-  box-shadow: 2px 3px 3px #888888;
+  box-shadow: 2px 3px 3px var(--navbar-box-shadow);
 
-}
-
-.list-item:active {
-  background-color: #bfcbd930;
 }
 
 >>> .van-sticky {
   background: inherit;
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
-  backdrop-filter: saturate(180%) blur(10px);
-  background-color: rgba(255, 255, 255, 0.72);
-  box-shadow: 2px 0 2px rgba(0, 0, 0, 0.25);
+  background-color: var(--tippy-box-bg-color);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 2px 0 2px var(--navbar-box-shadow);
 }
 
 [class*=van-hairline]::after {
-  border: 0 solid rgba(255, 255, 255, 0.72);
+  border: 0 solid var(--tippy-box-bg-color);
 }
 
 >>> .van-sticky--fixed {
@@ -1484,39 +1554,33 @@ input {
 }
 
 .van-nav-bar {
-  /*height: 59px;*/
-  /*line-height: 59px;*/
   background-color: unset;
   -webkit-transition: all .15s ease-in-out 0s;
   transition: all .15s ease-in-out 0s;
-  /*position: relative;*/
-  /*box-shadow: 4px 0 2px rgba(0,0,0,0.5);*/
 }
 
-.van-nav-bar::after {
-  /*background: inherit;*/
-  /*!*-webkit-filter: blur(15px);*!*/
-  /*!*filter: blur(20px);*!*/
-  /*-webkit-backdrop-filter: saturate(180%) blur(20px);*/
-  /*backdrop-filter: saturate(180%) blur(20px);*/
-  /*background-color: rgba(255,255,255,0.72);*/
+.van-nav-bar__content {
+  background-color: var(--bg-color);
+  >>> .van-nav-bar__title {
+    color: var(--text-color);
+  }
 }
 
 .van-overlay {
   -webkit-backdrop-filter: saturate(180%) blur(1.5px);
   backdrop-filter: saturate(180%) blur(1.5px);
-  background-color: rgba(0, 0, 0, .7);
+  background-color: var(--tippy-box-bg-color);
 }
 
-.van-nav-bar__title {
+>>> .van-nav-bar__title {
   width: 30%;
   position: absolute;
   margin-left: 35%;
   z-index: 11;
+  color: var(--text-color);
 }
 
 .van-nav-bar__left {
-  //  max-width: 30%;
   z-index: 11;
 
   .van-icon-arrow-left {
@@ -1524,10 +1588,6 @@ input {
   }
 }
 
-/*.van-nav-bar__left:active {*/
-/*background-color: #f8f8f8;*/
-/*!*background-color: hsl(0, 94%, 47%);*!*/
-/*}*/
 .van-nav-bar__right {
   z-index: 11;
 }
@@ -1550,60 +1610,53 @@ input {
   padding-inline-start: 0;
   margin-top: 0;
   margin-bottom: 0;
-  padding: 0 5px;
+  padding: 0 0.3em;
 }
 
 .newFileMenu {
-  color: #000000db;
-  background-color: #efefef;
-  padding: 1px 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 1rem;
 }
 
 >>> .menu-background::after {
   background: inherit;
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   backdrop-filter: saturate(180%) blur(20px);
-  background-color: rgba(255, 255, 255, 0.72);
+  background-color: var(--tippy-box-bg-color);
 }
 
 .newFileMenu li {
   cursor: pointer;
-  margin: 0;
+  margin: 0.3em 0;
   padding: 0;
   font-size: 1em;
   min-width: 136px;
-  height: 3em;
+  height: 2.6em;
 }
 
 .newFileMenu .remove {
   color: rgba(255, 0, 0, 0.8);
 }
 
-.newFileMenu .menu-list-first li:active {
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  background-color: #E1E1E1;
-}
-
 .newFileMenu .menu-list li:active {
-  background-color: #E1E1E1;
+  border-radius: 1rem;
+  background-color: var(--menu-hover)
 }
 
-.newFileMenu .menu-list-last li:active {
-  border-bottom-right-radius: 1rem;
-  border-bottom-left-radius: 1rem;
-  background-color: #E1E1E1;
-}
-
-/*.newFileMenu li:active {*/
-/*cursor: pointer;*/
-/*border-radius: 1rem;*/
-/*background-color: #cccccc;*/
-/*}*/
+//.newFileMenu .menu-list li:active {
+//  background-color: var(--menu-hover)
+//}
+//
+//.newFileMenu .menu-list-last li:active {
+//  border-bottom-right-radius: 1rem;
+//  border-bottom-left-radius: 1rem;
+//  background-color: var(--menu-hover)
+//}
 
 .newFileMenu li .menuitem {
   cursor: pointer;
-  line-height: 3em;;
+  line-height: 2.6em;
   margin-left: 10%;
 }
 
@@ -1620,9 +1673,10 @@ input {
 
 >>> .ctx-menu-container {
   top: unset;
-  border: 1px solid rgba(0, 0, 0, .15);
-  -webkit-box-shadow: 0 0 0 #ccc;
-  box-shadow: 0 0 0 #ccc;
+  padding: 0;
+  border: 1px solid var(--vcontextmenu-border-color);
+  -webkit-box-shadow: 0 0 0 var(--navbar-box-shadow);
+  box-shadow: 0 0 0 var(--navbar-box-shadow);
 }
 
 .header-button {
@@ -1634,10 +1688,14 @@ input {
   width: 1.5rem;
   height: 1.5rem;
   vertical-align: middle;
+  color: var(--text-color);
 }
 
-.header-button:active {
-  background-color: #f2f3f5;
+>>>.van-nav-bar__left:active {
+  background-color: var(--menu-hover)
+}
+>>>.van-nav-bar__right:active {
+  background-color: var(--menu-hover)
 }
 
 .left-menu {
@@ -1645,18 +1703,69 @@ input {
   height: 100%;
   width: 100%;
   text-align: center;
+  color: var(--text-color);
+  background: var(--bg-color);
 }
 
 .logout {
   padding: 1rem 0 0 0;
 }
 
+.van-cell,.van-empty,.van-dialog {
+  color: var(--text-color);
+  background: var(--bg-color);
+}
+.van-search .van-cell {
+  padding: 5px 8px 5px 12px;
+  background: var(--menu-bg);
+  border-radius: 2em;
+}
+
+>>> .van-dialog {
+  color: var(--text-color);
+  background: var(--bg-color);
+  border: 1px solid var(--vcontextmenu-border-color);
+
+  >>> .van-dialog__header {
+    color:  var(--text-color-hover);
+  }
+
+  >>> .van-dialog__footer {
+    &:after {
+      border-top: 1px solid var(--vcontextmenu-border-color);
+    }
+  }
+}
+>>>.van-button--default {
+  color: var(--text-color);
+  background: var(--bg-color);
+  &:active {
+    background-color: var(--menu-hover);
+  }
+  &:after {
+    border-left: 1px solid var(--vcontextmenu-border-color);
+  }
+}
+.van-cell__value--alone {
+  color: var(--text-color);
+}
+
+>>> .van-cell:after {
+  border-bottom-color: var(--vcontextmenu-border-color);
+}
+
+>>> .van-cell:active {
+  color: var(--text-color-hover);
+  background-color: var(--menu-hover);
+}
+
+.list-item:active {
+  color: var(--text-color-hover);
+  background-color: var(--menu-hover);
+}
+
 .classification {
   padding: 1rem 0 0 0;
-
-  >>> .van-cell:active {
-    background-color: #f8f8f8;
-  }
 }
 
 .searchbar {
@@ -1664,22 +1773,28 @@ input {
   background-color: unset;
   -webkit-transition: all .3s ease-in-out 0s;
   transition: all .3s ease-in-out 0s;
-  /*background: inherit;*/
-  /*background-color: #fff;*/
-  /*-webkit-backdrop-filter: saturate(180%) blur(20px);*/
-  /*backdrop-filter: saturate(180%) blur(20px);*/
-  /*background-color: rgba(255,255,255,0.72);*/
+  color: var(--text-color);
+  background: var(--bg-color);
 }
 
-/*.searchbar::after{*/
-/*background: inherit;*/
-/*background-color: #fff;*/
-/*-webkit-backdrop-filter: saturate(180%) blur(20px);*/
-/*backdrop-filter: saturate(180%) blur(20px);*/
-/*background-color: rgba(255,255,255,0.72);*/
-/*}*/
+.van-cell-group {
+  background: var(--bg-color);
+}
+
 .van-search {
   padding: 0 12px;
+  color: var(--text-color);
+  background: var(--bg-color);
+}
+
+.van-search__content {
+  color: var(--text-color);
+  background: var(--bg-color);
+  padding-left: 0;
+}
+
+>>> .van-field__control {
+  color: var(--text-color);
 }
 
 .van-search__action {
@@ -1694,6 +1809,7 @@ input {
   font-size: 20px;
   height: unset;
   margin-top: unset;
+  background-color: var(--setting-bg);
 }
 
 .search-result-no {
@@ -1740,7 +1856,8 @@ input {
 }
 
 >>> .van-grid-item__content {
-  padding: 0px;
+  padding: 0;
+  background-color: var(--bg-color);
 
   .grid-item-icon {
     svg {
@@ -1766,4 +1883,36 @@ input {
   right: 0.5rem;
   z-index: 1;
 }
+
+.van-popup {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+>>>.van-action-sheet__description {
+  color: var(--text-color);
+  &:after {
+    border-bottom-color: var(--vcontextmenu-border-color);
+  }
+}
+
+>>>.van-action-sheet__cancel {
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  &:active {
+    background-color: var(--menu-hover);
+  }
+}
+
+.van-action-sheet__item {
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  &:active {
+    background-color: var(--menu-hover);
+  }
+}
+>>> .van-action-sheet__gap {
+  background-color: var(--setting-bg);
+}
+
 </style>

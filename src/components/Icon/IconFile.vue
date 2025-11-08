@@ -157,10 +157,13 @@ export default {
       if (this.item.ossFolder || this.item.id.includes('/')) {
         return 'folder-oss'
       }
-      if (this.item.childrenCount && this.item.childrenCount >= 0) {
+      if (this.item.mountFileId) {
         return 'folder'
       }
-      return 'folder-empty'
+      if (this.item.childrenCount !== undefined && this.item.childrenCount === 0) {
+        return 'folder-empty'
+      }
+      return 'folder'
     },
     videoImageHeight() {
       if (this.details) {
