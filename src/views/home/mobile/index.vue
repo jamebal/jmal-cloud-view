@@ -538,6 +538,9 @@ export default {
         this.setMenusCopyDownLoadLinks(row)
       }
     },
+    getIndexOfFileContextMenus(operation) {
+      return this.menus.findIndex(item => item.operation === operation)
+    },
     setMenusCopyDownLoadLinks(row) {
       if (row.isShare) {
         // 获取this.menus中download的索引
@@ -695,9 +698,7 @@ export default {
     },
     // 复制下载链接
     copyDownloadLink(row) {
-      console.log(row, this.$store.getters.name, this.shareToken)
       let url = window.location.origin + fileConfig.previewUrl(this.$store.getters.name, row, undefined, this.shareToken)
-      console.log('url', url)
       if (row.isFolder) {
         url = fileConfig.packageDownloadUrl(row.id, row.name + '.zip', this.shareToken)
       }
@@ -1108,7 +1109,9 @@ export default {
     statistics() {
       let totalSize = 0
       this.fileList.forEach(file => {
-        totalSize += file.size;
+        if (file.size) {
+          totalSize += file.size;
+        }
       })
       return this.getShowSumFileAndFolder(this.fileList) + ' ' + this.getShowSumSize(totalSize)
     },

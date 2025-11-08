@@ -624,6 +624,7 @@ export default {
     /**
      * @param id
      * @param status
+     * @param progressText
      */
     statusSet(id, status, progressText) {
       const statusMap = {
@@ -712,12 +713,12 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #ffffff99;
+    background-color: var(--uploader-file-uploader-drop-bg-color);
 
     span {
       font-size: 34px;
       font-weight: 700;
-      color: #616161;
+      color: var(--uploader-file-uploader-drop-text-color);
       position: relative;
       top: 48%;
     }

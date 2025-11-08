@@ -160,7 +160,7 @@ export default {
       if (this.item.mountFileId) {
         return 'folder'
       }
-      if (this.item.etag && this.item.etag === '108bf2ad221222015ab6e3376016909905a97dba23f0990f6cd1620703171640') {
+      if (this.item.childrenCount !== undefined && this.item.childrenCount === 0) {
         return 'folder-empty'
       }
       return 'folder'

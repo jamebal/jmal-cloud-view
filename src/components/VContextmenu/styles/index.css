@@ -19,7 +19,7 @@
   background-color: var(--bg-color);
   border: 1px solid var(--vcontextmenu-border-color);
   border-radius: 4px;
-  box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0.2);
+  box-shadow: var(--v-contextmenu-box-shadow);
   list-style: none;
   font-size: 14px;
   white-space: nowrap;

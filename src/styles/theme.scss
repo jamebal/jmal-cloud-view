@@ -29,6 +29,10 @@
   --tippy-box-border: 0px solid #414243;
   --tippy-box-box-shadow: 0 0 20px 4px rgba(154, 161, 177, .15), 0 4px 80px -8px rgba(36, 40, 47, .25), 0 4px 4px -2px rgba(91, 94, 105, .15);
 
+  // box-shadow
+  // 右键菜单阴影
+  --v-contextmenu-box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0.2);
+
   // grid mode
   --grid-hover-color: #e0f3fc;
   --grid-active-color: #caeaf991;
@@ -72,11 +76,13 @@
   --uploader-file-border-color: #0000001e;
   --uploader-file-process-success-bg-color: #e2eeff;
   --uploader-file-process-anime-bg-color: linear-gradient(45deg, #419eff, #9ccdff);
+  --uploader-file-uploader-drop-bg-color: #ffffff99;
+  --uploader-file-uploader-drop-text-color: #616161;
 }
 
 html.dark {
 
-  --apple-shadow-color: #FFFFFF19;
+  --apple-shadow-color: #FFFFFF0f;
 
   --bg-color: #0d1117;
   --setting-bg: #232323;
@@ -104,6 +110,10 @@ html.dark {
   --tippy-box-tooltip-value-color: #e5eaf3;
   --tippy-box-border: 1px solid #414243;
   --tippy-box-box-shadow: rgba(0,0,0,.5);
+
+  // box-shadow
+  // 右键菜单阴影
+  --v-contextmenu-box-shadow: 2px 2px 8px 0 rgba(150, 150, 150, 0);
 
   // grid mode
   --grid-hover-color: #262c36;
@@ -148,4 +158,6 @@ html.dark {
   --uploader-file-border-color: #414243;
   --uploader-file-process-success-bg-color: #44474c;
   --uploader-file-process-anime-bg-color: linear-gradient(45deg, #005fc2, #6586a9);
+  --uploader-file-uploader-drop-bg-color: rgba(44, 44, 44, 0.6);
+  --uploader-file-uploader-drop-text-color: #b6b6b6;
 }
