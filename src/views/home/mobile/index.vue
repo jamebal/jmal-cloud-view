@@ -1717,7 +1717,7 @@ input {
 }
 .van-search .van-cell {
   padding: 5px 8px 5px 12px;
-  background: var(--menu-bg);
+  background: unset;
   border-radius: 2em;
 }
 
@@ -1770,11 +1770,9 @@ input {
 
 .searchbar {
   height: 48px;
-  background-color: unset;
   -webkit-transition: all .3s ease-in-out 0s;
   transition: all .3s ease-in-out 0s;
   color: var(--text-color);
-  background: var(--bg-color);
 }
 
 .van-cell-group {
@@ -1784,13 +1782,14 @@ input {
 .van-search {
   padding: 0 12px;
   color: var(--text-color);
-  background: var(--bg-color);
+  background: unset;
 }
 
 .van-search__content {
   color: var(--text-color);
-  background: var(--bg-color);
+  background: unset;
   padding-left: 0;
+  border: 1px solid var(--menu-hover);
 }
 
 >>> .van-field__control {
