@@ -1789,7 +1789,7 @@ input {
   color: var(--text-color);
   background: unset;
   padding-left: 0;
-  border: 1px solid var(--menu-hover);
+  border: 1px solid var(--border-color-subtle);
 }
 
 >>> .van-field__control {
