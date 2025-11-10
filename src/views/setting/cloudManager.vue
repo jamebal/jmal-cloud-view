@@ -12,45 +12,27 @@
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane :label="$t('app.generalSetting')" name="1">
             <div v-if="activeName === '1'">
-              <div class="config-itme-label">{{ $t('app.netDiskName') }}：
-                <el-input :placeholder="$t('common.pleaseEnter')" v-model="netdiskName" minlength="1" maxlength="10" size="medium"
-                          :style="{width: inputNetdiskNameWidth+'px'}"
-                          @keyup.enter.native="updateNetdiskName" @input="inputNetdiskName">
-                  <el-button round v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>
-                </el-input>
-              </div>
-              <div class="config-itme-label logo">{{ $t('app.netDiskLogo') }}：
-                <el-upload
-                  class="avatar-uploader"
-                  :action="uploadUrl"
-                  :show-file-list="false"
-                  :on-success="handleAvatarSuccess"
-                  :before-upload="beforeAvatarUpload">
-                  <Logo v-model="logoFileName" width="80" class="avatar"></Logo>
-                </el-upload>
-              </div>
-              <span class="instruction">{{ $t('app.clickChangeLogo') }}</span>
-              <div class="config-itme-label">{{ $t('app.rebuildIndex') }}：
+              <div class="config-item-label">{{ $t('app.rebuildIndex') }}：
                 <el-button round class="sync-button" size="mini" :loading="syncLoading" type="primary" @click="sync()"><i class="el-icon-refresh"></i></el-button>
                 <span v-show="syncPercent < 100">{{ $t('app.rebuildIndexStep1') }}: {{ syncPercent }}%</span>
                 <span v-show="indexingPercent > 0 && indexingPercent < 100">{{ $t('app.rebuildIndexStep2') }}: </span><span v-show="indexingPercent > 0 && indexingPercent < 100">{{ indexingPercent }}%</span>
               </div>
               <span class="instruction">{{ $t('app.rebuildIndexDesc') }}</span>
 
-              <div class="config-itme-label">{{ $t('app.recalculateFolderSize') }}：
+              <div class="config-item-label">{{ $t('app.recalculateFolderSize') }}：
                 <el-button round class="sync-button" size="mini" type="primary" :loading="calculateFolderSizeLoading" @click="recalculateFolderSize()"><i class="el-icon-refresh"></i></el-button>
                 <span v-show="calculateFolderSizeProcessedPercent > 0 && calculateFolderSizeProcessedPercent < 100">{{ calculateFolderSizeProcessedPercent }}%</span>
               </div>
               <span class="instruction">{{ $t('app.recalculateFolderSizeDesc') }}</span>
 
-              <div class="config-itme-label">{{ $t('app.resetMenuAndRole') }}：
+              <div class="config-item-label">{{ $t('app.resetMenuAndRole') }}：
                 <el-button round class="sync-button" size="mini" :loading="resetLoading" type="danger"
                            @click="resetMenuAndRole()">
                   <i class="el-icon-refresh-left"></i></el-button>
               </div>
               <span class="instruction">{{ $t('app.resetMenuAndRoleDesc') }}</span>
 
-              <div class="config-itme-label">{{ $t('app.currentVersion') }}：v{{currentVersion}}
+              <div class="config-item-label">{{ $t('app.currentVersion') }}：v{{currentVersion}}
                 <el-badge v-if="newVersion" value="new" class="item"/>
               </div>
               <span class="instruction">{{ $t('app.latestVersion') }}：{{newVersion ? newVersion : 'v' + currentVersion}}
@@ -59,33 +41,38 @@
 
             </div>
           </el-tab-pane>
-          <el-tab-pane label="OnlyOffice" name="2" class="setting-tab-panel">
+          <el-tab-pane :label="$t('app.personalization')" name="2" class="setting-tab-panel">
             <div v-if="activeName === '2'">
+              <personalization-config/>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="OnlyOffice" name="3" class="setting-tab-panel">
+            <div v-if="activeName === '3'">
               <office-config></office-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.videoTranscoding')" name="3" class="setting-tab-panel">
-            <div v-if="activeName === '3'">
+          <el-tab-pane :label="$t('app.videoTranscoding')" name="4" class="setting-tab-panel">
+            <div v-if="activeName === '4'">
               <transcode-config></transcode-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.ocrConfig')" name="4" class="setting-tab-panel">
-            <div v-if="activeName === '4'">
+          <el-tab-pane :label="$t('app.ocrConfig')" name="5" class="setting-tab-panel">
+            <div v-if="activeName === '5'">
               <ocr-config></ocr-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.previewConfig')" name="5" class="setting-tab-panel">
-            <div v-if="activeName === '5'">
+          <el-tab-pane :label="$t('app.previewConfig')" name="6" class="setting-tab-panel">
+            <div v-if="activeName === '6'">
               <preview-config></preview-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.ldapAuth')" name="6" class="setting-tab-panel">
-            <div v-if="activeName === '6'">
+          <el-tab-pane :label="$t('app.ldapAuth')" name="7" class="setting-tab-panel">
+            <div v-if="activeName === '7'">
               <ldap-config></ldap-config>
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('app.mfaAuth')" name="7" class="setting-tab-panel">
-            <div v-if="activeName === '7'">
+          <el-tab-pane :label="$t('app.mfaAuth')" name="8" class="setting-tab-panel">
+            <div v-if="activeName === '8'">
               <mfa-config/>
             </div>
           </el-tab-pane>
@@ -105,26 +92,23 @@
 import config from '@/../package.json'
 import settingApi, { getSetting } from "@/api/setting-api";
 import Logo from "@/components/Logo";
-import getPageTitle from "@/utils/get-page-title";
 import UploadImageInput from "@/components/input/UploadImageInput.vue";
 import LanguageConfig from '@/views/setting/cloudSetting/languageConfig.vue'
 import MfaConfig from '@/views/setting/cloudSetting/mfaConfig.vue'
 import OcrConfig from '@/views/setting/cloudSetting/ocrConfig.vue'
+import PersonalizationConfig from '@/views/setting/cloudSetting/PersonalizationConfig.vue'
 import PreviewConfig from '@/views/setting/cloudSetting/previewConfig.vue'
 import {mapGetters, mapState} from "vuex";
-import store from "@/store";
 import TaskProgress from "@/components/TaskProgress/index.vue";
 import LdapConfig from "@/views/setting/cloudSetting/ldapConfig.vue";
 import TranscodeConfig from "@/views/setting/cloudSetting/transcodeConfig.vue";
 import OfficeConfig from "@/views/setting/cloudSetting/officeConfig.vue";
 
 export default {
-  components: { MfaConfig, OcrConfig, LanguageConfig, PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
+  components: { PersonalizationConfig, MfaConfig, OcrConfig, LanguageConfig, PreviewConfig, OfficeConfig, TranscodeConfig, LdapConfig, TaskProgress, UploadImageInput, Logo},
   data() {
     return {
       activeName: '1',
-      uploadUrl: `${process.env.VUE_APP_BASE_API}/user/setting/upload_logo`,
-      title: this.$t('app.setting'),
       syncLoading: false,
       clickSync: false,
       indexingPercent: 100,
@@ -132,17 +116,10 @@ export default {
       calculateFolderSizeProcessedPercent: 100,
       calculateFolderSizeLoading: false,
       resetLoading: false,
-      logoFileName: this.$store.state.user.netdiskLogo || '',
-      netdiskName: 'JmalCloud',
-      showAckBtn: false,
-      inputNetdiskNameWidth: 150,
-      logoFileTypeList: ['image/svg+xml', 'image/jpg', 'image/png', 'image/jpeg'],
       currentVersion: config.version,
     }
   },
   mounted() {
-    this.getWebsiteSetting()
-    this.getInfo()
     this.getIsSync()
     if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab
@@ -166,82 +143,6 @@ export default {
   methods: {
     handleClick(tab) {
       this.$router.push({query: {tab: tab.name}})
-    },
-    handleAvatarSuccess(res) {
-      if (res.code === 0) {
-        this.logoFileName = res.data
-        this.$store.dispatch('user/setLogo', {
-          netdiskName: this.netdiskName,
-          netdiskLogo: this.logoFileName
-        }).then(() => {
-          store.dispatch('updateMessage', {event: 'updateLogo'})
-        })
-      } else {
-        this.$message.error(res.message)
-      }
-    },
-    beforeAvatarUpload(file) {
-      const correctFormat = this.logoFileTypeList.includes(file.type);
-      const isLtOneM = file.size / 1024 < 128;
-      if (!correctFormat) {
-        this.$message.error(this.$t('msg.netDiskLogoRuleFormat').toString());
-        return correctFormat && isLtOneM;
-      }
-      if (!isLtOneM) {
-        this.$message.error(this.$t('msg.netDiskLogoRuleSize').toString());
-      }
-      return correctFormat && isLtOneM;
-    },
-    // 获取网站设置
-    getWebsiteSetting() {
-      getSetting({userId: this.$store.state.user.userId}).then((res) => {
-        if (res.data) {
-          if (res.data.netdiskLogo) {
-            this.logoFileName = res.data.netdiskLogo
-          }
-          if (res.data.netdiskName) {
-            this.netdiskName = res.data.netdiskName
-          }
-        }
-      })
-    },
-    inputNetdiskName(input) {
-      if (input) {
-        this.showAckBtn = true
-        this.inputNetdiskNameWidth = 206
-      }
-    },
-    setInputBlur() {
-      this.showAckBtn = false
-      this.inputNetdiskNameWidth = 150
-    },
-    // 修改网盘名称
-    updateNetdiskName() {
-      if (!this.netdiskName) {
-        this.$message.warning(this.$t('msg.netDiskNameRuleEmpty').toString())
-        return
-      }
-      //中文，数字，字母，下划线
-      const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
-      if (reg.test(this.netdiskName)) {
-        settingApi.updateNetdiskName({netdiskName: this.netdiskName}).then(() => {
-          this.$store.dispatch('user/setLogo', {
-            netdiskName: this.netdiskName,
-            netdiskLogo: this.logoFileName
-          }).then(() => {
-            store.dispatch('updateMessage', {event: 'updateLogo'})
-            document.title = getPageTitle(this.$route.meta.title)
-          })
-          this.$message.success(`${this.$t('app.netDiskName')} ${this.$t('common.modifiedSuccessfully')}`)
-          this.setInputBlur()
-        }).catch(() => {
-          this.setInputBlur()
-        })
-      } else {
-        this.$message.warning(`${this.$t('msg.netDiskNameRule')}`)
-      }
-    },
-    getInfo() {
     },
     getIsSync() {
       settingApi.isSync({username: this.$store.state.user.name}).then((res) => {
@@ -323,34 +224,6 @@ export default {
 
 >>> .el-textarea {
   max-width: 1080px;
-}
-
-.config-itme-label.logo {
-  display: flex;
-  line-height: 80px;
-}
-
-.netdisk-name {
-  width: 220px;
-}
-
-.avatar-uploader >>> .el-upload {
-  display: block;
-
-  .avatar {
-    width: 80px;
-    height: 80px;
-    display: block;
-
-    &:hover {
-      -webkit-filter: grayscale(100%);
-      -moz-filter: grayscale(100%);
-      -ms-filter: grayscale(100%);
-      -o-filter: grayscale(100%);
-      filter: grayscale(100%);
-      filter: gray;
-    }
-  }
 }
 
 >>> .el-card__body {

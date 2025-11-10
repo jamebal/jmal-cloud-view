@@ -79,6 +79,12 @@
   --uploader-file-process-anime-bg-color: linear-gradient(45deg, #419eff, #9ccdff);
   --uploader-file-uploader-drop-bg-color: #ffffff99;
   --uploader-file-uploader-drop-text-color: #616161;
+
+  // login page
+  --login-page-gb-color: 284, 251, 255;
+  --login-page-border-color: #ffffff35;
+  --login-page-from-bg-color: #ffffff35;
+  --login-page-from-input-bg-color: #ffffffcc;
 }
 
 html.dark {
@@ -162,4 +168,10 @@ html.dark {
   --uploader-file-process-anime-bg-color: linear-gradient(45deg, #005fc2, #6586a9);
   --uploader-file-uploader-drop-bg-color: rgba(44, 44, 44, 0.6);
   --uploader-file-uploader-drop-text-color: #b6b6b6;
+
+  // login page
+  --login-page-gb-color: 30, 41, 59;
+  --login-page-border-color: #ffffff23;
+  --login-page-from-bg-color: #00000035;
+  --login-page-from-input-bg-color: #000000cc;
 }

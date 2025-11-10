@@ -21,31 +21,31 @@
       </a-affix>
       <el-tabs v-if="!subpage" v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="网站首页" name="1">
-          <div class="config-itme-label">网站图标：</div>
+          <div class="config-item-label">网站图标：</div>
           <upload-image-input v-model="form.siteIco" desc="只支持ico格式" :enable-select="false" :enable-url="false" accept="image/vnd.microsoft.icon"/>
           <span class="instruction"><a href="https://tool.lu/favicon/" target="_blank">在线制作ico</a></span>
-          <div class="config-itme-label">站点名称：</div>
+          <div class="config-item-label">站点名称：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteName"></el-input>
           <span class="instruction">给您的网站取一个响亮的名字。</span>
-          <div class="config-itme-label">站点地址：</div>
+          <div class="config-item-label">站点地址：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteUrl"></el-input>
           <span class="instruction">在这里填入站点的地址或域名。例如：<a :href="blogUrlExample" target="_blank">{{ blogUrlExample }}</a></span>
-          <div class="config-itme-label">站点背景大图：</div><upload-image-input v-model="form.backgroundSite"/>
+          <div class="config-item-label">站点背景大图：</div><upload-image-input v-model="form.backgroundSite"/>
           <span class="instruction">在这里填入图片的URL地址, 以在网站首页显示一个背景大图。</span>
-          <div class="config-itme-label">首页大图内文字：
+          <div class="config-item-label">首页大图内文字：
             <el-button round type="text" @click="heartwings">历史记录</el-button>
           </div>
           <el-input autosize type="textarea" v-model="form.backgroundTextSite"></el-input>
           <span class="instruction">显示在博客首页大图内的主要文字。</span>
-          <div class="config-itme-label">首页大图内描述：</div>
+          <div class="config-item-label">首页大图内描述：</div>
           <el-input autosize type="textarea" v-model="form.backgroundDescSite"></el-input>
           <span class="instruction">显示在博客首页大图内的次要文字。</span>
         </el-tab-pane>
         <el-tab-pane label="导航栏" name="2">
-          <div class="config-itme-label">导航栏顶部 - 网站 Logo：</div>
+          <div class="config-item-label">导航栏顶部 - 网站 Logo：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.siteLogo"></el-input>
           <span class="instruction">配置网站的 Logo，该选项仅作用于顶部导航条</span>
-          <div class="config-itme-label">导航栏操作按钮：</div>
+          <div class="config-item-label">导航栏操作按钮：</div>
           <el-input type="textarea" width="100%" v-model="form.operatingButtons" :autosize="{ minRows: 1, maxRows: 6 }"
                     @input="preview"></el-input>
           <span class="instruction">
@@ -69,33 +69,33 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="归档、分类、标签" name="3">
-          <div class="config-itme-label">页面显示与否：</div>
+          <div class="config-item-label">页面显示与否：</div>
           <el-checkbox-group v-model="form.alonePages">
             <el-checkbox label="archives">归档</el-checkbox>
             <el-checkbox label="categories">分类</el-checkbox>
             <el-checkbox label="tags">标签</el-checkbox>
           </el-checkbox-group>
           <span class="instruction">选中项会显示在导航栏中</span>
-          <div class="config-itme-label">归档界面背景大图：</div>
+          <div class="config-item-label">归档界面背景大图：</div>
           <upload-image-input v-model="form.archiveBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在归档页面显示一个背景大图。</span>
-          <div class="config-itme-label">分类界面背景大图：</div>
+          <div class="config-item-label">分类界面背景大图：</div>
           <upload-image-input v-model="form.categoryBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
-          <div class="config-itme-label">标签界面背景大图：</div>
+          <div class="config-item-label">标签界面背景大图：</div>
           <upload-image-input v-model="form.tagBackground"/>
           <span class="instruction">在这里填入图片的URL地址, 以在分类页面显示一个背景大图。</span>
         </el-tab-pane>
         <el-tab-pane label="网站页脚" name="4">
-          <div class="config-itme-label">版权信息：</div>
+          <div class="config-item-label">版权信息：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.copyright"></el-input>
-          <div class="config-itme-label">备案许可号：</div>
+          <div class="config-item-label">备案许可号：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.recordPermissionNum"></el-input>
-          <div class="config-itme-label">网站联网备案号：</div>
+          <div class="config-item-label">网站联网备案号：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.networkRecordNumber"></el-input>
-          <div class="config-itme-label">网站联网备案号文本：</div>
+          <div class="config-item-label">网站联网备案号文本：</div>
           <el-input autosize type="textarea" width="100%" v-model="form.networkRecordNumberStr"></el-input>
-          <div class="config-itme-label">自定义页脚html：</div>
+          <div class="config-item-label">自定义页脚html：</div>
           <el-input :autosize="{ minRows: 2}" type="textarea" width="100%" v-model="form.footerHtml"></el-input>
 
           <div>
@@ -378,7 +378,7 @@ export default {
     }
   }
 }
-.config-itme-label {
+.config-item-label {
   >>> .el-button {
     padding: 0 0;
   }
