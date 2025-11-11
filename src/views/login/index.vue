@@ -1,9 +1,5 @@
 <template>
-  <div class="login-container">
-
-    <div id='stars'></div>
-    <div id='stars2'></div>
-    <div id='stars3'></div>
+  <div class="login-container" :style="backgroundImg">
 
     <div class="login-content">
       <el-card class="login-card" v-if="!mfaForceEnable">
@@ -12,16 +8,16 @@
           <div class="title-container">
             <h3 v-if="!initialize">
               <div  class="title">
-                <Logo v-model="webstieRecord.netdiskLogo" width="65"></Logo>
+                <Logo v-model="websiteRecord.netdiskLogo" width="65"></Logo>
                 <div class="jmal-cloud-name">
-                  <div>{{ webstieRecord.netdiskName ? webstieRecord.netdiskName : 'JmalCloud' }}</div>
+                  <div>{{ websiteRecord.netdiskName ? websiteRecord.netdiskName : 'JmalCloud' }}</div>
                 </div>
               </div>
             </h3>
             <h3 v-if="initialize" class="title">{{ $t('login.createAdmin') }}</h3>
           </div>
 
-          <el-form-item v-show="!mfaRequired" prop="username">
+          <el-form-item v-show="!mfaRequired" prop="username" class="login-input">
           <span class="svg-container">
             <svg-icon icon-class="user" />
           </span>
@@ -36,7 +32,7 @@
             />
           </el-form-item>
 
-          <el-form-item v-show="!mfaRequired" prop="password">
+          <el-form-item v-show="!mfaRequired" prop="password" class="login-input">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
@@ -56,7 +52,7 @@
           </span>
           </el-form-item>
 
-          <el-form-item v-show="mfaRequired" prop="mfaCode">
+          <el-form-item v-show="mfaRequired" prop="mfaCode" class="login-input">
             <el-input
               ref="mfaCode"
               v-model="loginForm.mfaCode"
@@ -73,7 +69,7 @@
             <el-checkbox :label="$t('login.rememberMe')" v-model="loginForm.rememberMe"></el-checkbox>
           </el-form-item>
 
-          <el-form-item v-if="initialize" prop="confirmPassword">
+          <el-form-item v-if="initialize" prop="confirmPassword" class="login-input">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
@@ -101,20 +97,20 @@
       </el-card>
     </div>
     <footer id="footer" class="clearfix" style="font-size: 0.725rem;">
-      <div v-if="!webstieRecord.footerHtml" class="copyright">
-        <div>{{ webstieRecord.copyright }}</div>
+      <div v-if="!websiteRecord.footerHtml" class="copyright">
+        <div>{{ websiteRecord.copyright }}</div>
         <span>
-          <a target="_blank" href="https://beian.miit.gov.cn" >{{ webstieRecord.recordPermissionNum }}</a>
-          <a target="_blank" :href="'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode='+webstieRecord.networkRecordNumber" ><img v-if="webstieRecord.networkRecordNumberStr" src="~@/assets/img/beian.png"/>{{ webstieRecord.networkRecordNumberStr }}</a>
+          <a target="_blank" href="https://beian.miit.gov.cn" >{{ websiteRecord.recordPermissionNum }}</a>
+          <a target="_blank" :href="'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode='+websiteRecord.networkRecordNumber" ><img v-if="websiteRecord.networkRecordNumberStr" src="~@/assets/img/beian.png"/>{{ websiteRecord.networkRecordNumberStr }}</a>
         </span>
       </div>
-      <div ref="footerHtml" v-else v-html="webstieRecord.footerHtml" />
+      <div ref="footerHtml" v-else class="copyright" v-html="websiteRecord.footerHtml" />
     </footer>
   </div>
 </template>
 
 <script>
-import { getWebstieRecord } from "@/api/setting-api"
+import { getWebsiteRecord } from "@/api/setting-api"
 import { hasUser, initialization } from '@/api/user'
 import Logo from "@/components/Logo"
 import MfaConfig from '@/views/setting/sys/userSetting/mfaConfig.vue'
@@ -148,12 +144,13 @@ export default {
     }
     return {
       beianUrl: "http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=",
-      webstieRecord: {
+      websiteRecord: {
         copyright: '',
         recordPermissionNum: '',
         netdiskName: '',
         netdiskLogo: this.$store.state.user.netdiskLogo,
-        footerHtml: ''
+        footerHtml: '',
+        loginBackgroundUrl: '',
       },
       loginForm: {
         username: this.$route.query.username || '',
@@ -176,10 +173,12 @@ export default {
       mfaRequired: false,
       mfaForceEnable: false,
       backgroundImg: {
-        background: "url("+require("@/assets/img/login-bg.png")+")",
+        backgroundImage: `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${require("@/assets/img/logo-bg.webp")})`,
         width: '100%',
         height: '100%',
-        position: 'absolute'
+        position: 'absolute',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover'
       }
     }
   },
@@ -201,15 +200,20 @@ export default {
       }
     })
 
-    getWebstieRecord().then((res) => {
-      this.webstieRecord = res.data
-      if (this.webstieRecord.netdiskName || this.webstieRecord.netdiskLogo) {
-        this.$store.dispatch('user/setLogo', {netdiskName: this.webstieRecord.netdiskName, netdiskLogo: this.webstieRecord.netdiskLogo})
+    getWebsiteRecord().then((res) => {
+      this.websiteRecord = res.data
+      if (this.websiteRecord.netdiskName || this.websiteRecord.netdiskLogo) {
+        this.$store.dispatch('user/setLogo', {netdiskName: this.websiteRecord.netdiskName, netdiskLogo: this.websiteRecord.netdiskLogo})
       }
-      if (this.webstieRecord.footerHtml) {
+      if (this.websiteRecord.footerHtml) {
         this.$nextTick(() => {
           this.loadScripts()
         })
+      }
+      if (this.websiteRecord.personalization) {
+        if (this.websiteRecord.personalization.loginBackgroundUrl) {
+          this.backgroundImg.backgroundImage = `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${this.websiteRecord.personalization.loginBackgroundUrl})`
+        }
       }
     })
   },
@@ -303,12 +307,8 @@ export default {
 </script>
 
 <style lang="scss">
-/* 修复input 背景不协调 和光标变色 */
-/* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-@import "src/styles/element-ui";
-$bg:#1890ff;;
-$cursor: #409eff;
 
+@import "src/styles/element-ui";
 
 @keyframes rotate {
   0% {
@@ -318,26 +318,24 @@ $cursor: #409eff;
     transform: perspective(400px) rotateZ(20deg) rotateX(-40deg) rotateY(-360deg);
   }
 }
-.stars {
-  transform: perspective(500px);
-  transform-style: preserve-3d;
-  position: absolute;
-  bottom: 0;
-  perspective-origin: 50% 100%;
-  left: 50%;
-  animation: rotate 90s infinite linear;
-}
 
-.star {
-  width: 2px;
-  height: 2px;
-  background: #F7F7B6;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform-origin: 0 0 -300px;
-  transform: translate3d(0, 0, -300px);
-  backface-visibility: hidden;
+.login-card, .mfa-card {
+
+  background: var(--login-page-form-bg-color) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-color: var(--login-page-border-color) !important;
+  box-shadow: unset !important;
+
+  .el-form-item.login-input {
+    border: 1px solid var(--login-page-border-color);
+    border-radius: 12px;
+    background: var(--login-page-form-input-bg-color) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-color: var(--login-page-border-color) !important;
+  }
+
 }
 
 .login-card {
@@ -354,7 +352,7 @@ $cursor: #409eff;
       padding: 12px 5px 12px 15px;
       border-radius: 12px;
       height: 47px;
-      caret-color: $cursor;
+      caret-color: var(--primary-color);
 
       &:-webkit-autofill {
         box-shadow: 0 0 0 1000px #FFFFFF inset !important;
@@ -368,32 +366,26 @@ $cursor: #409eff;
     text-align: start;
     margin-top: 22px;
     margin-bottom: -20px;
+    .el-checkbox__input.is-checked+.el-checkbox__label {
+      color: var(--text-color-hover);
+    }
   }
-  .el-form-item {
-    border: 1px solid var(--input-bord-corlor);
-    border-radius: 12px;
-    color: #454545;
-  }
+
 }
 </style>
 
 <style lang="scss" scoped>
-@import "src/styles/stars";
-
-$bg:#2d3a4b;
-$light_gray:#eee;
 
 .login-container {
   min-height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--login-bg);
 
   .login-content {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 6px);
+    height: 100vh;
   }
 
   .login-card {
@@ -412,18 +404,6 @@ $light_gray:#eee;
     padding: 3px 5px 0 5px;
     margin: 0 auto;
     overflow: hidden;
-  }
-
-  .tips {
-    font-size: 14px;
-    color: #fff;
-    margin-bottom: 10px;
-
-    span {
-      &:first-of-type {
-        margin-right: 16px;
-      }
-    }
   }
 
   .svg-container {
@@ -446,6 +426,7 @@ $light_gray:#eee;
     }
 
     .jmal-cloud-name {
+      color:  var(--text-color-hover);
       font-size: 22px;
       line-height: 65px;
       margin-left: 10px;
@@ -464,14 +445,25 @@ $light_gray:#eee;
 
 footer {
   position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   bottom: 0;
   width: 100%;
-  color: #ffffff;
+  color: var(--text-color-hover);
   margin: 0 auto;
   overflow: hidden;
   text-align: center;
   -webkit-transition: 0.5s ease all;
   transition: 0.5s ease all;
+
+  .copyright {
+    background: var(--login-page-form-bg-color) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 1px 10px;
+  }
 }
 
 footer, footer p {

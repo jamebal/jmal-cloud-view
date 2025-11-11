@@ -138,6 +138,13 @@ export default {
       params
     })
   },
+  updateNetdiskPersonalization(data) {
+    return request({
+      url: '/user/setting/update_netdisk_personalization',
+      method: 'put',
+      data
+    })
+  },
   getAccessTokenList(params) {
     return request({
       url: '/user/setting/accessTokenList',
@@ -190,7 +197,7 @@ export default {
   }
 }
 
-export function getWebstieRecord(params) {
+export function getWebsiteRecord(params) {
   return request({
     url: '/public/website/record',
     method: 'get',

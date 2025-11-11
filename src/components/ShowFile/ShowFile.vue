@@ -260,7 +260,7 @@
 
             </el-autocomplete>
             <sort-dropdown :sortable="sortable" @sort-change="handleSortChange" />
-            <el-button round type="text" class="vmode" @click="changeVmode">
+            <el-button v-if="showChangeVmodeBtn" round type="text" class="vmode" @click="changeVmode">
               <svg-icon :icon-class="grid ? 'list' : 'grid'" />
             </el-button>
           </div>
@@ -829,6 +829,11 @@ export default {
       // 是否为选择文件模式
       type: Boolean,
       default: false,
+    },
+    showChangeVmodeBtn: {
+      // 是否显示切换视图模式图标按钮
+      type: Boolean,
+      default: true,
     },
     emptyStatus: {
       type: String,

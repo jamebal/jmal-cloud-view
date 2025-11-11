@@ -2,15 +2,31 @@
   <div class="upload-input-image">
     <el-row>
       <el-col :xs="24">
-        <select-file title="选择图片" @select="selectedFile" :visible.sync="dialogSelectFile"></select-file>
+        <select-file
+          title="选择图片"
+          @select="handleSelectedFile"
+          :visible.sync="dialogSelectFile"
+        />
+
         <div class="upload">
-          <el-button round v-if="enableSelect" class="upload-select-btn" title="选择文件" type="primary" size="small" icon="el-icon-folder" circle @click="dialogSelectFile = true"></el-button>
+          <el-button
+            v-if="enableSelect"
+            round
+            class="upload-select-btn"
+            title="选择文件"
+            type="primary"
+            size="small"
+            icon="el-icon-folder"
+            circle
+            @click="dialogSelectFile = true"
+          />
+
           <el-upload
             ref="uploadRef"
             class="upload"
             action="/api/upload-markdown-image"
-            :headers="headers"
-            :data="extraData"
+            :headers="uploadHeaders"
+            :data="uploadData"
             name="files"
             :accept="accept"
             :show-file-list="false"
@@ -21,38 +37,45 @@
             :on-remove="handleFileListRemove"
             :on-progress="handleProgress"
           >
-            <el-button round title="上传" type="primary" size="small" icon="el-icon-upload2" circle></el-button>
-            <span v-if="desc.length > 0">{{desc}}</span>
-            <div class="url-desc" v-if="uploadState > 0" slot="tip">
-              <span v-show="uploadState === 1">图片上传中{{uploadPercentage}}%</span>
-              <span v-show="uploadState === 2">图片上传成功</span>
-              <span v-show="uploadState === 3">该图片不支持自动上传</span>
-              <span v-show="uploadState === 4">图片加载中</span>
-              <i :class="{
-            'el-icon-loading': uploadState === 1 ||  uploadState === 4,
-            'el-icon-check': uploadState === 2,
-            'el-icon-warning-outline': uploadState === 3
-          }"></i>
+            <el-button
+              round
+              title="上传"
+              type="primary"
+              size="small"
+              icon="el-icon-upload2"
+              circle
+            />
+            <span v-if="desc">{{ desc }}</span>
+
+            <div v-if="showUploadTip" class="url-desc" slot="tip">
+              <span>{{ uploadStateText }}</span>
+              <i :class="uploadStateIcon" />
             </div>
           </el-upload>
         </div>
       </el-col>
+
       <el-col :xs="24">
         <el-tooltip class="item" effect="dark" placement="bottom">
           <el-input
-            :autosize="intputAutosize"
-            :placeholder="(enableUrl ? '请输入图片的url 或 ': '') + placeholder"
+            :autosize="inputAutosize"
+            :placeholder="inputPlaceholder"
             type="textarea"
-            width="100%"
             v-model="currentValue"
-            @change="change"
-            @input="input"
-            @focus="isLocked = true">
-          </el-input>
+            @change="handleChange"
+            @focus="handleFocus"
+            @blur="handleBlur"
+          />
+
           <div slot="content">
-            <el-image :style="{maxWidth: tipImageMaxWidth + 'px'}" :src="currentValue" fit="contain" @load="loadSuccess">
+            <el-image
+              :style="{ maxWidth: tipImageMaxWidth + 'px' }"
+              :src="currentValue"
+              fit="contain"
+              @load="handleImageLoad"
+            >
               <div slot="error" class="image-slot">
-                <i class="el-icon-picture-outline"></i>
+                <i class="el-icon-picture-outline" />
               </div>
             </el-image>
           </div>
@@ -61,15 +84,32 @@
     </el-row>
   </div>
 </template>
-<script>
 
+<script>
 import fileApi from '@/api/file-api'
-import fileConfig from "@/utils/file-config"
-import SelectFile from "@/components/ShowFile/SelectFile"
+import fileConfig from '@/utils/file-config'
+import SelectFile from '@/components/ShowFile/SelectFile'
+
+// 上传状态枚举
+const UPLOAD_STATE = {
+  IDLE: 0,
+  UPLOADING: 1,
+  SUCCESS: 2,
+  UNSUPPORTED: 3,
+  LOADING: 4
+}
+
+// 上传成功提示显示时长
+const SUCCESS_TIP_DURATION = 3000
+
+// 自动上传延迟时间
+const AUTO_UPLOAD_DELAY = 300
 
 export default {
   name: 'UploadImageInput',
-  components: {SelectFile},
+
+  components: { SelectFile },
+
   props: {
     value: {
       type: String,
@@ -87,9 +127,9 @@ export default {
       type: String,
       default: '点击上传'
     },
-    intputAutosize: {
+    inputAutosize: {
       type: Object,
-      default: ()=>{ return { minRows: 1, maxRows: 6} }
+      default: () => ({ minRows: 1, maxRows: 6 })
     },
     enableSelect: {
       type: Boolean,
@@ -104,198 +144,347 @@ export default {
       default: ''
     }
   },
+
   data() {
     return {
-      headers: {
-        'jmal-token': this.$store.state.user.token,
-        'name': this.$store.state.user.name,
-        'username': this.$store.state.user.name,
-        'userId': this.$store.state.user.userId
-      },
-      extraData: {
-        'username': this.$store.state.user.name,
-        'userId': this.$store.state.user.userId
-      },
       currentValue: this.value,
       fileList: [],
-      isLocked: false, // true表示输入框正在输入状态
-      timer: null,
-      uploadState: 0, // 文件上传状态, 0 没有文件上传, 1 正在上传, 2 上传成功, 3 不支持自动上传, 4 加载中
-      uploadTip: '',
+      isInputFocused: false,
+      autoUploadTimer: null,
+      uploadState: UPLOAD_STATE.IDLE,
       dialogSelectFile: false,
       uploadPercentage: 0
     }
   },
+
+  computed: {
+    // 用户信息
+    userInfo() {
+      return {
+        token: this.$store.state.user.token,
+        name: this.$store.state.user.name,
+        userId: this.$store.state.user.userId
+      }
+    },
+
+    // 上传请求头
+    uploadHeaders() {
+      return {
+        'jmal-token': this.userInfo.token,
+        'name': this.userInfo.name,
+        'username': this.userInfo.name,
+        'userId': this.userInfo.userId
+      }
+    },
+
+    // 上传额外数据
+    uploadData() {
+      return {
+        'username': this.userInfo.name,
+        'userId': this.userInfo.userId
+      }
+    },
+
+    // 输入框占位符
+    inputPlaceholder() {
+      const urlPrefix = this.enableUrl ? '请输入图片的url 或 ' : ''
+      return urlPrefix + this.placeholder
+    },
+
+    // 是否显示上传提示
+    showUploadTip() {
+      return this.uploadState !== UPLOAD_STATE.IDLE
+    },
+
+    // 上传状态文本
+    uploadStateText() {
+      const stateTexts = {
+        [UPLOAD_STATE.UPLOADING]: '图片上传中' + this.uploadPercentage + '%',
+        [UPLOAD_STATE.SUCCESS]: '图片上传成功',
+        [UPLOAD_STATE.UNSUPPORTED]: '该图片不支持自动上传',
+        [UPLOAD_STATE.LOADING]: '图片加载中'
+      }
+      return stateTexts[this.uploadState] || ''
+    },
+
+    // 上传状态图标
+    uploadStateIcon() {
+      return {
+        'el-icon-loading': [UPLOAD_STATE.UPLOADING, UPLOAD_STATE.LOADING].includes(this.uploadState),
+        'el-icon-check': this.uploadState === UPLOAD_STATE.SUCCESS,
+        'el-icon-warning-outline': this.uploadState === UPLOAD_STATE.UNSUPPORTED
+      }
+    },
+
+    // 当前值是否为外部URL
+    isExternalUrl() {
+      return this.currentValue && !this.currentValue.startsWith(window.location.origin)
+    }
+  },
+
   watch: {
     value(val) {
       this.currentValue = val
-      // const reg = /[^\\\/]*[\\\/]+/g
-      // this.fileList.push({name: val.replace(reg, ''), url: val})
     }
   },
+
+  beforeDestroy() {
+    // 清理定时器，防止内存泄漏
+    this.clearAutoUploadTimer()
+  },
+
   methods: {
-    change(value) {
-      this.isLocked = false
+    // 处理输入框变化
+    handleChange(value) {
+      this.isInputFocused = false
       this.$emit('input', value)
     },
-    input(value) {
+
+    // 处理输入框聚焦
+    handleFocus() {
+      this.isInputFocused = true
     },
-    selectedFile(row) {
-      fileApi.setPublic({fileId: row.id}).then(() => {
-        this.currentValue = window.location.origin + fileConfig.previewUrl(this.$store.state.user.name, row, undefined)
-        this.change(this.currentValue)
+
+    // 处理输入框失焦
+    handleBlur() {
+      this.isInputFocused = false
+    },
+
+    // 处理文件选择
+    handleSelectedFile(row) {
+      fileApi.setPublic({ fileId: row.id }).then(() => {
+        this.currentValue = window.location.origin + fileConfig.previewUrl(
+          this.userInfo.name,
+          row,
+          undefined
+        )
+        this.handleChange(this.currentValue)
       })
     },
-    handleBeforeUpload(){
-      this.uploadState = 1
+
+    // 上传前钩子
+    handleBeforeUpload() {
+      this.uploadState = UPLOAD_STATE.UPLOADING
+      this.uploadPercentage = 0
     },
-    handleProgress(event, file){
-      this.onpregress(file.percentage | 0)
+
+    // 上传进度处理
+    handleProgress(event, file) {
+      this.updateProgress(Math.floor(file.percentage))
     },
-    onpregress(percentage){
+
+    // 更新上传进度
+    updateProgress(percentage) {
       this.uploadPercentage = percentage
     },
+
+    // 上传成功处理
     handleSuccess(response) {
-      if(response.code === 0){
-        if(response.data && response.data.length > 0){
-          this.format(response.data[0].filepath, response.data[0].filename)
-        }
+      if (response.code === 0 && response.data && response.data.length > 0) {
+        const filepath = response.data[0].filepath
+        this.formatImageUrl(filepath)
       }
-      this.uploadSuccessAfter()
+      this.handleUploadComplete()
     },
-    uploadSuccessAfter(){
-      this.uploadState = 2
+
+    // 上传完成后处理
+    handleUploadComplete() {
+      this.uploadState = UPLOAD_STATE.SUCCESS
       this.fileList = []
-      const that = this
-      setTimeout(function (){
-        that.uploadState = 0
-      }, 3000)
+
+      // 3秒后隐藏成功提示
+      setTimeout(() => {
+        if (this.uploadState === UPLOAD_STATE.SUCCESS) {
+          this.uploadState = UPLOAD_STATE.IDLE
+        }
+      }, SUCCESS_TIP_DURATION)
     },
+
+    // 文件列表移除处理
     handleFileListRemove(file, fileList) {
       this.fileList = fileList
     },
-    format(filepath){
+
+    // 格式化图片URL
+    formatImageUrl(filepath) {
       this.currentValue = fileConfig.markdownPreviewUrl(filepath)
-      this.change(this.currentValue)
+      this.handleChange(this.currentValue)
     },
-    // url转blob
-    urlToBlob(the_url, callback) {
-      const that = this
-      let xhr = new XMLHttpRequest();
-      xhr.open("get", the_url, true);
-      xhr.responseType = "blob";
-      xhr.onload = function() {
-        if (this.status === 200) {
-          if(callback){
-            callback(this.response)
-          }
-        }
-      };
-      xhr.onerror = function (){
-        that.uploadState = 3
+
+    // 图片加载成功处理
+    handleImageLoad() {
+      // 只在启用URL模式、输入框聚焦且为外部URL时自动上传
+      if (!this.enableUrl || !this.isInputFocused || !this.isExternalUrl) {
+        return
       }
-      xhr.send();
+
+      this.clearAutoUploadTimer()
+
+      this.autoUploadTimer = setTimeout(() => {
+        this.autoUploadExternalImage()
+      }, AUTO_UPLOAD_DELAY)
     },
-    loadSuccess() {
-      if(this.timer == null && this.enableUrl){
-        if(this.isLocked){
-          const that = this
-          this.timer = setTimeout(function (){
-            if(!that.currentValue.startsWith(window.location.origin)){
-              that.uploadState = 4
-              that.urlToBlob(that.currentValue, response => {
-                that.uploadState = 1
-                let fileName = that.getFileNameByUrl(that.currentValue)
-                if (response.type.startsWith("image") && fileName.indexOf(".")) {
-                  let suffix = response.type.replace("image/",".")
-                  fileName += suffix
-                }
-                const file = new window.File(
-                  [response],
-                  fileName,
-                  { type: response.type }
-                );
-                let data = new FormData()
-                data.append("files", file)
-                data.append("username", that.$store.state.user.name)
-                data.append("userId", that.$store.state.user.userId)
-                that.uploadImage(that, data)
-              })
-            }
-          }, 300)
-        }
-      } else {
-        clearTimeout(this.timer)
-        this.timer = null
-      }
-    },
-    uploadImage(that, data){
-      axios.post('/api/upload-markdown-image', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'jmal-token': that.$store.state.user.token,
-          'name': that.$store.getters.name
-        },
-        onUploadProgress: progressEvent => {
-          that.onpregress((progressEvent.loaded / progressEvent.total * 100 | 0))
-        }
-      }).then((res) => {
-          const data = res.data.data[0]
-          that.format(data.filepath, data.filename)
-          that.uploadSuccessAfter()
-          that.$refs.uploadRef.clearFiles()
+
+    // 自动上传外部图片
+    autoUploadExternalImage() {
+      this.uploadState = UPLOAD_STATE.LOADING
+
+      this.urlToBlob(this.currentValue)
+        .then((blob) => {
+          const file = this.createFileFromBlob(blob)
+          return this.uploadImageFile(file)
+        })
+        .catch((error) => {
+          this.uploadState = UPLOAD_STATE.UNSUPPORTED
+          console.error('自动上传失败:', error)
         })
     },
-    // 获取url中的文件名
-    getFileNameByUrl(url){
-      const urlRgx = /[a-zA-z]+:\/\/[^\s]*/
-      if(urlRgx.test(url)){
-        if(url.indexOf("-1") > -1){
-          url = url.split('?')[0]
+
+    // URL转Blob
+    urlToBlob(url) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('GET', url, true)
+        xhr.responseType = 'blob'
+
+        xhr.onload = function() {
+          if (this.status === 200) {
+            resolve(this.response)
+          } else {
+            reject(new Error('HTTP ' + this.status))
+          }
         }
-        let arr = url.split('/')
-        return arr[arr.length - 1]
+
+        xhr.onerror = function() {
+          reject(new Error('网络错误'))
+        }
+
+        xhr.send()
+      })
+    },
+
+    // 从Blob创建File对象
+    createFileFromBlob(blob) {
+      let fileName = this.getFileNameFromUrl(this.currentValue)
+
+      // 如果文件名没有扩展名，从blob类型推断
+      if (blob.type.startsWith('image/') && fileName.indexOf('.') === -1) {
+        const suffix = blob.type.replace('image/', '.')
+        fileName += suffix
+      }
+
+      return new File([blob], fileName, { type: blob.type })
+    },
+
+    // 上传图片文件
+    uploadImageFile(file) {
+      const self = this
+      self.uploadState = UPLOAD_STATE.UPLOADING
+
+      const formData = new FormData()
+      formData.append('files', file)
+      formData.append('username', self.userInfo.name)
+      formData.append('userId', self.userInfo.userId)
+
+      return axios.post('/api/upload-markdown-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'jmal-token': self.userInfo.token,
+          'name': self.userInfo.name
+        },
+        onUploadProgress: function(progressEvent) {
+          const percentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100)
+          self.updateProgress(percentage)
+        }
+      })
+        .then(function(res) {
+          if (res.data && res.data.data && res.data.data[0]) {
+            self.formatImageUrl(res.data.data[0].filepath)
+            self.handleUploadComplete()
+
+            if (self.$refs.uploadRef) {
+              self.$refs.uploadRef.clearFiles()
+            }
+          }
+        })
+        .catch(function(error) {
+          self.uploadState = UPLOAD_STATE.UNSUPPORTED
+          throw error
+        })
+    },
+
+    // 从URL获取文件名
+    getFileNameFromUrl(url) {
+      const urlRegex = /^[a-zA-Z]+:\/\/[^\s]*$/
+
+      if (!urlRegex.test(url)) {
+        return 'image'
+      }
+
+      // 移除查询参数
+      const cleanUrl = url.split('?')[0]
+      const parts = cleanUrl.split('/')
+      return parts[parts.length - 1] || 'image'
+    },
+
+    // 清理自动上传定时器
+    clearAutoUploadTimer() {
+      if (this.autoUploadTimer) {
+        clearTimeout(this.autoUploadTimer)
+        this.autoUploadTimer = null
       }
     }
   }
 }
 </script>
+
 <style lang="scss" scoped>
-.upload {
-  margin-bottom: 1px;
-  display: -webkit-box;
-  .upload-select-btn {
-    margin-right: 5px;
-  }
-  .url-desc {
-    padding: 4px 10px;
-  }
-  .url-desc-first {
-    padding: 4px 10px 4px 0;
+.upload-input-image {
+  .upload {
+    margin-bottom: 1px;
+    display: flex;
+    align-items: center;
+
+    .upload-select-btn {
+      margin-right: 5px;
+    }
+
+    .url-desc {
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
   }
 }
+
 >>> .el-checkbox {
   font-size: 13px;
   padding: 0 10px;
+
   .el-checkbox__label {
     padding-left: 5px;
     font-size: 13px;
   }
 }
+
 >>> .el-upload-list--picture {
   .el-upload-list__item-thumbnail {
-    width: unset;
+    width: auto;
     height: 90px;
     object-fit: cover;
   }
+
   .el-upload-list__item {
     margin-top: 0;
     padding: 0 0 0 80px;
-  }
-  .el-upload-list__item.is-success .el-upload-list__item-name {
-    line-height: 90px;
+
+    &.is-success .el-upload-list__item-name {
+      line-height: 90px;
+    }
   }
 }
+
 >>> .el-upload-list__item-name {
   margin-right: 10px;
 }

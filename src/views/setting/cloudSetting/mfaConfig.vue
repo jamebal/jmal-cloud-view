@@ -17,7 +17,7 @@
       </el-switch>
     </div>
 
-    <div class="config-itme-label">重置两步验证：
+    <div class="config-item-label">重置两步验证：
       <el-button round size="mini" :loading="restMfaLoading" type="primary" @click="dialogVisible = true"><i class="el-icon-refresh"></i></el-button>
     </div>
     <span class="instruction">此操作会重置所有用户的两步验证，仅在<a href="https://jmalcloud.github.io/guide/installation.html#encryption-secret-key" target="_blank">更换密钥</a>时执行。重置后，所有用户的两步验证都将失效，需要重新设置。请谨慎操作。</span>

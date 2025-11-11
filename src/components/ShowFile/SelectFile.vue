@@ -20,6 +20,7 @@
         :show-more-item="false"
         :show-share-item="false"
         :less-client-height="lessClientHeight"
+        :show-change-vmode-btn="false"
         :sortable="sortable"
         @selectedFile="selectedFile"
       >
@@ -80,19 +81,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/index';
 .select-file-dialog {
   >>>.el-dialog__body {
     padding: 0;
   }
   >>>.el-dialog__header {
     padding: 16px 20px 10px;
-  }
-  >>>.el-dialog__footer {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    padding: 0 20px 20px;
-    background: linear-gradient(rgba(255,255,255,0), #fff);
   }
 }
 >>> .share-empty {
