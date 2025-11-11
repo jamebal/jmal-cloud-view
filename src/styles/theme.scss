@@ -83,8 +83,8 @@
   // login page
   --login-page-gb-color: rgba(248, 251, 255, 0);
   --login-page-border-color: #ffffff35;
-  --login-page-from-bg-color: #ffffff35;
-  --login-page-from-input-bg-color: #ffffffcc;
+  --login-page-form-bg-color: #ffffff35;
+  --login-page-form-input-bg-color: #ffffffcc;
 }
 
 html.dark {
@@ -172,6 +172,6 @@ html.dark {
   // login page
   --login-page-gb-color: rgba(30, 41, 59, 0.2);
   --login-page-border-color: #ffffff23;
-  --login-page-from-bg-color: #00000035;
-  --login-page-from-input-bg-color: #000000cc;
+  --login-page-form-bg-color: #00000035;
+  --login-page-form-input-bg-color: #000000cc;
 }

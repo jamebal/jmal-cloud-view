@@ -321,7 +321,7 @@ export default {
 
 .login-card, .mfa-card {
 
-  background: var(--login-page-from-bg-color) !important;
+  background: var(--login-page-form-bg-color) !important;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-color: var(--login-page-border-color) !important;
@@ -330,7 +330,7 @@ export default {
   .el-form-item.login-input {
     border: 1px solid var(--login-page-border-color);
     border-radius: 12px;
-    background: var(--login-page-from-input-bg-color) !important;
+    background: var(--login-page-form-input-bg-color) !important;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-color: var(--login-page-border-color) !important;
@@ -458,7 +458,7 @@ footer {
   transition: 0.5s ease all;
 
   .copyright {
-    background: var(--login-page-from-bg-color) !important;
+    background: var(--login-page-form-bg-color) !important;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-radius: 10px;

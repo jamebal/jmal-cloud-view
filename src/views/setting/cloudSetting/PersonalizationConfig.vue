@@ -114,16 +114,20 @@ export default {
     checkNetdiskName() {
       if (!this.netdiskName) {
         this.$message.warning(this.$t('msg.netDiskNameRuleEmpty').toString())
-        return
+        return false
       }
       //中文，数字，字母，下划线
       const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/
       if (!reg.test(this.netdiskName)) {
         this.$message.warning(`${this.$t('msg.netDiskNameRule')}`)
+        return false
       }
+      return true
     },
     saveConfig() {
-      this.checkNetdiskName()
+      if (!this.checkNetdiskName()) {
+        return
+      }
       this.saveConfigLoading = true
       settingApi.updateNetdiskPersonalization({
         name: this.netdiskName,
