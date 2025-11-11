@@ -1,12 +1,6 @@
 <template>
   <div class="container">
-    <div class="config-item-label">{{ $t('app.netDiskName') }}：
-      <el-input :placeholder="$t('common.pleaseEnter')" v-model="netdiskName" minlength="1" maxlength="10" size="medium"
-                :style="{width: inputNetdiskNameWidth+'px'}"
-                @keyup.enter.native="updateNetdiskName" @input="inputNetdiskName">
-        <el-button round v-if="showAckBtn" slot="append" icon="el-icon-check" @click="updateNetdiskName"></el-button>
-      </el-input>
-    </div>
+
     <div class="config-item-label logo">{{ $t('app.netDiskLogo') }}：
       <el-upload
         class="avatar-uploader"
@@ -19,11 +13,17 @@
     </div>
     <span class="instruction">{{ $t('app.clickChangeLogo') }}</span>
 
+    <div class="config-item-label">{{ $t('app.netDiskName') }}：
+      <el-input :placeholder="$t('common.pleaseEnter')" v-model="netdiskName" minlength="1" maxlength="10" size="medium"
+                style="width: 180px">
+      </el-input>
+    </div>
+
     <div class="config-item-label">登录页背景：</div>
     <upload-image-input v-model="loginBackgroundUrl" />
     <span class="instruction">在这里填入图片的URL地址, 以在登录页面显示。</span>
 
-    <div class="config-item-label" style="margin-left: 75px;">
+    <div class="config-item-label">
       <el-button round type="primary" size="small" :loading="saveConfigLoading" @click="saveConfig">保存配置</el-button>
     </div>
   </div>
@@ -53,10 +53,8 @@ export default {
       logoFileName: this.$store.state.user.netdiskLogo || '',
       logoFileTypeList: ['image/svg+xml', 'image/jpg', 'image/png', 'image/jpeg'],
       netdiskName: 'JmalCloud',
-      showAckBtn: false,
       loginBackgroundUrl: '',
       loginBackgroundBlur: 10,
-      inputNetdiskNameWidth: 150,
       saveConfigLoading: false,
     }
   },
@@ -104,36 +102,6 @@ export default {
         }
       })
     },
-    inputNetdiskName(input) {
-      if (input) {
-        this.showAckBtn = true
-        this.inputNetdiskNameWidth = 206
-      }
-    },
-    setInputBlur() {
-      this.showAckBtn = false
-      this.inputNetdiskNameWidth = 150
-    },
-    // 修改网盘名称
-    updateNetdiskName() {
-      if (!this.netdiskName) {
-        this.$message.warning(this.$t('msg.netDiskNameRuleEmpty').toString())
-        return
-      }
-      //中文，数字，字母，下划线
-      const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/
-      if (reg.test(this.netdiskName)) {
-        settingApi.updateNetdiskName({ netdiskName: this.netdiskName }).then(() => {
-          this.updateGlobalNetdiskNameAndLogo()
-          this.$message.success(`${this.$t('app.netDiskName')} ${this.$t('common.modifiedSuccessfully')}`)
-          this.setInputBlur()
-        }).catch(() => {
-          this.setInputBlur()
-        })
-      } else {
-        this.$message.warning(`${this.$t('msg.netDiskNameRule')}`)
-      }
-    },
     updateGlobalNetdiskNameAndLogo() {
       this.$store.dispatch('user/setLogo', {
         netdiskName: this.netdiskName,
@@ -143,7 +111,19 @@ export default {
         document.title = getPageTitle(this.$route.meta.title)
       })
     },
-    saveConfig(){
+    checkNetdiskName() {
+      if (!this.netdiskName) {
+        this.$message.warning(this.$t('msg.netDiskNameRuleEmpty').toString())
+        return
+      }
+      //中文，数字，字母，下划线
+      const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/
+      if (!reg.test(this.netdiskName)) {
+        this.$message.warning(`${this.$t('msg.netDiskNameRule')}`)
+      }
+    },
+    saveConfig() {
+      this.checkNetdiskName()
       this.saveConfigLoading = true
       settingApi.updateNetdiskPersonalization({
         name: this.netdiskName,
