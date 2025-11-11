@@ -173,7 +173,7 @@ export default {
       mfaRequired: false,
       mfaForceEnable: false,
       backgroundImg: {
-        backgroundImage: `linear-gradient(rgb(var(--login-page-gb-color) , 0%), rgb(var(--login-page-gb-color) , 0%), rgb(var(--login-page-gb-color),0%)), url(${require("@/assets/img/logo-bg.webp")})`,
+        backgroundImage: `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${require("@/assets/img/logo-bg.webp")})`,
         width: '100%',
         height: '100%',
         position: 'absolute',
@@ -212,7 +212,7 @@ export default {
       }
       if (this.websiteRecord.personalization) {
         if (this.websiteRecord.personalization.loginBackgroundUrl) {
-          this.backgroundImg.backgroundImage = `linear-gradient(rgb(var(--login-page-gb-color) , 0%), rgb(var(--login-page-gb-color),0%)), url(${this.websiteRecord.personalization.loginBackgroundUrl})`
+          this.backgroundImg.backgroundImage = `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${this.websiteRecord.personalization.loginBackgroundUrl})`
         }
       }
     })
