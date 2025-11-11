@@ -81,7 +81,7 @@
   --uploader-file-uploader-drop-text-color: #616161;
 
   // login page
-  --login-page-gb-color: 284, 251, 255;
+  --login-page-gb-color: rgba(248, 251, 255, 0);
   --login-page-border-color: #ffffff35;
   --login-page-from-bg-color: #ffffff35;
   --login-page-from-input-bg-color: #ffffffcc;
@@ -170,7 +170,7 @@ html.dark {
   --uploader-file-uploader-drop-text-color: #b6b6b6;
 
   // login page
-  --login-page-gb-color: 30, 41, 59;
+  --login-page-gb-color: rgba(30, 41, 59, 0.2);
   --login-page-border-color: #ffffff23;
   --login-page-from-bg-color: #00000035;
   --login-page-from-input-bg-color: #000000cc;
