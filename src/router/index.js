@@ -51,6 +51,16 @@ export const constantRoutes = [
     name: 'share',
     component: () => import('@/views/public/share/shareList')
   },
+  {
+    path: '/burn-note/create',
+    name: 'CreateBurnNote',
+    component: () => import('@/views/public/burnNote/CreateBurnNote.vue'),
+  },
+  {
+    path: '/burn-note/:id/:key',
+    name: 'ViewBurnNote',
+    component: () => import('@/views/public/burnNote/ViewBurnNote.vue'),
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

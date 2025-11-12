@@ -85,6 +85,9 @@
   --login-page-border-color: #ffffff35;
   --login-page-form-bg-color: #ffffff35;
   --login-page-form-input-bg-color: #ffffffcc;
+
+  // burn note page
+  --burn-note-content-bg-color: #f5f5f5;
 }
 
 html.dark {
@@ -174,4 +177,7 @@ html.dark {
   --login-page-border-color: #ffffff23;
   --login-page-form-bg-color: #00000035;
   --login-page-form-input-bg-color: #000000cc;
+
+  // burn note page
+  --burn-note-content-bg-color: #2d2d2d;
 }

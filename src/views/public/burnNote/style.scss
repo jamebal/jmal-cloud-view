@@ -1,0 +1,17 @@
+.el-card {
+  border-radius: 16px;
+  border: var(--dialog-border);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+>>>.el-alert__title {
+  font-size: 14px;
+}
+.el-alert {
+  border-radius: 8px;
+}
