@@ -52,12 +52,12 @@ export const constantRoutes = [
     component: () => import('@/views/public/share/shareList')
   },
   {
-    path: '/burn-note/create',
+    path: '/b',
     name: 'CreateBurnNote',
     component: () => import('@/views/public/burnNote/CreateBurnNote.vue'),
   },
   {
-    path: '/burn-note/:id/:key',
+    path: '/b/:id/:key',
     name: 'ViewBurnNote',
     component: () => import('@/views/public/burnNote/ViewBurnNote.vue'),
   },

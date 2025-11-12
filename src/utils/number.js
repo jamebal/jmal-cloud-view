@@ -129,7 +129,7 @@ export function formatTime(agoTime) {
 export function formatSize(size) {
   if (size === 0 || !size) return '0B';
 
-  const units = ['B', 'K', 'M', 'G', 'T'];
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let index = 0;
   let result = size;
 

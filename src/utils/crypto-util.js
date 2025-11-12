@@ -1,31 +1,22 @@
-const ALGORITHM_NAME = 'AES-GCM'
-
 /**
  * 阅后即焚加密工具类
- * 使用浏览器原生 Web Crypto API 实现 AES-256-GCM 加密和解密
+ * 使用 Web Crypto API (浏览器原生)
  */
 export class BurnNoteCrypto {
-
   /**
-   * 生成随机密钥（Base64URL 编码）
-   * @returns {Promise<string>} Base64URL 编码的密钥（64字节 = 512位）
+   * 生成随机密钥（Base64URL 编码，512位）
    */
   static async generateKey() {
-    // 生成 64 字节（512位）的随机密钥材料
     const keyMaterial = window.crypto.getRandomValues(new Uint8Array(64))
-
-    // 转换为 Base64URL（URL 友好，无 +/= 字符）
     return this._arrayBufferToBase64URL(keyMaterial)
   }
 
   /**
    * 从密钥材料派生 AES-256 密钥
-   * @private
    */
   static async _deriveAESKey(keyMaterialBase64URL) {
     const keyMaterial = this._base64URLToArrayBuffer(keyMaterialBase64URL)
 
-    // 使用 PBKDF2 派生密钥
     const baseKey = await window.crypto.subtle.importKey(
       'raw',
       keyMaterial,
@@ -34,7 +25,6 @@ export class BurnNoteCrypto {
       ['deriveKey']
     )
 
-    // 派生 AES-256 密钥
     return await window.crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
@@ -46,17 +36,14 @@ export class BurnNoteCrypto {
         hash: 'SHA-256'
       },
       baseKey,
-      { name: ALGORITHM_NAME, length: 256 },
+      { name: 'AES-GCM', length: 256 },
       false,
       ['encrypt', 'decrypt']
     )
   }
 
   /**
-   * 加密内容
-   * @param {string} content - 明文内容
-   * @param {string} keyMaterialBase64URL - Base64URL 编码的密钥材料
-   * @returns {Promise<string>} Base64URL 编码的加密数据
+   * 加密内容（文本）
    */
   static async encrypt(content, keyMaterialBase64URL) {
     try {
@@ -67,7 +54,7 @@ export class BurnNoteCrypto {
 
       const encrypted = await window.crypto.subtle.encrypt(
         {
-          name: ALGORITHM_NAME,
+          name: 'AES-GCM',
           iv: iv,
           tagLength: 128
         },
@@ -87,10 +74,7 @@ export class BurnNoteCrypto {
   }
 
   /**
-   * 解密内容
-   * @param {string} encryptedBase64URL - Base64URL 编码的加密数据
-   * @param {string} keyMaterialBase64URL - Base64URL 编码的密钥材料
-   * @returns {Promise<string>} 解密后的明文
+   * 解密内容（文本）
    */
   static async decrypt(encryptedBase64URL, keyMaterialBase64URL) {
     try {
@@ -101,7 +85,7 @@ export class BurnNoteCrypto {
 
       const decrypted = await window.crypto.subtle.decrypt(
         {
-          name: ALGORITHM_NAME,
+          name: 'AES-GCM',
           iv: iv,
           tagLength: 128
         },
@@ -118,8 +102,90 @@ export class BurnNoteCrypto {
   }
 
   /**
-   * ArrayBuffer 转 Base64URL（URL 友好）
-   * @private
+   * 加密文件（流式处理）
+   */
+  static async encryptFile(file, keyMaterialBase64URL, onProgress) {
+    try {
+      const key = await this._deriveAESKey(keyMaterialBase64URL)
+      const CHUNK_SIZE = 1024 * 1024 // 1MB
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
+      const encryptedChunks = []
+
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE
+        const end = Math.min(start + CHUNK_SIZE, file.size)
+        const chunk = file.slice(start, end)
+
+        const arrayBuffer = await chunk.arrayBuffer()
+        const iv = window.crypto.getRandomValues(new Uint8Array(16))
+
+        const encrypted = await window.crypto.subtle.encrypt(
+          {
+            name: 'AES-GCM',
+            iv: iv,
+            tagLength: 128
+          },
+          key,
+          arrayBuffer
+        )
+
+        const combined = new Uint8Array(iv.length + encrypted.byteLength)
+        combined.set(iv, 0)
+        combined.set(new Uint8Array(encrypted), iv.length)
+
+        encryptedChunks.push(this._arrayBufferToBase64URL(combined))
+
+        if (onProgress) {
+          onProgress(Math.round(((i + 1) / totalChunks) * 100))
+        }
+      }
+
+      return {
+        encryptedChunks,
+        metadata: {
+          originalName: file.name,
+          originalSize: file.size,
+          mimeType: file.type,
+          totalChunks: totalChunks,
+          chunkSize: CHUNK_SIZE,
+          encryptedAt: new Date().toISOString()
+        }
+      }
+    } catch (error) {
+      console.error('文件加密失败:', error)
+      throw new Error('文件加密失败')
+    }
+  }
+
+  /**
+   * 解密单个分片
+   */
+  static async decryptChunk(encryptedChunkBase64URL, keyMaterialBase64URL) {
+    try {
+      const key = await this._deriveAESKey(keyMaterialBase64URL)
+      const combined = this._base64URLToArrayBuffer(encryptedChunkBase64URL)
+      const iv = combined.slice(0, 16)
+      const encrypted = combined.slice(16)
+
+      const decrypted = await window.crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv: iv,
+          tagLength: 128
+        },
+        key,
+        encrypted
+      )
+
+      return new Uint8Array(decrypted)
+    } catch (error) {
+      console.error('分片解密失败:', error)
+      throw new Error('分片解密失败')
+    }
+  }
+
+  /**
+   * ArrayBuffer 转 Base64URL
    */
   static _arrayBufferToBase64URL(buffer) {
     const bytes = new Uint8Array(buffer)
@@ -127,27 +193,18 @@ export class BurnNoteCrypto {
     for (let i = 0; i < bytes.byteLength; i++) {
       binary += String.fromCharCode(bytes[i])
     }
-    // 标准 Base64
-    let base64 = window.btoa(binary)
-
-    // 转换为 Base64URL：替换特殊字符，去除填充
-    return base64
-      .replace(/\+/g, '-')  // + 替换为
-      .replace(/\//g, '_')  // / 替换为
-      .replace(/=/g, '')    // 去除 = 填充
+    return window.btoa(binary)
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '')
   }
 
   /**
    * Base64URL 转 ArrayBuffer
-   * @private
    */
   static _base64URLToArrayBuffer(base64url) {
-    // 还原为标准 Base64
-    let base64 = base64url
-      .replace(/-/g, '+')
-      .replace(/_/g, '/')
+    let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
 
-    // 补充填充
     const padding = base64.length % 4
     if (padding > 0) {
       base64 += '='.repeat(4 - padding)
@@ -161,4 +218,18 @@ export class BurnNoteCrypto {
     return bytes.buffer
   }
 
+  /**
+   * 获取密钥信息
+   */
+  static getKeyInfo(keyBase64URL) {
+    const keyBuffer = this._base64URLToArrayBuffer(keyBase64URL)
+    const bits = keyBuffer.byteLength * 8
+    return {
+      bytes: keyBuffer.byteLength,
+      bits: bits,
+      urlLength: keyBase64URL.length,
+      strength: bits >= 512 ? '极强' : bits >= 256 ? '强' : '中等',
+      format: 'Base64URL'
+    }
+  }
 }
