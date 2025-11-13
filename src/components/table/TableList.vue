@@ -9,7 +9,6 @@
       :border="border"
       size="medium"
       fit
-      highlight-current-row
       :default-expand-all="isExpand"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       v-loading="loading"
@@ -104,7 +103,7 @@ export default {
     },
     border: {
       type: Boolean,
-      default: true
+      default: false
     },
     loading: {
       type: Boolean,
