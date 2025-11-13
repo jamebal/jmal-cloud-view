@@ -40,13 +40,3 @@ export function confirmDelete(id) {
     method: 'delete'
   })
 }
-
-/**
- * 获取上传进度
- */
-export function getProgress(id) {
-  return request({
-    url: `/public/burn-notes/${id}/progress`,
-    method: 'get'
-  })
-}

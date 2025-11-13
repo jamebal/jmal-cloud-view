@@ -58,7 +58,7 @@
           >
             <el-button round size="small" type="primary">选择文件</el-button>
             <div slot="tip" class="el-upload__tip">
-              支持任意格式，最大 100MB
+              支持任意格式，最大 1 GB
             </div>
           </el-upload>
           <el-upload
@@ -264,7 +264,7 @@ export default {
      * 创建文件笔记
      */
     async createFileNote(key) {
-      // 1. 加密文件
+      // 加密文件
       this.encrypting = true
       const result = await BurnNoteCrypto.encryptFile(
         this.selectedFile,
@@ -274,8 +274,9 @@ export default {
         }
       )
       this.encrypting = false
+      // 加密元数据
       const encryptedContent = await BurnNoteCrypto.encrypt(JSON.stringify(result.metadata), key)
-      // 2. 创建笔记记录
+      // 创建笔记记录
       const noteData = {
         encryptedContent: encryptedContent,
         isFile: true,
@@ -288,51 +289,68 @@ export default {
       const response = await createBurnNote(noteData)
       const noteId = response.data
 
-      // 3. 上传分片
-      this.uploading = true
-      for (let i = 0; i < result.encryptedChunks.length; i++) {
-        // 将 Base64URL 转为 Blob
-        const binaryData = this.base64URLToBlob(result.encryptedChunks[i])
+      // 上传分片
+      await this.uploadChunk(noteId, result.encryptedChunks)
 
-        const formData = new FormData()
-        formData.append('file', binaryData, `chunk_${i}`)
-
-        await request({
-          url: `/burn-notes/${noteId}/chunks/${i}`,
-          method: 'post',
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          data: formData
-        })
-
-        this.uploadProgress = Math.round(((i + 1) / result.encryptedChunks.length) * 100)
-      }
-      this.uploading = false
-
-      // 4. 生成分享链接
+      // 生成分享链接
       this.shareUrl = `${window.location.origin}/b/${noteId}/${key}`
       this.$nextTick(() => this.generateQRCode())
     },
 
-    /**
-     * Base64URL 转 Blob
-     */
-    base64URLToBlob(base64url) {
-      let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
+    async uploadChunk(noteId, encryptedChunks) {
+      this.uploading = true;
+      this.uploadProgress = 0;
+      const totalChunks = encryptedChunks.length;
+      let uploadedChunks = 0;
 
-      const padding = base64.length % 4
-      if (padding > 0) {
-        base64 += '='.repeat(4 - padding)
+      // 创建一个分片任务队列
+      const chunksQueue = [...encryptedChunks.entries()];
+
+      // 并发池大小
+      const concurrencyLimit = 4;
+
+      const worker = async () => {
+        while (true) {
+          const task = chunksQueue.shift();
+
+          if (!task) {
+            break;
+          }
+
+          const [index, chunk] = task;
+
+          try {
+            const chunkBlob = new Blob([chunk], { type: 'application/octet-stream' });
+            const formData = new FormData();
+            formData.append('file', chunkBlob, `chunk_${index}`);
+
+            await request({
+              url: `/burn-notes/${noteId}/chunks/${index}`,
+              method: 'post',
+              headers: { 'Content-Type': 'multipart/form-data' },
+              data: formData
+            });
+
+            // 只有在上传成功后才更新进度
+            uploadedChunks++;
+            this.uploadProgress = Math.round((uploadedChunks / totalChunks) * 100);
+
+          } catch (error) {
+            throw new Error(`分片 ${index} 上传失败`);
+          }
+        }
+      };
+
+      // 创建并启动 worker 池
+      const workerPromises = [];
+      for (let i = 0; i < concurrencyLimit; i++) {
+        workerPromises.push(worker());
       }
 
-      const binaryString = window.atob(base64)
-      const bytes = new Uint8Array(binaryString.length)
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i)
-      }
+      // 等待所有 worker 完成
+      await Promise.all(workerPromises);
 
-      return new Blob([bytes], { type: 'application/octet-stream' })
+      this.uploading = false;
     },
 
     copyUrl() {

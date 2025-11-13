@@ -43,12 +43,12 @@ export class BurnNoteCrypto {
   }
 
   /**
-   * 加密内容（文本）
+   * 加密内容（文本 -> Base64URL）
    */
   static async encrypt(content, keyMaterialBase64URL) {
     try {
       const key = await this._deriveAESKey(keyMaterialBase64URL)
-      const iv = window.crypto.getRandomValues(new Uint8Array(16))
+      const iv = window.crypto.getRandomValues(new Uint8Array(12))
       const encoder = new TextEncoder()
       const data = encoder.encode(content)
 
@@ -62,6 +62,7 @@ export class BurnNoteCrypto {
         data
       )
 
+      // 拼接 IV + 密文
       const combined = new Uint8Array(iv.length + encrypted.byteLength)
       combined.set(iv, 0)
       combined.set(new Uint8Array(encrypted), iv.length)
@@ -74,14 +75,16 @@ export class BurnNoteCrypto {
   }
 
   /**
-   * 解密内容（文本）
+   * 解密内容（Base64URL -> 文本）
    */
   static async decrypt(encryptedBase64URL, keyMaterialBase64URL) {
     try {
       const key = await this._deriveAESKey(keyMaterialBase64URL)
       const combined = this._base64URLToArrayBuffer(encryptedBase64URL)
-      const iv = combined.slice(0, 16)
-      const encrypted = combined.slice(16)
+
+      // 提取 IV 和 密文
+      const iv = combined.slice(0, 12)
+      const encrypted = combined.slice(12)
 
       const decrypted = await window.crypto.subtle.decrypt(
         {
@@ -102,14 +105,14 @@ export class BurnNoteCrypto {
   }
 
   /**
-   * 加密文件（流式处理）
+   * 加密文件（流式处理 - 返回 Uint8Array 数组）
    */
   static async encryptFile(file, keyMaterialBase64URL, onProgress) {
     try {
       const key = await this._deriveAESKey(keyMaterialBase64URL)
       const CHUNK_SIZE = 1024 * 1024 // 1MB
       const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
-      const encryptedChunks = []
+      const encryptedChunks = [] // Array<Uint8Array>
 
       for (let i = 0; i < totalChunks; i++) {
         const start = i * CHUNK_SIZE
@@ -117,7 +120,7 @@ export class BurnNoteCrypto {
         const chunk = file.slice(start, end)
 
         const arrayBuffer = await chunk.arrayBuffer()
-        const iv = window.crypto.getRandomValues(new Uint8Array(16))
+        const iv = window.crypto.getRandomValues(new Uint8Array(12))
 
         const encrypted = await window.crypto.subtle.encrypt(
           {
@@ -133,7 +136,7 @@ export class BurnNoteCrypto {
         combined.set(iv, 0)
         combined.set(new Uint8Array(encrypted), iv.length)
 
-        encryptedChunks.push(this._arrayBufferToBase64URL(combined))
+        encryptedChunks.push(combined)
 
         if (onProgress) {
           onProgress(Math.round(((i + 1) / totalChunks) * 100))
@@ -160,12 +163,14 @@ export class BurnNoteCrypto {
   /**
    * 解密单个分片
    */
-  static async decryptChunk(encryptedChunkBase64URL, keyMaterialBase64URL) {
+  static async decryptChunk(encryptedChunk, keyMaterialBase64URL) {
     try {
       const key = await this._deriveAESKey(keyMaterialBase64URL)
-      const combined = this._base64URLToArrayBuffer(encryptedChunkBase64URL)
-      const iv = combined.slice(0, 16)
-      const encrypted = combined.slice(16)
+      const combined = new Uint8Array(encryptedChunk)
+
+      // 提取 IV (前 12 字节) 和 密文
+      const iv = combined.slice(0, 12)
+      const encrypted = combined.slice(12)
 
       const decrypted = await window.crypto.subtle.decrypt(
         {
@@ -188,15 +193,20 @@ export class BurnNoteCrypto {
    * ArrayBuffer 转 Base64URL
    */
   static _arrayBufferToBase64URL(buffer) {
-    const bytes = new Uint8Array(buffer)
-    let binary = ''
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i])
+    const bytes = new Uint8Array(buffer);
+    const CHUNK_SIZE = 8192;
+    const chunks = [];
+
+    for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+      chunks.push(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK_SIZE)));
     }
+
+    const binary = chunks.join('');
+
     return window.btoa(binary)
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
-      .replace(/=/g, '')
+      .replace(/=/g, '');
   }
 
   /**
@@ -218,18 +228,4 @@ export class BurnNoteCrypto {
     return bytes.buffer
   }
 
-  /**
-   * 获取密钥信息
-   */
-  static getKeyInfo(keyBase64URL) {
-    const keyBuffer = this._base64URLToArrayBuffer(keyBase64URL)
-    const bits = keyBuffer.byteLength * 8
-    return {
-      bytes: keyBuffer.byteLength,
-      bits: bits,
-      urlLength: keyBase64URL.length,
-      strength: bits >= 512 ? '极强' : bits >= 256 ? '强' : '中等',
-      format: 'Base64URL'
-    }
-  }
 }

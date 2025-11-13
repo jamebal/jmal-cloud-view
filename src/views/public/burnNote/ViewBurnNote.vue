@@ -97,6 +97,7 @@
 </template>
 
 <script>
+import streamSaver from 'streamsaver';
 import { formatSize } from '@/utils/number'
 import { BurnNoteCrypto } from '@/utils/crypto-util'
 import { checkBurnNote, consumeBurnNote, confirmDelete } from '@/api/burn-note'
@@ -169,82 +170,130 @@ export default {
         this.loading = false
       }
     },
-
     /**
-     * 下载并解密文件（边下载边解密）
+     * 下载并解密文件
+     * 采用【分批并发下载】+【有序流式写入】，保证文件正确性、高性能和低内存占用
      */
     async handleDownload() {
+      this.downloading = true;
+      this.downloadProgress = 0;
+      this.downloadStatus = '准备下载...';
+      let writer = null;
+
       try {
-        this.downloading = true
-        this.downloadProgress = 0
-        this.downloadStatus = '准备下载...'
+        const totalChunks = this.noteMetadata.totalChunks;
 
-        const totalChunks = this.noteMetadata.totalChunks
-        const decryptedChunks = []
+        // 1. 获取文件写入流 (不变)
+        let fileStream;
+        this.downloadStatus = '等待用户授权保存...';
+        const suggestedFilename = this.getDownloadFilename(this.noteMetadata.originalName);
+        if (window.showSaveFilePicker) {
+          const handle = await window.showSaveFilePicker({ suggestedName: suggestedFilename });
+          fileStream = await handle.createWritable();
+        } else {
+          fileStream = streamSaver.createWriteStream(suggestedFilename, { size: this.noteMetadata.originalSize });
+        }
+        writer = fileStream.getWriter();
 
-        // 逐块下载并解密
-        for (let i = 0; i < totalChunks; i++) {
-          this.downloadStatus = `下载分片 ${i + 1}/${totalChunks}...`
+        // 并发数
+        const concurrencyLimit = 4;
+        let processedChunks = 0;
 
-          // 1. 下载二进制分片
-          const response = await axios({
-            url: `/api/public/burn-notes/${this.noteId}/chunks/${i}`,
-            method: 'get',
-            responseType: 'arraybuffer'
-          })
+        this.downloadStatus = `下载中...`;
+        // 外层循环按“批”进行
+        for (let i = 0; i < totalChunks; i += concurrencyLimit) {
 
-          const encryptedArrayBuffer = response.data
+          // a. 创建当前批次的任务 Promises
+          const batchPromises = [];
+          const batchEnd = Math.min(i + concurrencyLimit, totalChunks);
+          for (let j = i; j < batchEnd; j++) {
+            // 定义一个立即执行的异步函数来处理单个分片
+            const processChunk = async (chunkIndex) => {
+              // 下载
+              const response = await axios({
+                url: `/api/public/burn-notes/${this.noteId}/chunks/${chunkIndex}`,
+                method: 'get',
+                responseType: 'arraybuffer'
+              });
+              const encryptedArrayBuffer = response.data;
+              // 解密
+              return await BurnNoteCrypto.decryptChunk(encryptedArrayBuffer, this.key);
+            };
+            batchPromises.push(processChunk(j));
+          }
 
-          // 2. 解密分片
-          // 将 ArrayBuffer 转为 Base64URL
-          const encryptedBase64URL = this.arrayBufferToBase64URL(encryptedArrayBuffer)
+          // b. 并发执行当前批次的所有任务
+          // `Promise.all` 会保持结果的原始顺序
+          const decryptedBatch = await Promise.all(batchPromises);
 
-          // 解密
-          const decryptedUint8Array = await BurnNoteCrypto.decryptChunk(
-            encryptedBase64URL,
-            this.key
-          )
+          // c. 按顺序将该批次的结果写入文件流
+          for (const decryptedChunk of decryptedBatch) {
+            await writer.write(decryptedChunk);
 
-          decryptedChunks.push(decryptedUint8Array)
-
-          // 3. 更新进度
-          this.downloadProgress = Math.round(((i + 1) / totalChunks) * 100)
+            // d. 更新总进度
+            processedChunks++;
+            this.downloadProgress = Math.round((processedChunks / totalChunks) * 100);
+          }
         }
 
-        // 4. 合并所有解密后的分片
-        this.downloadStatus = '合并文件...'
-        const blob = new Blob(decryptedChunks, { type: this.noteMetadata.mimeType })
+        // 3. 关闭文件流
+        this.downloadStatus = '文件合并完成，正在保存...';
+        await writer.close();
+        writer = null;
 
-        // 5. 触发浏览器下载
-        this.downloadStatus = '保存文件...'
-        this.downloadFile(blob, this.noteMetadata.originalName)
+        this.downloaded = true;
 
-        this.downloaded = true
-        this.$message.success('文件下载完成！')
-
-        // 6. 确认删除
-        await this.confirmDelete()
+        // 4. 确认删除
+        await this.confirmDelete();
 
       } catch (error) {
-        console.error('下载失败:', error)
-        this.$message.error('下载失败: ' + (error.message || '未知错误'))
+        if (error.name === 'AbortError') {
+          this.$message.info('您取消了文件保存');
+        } else {
+          console.error('下载失败:', error);
+          this.$message.error('下载失败: ' + (error.message || '未知错误'));
+        }
+        if (writer) {
+          await writer.abort(error);
+        }
       } finally {
-        this.downloading = false
+        this.downloading = false;
       }
     },
 
     /**
-     * 触发浏览器下载
+     * 根据原始文件名，生成一个包含【用户本地时区】时间戳的唯一文件名
+     * @param {string} originalName - 原始文件名，例如 "report.docx"
+     * @returns {string} - 唯一文件名，例如 "report_2025-11-13_10-30-00.docx"
      */
-    downloadFile(blob, filename) {
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+    getDownloadFilename(originalName) {
+      const now = new Date();
+      const year = now.getFullYear();
+      // getMonth() 返回 0-11，所以需要 +1
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+
+      // 拼接成用户友好的本地时间戳
+      const timestamp = `${year}-${month}-${day}_${hours}-${minutes}`;
+      // ==========================================================
+
+      // 文件名和扩展名拼接逻辑保持不变
+      const dotIndex = originalName.lastIndexOf('.');
+      let uniqueName;
+
+      if (dotIndex === -1) {
+        // 没有扩展名，例如 "archive"
+        uniqueName = `${originalName}_${timestamp}`;
+      } else {
+        // 有扩展名，例如 "report.docx"
+        const basename = originalName.slice(0, dotIndex);
+        const extension = originalName.slice(dotIndex); // .docx
+        uniqueName = `${basename}_${timestamp}${extension}`;
+      }
+
+      return uniqueName;
     },
 
     /**
@@ -257,21 +306,6 @@ export default {
       } catch (error) {
         console.error('确认删除失败:', error)
       }
-    },
-
-    /**
-     * ArrayBuffer 转 Base64URL
-     */
-    arrayBufferToBase64URL(buffer) {
-      const bytes = new Uint8Array(buffer)
-      let binary = ''
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i])
-      }
-      return window.btoa(binary)
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '')
     },
 
     /**
