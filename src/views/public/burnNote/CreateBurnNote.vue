@@ -207,6 +207,7 @@
 </template>
 
 <script>
+import { copyText } from '@/utils/copy-text'
 import { BurnNoteCrypto } from '@/utils/crypto-util'
 import { createBurnNote } from '@/api/burn-note'
 import QRCode from 'qrcode'
@@ -435,23 +436,7 @@ export default {
     },
 
     copyUrl() {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(this.shareUrl).then(() => {
-          this.$message.success('链接已复制到剪贴板')
-        })
-      } else {
-        this.fallbackCopy()
-      }
-    },
-
-    fallbackCopy() {
-      const input = document.createElement('input')
-      input.value = this.shareUrl
-      document.body.appendChild(input)
-      input.select()
-      document.execCommand('copy')
-      document.body.removeChild(input)
-      this.$message.success('链接已复制到剪贴板')
+      copyText(this.shareUrl)
     },
 
     generateQRCode() {

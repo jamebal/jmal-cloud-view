@@ -22,6 +22,9 @@
           :closable="false"
         />
         <div class="note-content">{{ decryptedContent }}</div>
+
+        <el-button class="copy-note-content-btn" round size="medium" icon="el-icon-document-copy" @click="copyDecryptedContent"> 复制笔记 </el-button>
+
       </div>
 
       <!-- 文件笔记 -->
@@ -99,6 +102,7 @@
 </template>
 
 <script>
+import { copyText } from '@/utils/copy-text'
 import streamSaver from 'streamsaver';
 import { formatSize } from '@/utils/number'
 import { BurnNoteCrypto } from '@/utils/crypto-util'
@@ -317,6 +321,10 @@ export default {
      */
     formatSize(bytes) {
       return formatSize(bytes)
+    },
+
+    copyDecryptedContent() {
+      copyText(this.decryptedContent)
     }
   }
 }
@@ -343,8 +351,11 @@ export default {
       overflow-wrap: break-word;
       line-height: 1.8;
       font-size: 14px;
-      color: var(--text-color, #303133);
+      color: var(--text-color);
       max-width: 100%;
+    }
+    .copy-note-content-btn {
+      margin-top: 20px;
     }
   }
 
