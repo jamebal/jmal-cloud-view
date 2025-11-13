@@ -57,7 +57,7 @@ export const constantRoutes = [
     component: () => import('@/views/public/burnNote/CreateBurnNote.vue'),
   },
   {
-    path: '/b/:id/:key',
+    path: '/b/:id',
     name: 'ViewBurnNote',
     component: () => import('@/views/public/burnNote/ViewBurnNote.vue'),
   },

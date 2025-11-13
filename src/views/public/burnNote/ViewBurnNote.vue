@@ -8,7 +8,7 @@
       <!-- 笔记不存在 -->
       <el-alert
         v-if="!loading && !exists"
-        title="笔记不存在或已被查看"
+        title="笔记不存在或已被销毁。"
         type="error"
         :closable="false"
       />
@@ -27,7 +27,7 @@
       <!-- 文件笔记 -->
       <div v-else-if="isFileType && noteMetadata" class="file-content">
         <el-alert
-          title="✅ 文件笔记已读取，将在下载后销毁。"
+          title="✅ 文件笔记已就绪，将在下载后销毁。"
           type="warning"
           :closable="false"
         />
@@ -49,6 +49,7 @@
         <!-- 下载按钮 -->
         <el-button
           round
+          size="medium"
           v-if="!downloaded"
           type="primary"
           icon="el-icon-download"
@@ -85,6 +86,7 @@
         />
         <el-button
           round
+          size="medium"
           type="primary"
           style="margin-top: 20px"
           @click="handleView"
@@ -107,7 +109,7 @@ export default {
   data() {
     return {
       noteId: this.$route.params.id,
-      key: this.$route.params.key,
+      key: '',
       loading: true,
       loadingText: '检查中...',
       exists: false,
@@ -125,6 +127,8 @@ export default {
   },
   methods: {
     async init() {
+      // 从 URL hash 获取密钥
+      this.key = window.location.hash.slice(1)
       if (!this.key) {
         this.$message.error('缺少解密密钥')
         this.loading = false

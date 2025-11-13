@@ -5,6 +5,39 @@
         <div class="title">创建阅后即焚笔记</div>
       </div>
 
+      <!-- HTTPS 安全警告 -->
+      <el-alert
+        v-if="!isHttps"
+        title="⚠️ 安全警告"
+        type="error"
+        :closable="false"
+        show-icon
+        class="https-warning"
+      >
+        <template slot>
+          <p class="warning-text">
+            当前连接不安全！阅后即焚笔记使用端到端加密，但在非 HTTPS 连接下：
+          </p>
+          <ul class="warning-list">
+            <li>🚨 传输过程可能被窃听</li>
+            <li>🚨 Web Crypto API 可能受限</li>
+            <li>🚨 无法保证数据安全性</li>
+          </ul>
+        </template>
+      </el-alert>
+
+      <!-- 安全连接提示 -->
+      <el-alert
+        v-else
+        title="🔒 安全连接"
+        type="success"
+        :closable="true"
+        show-icon
+        class="https-success"
+      >
+        当前使用 HTTPS 安全连接，所有数据已加密传输
+      </el-alert>
+
       <el-form v-if="!shareUrl" :model="form" label-width="100px" class="note-form" :label-position="isMobile ? 'top' : 'right'">
         <!-- 类型选择 -->
         <el-form-item :label="isMobile ? '' : '类型选择'" class="form-item-type">
@@ -90,41 +123,52 @@
           <el-progress :percentage="uploadProgress" :status="uploadProgress === 100 ? 'success' : null" :stroke-width="10"></el-progress>
         </el-form-item>
 
-        <el-form-item :label="isMobile ? '' : '设置方式'" class="form-item-expiry">
-          <van-radio-group v-if="isMobile" v-model="expirationType" direction="horizontal">
-            <van-radio name="views">查看次数</van-radio>
-            <van-radio name="time">过期时间</van-radio>
-          </van-radio-group>
-
-          <el-radio-group v-else v-model="expirationType">
-            <el-radio label="views">查看次数</el-radio>
-            <el-radio label="time">过期时间</el-radio>
-          </el-radio-group>
-
-        </el-form-item>
-
-        <el-form-item v-if="expirationType === 'views'" :label="isMobile ? '' : '查看次数'">
-          <el-input-number v-model="form.views" :min="1" :max="100"/>
-          <span class="tip">次后销毁</span>
-        </el-form-item>
-
-        <el-form-item v-if="expirationType === 'time'" :label="isMobile ? '' : '过期时间'">
-          <el-input-number v-model="form.expirationMinutes" :min="1" :max="1440" />
-          <span class="tip">分钟后过期</span>
-        </el-form-item>
 
         <el-form-item class="form-item-submit">
-          <el-button
-            round
-            type="primary"
-            :loading="loading"
-            :disabled="encrypting || uploading"
-            @click="handleCreate"
-            class="create-btn"
-          >
-            {{ loading ? '创建中...' : '创建笔记' }}
-          </el-button>
+          <div class="form-item-submit-content">
+            <el-button
+              round
+              size="medium"
+              type="primary"
+              :loading="loading"
+              :disabled="encrypting || uploading"
+              @click="beforeHandleCreate"
+              class="create-btn"
+            >
+              {{ loading ? '创建中...' : '创建笔记' }}
+            </el-button>
+            <span v-if="expirationType === 'views'" class="tip">该笔记将在查看 <strong>{{ form.views }}</strong> 次后销毁。或在24小时后自动销毁。</span>
+            <span v-if="expirationType === 'time'"  class="tip">该笔记将在 <strong>{{ form.expirationMinutes }}</strong> 分钟后销毁。</span>
+          </div>
         </el-form-item>
+
+        <el-collapse class="collapse-setting">
+          <el-collapse-item title="设置方式" name="1">
+
+            <el-form-item :label="isMobile ? '' : '设置方式'" class="form-item-expiry">
+              <van-radio-group v-if="isMobile" v-model="expirationType" direction="horizontal">
+                <van-radio name="views">查看次数</van-radio>
+                <van-radio name="time">过期时间</van-radio>
+              </van-radio-group>
+
+              <el-radio-group v-else v-model="expirationType">
+                <el-radio label="views">查看次数</el-radio>
+                <el-radio label="time">过期时间</el-radio>
+              </el-radio-group>
+
+            </el-form-item>
+
+            <el-form-item v-if="expirationType === 'views'" :label="isMobile ? '' : '查看次数'">
+              <el-input-number v-model="form.views" :min="1" :max="100" class="input-number"/>
+            </el-form-item>
+
+            <el-form-item v-if="expirationType === 'time'" :label="isMobile ? '' : '过期时间'">
+              <el-input-number v-model="form.expirationMinutes" :min="1" :max="1440" class="input-number"/>
+            </el-form-item>
+
+          </el-collapse-item>
+        </el-collapse>
+
       </el-form>
 
       <!-- 分享链接 -->
@@ -153,7 +197,7 @@
         </div>
 
         <div class="result-actions">
-          <el-button round @click="reset" class="new-note-btn">
+          <el-button round size="medium" @click="reset" class="new-note-btn">
             创建新笔记
           </el-button>
         </div>
@@ -187,10 +231,29 @@ export default {
       uploadProgress: 0,
       shareUrl: '',
       fileList: [],
-      selectedFile: null
+      selectedFile: null,
+      isHttps: false,
     }
   },
+  mounted() {
+    this.checkHttps()
+  },
   methods: {
+    /**
+     * 检查是否使用 HTTPS
+     */
+    checkHttps() {
+      this.isHttps = window.location.protocol === 'https:'
+
+      // 生成 HTTPS URL（如果当前是 HTTP）
+      if (!this.isHttps) {
+        // 检查浏览器是否支持 Web Crypto API
+        if (!window.crypto || !window.crypto.subtle) {
+          this.$message.error('当前浏览器不支持加密功能，请使用 HTTPS 或更换浏览器')
+        }
+      }
+    },
+
     handleFileChange(file) {
       this.selectedFile = file.raw
       this.fileList = [file]
@@ -199,7 +262,22 @@ export default {
       this.selectedFile = null
       this.fileList = []
     },
-
+    async beforeHandleCreate() {
+      // HTTPS 检查
+      if (!this.isHttps) {
+        this.$confirm(
+          '当前连接不安全，无法保证数据加密传输。请使用HTTPS! ',
+          '安全警告',
+          {
+            confirmButtonText: '无视继续',
+            cancelButtonText: '取消',
+            type: 'error'
+          }
+        ).then(() => {
+          this.handleCreate()
+        })
+      }
+    },
     async handleCreate() {
       // 校验
       if (this.noteType === 'text' && !this.form.content) {
@@ -256,7 +334,7 @@ export default {
       }
 
       const response = await createBurnNote(data)
-      this.shareUrl = `${window.location.origin}/b/${response.data}/${key}`
+      this.shareUrl = this.getShareUrl(response.data, key)
       this.$nextTick(() => this.generateQRCode())
     },
 
@@ -293,8 +371,11 @@ export default {
       await this.uploadChunk(noteId, result.encryptedChunks)
 
       // 生成分享链接
-      this.shareUrl = `${window.location.origin}/b/${noteId}/${key}`
+      this.shareUrl = this.getShareUrl(noteId, key)
       this.$nextTick(() => this.generateQRCode())
+    },
+    getShareUrl(noteId, key) {
+      return `${window.location.origin}/b/${noteId}#${key}`
     },
 
     async uploadChunk(noteId, encryptedChunks) {
@@ -407,15 +488,33 @@ export default {
 @import 'src/styles/index';
 @import 'src/styles/home-index';
 
+.https-warning {
+  margin-bottom: 20px;
+}
+
+.collapse-setting {
+  margin: 0 0 10px 35px;
+  border-top: none;
+}
+
 .create-burn-note {
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
 
+  .input-number {
+    width: 135px;
+  }
+
+  .form-item-submit-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .tip {
     margin-left: 10px;
-    color: var(--text-secondary-color);
-    font-size: 12px;
+    line-height: normal;
   }
 
   .share-result {
