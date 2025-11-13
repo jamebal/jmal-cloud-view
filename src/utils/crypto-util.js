@@ -17,29 +17,15 @@ export class BurnNoteCrypto {
   static async _deriveAESKey(keyMaterialBase64URL) {
     const keyMaterial = this._base64URLToArrayBuffer(keyMaterialBase64URL)
 
-    const baseKey = await window.crypto.subtle.importKey(
-      'raw',
-      keyMaterial,
-      { name: 'PBKDF2' },
-      false,
-      ['deriveKey']
-    )
+    const derivedKeyData = await window.crypto.subtle.digest('SHA-256', keyMaterial);
 
-    return await window.crypto.subtle.deriveKey(
-      {
-        name: 'PBKDF2',
-        salt: new Uint8Array([
-          0x6a, 0x6d, 0x61, 0x6c, 0x63, 0x6c, 0x6f, 0x75,
-          0x64, 0x2d, 0x62, 0x75, 0x72, 0x6e, 0x6e, 0x6f
-        ]),
-        iterations: 100000,
-        hash: 'SHA-256'
-      },
-      baseKey,
-      { name: 'AES-GCM', length: 256 },
+    return await window.crypto.subtle.importKey(
+      'raw',
+      derivedKeyData,
+      { name: 'AES-GCM' },
       false,
       ['encrypt', 'decrypt']
-    )
+    );
   }
 
   /**
@@ -122,10 +108,13 @@ export class BurnNoteCrypto {
         const arrayBuffer = await chunk.arrayBuffer()
         const iv = window.crypto.getRandomValues(new Uint8Array(12))
 
+        const chunkIndexBytes = new Uint8Array(new Uint32Array([i]).buffer);
+
         const encrypted = await window.crypto.subtle.encrypt(
           {
             name: 'AES-GCM',
             iv: iv,
+            additionalData: chunkIndexBytes,
             tagLength: 128
           },
           key,
@@ -163,7 +152,7 @@ export class BurnNoteCrypto {
   /**
    * 解密单个分片
    */
-  static async decryptChunk(encryptedChunk, keyMaterialBase64URL) {
+  static async decryptChunk(encryptedChunk, keyMaterialBase64URL, chunkIndex) {
     try {
       const key = await this._deriveAESKey(keyMaterialBase64URL)
       const combined = new Uint8Array(encryptedChunk)
@@ -172,10 +161,13 @@ export class BurnNoteCrypto {
       const iv = combined.slice(0, 12)
       const encrypted = combined.slice(12)
 
+      const chunkIndexBytes = new Uint8Array(new Uint32Array([chunkIndex]).buffer);
+
       const decrypted = await window.crypto.subtle.decrypt(
         {
           name: 'AES-GCM',
           iv: iv,
+          additionalData: chunkIndexBytes,
           tagLength: 128
         },
         key,

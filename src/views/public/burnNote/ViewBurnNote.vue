@@ -211,13 +211,13 @@ export default {
             const processChunk = async (chunkIndex) => {
               // 下载
               const response = await axios({
-                url: `/api/public/burn-notes/${this.noteId}/chunks/${chunkIndex}`,
+                url: `${process.env.VUE_APP_BASE_API}/public/burn-notes/${this.noteId}/chunks/${chunkIndex}`,
                 method: 'get',
                 responseType: 'arraybuffer'
               });
               const encryptedArrayBuffer = response.data;
               // 解密
-              return await BurnNoteCrypto.decryptChunk(encryptedArrayBuffer, this.key);
+              return await BurnNoteCrypto.decryptChunk(encryptedArrayBuffer, this.key, chunkIndex);
             };
             batchPromises.push(processChunk(j));
           }
