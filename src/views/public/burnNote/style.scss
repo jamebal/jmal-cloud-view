@@ -1,0 +1,45 @@
+.el-card {
+  border-radius: 16px;
+  border: var(--dialog-border);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+>>>.el-alert__title {
+  font-size: 14px;
+}
+.el-alert {
+  border-radius: 8px;
+}
+
+.van-cell {
+  background: unset;
+  border-radius: 16px;
+}
+
+>>>.van-field__control {
+  color: var(--text-color);
+}
+>>>.van-radio__label {
+  color: var(--text-color);
+}
+
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .burn-note-container {
+    padding: 10px;
+  }
+  .view-burn-note {
+    .confirm-view {
+      padding: 15px;
+    }
+  }
+  .collapse-setting {
+    margin: 0 0 10px 0;
+  }
+}
