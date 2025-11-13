@@ -40,3 +40,23 @@ export function confirmDelete(id) {
     method: 'delete'
   })
 }
+
+/**
+ * 获取阅后即焚笔记列表
+ */
+export function getBurnNotes() {
+  return request({
+    url: `/burn-notes/list`,
+    method: 'get'
+  })
+}
+
+/**
+ * 删除阅后即焚笔记
+ */
+export function deleteBurnNote(noteId) {
+  return request({
+    url: `/burn-notes/delete/${noteId}`,
+    method: 'delete'
+  })
+}
