@@ -1,7 +1,7 @@
 <template>
   <div :style="appStyle">
 
-    <div class="create-burn-note burn-note-container">
+    <div class="create-burn-note burn-note-container" :style="uploadStyle">
       <el-card class="burn-card">
 
         <div v-if="netdiskLogo" class="title-container">
@@ -15,7 +15,7 @@
 
         <!-- HTTPS 安全警告 -->
         <el-alert
-          v-if="isHttps"
+          v-if="!isHttps"
           title="⚠️ 安全警告"
           type="error"
           :closable="false"
@@ -99,6 +99,7 @@
               :on-remove="handleFileRemove"
               :file-list="fileList"
               :limit="1"
+              class="upload-file"
               drag
             >
               <i class="el-icon-upload"></i>
@@ -107,11 +108,6 @@
                 <em>支持任意格式，最大 1 GB</em>
               </div>
             </el-upload>
-          </el-form-item>
-
-          <!-- 加密进度 -->
-          <el-form-item v-if="encrypting" label="加密进度">
-            <el-progress :percentage="encryptProgress" :status="encryptProgress === 100 ? 'success' : null" :stroke-width="10"></el-progress>
           </el-form-item>
 
           <!-- 上传进度 -->
@@ -231,18 +227,25 @@ export default {
       loading: false,
       encrypting: false,
       uploading: false,
-      encryptProgress: 0,
       uploadProgress: 0,
       shareUrl: '',
       fileList: [],
       selectedFile: null,
       isHttps: false,
+      uploadStyle: { '--icon-display': 'block', '--el-upload-list--text': -1 }
     }
   },
   watch: {
     netdiskName(newValue) {
       $J.setTile(`创建阅后即焚笔记 - ${newValue}`)
-    }
+    },
+    fileList(newValue) {
+      if (newValue && newValue.length > 0) {
+        this.uploadStyle = { '--icon-display': 'none', '--el-upload-list--text': 1  }
+      } else {
+        this.uploadStyle = { '--icon-display': 'block', '--el-upload-list--text': -1  }
+      }
+    },
   },
   mounted() {
     this.checkHttps()
@@ -357,10 +360,7 @@ export default {
       this.encrypting = true
       const result = await BurnNoteCrypto.encryptFile(
         this.selectedFile,
-        key,
-        (progress) => {
-          this.encryptProgress = progress
-        }
+        key
       )
       this.encrypting = false
       // 加密元数据
@@ -511,9 +511,64 @@ export default {
     align-items: center;
   }
 
+  @media (min-width: 768px) {
+    >>>.el-upload,>>>.el-upload-dragger {
+      border-radius: 12px;
+      width: 100%;
+      .el-icon-upload {
+        display: var(--icon-display);
+      }
+      .el-upload__text {
+        display: var(--icon-display);
+      }
+    }
+
+    >>>.el-upload-list--text {
+      position: absolute;
+      top: 0;
+      z-index: var(--el-upload-list--text);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+      .el-upload-list__item {
+        width: auto;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 400px;
+        .el-icon-close {
+          position: relative;
+          top: 0;
+          right: 0;
+        }
+      }
+    }
+
+    .upload-file {
+
+      max-height: 180px;
+
+    }
+  }
+
   .tip {
-    margin-left: 10px;
-    line-height: 1rem;
+    margin: 0;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+
+    strong {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
   }
 
   .share-result {
@@ -544,6 +599,15 @@ export default {
   .el-progress {
     line-height: 40px;
   }
+
+  /* 移动端适配 */
+  @media (max-width: 768px) {
+    .form-item-submit-content {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
 }
 
 @import "./style.scss";

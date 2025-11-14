@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div v-if="isVisible" class="wechat-guide" @click="hide">
+    <div v-if="isVisible" class="wechat-guide">
       <div class="guide-arrow"></div>
       <div class="guide-text">
         <p>点击右上角<span class="dots"><svg-icon icon-class="more"/></span></p>

@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     getBurnNotes() {
-      this.tableLoading = false
+      this.tableLoading = true
       getBurnNotes().then((res) => {
         this.burnNoteList = res.data;
       }).finally(() => {

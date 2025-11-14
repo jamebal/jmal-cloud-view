@@ -13,9 +13,9 @@
     background-position: center center;
     background-size: cover;
     transition: background-image 0.5s ease-in-out;
-    filter: blur(10px);
-    transform: scale(1.05);
-    overflow: hidden;
+    //filter: blur(10px);
+    //transform: scale(1.05);
+    //overflow: hidden;
   }
 
   display: flex;
@@ -74,17 +74,6 @@
 }
 >>>.van-radio__label {
   color: var(--text-color);
-}
-
-.wechat-tip {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.7);
-  color: #fff;
-  font-size: 20px;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 9999;
 }
 
 /* 移动端适配 */
