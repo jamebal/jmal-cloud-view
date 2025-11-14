@@ -1,201 +1,212 @@
 <template>
-  <div class="create-burn-note burn-note-container">
-    <el-card>
-      <div slot="header">
-        <div class="title">创建阅后即焚笔记</div>
-      </div>
+  <div :style="appStyle">
 
-      <!-- HTTPS 安全警告 -->
-      <el-alert
-        v-if="!isHttps"
-        title="⚠️ 安全警告"
-        type="error"
-        :closable="false"
-        show-icon
-        class="https-warning"
-      >
-        <template slot>
-          <p class="warning-text">
-            当前连接不安全！阅后即焚笔记使用端到端加密，但在非 HTTPS 连接下：
-          </p>
-          <ul class="warning-list">
-            <li>🚨 传输过程可能被窃听</li>
-            <li>🚨 Web Crypto API 可能受限</li>
-            <li>🚨 无法保证数据安全性</li>
-          </ul>
-        </template>
-      </el-alert>
+    <div class="create-burn-note burn-note-container">
+      <el-card class="burn-card">
 
-      <el-form v-if="!shareUrl" :model="form" label-width="100px" class="note-form" :label-position="isMobile ? 'top' : 'right'">
-        <!-- 类型选择 -->
-        <el-form-item :label="isMobile ? '' : '类型选择'" class="form-item-type">
-
-          <van-radio-group v-if="isMobile" v-model="noteType" direction="horizontal">
-            <van-radio name="text">文本</van-radio>
-            <van-radio name="file">文件</van-radio>
-          </van-radio-group>
-
-          <el-radio-group v-else v-model="noteType">
-            <el-radio label="text">文本</el-radio>
-            <el-radio label="file">文件</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <!-- 文本输入 -->
-        <el-form-item v-if="noteType === 'text'" :label="isMobile ? '' : '笔记内容'" class="form-item-content">
-
-          <van-field
-            v-if="isMobile"
-            v-model="form.content"
-            rows="12"
-            autosize
-            type="textarea"
-            placeholder="输入你的秘密信息..."
-            maxlength="10000"
-            show-word-limit
-          />
-
-          <el-input
-            v-else
-            v-model="form.content"
-            type="textarea"
-            :rows="8"
-            placeholder="输入你的秘密信息..."
-            maxlength="10000"
-            show-word-limit
-          />
-        </el-form-item>
-
-        <!-- 文件上传 -->
-        <el-form-item v-if="noteType === 'file'" :label="isMobile ? '' : '文件选择'" class="form-item-file">
-          <el-upload
-            v-if="isMobile"
-            ref="upload"
-            action="#"
-            :auto-upload="false"
-            :on-change="handleFileChange"
-            :file-list="fileList"
-            :limit="1"
-          >
-            <el-button round size="small" type="primary">选择文件</el-button>
-            <div slot="tip" class="el-upload__tip">
-              支持任意格式，最大 1 GB
+        <div v-if="netdiskLogo" class="title-container">
+          <div class="title">
+            <Logo v-model="netdiskLogo" width="65"></Logo>
+            <div class="jmal-cloud-name">
+              <div>{{ netdiskName ? netdiskName : 'JmalCloud' }}</div>
             </div>
-          </el-upload>
-          <el-upload
-            v-else
-            ref="upload"
-            action="#"
-            :auto-upload="false"
-            :on-change="handleFileChange"
-            :on-remove="handleFileRemove"
-            :file-list="fileList"
-            :limit="1"
-            drag
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              点击或拖拽文件到此处
-              <em>支持任意格式，最大 1 GB</em>
-            </div>
-          </el-upload>
-        </el-form-item>
-
-        <!-- 加密进度 -->
-        <el-form-item v-if="encrypting" label="加密进度">
-          <el-progress :percentage="encryptProgress" :status="encryptProgress === 100 ? 'success' : null" :stroke-width="10"></el-progress>
-        </el-form-item>
-
-        <!-- 上传进度 -->
-        <el-form-item v-if="uploading"  label="上传进度">
-          <el-progress :percentage="uploadProgress" :status="uploadProgress === 100 ? 'success' : null" :stroke-width="10"></el-progress>
-        </el-form-item>
-
-
-        <el-form-item class="form-item-submit">
-          <div class="form-item-submit-content">
-            <el-button
-              round
-              size="medium"
-              type="primary"
-              :loading="loading"
-              :disabled="encrypting || uploading"
-              @click="beforeHandleCreate"
-              class="create-btn"
-            >
-              {{ loading ? '创建中...' : '创建笔记' }}
-            </el-button>
-            <span v-if="expirationType === 'views'" class="tip">该笔记将在查看 <strong>{{ form.views }}</strong> 次后销毁。或在24小时后自动销毁。</span>
-            <span v-if="expirationType === 'time'"  class="tip">该笔记将在 <strong>{{ form.expirationMinutes }}</strong> 分钟后销毁。</span>
           </div>
-        </el-form-item>
-
-        <el-collapse class="collapse-setting">
-          <el-collapse-item title="设置方式" name="1">
-
-            <el-form-item :label="isMobile ? '' : '设置方式'" class="form-item-expiry">
-              <van-radio-group v-if="isMobile" v-model="expirationType" direction="horizontal">
-                <van-radio name="views">查看次数</van-radio>
-                <van-radio name="time">过期时间</van-radio>
-              </van-radio-group>
-
-              <el-radio-group v-else v-model="expirationType">
-                <el-radio label="views">查看次数</el-radio>
-                <el-radio label="time">过期时间</el-radio>
-              </el-radio-group>
-
-            </el-form-item>
-
-            <el-form-item v-if="expirationType === 'views'" :label="isMobile ? '' : '查看次数'">
-              <el-input-number v-model="form.views" :min="1" :max="100" class="input-number"/>
-            </el-form-item>
-
-            <el-form-item v-if="expirationType === 'time'" :label="isMobile ? '' : '过期时间'">
-              <el-input-number v-model="form.expirationMinutes" :min="1" :max="1440" class="input-number"/>
-            </el-form-item>
-
-          </el-collapse-item>
-        </el-collapse>
-
-      </el-form>
-
-      <!-- 分享链接 -->
-      <div v-else class="share-result">
-        <el-alert title="笔记创建成功!" type="success" :closable="false" />
-
-        <div class="share-url">
-          <el-input v-model="shareUrl" readonly>
-            <el-button slot="append" icon="el-icon-document-copy" @click="copyUrl">
-              复制
-            </el-button>
-          </el-input>
         </div>
 
+        <!-- HTTPS 安全警告 -->
         <el-alert
-          title="⚠️ 请妥善保管"
-          description="此链接包含解密密钥，分享后无法撤回"
-          type="warning"
+          v-if="isHttps"
+          title="⚠️ 安全警告"
+          type="error"
           :closable="false"
           show-icon
-        />
+          class="https-warning"
+        >
+          <template slot>
+            <p class="warning-text">
+              当前连接不安全！阅后即焚笔记使用端到端加密，但在非 HTTPS 连接下：
+            </p>
+            <ul class="warning-list">
+              <li>🚨 传输过程可能被窃听</li>
+              <li>🚨 Web Crypto API 可能受限</li>
+              <li>🚨 无法保证数据安全性</li>
+            </ul>
+          </template>
+        </el-alert>
 
-        <div class="qrcode-container">
-          <canvas ref="qrcode"></canvas>
-          <p class="qrcode-tip">扫码查看笔记</p>
-        </div>
+        <el-form v-if="!shareUrl" :model="form" label-width="100px" class="note-form" :label-position="isMobile ? 'top' : 'right'">
+          <!-- 类型选择 -->
+          <el-form-item :label="isMobile ? '' : '类型选择'" class="form-item-type">
 
-        <div class="result-actions">
-          <el-button round size="medium" @click="reset" class="new-note-btn">
-            创建新笔记
-          </el-button>
+            <van-radio-group v-if="isMobile" v-model="noteType" direction="horizontal">
+              <van-radio name="text">文本</van-radio>
+              <van-radio name="file">文件</van-radio>
+            </van-radio-group>
+
+            <el-radio-group v-else v-model="noteType">
+              <el-radio label="text">文本</el-radio>
+              <el-radio label="file">文件</el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <!-- 文本输入 -->
+          <el-form-item v-if="noteType === 'text'" :label="isMobile ? '' : '笔记内容'" class="form-item-content">
+
+            <van-field
+              v-if="isMobile"
+              v-model="form.content"
+              rows="6"
+              autosize
+              type="textarea"
+              placeholder="输入你的秘密信息..."
+              maxlength="10000"
+              show-word-limit
+            />
+
+            <el-input
+              v-else
+              v-model="form.content"
+              type="textarea"
+              :rows="8"
+              placeholder="输入你的秘密信息..."
+              maxlength="10000"
+              show-word-limit
+            />
+          </el-form-item>
+
+          <!-- 文件上传 -->
+          <el-form-item v-if="noteType === 'file'" :label="isMobile ? '' : '文件选择'" class="form-item-file">
+            <el-upload
+              v-if="isMobile"
+              ref="upload"
+              action="#"
+              :auto-upload="false"
+              :on-change="handleFileChange"
+              :file-list="fileList"
+              :limit="1"
+            >
+              <el-button round size="small" type="primary">选择文件</el-button>
+              <div slot="tip" class="el-upload__tip">
+                支持任意格式，最大 1 GB
+              </div>
+            </el-upload>
+            <el-upload
+              v-else
+              ref="upload"
+              action="#"
+              :auto-upload="false"
+              :on-change="handleFileChange"
+              :on-remove="handleFileRemove"
+              :file-list="fileList"
+              :limit="1"
+              drag
+            >
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">
+                点击或拖拽文件到此处
+                <em>支持任意格式，最大 1 GB</em>
+              </div>
+            </el-upload>
+          </el-form-item>
+
+          <!-- 加密进度 -->
+          <el-form-item v-if="encrypting" label="加密进度">
+            <el-progress :percentage="encryptProgress" :status="encryptProgress === 100 ? 'success' : null" :stroke-width="10"></el-progress>
+          </el-form-item>
+
+          <!-- 上传进度 -->
+          <el-form-item v-if="uploading"  label="上传进度">
+            <el-progress :percentage="uploadProgress" :status="uploadProgress === 100 ? 'success' : null" :stroke-width="10"></el-progress>
+          </el-form-item>
+
+
+          <el-form-item class="form-item-submit">
+            <div class="form-item-submit-content">
+              <el-button
+                round
+                size="medium"
+                type="primary"
+                :loading="loading"
+                :disabled="encrypting || uploading"
+                @click="beforeHandleCreate"
+                class="create-btn"
+              >
+                {{ loading ? '创建中...' : '创建笔记' }}
+              </el-button>
+              <span v-if="expirationType === 'views'" class="tip">该笔记将在查看 <strong>{{ form.views }}</strong> 次后销毁。或在24小时后自动销毁。</span>
+              <span v-if="expirationType === 'time'"  class="tip">该笔记将在 <strong>{{ form.expirationMinutes }}</strong> 分钟后销毁。</span>
+            </div>
+          </el-form-item>
+
+          <el-collapse class="collapse-setting">
+            <el-collapse-item title="更多设置" name="1">
+
+              <el-form-item :label="isMobile ? '' : '设置方式'" class="form-item-expiry">
+                <van-radio-group v-if="isMobile" v-model="expirationType" direction="horizontal">
+                  <van-radio name="views">查看次数</van-radio>
+                  <van-radio name="time">过期时间</van-radio>
+                </van-radio-group>
+
+                <el-radio-group v-else v-model="expirationType">
+                  <el-radio label="views">查看次数</el-radio>
+                  <el-radio label="time">过期时间</el-radio>
+                </el-radio-group>
+
+              </el-form-item>
+
+              <el-form-item v-if="expirationType === 'views'" :label="isMobile ? '' : '查看次数'">
+                <el-input-number v-model="form.views" :min="1" :max="100" class="input-number"/>
+              </el-form-item>
+
+              <el-form-item v-if="expirationType === 'time'" :label="isMobile ? '' : '过期时间'">
+                <el-input-number v-model="form.expirationMinutes" :min="1" :max="1440" class="input-number"/>
+              </el-form-item>
+
+            </el-collapse-item>
+          </el-collapse>
+
+        </el-form>
+
+        <!-- 分享链接 -->
+        <div v-else class="share-result">
+          <el-alert title="笔记创建成功!" type="success" :closable="false" />
+
+          <div class="share-url">
+            <el-input v-model="shareUrl" readonly>
+              <el-button slot="append" icon="el-icon-document-copy" @click="copyUrl">
+                复制
+              </el-button>
+            </el-input>
+          </div>
+
+          <el-alert
+            title="⚠️ 请妥善保管"
+            description="此链接包含解密密钥，分享后无法撤回"
+            type="warning"
+            :closable="false"
+            show-icon
+          />
+
+          <div class="qrcode-container">
+            <canvas ref="qrcode"></canvas>
+            <p class="qrcode-tip">扫码查看笔记</p>
+          </div>
+
+          <div class="result-actions">
+            <el-button round size="medium" @click="reset" class="new-note-btn">
+              创建新笔记
+            </el-button>
+          </div>
         </div>
-      </div>
-    </el-card>
-    <wechat-guide></wechat-guide>
+      </el-card>
+      <wechat-guide></wechat-guide>
+    </div>
   </div>
 </template>
 
 <script>
+import Logo from '@/components/Logo/index.vue'
+import background from './mixins/background'
 import WechatGuide from '@/components/WechatGuide/index.vue'
 import { copyText } from '@/utils/copy-text'
 import { BurnNoteCrypto } from '@/utils/crypto-util'
@@ -205,7 +216,8 @@ import request from '@/utils/request'
 
 export default {
   name: 'CreateBurnNote',
-  components: { WechatGuide },
+  components: { Logo, WechatGuide },
+  mixins: [background],
   data() {
     return {
       isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent),
@@ -225,6 +237,11 @@ export default {
       fileList: [],
       selectedFile: null,
       isHttps: false,
+    }
+  },
+  watch: {
+    netdiskName(newValue) {
+      $J.setTile(`创建阅后即焚笔记 - ${newValue}`)
     }
   },
   mounted() {
@@ -473,6 +490,10 @@ export default {
 .collapse-setting {
   margin: 0 0 10px 35px;
   border-top: none;
+  >>>.el-collapse-item__wrap,>>>.el-collapse-item__header {
+    background: inherit;
+    color: var(--text-color);
+  }
 }
 
 .create-burn-note {
@@ -492,7 +513,7 @@ export default {
 
   .tip {
     margin-left: 10px;
-    line-height: normal;
+    line-height: 1rem;
   }
 
   .share-result {
@@ -506,7 +527,6 @@ export default {
       align-items: center;
       margin: 20px 0;
       padding: 20px;
-      background: var(--bg-color);
       border-radius: 4px;
 
       canvas {

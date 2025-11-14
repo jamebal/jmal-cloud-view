@@ -1,3 +1,51 @@
+.burn-note-container {
+
+  &:before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: var(--page-background-image, none);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out;
+    filter: blur(10px);
+    transform: scale(1.05);
+    overflow: hidden;
+  }
+
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.title-container {
+  margin: 10px 0 30px 0;
+  display: flex;
+  justify-content: center;
+  .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .jmal-cloud-name {
+      color: var(--text-color);
+      font-size: 24px;
+      margin-left: 20px;
+    }
+  }
+}
+
+.burn-card {
+  width: 660px;
+  backdrop-filter: blur(14px);
+}
+
 .el-card {
   border-radius: 16px;
   border: var(--dialog-border);
@@ -38,7 +86,6 @@
   display: flex; align-items: center; justify-content: center;
   z-index: 9999;
 }
-
 
 /* 移动端适配 */
 @media (max-width: 768px) {
