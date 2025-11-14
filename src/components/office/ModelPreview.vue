@@ -50,12 +50,6 @@ export default {
       this.onRead();
     })
   },
-  beforeDestroy() {
-  },
-  destroyed() {
-  },
-  watch: {
-  },
   methods: {
     onRead() {
       this.$emit('onReady')

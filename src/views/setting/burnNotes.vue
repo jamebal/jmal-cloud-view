@@ -68,12 +68,13 @@ export default {
   mounted() {
     this.getBurnNotes()
   },
-  destroyed() {
-  },
   methods: {
     getBurnNotes() {
+      this.tableLoading = false
       getBurnNotes().then((res) => {
         this.burnNoteList = res.data;
+      }).finally(() => {
+        this.tableLoading = false
       })
     },
     create() {
@@ -90,15 +91,12 @@ export default {
       })
     },
     deleteBurnNote(id) {
-      this.tableLoading = true
       deleteBurnNote(id).then(() => {
         this.$message({
           message: '删除成功',
           type: 'success'
         });
         this.getBurnNotes()
-      }).finally(() => {
-        this.tableLoading = false
       })
     },
   }
@@ -109,26 +107,4 @@ export default {
 @import "src/styles/setting";
 @import "src/styles/element-ui";
 
->>> .set-oss-dialog {
-  .el-dialog {
-    max-width: 500px;
-  }
-
-  .el-select {
-    width: 100%;
-  }
-
-  .form-item-desc {
-    color: #9f9f9f;
-    font-size: 12px;
-    line-height: 1;
-    padding-top: 2px;
-  }
-}
-
->>> .dialog-footer {
-  .el-loading-spinner .circular {
-    width: 25px !important;
-  }
-}
 </style>

@@ -136,8 +136,6 @@ export default {
   mounted() {
     this.getPlatformList()
   },
-  destroyed() {
-  },
   methods: {
     getOssConfigList() {
       ossApi.ossConfigList().then((res) => {

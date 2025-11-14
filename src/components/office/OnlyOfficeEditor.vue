@@ -142,8 +142,6 @@ export default {
       this.$emit('update-style', { height: '44px', width: '44px', right: 'auto' })
     }
   },
-  destroyed() {
-  },
   methods: {
     loadOfficeApi() {
       let officeApiUrl = fileConfig.officeApiUrl(this.officeServerConfig.documentServer)

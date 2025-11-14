@@ -49,8 +49,6 @@ export default {
       this.queryCondition.tagId = this.$route.query.tagId
     }
   },
-  destroyed() {
-  }
 }
 </script>
 
