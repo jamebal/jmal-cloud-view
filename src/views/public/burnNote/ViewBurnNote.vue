@@ -255,7 +255,9 @@ export default {
         this.downloaded = true;
 
         // 4. 确认删除
-        await this.confirmDelete();
+        setTimeout(() => {
+          confirmDelete(this.noteId)
+        }, 300)
 
       } catch (error) {
         if (error.name === 'AbortError') {
@@ -305,18 +307,6 @@ export default {
       }
 
       return uniqueName;
-    },
-
-    /**
-     * 确认删除笔记
-     */
-    async confirmDelete() {
-      try {
-        await confirmDelete(this.noteId)
-        console.log('笔记已确认删除')
-      } catch (error) {
-        console.error('确认删除失败:', error)
-      }
     },
 
     /**
