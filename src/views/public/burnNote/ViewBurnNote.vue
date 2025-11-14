@@ -98,10 +98,12 @@
         </el-button>
       </div>
     </el-card>
+    <wechat-guide></wechat-guide>
   </div>
 </template>
 
 <script>
+import WechatGuide from '@/components/WechatGuide/index.vue'
 import { copyText } from '@/utils/copy-text'
 import streamSaver from 'streamsaver';
 import { formatSize } from '@/utils/number'
@@ -110,6 +112,7 @@ import { checkBurnNote, consumeBurnNote, confirmDelete } from '@/api/burn-note'
 
 export default {
   name: 'ViewBurnNote',
+  components: { WechatGuide },
   data() {
     return {
       noteId: this.$route.params.id,

@@ -26,18 +26,6 @@
         </template>
       </el-alert>
 
-      <!-- 安全连接提示 -->
-      <el-alert
-        v-else
-        title="🔒 安全连接"
-        type="success"
-        :closable="true"
-        show-icon
-        class="https-success"
-      >
-        当前使用 HTTPS 安全连接，所有数据已加密传输
-      </el-alert>
-
       <el-form v-if="!shareUrl" :model="form" label-width="100px" class="note-form" :label-position="isMobile ? 'top' : 'right'">
         <!-- 类型选择 -->
         <el-form-item :label="isMobile ? '' : '类型选择'" class="form-item-type">
@@ -203,10 +191,12 @@
         </div>
       </div>
     </el-card>
+    <wechat-guide></wechat-guide>
   </div>
 </template>
 
 <script>
+import WechatGuide from '@/components/WechatGuide/index.vue'
 import { copyText } from '@/utils/copy-text'
 import { BurnNoteCrypto } from '@/utils/crypto-util'
 import { createBurnNote } from '@/api/burn-note'
@@ -215,6 +205,7 @@ import request from '@/utils/request'
 
 export default {
   name: 'CreateBurnNote',
+  components: { WechatGuide },
   data() {
     return {
       isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent),
@@ -277,6 +268,8 @@ export default {
         ).then(() => {
           this.handleCreate()
         })
+      } else {
+        await this.handleCreate()
       }
     },
     async handleCreate() {
