@@ -472,7 +472,6 @@ export default {
       this.noteType = 'text'
       this.fileList = []
       this.selectedFile = null
-      this.encryptProgress = 0
       this.uploadProgress = 0
     }
   }
@@ -546,6 +545,9 @@ export default {
           top: 0;
           right: 0;
         }
+        &:hover {
+          background: var(--tip-bg-color);
+        }
       }
     }
 
@@ -559,7 +561,7 @@ export default {
   .tip {
     margin: 0;
     padding: 12px 20px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    background: var(--tip-bg-color);
     border-radius: 10px;
     text-align: center;
     font-size: 14px;
