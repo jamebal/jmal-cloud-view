@@ -38,6 +38,7 @@
   --grid-hover-color: #e0f3fc;
   --grid-active-color: #caeaf991;
   --shadow-container-color: rgba(0, 0, 0, 0.05);
+  --draw-rectangle-bg-color: #f2f5fa55;
 
   // VContextmenu
   --vcontextmenu-bg-color: #FFFFFFBF;
@@ -88,6 +89,7 @@
 
   // burn note page
   --burn-note-content-bg-color: #f5f5f5;
+  --tip-bg-color: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
 }
 
 html.dark {
@@ -130,6 +132,7 @@ html.dark {
   --grid-hover-color: #262c36;
   --grid-active-color: #262c36;
   --shadow-container-color: rgba(255, 255, 255, 0.05);
+  --draw-rectangle-bg-color: rgba(83, 83, 83, 0.33);
 
   // VContextmenu
   --vcontextmenu-bg-color: #141414BF;
@@ -180,4 +183,5 @@ html.dark {
 
   // burn note page
   --burn-note-content-bg-color: #2d2d2d;
+  --tip-bg-color: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
 }

@@ -2,7 +2,7 @@
   <div class="login-container" :style="backgroundImg">
 
     <div class="login-content">
-      <el-card class="login-card" v-if="!mfaForceEnable">
+      <el-card class="login-card gradient-border" v-if="!mfaForceEnable">
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
           <div class="title-container">
@@ -10,7 +10,7 @@
               <div  class="title">
                 <Logo v-model="websiteRecord.netdiskLogo" width="65"></Logo>
                 <div class="jmal-cloud-name">
-                  <div>{{ websiteRecord.netdiskName ? websiteRecord.netdiskName : 'JmalCloud' }}</div>
+                  <div>{{ websiteRecord.netdiskName ? websiteRecord.netdiskName : '' }}</div>
                 </div>
               </div>
             </h3>
@@ -205,6 +205,9 @@ export default {
       if (this.websiteRecord.netdiskName || this.websiteRecord.netdiskLogo) {
         this.$store.dispatch('user/setLogo', {netdiskName: this.websiteRecord.netdiskName, netdiskLogo: this.websiteRecord.netdiskLogo})
       }
+      if (!this.websiteRecord.netdiskName) {
+        this.websiteRecord.netdiskName = 'JmalCloud'
+      }
       if (this.websiteRecord.footerHtml) {
         this.$nextTick(() => {
           this.loadScripts()
@@ -322,8 +325,8 @@ export default {
 .login-card, .mfa-card {
 
   background: var(--login-page-form-bg-color) !important;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-color: var(--login-page-border-color) !important;
   box-shadow: unset !important;
 
@@ -331,8 +334,8 @@ export default {
     border: 1px solid var(--login-page-border-color);
     border-radius: 12px;
     background: var(--login-page-form-input-bg-color) !important;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-color: var(--login-page-border-color) !important;
   }
 
@@ -423,13 +426,13 @@ export default {
       text-align: center;
       font-weight: 500;
       display: inline-flex;
+      align-items: center;
     }
 
     .jmal-cloud-name {
       color:  var(--text-color-hover);
       font-size: 22px;
-      line-height: 65px;
-      margin-left: 10px;
+      margin-left: 20px;
     }
   }
 
@@ -459,9 +462,9 @@ footer {
 
   .copyright {
     background: var(--login-page-form-bg-color) !important;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-radius: 10px;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
     padding: 1px 10px;
   }
 }
@@ -475,6 +478,27 @@ footer, footer p {
     .el-image__inner {
       border-radius: 16px;
     }
+  }
+}
+
+.gradient-border {
+  border: 0;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, .3), rgba(255, 255, 255, 0));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: source-out;
+    mask-composite: subtract;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    pointer-events: none;
   }
 }
 

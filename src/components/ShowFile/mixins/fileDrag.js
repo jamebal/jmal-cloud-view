@@ -140,7 +140,7 @@ export default {
             drawRectangle.style.top = retcTop + 'px'
             drawRectangle.style.width = retcWidth + 'px'
             drawRectangle.style.height = retcHeight + 'px'
-            drawRectangle.style.backgroundColor = '#f2f5fa55'
+            drawRectangle.style.backgroundColor = 'var(--draw-rectangle-bg-color)'
           }
           if (_this.drawFlag && retcHeight + retcWidth > 4) {
             if (!drawSelecting) {

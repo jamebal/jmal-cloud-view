@@ -92,8 +92,6 @@ export default {
   beforeDestroy() {
     window.removeEventListener('message', this.handleMessage)
   },
-  destroyed() {
-  },
   watch: {
     'file.id': {
       handler(id)  {

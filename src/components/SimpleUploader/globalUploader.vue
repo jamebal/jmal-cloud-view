@@ -296,8 +296,6 @@ export default {
     }, false);
     this.initUploader()
   },
-  destroyed() {
-  },
   methods: {
     checkDrag(route) {
       this.enableDragUpload = isDragUploadAllowed(route)

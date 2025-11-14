@@ -1,107 +1,118 @@
 <template>
-  <div class="burn-note-container view-burn-note">
-    <el-card v-loading="loading" :element-loading-text="loadingText">
-      <div slot="header">
-        <div class="title">阅后即焚笔记</div>
-      </div>
+  <div :style="appStyle">
+    <div class="burn-note-container view-burn-note">
+      <el-card v-loading="loading" class="burn-card" :element-loading-text="loadingText">
 
-      <!-- 笔记不存在 -->
-      <el-alert
-        v-if="!loading && !exists"
-        title="笔记不存在或已被销毁。"
-        type="error"
-        :closable="false"
-      />
-
-
-      <!-- 文本笔记 -->
-      <div v-else-if="!isFileType && decryptedContent" class="content">
-        <el-alert
-          title="✅ 笔记已读取，即将销毁。"
-          type="warning"
-          :closable="false"
-        />
-        <div class="note-content">{{ decryptedContent }}</div>
-
-        <el-button class="copy-note-content-btn" round size="medium" icon="el-icon-document-copy" @click="copyDecryptedContent"> 复制笔记 </el-button>
-
-      </div>
-
-      <!-- 文件笔记 -->
-      <div v-else-if="isFileType && noteMetadata" class="file-content">
-        <el-alert
-          title="✅ 文件笔记已就绪，将在下载后销毁。"
-          type="warning"
-          :closable="false"
-        />
-        <div class="file-info">
-          <p><strong>文件名：</strong>{{ noteMetadata.originalName }}</p>
-          <p><strong>文件大小：</strong>{{ formatSize(noteMetadata.originalSize) }}</p>
-          <p><strong>文件类型：</strong>{{ noteMetadata.mimeType }}</p>
+        <div class="title-container">
+          <div class="title" v-if="netdiskLogo">
+            <Logo v-model="netdiskLogo" width="65"></Logo>
+            <div class="jmal-cloud-name">
+              <div>{{ netdiskName ? netdiskName : 'JmalCloud' }}</div>
+            </div>
+          </div>
         </div>
 
-        <!-- 下载进度 -->
-        <div v-if="downloading" class="download-progress">
-          <p>{{ downloadStatus }}</p>
-          <el-progress
-            :percentage="downloadProgress"
-            :status="downloadProgress === 100 ? 'success' : null"
+        <!-- 笔记不存在 -->
+        <el-alert
+          v-if="!loading && !exists"
+          title="笔记不存在或已被销毁。"
+          type="error"
+          :closable="false"
+        />
+
+        <!-- 文本笔记 -->
+        <div v-else-if="!isFileType && decryptedContent" class="content">
+          <el-alert
+            title="✅ 笔记已读取，即将销毁。"
+            type="warning"
+            :closable="false"
+          />
+          <div class="note-content">{{ decryptedContent }}</div>
+
+          <el-button class="copy-note-content-btn" round size="medium" icon="el-icon-document-copy" @click="copyDecryptedContent"> 复制笔记 </el-button>
+
+        </div>
+
+        <!-- 文件笔记 -->
+        <div v-else-if="isFileType && noteMetadata" class="file-content">
+          <el-alert
+            title="✅ 文件笔记已就绪，将在下载后销毁。"
+            type="warning"
+            :closable="false"
+          />
+          <div class="file-info">
+            <p><strong>文件名：</strong>{{ noteMetadata.originalName }}</p>
+            <p><strong>文件大小：</strong>{{ formatSize(noteMetadata.originalSize) }}</p>
+            <p><strong>文件类型：</strong>{{ noteMetadata.mimeType }}</p>
+          </div>
+
+          <!-- 下载进度 -->
+          <div v-if="downloading" class="download-progress">
+            <p>{{ downloadStatus }}</p>
+            <el-progress
+              :percentage="downloadProgress"
+              :status="downloadProgress === 100 ? 'success' : null"
+            />
+          </div>
+
+          <!-- 下载按钮 -->
+          <el-button
+            round
+            size="medium"
+            v-if="!downloaded"
+            type="primary"
+            icon="el-icon-download"
+            :loading="downloading"
+            :disabled="downloading"
+            @click="handleDownload"
+          >
+            {{ downloading ? '下载中...' : '下载文件' }}
+          </el-button>
+
+          <el-alert
+            v-if="downloaded"
+            title="✅ 文件已下载并解密完成！已被销毁。"
+            type="success"
+            :closable="false"
+            style="margin-top: 20px"
+          />
+
+          <el-alert
+            v-if="!downloaded"
+            title="⚠️ 注意：下载后此文件将被销毁"
+            type="warning"
+            :closable="false"
+            style="margin-top: 10px"
           />
         </div>
 
-        <!-- 下载按钮 -->
-        <el-button
-          round
-          size="medium"
-          v-if="!downloaded"
-          type="primary"
-          icon="el-icon-download"
-          :loading="downloading"
-          :disabled="downloading"
-          @click="handleDownload"
-        >
-          {{ downloading ? '下载中...' : '下载文件' }}
-        </el-button>
-
-        <el-alert
-          v-if="downloaded"
-          title="✅ 文件已下载并解密完成！已被销毁。"
-          type="success"
-          :closable="false"
-          style="margin-top: 20px"
-        />
-
-        <el-alert
-          v-if="!downloaded"
-          title="⚠️ 注意：下载后此文件将被销毁"
-          type="warning"
-          :closable="false"
-          style="margin-top: 10px"
-        />
-      </div>
-
-      <!-- 等待用户确认查看 -->
-      <div v-else-if="!loading && exists" class="confirm-view">
-        <el-alert
-          title="⚠️ 注意: 点击查看后，此笔记将被销毁。"
-          type="warning"
-          :closable="false"
-        />
-        <el-button
-          round
-          size="medium"
-          type="primary"
-          style="margin-top: 20px"
-          @click="handleView"
-        >
-          查看笔记
-        </el-button>
-      </div>
-    </el-card>
+        <!-- 等待用户确认查看 -->
+        <div v-else-if="!loading && exists" class="confirm-view">
+          <el-alert
+            title="⚠️ 注意: 点击查看后，此笔记将被销毁。"
+            type="warning"
+            :closable="false"
+          />
+          <el-button
+            round
+            size="medium"
+            type="primary"
+            style="margin-top: 20px"
+            @click="handleView"
+          >
+            查看笔记
+          </el-button>
+        </div>
+      </el-card>
+      <wechat-guide></wechat-guide>
+    </div>
   </div>
 </template>
 
 <script>
+import Logo from '@/components/Logo/index.vue'
+import background from './mixins/background'
+import WechatGuide from '@/components/WechatGuide/index.vue'
 import { copyText } from '@/utils/copy-text'
 import streamSaver from 'streamsaver';
 import { formatSize } from '@/utils/number'
@@ -110,6 +121,8 @@ import { checkBurnNote, consumeBurnNote, confirmDelete } from '@/api/burn-note'
 
 export default {
   name: 'ViewBurnNote',
+  components: { Logo, WechatGuide },
+  mixins: [background],
   data() {
     return {
       noteId: this.$route.params.id,
@@ -128,6 +141,11 @@ export default {
   },
   mounted() {
     this.init()
+  },
+  watch: {
+    netdiskName(newValue) {
+      $J.setTile(`阅后即焚 - ${newValue}`)
+    }
   },
   methods: {
     async init() {
@@ -252,7 +270,9 @@ export default {
         this.downloaded = true;
 
         // 4. 确认删除
-        await this.confirmDelete();
+        setTimeout(() => {
+          confirmDelete(this.noteId).catch(err => console.error('自动删除笔记失败:', err));
+        }, 300)
 
       } catch (error) {
         if (error.name === 'AbortError') {
@@ -305,18 +325,6 @@ export default {
     },
 
     /**
-     * 确认删除笔记
-     */
-    async confirmDelete() {
-      try {
-        await confirmDelete(this.noteId)
-        console.log('笔记已确认删除')
-      } catch (error) {
-        console.error('确认删除失败:', error)
-      }
-    },
-
-    /**
      * 格式化文件大小
      */
     formatSize(bytes) {
@@ -337,8 +345,6 @@ export default {
 
 .view-burn-note {
   padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
 
   .content {
     .note-content {
