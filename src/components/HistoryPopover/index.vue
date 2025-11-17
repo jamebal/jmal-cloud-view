@@ -33,13 +33,13 @@
                   </el-button>
 
                   <el-popover placement="bottom" width="310"
-                              :popper-class="'file-history-popover recovery-' + item.id"
+                              :popper-class="'file-history-popover history-recovery recovery-' + item.id"
                               :visible-arrow="false" trigger="click">
                     <p class="el-popconfirm__main"><i class="el-popconfirm__icon el-icon-question"
                                                       style="color: rgb(255, 153, 0);"></i>{{ '确定要恢复到' + item.metadata.time + '吗？当前内容将被覆盖!'
                       }}
                     </p>
-                    <div style="text-align: right; margin: 0">
+                    <div style="text-align: right; margin: 12px">
                       <el-button round size="mini" type="text" @click="cancelRecovery(item.id)">取消</el-button>
                       <el-button round type="primary" size="mini" @click="confirmRecoveryHistoryFile(item)">确定
                       </el-button>
@@ -292,6 +292,13 @@ export default {
     width: 310px;
   }
 
+}
+
+.history-recovery {
+  margin: 5px !important;
+  .el-popconfirm__main {
+    margin: 12px 12px;
+  }
 }
 
 </style>

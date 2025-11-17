@@ -38,13 +38,24 @@ export default {
     }
     return serverUrl + "web-apps/apps/api/documents/api.js"
   },
+  /**
+   * office回调基础url(末尾不带斜杠, 不包含参数)
+   * @param callbackServer 回调服务器地址
+   */
+  officeCallBackBaseUrl: function(callbackServer) {
+    let callbackServerUrl = callbackServer || 'http://jmalcloud:8088/api'
+    if (callbackServer) {
+      if (callbackServer.endsWith('/')) {
+        // 去掉最后的/
+        callbackServerUrl = callbackServer.substring(0, this.officeServerConfig.callbackServer.length - 1)
+      }
+    }
+    return `${callbackServerUrl}`
+  },
   // office回调url
   officeCallBackUrl: function(callbackServer, token, username, fileId) {
-    let callbackServerUrl = callbackServer || 'http://jmalcloud:8088'
-    if (!callbackServerUrl.endsWith('/')) {
-      callbackServerUrl = callbackServerUrl + "/"
-    }
-    return `${callbackServerUrl}office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
+    const callbackServerUrl = this.officeCallBackBaseUrl(callbackServer)
+    return `${callbackServerUrl}/office/track?jmal-token=${token}&name=${username}&fileId=${fileId}`
   },
   // 预览文件的url
   previewUrl: function(username, file, token, shareToken, serverUrl, joinToken) {
@@ -74,8 +85,9 @@ export default {
     return `${baseUrl}/share-file/${file.id}/${encodeURIComponent(file.name)}`
   },
   // 预览历史文件
-  previewHistoryUrl: function(historyId) {
-    return `${this.baseUrl}/history/preview/file?id=${historyId}`
+  previewHistoryUrl: function(officeCallBackBaseUrl, historyId, name, token) {
+    const baseUrl = officeCallBackBaseUrl || this.baseUrl
+    return `${baseUrl}/history/preview/file?id=${historyId}&name=${name}&jmal-token=${token}`
   },
   // markdown里上传图片后的图片预览地址
   markdownPreviewUrl: function (path){
