@@ -179,7 +179,7 @@ export default {
       };
     },
     isVersionLessThan9(locationHref, documentServer) {
-      let v = this.getDocumentServerVersion(locationHref, documentServer);
+      const v = this.getDocumentServerVersion(locationHref, documentServer);
       if (!v) return false;
       return v.major < 9;
     },
@@ -199,7 +199,7 @@ export default {
       const toolbar = doc.getElementById('box-doc-name')
       // add cancelPreview button
       if (!doc.getElementById('box-doc-name-cancel-preview')) {
-        let newButton = document.createElement("button")
+        const newButton = document.createElement("button")
         newButton.setAttribute('id', 'box-doc-name-cancel-preview')
         newButton.classList.add('btn', 'btn-header')
         newButton.innerHTML = '取消预览'
