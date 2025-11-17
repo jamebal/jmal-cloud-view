@@ -281,7 +281,7 @@ export default {
 
 <style>
 /* 非 Scoped 样式 */
-.file-history-popover {
+.el-popover.file-history-popover {
   padding: 0 !important;
   border-radius: 8px !important;
   background-color: var(--file-history-bg-color);
@@ -294,7 +294,7 @@ export default {
 
 }
 
-.history-recovery {
+.el-popover.history-recovery {
   margin: 5px !important;
   .el-popconfirm__main {
     margin: 12px 12px;

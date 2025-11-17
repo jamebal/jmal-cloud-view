@@ -36,6 +36,8 @@ export const fileArrangements = [
 export const createFiles = [
   { label: '文件夹', operation: 'createFolder', iconClass: 'folder'},
   { divider: true, operation: 'divider' },
+  { label: '阅后即焚', operation: 'createBurnNote', iconClass: 'burn_note'},
+  { divider: true, operation: 'divider' },
   { label: '文本', operation: 'createTextFile', iconClass: 'file-txt'},
   { label: '白板', operation: 'createExcalidrawFile', iconClass: 'file-excalidraw'},
   { label: '思维导图', operation: 'createMinderFile', iconClass: 'file-mind'},

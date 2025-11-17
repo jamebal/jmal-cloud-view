@@ -47,7 +47,7 @@ export default {
     if (callbackServer) {
       if (callbackServer.endsWith('/')) {
         // 去掉最后的/
-        callbackServerUrl = callbackServer.substring(0, this.officeServerConfig.callbackServer.length - 1)
+        callbackServerUrl = callbackServer.substring(0, callbackServer - 1)
       }
     }
     return `${callbackServerUrl}`

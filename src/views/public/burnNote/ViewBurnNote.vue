@@ -341,6 +341,7 @@ export default {
 <style scoped lang="scss">
 
 @import 'src/styles/index';
+@import 'src/styles/logo-title';
 @import 'src/styles/home-index';
 
 .view-burn-note {

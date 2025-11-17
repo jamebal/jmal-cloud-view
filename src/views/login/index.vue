@@ -6,7 +6,7 @@
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
           <div class="title-container">
-            <h3 v-if="!initialize">
+            <h3 v-if="!initialize && websiteRecord.netdiskName">
               <div  class="title">
                 <Logo v-model="websiteRecord.netdiskLogo" width="65"></Logo>
                 <div class="jmal-cloud-name">
@@ -378,6 +378,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+@import 'src/styles/logo-title';
 
 .login-container {
   min-height: 100%;
@@ -416,26 +417,6 @@ export default {
     display: inline-block;
   }
 
-  .title-container {
-    position: relative;
-
-    .title {
-      font-size: 26px;
-      color: var(--title-color);
-      margin: 20px auto 40px auto;
-      text-align: center;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .jmal-cloud-name {
-      color:  var(--text-color-hover);
-      font-size: 22px;
-      margin-left: 20px;
-    }
-  }
-
   .show-pwd {
     position: absolute;
     right: 10px;
@@ -471,14 +452,6 @@ footer {
 
 footer, footer p {
   font-size: .8125rem;
-}
-
-.title-container {
-  >>> .el-image {
-    .el-image__inner {
-      border-radius: 16px;
-    }
-  }
 }
 
 .gradient-border {

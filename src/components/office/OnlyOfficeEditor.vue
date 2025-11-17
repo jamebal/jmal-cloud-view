@@ -255,7 +255,6 @@ export default {
         historyInfo = this.fileHistoryDateList.find(historyInfo => historyInfo.version === event.data)
         const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
         historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.key, this.$store.state.user.name, this.$store.state.user.token)
-        console.log('historyUrl', historyUrl)
         historyConfig = {
           "fileType": this.fileType,
           "key": historyInfo.key,

@@ -1,0 +1,15 @@
+.title-container {
+  margin: 10px 0 30px 0;
+  display: flex;
+  justify-content: center;
+  .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .jmal-cloud-name {
+      color: var(--text-color);
+      font-size: 24px;
+      margin-left: 20px;
+    }
+  }
+}

@@ -35,6 +35,10 @@ export default {
           this.newCreateFileDialogTitle = '新建文本文件'
           this.createNewFile('txt')
           break
+        case 'createBurnNote':
+          this.newCreateFileDialogTitle = '新建阅后即焚'
+          this.createBurnNote()
+          break
         case 'createFolder':
           this.newCreateFileDialogTitle = '新建文件夹'
           this.createNewFile('')
