@@ -168,7 +168,7 @@ export default {
       const docServer = documentServer.replace(/\/$/, '');
       // 去掉 documentServer 前缀，得到余下路径
       // 比如: 'http://localhost:8080/office/9.0.2-fece7640...'
-      let restPath = locationHref.replace(docServer, '');
+      let restPath = locationHref.startsWith(docServer) ? locationHref.substring(docServer.length) : '';
       let match = restPath.match(/^\/([\d.]+)-/);
       if (!match) return null;
       let versionString = match[1]; // "9.0.2"
