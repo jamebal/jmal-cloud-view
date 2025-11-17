@@ -426,13 +426,13 @@ export default {
       text-align: center;
       font-weight: 500;
       display: inline-flex;
+      align-items: center;
     }
 
     .jmal-cloud-name {
       color:  var(--text-color-hover);
       font-size: 22px;
-      line-height: 65px;
-      margin-left: 10px;
+      margin-left: 20px;
     }
   }
 

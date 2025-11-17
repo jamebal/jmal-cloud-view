@@ -271,7 +271,7 @@ export default {
 
         // 4. 确认删除
         setTimeout(() => {
-          confirmDelete(this.noteId)
+          confirmDelete(this.noteId).catch(err => console.error('自动删除笔记失败:', err));
         }, 300)
 
       } catch (error) {
