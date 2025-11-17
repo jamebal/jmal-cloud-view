@@ -169,7 +169,7 @@ export default {
       // 去掉 documentServer 前缀，得到余下路径
       // 比如: 'http://localhost:8080/office/9.0.2-fece7640...'
       let restPath = locationHref.startsWith(docServer) ? locationHref.substring(docServer.length) : '';
-      let match = restPath.match(/^\/([\d.]+)-/);
+      let match = restPath.match(/^\/([\d.]+)(?:-|\/|$)/);
       if (!match) return null;
       let versionString = match[1]; // "9.0.2"
       let majorVersion = parseInt(versionString.split('.')[0], 10);
@@ -189,7 +189,7 @@ export default {
       this.onRequestHistoryData(null, historyInfo, historyUrl)
       this.historyListPopoverVisible = false
 
-      const iframe = document.querySelector('.component-only-office').getElementsByTagName('iframe')[0].contentWindow
+      const iframe = this.$el.querySelector('.component-only-office iframe').contentWindow
       const doc = iframe.document
       const toolbar = doc.getElementById('box-doc-name')
       // add cancelPreview button
