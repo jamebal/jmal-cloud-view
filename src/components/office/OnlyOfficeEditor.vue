@@ -165,7 +165,7 @@ export default {
       })
     },
     getDocumentServerVersion(locationHref, documentServer) {
-      const docServer = documentServer.replace(/\/$/, '');
+      const docServer = (documentServer || '').replace(/\/$/, '');
       // 去掉 documentServer 前缀，得到余下路径
       // 比如: 'http://localhost:8080/office/9.0.2-fece7640...'
       let restPath = locationHref.startsWith(docServer) ? locationHref.substring(docServer.length) : '';
@@ -189,7 +189,12 @@ export default {
       this.onRequestHistoryData(null, historyInfo, historyUrl)
       this.historyListPopoverVisible = false
 
-      const iframe = this.$el.querySelector('.component-only-office iframe').contentWindow
+      const iframeEl = this.$el.querySelector('.component-only-office iframe');
+      if (!iframeEl) {
+        console.error('未找到 OnlyOffice iframe');
+        return;
+      }
+      const iframe = iframeEl.contentWindow;
       const doc = iframe.document
       const toolbar = doc.getElementById('box-doc-name')
       // add cancelPreview button
