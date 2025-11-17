@@ -179,6 +179,9 @@ export default {
         this.renameInputFocus(newFileNameInput, suffix)
       })
     },
+    createBurnNote() {
+      window.open("/b", '_blank')
+    },
     newFolder() {
       this.newFolderName = this.getNewFileName(this.fileList, '新建文件夹')
       this.showNewFolder = true

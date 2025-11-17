@@ -137,7 +137,7 @@ export default {
   },
   mounted() {
     if (this.$pc) {
-      this.$emit('update-style', { height: '32px', width: '32px', right: '150px' })
+      this.$emit('update-style', { display: 'none' })
     } else {
       this.$emit('update-style', { height: '44px', width: '44px', right: 'auto' })
     }
@@ -164,21 +164,51 @@ export default {
         }
       })
     },
+    getDocumentServerVersion(locationHref, documentServer) {
+      const docServer = (documentServer || '').replace(/\/$/, '');
+      // 去掉 documentServer 前缀，得到余下路径
+      // 比如: 'http://localhost:8080/office/9.0.2-fece7640...'
+      let restPath = locationHref.startsWith(docServer) ? locationHref.substring(docServer.length) : '';
+      let match = restPath.match(/^\/([\d.]+)(?:-|\/|$)/);
+      if (!match) return null;
+      let versionString = match[1]; // "9.0.2"
+      let majorVersion = parseInt(versionString.split('.')[0], 10);
+      return {
+        version: versionString,
+        major: majorVersion
+      };
+    },
+    isVersionLessThan9(locationHref, documentServer) {
+      const v = this.getDocumentServerVersion(locationHref, documentServer);
+      if (!v) return false;
+      return v.major < 9;
+    },
     viewHistoryFile({historyInfo}) {
-      const historyUrl = window.location.origin + fileConfig.previewHistoryUrl(historyInfo.id, this.$store.state.user.name, this.$store.state.user.token)
+      const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
+      const historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.id, this.$store.state.user.name, this.$store.state.user.token)
       this.onRequestHistoryData(null, historyInfo, historyUrl)
       this.historyListPopoverVisible = false
 
-      let parentDoc = document.querySelector('.component-only-office')
-      let doc = parentDoc.getElementsByTagName('iframe')[0].contentWindow.document
+      const iframeEl = this.$el.querySelector('.component-only-office iframe');
+      if (!iframeEl) {
+        console.error('未找到 OnlyOffice iframe');
+        return;
+      }
+      const iframe = iframeEl.contentWindow;
+      const doc = iframe.document
       const toolbar = doc.getElementById('box-doc-name')
       // add cancelPreview button
       if (!doc.getElementById('box-doc-name-cancel-preview')) {
-        let newButton = document.createElement("button")
+        const newButton = document.createElement("button")
         newButton.setAttribute('id', 'box-doc-name-cancel-preview')
         newButton.classList.add('btn', 'btn-header')
         newButton.innerHTML = '取消预览'
-        newButton.style.color = '#fff'
+        if (this.isVersionLessThan9(iframe.location.href, this.officeServerConfig.documentServer)) {
+          // 版本小于9的样式调整
+          newButton.style.color = '#fff'
+        } else {
+          newButton.style.marginRight = '10px'
+        }
         newButton.style.width = '60px'
         newButton.addEventListener('click', this.cancelPreview)
         toolbar.prepend(newButton)
@@ -228,8 +258,12 @@ export default {
         }
       } else {
         historyInfo = this.fileHistoryDateList.find(historyInfo => historyInfo.version === event.data)
-        console.log('historyInfo', historyInfo)
-        historyUrl = window.location.origin + fileConfig.previewHistoryUrl(historyInfo.key, this.$store.state.user.name, this.$store.state.user.token)
+        if (!historyInfo) {
+          console.error('未找到版本对应的历史记录:', event.data)
+          return
+        }
+        const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
+        historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.key, this.$store.state.user.name, this.$store.state.user.token)
         historyConfig = {
           "fileType": this.fileType,
           "key": historyInfo.key,
@@ -242,8 +276,10 @@ export default {
         this.docEditor.setHistoryData(historyConfig)
       })
     },
+    onRequestClose() {
+      this.$emit('onBeforeClose')
+    },
     onRequestHistoryClose() {
-      console.log('onRequestHistoryClose')
       this.reloadDocument()
     },
     onRequestHistory() {
@@ -281,21 +317,13 @@ export default {
 
       const file_username = this.sharer ? this.sharer : this.$store.state.user.name
 
-      let callbackServer = this.officeServerConfig.callbackServer
-      if (callbackServer) {
-        if (callbackServer.endsWith('/')) {
-          // 去掉最后的/
-          callbackServer = callbackServer.substring(0, this.officeServerConfig.callbackServer.length - 1)
-        }
-      } else {
-        callbackServer = 'http://jmalcloud:8088'
-      }
+      const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
       const withJoinToken = true;
-      this.fileUrl = fileConfig.previewUrl(file_username, this.file, this.$store.getters.token, undefined, callbackServer, withJoinToken)
-      this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id + callbackServer)}`
+      this.fileUrl = fileConfig.previewUrl(file_username, this.file, this.$store.getters.token, undefined, officeCallBackBaseUrl, withJoinToken)
+      this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(this.file.id + officeCallBackBaseUrl)}`
       if (this.readOnly && window.shareId) {
-        this.fileUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken, callbackServer)
-        this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(window.shareId + callbackServer)}`
+        this.fileUrl = fileConfig.publicPreviewUrl(this.file, window.shareId, this.$store.getters.shareToken, officeCallBackBaseUrl)
+        this.fileKey = `${new Date(this.file.updateDate).getTime()}-${SparkMD5.hash(window.shareId + officeCallBackBaseUrl)}`
       }
       let callbackUrl = fileConfig.officeCallBackUrl(this.officeServerConfig.callbackServer, this.$store.getters.token, this.$store.getters.name, this.file.id)
       this.docEditorConfig = {
@@ -325,7 +353,12 @@ export default {
             hideRulers: false,
             submitForm: false,
             about: null,
-            feedback: false
+            feedback: false,
+            close: {
+              visible: true,
+              text: '关闭'
+            },
+            uiTheme: document.documentElement.classList.contains('dark') ? "default-dark" : 'default-light'
           },
           callbackUrl: callbackUrl,
         }
@@ -376,6 +409,7 @@ export default {
         "onRequestHistory": this.onRequestHistory,
         "onRequestHistoryData": this.onRequestHistoryData,
         "onRequestHistoryClose": this.onRequestHistoryClose,
+        "onRequestClose": this.onRequestClose,
       }
       this.$nextTick(() => {
         this.titleObserver = null
@@ -413,13 +447,14 @@ export default {
         let versionButton = document.createElement("button")
         versionButton.classList.add('btn', 'btn-header')
         versionButton.setAttribute('id', 'box-doc-name-history-btn')
+        versionButton.setAttribute('style', 'display: flex;align-items: center;justify-content: center;')
         fetch(require("@/assets/img/history.svg"))
           .then(response => response.text())
           .then(data => {
             let parser = new DOMParser()
             let svgDoc = parser.parseFromString(data, "image/svg+xml")
             let svgElement = svgDoc.querySelector('svg')
-            svgElement.setAttribute('style', 'width:16px;height:16px;')
+            svgElement.setAttribute('style', 'width:16px;height:16px;display:block;')
             versionButton.appendChild(svgElement)
           })
         versionButton.addEventListener('click', this.onClickHistoryVersion)

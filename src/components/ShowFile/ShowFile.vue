@@ -114,12 +114,6 @@
                       <span class="menuitem text">上传文件夹</span>
                     </label>
                   </li>
-                  <li v-if="singleFileType === ''" @click.prevent="newDocument">
-                    <a href="#" class="menuitem">
-                      <svg-icon icon-class="md" />
-                      <span class="menuitem text">写文章</span>
-                    </a>
-                  </li>
                   <li v-if="singleFileType === ''" @click.prevent="newFolder">
                     <a href="#" class="menuitem">
                       <svg-icon icon-class="folder-add" />
