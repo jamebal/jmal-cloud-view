@@ -43,14 +43,7 @@ export default {
    * @param callbackServer 回调服务器地址
    */
   officeCallBackBaseUrl: function(callbackServer) {
-    let callbackServerUrl = callbackServer || 'http://jmalcloud:8088/api'
-    if (callbackServer) {
-      if (callbackServer.endsWith('/')) {
-        // 去掉最后的/
-        callbackServerUrl = callbackServer.substring(0, callbackServer - 1)
-      }
-    }
-    return `${callbackServerUrl}`
+    return callbackServer.replace(/\/$/, '') || 'http://jmalcloud:8088/api'
   },
   // office回调url
   officeCallBackUrl: function(callbackServer, token, username, fileId) {

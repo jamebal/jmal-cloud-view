@@ -253,6 +253,10 @@ export default {
         }
       } else {
         historyInfo = this.fileHistoryDateList.find(historyInfo => historyInfo.version === event.data)
+        if (!historyInfo) {
+          console.error('未找到版本对应的历史记录:', event.data)
+          return
+        }
         const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
         historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.key, this.$store.state.user.name, this.$store.state.user.token)
         historyConfig = {
