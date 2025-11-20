@@ -6,7 +6,7 @@
               <el-input placeholder="请输入角色名称" width="100%" v-model="form.name"/>
             </el-form-item>
             <el-form-item label="角色标识:" prop="code">
-              <el-input placeholder="请输入角色标识" v-model="form.code" />
+              <el-input placeholder="请输入角色标识" v-model="form.code" :disabled="editMove===2" />
             </el-form-item>
             <el-form-item label="备注:" prop="remarks">
               <el-input type="textarea" autosize :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入备注" v-model="form.remarks" />
@@ -130,8 +130,7 @@ export default {
         tableHeader: [
           {prop: 'name',label: '角色名称', minWidth: 110, sortable: 'custom'},
           {prop: 'code',label: '角色标识', minWidth: 110, sortable: 'custom'},
-          {prop: 'remarks',label: '备注', minWidth: 110, sortable: 'custom'},
-          {prop: 'createTime',label: '创建时间', minWidth: 110, sortable: 'custom'},
+          {prop: 'remarks',label: '备注', minWidth: 110},
           {label: '操作', minWidth: this.$pc ? 0 : 160, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id)},
               {name: '分配权限', icon: 'el-icon-finished', handle: (row) => this.authorization(row.id)},
@@ -142,9 +141,12 @@ export default {
         rules: {
           name: [
             { required: true, message: '请输入角色名称', trigger: 'blur' },
+            { max: 64, message: '长度在 64 个字符以内', trigger: 'blur' }
           ],
           code: [
             { required: true, message: '请输入角色标识', trigger: 'blur' },
+            { max: 32, message: '长度在 32 个字符以内', trigger: 'blur' },
+            { pattern: /^[a-zA-Z0-9_]+$/, message: '仅支持字母、数字和下划线', trigger: 'blur' }
           ],
         },
         editMove: 1,// 1添加,2修改
@@ -155,15 +157,8 @@ export default {
     mounted() {
       this.getRoleList()
       this.getMenuTree()
-      this.resize()
     },
     methods: {
-      resize(){
-        let clientWidth = document.querySelector(".container").clientWidth
-        const monbile = clientWidth <= 768;
-        this.tableHeader[2].disabled = monbile
-        this.tableHeader[3].disabled = monbile
-      },
       // 组件选择完后把数据传过来
       selectFun(data) {
         this.multipleSelection = data.backData;
@@ -240,7 +235,6 @@ export default {
       },
       // 分配权限
       authorization(roleId) {
-        const req = require.context('@/icons/svg', false, /\.svg$/)
         this.dialogAuthVisible = true
         const findIndex = this.dataList.findIndex(data => data.id === roleId)
         const role = this.dataList[findIndex]
