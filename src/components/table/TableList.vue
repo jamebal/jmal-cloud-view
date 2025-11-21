@@ -71,7 +71,7 @@
         hide-on-single-page
         layout="total,sizes, prev, pager, next, jumper"
         :current-page="pagination.pageIndex"
-        :page-sizes="[20, 30, 50, 100]"
+        :page-sizes="pagination.pageSizes"
         :page-size="pagination.pageSize"
         :total="pagination.pageTotal"
         @size-change="handleSizeChange"
@@ -120,9 +120,10 @@ export default {
     pagination: {
       type: Object,
       default: {
-        pageIndex: 0,
-        pageSize: 15,
-        pageTotal: 0
+        pageIndex: 1,
+        pageSize: 20,
+        pageTotal: 0,
+        pageSizes: [20 , 50, 100]
       }
     }
   },
@@ -143,7 +144,13 @@ export default {
     setMaxHeight(init) {
       this.tableMaxHeight = document.documentElement.clientHeight - this.lessClientHeight
       if (init) {
-        this.$set(this.pagination, 'pageSize', 10 + Math.round((this.tableMaxHeight - 500) / 45));
+        const firstSize = 10 + Math.round((this.tableMaxHeight - 500) / 45);
+        this.$set(this.pagination, 'pageSize', firstSize);
+        if (firstSize < 50) {
+          this.$set(this.pagination, 'pageSizes', [firstSize, 50, 100]);
+        } else {
+          this.$set(this.pagination, 'pageSizes', [50, 100]);
+        }
       }
     },
     // 多选操作

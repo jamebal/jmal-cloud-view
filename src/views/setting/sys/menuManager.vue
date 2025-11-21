@@ -34,6 +34,7 @@
                 v-model="form.authority"
                 placeholder="请选择权限标识"
                 clearable
+                filterable
                 :popper-append-to-body="false"
               >
                 <el-option

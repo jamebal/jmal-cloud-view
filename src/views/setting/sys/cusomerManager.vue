@@ -35,11 +35,45 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button round v-if="editMove===2" size="small" type="danger" @click="resetPassword()">重置密码</el-button>
+        <el-button round v-if="editMove===2" size="small" type="danger" :loading="userUpdateLoading" @click="resetPassword()">重置密码</el-button>
         <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
         <el-button round size="small" type="primary" :loading="userUpdateLoading" @click.native.prevent="onSave()">保 存</el-button>
       </div>
     </el-dialog>
+
+    <!-- 分配组弹窗 -->
+    <el-dialog
+      :title="'设置所属组 - ' + currentUserShowName"
+      :visible.sync="dialogGroupVisible"
+      width="500px"
+      :close-on-click-modal="false">
+
+      <el-form label-width="80px" v-loading="groupLoading">
+        <el-form-item label="加入组">
+          <el-select
+            v-model="selectedGroupIds"
+            multiple
+            filterable
+            placeholder="请选择用户组"
+            style="width: 100%">
+            <el-option
+              v-for="item in allGroupList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+              <span class="add-group-name">{{ item.name }}</span>
+              <span class="add-group-code">{{ item.code }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button round size="small" @click="dialogGroupVisible = false">取 消</el-button>
+        <el-button round size="small" type="primary" :loading="groupSubmitLoading" @click="saveUserGroups()">保 存</el-button>
+      </div>
+    </el-dialog>
+
     <el-card class="box-card table-search-header">
       <div slot="header">
         <div class="box-card-header">
@@ -58,8 +92,8 @@
               <el-col :sm="12" :md="8">
                 <div class="el-form-actions">
                   <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getUserList()">查询</el-button>
-                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
-                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" @click="handleSelectDelete()">删除</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" :loading="userUpdateLoading"  @click="add()">添加</el-button>
+                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" :loading="userUpdateLoading"  @click="handleSelectDelete()">删除</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -82,6 +116,7 @@
 </template>
 
 <script>
+import { groupList } from '@/api/group'
 import {addUser, delUser, getUserInfo, resetPass, userList, userUpdate} from '@/api/user'
 import roleApi from '@/api/role'
 import CropperDialog from '@/components/Cropper/dialog'
@@ -154,11 +189,22 @@ export default {
                 }
             }
           },
-          {prop: 'quota',label: '配额(GB)',sortable: 'custom'},
-          {prop: 'createTime',label: '创建时间',sortable: 'custom'},
+          {prop: 'groups', minWidth: 300, label: '用户组', tag: true,
+            formatData: (groups)=> {
+              if(groups){
+                let tags = this.allGroupList.map(group => {
+                  if (groups.includes(group.id)) {
+                    return {name : group.name}
+                  }
+                })
+                tags = tags.filter(tag => tag !== undefined)
+                return tags
+              }
+            }
+          },
           {label: '操作', minWidth: 130, active: [
               {name: '修改', icon: 'el-icon-edit', handle: (row) => this.handleEdit(row.id,row.username)},
-              {name: '删除', icon: 'el-icon-delete', color: '#ff4d4f', handle: (row) => this.handleDelete([row.id])},
+              {name: '用户组', icon: 'el-icon-connection', handle: (row) => this.handleAssignGroup(row)},
               ],
           },
         ],
@@ -182,6 +228,15 @@ export default {
           ],
         },
         editMove: 1,// 1添加,2修改
+
+        // 分配组弹窗相关变量
+        dialogGroupVisible: false,
+        groupLoading: false,
+        groupSubmitLoading: false,
+        currentUserId: '',
+        currentUserShowName: '',
+        allGroupList: [],   // 所有组列表
+        selectedGroupIds: [] // 选中的组ID
       }
     },
     computed: {
@@ -189,15 +244,9 @@ export default {
     mounted() {
       this.getUserList()
       this.getRoleList()
-      this.resize()
+      this.getGroupList()
     },
     methods: {
-      resize(){
-        let clientWidth = document.querySelector(".container").clientWidth
-        const monbile = clientWidth <= 768;
-        this.tableHeader[3].disabled = monbile
-        this.tableHeader[4].disabled = monbile
-      },
       // 组件选择完后把数据传过来
       selectFun(data) {
         this.multipleSelection = data.backData;
@@ -229,6 +278,11 @@ export default {
       getRoleList(){
         roleApi.roleList().then(res => {
           this.roleList = res.data;
+        })
+      },
+      async getGroupList() {
+        groupList({ page: 1, pageSize: 1000, name: '', code: '' }).then(res => {
+          this.allGroupList = res.data
         })
       },
       async add() {
@@ -268,6 +322,48 @@ export default {
           }
         });
       },
+      async handleAssignGroup(row) {
+        this.currentUserId = row.id
+        this.currentUserShowName = row.showName
+        this.dialogGroupVisible = true
+        this.groupLoading = true
+        this.selectedGroupIds = []
+
+        try {
+          if (this.allGroupList.length === 0) {
+            await this.getGroupList()
+          }
+
+          const userRes = await getUserInfo({ id: row.id })
+          this.selectedGroupIds = userRes.data.groups || []
+
+        } catch (e) {
+          console.error(e)
+        } finally {
+          this.groupLoading = false
+        }
+      },
+
+      /**
+       * 保存用户组分配
+       */
+      saveUserGroups() {
+        this.groupSubmitLoading = true
+        const data = new FormData()
+        data.append('id', this.currentUserId)
+        if (this.selectedGroupIds.length === 0) {
+          data.append('groups', '')
+        } else {
+          data.append('groups', this.selectedGroupIds)
+        }
+        userUpdate(data).then(() => {
+          this.$message.success('用户组设置成功')
+          this.dialogGroupVisible = false
+          this.getUserList()
+        }).finally(() => {
+          this.groupSubmitLoading = false
+        })
+      },
       handleEdit(id) {
         this.editMove = 2
         this.dialogVisible = true
@@ -297,9 +393,12 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          this.userUpdateLoading = false
           resetPass(this.form.id).then(() => {
           }).catch(() => {
             this.onError()
+          }).catch(() => {
+            this.userUpdateLoading = false
           })
         })
       },
@@ -317,20 +416,14 @@ export default {
           this.deleteUser(ids)
         })
       },
-      handleDelete(ids) {
-        this.$confirm('确定要删除此用户吗？此操作会删除用户的所有文件', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.deleteUser(ids)
-        })
-      },
       deleteUser(ids){
+        this.userUpdateLoading = true
         delUser({ids: ids}).then(() => {
           this.onSuccess('删除成功!')
         }).catch(() => {
           this.onError()
+        }).finally(() => {
+          this.updateLoading = false
         })
       },
       // 修改用户信息操作
@@ -372,6 +465,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/styles/setting";
+@import "src/styles/group-manage";
 >>> .el-input {
   width: 100%;
 }
