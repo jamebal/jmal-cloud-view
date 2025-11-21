@@ -84,8 +84,8 @@
               <el-col :sm="12" :md="12">
                 <div class="el-form-actions">
                   <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getGroupList()">查询</el-button>
-                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
-                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" @click="handleSelectDelete()">删除</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" :loading="updateLoading" @click="add()">添加</el-button>
+                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" :loading="updateLoading" @click="handleSelectDelete()">删除</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -109,7 +109,6 @@
 </template>
 
 <script>
-import { getAssignedUserList } from '@/api/group'
 import * as groupApi from '@/api/group'
 import roleApi from '@/api/role'
 import { userList } from '@/api/user'
@@ -214,12 +213,9 @@ export default {
         this.allUserList = res.data
       })
     },
-    // 获取所有角色列表 (复用 consumerManager 逻辑)
+    // 获取所有角色列表
     getRoleList() {
       return roleApi.roleList().then(res => {
-        this.dataList.forEach(group => {
-          // 强制触发表格重绘，如果有缓存问题的话
-        })
         this.roleList = res.data;
       })
     },
@@ -264,7 +260,7 @@ export default {
       }
     },
     /**
-     * 获取所有用户 (如果数据量大建议使用远程搜索 remote method)
+     * 获取所有用户
      */
     getAllUsers() {
       if (this.allUserList.length > 0) return Promise.resolve()
@@ -284,7 +280,6 @@ export default {
       groupApi.assignUsers(data).then(() => {
         this.$message.success('成员分配成功')
         this.dialogAssignVisible = false
-        // 可选：刷新列表以更新人数统计(如果有的话)
         this.getGroupList()
       }).finally(() => {
         this.assignSubmitLoading = false
@@ -319,7 +314,6 @@ export default {
         if (!this.form.roles) {
           this.form.roles = []
         }
-        // 过滤掉已经不存在的角色ID (可选优化，防止前端显示ID)
         if (this.roleList.length > 0) {
           this.form.roles = this.form.roles.filter(rId => this.roleList.some(r => r.id === rId));
         }
@@ -328,12 +322,8 @@ export default {
     changeRole() {
       this.$refs.selectRole.blur()
     },
-    // 构造提交数据，如果是JSON提交则不需要FormData，这里沿用原风格
+    // 构造提交数据
     getSubmitData() {
-      // 如果后端接受 @RequestBody GroupDTO (JSON)，直接返回 this.form 即可
-      // 如果后端接受 key-value 形式或者 FormData，则保持如下：
-      // 根据你的 UserController/RoleController 来看，似乎是接受 Object 映射。
-      // 这里直接返回对象，axios 会自动处理成 JSON
       return {
         id: this.form.id,
         name: this.form.name,
@@ -360,6 +350,8 @@ export default {
             this.onSuccess()
           }).catch(() => {
             this.onError()
+          }).finally(() => {
+            this.updateLoading = false
           })
         } else {
           return false;
@@ -376,20 +368,12 @@ export default {
         this.deleteGroup(ids)
       })
     },
-    handleDelete(ids) {
-      this.$confirm('确定要删除此用户组吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteGroup(ids)
-      })
-    },
     deleteGroup(ids){
+      this.updateLoading = true
       groupApi.deleteGroup(ids).then(() => {
         this.onSuccess('删除成功!')
-      }).catch(() => {
-        // 错误处理通常在 request.js 拦截器中有
+      }).finally(() => {
+        this.updateLoading = false
       })
     },
     onSuccess(message){

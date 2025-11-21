@@ -59,8 +59,8 @@
               <el-col :sm="12" :md="7" :xl="6">
                 <div class="el-form-actions">
                   <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getRoleList()">查询</el-button>
-                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
-                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" @click="handleSelectDelete()">删除</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" :loading="updateLoading" @click="add()">添加</el-button>
+                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" :loading="updateLoading" @click="handleSelectDelete()">删除</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -266,36 +266,36 @@ export default {
           this.deleteRole(ids)
         })
       },
-      handleDelete(ids) {
-        this.$confirm('确定要删除此角色吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.deleteRole(ids)
-        })
-      },
       deleteRole(ids){
+        this.updateLoading = true
         roleApi.delete({roleIds: ids}).then(() => {
           this.onSuccess('删除成功!')
         }).catch(() => {
           this.onError()
+        }).finally(() => {
+          this.updateLoading = false
         })
       },
-      // 修改用户信息操作
+      // 修改橘色信息操作
       updateRole(data){
+        this.updateLoading = true
         roleApi.update(data).then(() => {
           this.onSuccess()
         }).catch(() => {
           this.onError()
+        }).finally(() => {
+          this.updateLoading = false
         })
       },
       // 添加角色
       addRole(data){
+        this.updateLoading = true
         roleApi.add(data).then(() => {
           this.onSuccess()
         }).catch(() => {
           this.onError()
+        }).finally(() => {
+          this.updateLoading = false
         })
       },
       onSuccess(message){

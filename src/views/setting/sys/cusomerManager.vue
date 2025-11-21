@@ -35,7 +35,7 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button round v-if="editMove===2" size="small" type="danger" @click="resetPassword()">重置密码</el-button>
+        <el-button round v-if="editMove===2" size="small" type="danger" :loading="userUpdateLoading" @click="resetPassword()">重置密码</el-button>
         <el-button round size="small" @click="dialogVisible = false">取 消</el-button>
         <el-button round size="small" type="primary" :loading="userUpdateLoading" @click.native.prevent="onSave()">保 存</el-button>
       </div>
@@ -92,8 +92,8 @@
               <el-col :sm="12" :md="8">
                 <div class="el-form-actions">
                   <el-button round class="card-btn-icon" size="medium" icon="el-icon-search" type="primary" @click="getUserList()">查询</el-button>
-                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" @click="add()">添加</el-button>
-                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" @click="handleSelectDelete()">删除</el-button>
+                  <el-button round class="card-btn-icon" size="medium" icon="el-icon-plus" type="primary" :loading="userUpdateLoading"  @click="add()">添加</el-button>
+                  <el-button round :disabled="multipleSelection.length < 1" class="card-btn-icon" size="medium" type="danger" icon="el-icon-delete" :loading="userUpdateLoading"  @click="handleSelectDelete()">删除</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -393,9 +393,12 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          this.userUpdateLoading = false
           resetPass(this.form.id).then(() => {
           }).catch(() => {
             this.onError()
+          }).catch(() => {
+            this.userUpdateLoading = false
           })
         })
       },
@@ -414,10 +417,13 @@ export default {
         })
       },
       deleteUser(ids){
+        this.userUpdateLoading = true
         delUser({ids: ids}).then(() => {
           this.onSuccess('删除成功!')
         }).catch(() => {
           this.onError()
+        }).finally(() => {
+          this.updateLoading = false
         })
       },
       // 修改用户信息操作
