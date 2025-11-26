@@ -83,9 +83,6 @@
           <el-form-item label="位置:" class="details-position">
             <span><a :href="pathUrl" v-tooltip="{content: '文件所在位置', placement: 'bottom'}">{{ filepath }}</a></span>
           </el-form-item>
-          <el-form-item label="SHA265:">
-            <span> {{ file.etag }}</span>
-          </el-form-item>
           <el-form-item v-if="file.isFolder && file.childrenCount >= 0" label="内容数量:">
             <span> {{ file.childrenCount }}</span> 个
           </el-form-item>
