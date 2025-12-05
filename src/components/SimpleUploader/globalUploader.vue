@@ -115,10 +115,11 @@
 import store from '@/store'
 import $ from 'jquery'
 import api from '@/api/file-api'
-import {formatNetSpeed} from '@/utils/number'
+import { formatNetSpeed } from '@/utils/number'
 import {mapState} from 'vuex'
 import {encodeIfNeeded} from "@/utils/path"
 import { isDragUploadAllowed } from './dragUploadUtils'
+import S3DirectUploader from './S3DirectUploader'
 
 export default {
   components: {},
@@ -198,6 +199,10 @@ export default {
       enableDragUpload: true,// 是否启用拖拽上传
       uploader: null,
       resolveFilesAddedPromise: null, // 用于等待获取上传参数
+      params: {},
+      // S3直传相关
+      useS3Direct: true, // 是否启用S3直传模式
+      s3Uploader: null,
     }
   },
   computed: {
@@ -245,6 +250,7 @@ export default {
   },
   mounted() {
     this.checkDrag(this.$route)
+    this.initS3Uploader()
     let that = this
     let dropbox = document.body
 
@@ -297,13 +303,127 @@ export default {
     this.initUploader()
   },
   methods: {
+    initS3Uploader() {
+      this.s3Uploader = new S3DirectUploader({
+        onProgress: this.onS3Progress.bind(this),
+        onSuccess: this.onS3Success.bind(this),
+        onError: this.onS3Error.bind(this)
+      });
+    },
+
+    onS3Progress(uploadFile, progress, speed) {
+      console.log(`Uploading ${uploadFile.file.name}: ${progress}% at ${formatNetSpeed(speed, false)}`);
+      // 更新文件进度
+      const fileInfo = this.uploader.fileList.find(f => f.id === uploadFile.id);
+      if (fileInfo) {
+        this.$set(fileInfo, 'currentSpeed', speed);
+        this.$set(fileInfo, 'averageSpeed', speed);
+        this.$set(fileInfo, 'isUploading', true);
+        this.$set(fileInfo, '_prevProgress', progress / 100);
+      }
+
+      this.netSpeed = formatNetSpeed(speed, false);
+      this.process = Math.trunc(window.uploader.progress() * 100)
+      this.setPageTitle(this.netSpeed);
+
+      if (this.process > 0 && this.process < 100 && window.uploader.fileList.length > 0) {
+        window.onbeforeunload = function () {
+          return "还有文件正在上传, 确定退出吗?";
+        }
+      } else {
+        window.onbeforeunload = null
+      }
+
+    },
+
+    onS3Success(uploadFile) {
+      const fileInfo = this.uploader.fileList.find(f => f.id === uploadFile.id);
+      if (fileInfo) {
+        fileInfo.completed = true;
+        this.$set(fileInfo, '_fileComplete', true);
+      }
+
+      store.dispatch('updateMessage', {event: 'fileSuccess', data: uploadFile.name});
+      this.showSuccessMsg();
+
+    },
+
+    onS3Error(uploadFile, error) {
+      console.error('S3 upload error:', error);
+      const fileInfo = this.uploader.fileList.find(f => f.id === uploadFile.id);
+      if (fileInfo) {
+        this.statusSet(fileInfo.id, 'failed');
+      }
+      this.$message({
+        message: `文件 ${uploadFile.name} 上传失败: ${error.message}`,
+        type: 'error'
+      });
+    },
+
+    // S3直传上传处理
+    async doS3DirectUpload() {
+
+      if (this.$pc) {
+        this.displayPanel(true);
+      } else {
+        this.shrink();
+      }
+
+      this.s3Uploader.start();
+
+      // 逐个上传文件
+      for (const uploadFile of this.uploader.fileList) {
+        const file = uploadFile.file
+        if (this.s3Uploader.aborted) {
+          break;
+        }
+
+        try {
+          // 构建objectName
+          const objectName = this.buildObjectName(file);
+          await this.s3Uploader.upload(uploadFile, objectName, {
+            currentDirectory: encodeIfNeeded(this.params.currentDirectory),
+            username: this.params.username,
+            userId: this.params.userId,
+            folder: this.$route.query.folder,
+            lastModified: file.lastModified,
+            publicApi: this.publicApi,
+            fileId: this.params.fileId
+          });
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+        }
+      }
+    },
+
+    buildObjectName(file) {
+      // 根据当前目录和文件相对路径构建objectName
+      let basePath = this.params.currentDirectory || '';
+      if (basePath && ! basePath.endsWith('/')) {
+        basePath += '/';
+      }
+
+      // 如果是文件夹上传，保留相对路径
+      if (file.relativePath && file.relativePath !== file.name) {
+        return basePath + file.relativePath;
+      }
+
+      return this.params.username + basePath + file.name;
+    },
+
     checkDrag(route) {
       this.enableDragUpload = isDragUploadAllowed(route)
     },
-    onStorageTypeChange(chunkSize) {
+    onStorageTypeChange(uploaderOption) {
+      const { chunkSize, enabledS3Proxy } = uploaderOption;
       localStorage.setItem('uploader_chunk_size', chunkSize)
       if (this.options.chunkSize !== chunkSize && !this.panelShow) {
         this.updateChunkSize(chunkSize)
+      }
+      this.useS3Direct = chunkSize === 5242880 && !enabledS3Proxy;
+      // 同时更新S3上传器
+      if (this.s3Uploader) {
+        this.s3Uploader.chunkSize = chunkSize;
       }
     },
     initUploader() {
@@ -379,10 +499,15 @@ export default {
           this.uploaderCancel()
         })
       } else {
-        this.doUploadBefore(files)
+        await this.doUploadBefore(files)
       }
     },
     uploaderCancel() {
+      // 取消S3上传
+      if (this.s3Uploader) {
+        this.s3Uploader.abort();
+      }
+
       this.uploader.cancel()
       this.displayPanel(false)
       const chunkSize = localStorage.getItem('uploader_chunk_size');
@@ -393,11 +518,12 @@ export default {
     displayPanel(display) {
       this.panelShow = display
     },
-    doUploadBefore(files) {
+    async doUploadBefore(files) {
       this.fileListLength = this.uploader.fileList.length
       const filePaths = this.uploader.filePaths
       const paths = Object.keys(filePaths)
       const pathsLength = paths.length
+
       if (pathsLength > 0) {
         paths.forEach(path => {
           const folder = filePaths[path]
@@ -415,24 +541,31 @@ export default {
           })
         })
       }
-      if (this.$pc) {
-        this.displayPanel(true)
+
+      // 判断是否使用S3直传
+      if (this.useS3Direct) {
+        // 使用S3直传模式
+        await this.doS3DirectUpload();
       } else {
-        this.shrink()
-      }
-      files.forEach(file => {
-        // 上传文件
-        Object.assign(this.uploader.opts, {
-          query: {
-            isFolder: false,
-            lastModified: file.file.lastModified,
-            ...this.params
-          }
+        // 使用原有的分片上传模式
+        if (this.$pc) {
+          this.displayPanel(true)
+        } else {
+          this.shrink()
+        }
+        files.forEach(file => {
+          Object.assign(this.uploader.opts, {
+            query: {
+              isFolder: false,
+              lastModified: file.file.lastModified,
+              ...this.params
+            }
+          })
         })
-      })
-      this.$nextTick(() => {
-        this.uploader.resume()
-      })
+        this.$nextTick(() => {
+          this.uploader.resume()
+        })
+      }
     },
     setPageTitle(netSpeed) {
       if (this.publicApi) {
@@ -529,8 +662,6 @@ export default {
             this.successMsg = null
           }
         });
-      } else {
-
       }
       if (this.process === -10 || this.process === 100 || this.fileListLength === 0) {
         this.uploaderCancel()
@@ -632,19 +763,15 @@ export default {
         },
         merging: {
           text: '合并中',
-          bgc: 'var(--uploader-file-process-success-bg-color)'
         },
         transcoding: {
           text: '转码中',
-          bgc: 'var(--uploader-file-process-success-bg-color)'
         },
         failed: {
           text: '上传失败',
-          bgc: 'var(--uploader-file-process-success-bg-color)'
         },
         success: {
           text: '上传成功',
-          bgc: 'var(--uploader-file-process-success-bg-color)'
         }
       }
 
@@ -654,6 +781,7 @@ export default {
       }
 
       this.$nextTick(() => {
+        $(`.file_${id} .uploader-file-status`).empty()
         $(`<p class="myStatus_${id}"></p>`).appendTo(`.file_${id} .uploader-file-status`).css({
           'position': 'absolute',
           'font-size': '13px',
@@ -662,7 +790,6 @@ export default {
           'bottom': '0',
           'zIndex': '1',
           'marginBottom': '0',
-          'backgroundColor': statusMap[status].bgc
         }).text(statusMap[status].text)
       })
     },
