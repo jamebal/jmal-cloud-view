@@ -61,7 +61,6 @@
     "vue-demi": "^0.14.6",
     "vue-i18n": "^8.28.2",
     "vue-runtime-helpers": "^1.1.2",
-    "vue-simple-uploader": "0.7.6",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.1.0"
   },

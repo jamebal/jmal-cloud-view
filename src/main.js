@@ -7,7 +7,7 @@ import { initSystemTheme, setupSystemThemeListener } from '@/utils/theme'
 import 'element-theme-darkplus/lib/index.color.css';
 
 import '@/styles/index.scss' // global css
-import uploader from 'vue-simple-uploader'
+import uploader from '@/components/vue-simple-uploader'
 import EVueContextmenu from 'e-vue-contextmenu'
 import App from './App'
 import store from './store'

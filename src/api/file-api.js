@@ -477,5 +477,44 @@ export default {
       params,
     })
   },
-
+  // 获取预签名上传URL
+  getPresignedUploadUrl: function(params) {
+    return request({
+      url: '/oss/presign/upload',
+      method: 'get',
+      params,
+    })
+  },
+  // 初始化分片上传
+  initMultipartUpload: function(params) {
+    return request({
+      url: '/oss/presign/upload/multipart/init',
+      method: 'post',
+      params,
+    })
+  },
+  // 获取分片上传预签名URLs
+  getMultipartPresignUrls: function(params) {
+    return request({
+      url: '/oss/presign/upload/multipart/presign-urls',
+      method: 'get',
+      params,
+    })
+  },
+  // 完成分片上传
+  completeMultipartUpload: function(data) {
+    return request({
+      url: '/oss/presign/upload/multipart/complete',
+      method: 'post',
+      data,
+    })
+  },
+  // 取消分片上传
+  abortMultipartUpload: function(params) {
+    return request({
+      url: '/oss/presign/upload/multipart/abort',
+      method: 'post',
+      params,
+    })
+  }
 }
