@@ -93,11 +93,19 @@ export default {
     window.open(url, '_blank')
   },
   // 下载文件
-  download: function(username, file, token) {
-    fileApi.isAllowDownload({fileIds: [file.id]}).then(() => {
-      let url = this.previewUrl(username, file, token) + '?o=download'
-      window.open(url, '_self')
-    })
+  download: async function(username, file, token) {
+    const res = await fileApi.isAllowDownload({fileIds: [file.id]});
+    const { allowDownload, isRedirect, redirectUrl } = res.data;
+    if (!allowDownload) {
+      throw new Error('文件不允许下载');
+    }
+    const a = document.createElement('a');
+    a.href = isRedirect ? redirectUrl : this.previewUrl(username, file, token) + '?o=download';
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
   },
   // 打包下载文件
   packageDownload: function(fileIds) {
