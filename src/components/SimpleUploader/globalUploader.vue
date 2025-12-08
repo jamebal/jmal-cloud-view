@@ -229,11 +229,25 @@ export default {
           }
           break
         case 'openUploader':
+          if (this.uploader.fileList.length > 0) {
+            this.$message({
+              message: 'S3直传模式下无法添加更多',
+              type: 'warning'
+            })
+            return
+          }
           if (this.$refs.uploadBtn) {
             $('#global-uploader-btn').click()
           }
           break
         case 'uploadFolder':
+          if (this.uploader.fileList.length > 0) {
+            this.$message({
+              message: 'S3直传模式下无法添加更多',
+              type: 'warning'
+            })
+            return
+          }
           if (this.$refs.folderBtn) {
             $('#folder-uploader-btn').click()
           }
@@ -405,7 +419,8 @@ export default {
 
       // 如果是文件夹上传，保留相对路径
       if (file.relativePath && file.relativePath !== file.name) {
-        return basePath + file.relativePath;
+        // 防止路径遍历
+        return basePath + file.relativePath.replace(/(\.\.\/|\.\.\\)/g, '');
       }
 
       return this.params.username + basePath + file.name;
@@ -452,6 +467,7 @@ export default {
       return /[/\\]/.test(str);
     },
     async onFilesAdded(files) {
+      console.log('Files added:', files, this.uploader.filePaths);
       if (files.length === 0) {
         return;
       }
@@ -476,6 +492,15 @@ export default {
     async doFilesAdded(files) {
       let filenames = files.map(file => file.name)
       const paths = Object.keys(this.uploader.filePaths)
+      if (paths.length > 0 && this.useS3Direct) {
+        // 暂不支持文件夹上传
+        this.$message({
+          message: 'S3直传模式下暂不支持文件夹上传',
+          type: 'warning'
+        })
+        this.uploaderCancel();
+        return
+      }
       paths.forEach(path => {
         if (this.isPath(path)) {
           // 取第一级
