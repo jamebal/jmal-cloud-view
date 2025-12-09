@@ -72,6 +72,7 @@
 
 import ossApi from "@/api/oss"
 import TableList from "@/components/table/TableList.vue";
+import { PLATFORM_S3 } from '@/components/SimpleUploader/S3DirectUploader'
 
 export default {
   components: {TableList},
@@ -149,7 +150,7 @@ export default {
   },
   methods: {
     selectPlatform(platform) {
-      this.showPathStyleAccessEnabled = platform === 'minio';
+      this.showPathStyleAccessEnabled = platform === PLATFORM_S3;
     },
     getOssConfigList() {
       ossApi.ossConfigList().then((res) => {

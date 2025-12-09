@@ -12,6 +12,9 @@ class AbortError extends Error {
   }
 }
 
+export const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024
+export const PLATFORM_S3 = 'minio'
+
 export default class S3DirectUploader {
   // --- 使用下划线约定私有属性 ---
   _chunkSize;
@@ -38,9 +41,9 @@ export default class S3DirectUploader {
   _uploaderFile = null;
 
   constructor(options = {}) {
-    this._chunkSize = options.chunkSize || 5 * 1024 * 1024;
+    this._chunkSize = options.chunkSize || DEFAULT_CHUNK_SIZE;
     this._concurrency = options.concurrency || 3;
-    this._simpleUploadThreshold = options.simpleUploadThreshold || 5 * 1024 * 1024;
+    this._simpleUploadThreshold = options.simpleUploadThreshold || DEFAULT_CHUNK_SIZE;
     this._retryCount = options.retryCount || 3;
     this._retryDelay = options.retryDelay || 1000;
 

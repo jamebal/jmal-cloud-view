@@ -120,6 +120,7 @@ import {mapState} from 'vuex'
 import {encodeIfNeeded} from "@/utils/path"
 import { isDragUploadAllowed } from './dragUploadUtils'
 import S3DirectUploader from './S3DirectUploader'
+import { DEFAULT_CHUNK_SIZE } from './S3DirectUploader'
 
 export default {
   components: {},
@@ -435,7 +436,7 @@ export default {
       if (this.options.chunkSize !== chunkSize && !this.panelShow) {
         this.updateChunkSize(chunkSize)
       }
-      this.useS3Direct = chunkSize === 5242880 && !proxyEnabled;
+      this.useS3Direct = chunkSize === DEFAULT_CHUNK_SIZE && !proxyEnabled;
       // 同时更新S3上传器
       if (this.s3Uploader) {
         this.s3Uploader.chunkSize = chunkSize;
