@@ -430,12 +430,12 @@ export default {
       this.enableDragUpload = isDragUploadAllowed(route)
     },
     onStorageTypeChange(uploaderOption) {
-      const { chunkSize, enabledS3Proxy } = uploaderOption;
+      const { chunkSize, proxyEnabled } = uploaderOption;
       localStorage.setItem('uploader_chunk_size', chunkSize)
       if (this.options.chunkSize !== chunkSize && !this.panelShow) {
         this.updateChunkSize(chunkSize)
       }
-      this.useS3Direct = chunkSize === 5242880 && !enabledS3Proxy;
+      this.useS3Direct = chunkSize === 5242880 && !proxyEnabled;
       // 同时更新S3上传器
       if (this.s3Uploader) {
         this.s3Uploader.chunkSize = chunkSize;

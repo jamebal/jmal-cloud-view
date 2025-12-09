@@ -22,7 +22,7 @@
       <el-dialog class="set-oss-dialog" :title="putOssTitle" :visible.sync="showDialog" :close-on-click-modal="false">
         <el-form :rules="rules" ref="form" :model="formData" label-width="120px" size="small">
           <el-form-item label="Platform" prop="platform">
-            <el-select v-model="formData.platform" placeholder="选择平台">
+            <el-select v-model="formData.platform" placeholder="选择平台" @change="selectPlatform">
               <el-option
                 v-for="item in platforms"
                 :key="item.value"
@@ -49,6 +49,14 @@
           <el-form-item label="目录名称" prop="folderName">
             <el-input v-model="formData.folderName"></el-input>
             <div class="form-item-desc">将在根目录下创建此目录，相当于把oss挂载到了此目录</div>
+          </el-form-item>
+          <el-form-item label="流量代理" prop="proxyEnabled">
+            <el-switch v-model="formData.proxyEnabled"></el-switch>
+            <div class="form-item-desc">启用后上传下载流量会通过jmalcloud服务中转</div>
+          </el-form-item>
+          <el-form-item v-if="showPathStyleAccessEnabled" label="启用路径风格" prop="pathStyleAccessEnabled">
+            <el-switch v-model="formData.pathStyleAccessEnabled"></el-switch>
+            <div class="form-item-desc">启用后将使用路径风格访问以访问S3对象，而非DNS风格访问</div>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -90,6 +98,8 @@ export default {
         bucket: "",
         folderName: "",
         platform: "",
+        proxyEnabled: false,
+        pathStyleAccessEnabled: false,
       },
       submitLoading: false,
       tableHeader: [
@@ -130,13 +140,17 @@ export default {
         folderName: [
           {required: true, validator: validateFolderName, trigger: 'submit'}
         ],
-      }
+      },
+      showPathStyleAccessEnabled: false
     }
   },
   mounted() {
     this.getPlatformList()
   },
   methods: {
+    selectPlatform(platform) {
+      this.showPathStyleAccessEnabled = platform === 'minio';
+    },
     getOssConfigList() {
       ossApi.ossConfigList().then((res) => {
         this.ossConfigList = res.data;
@@ -177,6 +191,7 @@ export default {
       this.formData = row
       this.showDialog = true
       this.putOssTitle = '修改OSS'
+      this.selectPlatform(row.platform)
     },
     putOssConfig() {
       this.submitLoading = true
