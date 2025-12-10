@@ -26,7 +26,7 @@ export function checkBurnNote(id) {
  */
 export function getAllowGuestBurnNote() {
   return request({
-    url: `/burn-notes/allow-guest-burnNote`,
+    url: `/burn-notes/allow-guest-burn-note`,
     method: 'get'
   })
 }
@@ -36,7 +36,7 @@ export function getAllowGuestBurnNote() {
  */
 export function setAllowGuestBurnNote(params) {
   return request({
-    url: `/burn-notes/allow-guest-burnNote`,
+    url: `/burn-notes/allow-guest-burn-note`,
     method: 'put',
     params
   })

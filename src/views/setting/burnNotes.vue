@@ -95,6 +95,8 @@ export default {
             type: 'success'
           });
         }
+      }).catch(() => {
+        this.allowGuestBurnNote = !allowGuestBurnNote;
       })
     },
     getBurnNotes() {
