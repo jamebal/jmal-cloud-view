@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function createBurnNote(data) {
   return request({
-    url: '/burn-notes/create',
+    url: '/public/burn-notes/create',
     method: 'post',
     data
   })
@@ -18,6 +18,27 @@ export function checkBurnNote(id) {
   return request({
     url: `/public/burn-notes/${id}/check`,
     method: 'get'
+  })
+}
+
+/**
+ * 查询是否允许访客使用阅后即焚功能
+ */
+export function getAllowGuestBurnNote() {
+  return request({
+    url: `/burn-notes/allow-guest-burn-note`,
+    method: 'get'
+  })
+}
+
+/**
+ * 设置是否允许访客使用阅后即焚功能
+ */
+export function setAllowGuestBurnNote(params) {
+  return request({
+    url: `/burn-notes/allow-guest-burn-note`,
+    method: 'put',
+    params
   })
 }
 

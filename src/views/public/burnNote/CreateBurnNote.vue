@@ -417,7 +417,7 @@ export default {
             formData.append('file', chunkBlob, `chunk_${index}`);
 
             await request({
-              url: `/burn-notes/${noteId}/chunks/${index}`,
+              url: `/public/burn-notes/${noteId}/chunks/${index}`,
               method: 'post',
               headers: { 'Content-Type': 'multipart/form-data' },
               data: formData

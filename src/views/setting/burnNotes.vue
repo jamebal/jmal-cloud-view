@@ -7,6 +7,12 @@
             <span>阅后即焚笔记</span>
             <el-button round class="card-button" size="mini" type="primary" @click="create">创建笔记</el-button>
           </div>
+
+          <div class="set-allow-guest-burn-note">
+            <span>允许未登录用户创建阅后即焚笔记</span>
+            <el-switch v-model="allowGuestBurnNote" active-color="#13ce66" inactive-color="#ff4949" @change="setAllowGuestBurnNote"></el-switch>
+          </div>
+
         </div>
       </div>
       <table-list
@@ -23,7 +29,7 @@
 
 <script>
 
-import { getBurnNotes, deleteBurnNote } from "@/api/burn-note"
+import { getBurnNotes, deleteBurnNote, getAllowGuestBurnNote, setAllowGuestBurnNote } from "@/api/burn-note"
 import TableList from "@/components/table/TableList.vue";
 import { parseTime } from '@/utils';
 
@@ -63,12 +69,36 @@ export default {
           ],
         },
       ],
+      allowGuestBurnNote: false,
     }
   },
   mounted() {
     this.getBurnNotes()
+    this.getAllowGuestBurnNote()
   },
   methods: {
+    getAllowGuestBurnNote() {
+      getAllowGuestBurnNote().then((res) => {
+        this.allowGuestBurnNote = res.data;
+      })
+    },
+    setAllowGuestBurnNote(allowGuestBurnNote) {
+      setAllowGuestBurnNote({allowGuestBurnNote}).then(() => {
+        if (allowGuestBurnNote) {
+          this.$message({
+            message: '已允许未登录用户创建阅后即焚笔记',
+            type: 'success'
+          });
+        } else {
+          this.$message({
+            message: '已禁止未登录用户创建阅后即焚笔记',
+            type: 'success'
+          });
+        }
+      }).catch(() => {
+        this.allowGuestBurnNote = !allowGuestBurnNote;
+      })
+    },
     getBurnNotes() {
       this.tableLoading = true
       getBurnNotes().then((res) => {
@@ -106,5 +136,15 @@ export default {
 <style lang="scss" scoped>
 @import "src/styles/setting";
 @import "src/styles/element-ui";
+
+.set-allow-guest-burn-note {
+  margin-left: 30px;
+}
+
+.box-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 </style>
