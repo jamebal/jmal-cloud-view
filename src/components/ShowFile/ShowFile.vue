@@ -924,7 +924,10 @@ export default {
           this.getFileListEnter()
           break
         case 'fileSuccess':
-          this.setOnCreateFilename(msg.data)
+          this.handleUploadSuccess(msg.data)
+          break
+        case 's3UploadFileSuccess':
+          this.handleUploadSuccess(msg.data, true)
           break
         case 'loadFileFailed':
           this.notPreviewDialogVisible = true

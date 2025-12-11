@@ -327,7 +327,6 @@ export default {
     },
 
     onS3Progress(uploadFile, progress, speed) {
-      console.log(`Uploading ${uploadFile.file.name}: ${progress}% at ${formatNetSpeed(speed, false)}`);
       // 更新文件进度
       const fileInfo = this.uploader.fileList.find(f => f.id === uploadFile.id);
       if (fileInfo) {
@@ -358,7 +357,7 @@ export default {
         this.$set(fileInfo, '_fileComplete', true);
       }
 
-      store.dispatch('updateMessage', {event: 'fileSuccess', data: uploadFile.name});
+      store.dispatch('updateMessage', {event: 's3UploadFileSuccess', data: uploadFile.name});
       this.showSuccessMsg();
 
     },
@@ -468,7 +467,6 @@ export default {
       return /[/\\]/.test(str);
     },
     async onFilesAdded(files) {
-      console.log('Files added:', files, this.uploader.filePaths);
       if (files.length === 0) {
         return;
       }

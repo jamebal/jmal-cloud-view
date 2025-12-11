@@ -1,3 +1,3 @@
-const events = ['fileProgress', 'fileSuccess', 'fileComplete', 'fileError']
+const events = ['fileProgress', 'fileSuccess', 's3UploadFileSuccess', 'fileComplete', 'fileError']
 
 export default events
