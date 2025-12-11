@@ -322,10 +322,13 @@ export default {
     },
     setOnCreateFilename(newFileName) {
       if (this.$route.query.folder) {
-        this.onCreateFilename = newFileName
-        this.getFileListEnter()
-        this.clearOnCreateFilename()
+        this.showCreateFilename(newFileName)
       }
+    },
+    showCreateFilename(newFileName) {
+      this.onCreateFilename = newFileName
+      this.getFileListEnter()
+      this.clearOnCreateFilename()
     },
     removeOperation() {
       this.permanentDelete = false

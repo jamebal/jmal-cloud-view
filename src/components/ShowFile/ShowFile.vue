@@ -926,6 +926,9 @@ export default {
         case 'fileSuccess':
           this.setOnCreateFilename(msg.data)
           break
+        case 's3UploadFileSuccess':
+          this.showCreateFilename(msg.data)
+          break
         case 'loadFileFailed':
           this.notPreviewDialogVisible = true
           this.notPreviewDialogMsg = msg.msg || '此文件不支持预览, 是否下载该文件?'
