@@ -150,7 +150,7 @@ export default {
                 break
             }
             const that = this
-            this.setOnCreateFilename(newFileName)
+            this.handleUploadSuccess(newFileName)
             setTimeout(function() {
               that.newCreateFileDialog = false
             }, 200)
@@ -304,7 +304,7 @@ export default {
           this.editingIndex = -1
         }).then(() => {
         this.fileListTableClearSelection()
-          this.setOnCreateFilename(newFileName)
+          this.handleUploadSuccess(newFileName)
         }).catch(() => {
           this.renameLoading = false
           this.editingIndex = -1
@@ -320,15 +320,14 @@ export default {
         doc.selectionEnd -= suffix.length + 1
       }
     },
-    setOnCreateFilename(newFileName) {
-      if (this.$route.query.folder) {
-        this.showCreateFilename(newFileName)
+    handleUploadSuccess(newFileName, isS3Direct = false) {
+      if (isS3Direct || this.$route.query.folder) {
+        setTimeout(() => {
+          this.onCreateFilename = newFileName
+          this.getFileListEnter()
+          this.clearOnCreateFilename()
+        }, isS3Direct ? 600 : 0)
       }
-    },
-    showCreateFilename(newFileName) {
-      this.onCreateFilename = newFileName
-      this.getFileListEnter()
-      this.clearOnCreateFilename()
     },
     removeOperation() {
       this.permanentDelete = false
@@ -431,7 +430,7 @@ export default {
         })
         .then(() => {
           this.$message.success('创建副本成功')
-          this.setOnCreateFilename(newFilename)
+          this.handleUploadSuccess(newFilename)
         })
     },
     moveOrCopy() {
