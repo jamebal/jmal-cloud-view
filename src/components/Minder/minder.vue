@@ -9,6 +9,7 @@
         <history-popover
           v-if="!hasReadOnly"
           ref="historyPopover"
+          :file-id="file.id"
           :has-history-version.sync="hasHistoryVersion"
           :history-list-popover-visible.sync="historyListPopoverVisible"
           :history-operation-loading="!loading.closed"
@@ -237,7 +238,7 @@ export default {
         dangerouslyUseHTMLString: true,
         message: `<span>&nbsp;&nbsp;${loadingInfo}</span>`
       })
-      historyApi.previewHistoryText({id: historyInfo.id}).then((res) => {
+      historyApi.previewHistoryText({id: historyInfo.id, fileId: this.file.id}).then((res) => {
         this.loading.close()
 
         if (this.historyListPopoverVisible) {
@@ -265,6 +266,7 @@ export default {
       this.viewHistoryFile({historyInfo: historyInfo, recovery: true})
     },
     cancelPreview(event, currentContext) {
+      this.$refs.historyPopover.cancelPreview()
       if (!currentContext) {
         currentContext = this.currentContext
       }

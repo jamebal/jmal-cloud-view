@@ -127,7 +127,7 @@ export function formatTime(agoTime) {
  * @param {*} size
  */
 export function formatSize(size) {
-  if (size === 0 || !size) return '0B';
+  if (size === 0 || ! size) return '0B';
 
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let index = 0;
@@ -138,7 +138,7 @@ export function formatSize(size) {
     index++;
   }
 
-  return result.toFixed(2) + units[index];
+  return parseFloat(result.toFixed(2)) + units[index];
 }
 
 /**
