@@ -16,7 +16,7 @@
         <div class="timeline-container-scrollbar">
           <div v-if="loading && fileHistoryList.length === 0" class="timeline-loading">加载中...</div>
           <div v-if="!loading && fileHistoryList.length === 0 && finished" class="timeline-empty">暂无历史版本</div>
-          <div v-for="(item, index) in fileHistoryList" :key="item.id" class="timeline-item" :style="{ backgroundColor: viewHistoryId === item.id ? '#409EFF' : 'transparent' }">
+          <div v-for="(item, index) in fileHistoryList" :key="item.id" class="timeline-item" :class="{ 'is-viewing': viewHistoryId === item.id }">
             <div class="timeline-icon">
               <el-avatar :src="imageUrl + item.metadata.operator" size="medium" icon="el-icon-user-solid"></el-avatar>
             </div>
@@ -348,6 +348,10 @@ export default {
   display: flex;
   padding: 15px 10px;
   border-radius: 12px;
+}
+
+.timeline-item.is-viewing {
+  background-color: #409EFF;
 }
 
 .timeline-icon {
