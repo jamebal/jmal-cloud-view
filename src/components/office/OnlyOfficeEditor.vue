@@ -4,7 +4,8 @@
     <history-popover
       v-if="!readOnly"
       ref="historyPopover"
-      style="right: 20px;top: 61px;position: absolute;"
+      style="right: 20px;top: 20px;position: absolute;"
+      :file-id="file.id"
       :transparent="true"
       :has-history-version.sync="hasHistoryVersion"
       :history-list-popover-visible.sync="historyListPopoverVisible"
@@ -80,7 +81,6 @@ export default {
       historyListPopoverVisible: false,
       historyPageIndex: 1,
       historyPageSize: 50,
-      viewHistory: false,
       historyOperationLoading: false,
       officeServerConfig: {
         documentServer: undefined,
@@ -185,7 +185,7 @@ export default {
     },
     viewHistoryFile({historyInfo}) {
       const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
-      const historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.id, this.$store.state.user.name, this.$store.state.user.token)
+      const historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.id, this.file.id, this.$store.state.user.name, this.$store.state.user.token)
       this.onRequestHistoryData(null, historyInfo, historyUrl)
       this.historyListPopoverVisible = false
 
@@ -240,12 +240,25 @@ export default {
       this.historyOperationLoading = false
     },
     cancelPreview() {
+      this.$refs.historyPopover.cancelPreview()
       this.reloadDocument()
     },
     reloadDocument(key) {
       this.destroyEditor()
-      this.docEditorConfig.document.key = key ? key : this.fileKey
-      this.docEditor = new DocsAPI.DocEditor(this.id, this.docEditorConfig)
+      if (key) {
+        this.fileKey = key
+      }
+      this.docEditorConfig.document.key = this.fileKey
+      this.loadOfficeBefore()
+    },
+    loadOfficeBefore() {
+      if (this.officeServerConfig.tokenEnabled) {
+        api.getOfficeJwt(this.docEditorConfig).then(res => {
+          this.loadOffice(res.data)
+        })
+      } else {
+        this.loadOffice()
+      }
     },
     onRequestHistoryData(event, historyInfo, historyUrl) {
       let historyConfig;
@@ -263,7 +276,7 @@ export default {
           return
         }
         const officeCallBackBaseUrl = fileConfig.officeCallBackBaseUrl(this.officeServerConfig.callbackServer)
-        historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.key, this.$store.state.user.name, this.$store.state.user.token)
+        historyUrl = fileConfig.previewHistoryUrl(officeCallBackBaseUrl, historyInfo.key, this.file.id, this.$store.state.user.name, this.$store.state.user.token)
         historyConfig = {
           "fileType": this.fileType,
           "key": historyInfo.key,
@@ -371,13 +384,7 @@ export default {
           this.loadOffice(res.data)
         })
       } else {
-        if (this.officeServerConfig.tokenEnabled) {
-          api.getOfficeJwt(this.docEditorConfig).then(res => {
-            this.loadOffice(res.data)
-          })
-        } else {
-          this.loadOffice()
-        }
+        this.loadOfficeBefore()
       }
 
     },

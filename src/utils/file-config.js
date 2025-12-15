@@ -78,9 +78,9 @@ export default {
     return `${baseUrl}/share-file/${file.id}/${encodeURIComponent(file.name)}`
   },
   // 预览历史文件
-  previewHistoryUrl: function(officeCallBackBaseUrl, historyId, name, token) {
+  previewHistoryUrl: function(officeCallBackBaseUrl, historyId, fileId, name, token) {
     const baseUrl = officeCallBackBaseUrl || this.baseUrl
-    return `${baseUrl}/history/preview/file?id=${historyId}&name=${name}&jmal-token=${token}`
+    return `${baseUrl}/history/preview/file?id=${historyId}&fileId=${fileId}&name=${name}&jmal-token=${token}`
   },
   // markdown里上传图片后的图片预览地址
   markdownPreviewUrl: function (path){

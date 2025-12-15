@@ -6,7 +6,7 @@
     :visible-arrow="false"
     popper-class="file-history-popover version-timeline-popover"
     placement="bottom"
-    width="400"
+    width="450"
     trigger="manual"
     @show="popoverShow"
     @hide="popoverHide"
@@ -16,7 +16,7 @@
         <div class="timeline-container-scrollbar">
           <div v-if="loading && fileHistoryList.length === 0" class="timeline-loading">加载中...</div>
           <div v-if="!loading && fileHistoryList.length === 0 && finished" class="timeline-empty">暂无历史版本</div>
-          <div v-for="(item, index) in fileHistoryList" :key="item.id" class="timeline-item">
+          <div v-for="(item, index) in fileHistoryList" :key="item.id" class="timeline-item" :class="{ 'is-viewing': viewHistoryId === item.id }">
             <div class="timeline-icon">
               <el-avatar :src="imageUrl + item.metadata.operator" size="medium" icon="el-icon-user-solid"></el-avatar>
             </div>
@@ -24,6 +24,7 @@
             <div class="timeline-content">
               <div class="timeline-header">
                 <span class="timeline-date">{{ item.metadata.time }}</span>
+                <span> {{ formatSize(item.metadata.size) }} </span>
                 <span class="version-filename" :title="item.metadata.filename">{{ item.metadata.filename }}</span>
               </div>
               <div class="timeline-second-line">
@@ -50,13 +51,13 @@
                   </el-popover>
 
                   <el-popover placement="bottom" width="310"
-                              :popper-class="'file-history-popover delete-' + item.id"
+                              :popper-class="'file-history-popover history-recovery delete-' + item.id"
                               :visible-arrow="false" trigger="click">
                     <p class="el-popconfirm__main"><i class="el-popconfirm__icon el-icon-question"
                                                       style="color: rgb(255, 153, 0);"></i>{{ '确定要删除' + item.metadata.time + '吗？这将永久删除该历史版本!'
                       }}
                     </p>
-                    <div style="text-align: right; margin: 0">
+                    <div style="text-align: right; margin: 12px">
                       <el-button round size="mini" type="text" @click="cancelDelete(item.id)">取消</el-button>
                       <el-button round type="primary" size="mini" @click="confirmDeleteHistoryFile(item.id)">确定
                       </el-button>
@@ -90,6 +91,7 @@
 
 <script>
 import historyApi from '@/api/file-history'
+import { formatSize } from '@/utils/number'
 
 export default {
   name: 'history-popover',
@@ -98,6 +100,7 @@ export default {
       type: Boolean,
       default: false
     },
+    fileId: { type: String, default: null },
     historyListPopoverVisible: { type: Boolean, default: false },
     historyOperationLoading: { type: Boolean, default: false },
     saved: { type: Boolean, default: true },
@@ -114,6 +117,7 @@ export default {
       historyPageSize: 20,
       loadApiFunction: null,
       loadApiParams: {},
+      viewHistoryId: '',
     }
   },
   computed: {
@@ -134,10 +138,12 @@ export default {
     },
   },
   methods: {
+    formatSize,
     /**
      * @public
      */
     loadHistoryList(id) {
+      this._clearViewHistoryId()
       if (!this.$store.state.user.token || !this.$store.state.user.name) return
       this.resetState()
       this.loadApiFunction = historyApi.fileHistoryList
@@ -149,13 +155,19 @@ export default {
      * @public
      */
     loadHistoryPathList(pathname) {
+      this._clearViewHistoryId()
       if (!this.$store.getters.token) return
       this.resetState()
       this.loadApiFunction = historyApi.fileHistoryPathList
       this.loadApiParams = { path: encodeURIComponent(pathname), username: this.$store.state.user.name }
       this._internalLoadHistory()
     },
-
+    cancelPreview() {
+      this._clearViewHistoryId()
+    },
+    _clearViewHistoryId() {
+      this.viewHistoryId = ''
+    },
     // --- 内部方法 ---
 
     _internalLoadHistory(isLoadMore = false) {
@@ -241,6 +253,7 @@ export default {
     },
     viewHistoryFile(historyInfo, diff, recovery) {
       this.$emit('viewHistoryFile', { historyInfo, diff, recovery })
+      this.viewHistoryId = historyInfo.id
     },
 
     cancelDelete(id) {
@@ -251,13 +264,15 @@ export default {
     },
 
     confirmRecoveryHistoryFile(historyInfo) {
+      this.viewHistoryId = historyInfo.id
       if (!this.saved) {
         this.$message({ type: 'info', message: '请先保存当前修改的内容' })
         return
       }
       this.cancelRecovery(historyInfo.id)
       this.$emit('update:historyOperationLoading', true)
-      historyApi.recoveryHistory({ id: historyInfo.id }).then((res) => {
+      historyApi.recoveryHistory({ id: historyInfo.id, fileId: this.fileId }).then((res) => {
+        this._internalLoadHistory()
         this.$emit('recoverySuccess', { historyInfo, result: res })
       })
     },
@@ -265,7 +280,7 @@ export default {
     confirmDeleteHistoryFile(id) {
       this.cancelDelete(id)
       this.$emit('update:historyOperationLoading', true)
-      historyApi.deleteHistory({ id: id }).then(() => {
+      historyApi.deleteHistory({ id: id, fileId: this.fileId }).then(() => {
         this.$emit('update:historyOperationLoading', false)
         this.$message({ message: '删除成功', type: 'success' })
         let deleteIndex = this.fileHistoryList.findIndex(fileHistory => fileHistory.id === id)
@@ -325,13 +340,18 @@ export default {
 }
 
 .timeline-container-scrollbar {
-  padding: 10px 15px 10px 20px;
+  padding: 5px;
 }
 
 .timeline-item {
   position: relative;
   display: flex;
-  padding: 15px 0;
+  padding: 15px 10px;
+  border-radius: 12px;
+}
+
+.timeline-item.is-viewing {
+  background-color: #409EFF;
 }
 
 .timeline-icon {
@@ -349,7 +369,7 @@ export default {
 
 .timeline-line {
   position: absolute;
-  left: 20px;
+  left: 30px;
   top: 45px;
   bottom: -35px;
   width: 1px;

@@ -40,9 +40,14 @@
         <span v-show="!moblie"><file-path-nav class="title-name" :path="filePathNav" @loadPath="loadPath"></file-path-nav></span>
         <div class="title-extension">
 
+          <div style="margin-right: 15px">
+            <el-button round v-if="historyVersion.metadata.time" @click="cancelPreview" size="small">取消预览</el-button>
+          </div>
+
           <history-popover
             v-if="!panelReadOnly"
             ref="historyPopover"
+            :file-id="file.id"
             :saved="!isShowUpdateBtn"
             :has-history-version.sync="hasHistoryVersion"
             :history-list-popover-visible.sync="historyListPopoverVisible"
@@ -132,7 +137,7 @@
                   :theme="lightTheme?'vs':'vs-dark'"
                   :language="item.language"
                   :diffEditor="item.hasHistoryVersion"
-                  original="..."
+                  original=""
                   :options="options"
                   @change="change($event,index)"
                   @save="save($event,index)"
@@ -452,7 +457,7 @@
           dangerouslyUseHTMLString: true,
           message: `<span>&nbsp;&nbsp;${loadingInfo}</span>`
         })
-        historyApi.previewHistoryText({id: historyInfo.id}).then((res) => {
+        historyApi.previewHistoryText({id: historyInfo.id, fileId: this.file.id}).then((res) => {
           // add new tab
           let newTab = {
             title: tab.title,
@@ -499,6 +504,38 @@
           map.abort.abort()
           map.throttle.cancel()
         }
+      },
+      cancelPreview(event, currentContext) {
+        this.$refs.historyPopover.cancelPreview()
+
+        const pathname = this.editableTabsValue
+        let currentIndex = this.editableTabs.findIndex(editable => editable.name === pathname)
+        const tab = this.editableTabs[currentIndex]
+        if (!currentContext) {
+          currentContext = this.getContentText(currentIndex)
+        }
+        // add new tab
+        let newTab = {
+          title: tab.title,
+          copyTitle: tab.copyTitle,
+          status: undefined,
+          language: tab.language,
+          name: pathname,
+          hasHistoryVersion: false,
+          historyVersion: { metadata: {} }
+        }
+        // remove
+        this.removeTab(pathname)
+        this.$nextTick(() => {
+          this.editableTabs.splice(currentIndex, 0, newTab)
+          this.setEditMap(currentIndex, currentContext)
+          this.editableTabsValue = pathname
+          if (this.historyListPopoverVisible) {
+            this.historyListPopoverVisible = false
+          }
+          this.historyVersion = {metadata: {}}
+        })
+
       },
       async requestStream(request, params, index) {
         try {
@@ -790,7 +827,7 @@
         this.editableValueMap.set(index, text)
         this.$nextTick(()=> {
           let ref = 'monacoEditor' + index
-          if (historyText) {
+          if (historyText !== undefined) {
             this.$refs[ref][0]._setModel(text, historyText)
           } else {
             this.$refs[ref][0]._setValue(text)
