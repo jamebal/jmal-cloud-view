@@ -1,7 +1,7 @@
 <template>
   <div class="three-preview-container">
     <div v-if="loading" class="overlay loading-overlay">
-      <common-loading :text="loadProgress > 0 ? `加载中 ${loadProgress}%` : '准备场景...'" />
+      <common-loading :text="loadingText" />
     </div>
 
     <div v-if="errorMsg" class="overlay error-overlay">
@@ -12,6 +12,9 @@
     </div>
 
     <div class="info-panel" v-if="!loading && !errorMsg && modelSize">
+      <div class="info-row">
+        <span> {{file.name}} </span>
+      </div>
       <div class="info-row">
         <span class="label">尺寸:</span>
         <span class="value">{{ modelSize.x }} x {{ modelSize.y }} x {{ modelSize.z }} mm</span>
@@ -77,11 +80,17 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { AMFLoader } from 'three/examples/jsm/loaders/AMFLoader.js';
 
 export default {
   name: "ThreeModelPreview",
   components: { CommonLoading },
   props: {
+    file: {
+      type: Object,
+      default: () => {}
+    },
     fileUrl: {
       type: String,
       required: true
@@ -90,14 +99,14 @@ export default {
   data() {
     return {
       loading: false,
-      loadProgress: 0,
+      loadingText: '准备场景...',
       errorMsg: '',
 
       // 状态与设置
       showWireframe: false,
       isAutoRotating: false,
       showHelpers: false,
-      modelColor: '#42b983', // 默认颜色
+      modelColor: '#ffffff', // 默认颜色
 
       modelSize: null,
 
@@ -183,7 +192,7 @@ export default {
 
       this.loading = true;
       this.errorMsg = '';
-      this.loadProgress = 0;
+      this.loadingText = '加载文件...';
       this.showWireframe = false;
       this.modelSize = null;
 
@@ -193,7 +202,12 @@ export default {
 
       const onProgress = (xhr) => {
         if (xhr.lengthComputable) {
-          this.loadProgress = Math.round((xhr.loaded / xhr.total) * 100);
+          const percent = Math.round((xhr.loaded / xhr.total) * 100);
+          if (percent >= 100) {
+            this.loadingText = '正在解析模型...';
+          } else {
+            this.loadingText = `加载文件 ${percent}%`;
+          }
         }
       };
 
@@ -203,40 +217,83 @@ export default {
         this.loading = false;
       };
 
-      if (ext === 'stl') {
-        const loader = new STLLoader();
-        loader.load(this.fileUrl, (geometry) => {
-          geometry.center();
+      // 定义通用材质生成器
+      const getMaterial = () => {
+        return new THREE.MeshStandardMaterial({
+          roughness: 0.5,
+          metalness: 0.1,
+          side: THREE.DoubleSide,
+          wireframe: this.showWireframe
+        });
+      };
 
-          // 使用当前选中的颜色
-          const material = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(this.modelColor),
-            roughness: 0.5,
-            metalness: 0.1,
-            side: THREE.DoubleSide
-          });
+      // 处理不同格式
+      switch (ext) {
+        case 'stl':
+          new STLLoader().load(this.fileUrl, (geometry) => {
+            geometry.center();
+            const mesh = new THREE.Mesh(geometry, getMaterial());
+            // STL通常需要旋转校正
+            mesh.rotation.x = -Math.PI / 2;
+            mesh.updateMatrixWorld();
+            this.addToSceneAndFit(mesh);
+          }, onProgress, onError);
+          break;
 
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.rotation.x = -Math.PI / 2;
-          mesh.updateMatrixWorld();
+        case 'obj':
+          new OBJLoader().load(this.fileUrl, (group) => {
+            group.updateMatrixWorld();
+            this.addToSceneAndFit(group);
+          }, onProgress, onError);
+          break;
 
-          this.addToSceneAndFit(mesh);
-        }, onProgress, onError);
+        case '3mf':
+          new ThreeMFLoader().load(this.fileUrl, (group) => {
+            group.rotation.x = -Math.PI / 2;
+            group.updateMatrixWorld();
+            this.addToSceneAndFit(group);
+          }, onProgress, onError);
+          break;
 
-      } else if (ext === '3mf') {
-        const loader = new ThreeMFLoader();
-        loader.load(this.fileUrl, (group) => {
-          group.rotation.x = -Math.PI / 2;
-          group.updateMatrixWorld();
-          // 3MF 可能自带颜色
-          this.addToSceneAndFit(group);
-        }, onProgress, onError);
-      } else {
-        this.errorMsg = `不支持的格式: .${ext}`;
-        this.loading = false;
+        case 'amf':
+          new AMFLoader().load(this.fileUrl, (group) => {
+            group.rotation.x = -Math.PI / 2;
+            group.updateMatrixWorld();
+            this.addToSceneAndFit(group);
+          }, onProgress, onError);
+          break;
+
+        default:
+          this.errorMsg = `不支持的格式: .${ext}`;
+          this.loading = false;
       }
     },
+    /**
+     * 统一修正材质、中心点等
+     */
+    normalizeGroup(group, material) {
+      const box = new THREE.Box3().setFromObject(group);
+      const center = box.getCenter(new THREE.Vector3());
 
+      // 归一化位置，使其居中
+      group.position.x -= center.x;
+      group.position.y -= center.y;
+      group.position.z -= center.z;
+
+      // 遍历应用材质
+      group.traverse((child) => {
+        if (child.isMesh) {
+          child.material = material;
+          // 开启阴影（可选）
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+    },
+
+    /**
+     * 颜色变更逻辑
+     */
     handleColorChange(event) {
       const colorHex = event.target.value;
       this.modelColor = colorHex;
@@ -465,7 +522,7 @@ export default {
   font-family: Consolas, monospace;
   pointer-events: none;
 }
-.info-row { display: flex; gap: 8px; }
+.info-row { display: flex; gap: 8px; justify-content: center }
 .label { opacity: 0.7; }
 
 /* 工具栏 */

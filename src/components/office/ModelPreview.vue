@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div v-if="show" class="viewer-container" :style="{ width: width + 'px', height: height + 'px' }">
+    <div v-if="show" class="viewer-container" :style="{ width: width + 'px', height: height + 'px' }">'
+      <div class="file-name">
+        <div>{{ file.name }}</div>
+      </div>
       <model-viewer
         ref="modelViewer"
         class="model-viewer"
@@ -32,6 +35,10 @@ export default {
     CommonLoading
   },
   props: {
+    file: {
+      type: Object,
+      default: () => {}
+    },
     fileUrl: {
       type: String,
       default: ''
@@ -77,5 +84,17 @@ export default {
   width: 100%;
   height: 100%;
   --poster-color: transparent;
+}
+
+.file-name {
+  font-size: 14px;
+  color: var(--text-color);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
 }
 </style>
