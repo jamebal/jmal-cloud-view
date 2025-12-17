@@ -62,31 +62,6 @@ module.exports = {
         '@': resolve('src')
       }
     },
-    devtool: 'source-map',
-    plugins: [
-      new CopyWebpackPlugin([
-        // 拷贝mxcad wasm 相关的核心代码 mxcad默认请求的路径是 /* 所以 需要把文件放dist2d下
-        {
-          from: "node_modules/mxcad/dist/wasm/2d",
-          to: path.resolve(__dirname, "dist/wasm/2d"),
-          flatten: true,
-          toType: "dir"
-        },
-        {
-          from: "node_modules/mxcad/dist/wasm/2d-st",
-          to: path.resolve(__dirname, "dist/wasm/2d-st"),
-          flatten: true,
-          toType: "dir"
-        },
-        // 必须要字体文件来显示图纸中的文字，mxcad库默认请求URL路径为 /fonts/* 所以需要放在dist/fonts下
-        {
-          from: "node_modules/mxcad/dist/fonts",
-          to: path.resolve(__dirname, "dist/fonts"),
-          flatten: true,
-          toType: "dir"
-        },
-      ])
-    ],
   },
   chainWebpack(config) {
     config.plugins.delete('preload') // TODO: need test

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAD Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .viewer-container {
+            position: relative;
+            background: #2c2c2c;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            z-index: 0;
+            outline: none;
+            cursor: grab !important;
+            cursor: -webkit-grab !important;
+        }
+        #canvas:active {
+            cursor: grabbing !important;
+            cursor: -webkit-grabbing !important;
+        }
+
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 100;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .error-text {
+            color: #ff6b6b;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 4px;
+            max-width: 80%;
+        }
+
+        .ml-cli-container {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .zoom-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #23272f;
+            color: white;
+            border: 1px solid #444;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            z-index: 50;
+        }
+        .zoom-btn:hover {
+            background: #353b45;
+            transform: scale(1.05);
+        }
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+  <script type="module" crossorigin src="./assets/main-IcK0v6Ey.js"></script>
+</head>
+<body>
+<div class="viewer-container">
+    <div id="loading-overlay">
+        <div class="loading-text" id="statusText">等待加载...</div>
+    </div>
+
+    <button id="btnZoomFit" class="zoom-btn" title="缩放居中">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+        </svg>
+    </button>
+
+    <canvas id="canvas"></canvas>
+</div>
+</body>
+</html>

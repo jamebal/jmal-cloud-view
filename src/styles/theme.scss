@@ -90,6 +90,14 @@
   // burn note page
   --burn-note-content-bg-color: #f5f5f5;
   --tip-bg-color: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+
+  // model preview
+  --model-preview-bg-color: #f0f0f0;
+  --model-preview-spinner-bg-color: #e0e0e0;
+  --model-preview-control-btn-border-color: #dcdfe6;
+  --model-preview-control-btn-hover-border-color: #c6e2ff;
+  --model-preview-control-btn-hover-bg-color: #ecf5ff;
+  --model-preview-control-btn-bg-color: rgba(255, 255, 255, 0.95);
 }
 
 html.dark {
@@ -184,4 +192,12 @@ html.dark {
   // burn note page
   --burn-note-content-bg-color: #2d2d2d;
   --tip-bg-color: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+
+  // model preview
+  --model-preview-bg-color: #0d1117;
+  --model-preview-spinner-bg-color: #5a5a5a;
+  --model-preview-control-btn-border-color: #323235;
+  --model-preview-control-btn-bg-color: rgba(0, 0 0, 0.95);
+  --model-preview-control-btn-hover-border-color: #213d5b;
+  --model-preview-control-btn-hover-bg-color: #18222c;
 }

@@ -1,37 +1,41 @@
 <template>
   <div>
-    <div v-if="show">
-      <model-viewer ref="modelViewer" class="model-viewer" alt="" :src="fileUrl" autoplay animation-name="Running" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
+    <div v-if="show" class="viewer-container" :style="{ width: width + 'px', height: height + 'px' }">
+      <model-viewer
+        ref="modelViewer"
+        class="model-viewer"
+        :src="fileUrl"
+        autoplay
+        animation-name="Running"
+        shadow-intensity="1"
+        camera-controls
+        touch-action="pan-y"
+        reveal="auto"
+      >
+        <common-loading slot="poster" text="资源加载中..." />
+
+        <!-- 隐藏原生进度条 -->
+        <div slot="progress-bar"></div>
+
+      </model-viewer>
     </div>
   </div>
 </template>
 
 <script>
-
 import { loadScript } from '@/utils/load-script'
+import CommonLoading from '@/components/loading/CommonLoading.vue'
 
 export default {
   name: "ModelPreview",
-  components: {},
+  components: {
+    CommonLoading
+  },
   props: {
-    file: {
-      type: Object,
-      default: function () {
-        return {}
-      }
-    },
     fileUrl: {
       type: String,
       default: ''
-    },
-    shareId: {
-      type: String,
-      default: ''
-    },
-    readOnly: {
-      type: Boolean,
-      default: false
-    },
+    }
   },
   data() {
     return {
@@ -39,10 +43,6 @@ export default {
       width: window.innerWidth,
       height: window.innerHeight
     }
-  },
-  computed: {
-  },
-  created() {
   },
   mounted() {
     const modelViewerJsUrl = window.location.origin + '/resource/model-viewer.min.js';
@@ -54,9 +54,12 @@ export default {
     onRead() {
       this.$emit('onReady')
       this.show = true
+
       this.$nextTick(() => {
-        this.$refs.modelViewer.style.width = this.width + "px"
-        this.$refs.modelViewer.style.height = this.height + "px"
+        if (this.$refs.modelViewer) {
+          this.$refs.modelViewer.style.width = "100%";
+          this.$refs.modelViewer.style.height = "100%";
+        }
       })
     }
   },
@@ -64,7 +67,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.viewer-container {
+  position: relative;
+  background-color: var(--model-preview-bg-color);
+  overflow: hidden;
+}
+
 .model-viewer {
-  position: absolute;
+  width: 100%;
+  height: 100%;
+  --poster-color: transparent;
 }
 </style>
