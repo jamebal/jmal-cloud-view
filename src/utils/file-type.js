@@ -10,7 +10,7 @@ export const suffix = {
   compressedFile: [
     'zip','tar','7z', 'rar', 'jar','tar.gz','tgz','tar.bz2'
   ],
-  iframePreviewFile: ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf', 'dwg', 'excalidraw']
+  iframePreviewFile: ['pdf', 'csv', 'drawio', 'mind', 'glb', 'gltf', 'dwg', 'excalidraw', 'stl', '3mf', 'amf', 'obj']
 }
 
 monaco.languages.getLanguages().forEach(language => {
@@ -103,6 +103,10 @@ iconClass.set('gltf','file-glb')
 iconClass.set('epub','file-epub')
 iconClass.set('dwg','file-dwg')
 iconClass.set('sgmodule','surge')
+iconClass.set('3mf','threedfile')
+iconClass.set('stl','threedfile')
+iconClass.set('amf','threedfile')
+iconClass.set('obj','threedfile')
 
 export function findIconClass(file){
   if(!file){

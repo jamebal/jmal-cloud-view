@@ -23,12 +23,13 @@
          </div>
 
           <div class="wrapper">
-            <CADPreview v-if="fileType === 'cad'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></CADPreview>
-            <pdf-preview v-else-if="fileType === 'pdf'" :file="file" :shareId="shareId" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
+            <CADPreview v-if="fileType === 'cad'" :file="file" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></CADPreview>
+            <pdf-preview v-else-if="fileType === 'pdf'" :file="file" :file-url="fileUrl" @onReady="onReady"></pdf-preview>
             <drawio v-else-if="fileType === 'drawio'" v-show="fileReady" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close" @update-style="updateCloseStyle"></drawio>
             <excalidraw-editor v-else-if="fileType === 'excalidraw'" v-show="fileReady" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close" @update-style="updateCloseStyle"></excalidraw-editor>
             <my-mind-editor v-else-if="fileType === 'mind'" :file="file" :shareId="shareId" :read-only="readOnly" @onEdit="onEdit" @onReady="onReady" @onClose="close"></my-mind-editor>
-            <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></model-preview>
+            <model-preview v-else-if="fileType === 'glTF/GLB'" :file="file" :file-url="fileUrl" @onReady="onReady"></model-preview>
+            <three-model-preview v-else-if="fileType === 'threeModelPreview'" :file="file" :file-url="fileUrl" :shareId="shareId" @onReady="onReady"></three-model-preview>
             <only-office-editor ref="officeEditor" v-else-if="fileType === 'office'" :file="file" :file-url="fileUrl" :shareId="shareId" :sharer="sharer" :read-only="readOnly" @onEdit="onEdit" @manualSave="manualSave" @onClose="close" @onBeforeClose="beforeClose" @onReady="onReady" @update-style="updateCloseStyle"></only-office-editor>
             <iframe-content-preview v-else :file="file" :fileHandler="fileHandler" :file-url="fileUrl" @onReady="onReady" @loadFileFailed="loadFileFailed"></iframe-content-preview>
           </div>
@@ -43,6 +44,7 @@ import ExcalidrawEditor from '@/components/office/ExcalidrawEditor.vue'
 import ModelPreview from '@/components/office/ModelPreview.vue'
 import OnlyOfficeEditor from "@/components/office/OnlyOfficeEditor";
 import MessageDialog from "@/components/message/MessageDialog";
+import ThreeModelPreview from '@/components/office/ThreeModelPreview.vue'
 import IframeContentPreview from '@/components/preview/IframeContentPreview.vue'
 import fileConfig from "@/utils/file-config";
 import PdfPreview from "@/components/office/PdfPreview";
@@ -51,6 +53,7 @@ import Drawio from "@/components/office/Drawio";
 export default {
   name: 'IframePreview',
   components: {
+    ThreeModelPreview,
     ExcalidrawEditor, IframeContentPreview, ModelPreview, Drawio, PdfPreview, MessageDialog, OnlyOfficeEditor,
     MyMindEditor: () => import('@/components/Minder/minder'),
     CADPreview: () => import('@/components/preview/CADPreview.vue')
@@ -170,6 +173,11 @@ export default {
         case 'gltf':
         case 'glb':
           return 'glTF/GLB'
+        case 'stl':
+        case '3mf':
+        case 'amf':
+        case 'obj':
+          return 'threeModelPreview'
         case 'office':
         case 'csv':
           return 'office'
