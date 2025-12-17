@@ -26,7 +26,7 @@
 <script>
 
 export default {
-  name: "IframeContentPreview",
+  name: "CADPreview",
   props: {
     fileUrl: {
       type: String,
