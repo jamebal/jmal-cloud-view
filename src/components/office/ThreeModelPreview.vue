@@ -269,29 +269,6 @@ export default {
       }
     },
     /**
-     * 统一修正材质、中心点等
-     */
-    normalizeGroup(group, material) {
-      const box = new THREE.Box3().setFromObject(group);
-      const center = box.getCenter(new THREE.Vector3());
-
-      // 归一化位置，使其居中
-      group.position.x -= center.x;
-      group.position.y -= center.y;
-      group.position.z -= center.z;
-
-      // 遍历应用材质
-      group.traverse((child) => {
-        if (child.isMesh) {
-          child.material = material;
-          // 开启阴影（可选）
-          child.castShadow = true;
-          child.receiveShadow = true;
-        }
-      });
-    },
-
-    /**
      * 颜色变更逻辑
      */
     handleColorChange(event) {
@@ -329,9 +306,7 @@ export default {
         z: Number(size.z.toFixed(2))
       };
 
-      object.position.x += (object.position.x - center.x);
-      object.position.y += (object.position.y - center.y);
-      object.position.z += (object.position.z - center.z);
+      object.position.sub(center);
 
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = this.camera.fov * (Math.PI / 180);
