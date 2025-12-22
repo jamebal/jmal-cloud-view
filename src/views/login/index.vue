@@ -151,7 +151,7 @@ export default {
         netdiskName: this.$store.state.user.netdiskName,
         netdiskLogo: this.$store.state.user.netdiskLogo,
         footerHtml: '',
-        loginBackgroundUrl: localStorage.getItem('loginBackgroundUrl') || '',
+        loginBackgroundUrl: getLoginBackgroundUrl() || '',
       },
       loginForm: {
         username: this.$route.query.username || '',
@@ -218,9 +218,11 @@ export default {
         })
       }
       if (this.websiteRecord.personalization) {
-        if (this.websiteRecord.personalization.loginBackgroundUrl) {
-          setLoginBackgroundUrl(this.websiteRecord.personalization.loginBackgroundUrl)
+        const newUrl = this.websiteRecord.personalization.loginBackgroundUrl
+        if (newUrl !== getLoginBackgroundUrl()) {
+          this.backgroundImg.backgroundImage = `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${newUrl})`
         }
+        setLoginBackgroundUrl(newUrl)
       }
     })
   },

@@ -22,7 +22,7 @@ export default {
         this.$store.dispatch('user/setLogo', {netdiskName: netdiskName, netdiskLogo: netdiskLogo})
       }
       if (personalization && personalization.loginBackgroundUrl) {
-        if (personalization.loginBackgroundUrl !== localStorage.getItem('loginBackgroundUrl')) {
+        if (personalization.loginBackgroundUrl !== getLoginBackgroundUrl()) {
           this.appStyle = {
             '--page-background-image': `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${personalization.loginBackgroundUrl})`
           }
