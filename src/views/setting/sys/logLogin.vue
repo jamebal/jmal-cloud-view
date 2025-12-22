@@ -19,7 +19,7 @@ export default {
         {prop: 'ip',label: 'IP地址', sortable: 'custom'},
         {prop: 'ipInfo', label: '归属地', noScope: true, align: 'left',
           formatData: (ipInfo)=> {
-            return `${ipInfo.country || ''} ${ipInfo.city || ''}`
+            return ipInfo ? [ipInfo.country, ipInfo.city].filter(Boolean).join(' ') : '';
           }
         },
         {prop: 'operatingSystem',label: '操作系统', sortable: 'custom'},

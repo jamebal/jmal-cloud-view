@@ -80,7 +80,7 @@ export default {
         {prop: 'username', label: '账号', width: 105, sortable: 'custom'},
         {prop: 'ipInfo', label: 'IP归属地', width: 130, noScope: true, align: 'center',
           formatData: (ipInfo)=> {
-            return `${ipInfo.country || ''} ${ipInfo.city || ''}`
+            return ipInfo ? [ipInfo.country, ipInfo.city].filter(Boolean).join(' ') : '';
           }
         },
         {prop: 'filepath', label: '文件', sortable: 'custom'},
