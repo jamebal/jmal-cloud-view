@@ -17,7 +17,11 @@ export default {
         {prop: 'username',label: '账号', sortable: 'custom'},
         {prop: 'showName',label: '用户名', sortable: 'custom'},
         {prop: 'ip',label: 'IP地址', sortable: 'custom'},
-        {prop: 'deviceModel',label: '设备型号', sortable: 'custom'},
+        {prop: 'ipInfo', label: '归属地', noScope: true, align: 'left',
+          formatData: (ipInfo)=> {
+            return `${ipInfo.country || ''} ${ipInfo.city || ''}`
+          }
+        },
         {prop: 'operatingSystem',label: '操作系统', sortable: 'custom'},
         {prop: 'browser',label: '浏览器', sortable: 'custom'},
         {prop: 'status', minWidth: 80, label: '状态', tag: true,
