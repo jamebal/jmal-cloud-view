@@ -4,12 +4,22 @@ const titleKey = 'netdisk-name'
 
 const logoKey = 'netdisk-logo'
 
+const loginBackgroundUrlKey = 'login-background-url'
+
 export function getLogoName() {
   return localStorage.getItem(titleKey)
 }
 
 export function getLogo() {
   return localStorage.getItem(logoKey)
+}
+
+export function getLoginBackgroundUrl() {
+  return localStorage.getItem(loginBackgroundUrlKey)
+}
+
+export function setLoginBackgroundUrl(url) {
+  localStorage.setItem(loginBackgroundUrlKey, url)
 }
 
 export function setLogo(logoName, logo) {

@@ -1,11 +1,14 @@
 import { getWebsiteRecord } from '@/api/setting-api'
+import { getLoginBackgroundUrl, setLoginBackgroundUrl } from '@/utils/logo'
 
 export default {
   data() {
     return {
-      netdiskName: undefined,
-      netdiskLogo: undefined,
-      appStyle: {},
+      netdiskName: this.$store.state.user.netdiskName,
+      netdiskLogo: this.$store.state.user.netdiskLogo,
+      appStyle: {
+        '--page-background-image': `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${getLoginBackgroundUrl()})`
+      },
     }
   },
   computed: {
@@ -19,9 +22,12 @@ export default {
         this.$store.dispatch('user/setLogo', {netdiskName: netdiskName, netdiskLogo: netdiskLogo})
       }
       if (personalization && personalization.loginBackgroundUrl) {
-        this.appStyle = {
-          '--page-background-image': `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${personalization.loginBackgroundUrl})`
+        if (personalization.loginBackgroundUrl !== getLoginBackgroundUrl()) {
+          this.appStyle = {
+            '--page-background-image': `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${personalization.loginBackgroundUrl})`
+          }
         }
+        setLoginBackgroundUrl(personalization.loginBackgroundUrl)
       }
     })
   }

@@ -113,6 +113,7 @@
 import { getWebsiteRecord } from "@/api/setting-api"
 import { hasUser, initialization } from '@/api/user'
 import Logo from "@/components/Logo"
+import { getLoginBackgroundUrl, setLoginBackgroundUrl } from '@/utils/logo'
 import MfaConfig from '@/views/setting/sys/userSetting/mfaConfig.vue'
 
 export default {
@@ -147,10 +148,10 @@ export default {
       websiteRecord: {
         copyright: '',
         recordPermissionNum: '',
-        netdiskName: '',
+        netdiskName: this.$store.state.user.netdiskName,
         netdiskLogo: this.$store.state.user.netdiskLogo,
         footerHtml: '',
-        loginBackgroundUrl: '',
+        loginBackgroundUrl: getLoginBackgroundUrl() || '',
       },
       loginForm: {
         username: this.$route.query.username || '',
@@ -173,7 +174,7 @@ export default {
       mfaRequired: false,
       mfaForceEnable: false,
       backgroundImg: {
-        backgroundImage: `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${require("@/assets/img/logo-bg.webp")})`,
+        backgroundImage: '',
         width: '100%',
         height: '100%',
         position: 'absolute',
@@ -194,6 +195,9 @@ export default {
     }
   },
   mounted() {
+
+    this.backgroundImg.backgroundImage = `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${getLoginBackgroundUrl() || require("@/assets/img/logo-bg.webp")})`
+
     hasUser().then((data)=>{
       if(data.count < 1){
         this.initialize = true
@@ -214,9 +218,11 @@ export default {
         })
       }
       if (this.websiteRecord.personalization) {
-        if (this.websiteRecord.personalization.loginBackgroundUrl) {
-          this.backgroundImg.backgroundImage = `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${this.websiteRecord.personalization.loginBackgroundUrl})`
+        const newUrl = this.websiteRecord.personalization.loginBackgroundUrl
+        if (newUrl !== getLoginBackgroundUrl()) {
+          this.backgroundImg.backgroundImage = `linear-gradient(var(--login-page-gb-color), var(--login-page-gb-color)), url(${newUrl})`
         }
+        setLoginBackgroundUrl(newUrl)
       }
     })
   },
