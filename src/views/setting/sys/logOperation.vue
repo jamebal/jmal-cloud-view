@@ -78,7 +78,11 @@ export default {
     return {
       tableHeader: [
         {prop: 'username', label: '账号', width: 105, sortable: 'custom'},
-        {prop: 'ip', label: 'IP地址', width: 130, sortable: 'custom'},
+        {prop: 'ipInfo', label: 'IP归属地', width: 130, noScope: true, align: 'center',
+          formatData: (ipInfo)=> {
+            return ipInfo ? [ipInfo.country, ipInfo.city].filter(Boolean).join(' ') : '';
+          }
+        },
         {prop: 'filepath', label: '文件', sortable: 'custom'},
         {prop: 'operationFun', label: '操作功能', sortable: 'custom'},
         {prop: 'url', label: '请求地址', sortable: 'custom'},
