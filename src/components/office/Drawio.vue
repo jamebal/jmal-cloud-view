@@ -387,7 +387,4 @@ export default {
   pointer-events: none;
 }
 .loading-overlay, .error-overlay { pointer-events: auto; }
-.error-overlay { background: var(--apple-shadow-color); }
-.error-content { color: #f56c6c; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.error-icon { font-size: 32px; }
 </style>
