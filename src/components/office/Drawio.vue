@@ -1,5 +1,10 @@
 <template>
   <div class="drawio-content">
+
+    <div v-if="drawioFileLoading" class="overlay loading-overlay">
+      <common-loading></common-loading>
+    </div>
+
     <div class="drawio-title">
       <div class="drawio-title-name" :style="{'color': saved ? 'var(--text-color-hover)': '#ff8200'}">{{title}}</div>
       <div class="drawio-operation">
@@ -32,11 +37,12 @@ import api from '@/api/file-api'
 import txtApi from "@/api/markdown-api"
 import HistoryPopover from "@/components/HistoryPopover/index.vue";
 import historyApi from "@/api/file-history";
+import CommonLoading from '@/components/loading/CommonLoading.vue'
 import {mapState} from "vuex";
 
 export default {
   name: "Drawio",
-  components: {HistoryPopover},
+  components: { CommonLoading, HistoryPopover},
   props: {
     file: {
       type: Object,
@@ -72,6 +78,7 @@ export default {
       loading: {
         closed: true
       },
+      drawioFileLoading: false,
     }
   },
   computed: {
@@ -117,6 +124,8 @@ export default {
           if (!this.drawioUrlValid) {
             return
           }
+          this.drawioFileLoading = true
+          this.$emit('onReady')
           this.file.path = res.data.path
           this.xml = res.data.contentText
           if (this.bakData === res.data.contentText) {
@@ -245,17 +254,6 @@ export default {
         this.saveBtnUpdating = false
       })
     },
-    onSwitchTheme() {
-      let isDarkMode = false;
-      let linkElements = this.$refs.myFlow.contentWindow.document.getElementsByTagName("link");
-      for (let i = 0; i < linkElements.length; i++) {
-        let link = linkElements[i];
-        if (link.href.includes("styles/dark.css")) {
-          isDarkMode = true;
-          break;
-        }
-      }
-    },
     handleMessage(event) {
       const editWindow = this.$refs.myFlow.contentWindow
       if (event.source !== editWindow) {
@@ -266,21 +264,11 @@ export default {
       switch (payload.event) {
         case "init":
           this.ready = true
-          this.$emit('onReady')
           this.updateContent()
           let menuBar = doc.querySelector('.geMenubarContainer .geMenubar')
           if (menuBar) {
-            let helpMenu = menuBar.childNodes[5]
             if (this.$refs.historyPopover) {
               doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
-            }
-            helpMenu.style.display = 'none'
-          }
-          let toolbar = doc.querySelector('.geToolbarContainer')
-          if (toolbar) {
-            let elementTheme = toolbar.querySelector('[title="主题"][class="geButton geAdaptiveAsset"]');
-            if (elementTheme) {
-              elementTheme.addEventListener('click', this.onSwitchTheme)
             }
           }
           break
@@ -288,6 +276,7 @@ export default {
           if (!this.xml) {
             break
           }
+          this.drawioFileLoading = false
           if (this.xml.length < 1) {
             editWindow.postMessage(JSON.stringify({
               action: "template"
@@ -384,4 +373,18 @@ export default {
     padding: 0;
   }
 }
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+.loading-overlay, .error-overlay { pointer-events: auto; }
 </style>
