@@ -265,6 +265,12 @@ export default {
         case "init":
           this.ready = true
           this.updateContent()
+          let menuBar = doc.querySelector('.geMenubarContainer .geMenubar')
+          if (menuBar) {
+            if (this.$refs.historyPopover) {
+              doc.addEventListener('click', this.$refs.historyPopover.onGlobalClick)
+            }
+          }
           break
         case "load":
           if (!this.xml) {
