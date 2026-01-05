@@ -273,10 +273,10 @@ export default {
           }
           break
         case "load":
+          this.drawioFileLoading = false
           if (!this.xml) {
             break
           }
-          this.drawioFileLoading = false
           if (this.xml.length < 1) {
             editWindow.postMessage(JSON.stringify({
               action: "template"
