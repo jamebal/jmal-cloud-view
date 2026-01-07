@@ -202,7 +202,7 @@ export default {
       resolveFilesAddedPromise: null, // 用于等待获取上传参数
       params: {},
       // S3直传相关
-      useS3Direct: true, // 是否启用S3直传模式
+      useS3Direct: null, // 是否启用S3直传模式，未收到uploaderChunkSize前不确定
       s3Uploader: null,
     }
   },
@@ -491,7 +491,7 @@ export default {
     async doFilesAdded(files) {
       let filenames = files.map(file => file.name)
       const paths = Object.keys(this.uploader.filePaths)
-      if (paths.length > 0 && this.useS3Direct) {
+      if (paths.length > 0 && true == this.useS3Direct) {
         // 暂不支持文件夹上传
         this.$message({
           message: 'S3直传模式下暂不支持文件夹上传',
@@ -567,7 +567,7 @@ export default {
       }
 
       // 判断是否使用S3直传
-      if (this.useS3Direct) {
+      if (true == this.useS3Direct) {
         // 使用S3直传模式
         await this.doS3DirectUpload();
       } else {
