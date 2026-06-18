@@ -1,125 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CAD Viewer</title>
+    <title>CAD Simple Viewer Example</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            height: 100vh;
-            overflow: hidden;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f5f5f5;
+        height: 100vh;
+        overflow: hidden;
+      }
 
-        .viewer-container {
-            position: relative;
-            background: #2c2c2c;
-            width: 100vw;
-            height: 100vh;
-        }
+      .file-input-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+      
+      .file-input-container.loaded {
+        top: 2rem;
+        left: 2rem;
+        transform: none;
+      }
+      
+      .file-fab {
+        pointer-events: auto;
+        background: #23272f;
+        color: #e0e0e0;
+        border: none;
+        border-radius: 12px;
+        width: 80px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        outline: none;
+        padding: 0;
+        position: relative;
+      }
+      
+      .file-input-container.loaded .file-fab {
+        width: 40px;
+        height: 32px;
+      }
+      
+      .file-fab:hover {
+        background: #353b45;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+      }
+      .file-fab input[type="file"] {
+        display: none;
+      }
+      .file-fab-label {
+        margin-top: 0.5rem;
+        color: #fff;
+        font-size: 1.2rem;
+        text-align: center;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        transition: all 0.3s ease;
+      }
+      
+      .file-input-container.loaded .file-fab-label {
+        font-size: 1rem;
+      }
+      
+      .file-icon {
+        transition: all 0.3s ease;
+      }
+      
+      .file-input-container.loaded .file-icon {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .file-fab svg {
+        display: block;
+        margin: 0 auto;
+      }
+      
+      .button-group {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+      }
+      
+      .file-input-container.loaded .button-group {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        max-width: min(90vw, 520px);
+        justify-content: flex-start;
+      }
 
-        #canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100% !important;
-            height: 100% !important;
-            display: block;
-            z-index: 0;
-            outline: none;
-            cursor: grab !important;
-            cursor: -webkit-grab !important;
-        }
-        #canvas:active {
-            cursor: grabbing !important;
-            cursor: -webkit-grabbing !important;
-        }
+      .file-input-container.loading-file .button-container.entry-actions {
+        display: none;
+      }
 
-        #loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            z-index: 100;
-        }
+      /* Must beat .button-container { display: flex } on the same element */
+      .button-container.export-actions {
+        display: none;
+      }
 
-        .loading-text {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
+      .file-input-container.show-export .button-container.export-actions {
+        display: flex;
+      }
 
-        .error-text {
-            color: #ff6b6b;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
-            border-radius: 4px;
-            max-width: 80%;
-        }
+      .file-fab:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
 
-        .ml-cli-container {
-            display: none !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
+      .file-fab:disabled:hover {
+        background: #23272f;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      }
+      
+      .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .file-input-container.hide {
+        display: none;
+      }
 
-        .zoom-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #23272f;
-            color: white;
-            border: 1px solid #444;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: all 0.2s;
-            z-index: 50;
-        }
-        .zoom-btn:hover {
-            background: #353b45;
-            transform: scale(1.05);
-        }
-        .zoom-btn:active {
-            transform: scale(0.95);
-        }
+      body.preview-mode .file-input-container,
+      body.preview-mode .ml-cli-container {
+        display: none !important;
+      }
+
+      .status-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 10000;
+        transform: translate(-50%, -50%);
+        padding: 0.875rem 1.25rem;
+        border-radius: 8px;
+        background: rgba(24, 28, 35, 0.88);
+        color: #fff;
+        font-size: 1rem;
+        line-height: 1.4;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+        pointer-events: none;
+      }
+
+      .status-message:empty,
+      .status-message[hidden] {
+        display: none;
+      }
+
+      .view-controls {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 20;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .view-control-button {
+        pointer-events: auto;
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(24, 28, 35, 0.88);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: background 0.2s ease, opacity 0.2s ease;
+      }
+
+      .view-control-button:hover:not(:disabled) {
+        background: rgba(42, 48, 58, 0.94);
+      }
+
+      .view-control-button:disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+      }
+
+      .viewer-container {
+        flex: 1;
+        position: relative;
+        background: #2c2c2c;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #cad-container {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
     </style>
-  <script type="module" crossorigin src="./assets/main-IcK0v6Ey.js"></script>
-</head>
-<body>
-<div class="viewer-container">
-    <div id="loading-overlay">
-        <div class="loading-text" id="statusText">等待加载...</div>
+    <script type="module" crossorigin src="./assets/main-CJi3x6tL.js"></script>
+  </head>
+  <body>
+    <div class="viewer-container">
+      <div class="file-input-container" id="fileInputContainer">
+        <div class="button-group">
+          <div class="button-container entry-actions" id="openButtonContainer">
+            <label class="file-fab" id="fileFab">
+              <input type="file" id="fileInputElement" accept=".dxf,.dwg" />
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="file-icon">
+                <path d="M3 6.5V15a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 17 15V7.5A1.5 1.5 0 0 0 15.5 6H7.414a1.5 1.5 0 0 1-1.06-.44l-1.414-1.414A1.5 1.5 0 0 0 4.586 4H4.5A1.5 1.5 0 0 0 3 5.5V6.5z"/>
+                <path d="M8 11v2m0 0v-2m0 2h4m-4 0h4"/>
+              </svg>
+            </label>
+            <div class="file-fab-label">Open</div>
+          </div>
+          <div class="button-container entry-actions" id="newButtonContainer">
+            <button class="file-fab" id="newDrawingButton">
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="file-icon">
+                <path d="M10 3v14M3 10h14"/>
+              </svg>
+            </button>
+            <div class="file-fab-label">New</div>
+          </div>
+          <div class="button-container export-actions">
+            <button class="file-fab" id="exportHtmlButton" type="button" disabled title="Export HTML (chtml)">
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="file-icon">
+                <path d="M4 4h12v12H4z"/>
+                <path d="M7 8h6M7 11h4"/>
+              </svg>
+            </button>
+            <div class="file-fab-label">HTML</div>
+          </div>
+          <div class="button-container export-actions">
+            <button class="file-fab" id="exportPdfButton" type="button" disabled title="Export PDF (cpdf)">
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="file-icon">
+                <path d="M5 4h7l3 3v9H5z"/>
+                <path d="M12 4v3h3"/>
+              </svg>
+            </button>
+            <div class="file-fab-label">PDF</div>
+          </div>
+          <div class="button-container export-actions">
+            <button class="file-fab" id="exportSvgButton" type="button" disabled title="Export SVG (csvg)">
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="file-icon">
+                <path d="M4 6h12v8H4z"/>
+                <path d="M7 9l2 2 4-4"/>
+              </svg>
+            </button>
+            <div class="file-fab-label">SVG</div>
+          </div>
+        </div>
+      </div>
+      <div id="cad-container"></div>
+      <div class="view-controls">
+        <button class="view-control-button" id="zoomFitButton" type="button" disabled title="Zoom to fit">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7V4h3"/>
+            <path d="M13 4h3v3"/>
+            <path d="M16 13v3h-3"/>
+            <path d="M7 16H4v-3"/>
+            <path d="M8 8h4v4H8z"/>
+          </svg>
+        </button>
+      </div>
     </div>
-
-    <button id="btnZoomFit" class="zoom-btn" title="缩放居中">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <polyline points="9 21 3 21 3 15"></polyline>
-            <line x1="21" y1="3" x2="14" y2="10"></line>
-            <line x1="3" y1="21" x2="10" y2="14"></line>
-        </svg>
-    </button>
-
-    <canvas id="canvas"></canvas>
-</div>
-</body>
+    <div class="status-message" id="statusMessage" hidden></div>
+  </body>
 </html>
