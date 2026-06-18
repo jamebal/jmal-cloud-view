@@ -31,7 +31,7 @@
     "jquery": "^3.5.0",
     "jquery-contextmenu": "^2.9.1",
     "jquery.fancytree": "^2.35.0",
-    "js-cookie": "2.2.0",
+    "js-cookie": "3.0.7",
     "jshint": "^2.11.1",
     "less-loader": "^6.1.0",
     "lib-flexible": "^0.3.2",
