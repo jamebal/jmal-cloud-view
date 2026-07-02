@@ -37,7 +37,8 @@ export function buildDynamicDirectFileUrl({ mark, file, addr, protocol, domain }
 }
 
 export function buildDirectFileExecuteCommand(url) {
-  return `bash <(curl -fsSL '${url}')`
+  const safeUrl = url.replace(/'/g, '%27')
+  return `bash <(curl -fsSL '${safeUrl}')`
 }
 
 function isFilePath(str) {

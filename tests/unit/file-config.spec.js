@@ -56,5 +56,8 @@ describe('file-config direct link helpers', () => {
     expect(
       buildDirectFileExecuteCommand('https://home.example.com/api/direct-file/mark-1/install.sh')
     ).toBe("bash <(curl -fsSL 'https://home.example.com/api/direct-file/mark-1/install.sh')")
+    expect(
+      buildDirectFileExecuteCommand("https://home.example.com/api/direct-file/mark-1/install'test.sh")
+    ).toBe("bash <(curl -fsSL 'https://home.example.com/api/direct-file/mark-1/install%27test.sh')")
   })
 })
