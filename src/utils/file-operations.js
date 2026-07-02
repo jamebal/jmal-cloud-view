@@ -19,7 +19,41 @@ export const directLinkSubMenus = [
   { label: '复制', operation: 'copyDirectLink', iconClass: 'copy-link'},
 ]
 
+export const copyDirectLinkExecuteSubMenu = { label: '复制执行链接', operation: 'copyDirectLinkExecute', iconClass: 'copy-link' }
+
 export const copyDynamicDirectLinkSubMenu = { label: '复制动态地址', operation: 'copyDynamicDirectLink', iconClass: 'copy-link' }
+
+function getFileSuffix(file) {
+  if (!file) {
+    return ''
+  }
+  if (file.suffix) {
+    return file.suffix
+  }
+  if (file.name && file.name.lastIndexOf('.') > -1) {
+    return file.name.substring(file.name.lastIndexOf('.') + 1)
+  }
+  return ''
+}
+
+export function isShellScriptFile(file) {
+  return !!file && file.isFolder !== true && getFileSuffix(file).toLowerCase() === 'sh'
+}
+
+function cloneMenu(menu) {
+  return { ...menu }
+}
+
+export function buildDirectLinkSubMenus(file, dynamicAddressEnabled) {
+  const menus = directLinkSubMenus.map(cloneMenu)
+  if (isShellScriptFile(file)) {
+    menus.push(cloneMenu(copyDirectLinkExecuteSubMenu))
+  }
+  if (dynamicAddressEnabled === true) {
+    menus.push(cloneMenu(copyDynamicDirectLinkSubMenu))
+  }
+  return menus
+}
 
 export const fileArrangements = [
   { label: '名称 - 顺序', operation: 'orderName-ascending', orderProp: 'name', order: 'ascending'},

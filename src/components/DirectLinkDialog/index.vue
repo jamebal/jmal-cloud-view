@@ -34,6 +34,7 @@ function normalizeDirectLinkOptions(optionsOrIsCopy) {
   return {
     copy: !!(optionsOrIsCopy && optionsOrIsCopy.copy),
     mode: (optionsOrIsCopy && optionsOrIsCopy.mode) || 'normal',
+    copyFormat: (optionsOrIsCopy && optionsOrIsCopy.copyFormat) || 'url',
   }
 }
 
@@ -111,7 +112,10 @@ export default {
           : fileConfig.directFileUrl(mark, file)
 
         if (options.copy) {
-          await copyText(this.directUrl)
+          const copyContent = options.copyFormat === 'execute'
+            ? fileConfig.directFileExecuteCommand(this.directUrl)
+            : this.directUrl
+          await copyText(copyContent)
         }
       } catch (error) {
         if (error && error.isHandledMessage) {

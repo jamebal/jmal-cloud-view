@@ -11,7 +11,7 @@ jest.mock('@/utils/index', () => ({
   defaultPreviewConfig: '{}',
 }))
 
-import { buildDirectFilePath, buildDynamicDirectFileUrl } from '@/utils/file-config'
+import { buildDirectFileExecuteCommand, buildDirectFilePath, buildDynamicDirectFileUrl } from '@/utils/file-config'
 
 describe('file-config direct link helpers', () => {
   const file = {
@@ -50,5 +50,11 @@ describe('file-config direct link helpers', () => {
         domain: 'home.example.com',
       })
     ).toBe('https://home.example.com:5678/api/direct-file/mark-1/folder.zip')
+  })
+
+  test('builds shell execute command for direct file url', () => {
+    expect(
+      buildDirectFileExecuteCommand('https://home.example.com/api/direct-file/mark-1/install.sh')
+    ).toBe("bash <(curl -fsSL 'https://home.example.com/api/direct-file/mark-1/install.sh')")
   })
 })
