@@ -1,8 +1,11 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { attachJson5Validation, registerJson5Language, validateJson5Editor } from '@/utils/monaco-json5';
 
 function noop() { }
 
 export { monaco };
+
+registerJson5Language(monaco)
 
 export default {
   name: 'MonacoEditor',
@@ -45,6 +48,7 @@ export default {
       }else{
         monaco.editor.setModelLanguage(this.editor.getModel(), this.language);
       }
+      validateJson5Editor(this.editor, monaco);
     },
 
     theme() {
@@ -72,6 +76,7 @@ export default {
   },
 
   beforeDestroy() {
+    this.json5ValidationDisposable && this.json5ValidationDisposable.dispose();
     this.editor && this.editor.dispose();
   },
 
@@ -121,6 +126,7 @@ export default {
       });
       this.diffEditor && this._setModel(this.value, this.original);
       this._editorMounted(this.editor);      //编辑器初始化后
+      this.json5ValidationDisposable = attachJson5Validation(this.editor, monaco);
     },
 
     onKeyDown(event) {
@@ -153,6 +159,7 @@ export default {
         original: originalModel,
         modified: modifiedModel
       });
+      validateJson5Editor(this.editor, monaco);
     },
 
     _setValue(value) {

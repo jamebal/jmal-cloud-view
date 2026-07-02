@@ -75,6 +75,12 @@ export default {
         event.preventDefault()
         event.stopPropagation()
       }
+      // Ctrl + D / Cmd + D：创建副本
+      if (isCmd && keyCode === 68 && !checkPreviewVisible && !this.inputting && this.selectRowData.length === 1 && !this.rowContextData.isFolder && this.queryFileType !== 'trash') {
+        this.duplicate()
+        event.preventDefault()
+        event.stopPropagation()
+      }
       // ctrl + V / cmd + V
       if (isCmd && keyCode === 86 && !checkPreviewVisible && !this.inputting && this.fileClipboard.length > 0) {
         // copy
