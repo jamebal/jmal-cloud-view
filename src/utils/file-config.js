@@ -36,6 +36,11 @@ export function buildDynamicDirectFileUrl({ mark, file, addr, protocol, domain }
   return `${dynamicAddressUrl.origin}${buildDirectFilePath(mark, file)}`
 }
 
+export function buildDirectFileExecuteCommand(url) {
+  const safeUrl = url.replace(/'/g, '%27')
+  return `bash <(curl -fsSL '${safeUrl}')`
+}
+
 function isFilePath(str) {
   // 匹配 test/r2/file.txt
   const filePathRegex = /^[\w\-\/]+[\u4e00-\u9fa5\w\-]+\.\w+$/;
@@ -218,6 +223,9 @@ export default {
   },
   directFileUrl: function(mark, file) {
     return `${window.location.origin}${buildDirectFilePath(mark, file)}`
+  },
+  directFileExecuteCommand: function(url) {
+    return buildDirectFileExecuteCommand(url)
   },
   dynamicDirectFileUrl: function(mark, file, addr, domain) {
     return buildDynamicDirectFileUrl({

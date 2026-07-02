@@ -1,6 +1,6 @@
 import api from '@/api/file-api'
 import fileConfig from '@/utils/file-config'
-import { copyDynamicDirectLinkSubMenu, directLinkSubMenus, fileOperations } from '@/utils/file-operations'
+import { buildDirectLinkSubMenus, directLinkSubMenus, fileOperations } from '@/utils/file-operations'
 import { suffix } from '@/utils/file-type'
 
 export default {
@@ -108,18 +108,16 @@ export default {
         }
         this.setMenusCopyDownLoadLinks(row)
       }
-      this.syncDirectLinkSubMenus()
+      this.syncDirectLinkSubMenus(row)
       this.preliminaryRowData(row)
     },
-    syncDirectLinkSubMenus() {
+    syncDirectLinkSubMenus(row) {
       const directLinkMenu = this.menus.find(item => item.operation === 'directLink')
       if (!directLinkMenu) {
         return
       }
-      directLinkMenu.child = JSON.parse(JSON.stringify(directLinkSubMenus))
-      if (this.$store.getters.dynamicAddressConfig.enabled === true) {
-        directLinkMenu.child.push(copyDynamicDirectLinkSubMenu)
-      }
+      const dynamicAddressConfig = this.$store.getters.dynamicAddressConfig || {}
+      directLinkMenu.child = buildDirectLinkSubMenus(row, dynamicAddressConfig.enabled === true)
     },
     setFileContextMenusDivider() {
       // 下载栏下面添加分隔符
@@ -323,6 +321,10 @@ export default {
         case 'copyDirectLink':
           // 复制直链
           this.directLinkDialogGetDirectLink(this.rowContextData, true)
+          break
+        case 'copyDirectLinkExecute':
+          // 复制执行链接
+          this.directLinkDialogGetDirectLink(this.rowContextData, { copy: true, copyFormat: 'execute' })
           break
         case 'copyDynamicDirectLink':
           // 复制动态地址
