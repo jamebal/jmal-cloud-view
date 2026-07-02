@@ -1,8 +1,11 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { registerJson5Language } from './monaco-json5';
+
+registerJson5Language(monaco)
 
 export const suffix = {
   simText: [
-    'vue','asp','jsp','TXT',
+    'vue','asp','jsp','TXT','json','json5',
     'xml','xsl','iml','m','bas','prg','cmd',
     'sass','sas','php','lst','key','pem','log',
     'cmake','db','gradle','bat','conf','dart','plist', 'cfg', 'ini', 'sql', 'rst', 'toml', 'vbs', 'yml', 'yaml', 'properties', 'gitignore', 'ts'
@@ -15,7 +18,10 @@ export const suffix = {
 
 monaco.languages.getLanguages().forEach(language => {
   language.extensions.forEach(ext => {
-    suffix.simText.push(ext.substring(1,ext.length))
+    const suffixName = ext.substring(1,ext.length)
+    if (!suffix.simText.includes(suffixName)) {
+      suffix.simText.push(suffixName)
+    }
   })
 })
 
@@ -81,6 +87,7 @@ iconClass.set('pem','file-pem')
 iconClass.set('gz','file-gzip')
 iconClass.set('tar.gz','file-gzip')
 iconClass.set('json','file-json')
+iconClass.set('json5','file-json')
 iconClass.set('tar','file-tar')
 iconClass.set('sh','file-shell')
 iconClass.set('log','file-log')
