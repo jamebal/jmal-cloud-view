@@ -557,7 +557,8 @@
             headers.append('jmal-token', this.$store.state.user.token);
             headers.append('name', this.$store.state.user.name);
           }
-          const response = await fetch(`${url}?${queryString}`, { signal: abortController.signal , headers: headers})
+          headers.append('Content-Type', 'application/x-www-form-urlencoded');
+          const response = await fetch(url, { method: 'POST', signal: abortController.signal, headers: headers, body: queryString})
           let result = "";
           // 创建一个节流函数，限制更新频率为每 1500 毫秒一次
           const throttledUpdateContent = _.throttle(text => {
