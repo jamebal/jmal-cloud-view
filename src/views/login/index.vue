@@ -55,6 +55,7 @@
           <el-form-item v-show="mfaRequired" prop="mfaCode" class="login-input">
             <el-input
               ref="mfaCode"
+              id="totp"
               v-model="loginForm.mfaCode"
               :placeholder="$t('login.mfaCode')"
               type="text"
