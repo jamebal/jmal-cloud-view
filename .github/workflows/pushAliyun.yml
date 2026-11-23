@@ -19,10 +19,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 16.20.2
+      - name: Set up Node.js 20.20.2
         uses: actions/setup-node@v4
         with:
-          node-version: 16.20.2
+          node-version: 20.20.2
 
       - name: Install dependencies
         run: npm install && npm install --save core-js@2
