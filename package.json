@@ -93,6 +93,11 @@
     "vue-kityminder-ggg": "^1.3.10",
     "vue-template-compiler": "2.6.14"
   },
+  "overrides": {
+    "@vue/babel-preset-app": {
+      "@babel/runtime-corejs2": "7.29.15"
+    }
+  },
   "engines": {
     "node": "^16, ^18, ^20"
   },
